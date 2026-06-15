@@ -87,6 +87,7 @@ resource "google_chronicle_data_access_scope" "data_access_scope_test" {
 resource "google_chronicle_rule" "example" {
  location = "us"
  instance = "%{chronicle_id}"
+ scope = resource.google_chronicle_data_access_scope.data_access_scope_test.name
  text = <<-EOT
              rule test_rule { meta: events:  $updated_userid = $e.principal.user.userid  match: $updated_userid over 10m condition: $e }
          EOT
