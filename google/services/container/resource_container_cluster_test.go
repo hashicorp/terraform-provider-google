@@ -5772,6 +5772,61 @@ func TestAccContainerCluster_withAdvancedDatapath(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_dataplaneOptimizationMode(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_dataplaneOptimizationMode(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "datapath_provider", "ADVANCED_DATAPATH"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "dataplane_optimization_mode", "SCALE_OPTIMIZED"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "remove_default_node_pool"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_dataplaneOptimizationMode(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  network    = "%s"
+  subnetwork = "%s"
+
+  networking_mode = "VPC_NATIVE"
+  datapath_provider = "ADVANCED_DATAPATH"
+  dataplane_optimization_mode = "SCALE_OPTIMIZED"
+
+  ip_allocation_policy {
+    cluster_ipv4_cidr_block  = "/14"
+    services_ipv4_cidr_block = "/20"
+  }
+
+  remove_default_node_pool = false
+  
+  deletion_protection = false
+}
+`, clusterName, networkName, subnetworkName)
+}
+
 func TestAccContainerCluster_enableCiliumPolicies(t *testing.T) {
 	t.Parallel()
 
