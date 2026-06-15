@@ -18,7 +18,6 @@ package compute_test
 
 import (
 	"fmt"
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -35,8 +34,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
-
-	"google.golang.org/api/compute/v1"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 const DEFAULT_MIN_CPU_TEST_VALUE = "Intel Haswell"
@@ -44,7 +42,7 @@ const DEFAULT_MIN_CPU_TEST_VALUE = "Intel Haswell"
 func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -76,7 +74,7 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 func TestAccComputeInstanceTemplate_imageShorthand(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	context := map[string]interface{}{
 		"template":        "tf-test-instance-template-" + acctest.RandString(t, 10),
@@ -110,7 +108,7 @@ func TestAccComputeInstanceTemplate_imageShorthand(t *testing.T) {
 func TestAccComputeInstanceTemplate_metadataGceContainerDeclaration(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -139,7 +137,7 @@ func TestAccComputeInstanceTemplate_metadataGceContainerDeclaration(t *testing.T
 func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -167,7 +165,7 @@ func TestAccComputeInstanceTemplate_preemptible(t *testing.T) {
 func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -194,7 +192,7 @@ func TestAccComputeInstanceTemplate_IP(t *testing.T) {
 func TestAccComputeInstanceTemplate_IPv6(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -240,7 +238,7 @@ func TestAccComputeInstanceTemplate_networkTier(t *testing.T) {
 func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	networkIP := "10.128.0.2"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -270,7 +268,7 @@ func TestAccComputeInstanceTemplate_networkIP(t *testing.T) {
 func TestAccComputeInstanceTemplate_networkIPAddress(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	ipAddress := "10.128.0.2"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -396,7 +394,7 @@ func TestAccComputeInstanceTemplate_diskIopsThroughput(t *testing.T) {
 func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	network := "tf-test-network-" + acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -424,7 +422,7 @@ func TestAccComputeInstanceTemplate_subnet_auto(t *testing.T) {
 func TestAccComputeInstanceTemplate_subnet_custom(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -453,7 +451,7 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	org := envvar.GetTestOrgFromEnv(t)
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	projectName := fmt.Sprintf("tf-testxpn-%d", time.Now().Unix())
@@ -482,7 +480,7 @@ func TestAccComputeInstanceTemplate_subnet_xpn(t *testing.T) {
 func TestAccComputeInstanceTemplate_metadata_startup_script(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -504,7 +502,7 @@ func TestAccComputeInstanceTemplate_metadata_startup_script(t *testing.T) {
 func TestAccComputeInstanceTemplate_primaryAliasIpRange(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -530,7 +528,7 @@ func TestAccComputeInstanceTemplate_primaryAliasIpRange(t *testing.T) {
 func TestAccComputeInstanceTemplate_secondaryAliasIpRange(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -556,7 +554,7 @@ func TestAccComputeInstanceTemplate_secondaryAliasIpRange(t *testing.T) {
 func TestAccComputeInstanceTemplate_guestAccelerator(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -583,7 +581,7 @@ func TestAccComputeInstanceTemplate_guestAccelerator(t *testing.T) {
 func TestAccComputeInstanceTemplate_guestAcceleratorSkip(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -605,7 +603,7 @@ func TestAccComputeInstanceTemplate_guestAcceleratorSkip(t *testing.T) {
 func TestAccComputeInstanceTemplate_minCpuPlatform(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -631,7 +629,7 @@ func TestAccComputeInstanceTemplate_minCpuPlatform(t *testing.T) {
 func TestAccComputeInstanceTemplate_EncryptKMS(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	bootstrapped := kms.BootstrapKMSKey(t)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -678,7 +676,7 @@ func TestAccComputeInstanceTemplate_soleTenantNodeAffinities(t *testing.T) {
 func TestAccComputeInstanceTemplate_instanceResourcePolicies(t *testing.T) {
 	t.Parallel()
 
-	var template compute.InstanceTemplate
+	var template map[string]interface{}
 	var policyName = "tf-test-policy-" + acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -705,7 +703,7 @@ func TestAccComputeInstanceTemplate_instanceResourcePolicies(t *testing.T) {
 func TestAccComputeInstanceTemplate_instanceResourcePoliciesSpread(t *testing.T) {
 	t.Parallel()
 
-	var template compute.InstanceTemplate
+	var template map[string]interface{}
 	var policyName = "tf-test-policy-" + acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -733,7 +731,7 @@ func TestAccComputeInstanceTemplate_instanceResourcePoliciesSpread(t *testing.T)
 func TestAccComputeInstanceTemplate_reservationAffinities(t *testing.T) {
 	t.Parallel()
 
-	var template compute.InstanceTemplate
+	var template map[string]interface{}
 	var templateName = acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -784,7 +782,7 @@ func TestAccComputeInstanceTemplate_reservationAffinities(t *testing.T) {
 func TestAccComputeInstanceTemplate_shieldedVmConfig1(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -810,7 +808,7 @@ func TestAccComputeInstanceTemplate_shieldedVmConfig1(t *testing.T) {
 func TestAccComputeInstanceTemplate_shieldedVmConfig2(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -836,8 +834,8 @@ func TestAccComputeInstanceTemplate_shieldedVmConfig2(t *testing.T) {
 func TestAccComputeInstanceTemplate_ConfidentialInstanceConfigMain(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
-	var instanceTemplate2 compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
+	var instanceTemplate2 map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -876,7 +874,7 @@ func TestAccComputeInstanceTemplate_ConfidentialInstanceConfigMain(t *testing.T)
 func TestAccComputeInstanceTemplate_AdvancedMachineFeatures(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -896,7 +894,7 @@ func TestAccComputeInstanceTemplate_AdvancedMachineFeatures(t *testing.T) {
 func TestAccComputeInstanceTemplate_performanceMonitoringUnit(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	context_1 := map[string]interface{}{
 		"instance_name":               fmt.Sprintf("tf-test-instance-template-%s", acctest.RandString(t, 10)),
 		"performance_monitoring_unit": "STANDARD",
@@ -942,7 +940,7 @@ func TestAccComputeInstanceTemplate_performanceMonitoringUnit(t *testing.T) {
 func TestAccComputeInstanceTemplate_enableUefiNetworking(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	context_1 := map[string]interface{}{
 		"instance_name":          fmt.Sprintf("tf-test-instance-template-%s", acctest.RandString(t, 10)),
 		"enable_uefi_networking": "false",
@@ -1116,7 +1114,7 @@ func TestAccComputeInstanceTemplate_imageResourceTest(t *testing.T) {
 func TestAccComputeInstanceTemplate_diskResourcePolicies(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	policyName := "tf-test-policy-" + acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1144,7 +1142,7 @@ func TestAccComputeInstanceTemplate_diskResourcePolicies(t *testing.T) {
 func TestAccComputeInstanceTemplate_nictype_update(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	var instanceTemplateName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1173,7 +1171,7 @@ func TestAccComputeInstanceTemplate_nictype_update(t *testing.T) {
 func TestAccComputeInstanceTemplate_queueCount(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	var instanceTemplateName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1195,7 +1193,7 @@ func TestAccComputeInstanceTemplate_queueCount(t *testing.T) {
 func TestAccComputeInstanceTemplate_managedEnvoy(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1222,7 +1220,7 @@ func TestAccComputeInstanceTemplate_managedEnvoy(t *testing.T) {
 func TestAccComputeInstanceTemplate_spot(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -1250,11 +1248,12 @@ func TestAccComputeInstanceTemplate_spot(t *testing.T) {
 func TestAccComputeInstanceTemplate_spot_maxRunDuration_deleteTerminationAction(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
-	var expectedMaxRunDuration = compute.Duration{}
+	var instanceTemplate map[string]interface{}
 	// Define in testAccComputeInstanceTemplate_spot
-	expectedMaxRunDuration.Nanos = 123
-	expectedMaxRunDuration.Seconds = 60
+	expectedMaxRunDuration := map[string]interface{}{
+		"nanos":   int64(123),
+		"seconds": int64(60),
+	}
 	var instanceTerminationAction = "DELETE"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1286,11 +1285,12 @@ func TestAccComputeInstanceTemplate_spot_maxRunDuration_deleteTerminationAction(
 func TestAccComputeInstanceTemplate_spot_maxRunDuration_stopTerminationAction(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
-	var expectedMaxRunDuration = compute.Duration{}
+	var instanceTemplate map[string]interface{}
 	// Define in testAccComputeInstanceTemplate_spot
-	expectedMaxRunDuration.Nanos = 123
-	expectedMaxRunDuration.Seconds = 60
+	expectedMaxRunDuration := map[string]interface{}{
+		"nanos":   int64(123),
+		"seconds": int64(60),
+	}
 	var instanceTerminationAction = "STOP"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1322,11 +1322,12 @@ func TestAccComputeInstanceTemplate_spot_maxRunDuration_stopTerminationAction(t 
 func TestAccComputeInstanceTemplate_maxRunDuration_onInstanceStopAction(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
-	var expectedMaxRunDuration = compute.Duration{}
+	var instanceTemplate map[string]interface{}
 	// Define in testAccComputeInstanceTemplate_maxRunDuration_onInstanceStopAction
-	expectedMaxRunDuration.Nanos = 123
-	expectedMaxRunDuration.Seconds = 600
+	expectedMaxRunDuration := map[string]interface{}{
+		"nanos":   int64(123),
+		"seconds": int64(600),
+	}
 	var instanceTerminationAction = "STOP"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1358,7 +1359,7 @@ func TestAccComputeInstanceTemplate_instanceTerminationAction_terminationTime(t 
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	now := time.Now().UTC()
 	terminationTime := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 9999, now.Location()).Format(time.RFC3339)
 	var instanceTerminationAction = "STOP"
@@ -1389,11 +1390,12 @@ func TestAccComputeInstanceTemplate_instanceTerminationAction_terminationTime(t 
 func TestAccComputeInstanceTemplate_spot_maxRunDuration(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
-	var expectedMaxRunDuration = compute.Duration{}
+	var instanceTemplate map[string]interface{}
 	// Define in testAccComputeInstanceTemplate_spot
-	expectedMaxRunDuration.Nanos = 123
-	expectedMaxRunDuration.Seconds = 60
+	expectedMaxRunDuration := map[string]interface{}{
+		"nanos":   int64(123),
+		"seconds": int64(60),
+	}
 	var instanceTerminationAction = "DELETE"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1425,10 +1427,11 @@ func TestAccComputeInstanceTemplate_spot_maxRunDuration(t *testing.T) {
 func TestAccComputeInstanceTemplate_localSsdRecoveryTimeout(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
-	var expectedLocalSsdRecoveryTimeout = compute.Duration{}
-	expectedLocalSsdRecoveryTimeout.Nanos = 0
-	expectedLocalSsdRecoveryTimeout.Seconds = 3600
+	var instanceTemplate map[string]interface{}
+	expectedLocalSsdRecoveryTimeout := map[string]interface{}{
+		"nanos":   int64(0),
+		"seconds": int64(3600),
+	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1456,7 +1459,7 @@ func TestAccComputeInstanceTemplate_localSsdRecoveryTimeout(t *testing.T) {
 func TestAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	kmsKey := kms.BootstrapKMSKeyInLocation(t, "us-central1")
 
 	context := map[string]interface{}{
@@ -1518,7 +1521,7 @@ func TestAccComputeInstanceTemplate_sourceSnapshotEncryptionKey(t *testing.T) {
 func TestAccComputeInstanceTemplate_sourceImageEncryptionKey(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	kmsKey := kms.BootstrapKMSKeyInLocation(t, "us-central1")
 
 	context := map[string]interface{}{
@@ -1614,8 +1617,8 @@ func TestAccComputeInstanceTemplate_migration(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
-	var instanceTemplateUpdate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
+	var instanceTemplateUpdate map[string]interface{}
 
 	suffix := acctest.RandString(t, 10)
 	oldVersion := map[string]resource.ExternalProvider{
@@ -1657,7 +1660,7 @@ func TestAccComputeInstanceTemplate_migration(t *testing.T) {
 func TestAccComputeInstanceTemplate_GuestOsFeatures(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	context := map[string]interface{}{
 		"template_name":     fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"guest_os_features": `["UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "GVNIC", "IDPF"]`,
@@ -1688,8 +1691,8 @@ func TestAccComputeInstanceTemplate_withLabels(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
-	var instanceTemplateUpdate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
+	var instanceTemplateUpdate map[string]interface{}
 	suffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1746,7 +1749,7 @@ func TestAccComputeInstanceTemplate_withLabels(t *testing.T) {
 func TestAccComputeInstanceTemplate_resourceManagerTags(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	var instanceTemplateName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
@@ -1772,7 +1775,7 @@ func TestAccComputeInstanceTemplate_resourceManagerTags(t *testing.T) {
 func TestAccComputeInstanceTemplate_keyRevocationActionType(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	context_1 := map[string]interface{}{
 		"instance_name":              fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"key_revocation_action_type": `"NONE"`,
@@ -1904,7 +1907,7 @@ resource "google_compute_instance_template" "foobar" {
 func TestAccComputeInstanceTemplate_storagePool(t *testing.T) {
 	t.Parallel()
 
-	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplate map[string]interface{}
 	suffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1933,11 +1936,18 @@ func TestAccComputeInstanceTemplate_storagePool(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeInstanceTemplateHasDiskStoragePool(instanceTemplate *compute.InstanceTemplate, poolName string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasDiskStoragePool(instanceTemplate *map[string]interface{}, poolName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, disk := range instanceTemplate.Properties.Disks {
-			if disk.InitializeParams != nil && strings.Contains(disk.InitializeParams.StoragePool, poolName) {
-				return nil
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		disks, _ := props["disks"].([]interface{})
+		for _, rawDisk := range disks {
+			disk, _ := rawDisk.(map[string]interface{})
+			initParams, ok := disk["initializeParams"].(map[string]interface{})
+			if ok {
+				storagePool, _ := initParams["storagePool"].(string)
+				if strings.Contains(storagePool, poolName) {
+					return nil
+				}
 			}
 		}
 		return fmt.Errorf("Storage pool %s not found in instance template disks", poolName)
@@ -2036,8 +2046,12 @@ func testAccCheckComputeInstanceTemplateDestroyProducer(t *testing.T) func(s *te
 			}
 
 			splits := strings.Split(rs.Primary.ID, "/")
-			_, err := tpgcompute.NewClient(config, config.UserAgent).InstanceTemplates.Get(
-				config.Project, splits[len(splits)-1]).Do()
+			url := fmt.Sprintf("%sprojects/%s/global/instanceTemplates/%s",
+				transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, splits[len(splits)-1])
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config: config, Method: "GET", Project: config.Project,
+				RawURL: url, UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("Instance template still exists")
 			}
@@ -2052,10 +2066,10 @@ func testAccCheckComputeInstanceTemplateExists(t *testing.T, n string, instanceT
 		panic("Attempted to check existence of Instance template that was nil.")
 	}
 
-	return testAccCheckComputeInstanceTemplateExistsInProject(t, n, envvar.GetTestProjectFromEnv(), instanceTemplate.(*compute.InstanceTemplate))
+	return testAccCheckComputeInstanceTemplateExistsInProject(t, n, envvar.GetTestProjectFromEnv(), instanceTemplate.(*map[string]interface{}))
 }
 
-func testAccCheckComputeInstanceTemplateExistsInProject(t *testing.T, n, p string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateExistsInProject(t *testing.T, n, p string, instanceTemplate *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -2070,14 +2084,18 @@ func testAccCheckComputeInstanceTemplateExistsInProject(t *testing.T, n, p strin
 
 		splits := strings.Split(rs.Primary.ID, "/")
 		templateName := splits[len(splits)-1]
-		found, err := tpgcompute.NewClient(config, config.UserAgent).InstanceTemplates.Get(
-			p, templateName).Do()
+		url := fmt.Sprintf("%sprojects/%s/global/instanceTemplates/%s",
+			transport_tpg.BaseUrl(tpgcompute.Product, config), p, templateName)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config: config, Method: "GET", Project: p,
+			RawURL: url, UserAgent: config.UserAgent,
+		})
 
 		if err != nil {
 			return err
 		}
 
-		if found.Name != templateName {
+		if found["name"].(string) != templateName {
 			return fmt.Errorf("Instance template not found")
 		}
 		if strings.Contains(rs.Primary.ID, "uniqueId") {
@@ -2089,47 +2107,81 @@ func testAccCheckComputeInstanceTemplateExistsInProject(t *testing.T, n, p strin
 		}
 
 		actualSelfLinkUnique := rs.Primary.Attributes["self_link_unique"]
-		foundId := strconv.FormatUint(found.Id, 10)
+		var foundId string
+		switch v := found["id"].(type) {
+		case string:
+			foundId = v
+		case float64:
+			foundId = fmt.Sprintf("%.0f", v)
+		default:
+			foundId = fmt.Sprintf("%v", v)
+		}
 		expectedSelfLinkUnique := selfLink + "?uniqueId=" + foundId
 		if actualSelfLinkUnique != expectedSelfLinkUnique {
 			return fmt.Errorf("self_link_unique should be %v but it is: %v", expectedSelfLinkUnique, actualSelfLinkUnique)
 		}
 
-		*instanceTemplate = *found
+		*instanceTemplate = found
 
 		return nil
 	}
 }
 
+func getInt64Field(v interface{}) int64 {
+	switch t := v.(type) {
+	case int64:
+		return t
+	case float64:
+		return int64(t)
+	case string:
+		i, _ := strconv.ParseInt(t, 10, 64)
+		return i
+	default:
+		return 0
+	}
+}
+
 func testAccCheckComputeInstanceTemplateMetadata(
-	instanceTemplate *compute.InstanceTemplate,
+	instanceTemplate *map[string]interface{},
 	k string, v string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.Metadata == nil {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		meta, ok := props["metadata"].(map[string]interface{})
+		if !ok {
 			return fmt.Errorf("no metadata")
 		}
 
-		for _, item := range instanceTemplate.Properties.Metadata.Items {
-			if k != item.Key {
+		items, _ := meta["items"].([]interface{})
+		for _, raw := range items {
+			item, _ := raw.(map[string]interface{})
+			key, _ := item["key"].(string)
+			if k != key {
 				continue
 			}
 
-			if item.Value != nil && v == *item.Value {
+			val, _ := item["value"].(string)
+			if v == val {
 				return nil
 			}
 
-			return fmt.Errorf("bad value for %s: %s", k, *item.Value)
+			return fmt.Errorf("bad value for %s: %s", k, val)
 		}
 
 		return fmt.Errorf("metadata not found: %s", k)
 	}
 }
 
-func testAccCheckComputeInstanceTemplateNetwork(instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateNetwork(instanceTemplate *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instanceTemplate.Properties.NetworkInterfaces {
-			for _, c := range i.AccessConfigs {
-				if c.NatIP == "" {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		nics, _ := props["networkInterfaces"].([]interface{})
+		for _, rawNi := range nics {
+			ni, _ := rawNi.(map[string]interface{})
+			acs, _ := ni["accessConfigs"].([]interface{})
+			for _, rawAc := range acs {
+				ac, _ := rawAc.(map[string]interface{})
+				natIP, _ := ac["natIP"].(string)
+				if natIP == "" {
 					return fmt.Errorf("no NAT IP")
 				}
 			}
@@ -2139,11 +2191,15 @@ func testAccCheckComputeInstanceTemplateNetwork(instanceTemplate *compute.Instan
 	}
 }
 
-func testAccCheckComputeInstanceTemplateNetworkName(instanceTemplate *compute.InstanceTemplate, network string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateNetworkName(instanceTemplate *map[string]interface{}, network string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instanceTemplate.Properties.NetworkInterfaces {
-			if !strings.Contains(i.Network, network) {
-				return fmt.Errorf("Network doesn't match expected value, Expected: %s Actual: %s", network, i.Network[strings.LastIndex("/", i.Network)+1:])
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		nics, _ := props["networkInterfaces"].([]interface{})
+		for _, rawNi := range nics {
+			ni, _ := rawNi.(map[string]interface{})
+			iNetwork, _ := ni["network"].(string)
+			if !strings.Contains(iNetwork, network) {
+				return fmt.Errorf("Network doesn't match expected value, Expected: %s Actual: %s", network, iNetwork[strings.LastIndex("/", iNetwork)+1:])
 			}
 		}
 
@@ -2151,10 +2207,14 @@ func testAccCheckComputeInstanceTemplateNetworkName(instanceTemplate *compute.In
 	}
 }
 
-func testAccCheckComputeInstanceTemplateSubnetwork(instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateSubnetwork(instanceTemplate *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, i := range instanceTemplate.Properties.NetworkInterfaces {
-			if i.Subnetwork == "" {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		nics, _ := props["networkInterfaces"].([]interface{})
+		for _, rawNi := range nics {
+			ni, _ := rawNi.(map[string]interface{})
+			subnetwork, _ := ni["subnetwork"].(string)
+			if subnetwork == "" {
 				return fmt.Errorf("no subnet")
 			}
 		}
@@ -2163,13 +2223,17 @@ func testAccCheckComputeInstanceTemplateSubnetwork(instanceTemplate *compute.Ins
 	}
 }
 
-func testAccCheckComputeInstanceTemplateTag(instanceTemplate *compute.InstanceTemplate, n string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateTag(instanceTemplate *map[string]interface{}, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.Tags == nil {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		tags, ok := props["tags"].(map[string]interface{})
+		if !ok {
 			return fmt.Errorf("no tags")
 		}
 
-		for _, k := range instanceTemplate.Properties.Tags.Items {
+		items, _ := tags["items"].([]interface{})
+		for _, raw := range items {
+			k, _ := raw.(string)
 			if k == n {
 				return nil
 			}
@@ -2179,102 +2243,140 @@ func testAccCheckComputeInstanceTemplateTag(instanceTemplate *compute.InstanceTe
 	}
 }
 
-func testAccCheckComputeInstanceTemplatePreemptible(instanceTemplate *compute.InstanceTemplate, preemptible bool) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplatePreemptible(instanceTemplate *map[string]interface{}, preemptible bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.Scheduling.Preemptible != preemptible {
-			return fmt.Errorf("Expected preemptible value %v, got %v", preemptible, instanceTemplate.Properties.Scheduling.Preemptible)
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		sched, _ := props["scheduling"].(map[string]interface{})
+		actual, _ := sched["preemptible"].(bool)
+		if actual != preemptible {
+			return fmt.Errorf("Expected preemptible value %v, got %v", preemptible, actual)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateProvisioningModel(instanceTemplate *compute.InstanceTemplate, provisioning_model string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateProvisioningModel(instanceTemplate *map[string]interface{}, provisioning_model string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.Scheduling.ProvisioningModel != provisioning_model {
-			return fmt.Errorf("Expected provisioning_model  %v, got %v", provisioning_model, instanceTemplate.Properties.Scheduling.ProvisioningModel)
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		sched, _ := props["scheduling"].(map[string]interface{})
+		actual, _ := sched["provisioningModel"].(string)
+		if actual != provisioning_model {
+			return fmt.Errorf("Expected provisioning_model  %v, got %v", provisioning_model, actual)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateInstanceTerminationAction(instanceTemplate *compute.InstanceTemplate, instance_termination_action string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateInstanceTerminationAction(instanceTemplate *map[string]interface{}, instance_termination_action string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.Scheduling.InstanceTerminationAction != instance_termination_action {
-			return fmt.Errorf("Expected instance_termination_action  %v, got %v", instance_termination_action, instanceTemplate.Properties.Scheduling.InstanceTerminationAction)
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		sched, _ := props["scheduling"].(map[string]interface{})
+		actual, _ := sched["instanceTerminationAction"].(string)
+		if actual != instance_termination_action {
+			return fmt.Errorf("Expected instance_termination_action  %v, got %v", instance_termination_action, actual)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateInstanceTerminationTime(instanceTemplate *compute.InstanceTemplate, termination_time string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateInstanceTerminationTime(instanceTemplate *map[string]interface{}, termination_time string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.Scheduling.TerminationTime != termination_time {
-			return fmt.Errorf("Expected instance_termination_time  %v, got %v", termination_time, instanceTemplate.Properties.Scheduling.TerminationTime)
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		sched, _ := props["scheduling"].(map[string]interface{})
+		actual, _ := sched["terminationTime"].(string)
+		if actual != termination_time {
+			return fmt.Errorf("Expected instance_termination_time  %v, got %v", termination_time, actual)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateMaxRunDuration(instanceTemplate *compute.InstanceTemplate, instance_max_run_duration_want compute.Duration) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateMaxRunDuration(instanceTemplate *map[string]interface{}, instance_max_run_duration_want map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if !reflect.DeepEqual(*instanceTemplate.Properties.Scheduling.MaxRunDuration, instance_max_run_duration_want) {
-			return fmt.Errorf("gExpected instance_termination_action: %#v; got %#v", instance_max_run_duration_want, instanceTemplate.Properties.Scheduling.MaxRunDuration)
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		sched, _ := props["scheduling"].(map[string]interface{})
+		maxRunDuration, _ := sched["maxRunDuration"].(map[string]interface{})
+		wantNanos, _ := instance_max_run_duration_want["nanos"].(int64)
+		wantSeconds, _ := instance_max_run_duration_want["seconds"].(int64)
+		gotNanos := getInt64Field(maxRunDuration["nanos"])
+		gotSeconds := getInt64Field(maxRunDuration["seconds"])
+		if wantNanos != gotNanos || wantSeconds != gotSeconds {
+			return fmt.Errorf("gExpected instance_termination_action: %#v; got nanos=%d seconds=%d", instance_max_run_duration_want, gotNanos, gotSeconds)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateLocalSsdRecoveryTimeout(instanceTemplate *compute.InstanceTemplate, instance_local_ssd_recovery_timeout_want compute.Duration) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateLocalSsdRecoveryTimeout(instanceTemplate *map[string]interface{}, instance_local_ssd_recovery_timeout_want map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if !reflect.DeepEqual(*instanceTemplate.Properties.Scheduling.LocalSsdRecoveryTimeout, instance_local_ssd_recovery_timeout_want) {
-			return fmt.Errorf("gExpected LocalSsdRecoveryTimeout: %#v; got %#v", instance_local_ssd_recovery_timeout_want, instanceTemplate.Properties.Scheduling.LocalSsdRecoveryTimeout)
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		sched, _ := props["scheduling"].(map[string]interface{})
+		timeout, _ := sched["localSsdRecoveryTimeout"].(map[string]interface{})
+		wantNanos, _ := instance_local_ssd_recovery_timeout_want["nanos"].(int64)
+		wantSeconds, _ := instance_local_ssd_recovery_timeout_want["seconds"].(int64)
+		gotNanos := getInt64Field(timeout["nanos"])
+		gotSeconds := getInt64Field(timeout["seconds"])
+		if wantNanos != gotNanos || wantSeconds != gotSeconds {
+			return fmt.Errorf("gExpected LocalSsdRecoveryTimeout: %#v; got nanos=%d seconds=%d", instance_local_ssd_recovery_timeout_want, gotNanos, gotSeconds)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateAutomaticRestart(instanceTemplate *compute.InstanceTemplate, automaticRestart bool) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateAutomaticRestart(instanceTemplate *map[string]interface{}, automaticRestart bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		ar := instanceTemplate.Properties.Scheduling.AutomaticRestart
-		if ar == nil {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		sched, _ := props["scheduling"].(map[string]interface{})
+		ar, ok := sched["automaticRestart"]
+		if !ok {
 			return fmt.Errorf("Expected to see a value for AutomaticRestart, but got nil")
 		}
-		if *ar != automaticRestart {
-			return fmt.Errorf("Expected automatic restart value %v, got %v", automaticRestart, ar)
+		arBool, _ := ar.(bool)
+		if arBool != automaticRestart {
+			return fmt.Errorf("Expected automatic restart value %v, got %v", automaticRestart, arBool)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateStartupScript(instanceTemplate *compute.InstanceTemplate, n string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateStartupScript(instanceTemplate *map[string]interface{}, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.Metadata == nil && n == "" {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		meta, ok := props["metadata"].(map[string]interface{})
+		if !ok && n == "" {
 			return nil
-		} else if instanceTemplate.Properties.Metadata == nil && n != "" {
+		} else if !ok && n != "" {
 			return fmt.Errorf("Expected metadata.startup-script to be '%s', metadata wasn't set at all", n)
 		}
-		for _, item := range instanceTemplate.Properties.Metadata.Items {
-			if item.Key != "startup-script" {
+		items, _ := meta["items"].([]interface{})
+		for _, rawItem := range items {
+			item, _ := rawItem.(map[string]interface{})
+			key, _ := item["key"].(string)
+			if key != "startup-script" {
 				continue
 			}
-			if item.Value != nil && *item.Value == n {
+			val, hasVal := item["value"].(string)
+			if hasVal && val == n {
 				return nil
-			} else if item.Value == nil && n == "" {
+			} else if !hasVal && n == "" {
 				return nil
-			} else if item.Value == nil && n != "" {
+			} else if !hasVal && n != "" {
 				return fmt.Errorf("Expected metadata.startup-script to be '%s', wasn't set", n)
-			} else if *item.Value != n {
-				return fmt.Errorf("Expected metadata.startup-script to be '%s', got '%s'", n, *item.Value)
+			} else if val != n {
+				return fmt.Errorf("Expected metadata.startup-script to be '%s', got '%s'", n, val)
 			}
 		}
 		return fmt.Errorf("This should never be reached.")
 	}
 }
 
-func testAccCheckComputeInstanceTemplateNetworkIP(n, networkIP string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateNetworkIP(n, networkIP string, instanceTemplate *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		ip := instanceTemplate.Properties.NetworkInterfaces[0].NetworkIP
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		nics, _ := props["networkInterfaces"].([]interface{})
+		ni0, _ := nics[0].(map[string]interface{})
+		ip, _ := ni0["networkIP"].(string)
 		err := resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", ip)(s)
 		if err != nil {
 			return err
@@ -2283,9 +2385,12 @@ func testAccCheckComputeInstanceTemplateNetworkIP(n, networkIP string, instanceT
 	}
 }
 
-func testAccCheckComputeInstanceTemplateNetworkIPAddress(n, ipAddress string, instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateNetworkIPAddress(n, ipAddress string, instanceTemplate *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		ip := instanceTemplate.Properties.NetworkInterfaces[0].NetworkIP
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		nics, _ := props["networkInterfaces"].([]interface{})
+		ni0, _ := nics[0].(map[string]interface{})
+		ip, _ := ni0["networkIP"].(string)
 		err := resource.TestCheckResourceAttr(n, "network_interface.0.network_ip", ip)(s)
 		if err != nil {
 			return err
@@ -2294,24 +2399,34 @@ func testAccCheckComputeInstanceTemplateNetworkIPAddress(n, ipAddress string, in
 	}
 }
 
-func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *compute.InstanceTemplate, key string, value string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateContainsLabel(instanceTemplate *map[string]interface{}, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		v, ok := instanceTemplate.Properties.Labels[key]
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		labels, _ := props["labels"].(map[string]interface{})
+		v, ok := labels[key]
 		if !ok {
 			return fmt.Errorf("Expected label with key '%s' not found", key)
 		}
-		if v != value {
-			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		vStr, _ := v.(string)
+		if vStr != value {
+			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, vStr)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasAliasIpRange(instanceTemplate *compute.InstanceTemplate, subnetworkRangeName, iPCidrRange string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasAliasIpRange(instanceTemplate *map[string]interface{}, subnetworkRangeName, iPCidrRange string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, networkInterface := range instanceTemplate.Properties.NetworkInterfaces {
-			for _, aliasIpRange := range networkInterface.AliasIpRanges {
-				if aliasIpRange.SubnetworkRangeName == subnetworkRangeName && (aliasIpRange.IpCidrRange == iPCidrRange || tpgcompute.IpCidrRangeDiffSuppress("ip_cidr_range", aliasIpRange.IpCidrRange, iPCidrRange, nil)) {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		nics, _ := props["networkInterfaces"].([]interface{})
+		for _, rawNi := range nics {
+			ni, _ := rawNi.(map[string]interface{})
+			aliasRanges, _ := ni["aliasIpRanges"].([]interface{})
+			for _, rawRange := range aliasRanges {
+				aliasRange, _ := rawRange.(map[string]interface{})
+				sn, _ := aliasRange["subnetworkRangeName"].(string)
+				cidr, _ := aliasRange["ipCidrRange"].(string)
+				if sn == subnetworkRangeName && (cidr == iPCidrRange || tpgcompute.IpCidrRangeDiffSuppress("ip_cidr_range", cidr, iPCidrRange, nil)) {
 					return nil
 				}
 			}
@@ -2321,27 +2436,34 @@ func testAccCheckComputeInstanceTemplateHasAliasIpRange(instanceTemplate *comput
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasGuestAccelerator(instanceTemplate *compute.InstanceTemplate, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasGuestAccelerator(instanceTemplate *map[string]interface{}, acceleratorType string, acceleratorCount int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if len(instanceTemplate.Properties.GuestAccelerators) != 1 {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		accels, _ := props["guestAccelerators"].([]interface{})
+		if len(accels) != 1 {
 			return fmt.Errorf("Expected only one guest accelerator")
 		}
 
-		if !strings.HasSuffix(instanceTemplate.Properties.GuestAccelerators[0].AcceleratorType, acceleratorType) {
-			return fmt.Errorf("Wrong accelerator type: expected %v, got %v", acceleratorType, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorType)
+		a, _ := accels[0].(map[string]interface{})
+		aType, _ := a["acceleratorType"].(string)
+		if !strings.HasSuffix(aType, acceleratorType) {
+			return fmt.Errorf("Wrong accelerator type: expected %v, got %v", acceleratorType, aType)
 		}
 
-		if instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount != acceleratorCount {
-			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, instanceTemplate.Properties.GuestAccelerators[0].AcceleratorCount)
+		aCount := int64(a["acceleratorCount"].(float64))
+		if aCount != acceleratorCount {
+			return fmt.Errorf("Wrong accelerator acceleratorCount: expected %d, got %d", acceleratorCount, aCount)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateLacksGuestAccelerator(instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateLacksGuestAccelerator(instanceTemplate *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if len(instanceTemplate.Properties.GuestAccelerators) > 0 {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		accels, _ := props["guestAccelerators"].([]interface{})
+		if len(accels) > 0 {
 			return fmt.Errorf("Expected no guest accelerators")
 		}
 
@@ -2349,20 +2471,26 @@ func testAccCheckComputeInstanceTemplateLacksGuestAccelerator(instanceTemplate *
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *compute.InstanceTemplate, minCpuPlatform string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasMinCpuPlatform(instanceTemplate *map[string]interface{}, minCpuPlatform string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.MinCpuPlatform != minCpuPlatform {
-			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, instanceTemplate.Properties.MinCpuPlatform)
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		actual, _ := props["minCpuPlatform"].(string)
+		if actual != minCpuPlatform {
+			return fmt.Errorf("Wrong minimum CPU platform: expected %s, got %s", minCpuPlatform, actual)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasNetworkAttachment(instanceTemplate *compute.InstanceTemplate, networkAttachmentName string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasNetworkAttachment(instanceTemplate *map[string]interface{}, networkAttachmentName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, networkInterface := range instanceTemplate.Properties.NetworkInterfaces {
-			if networkInterface.NetworkAttachment != "" && networkInterface.NetworkAttachment == networkAttachmentName {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		nics, _ := props["networkInterfaces"].([]interface{})
+		for _, rawNi := range nics {
+			ni, _ := rawNi.(map[string]interface{})
+			na, _ := ni["networkAttachment"].(string)
+			if na != "" && na == networkAttachmentName {
 				return nil
 			}
 		}
@@ -2370,9 +2498,11 @@ func testAccCheckComputeInstanceTemplateHasNetworkAttachment(instanceTemplate *c
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasInstanceResourcePolicies(instanceTemplate *compute.InstanceTemplate, resourcePolicy string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasInstanceResourcePolicies(instanceTemplate *map[string]interface{}, resourcePolicy string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		resourcePolicyActual := instanceTemplate.Properties.ResourcePolicies[0]
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		rps, _ := props["resourcePolicies"].([]interface{})
+		resourcePolicyActual, _ := rps[0].(string)
 		if resourcePolicyActual != resourcePolicy {
 			return fmt.Errorf("Wrong instance resource policy: expected %s, got %s", resourcePolicy, resourcePolicyActual)
 		}
@@ -2382,38 +2512,49 @@ func testAccCheckComputeInstanceTemplateHasInstanceResourcePolicies(instanceTemp
 
 }
 
-func testAccCheckComputeInstanceTemplateHasAvailabilityDomain(instanceTemplate *compute.InstanceTemplate, availabilityDomain int64) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasAvailabilityDomain(instanceTemplate *map[string]interface{}, availabilityDomain int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.Scheduling.AvailabilityDomain != availabilityDomain {
-			return fmt.Errorf("Expected availability_domain  %d, got %d", availabilityDomain, instanceTemplate.Properties.Scheduling.AvailabilityDomain)
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		sched, _ := props["scheduling"].(map[string]interface{})
+		actual := int64(sched["availabilityDomain"].(float64))
+		if actual != availabilityDomain {
+			return fmt.Errorf("Expected availability_domain  %d, got %d", availabilityDomain, actual)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasReservationAffinity(instanceTemplate *compute.InstanceTemplate, consumeReservationType string, specificReservationNames ...string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasReservationAffinity(instanceTemplate *map[string]interface{}, consumeReservationType string, specificReservationNames ...string) resource.TestCheckFunc {
 	if len(specificReservationNames) > 1 {
 		panic("too many specificReservationNames in test")
 	}
 
 	return func(*terraform.State) error {
-		if instanceTemplate.Properties.ReservationAffinity == nil {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		ra, ok := props["reservationAffinity"].(map[string]interface{})
+		if !ok {
 			return fmt.Errorf("expected template to have reservation affinity, but it was nil")
 		}
 
-		if actualReservationType := instanceTemplate.Properties.ReservationAffinity.ConsumeReservationType; actualReservationType != consumeReservationType {
+		actualReservationType, _ := ra["consumeReservationType"].(string)
+		if actualReservationType != consumeReservationType {
 			return fmt.Errorf("Wrong reservationAffinity consumeReservationType: expected %s, got, %s", consumeReservationType, actualReservationType)
 		}
 
 		if len(specificReservationNames) > 0 {
 			const reservationNameKey = "compute.googleapis.com/reservation-name"
-			if actualKey := instanceTemplate.Properties.ReservationAffinity.Key; actualKey != reservationNameKey {
+			actualKey, _ := ra["key"].(string)
+			if actualKey != reservationNameKey {
 				return fmt.Errorf("Wrong reservationAffinity key: expected %s, got, %s", reservationNameKey, actualKey)
 			}
 
-			reservationAffinityValues := instanceTemplate.Properties.ReservationAffinity.Values
-			if len(reservationAffinityValues) != 1 || reservationAffinityValues[0] != specificReservationNames[0] {
-				return fmt.Errorf("Wrong reservationAffinity values: expected %s, got, %s", specificReservationNames, reservationAffinityValues)
+			raVals, _ := ra["values"].([]interface{})
+			if len(raVals) != 1 {
+				return fmt.Errorf("Wrong reservationAffinity values: expected %s, got, %s", specificReservationNames, raVals)
+			}
+			raVal0, _ := raVals[0].(string)
+			if raVal0 != specificReservationNames[0] {
+				return fmt.Errorf("Wrong reservationAffinity values: expected %s, got, %s", specificReservationNames, raVals)
 			}
 		}
 
@@ -2421,41 +2562,52 @@ func testAccCheckComputeInstanceTemplateHasReservationAffinity(instanceTemplate 
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasShieldedVmConfig(instanceTemplate *compute.InstanceTemplate, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasShieldedVmConfig(instanceTemplate *map[string]interface{}, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.ShieldedInstanceConfig.EnableSecureBoot != enableSecureBoot {
-			return fmt.Errorf("Wrong shieldedVmConfig enableSecureBoot: expected %t, got, %t", enableSecureBoot, instanceTemplate.Properties.ShieldedInstanceConfig.EnableSecureBoot)
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		sic, _ := props["shieldedInstanceConfig"].(map[string]interface{})
+		actualSecureBoot, _ := sic["enableSecureBoot"].(bool)
+		if actualSecureBoot != enableSecureBoot {
+			return fmt.Errorf("Wrong shieldedVmConfig enableSecureBoot: expected %t, got, %t", enableSecureBoot, actualSecureBoot)
 		}
 
-		if instanceTemplate.Properties.ShieldedInstanceConfig.EnableVtpm != enableVtpm {
-			return fmt.Errorf("Wrong shieldedVmConfig enableVtpm: expected %t, got, %t", enableVtpm, instanceTemplate.Properties.ShieldedInstanceConfig.EnableVtpm)
+		actualVtpm, _ := sic["enableVtpm"].(bool)
+		if actualVtpm != enableVtpm {
+			return fmt.Errorf("Wrong shieldedVmConfig enableVtpm: expected %t, got, %t", enableVtpm, actualVtpm)
 		}
 
-		if instanceTemplate.Properties.ShieldedInstanceConfig.EnableIntegrityMonitoring != enableIntegrityMonitoring {
-			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, instanceTemplate.Properties.ShieldedInstanceConfig.EnableIntegrityMonitoring)
+		actualIntegrity, _ := sic["enableIntegrityMonitoring"].(bool)
+		if actualIntegrity != enableIntegrityMonitoring {
+			return fmt.Errorf("Wrong shieldedVmConfig enableIntegrityMonitoring: expected %t, got, %t", enableIntegrityMonitoring, actualIntegrity)
 		}
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(instanceTemplate *compute.InstanceTemplate, EnableConfidentialCompute bool, ConfidentialInstanceType string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(instanceTemplate *map[string]interface{}, EnableConfidentialCompute bool, ConfidentialInstanceType string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.ConfidentialInstanceConfig.EnableConfidentialCompute != EnableConfidentialCompute {
-			return fmt.Errorf("Wrong ConfidentialInstanceConfig EnableConfidentialCompute: expected %t, got, %t", EnableConfidentialCompute, instanceTemplate.Properties.ConfidentialInstanceConfig.EnableConfidentialCompute)
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		cic, _ := props["confidentialInstanceConfig"].(map[string]interface{})
+		actualEnable, _ := cic["enableConfidentialCompute"].(bool)
+		if actualEnable != EnableConfidentialCompute {
+			return fmt.Errorf("Wrong ConfidentialInstanceConfig EnableConfidentialCompute: expected %t, got, %t", EnableConfidentialCompute, actualEnable)
 		}
-		if instanceTemplate.Properties.ConfidentialInstanceConfig.ConfidentialInstanceType != ConfidentialInstanceType {
-			return fmt.Errorf("Wrong ConfidentialInstanceConfig ConfidentialInstanceType: expected %s, got, %s", ConfidentialInstanceType, instanceTemplate.Properties.ConfidentialInstanceConfig.ConfidentialInstanceType)
+		actualType, _ := cic["confidentialInstanceType"].(string)
+		if actualType != ConfidentialInstanceType {
+			return fmt.Errorf("Wrong ConfidentialInstanceConfig ConfidentialInstanceType: expected %s, got, %s", ConfidentialInstanceType, actualType)
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(instanceTemplate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(instanceTemplate *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Properties.ShieldedInstanceConfig != nil {
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		_, hasSIC := props["shieldedInstanceConfig"].(map[string]interface{})
+		if hasSIC {
 			return fmt.Errorf("Expected no shielded vm config")
 		}
 
@@ -2463,9 +2615,14 @@ func testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(instanceTemplate *
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(instanceTemplate *compute.InstanceTemplate, resourcePolicy string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(instanceTemplate *map[string]interface{}, resourcePolicy string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		resourcePolicyActual := instanceTemplate.Properties.Disks[0].InitializeParams.ResourcePolicies[0]
+		props, _ := (*instanceTemplate)["properties"].(map[string]interface{})
+		disks, _ := props["disks"].([]interface{})
+		disk0, _ := disks[0].(map[string]interface{})
+		initParams, _ := disk0["initializeParams"].(map[string]interface{})
+		rps, _ := initParams["resourcePolicies"].([]interface{})
+		resourcePolicyActual, _ := rps[0].(string)
 		if resourcePolicyActual != resourcePolicy {
 			return fmt.Errorf("Wrong disk resource policy: expected %s, got %s", resourcePolicy, resourcePolicyActual)
 		}
@@ -2474,10 +2631,12 @@ func testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(instanceTemplate *
 	}
 }
 
-func testAccCheckComputeInstanceTemplateNotRecreated(instanceTemplate *compute.InstanceTemplate, instanceTemplateUpdate *compute.InstanceTemplate) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateNotRecreated(instanceTemplate *map[string]interface{}, instanceTemplateUpdate *map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if instanceTemplate.Id != instanceTemplateUpdate.Id {
-			return fmt.Errorf("The resource has been recreated: expected %d, got %d", instanceTemplate.Id, instanceTemplateUpdate.Id)
+		oldId, _ := (*instanceTemplate)["id"].(float64)
+		newId, _ := (*instanceTemplateUpdate)["id"].(float64)
+		if oldId != newId {
+			return fmt.Errorf("The resource has been recreated: expected %.0f, got %.0f", oldId, newId)
 		}
 
 		return nil
