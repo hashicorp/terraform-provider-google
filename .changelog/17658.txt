@@ -1,0 +1,14 @@
+```release-note:new-list-resource
+`google_compute_cross_site_network`
+```
+
+<details><summary>Local test output: <code>TestAccComputeCrossSiteNetworkListQuery_generated</code></summary>
+
+```
+=== RUN   TestAccComputeCrossSiteNetworkListQuery_generated
+=== PAUSE TestAccComputeCrossSiteNetworkListQuery_generated
+=== CONT  TestAccComputeCrossSiteNetworkListQuery_generated
+--- PASS: TestAccComputeCrossSiteNetworkListQuery_generated (35.37s)
+PASS
+ok      github.com/hashicorp/terraform-provider-google/google/services/compute 36.783s
+```
