@@ -2276,6 +2276,12 @@ func ResourceContainerCluster() *schema.Resource {
 				ValidateFunc:     validation.StringInSlice([]string{"DATAPATH_PROVIDER_UNSPECIFIED", "LEGACY_DATAPATH", "ADVANCED_DATAPATH"}, false),
 				DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("DATAPATH_PROVIDER_UNSPECIFIED"),
 			},
+			"dataplane_optimization_mode": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The desired dataplane optimization mode.`,
+			},
 			"enable_cilium_clusterwide_network_policy": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -2849,6 +2855,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			EnableIntraNodeVisibility:            d.Get("enable_intranode_visibility").(bool),
 			DefaultSnatStatus:                    expandDefaultSnatStatus(d.Get("default_snat_status")),
 			DatapathProvider:                     d.Get("datapath_provider").(string),
+			DataplaneV2Config:                    expandDataplaneV2Config(d.Get("dataplane_optimization_mode")),
 			EnableCiliumClusterwideNetworkPolicy: d.Get("enable_cilium_clusterwide_network_policy").(bool),
 			PrivateIpv6GoogleAccess:              d.Get("private_ipv6_google_access").(string),
 			InTransitEncryptionConfig:            d.Get("in_transit_encryption_config").(string),
@@ -3449,6 +3456,11 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	if err := d.Set("datapath_provider", cluster.NetworkConfig.DatapathProvider); err != nil {
 		return fmt.Errorf("Error setting datapath_provider: %s", err)
+	}
+	if cluster.NetworkConfig.DataplaneV2Config != nil {
+		if err := d.Set("dataplane_optimization_mode", cluster.NetworkConfig.DataplaneV2Config.ScalabilityMode); err != nil {
+			return fmt.Errorf("Error setting dataplane_optimization_mode: %s", err)
+		}
 	}
 	if err := d.Set("enable_cilium_clusterwide_network_policy", cluster.NetworkConfig.EnableCiliumClusterwideNetworkPolicy); err != nil {
 		return fmt.Errorf("Error setting enable_cilium_clusterwide_network_policy: %s", err)
@@ -6487,6 +6499,19 @@ func expandDefaultSnatStatus(configured interface{}) *container.DefaultSnatStatu
 		ForceSendFields: []string{"Disabled"},
 	}
 
+}
+
+func expandDataplaneV2Config(v interface{}) *container.DataplaneV2Config {
+	if v == nil {
+		return nil
+	}
+	s := v.(string)
+	if s == "" {
+		return nil
+	}
+	return &container.DataplaneV2Config{
+		ScalabilityMode: s,
+	}
 }
 
 func expandWorkloadIdentityConfig(configured interface{}) *container.WorkloadIdentityConfig {

@@ -117,6 +117,8 @@ fields:
   - api_field: 'costManagementConfig.enabled'
   - api_field: 'databaseEncryption.keyName'
   - api_field: 'databaseEncryption.state'
+  - field: 'dataplane_optimization_mode'
+    api_field: 'networkConfig.dataplaneV2Config.scalabilityMode'
   - field: 'datapath_provider'
     api_field: 'networkConfig.datapathProvider'
   - field: 'default_max_pods_per_node'
