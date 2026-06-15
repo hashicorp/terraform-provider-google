@@ -641,15 +641,15 @@ resource "google_cloudbuildv2_connection" "primary" {
 
   gitlab_config {
     authorizer_credential {
-      user_token_secret_version = "projects/407304063574/secrets/gle-old-api-token/versions/2"
+      user_token_secret_version = "projects/407304063574/secrets/gle-asia-api-token/versions/latest"
     }
 
     read_authorizer_credential {
-      user_token_secret_version = "projects/407304063574/secrets/gle-old-read-token/versions/3"
+      user_token_secret_version = "projects/407304063574/secrets/gle-asia-read-token/versions/latest"
     }
 
     webhook_secret_secret_version = "projects/407304063574/secrets/gle-webhook-secret/versions/latest"
-    host_uri                      = "https://gle-old.gcb-test.com"
+    host_uri                      = "https://gle-asia.gcb-test.com"
   }
 
   project     = "%{project_name}"
