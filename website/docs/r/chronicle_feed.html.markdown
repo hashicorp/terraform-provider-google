@@ -23,12 +23,10 @@ description: |-
 
 The FeedsService is responsible for configuring and managing the ingestion of third-party security data and logs into Google Security Operations through various feed creation, updates, and lifecycle management, and schema validation.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about Feed, see:
 
-* [API documentation](https://docs.cloud.google.com/chronicle/docs/reference/rest/v1beta/projects.locations.instances.feeds)
+* [API documentation](https://docs.cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.feeds)
 * How-to Guides
     * [Feed management overview](https://docs.cloud.google.com/chronicle/docs/administration/feed-management-overview)
 
@@ -44,7 +42,6 @@ values will be stored in the raw state as plain text: `details.amazon_s3_setting
 
 resource "google_chronicle_feed" "example_feed" {
   location     = "us"
-  provider     = google-beta
   instance     = "00000000-0000-0000-0000-000000000000"
   display_name = "test-feeds"
 
@@ -66,13 +63,11 @@ resource "google_chronicle_feed" "example_feed" {
 
 # 0. Get the project's GCS service account (for Storage Notifications)
 data "google_storage_project_service_account" "gcs_account" {
-  provider = google-beta
   project  = "my-project-name"
 }
 
 # 1. Create the Pub/Sub Topic
 resource "google_pubsub_topic" "test_topic" {
-  provider = google-beta
   name     = "chronicle-test-topic-my-project-name-%{random_suffix}"
   project  = "my-project-name"
 }
@@ -80,7 +75,6 @@ resource "google_pubsub_topic" "test_topic" {
 # 2. Grant GCS permission to publish to the topic
 # This must remain so GCS can send file notifications to Pub/Sub
 resource "google_pubsub_topic_iam_member" "gcs_publisher" {
-  provider = google-beta
   topic    = google_pubsub_topic.test_topic.name
   role     = "roles/pubsub.publisher"
   member   = "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
@@ -88,7 +82,6 @@ resource "google_pubsub_topic_iam_member" "gcs_publisher" {
 
 # 3. Create the Pub/Sub Subscription
 resource "google_pubsub_subscription" "test_subscription" {
-  provider = google-beta
   name     = "chronicle-test-sub-my-project-name-%{random_suffix}"
   project  = "my-project-name"
   topic    = google_pubsub_topic.test_topic.name
@@ -98,7 +91,6 @@ resource "google_pubsub_subscription" "test_subscription" {
 
 # 4. Define the GCS Bucket
 resource "google_storage_bucket" "test_bucket" {
-  provider      = google-beta
   name          = "chronicle-test-bucket-my-project-name-%{random_suffix}"
   project       = "my-project-name"
   location      = "US"
@@ -107,7 +99,6 @@ resource "google_storage_bucket" "test_bucket" {
 
 # 5. Link GCS bucket to Pub/Sub Topic
 resource "google_storage_notification" "notification" {
-  provider       = google-beta
   bucket         = google_storage_bucket.test_bucket.name
   payload_format = "JSON_API_V1"
   topic          = google_pubsub_topic.test_topic.id
@@ -120,7 +111,6 @@ resource "google_storage_notification" "notification" {
 # The required permissions (Storage Admin and Pub/Sub Subscriber) are assumed to be
 # granted manually at the project level prior to running this test.
 resource "google_chronicle_feed" "example_feed" {
-  provider     = google-beta
   location     = "us"
   instance     = "00000000-0000-0000-0000-000000000000"
   display_name = "test-feeds"
@@ -152,7 +142,6 @@ output "fetched_feed_service_account" {
 # Valid for source type: HTTPS_PUSH_AMAZON_KINESIS_FIREHOSE.
 
 resource "google_chronicle_feed" "example_feed" {
-  provider     = google-beta
   location     = "us"
   instance     = "00000000-0000-0000-0000-000000000000"
   display_name = "test-feeds"
