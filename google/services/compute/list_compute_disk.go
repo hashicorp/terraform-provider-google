@@ -85,6 +85,7 @@ func (listR *ComputeDiskListResource) List(ctx context.Context, listReq list.Lis
 	zone := listR.GetZone(data.Zone)
 	project := listR.GetProject(data.Project)
 
+	errStreamClosed := errors.New("stream closed")
 	stream.Results = func(push func(list.ListResult) bool) {
 		err := ListComputeDisks(
 			listR.Client,
@@ -98,17 +99,19 @@ func (listR *ComputeDiskListResource) List(ctx context.Context, listReq list.Lis
 				}
 
 				if !push(result) {
-					return errors.New("stream closed")
+					return errStreamClosed
 				}
 				return nil
 			},
 		)
-		if err != nil {
-			diags.AddError("API Error", err.Error())
-			result := listReq.NewListResult(ctx)
-			result.Diagnostics = diags
-			push(result)
+		// A closed stream is not an error: return without pushing again.
+		if err == nil || errors.Is(err, errStreamClosed) {
+			return
 		}
+		diags.AddError("API Error", err.Error())
+		result := listReq.NewListResult(ctx)
+		result.Diagnostics = diags
+		push(result)
 	}
 }
 

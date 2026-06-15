@@ -82,6 +82,7 @@ func (listR *ComputeImageListResource) List(ctx context.Context, listReq list.Li
 	}
 	project := listR.GetProject(data.Project)
 
+	errStreamClosed := errors.New("stream closed")
 	stream.Results = func(push func(list.ListResult) bool) {
 		err := ListComputeImages(
 			listR.Client,
@@ -94,17 +95,19 @@ func (listR *ComputeImageListResource) List(ctx context.Context, listReq list.Li
 				}
 
 				if !push(result) {
-					return errors.New("stream closed")
+					return errStreamClosed
 				}
 				return nil
 			},
 		)
-		if err != nil {
-			diags.AddError("API Error", err.Error())
-			result := listReq.NewListResult(ctx)
-			result.Diagnostics = diags
-			push(result)
+		// A closed stream is not an error: return without pushing again.
+		if err == nil || errors.Is(err, errStreamClosed) {
+			return
 		}
+		diags.AddError("API Error", err.Error())
+		result := listReq.NewListResult(ctx)
+		result.Diagnostics = diags
+		push(result)
 	}
 }
 
