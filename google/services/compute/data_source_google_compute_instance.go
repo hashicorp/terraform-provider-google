@@ -173,7 +173,7 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	err = d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators))
+	err = d.Set("guest_accelerator", flattenGuestAccelerators(guestAcceleratorsToInterface(instance.GuestAccelerators)))
 	if err != nil {
 		return err
 	}
