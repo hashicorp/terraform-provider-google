@@ -6,6 +6,8 @@ source_file: products/tags/TagBinding.yaml
 api_service_name: cloudresourcemanager.googleapis.com
 api_version: v3
 api_resource_type_kind: TagBinding
+cai_asset_name_formats:
+    - //cloudresourcemanager.googleapis.com/tagBindings/{{%parent}}/{{tag_value}}
 fields:
     - api_field: name
     - api_field: parent
