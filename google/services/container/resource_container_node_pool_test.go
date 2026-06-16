@@ -6774,3 +6774,97 @@ func TestAccContainerNodePool_acceleratorNetworkProfile_Lifecycle(t *testing.T) 
 		},
 	})
 }
+
+func TestAccContainerNodePool_withTaintConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Default enum value means adding arm taint to nodes (same as ARM)
+			{
+				Config: testAccContainerNodePool_withTaintConfig(cluster, np, networkName, subnetworkName, "ARCHITECTURE_TAINT_BEHAVIOR_UNSPECIFIED"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.taint_config.0.architecture_taint_behavior", "ARCHITECTURE_TAINT_BEHAVIOR_UNSPECIFIED"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.effective_taints.#", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.effective_taints.0.key", "kubernetes.io/arch"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.effective_taints.0.value", "arm64"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.effective_taints.0.effect", "NO_SCHEDULE"),
+				),
+			},
+			// NONE variant means no architecture taint will be applied
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withTaintConfig(cluster, np, networkName, subnetworkName, "NONE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.taint_config.0.architecture_taint_behavior", "NONE"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.effective_taints.#", "0"),
+				),
+			},
+			// ARM is a default behavior right now, same as ARCHITECTURE_TAINT_BEHAVIOR_UNSPECIFIED
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withTaintConfig(cluster, np, networkName, subnetworkName, "ARM"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.taint_config.0.architecture_taint_behavior", "ARM"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.effective_taints.#", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.effective_taints.0.key", "kubernetes.io/arch"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.effective_taints.0.value", "arm64"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.effective_taints.0.effect", "NO_SCHEDULE"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_withTaintConfig(cluster, np, networkName, subnetworkName, behavior string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  deletion_protection = false
+  network            = "%s"
+  subnetwork         = "%s"
+  min_master_version  = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "n4a-standard-2"
+    taint_config {
+      architecture_taint_behavior = "%s"
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, np, behavior)
+}

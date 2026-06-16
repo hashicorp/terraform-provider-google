@@ -291,8 +291,7 @@ region are guaranteed to support the same version.
     manages the default node pool, which isn't recommended to be used with
     Terraform. Structure is [documented below](#nested_node_config).
 
-* `node_pool` - (Optional) List of node pools associated with this cluster.
-    See [google_container_node_pool](container_node_pool.html) for schema.
+* `node_pool` - (Optional) List of node pools associated with this cluster. Structure is [documented below](#nested_node_pool). See [google_container_node_pool](container_node_pool.html) for exact schema.
     **Warning:** node pools defined inside a cluster can't be changed (or added/removed) after
     cluster creation without deleting and recreating the entire cluster. Unless you absolutely need the ability
     to say "these are the _only_ node pools associated with this cluster", use the
@@ -1131,6 +1130,8 @@ gvnic {
 
 * `storage_pools` - (Optional) The list of Storage Pools where boot disks are provisioned.
 
+* `taint_config` - (Optional) Taint configuration for the node pool. Structure is [documented below](#nested_taint_config).
+
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
@@ -1316,6 +1317,18 @@ workload_identity_config {
   workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
 }
 ```
+
+<a name="nested_node_pool"></a>The `node_pool` block supports:
+
+* `node_config` - (Optional) The node configuration of the pool. Structure is [documented below](#nested_node_pool_node_config).
+
+<a name="nested_node_pool_node_config"></a>The `node_config` block supports:
+
+* `taint_config` - (Optional) Taint configuration for the node pool. Structure is [documented below](#nested_node_pool_node_config_taint_config).
+
+<a name="nested_node_pool_node_config_taint_config"></a>The `taint_config` block supports:
+
+* `architecture_taint_behavior` - (Optional) Specifies the behavior for applying architecture taints to node pool nodes. Valid values are `ARCHITECTURE_TAINT_BEHAVIOR_UNSPECIFIED`, `NONE`, or `ARM`.
 
 <a name="nested_node_pool_auto_config"></a>The `node_pool_auto_config` block supports:
 
@@ -1919,6 +1932,13 @@ registry_hosts {
 * `no_unsafe_webhooks` - (Optional) Whether to block unsafe webhooks in the cluster.
 * `no_standard_node_pools` - (Optional) Whether to block non autopilot managed node pools in the cluster.
 
+<a name="nested_taint_config"></a>The `taint_config` block supports:
+
+* `architecture_taint_behavior` - (Optional) The taint behavior to be applied to the nodes based on the architecture.
+    Accepted values are:
+    * `ARCHITECTURE_TAINT_BEHAVIOR_UNSPECIFIED`: Default value. This should not be used.
+    * `NONE`: Do not apply any taints based on architecture.
+    * `ARM`: Apply ARM taint to the nodes.
 
 ## Attributes Reference
 
