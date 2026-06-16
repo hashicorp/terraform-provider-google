@@ -415,6 +415,8 @@ fields:
     api_field: 'nodePools.autoscaling.totalMaxNodeCount'
   - field: 'node_pool.autoscaling.total_min_node_count'
     api_field: 'nodePools.autoscaling.totalMinNodeCount'
+  - field: 'node_pool.ignore_node_count_changes'
+    provider_only: true
   - field: 'node_pool.initial_node_count'
     api_field: 'nodePools.initialNodeCount'
   - field: 'node_pool.instance_group_urls'
@@ -845,4 +847,8 @@ fields:
   - api_field: 'verticalPodAutoscaling.enabled'
   - api_field: 'workloadIdentityConfig.workloadPool'
   - field: 'deletion_policy'
+    provider_only: true
+  - field: 'skip_node_pool_refresh'
+    provider_only: true
+  - field: 'ignore_node_count_changes'
     provider_only: true

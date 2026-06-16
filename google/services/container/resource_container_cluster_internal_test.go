@@ -22,6 +22,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/container/v1"
 )
@@ -379,6 +380,173 @@ func TestContainerCluster_flattenUserManagedKeysConfig(t *testing.T) {
 			got := flattenUserManagedKeysConfig(tc.config)
 			if diff := cmp.Diff(got, tc.want); diff != "" {
 				t.Errorf("flattenUserManagedKeysConfig(%s) returned unexpected diff. +got, -want:\n%s", tc.name, diff)
+			}
+		})
+	}
+}
+
+func TestUnitFlattenClusterNodePools(t *testing.T) {
+	t.Parallel()
+
+	// A mock schema for the resource that contains node_pool and skip_node_pool_refresh.
+	resourceSchema := map[string]*schema.Schema{
+		"skip_node_pool_refresh": {
+			Type:     schema.TypeBool,
+			Optional: true,
+			Default:  false,
+		},
+		"node_pool": {
+			Type: schema.TypeList,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"name": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"name_prefix": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"initial_node_count": {
+						Type:     schema.TypeInt,
+						Optional: true,
+					},
+					"node_locations": {
+						Type:     schema.TypeSet,
+						Optional: true,
+						Elem:     &schema.Schema{Type: schema.TypeString},
+					},
+					"node_count": {
+						Type:     schema.TypeInt,
+						Optional: true,
+					},
+					"node_config": {
+						Type:     schema.TypeList,
+						Optional: true,
+						Elem:     &schema.Resource{Schema: map[string]*schema.Schema{"machine_type": {Type: schema.TypeString}}},
+					},
+					"instance_group_urls": {
+						Type: schema.TypeList,
+						Elem: &schema.Schema{Type: schema.TypeString},
+					},
+					"managed_instance_group_urls": {
+						Type: schema.TypeList,
+						Elem: &schema.Schema{Type: schema.TypeString},
+					},
+					"version": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+					"network_config": {
+						Type:     schema.TypeList,
+						Optional: true,
+						Elem:     &schema.Resource{Schema: map[string]*schema.Schema{"create_pod_range": {Type: schema.TypeBool}}},
+					},
+				},
+			},
+			Optional: true,
+		},
+	}
+
+	cases := []struct {
+		name        string
+		d           *schema.ResourceData
+		c           []*container.NodePool
+		expected    []map[string]interface{}
+		expectError bool
+	}{
+		{
+			name: "Default path flattens API node pools",
+			d: schema.TestResourceDataRaw(t, resourceSchema, map[string]interface{}{
+				"node_pool": []interface{}{
+					map[string]interface{}{"name": "pool-1"},
+					map[string]interface{}{"name": "pool-2"},
+				},
+			}),
+			c: []*container.NodePool{
+				&container.NodePool{Name: "pool-1"},
+				&container.NodePool{Name: "pool-2"},
+			},
+			expected: []map[string]interface{}{
+				{
+					"name":                        "pool-1",
+					"name_prefix":                 "",
+					"initial_node_count":          int64(0),
+					"node_locations":              schema.NewSet(schema.HashString, []interface{}{}),
+					"node_count":                  0,
+					"node_config":                 []map[string]interface{}{},
+					"instance_group_urls":         []string{},
+					"managed_instance_group_urls": []string{},
+					"version":                     "",
+					"network_config":              []map[string]interface{}{},
+				},
+				{
+					"name":                        "pool-2",
+					"name_prefix":                 "",
+					"initial_node_count":          int64(0),
+					"node_locations":              schema.NewSet(schema.HashString, []interface{}{}),
+					"node_count":                  0,
+					"node_config":                 []map[string]interface{}{},
+					"instance_group_urls":         []string{},
+					"managed_instance_group_urls": []string{},
+					"version":                     "",
+					"network_config":              []map[string]interface{}{},
+				},
+			},
+			expectError: false,
+		},
+		{
+			name: "Empty node_pools from API",
+			d: schema.TestResourceDataRaw(t, resourceSchema, map[string]interface{}{
+				"node_pool": []interface{}{map[string]interface{}{"name": "default-pool"}},
+			}),
+			c:           []*container.NodePool{},
+			expected:    []map[string]interface{}{},
+			expectError: false,
+		},
+		{
+			name: "skip_node_pool_refresh=true overrides populated state",
+			d: schema.TestResourceDataRaw(t, resourceSchema, map[string]interface{}{
+				"node_pool": []interface{}{
+					map[string]interface{}{"name": "pool-1"},
+					map[string]interface{}{"name": "pool-2"},
+				},
+				"skip_node_pool_refresh": true,
+			}),
+			c: []*container.NodePool{
+				&container.NodePool{Name: "pool-1"},
+				&container.NodePool{Name: "pool-2"},
+			},
+			expected:    nil,
+			expectError: false,
+		},
+		{
+			name: "skip_node_pool_refresh=true with empty state",
+			d: schema.TestResourceDataRaw(t, resourceSchema, map[string]interface{}{
+				"skip_node_pool_refresh": true,
+			}),
+			c:           []*container.NodePool{&container.NodePool{Name: "pool-1"}},
+			expected:    nil,
+			expectError: false,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := &transport_tpg.Config{}
+			result, err := flattenClusterNodePools(tc.d, config, tc.c)
+
+			if tc.expectError {
+				if err == nil {
+					t.Errorf("Expected error but got none")
+				}
+			} else {
+				if err != nil {
+					t.Errorf("Unexpected error: %v", err)
+				}
+				if diff := cmp.Diff(result, tc.expected); diff != "" {
+					t.Errorf("flattenClusterNodePools(%s) returned unexpected diff. +got, -want:\n%s", tc.name, diff)
+				}
 			}
 		})
 	}
