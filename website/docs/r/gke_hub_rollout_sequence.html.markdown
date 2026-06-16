@@ -32,6 +32,69 @@ To get more information about RolloutSequence, see:
 * How-to Guides
     * [Rollout Sequencing Overview](https://cloud.google.com/kubernetes-engine/docs/concepts/rollout-sequencing-custom-stages/about-rollout-sequencing)
 
+## Example Usage - Gke Hub Rollout Sequence Create
+
+
+```hcl
+resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
+  provider = google-beta
+  rollout_sequence_id = "rs-basic"
+  display_name        = "Basic Rollout Sequence"
+  ignored_clusters_selector {
+    label_selector = "resource.labels.ignored == 'true'"
+  }
+  stages {
+    fleet_projects = ["projects/my-project-name"]
+    soak_duration  = "1h"
+  }
+  auto_upgrade_config {
+    rollout_creation_scope {
+      upgrade_types = [
+        "CONTROL_PLANE_MINOR",
+        "CONTROL_PLANE_PATCH",
+        "NODE_MINOR",
+        "NODE_PATCH"
+      ]
+    }
+  }
+}
+```
+## Example Usage - Gke Hub Rollout Sequence Update
+
+
+```hcl
+resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
+  provider = google-beta
+  rollout_sequence_id = "rs-basic"
+  display_name        = "Modified Rollout Sequence"
+  ignored_clusters_selector {
+    label_selector = "resource.labels.ignored == 'super_true'"
+  }
+  stages {
+    fleet_projects = ["projects/my-project-name"]
+    cluster_selector {
+      label_selector = "resource.labels.canary=='true'"
+    }
+    soak_duration  = "2h"
+  }
+  stages {
+    fleet_projects = ["projects/my-project-name"]
+    soak_duration  = "1d"
+  }
+  auto_upgrade_config {
+    rollout_creation_scope {
+      upgrade_types = [
+        "CONTROL_PLANE_PATCH",
+        "NODE_PATCH"
+      ]
+    }
+  }
+  labels = {
+    some_key = "some_value"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -95,7 +158,8 @@ The following arguments are supported:
 
 * `soak_duration` -
   (Optional)
-  Soak time after upgrading all the clusters in the stage, specified in seconds.
+  Soak time after upgrading all the clusters in the stage.
+  Has to be specified in seconds, minutes, hours or days.
 
 
 <a name="nested_stages_cluster_selector"></a>The `cluster_selector` block supports:

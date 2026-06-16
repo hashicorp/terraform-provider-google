@@ -14,4 +14,4 @@
 //	overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
-package gkehub2_test
+package gkehub2
