@@ -666,6 +666,90 @@ resource "google_compute_region_backend_service" "default" {
   connection_draining_timeout_sec = 0
 }
 ```
+## Example Usage - Region Backend Service Ha Policy Internal Lb
+
+
+```hcl
+resource "google_compute_network" "default" {
+  name                    = "rbs-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "rbs-subnet"
+  ip_cidr_range = "10.1.2.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "endpoint-instance" {
+  name         = "rbs-instance"
+  machine_type = "e2-medium"
+
+  boot_disk {
+    auto_delete = true
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {
+    }
+  }
+}
+
+resource "google_compute_network_endpoint_group" "neg" {
+  name                  = "rbs-neg"
+  network_endpoint_type = "GCE_VM_IP_DEDICATED_BACKEND"
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+  zone                  = "us-central1-a"
+}
+
+resource "google_compute_network_endpoints" "endpoint" {
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
+  network_endpoints {
+    instance   = google_compute_instance.endpoint-instance.name
+  }
+}
+
+resource "google_compute_region_backend_service" "default" {
+  region                          = "us-central1"
+  name                            = "region-service"
+  protocol                        = "UNSPECIFIED"
+  load_balancing_scheme           = "INTERNAL"
+  network                         = google_compute_network.default.id
+  backend {
+    group                         = google_compute_network_endpoint_group.neg.self_link
+    balancing_mode                = "CONNECTION"
+  }
+  ha_policy  {
+    fast_ip_move                  = "GARP_RA"
+    leader {
+      backend_group               = google_compute_network_endpoint_group.neg.self_link
+      network_endpoint {
+        instance                  = google_compute_instance.endpoint-instance.name
+      }
+    }
+  }
+  // Must explicitly disable connection draining to override default value.
+  connection_draining_timeout_sec = 0
+
+  // This block prevents Terraform from reverting external updates to leadership.
+  lifecycle {
+    ignore_changes = [
+      ha_policy[0].leader
+    ]
+  }
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_backend_service_tls_settings&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
