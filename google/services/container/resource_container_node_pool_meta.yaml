@@ -306,6 +306,8 @@ fields:
     api_field: 'config.taints.key'
   - field: 'node_config.taint.value'
     api_field: 'config.taints.value'
+  - field: 'node_config.taint_config.architecture_taint_behavior'
+    api_field: 'config.taintConfig.architectureTaintBehavior'
   - field: 'node_config.windows_node_config.osversion'
     api_field: 'config.windowsNodeConfig.osVersion'
   - field: 'node_config.workload_metadata_config.mode'

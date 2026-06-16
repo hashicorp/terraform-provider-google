@@ -257,6 +257,25 @@ func schemaGcfsConfig() *schema.Schema {
 	}
 }
 
+func schemaTaintConfig() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `Taint configuration for this node.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"architecture_taint_behavior": {
+					Type:         schema.TypeString,
+					Required:     true,
+					Description:  `Architecture taint behavior. Controls, how we apply taints based on the node architecture.`,
+					ValidateFunc: validation.StringInSlice([]string{"ARCHITECTURE_TAINT_BEHAVIOR_UNSPECIFIED", "NONE", "ARM"}, false),
+				},
+			},
+		},
+	}
+}
+
 func schemaNodeConfig() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
@@ -267,6 +286,7 @@ func schemaNodeConfig() *schema.Schema {
 		MaxItems:    1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+				"taint_config":      schemaTaintConfig(),
 				"containerd_config": schemaContainerdConfig(),
 				"disk_size_gb": {
 					Type:         schema.TypeInt,
@@ -1517,6 +1537,10 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 
 	nodeConfig := nodeConfigs[0].(map[string]interface{})
 
+	if v, ok := nodeConfig["taint_config"]; ok {
+		nc.TaintConfig = expandTaintConfig(v)
+	}
+
 	if v, ok := nodeConfig["containerd_config"]; ok {
 		nc.ContainerdConfig = expandContainerdConfig(v)
 	}
@@ -2717,6 +2741,28 @@ func expandSoleTenantConfig(v interface{}) *container.SoleTenantConfig {
 	return stConfig
 }
 
+func expandTaintConfig(v interface{}) *container.TaintConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.TaintConfig{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	taintConfig := &container.TaintConfig{}
+
+	if v, ok := cfg["architecture_taint_behavior"]; ok {
+		taintConfig.ArchitectureTaintBehavior = v.(string)
+	}
+
+	return taintConfig
+}
+
 func expandConfidentialNodes(configured interface{}) *container.ConfidentialNodes {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -2769,6 +2815,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 
 	config = append(config, map[string]interface{}{
 		"machine_type":                       c.MachineType,
+		"taint_config":                       flattenTaintConfig(c.TaintConfig),
 		"containerd_config":                  flattenContainerdConfig(c.ContainerdConfig),
 		"disk_size_gb":                       c.DiskSizeGb,
 		"disk_type":                          c.DiskType,
@@ -3363,6 +3410,17 @@ func flattenNodeKernelModuleLoading(c *container.NodeKernelModuleLoading) []map[
 	return result
 }
 
+func flattenTaintConfig(c *container.TaintConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c == nil {
+		return result
+	}
+	r := map[string]interface{}{
+		"architecture_taint_behavior": c.ArchitectureTaintBehavior,
+	}
+	return append(result, r)
+}
+
 func flattenContainerdConfig(c *container.ContainerdConfig) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c == nil {
@@ -3614,6 +3672,43 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 				}
 
 				log.Printf("[INFO] Updated logging_variant for node pool %s", name)
+			}
+		}
+
+		if d.HasChange(prefix + "node_config.0.taint_config") {
+			if _, ok := d.GetOk(prefix + "node_config.0.taint_config"); ok {
+				req := &container.UpdateNodePoolRequest{
+					Name:        name,
+					TaintConfig: expandTaintConfig(d.Get(prefix + "node_config.0.taint_config")),
+				}
+				if req.TaintConfig == nil {
+					req.TaintConfig = &container.TaintConfig{}
+					req.ForceSendFields = []string{"TaintConfig"}
+				}
+
+				updateF := func() error {
+					clusterNodePoolsUpdateCall := NewClient(config, userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+					if config.UserProjectOverride {
+						clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+					}
+					op, err := clusterNodePoolsUpdateCall.Do()
+					if err != nil {
+						return err
+					}
+
+					// Wait until it's updated
+					return ContainerOperationWait(config, op,
+						nodePoolInfo.project,
+						nodePoolInfo.location,
+						"updating GKE node pool taint_config", userAgent,
+						timeout)
+				}
+
+				if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+					return err
+				}
+
+				log.Printf("[INFO] Updated taint_config for node pool %s", name)
 			}
 		}
 
