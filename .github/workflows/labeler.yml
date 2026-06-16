@@ -1,5 +1,13 @@
 name: Issue Opened Triage
 
+# github/issue-labeler is pinned to v3.4, which still runs on Node 20 and has no
+# Node 24-compatible release. Allow the runner to keep executing it on the
+# deprecated Node 20 runtime until a Node 24 version is available; Node 24-native
+# actions in this workflow are unaffected. Node 20 is removed on 2026-09-16, so
+# this action must be upgraded or replaced before then.
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
+
 on:
   issues:
     types: [opened]
@@ -8,7 +16,7 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - uses: github/issue-labeler@c1b0f9f52a63158c4adc09425e858e87b32e9685 # v3.4
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
