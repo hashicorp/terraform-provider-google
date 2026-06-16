@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -32,6 +33,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/tags"
+
+	gke "google.golang.org/api/container/v1"
 )
 
 func TestAccContainerNodePool_basic(t *testing.T) {
@@ -6773,6 +6776,127 @@ func TestAccContainerNodePool_acceleratorNetworkProfile_Lifecycle(t *testing.T) 
 			},
 		},
 	})
+}
+
+func TestAccContainerNodePool_ignoreNodeCountChanges(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
+	poolName := fmt.Sprintf("tf-test-pool-%s", suffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_ignoreNodeCountChanges(suffix, clusterName, poolName, 2, true),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_count", "2"),
+				),
+			},
+			{
+				PreConfig: func() { testAccResizeNodePoolExternally(t, clusterName, poolName, 3) },
+				Config:    testAccContainerNodePool_ignoreNodeCountChanges(suffix, clusterName, poolName, 2, true),
+				PlanOnly:  true,
+			},
+			{
+				// Step 3: Flip ignore_node_count_changes to false and set node_count = 3 (matching GKE cloud state).
+				// This registers the flag update and aligns HCL with the actual GKE size.
+				Config: testAccContainerNodePool_ignoreNodeCountChanges(suffix, clusterName, poolName, 3, false),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_count", "3"),
+				),
+			},
+			{
+				// Step 4: Now that drift detection is active (flag is false in state), set node_count = 2.
+				// This detects the difference (3 -> 2) and resizes the GKE Node Pool back to 2.
+				Config: testAccContainerNodePool_ignoreNodeCountChanges(suffix, clusterName, poolName, 2, false),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_count", "2"),
+				),
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_ignoreNodeCountChanges(suffix, clusterName, poolName string, count int, ignoreChanges bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom" {
+  name                    = "tf-test-network-%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "custom" {
+  name          = "tf-test-subnet-%s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.custom.id
+
+  secondary_ip_range {
+    range_name    = "pods"
+    ip_cidr_range = "10.1.0.0/16"
+  }
+
+  secondary_ip_range {
+    range_name    = "services"
+    ip_cidr_range = "10.2.0.0/20"
+  }
+}
+
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  network             = google_compute_network.custom.id
+  subnetwork          = google_compute_subnetwork.custom.id
+  deletion_protection = false
+
+  ip_allocation_policy {
+    cluster_secondary_range_name  = "pods"
+    services_secondary_range_name = "services"
+  }
+
+  remove_default_node_pool = true
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  node_count         = %d
+  ignore_node_count_changes = %t
+
+  node_config {
+    preemptible  = true
+    machine_type = "e2-medium"
+  }
+}
+`, suffix, suffix, clusterName, poolName, count, ignoreChanges)
+}
+
+func testAccResizeNodePoolExternally(t *testing.T, clusterName, poolName string, size int64) {
+	config := acctest.GoogleProviderConfig(t)
+	userAgent := "terraform-provider-google-test"
+	location := "us-central1-a"
+	fqName := fmt.Sprintf("projects/%s/locations/%s/clusters/%s/nodePools/%s",
+		config.Project, location, clusterName, poolName)
+
+	req := &gke.SetNodePoolSizeRequest{
+		NodeCount: size,
+	}
+
+	gkeClient := container.NewClient(config, userAgent)
+	op, err := gkeClient.Projects.Locations.Clusters.NodePools.SetSize(fqName, req).Do()
+	if err != nil {
+		t.Fatalf("Failed to resize node pool externally: %s", err)
+	}
+
+	err = container.ContainerOperationWait(config, op, config.Project, location, "resizing node pool externally", userAgent, 20*time.Minute)
+	if err != nil {
+		t.Fatalf("Failed waiting for external GKE resize operation: %s", err)
+	}
 }
 
 func TestAccContainerNodePool_withTaintConfig(t *testing.T) {

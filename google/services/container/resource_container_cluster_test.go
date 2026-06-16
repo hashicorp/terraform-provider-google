@@ -1704,7 +1704,7 @@ func TestAccContainerCluster_regionalWithNodePool(t *testing.T) {
 				ResourceName:            "google_container_cluster.regional",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_node_count_changes", "node_pool.0.ignore_node_count_changes"},
 			},
 		},
 	})
@@ -8685,10 +8685,12 @@ resource "google_container_cluster" "regional" {
 
   node_pool {
     name = "%s"
+    ignore_node_count_changes = true
   }
   network    = "%s"
   subnetwork = "%s"
 
+  ignore_node_count_changes = true
   deletion_protection = false
 }
 `, cluster, nodePool, networkName, subnetworkName)
@@ -16954,6 +16956,35 @@ func TestAccContainerCluster_withTaintConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_skipNodePoolRefresh(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
+	poolName := fmt.Sprintf("tf-test-pool-%s", suffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_skipNodePoolRefresh(suffix, clusterName, poolName, true),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "node_pool.#", "0"),
+				),
+			},
+			{
+				Config: testAccContainerCluster_skipNodePoolRefresh(suffix, clusterName, poolName, false),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "node_pool.#", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "node_pool.0.name", poolName),
+				),
+			},
+		},
+	})
+}
+
 func testAccContainerCluster_withTaintConfig(cluster, networkName, subnetworkName, behavior string) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
@@ -17075,4 +17106,61 @@ resource "google_container_cluster" "cluster" {
   deletion_protection = false
 }
 `, cluster, networkName, subnetworkName, behavior)
+}
+
+func testAccContainerCluster_skipNodePoolRefresh(suffix, clusterName, poolName string, skipRefresh bool) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom" {
+  name                    = "tf-test-network-%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "custom" {
+  name          = "tf-test-subnet-%s"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.custom.id
+
+  secondary_ip_range {
+    range_name    = "pods"
+    ip_cidr_range = "10.1.0.0/16"
+  }
+
+  secondary_ip_range {
+    range_name    = "services"
+    ip_cidr_range = "10.2.0.0/20"
+  }
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  network             = google_compute_network.custom.id
+  subnetwork          = google_compute_subnetwork.custom.id
+  deletion_protection = false
+
+  ip_allocation_policy {
+    cluster_secondary_range_name  = "pods"
+    services_secondary_range_name = "services"
+  }
+
+  # We must delete the default node pool to ensure we only have our standalone node pool
+  remove_default_node_pool = true
+
+  skip_node_pool_refresh = %t
+}
+
+resource "google_container_node_pool" "extra" {
+  name       = "%s"
+  location   = "us-central1-a"
+  cluster    = google_container_cluster.primary.name
+  node_count = 1
+
+  node_config {
+    preemptible  = true
+    machine_type = "e2-medium"
+  }
+}
+`, suffix, suffix, clusterName, skipRefresh, poolName)
 }

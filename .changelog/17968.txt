@@ -1,0 +1,11 @@
+```release-note:enhancement
+container: added `skip_node_pool_refresh` field to `google_container_cluster` resource. When set to true, the `google_container_cluster` skips refreshing and setting `node_pools` from the API, resolving long plan times on clusters with a large number of node pools. Note that this results in `node_pools` being set to an empty list in state
+```
+
+```release-note:enhancement
+container: improved GKE node pool read performance by caching instance group metadata longer
+```
+
+```release-note:enhancement
+container: added `ignore_node_count_changes` field to `google_container_cluster` and `google_container_node_pool` resources. When set to true, the provider ignores drift via external node count changes and skips related IGM API queries, resolving long plan times on clusters with a large number of instance groups.
+```

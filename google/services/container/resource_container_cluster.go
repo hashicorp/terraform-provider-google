@@ -251,6 +251,7 @@ func ResourceContainerCluster() *schema.Resource {
 			containerClusterSurgeSettingsCustomizeDiff,
 			containerClusterEnableK8sBetaApisCustomizeDiff,
 			containerClusterNodeVersionCustomizeDiff,
+			containerClusterSkipNodePoolRefreshCustomizeDiff,
 			tpgresource.SetDiffForLabelsWithCustomizedName("resource_labels"),
 			clusterAcceleratorNetworkProfileCustomizeDiff,
 		),
@@ -1914,6 +1915,12 @@ func ResourceContainerCluster() *schema.Resource {
 				ConflictsWith: []string{"enable_autopilot"},
 			},
 
+			"skip_node_pool_refresh": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If true, the provider will not refresh the inline node_pool state from the API during cluster reads. Set this to true only when all node pools are managed via separate google_container_node_pool resources; it substantially improves plan/apply performance on clusters with a high node pool count. Must not be set to true when inline node_pool blocks are defined on this resource.`,
+			},
+
 			"control_plane_endpoints_config": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -2685,6 +2692,11 @@ func ResourceContainerCluster() *schema.Resource {
 			//UDP schema start
 			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
 			//UDP schema end
+			"ignore_node_count_changes": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `When true, the provider ignores external changes (drift) to the node count by skipping GCE API queries to the Instance Group Managers. This is a performance optimization for large clusters that saves API quota. Setting this to true will result in missing managed_instance_group_urls in the state for all node pools in the cluster.`,
+			},
 		},
 	}
 }
@@ -7185,6 +7197,15 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 }
 
 func flattenClusterNodePools(d *schema.ResourceData, config *transport_tpg.Config, c []*container.NodePool) ([]map[string]interface{}, error) {
+	// Performance escape hatch: when the user opts in via skip_node_pool_refresh,
+	// do not materialize the (potentially huge) inline node_pool list into state.
+	// A CustomizeDiff guard prevents this combining with inline node_pool blocks.
+	// Users who flip this on accept that cluster.node_pool will read as empty.
+	if v, ok := d.GetOk("skip_node_pool_refresh"); ok && v.(bool) {
+		log.Printf("[DEBUG] Skipping flattenClusterNodePools because skip_node_pool_refresh=true.")
+		return nil, nil
+	}
+
 	nodePools := make([]map[string]interface{}, 0, len(c))
 
 	for i, np := range c {
@@ -8408,6 +8429,28 @@ func containerClusterEnableK8sBetaApisCustomizeDiffFunc(d tpgresource.TerraformR
 func containerClusterNodeVersionCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	// separate func to allow unit testing
 	return containerClusterNodeVersionCustomizeDiffFunc(diff)
+}
+
+// containerClusterSkipNodePoolRefreshCustomizeDiff errors at plan time if the
+// user enables skip_node_pool_refresh while also declaring inline node_pool
+// blocks. Without this guard, the inline blocks would diff against the empty
+// state produced by the skip path and trigger ForceNew cluster replacement.
+func containerClusterSkipNodePoolRefreshCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
+	if !diff.Get("skip_node_pool_refresh").(bool) {
+		return nil
+	}
+	rawConfig := diff.GetRawConfig()
+	if rawConfig.IsNull() {
+		return nil
+	}
+	nodePool := rawConfig.GetAttr("node_pool")
+	if nodePool.IsNull() || !nodePool.IsKnown() {
+		return nil
+	}
+	if nodePool.LengthInt() > 0 {
+		return fmt.Errorf("skip_node_pool_refresh cannot be true when inline node_pool blocks are defined; use google_container_node_pool resources instead, or unset skip_node_pool_refresh")
+	}
+	return nil
 }
 
 func containerClusterNodeVersionCustomizeDiffFunc(diff tpgresource.TerraformResourceDiff) error {

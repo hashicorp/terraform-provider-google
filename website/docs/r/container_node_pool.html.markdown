@@ -125,6 +125,8 @@ resource "google_container_cluster" "primary" {
 * `autoscaling` - (Optional) Configuration required by cluster autoscaler to adjust
     the size of the node pool to the current cluster usage. Structure is [documented below](#nested_autoscaling).
 
+* `ignore_node_count_changes` - (Optional) Whether to ignore external changes (drift) to the node count (e.g. from GKE autoscaling). Setting this to `true` skips querying Compute Engine Instance Group Managers (IGMs) to determine the current node count on read, which can save API quota and speed up plans on large clusters. Unlike Terraform core's `lifecycle { ignore_changes = [node_count] }`, this allows configuration-driven scaling updates in your HCL while still ignoring runtime autoscaling drift.
+
 * `initial_node_count` - (Optional) The initial number of nodes for the pool. In
     regional or multi-zonal clusters, this is the number of nodes per zone. Changing
     this will force recreation of the resource. WARNING: Resizing your node pool manually
