@@ -1,3 +1,62 @@
+## 7.38.0 (Unreleased)
+
+## 7.37.0 (June 16, 2026)
+
+NOTES:
+* compute: migrated `EnableDisplay` fields in `google_compute_instance` resources to use direct HTTP rather than a client library ([#27778](https://github.com/hashicorp/terraform-provider-google/pull/27778))
+* compute: migrated `desired_status` block and `startInstanceOperation` in `resource_compute_instance.go.tmpl` to use direct HTTP rather than a client library ([#27755](https://github.com/hashicorp/terraform-provider-google/pull/27755))
+* compute: migrated `getInstance`, `getDisk`, `Delete` and the `setMetadata` update block in `resource_compute_instance.go.tmpl` to use direct HTTP rather than a client library ([#27716](https://github.com/hashicorp/terraform-provider-google/pull/27716))
+* compute: migrated part of `google_compute_instance` to use direct HTTP rather than a client library ([#27788](https://github.com/hashicorp/terraform-provider-google/pull/27788))
+
+DEPRECATIONS:
+* cloudrunv2: deprecated `http_get.http_headers.port` field in container startup probe and liveness probe in `google_cloud_run_v2_worker_pool` resource because it is not supported in Cloud Run API. This field will be removed in a future major release. ([#27800](https://github.com/hashicorp/terraform-provider-google/pull/27800))
+* cloudsecuritycompliance: deprecated the `organization` field on `google_cloud_security_compliance_cloud_control`, `google_cloud_security_compliance_framework`, and `google_cloud_security_compliance_framework_deployment`. Use `parent` instead ([#27769](https://github.com/hashicorp/terraform-provider-google/pull/27769))
+* networkservices: deprecated `protocols` on `google_network_services_agent_gateway` ([#27802](https://github.com/hashicorp/terraform-provider-google/pull/27802))
+
+FEATURES:
+* **New Data Source:** `google_oracle_database_goldengate_deployment_versions` ([#27771](https://github.com/hashicorp/terraform-provider-google/pull/27771))
+* **New Data Source:** `google_storage_control_project_intelligence_finding` ([#27764](https://github.com/hashicorp/terraform-provider-google/pull/27764))
+* **New Data Source:** `google_storage_control_project_intelligence_findings` ([#27764](https://github.com/hashicorp/terraform-provider-google/pull/27764))
+* **New Resource:** `google_chronicle_parser` ([#27801](https://github.com/hashicorp/terraform-provider-google/pull/27801))
+* **New Resource:** `google_migration_center_import_data_file` ([#27721](https://github.com/hashicorp/terraform-provider-google/pull/27721))
+* **New Resource:** `google_network_services_agent_gateway` ([#27803](https://github.com/hashicorp/terraform-provider-google/pull/27803))
+* **New Resource:** `google_vertex_ai_tensorboard_experiment` ([#27796](https://github.com/hashicorp/terraform-provider-google/pull/27796))
+* **New List Resource:** `google_bigquery_dataset_access` ([#27758](https://github.com/hashicorp/terraform-provider-google/pull/27758))
+* **New List Resource:** `google_cloud_scheduler_job` ([#27758](https://github.com/hashicorp/terraform-provider-google/pull/27758))
+* **New List Resource:** `google_dns_record_set` ([#27792](https://github.com/hashicorp/terraform-provider-google/pull/27792))
+* **New List Resource:** `google_monitoring_alert_policy` ([#27758](https://github.com/hashicorp/terraform-provider-google/pull/27758))
+* **New List Resource:** `google_pubsub_subscription` ([#27758](https://github.com/hashicorp/terraform-provider-google/pull/27758))
+
+IMPROVEMENTS:
+* apigee: added new resource `google_apigee_environment_debugmask` for managing Apigee environment debug masks ([#27719](https://github.com/hashicorp/terraform-provider-google/pull/27719))
+* backupdr: added support for `use_project_service_account` flag in `google_backup_dr_restore_workload` disk and compute restores ([#27797](https://github.com/hashicorp/terraform-provider-google/pull/27797))
+* cloudrunv2: added `http_get.http_headers.name` field to container startup probe and liveness probe in `google_cloud_run_v2_worker_pool` resource ([#27800](https://github.com/hashicorp/terraform-provider-google/pull/27800))
+* cloudrunv2: added `template.client` and `template.client_version` fields to `google_cloud_run_v2_worker_pool` resource ([#27757](https://github.com/hashicorp/terraform-provider-google/pull/27757))
+* cloudsecuritycompliance: added support for project parent to `google_cloud_security_compliance_cloud_control`, `google_cloud_security_compliance_framework`, and `google_cloud_security_compliance_framework_deployment` via the new `parent` field. The `organization` field has been deprecated. ([#27769](https://github.com/hashicorp/terraform-provider-google/pull/27769))
+* compute: added `params.resource_manager_tags` field to `google_compute_reservation` resource ([#27770](https://github.com/hashicorp/terraform-provider-google/pull/27770))
+* compute: added data sources for `google_compute_target_http_proxy`, `google_compute_target_https_proxy`, `google_compute_region_target_http_proxy`, and `google_compute_region_target_https_proxy` ([#27767](https://github.com/hashicorp/terraform-provider-google/pull/27767))
+* container: added `addons_config.slurm_operator_config` field to `google_container_cluster` resource ([#27765](https://github.com/hashicorp/terraform-provider-google/pull/27765))
+* container: added `node_image_config` field to `google_container_node_pool` and `google_container_cluster` resources ([#27794](https://github.com/hashicorp/terraform-provider-google/pull/27794))
+* databasemigrationservice: added `state` and `stop_on_warnings` fields to `google_database_migration_service_migration_job` resource ([#27731](https://github.com/hashicorp/terraform-provider-google/pull/27731))
+* dns: added resource identity support for `google_dns_record_set` resource ([#27792](https://github.com/hashicorp/terraform-provider-google/pull/27792))
+* networksecurity: added `network_rules` field on `google_network_security_authz_policy` resource ([#27821](https://github.com/hashicorp/terraform-provider-google/pull/27821))
+* pubsub: added `first_revision_id` and `last_revision_id` fields to `google_pubsub_topic` resource ([#27718](https://github.com/hashicorp/terraform-provider-google/pull/27718))
+* sql: added `settings.ip_configuration.psc_config.psc_auto_dns_enabled` and `settings.ip_configuration.psc_config.psc_write_endpoint_dns_enabled` fields to `google_sql_database_instance` resource ([#27776](https://github.com/hashicorp/terraform-provider-google/pull/27776))
+
+BUG FIXES:
+* apigee: fixed `google_apigee_api` not detecting local bundle changes due to a missing default on `detect_md5hash`, and fixed the test sweeper's list URL ([#27791](https://github.com/hashicorp/terraform-provider-google/pull/27791))
+* apigee: fixed `google_apigee_security_action` update failure by enabling PATCH-based updates now that the Apigee Security Actions API supports mutations ([#27768](https://github.com/hashicorp/terraform-provider-google/pull/27768))
+* apigee: fixed a perma-diff for `api_products` and `scopes` fields in `google_apigee_developer_app` resource when updating them with multiple items ([#27789](https://github.com/hashicorp/terraform-provider-google/pull/27789))
+* apigee: fixed an issue where the resource would attempt recreation if the `key_expires_in` field was set in `google_apigee_developer_app` resource ([#27779](https://github.com/hashicorp/terraform-provider-google/pull/27779))
+* ces: fixed persistent diff in `google_ces_guardrail` when `llm_prompt_security` is configured with `default_settings` ([#27766](https://github.com/hashicorp/terraform-provider-google/pull/27766))
+* cloudrun: fixed a permadiff for the `run.googleapis.com/gpu-zonal-redundancy-disabled` annotation in `google_cloud_run_service` ([#27787](https://github.com/hashicorp/terraform-provider-google/pull/27787))
+* cloudrunv2: fixed bug where only one `http_get.http_headers` block could be specified in container startup probe and liveness probe in `google_cloud_run_v2_worker_pool` resource ([#27800](https://github.com/hashicorp/terraform-provider-google/pull/27800))
+* compute: fixed an issue in `google_compute_subnetwork` where `secondary_ip_range` entries linked to an `internal_range` could not be removed and adding new ranges would sometimes fail due to positional shifts ([#27175](https://github.com/hashicorp/terraform-provider-google/issues/27175)) ([#27720](https://github.com/hashicorp/terraform-provider-google/pull/27720))
+* compute: fixed diff when using `existing_reservations` field in `google_region_commitment` ([#27775](https://github.com/hashicorp/terraform-provider-google/pull/27775))
+* compute: fixed rules in `google_compute_security_policy` being unnecessarily recreated due to TypeSet hash instability ([#27754](https://github.com/hashicorp/terraform-provider-google/pull/27754))
+* sql: fixed inconsistent result after apply error when adding `users` of type `CLOUD_IAM_GROUP` with capitalized domain names for MySQL ([#27784](https://github.com/hashicorp/terraform-provider-google/pull/27784))
+* storage: fixed OOM issue for `google_storage_bucket` `force_destroy` by limiting the number of outstanding tasks to 2000 ([#27777](https://github.com/hashicorp/terraform-provider-google/pull/27777))
+
 ## 7.36.0 (June 9, 2026)
 
 FEATURES:
