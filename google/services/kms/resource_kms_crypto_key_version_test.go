@@ -27,6 +27,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 )
 
 func TestAccKmsCryptoKeyVersion_basic(t *testing.T) {
@@ -53,6 +54,34 @@ func TestAccKmsCryptoKeyVersion_basic(t *testing.T) {
 			},
 			{
 				Config: testGoogleKmsCryptoKeyVersion_removed(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
+			},
+		},
+	})
+}
+
+func TestAccKmsCryptoKeyVersion_importBlockWithResourceIdentity(t *testing.T) {
+	t.Parallel()
+
+	projectId := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_12_0),
+		},
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleKmsCryptoKeyVersion_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
+			},
+			{
+				ResourceName:    "google_kms_crypto_key_version.crypto_key_version",
+				ImportState:     true,
+				ImportStateKind: resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
