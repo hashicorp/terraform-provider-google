@@ -1,0 +1,3 @@
+```release-note:enhancement
+kms: added resource identity support for `google_kms_crypto_key_version` resource
+```
