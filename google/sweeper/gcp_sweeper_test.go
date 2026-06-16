@@ -31,6 +31,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/backupdr"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/beyondcorp"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/biglake"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/biglakehive"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/biglakeiceberg"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquery"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigqueryanalyticshub"

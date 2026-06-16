@@ -91,6 +91,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Biglake",
         "path" to "./google/services/biglake"
     ),
+    "biglakehive" to mapOf(
+        "name" to "biglakehive",
+        "displayName" to "BiglakeHive",
+        "path" to "./google/services/biglakehive"
+    ),
     "biglakeiceberg" to mapOf(
         "name" to "biglakeiceberg",
         "displayName" to "BiglakeIceberg",
