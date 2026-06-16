@@ -37,6 +37,7 @@ IMPROVEMENTS:
 * container: added `node_image_config` field to `google_container_node_pool` and `google_container_cluster` resources ([#27794](https://github.com/hashicorp/terraform-provider-google/pull/27794))
 * databasemigrationservice: added `state` and `stop_on_warnings` fields to `google_database_migration_service_migration_job` resource ([#27731](https://github.com/hashicorp/terraform-provider-google/pull/27731))
 * dns: added resource identity support for `google_dns_record_set` resource ([#27792](https://github.com/hashicorp/terraform-provider-google/pull/27792))
+* networksecurity: added `network_rules` field on `google_network_security_authz_policy` resource ([#27821](https://github.com/hashicorp/terraform-provider-google/pull/27821))
 * pubsub: added `first_revision_id` and `last_revision_id` fields to `google_pubsub_topic` resource ([#27718](https://github.com/hashicorp/terraform-provider-google/pull/27718))
 * sql: added `settings.ip_configuration.psc_config.psc_auto_dns_enabled` and `settings.ip_configuration.psc_config.psc_write_endpoint_dns_enabled` fields to `google_sql_database_instance` resource ([#27776](https://github.com/hashicorp/terraform-provider-google/pull/27776))
 
