@@ -296,6 +296,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: ValidateCustomEndpoint,
 			},
+			"biglake_hive_custom_endpoint": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateCustomEndpoint,
+			},
 			"biglake_iceberg_custom_endpoint": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
