@@ -1273,11 +1273,7 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 	if networkPerformanceConfig != nil {
 		instanceProperties["networkPerformanceConfig"] = networkPerformanceConfig
 	}
-	if tags := resourceInstanceTags(d); tags != nil {
-		tagsMap, err := tpgresource.ConvertToMap(tags)
-		if err != nil {
-			return fmt.Errorf("Error converting tags: %s", err)
-		}
+	if tagsMap := resourceInstanceTags(d); tagsMap != nil {
 		instanceProperties["tags"] = tagsMap
 	}
 	if cic := expandConfidentialInstanceConfig(d); cic != nil {
@@ -1557,7 +1553,7 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 		}
 	}
 	if instanceTemplate.Properties.GuestAccelerators != nil {
-		if err = d.Set("guest_accelerator", flattenGuestAccelerators(instanceTemplate.Properties.GuestAccelerators)); err != nil {
+		if err = d.Set("guest_accelerator", flattenGuestAccelerators(guestAcceleratorsToInterface(instanceTemplate.Properties.GuestAccelerators))); err != nil {
 			return fmt.Errorf("Error setting guest_accelerator: %s", err)
 		}
 	}

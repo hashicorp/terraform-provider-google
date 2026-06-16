@@ -1738,6 +1738,15 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		return nil, fmt.Errorf("Error creating guest accelerators: %s", err)
 	}
 
+	tagsMap := resourceInstanceTags(d)
+	var tags *compute.Tags
+	if tagsMap != nil {
+		tags = &compute.Tags{}
+		if err := tpgresource.Convert(tagsMap, tags); err != nil {
+			return nil, fmt.Errorf("Error converting tags: %s", err)
+		}
+	}
+
 	reservationAffinityMap, err := expandReservationAffinity(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating reservation affinity: %s", err)
@@ -1769,7 +1778,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		Name:                     d.Get("name").(string),
 		NetworkInterfaces:        networkInterfaces,
 		NetworkPerformanceConfig: networkPerformanceConfig,
-		Tags:                     resourceInstanceTags(d),
+		Tags:                     tags,
 		Params:                   params,
 		Labels:                   tpgresource.ExpandEffectiveLabels(d),
 		ServiceAccounts:          expandServiceAccountsTyped(d.Get("service_account").([]interface{})),
@@ -2211,7 +2220,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error setting scheduling: %s", err)
 	}
 
-	if err := d.Set("guest_accelerator", flattenGuestAccelerators(instance.GuestAccelerators)); err != nil {
+	if err := d.Set("guest_accelerator", flattenGuestAccelerators(guestAcceleratorsToInterface(instance.GuestAccelerators))); err != nil {
 		return fmt.Errorf("Error setting guest_accelerator: %s", err)
 	}
 	var shieldedVmConfigMap map[string]interface{}
@@ -2463,15 +2472,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("tags") {
-		tags := resourceInstanceTags(d)
-		tagsV1 := &compute.Tags{}
-		if err := tpgresource.Convert(tags, tagsV1); err != nil {
-			return err
-		}
-		tagsBody, err := tpgresource.ConvertToMap(tagsV1)
-		if err != nil {
-			return fmt.Errorf("Error converting tags: %s", err)
-		}
+		tagsBody := resourceInstanceTags(d)
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/setTags")
 		if err != nil {
 			return fmt.Errorf("Error generating URL: %s", err)

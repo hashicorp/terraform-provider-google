@@ -1576,6 +1576,15 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	}
 	resourcePolicies := expandInstanceTemplateResourcePolicies(d, "resource_policies")
 
+	tagsMap := resourceInstanceTags(d)
+	var tags *compute.Tags
+	if tagsMap != nil {
+		tags = &compute.Tags{}
+		if err := tpgresource.Convert(tagsMap, tags); err != nil {
+			return fmt.Errorf("Error converting tags: %s", err)
+		}
+	}
+
 	instanceProperties := &compute.InstanceProperties{
 		CanIpForward:             d.Get("can_ip_forward").(bool),
 		Description:              d.Get("instance_description").(string),
@@ -1588,7 +1597,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		NetworkPerformanceConfig: networkPerformanceConfig,
 		Scheduling:               scheduling,
 		ServiceAccounts:          expandServiceAccountsTyped(d.Get("service_account").([]interface{})),
-		Tags:                     resourceInstanceTags(d),
+		Tags:                     tags,
 		AdvancedMachineFeatures:  expandAdvancedMachineFeatures(d),
 		ResourcePolicies:         resourcePolicies,
 		ReservationAffinity:      reservationAffinity,
@@ -2080,7 +2089,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if instanceTemplate.Properties.GuestAccelerators != nil {
-		if err = d.Set("guest_accelerator", flattenGuestAccelerators(instanceTemplate.Properties.GuestAccelerators)); err != nil {
+		if err = d.Set("guest_accelerator", flattenGuestAccelerators(guestAcceleratorsToInterface(instanceTemplate.Properties.GuestAccelerators))); err != nil {
 			return fmt.Errorf("Error setting guest_accelerator: %s", err)
 		}
 	}

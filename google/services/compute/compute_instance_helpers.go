@@ -854,32 +854,49 @@ func serviceAccountsToInterface(serviceAccounts []*compute.ServiceAccount) []int
 	return result
 }
 
-func flattenGuestAccelerators(accelerators []*compute.AcceleratorConfig) []map[string]interface{} {
-	acceleratorsSchema := make([]map[string]interface{}, len(accelerators))
-	for i, accelerator := range accelerators {
-		acceleratorsSchema[i] = map[string]interface{}{
-			"count": accelerator.AcceleratorCount,
-			"type":  accelerator.AcceleratorType,
+func flattenGuestAccelerators(accelerators []interface{}) []map[string]interface{} {
+	acceleratorsSchema := make([]map[string]interface{}, 0, len(accelerators))
+	for _, raw := range accelerators {
+		accelerator, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
 		}
+		acceleratorsSchema = append(acceleratorsSchema, map[string]interface{}{
+			"count": accelerator["acceleratorCount"],
+			"type":  accelerator["acceleratorType"],
+		})
 	}
 	return acceleratorsSchema
 }
 
-func resourceInstanceTags(d tpgresource.TerraformResourceData) *compute.Tags {
-	// Calculate the tags
-	var tags *compute.Tags
-	if v := d.Get("tags"); v != nil {
-		vs := v.(*schema.Set)
-		tags = new(compute.Tags)
-		tags.Items = make([]string, vs.Len())
-		for i, v := range vs.List() {
-			tags.Items[i] = v.(string)
+// guestAcceleratorsToInterface adapts typed []*compute.AcceleratorConfig decoded
+// from an Apiary response into the []interface{} form accepted by
+// flattenGuestAccelerators.
+func guestAcceleratorsToInterface(accelerators []*compute.AcceleratorConfig) []interface{} {
+	result := make([]interface{}, len(accelerators))
+	for i, a := range accelerators {
+		result[i] = map[string]interface{}{
+			"acceleratorCount": a.AcceleratorCount,
+			"acceleratorType":  a.AcceleratorType,
 		}
-
-		tags.Fingerprint = d.Get("tags_fingerprint").(string)
 	}
+	return result
+}
 
-	return tags
+func resourceInstanceTags(d tpgresource.TerraformResourceData) map[string]interface{} {
+	v := d.Get("tags")
+	if v == nil {
+		return nil
+	}
+	vs := v.(*schema.Set)
+	items := make([]string, vs.Len())
+	for i, v := range vs.List() {
+		items[i] = v.(string)
+	}
+	return map[string]interface{}{
+		"items":       items,
+		"fingerprint": d.Get("tags_fingerprint").(string),
+	}
 }
 
 func expandShieldedVmConfigs(d tpgresource.TerraformResourceData) map[string]interface{} {
