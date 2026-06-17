@@ -89,6 +89,7 @@ func testAccSecretManagerSecret_secretConfigBasicExampleListQuery(context map[st
 	return acctest.Nprintf(`
 list "google_secret_manager_secret" "list_query" {
     provider = google
+	limit = 10000
     config {
     }
 }

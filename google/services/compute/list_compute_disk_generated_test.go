@@ -89,6 +89,7 @@ func testAccComputeDisk_diskBasicExampleListQuery(context map[string]interface{}
 	return acctest.Nprintf(`
 list "google_compute_disk" "list_query" {
     provider = google
+	limit = 10000
     config {
     }
 }

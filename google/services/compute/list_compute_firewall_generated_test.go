@@ -89,6 +89,7 @@ func testAccComputeFirewall_firewallBasicExampleListQuery(context map[string]int
 	return acctest.Nprintf(`
 list "google_compute_firewall" "list_query" {
     provider = google
+	limit = 10000
     config {
     }
 }

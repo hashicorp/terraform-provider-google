@@ -88,6 +88,7 @@ func testAccComputeGlobalAddress_globalAddressBasicExampleListQuery(context map[
 	return acctest.Nprintf(`
 list "google_compute_global_address" "list_query" {
     provider = google
+	limit = 10000
     config {
     }
 }
