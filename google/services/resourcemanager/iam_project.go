@@ -27,6 +27,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/cloudresourcemanager/v1"
+
+	"github.com/hashicorp/terraform-plugin-framework/list"
 )
 
 var IamProjectSchema = map[string]*schema.Schema{
@@ -70,6 +72,26 @@ func ProjectIamParentResourceIdentityParser(d *schema.ResourceData, identity *sc
 		return "", fmt.Errorf("import identity attribute %q must be a non-empty string", "project")
 	}
 	return s, nil
+}
+
+// NewProjectIamMemberListResource returns the list implementation for google_project_iam_member.
+func NewProjectIamMemberListResource() list.ListResource {
+	return tpgiamresource.NewIamMemberListResource(
+		"google_project_iam_member",
+		tpgiamresource.ResourceIamMember(
+			IamProjectSchema,
+			NewProjectIamUpdater,
+			ProjectIdParseFunc,
+			tpgiamresource.IamWithBatching,
+			tpgiamresource.IamWithParentResourceIdentity(ProjectIamParentResourceIdentityParser),
+		),
+		NewProjectIamUpdater,
+		tpgiamresource.IamMemberListCallConfig{
+			ParentResourceField: "project",
+			EnableRoleFilter:    true,
+			EnableMemberFilter:  true,
+		},
+	)
 }
 
 func (u *ProjectIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
