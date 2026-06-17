@@ -1,0 +1,3 @@
+```release-note:bug
+biglake: fixed creation failure of `google_biglake_iceberg_table` resource when the referenced `google_biglake_iceberg_catalog` has `credential_mode` set to `CREDENTIAL_MODE_VENDED_CREDENTIALS` due to a missing `X-Iceberg-Access-Delegation` header
+```
