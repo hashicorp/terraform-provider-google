@@ -93,6 +93,7 @@ func testAccSQLDatabase_sqlDatabaseBasicExampleListQuery(context map[string]inte
 variable "instance" { type = string }
 list "google_sql_database" "list_query" {
     provider = google
+	limit = 10000
     config {
         instance = var.instance
     }

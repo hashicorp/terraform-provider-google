@@ -89,6 +89,7 @@ func testAccComputeCrossSiteNetwork_computeCrossSiteNetworkBasicExampleListQuery
 	return acctest.Nprintf(`
 list "google_compute_cross_site_network" "list_query" {
     provider = google
+	limit = 10000
     config {
     }
 }

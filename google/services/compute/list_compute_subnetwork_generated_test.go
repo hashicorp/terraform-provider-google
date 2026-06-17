@@ -90,6 +90,7 @@ func testAccComputeSubnetwork_subnetworkBasicExampleListQuery(context map[string
 	return acctest.Nprintf(`
 list "google_compute_subnetwork" "list_query" {
     provider = google
+	limit = 10000
     config {
     }
 }

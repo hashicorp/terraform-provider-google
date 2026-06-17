@@ -92,6 +92,7 @@ func testAccCloudRunService_cloudRunServiceBasicExampleListQuery(context map[str
 variable "location" { type = string }
 list "google_cloud_run_service" "list_query" {
     provider = google
+	limit = 10000
     config {
         location = var.location
     }
