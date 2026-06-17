@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed broken import of `share_settings` on `google_compute_reservation`
+```

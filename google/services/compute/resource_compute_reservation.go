@@ -65,6 +65,10 @@ var (
 	_ = rmClient.NewClient
 )
 
+func computeReservationProjectMapDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return false
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -353,9 +357,10 @@ and values are in the format tagValues/456.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"project_map": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Description: `A map of project number and project config. This is only valid when shareType's value is SPECIFIC_PROJECTS.`,
+							Type:             schema.TypeSet,
+							Optional:         true,
+							DiffSuppressFunc: computeReservationProjectMapDiffSuppress,
+							Description:      `A map of project number and project config. This is only valid when shareType's value is SPECIFIC_PROJECTS.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
@@ -825,6 +830,18 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error setting block_names: %s", err)
 	}
 
+	res, err = resourceComputeReservationDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing ComputeReservation because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
@@ -1148,6 +1165,44 @@ func flattenComputeReservationSpecificReservationRequired(v interface{}, d *sche
 }
 
 func flattenComputeReservationStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeReservationShareSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["share_type"] =
+		flattenComputeReservationShareSettingsShareType(original["shareType"], d, config)
+	transformed["project_map"] =
+		flattenComputeReservationShareSettingsProjectMap(original["projectMap"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeReservationShareSettingsShareType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeReservationShareSettingsProjectMap(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.(map[string]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for k, raw := range l {
+		original := raw.(map[string]interface{})
+		transformed = append(transformed, map[string]interface{}{
+			"id":         k,
+			"project_id": flattenComputeReservationShareSettingsProjectMapProjectId(original["projectId"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeReservationShareSettingsProjectMapProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2214,6 +2269,102 @@ func resourceComputeReservationUpdateEncoder(d *schema.ResourceData, meta interf
 	return newObj, nil
 }
 
+func resourceComputeReservationDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+
+	if shareSettingsVal, ok := res["shareSettings"]; ok && shareSettingsVal != nil {
+		shareSettings := shareSettingsVal.(map[string]interface{})
+
+		config := meta.(*transport_tpg.Config)
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		// 1. Gather all unique project identifier strings from config
+		uniqueConfigProjects := make(map[string]bool)
+
+		// Config items from project_map
+		configProjectMapItems := make([]map[string]interface{}, 0)
+		if val, ok := d.GetOk("share_settings.0.project_map"); ok && val != nil {
+			for _, raw := range val.(*schema.Set).List() {
+				item := raw.(map[string]interface{})
+				configProjectMapItems = append(configProjectMapItems, item)
+				if id, ok := item["id"].(string); ok && id != "" {
+					uniqueConfigProjects[id] = true
+				}
+				if projId, ok := item["project_id"].(string); ok && projId != "" {
+					uniqueConfigProjects[projId] = true
+				}
+			}
+		}
+
+		// 2. Resolve all unique project identifiers to project numbers
+		projectToNumber := make(map[string]string)
+		for p := range uniqueConfigProjects {
+			_, err := strconv.Atoi(p)
+			if err != nil {
+				// Resolve to project number
+				proj, err := rmClient.NewClient(config, userAgent).Projects.Get(p).Do()
+				if err != nil {
+					log.Printf("[WARN] Failed to retrieve project metadata for %s: %s", p, err)
+					continue
+				}
+				projNumStr := strconv.FormatInt(proj.ProjectNumber, 10)
+				projectToNumber[p] = projNumStr
+			} else {
+				projectToNumber[p] = p
+			}
+		}
+
+		// Helper function to get project number for any configured string
+		getProjectNumber := func(p string) string {
+			if num, ok := projectToNumber[p]; ok {
+				return num
+			}
+			return p
+		}
+
+		// 3. Build lookup maps based on project numbers
+		configProjectMapItemsByNumber := make(map[string]map[string]interface{})
+		for _, item := range configProjectMapItems {
+			id := item["id"].(string)
+			idNum := getProjectNumber(id)
+			configProjectMapItemsByNumber[idNum] = item
+		}
+
+		// 4. Update API response projectMap using the lookup map
+		if apiProjectMapVal, ok := shareSettings["projectMap"]; ok && apiProjectMapVal != nil {
+			apiProjectMap := apiProjectMapVal.(map[string]interface{})
+			resolvedProjectMap := make(map[string]interface{})
+			for id, raw := range apiProjectMap {
+				originalMapItem := raw.(map[string]interface{})
+
+				resolvedID := id
+				resolvedProjID := originalMapItem["projectId"].(string)
+
+				// Look up in config using the API key (which is a project number)
+				if cfgItem, ok := configProjectMapItemsByNumber[id]; ok {
+					resolvedID = cfgItem["id"].(string)
+					resolvedProjID = cfgItem["project_id"].(string)
+				}
+
+				resolvedMapItem := make(map[string]interface{})
+				for k, v := range originalMapItem {
+					resolvedMapItem[k] = v
+				}
+				resolvedMapItem["projectId"] = resolvedProjID
+
+				resolvedProjectMap[resolvedID] = resolvedMapItem
+			}
+			shareSettings["projectMap"] = resolvedProjectMap
+		}
+
+		res["shareSettings"] = shareSettings
+	}
+
+	return res, nil
+}
+
 func ResourceComputeReservationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -2233,6 +2384,9 @@ func ResourceComputeReservationFlatten(d *schema.ResourceData, meta interface{},
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 	if err = d.Set("status", flattenComputeReservationStatus(res["status"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+	if err = d.Set("share_settings", flattenComputeReservationShareSettings(res["shareSettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 	if err = d.Set("specific_reservation", flattenComputeReservationSpecificReservation(res["specificReservation"], d, config)); err != nil {
