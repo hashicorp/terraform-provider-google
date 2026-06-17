@@ -1,0 +1,31 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_tensorboard_run
+generation_type: mmv1
+source_file: products/vertexai/TensorboardRun.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: TensorboardRun
+autogen_status: true
+autogen_version: 2
+fields:
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - field: experiment
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: tensorboard
+      provider_only: true
+    - field: tensorboard_run_id
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
