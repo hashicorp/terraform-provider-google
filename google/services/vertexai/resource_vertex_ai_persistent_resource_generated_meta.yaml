@@ -1,0 +1,51 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_persistent_resource
+generation_type: mmv1
+source_file: products/vertexai/PersistentResource.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: PersistentResource
+api_variant_patterns:
+    - projects/{project}/locations/{location}/persistentResources/{persistent_resource}
+fields:
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: error.code
+    - api_field: error.message
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: network
+    - api_field: pscInterfaceConfig.dnsPeeringConfigs.dnsName
+    - api_field: pscInterfaceConfig.dnsPeeringConfigs.targetDomain
+    - api_field: pscInterfaceConfig.networkAttachment
+    - api_field: reservedIpRanges
+    - api_field: resourcePools.autoscalingSpec.maxReplicaCount
+    - api_field: resourcePools.autoscalingSpec.minReplicaCount
+    - api_field: resourcePools.diskSpec.bootDiskSizeGb
+    - api_field: resourcePools.diskSpec.bootDiskType
+    - api_field: resourcePools.id
+    - api_field: resourcePools.machineSpec.acceleratorCount
+    - api_field: resourcePools.machineSpec.acceleratorType
+    - api_field: resourcePools.machineSpec.gpuPartitionSize
+    - api_field: resourcePools.machineSpec.machineType
+    - api_field: resourcePools.machineSpec.tpuTopology
+    - api_field: resourcePools.replicaCount
+    - api_field: resourceRuntimeSpec.raySpec.headNodeResourcePoolId
+    - api_field: resourceRuntimeSpec.raySpec.imageUri
+    - api_field: resourceRuntimeSpec.raySpec.resourcePoolImages
+    - api_field: resourceRuntimeSpec.serviceAccountSpec.enableCustomServiceAccount
+    - api_field: resourceRuntimeSpec.serviceAccountSpec.serviceAccount
+    - api_field: startTime
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
