@@ -19,8 +19,7 @@ fields:
     - api_field: labels
     - field: location
       provider_only: true
-    - field: name
-      provider_only: true
+    - api_field: name
     - api_field: networkConfig.dnsPeeringConfig.domains
     - api_field: networkConfig.dnsPeeringConfig.targetNetwork
     - api_field: networkConfig.dnsPeeringConfig.targetProject

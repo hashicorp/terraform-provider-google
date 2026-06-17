@@ -1,0 +1,3 @@
+```release-note:bug
+networkservices: fixed `name` field expansion for `google_network_services_agent_gateway` resources so that short names are automatically expanded to full resource names, preventing API validation errors on create and update.
+```
