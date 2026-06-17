@@ -498,6 +498,16 @@ The following arguments are supported:
   A Python function tool.
   Structure is [documented below](#nested_python_function).
 
+* `timeout` -
+  (Optional)
+  The timeout for the tool execution. If not set, the default timeout is 30
+  seconds for SYNCHRONOUS tools and 60 seconds for ASYNCHRONOUS tools.
+
+* `tool_fake_config` -
+  (Optional)
+  Configuration for tool behavior in fake mode.
+  Structure is [documented below](#nested_tool_fake_config).
+
 * `widget_tool` -
   (Optional)
   Represents a widget tool that the agent can invoke.
@@ -1273,6 +1283,24 @@ The following arguments are supported:
 * `python_code` -
   (Optional)
   The Python code to execute for the tool.
+
+<a name="nested_tool_fake_config"></a>The `tool_fake_config` block supports:
+
+* `enable_fake_mode` -
+  (Optional)
+  Whether the tool is using fake mode.
+
+* `code_block` -
+  (Optional)
+  Code block which will be executed instead of a real tool call.
+  Structure is [documented below](#nested_tool_fake_config_code_block).
+
+
+<a name="nested_tool_fake_config_code_block"></a>The `code_block` block supports:
+
+* `python_code` -
+  (Required)
+  Python code which will be invoked in tool fake mode.
 
 <a name="nested_widget_tool"></a>The `widget_tool` block supports:
 

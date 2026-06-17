@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `timeout` and `tool_fake_config` fields to `google_ces_tool` and `google_ces_toolset` resource
+```

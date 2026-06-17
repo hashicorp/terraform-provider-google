@@ -660,6 +660,36 @@ it will replace the placeholder in the schema.`,
 					},
 				},
 			},
+			"tool_fake_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for tools behavior in fake mode.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code_block": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Code block which will be executed instead of a real tool call.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"python_code": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Python code which will be invoked in tool fake mode.`,
+									},
+								},
+							},
+						},
+						"enable_fake_mode": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Whether the tool is using fake mode.`,
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -744,6 +774,12 @@ func resourceCESToolsetCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("mcp_toolset"); !tpgresource.IsEmptyValue(reflect.ValueOf(mcpToolsetProp)) && (ok || !reflect.DeepEqual(v, mcpToolsetProp)) {
 		obj["mcpToolset"] = mcpToolsetProp
+	}
+	toolFakeConfigProp, err := expandCESToolsetToolFakeConfig(d.Get("tool_fake_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tool_fake_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(toolFakeConfigProp)) && (ok || !reflect.DeepEqual(v, toolFakeConfigProp)) {
+		obj["toolFakeConfig"] = toolFakeConfigProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/toolsets?toolsetId={{toolset_id}}")
@@ -997,6 +1033,12 @@ func resourceCESToolsetUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("mcp_toolset"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mcpToolsetProp)) {
 		obj["mcpToolset"] = mcpToolsetProp
 	}
+	toolFakeConfigProp, err := expandCESToolsetToolFakeConfig(d.Get("tool_fake_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tool_fake_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, toolFakeConfigProp)) {
+		obj["toolFakeConfig"] = toolFakeConfigProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/toolsets/{{toolset_id}}")
 	if err != nil {
@@ -1025,6 +1067,10 @@ func resourceCESToolsetUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("mcp_toolset") {
 		updateMask = append(updateMask, "mcpToolset")
+	}
+
+	if d.HasChange("tool_fake_config") {
+		updateMask = append(updateMask, "toolFakeConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1613,6 +1659,42 @@ func flattenCESToolsetMcpToolsetTlsConfigCaCertsDisplayName(v interface{}, d *sc
 }
 
 func flattenCESToolsetMcpToolsetCustomHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolsetToolFakeConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_fake_mode"] =
+		flattenCESToolsetToolFakeConfigEnableFakeMode(original["enableFakeMode"], d, config)
+	transformed["code_block"] =
+		flattenCESToolsetToolFakeConfigCodeBlock(original["codeBlock"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolsetToolFakeConfigEnableFakeMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolsetToolFakeConfigCodeBlock(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["python_code"] =
+		flattenCESToolsetToolFakeConfigCodeBlockPythonCode(original["pythonCode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolsetToolFakeConfigCodeBlockPythonCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2440,6 +2522,65 @@ func expandCESToolsetMcpToolsetCustomHeaders(v interface{}, d tpgresource.Terraf
 	return m, nil
 }
 
+func expandCESToolsetToolFakeConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableFakeMode, err := expandCESToolsetToolFakeConfigEnableFakeMode(original["enable_fake_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableFakeMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableFakeMode"] = transformedEnableFakeMode
+	}
+
+	transformedCodeBlock, err := expandCESToolsetToolFakeConfigCodeBlock(original["code_block"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCodeBlock); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["codeBlock"] = transformedCodeBlock
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolsetToolFakeConfigEnableFakeMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolsetToolFakeConfigCodeBlock(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPythonCode, err := expandCESToolsetToolFakeConfigCodeBlockPythonCode(original["python_code"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPythonCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pythonCode"] = transformedPythonCode
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolsetToolFakeConfigCodeBlockPythonCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceCESToolsetFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -2465,6 +2606,9 @@ func ResourceCESToolsetFlatten(d *schema.ResourceData, meta interface{}, res map
 		return fmt.Errorf("Error reading Toolset: %s", err)
 	}
 	if err = d.Set("mcp_toolset", flattenCESToolsetMcpToolset(res["mcpToolset"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Toolset: %s", err)
+	}
+	if err = d.Set("tool_fake_config", flattenCESToolsetToolFakeConfig(res["toolFakeConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Toolset: %s", err)
 	}
 	if err = d.Set("update_time", flattenCESToolsetUpdateTime(res["updateTime"], d, config)); err != nil {
