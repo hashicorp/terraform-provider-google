@@ -714,6 +714,13 @@ resource "google_ces_toolset" "ces_toolset_bearer_token_config" {
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
 
+  tool_fake_config {
+    enable_fake_mode = true
+    code_block {
+      python_code = "def fake_tool_call(tool, input, callback_context): return {'result': 'fake'}"
+    }
+  }
+
   open_api_toolset {
     open_api_schema = <<-EOT
       openapi: 3.0.0
@@ -769,6 +776,13 @@ resource "google_ces_toolset" "ces_toolset_bearer_token_config" {
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
+
+  tool_fake_config {
+    enable_fake_mode = false
+    code_block {
+      python_code = "def fake_tool_call(tool, input, callback_context): return {'result': 'fake_updated'}"
+    }
+  }
 
   open_api_toolset {
     open_api_schema = <<-EOT

@@ -54,6 +54,8 @@ fields:
     - api_field: openApiToolset.tlsConfig.caCerts.cert
     - api_field: openApiToolset.tlsConfig.caCerts.displayName
     - api_field: openApiToolset.url
+    - api_field: toolFakeConfig.codeBlock.pythonCode
+    - api_field: toolFakeConfig.enableFakeMode
     - field: toolset_id
       provider_only: true
     - api_field: updateTime

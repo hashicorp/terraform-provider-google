@@ -1178,6 +1178,42 @@ docstring.`,
 					},
 				},
 			},
+			"timeout": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The timeout for the tool execution. If not set, the default timeout is 30
+seconds for SYNCHRONOUS tools and 60 seconds for ASYNCHRONOUS tools.`,
+			},
+			"tool_fake_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for tool behavior in fake mode.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code_block": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Code block which will be executed instead of a real tool call.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"python_code": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Python code which will be invoked in tool fake mode.`,
+									},
+								},
+							},
+						},
+						"enable_fake_mode": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Whether the tool is using fake mode.`,
+						},
+					},
+				},
+			},
 			"widget_tool": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -2298,6 +2334,18 @@ func resourceCESToolCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("python_function"); !tpgresource.IsEmptyValue(reflect.ValueOf(pythonFunctionProp)) && (ok || !reflect.DeepEqual(v, pythonFunctionProp)) {
 		obj["pythonFunction"] = pythonFunctionProp
 	}
+	timeoutProp, err := expandCESToolTimeout(d.Get("timeout"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("timeout"); !tpgresource.IsEmptyValue(reflect.ValueOf(timeoutProp)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
+		obj["timeout"] = timeoutProp
+	}
+	toolFakeConfigProp, err := expandCESToolToolFakeConfig(d.Get("tool_fake_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tool_fake_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(toolFakeConfigProp)) && (ok || !reflect.DeepEqual(v, toolFakeConfigProp)) {
+		obj["toolFakeConfig"] = toolFakeConfigProp
+	}
 	widgetToolProp, err := expandCESToolWidgetTool(d.Get("widget_tool"), d, config)
 	if err != nil {
 		return err
@@ -2574,6 +2622,18 @@ func resourceCESToolUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("python_function"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pythonFunctionProp)) {
 		obj["pythonFunction"] = pythonFunctionProp
 	}
+	timeoutProp, err := expandCESToolTimeout(d.Get("timeout"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("timeout"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutProp)) {
+		obj["timeout"] = timeoutProp
+	}
+	toolFakeConfigProp, err := expandCESToolToolFakeConfig(d.Get("tool_fake_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tool_fake_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, toolFakeConfigProp)) {
+		obj["toolFakeConfig"] = toolFakeConfigProp
+	}
 	widgetToolProp, err := expandCESToolWidgetTool(d.Get("widget_tool"), d, config)
 	if err != nil {
 		return err
@@ -2616,6 +2676,14 @@ func resourceCESToolUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("python_function") {
 		updateMask = append(updateMask, "pythonFunction")
+	}
+
+	if d.HasChange("timeout") {
+		updateMask = append(updateMask, "timeout")
+	}
+
+	if d.HasChange("tool_fake_config") {
+		updateMask = append(updateMask, "toolFakeConfig")
 	}
 
 	if d.HasChange("widget_tool") {
@@ -4662,6 +4730,46 @@ func flattenCESToolSystemToolDescription(v interface{}, d *schema.ResourceData, 
 }
 
 func flattenCESToolSystemToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolToolFakeConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_fake_mode"] =
+		flattenCESToolToolFakeConfigEnableFakeMode(original["enableFakeMode"], d, config)
+	transformed["code_block"] =
+		flattenCESToolToolFakeConfigCodeBlock(original["codeBlock"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolToolFakeConfigEnableFakeMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolToolFakeConfigCodeBlock(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["python_code"] =
+		flattenCESToolToolFakeConfigCodeBlockPythonCode(original["pythonCode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolToolFakeConfigCodeBlockPythonCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -6780,6 +6888,69 @@ func expandCESToolPythonFunctionPythonCode(v interface{}, d tpgresource.Terrafor
 	return v, nil
 }
 
+func expandCESToolTimeout(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolToolFakeConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableFakeMode, err := expandCESToolToolFakeConfigEnableFakeMode(original["enable_fake_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableFakeMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableFakeMode"] = transformedEnableFakeMode
+	}
+
+	transformedCodeBlock, err := expandCESToolToolFakeConfigCodeBlock(original["code_block"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCodeBlock); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["codeBlock"] = transformedCodeBlock
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolToolFakeConfigEnableFakeMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolToolFakeConfigCodeBlock(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPythonCode, err := expandCESToolToolFakeConfigCodeBlockPythonCode(original["python_code"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPythonCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pythonCode"] = transformedPythonCode
+	}
+
+	return transformed, nil
+}
+
+func expandCESToolToolFakeConfigCodeBlockPythonCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandCESToolWidgetTool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -7369,6 +7540,12 @@ func ResourceCESToolFlatten(d *schema.ResourceData, meta interface{}, res map[st
 		return fmt.Errorf("Error reading Tool: %s", err)
 	}
 	if err = d.Set("system_tool", flattenCESToolSystemTool(res["systemTool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("timeout", flattenCESToolTimeout(res["timeout"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tool: %s", err)
+	}
+	if err = d.Set("tool_fake_config", flattenCESToolToolFakeConfig(res["toolFakeConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tool: %s", err)
 	}
 	if err = d.Set("widget_tool", flattenCESToolWidgetTool(res["widgetTool"], d, config)); err != nil {

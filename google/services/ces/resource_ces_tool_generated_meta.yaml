@@ -202,6 +202,9 @@ fields:
     - api_field: remoteAgentTool.name
     - api_field: systemTool.description
     - api_field: systemTool.name
+    - api_field: timeout
+    - api_field: toolFakeConfig.codeBlock.pythonCode
+    - api_field: toolFakeConfig.enableFakeMode
     - field: tool_id
       provider_only: true
     - api_field: updateTime
