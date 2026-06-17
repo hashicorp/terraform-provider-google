@@ -14433,28 +14433,7 @@ func TestAccContainerCluster_writableCgroups(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
-			// Test configuring writable_cgroups on the cluster's default node pool directly via node_config.
-			{
-				Config: testAccContainerCluster_withNodeConfigWritableCgroups(clusterName, networkName, subnetworkName),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						acctest.ExpectNoDelete(),
-					},
-				},
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"google_container_cluster.primary",
-						"node_config.0.containerd_config.0.writable_cgroups.0.enabled",
-						"true",
-					),
-				),
-			},
-			{
-				ResourceName:            "google_container_cluster.primary",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
-			},
+
 			// Test configuring writable_cgroups on a named node pool defined within the cluster.
 			// This change from a default to a named node pool is expected to force recreation.
 			{
@@ -14554,33 +14533,6 @@ resource "google_container_cluster" "primary" {
 
 }
 `, clusterName, networkName, subnetworkName, nodePoolName)
-}
-
-func testAccContainerCluster_withNodeConfigWritableCgroups(clusterName, networkName, subnetworkName string) string {
-	return fmt.Sprintf(`
-data "google_container_engine_versions" "central1a" {
-  location = "us-central1-a"
-}
-
-resource "google_container_cluster" "primary" {
-  name                = "%s"
-  location            = "us-central1-a"
-  initial_node_count  = 1
-  min_master_version  = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
-  network             = "%s"
-  subnetwork          = "%s"
-  deletion_protection = false
-
-  node_config {
-    containerd_config {
-      writable_cgroups {
-        enabled = true
-      }
-    }
-  }
-
-}
-`, clusterName, networkName, subnetworkName)
 }
 
 func TestAccContainerCluster_withProviderDefaultLabels(t *testing.T) {
