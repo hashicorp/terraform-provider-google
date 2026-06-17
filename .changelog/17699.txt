@@ -1,0 +1,11 @@
+```release-note:new-list-resource
+`google_secret_manager_secret`
+```
+
+<details><summary>Local test output</summary>
+
+```
+--- ci-required ---
+TestAccSecretManagerSecretListQuery_generated: could not run locally — missing GOOGLE_CREDENTIALS.
+The generated test is included in the PR and must be validated by CI (modular-magician).
+```
