@@ -1,0 +1,43 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_chronicle_parser_extension
+generation_type: mmv1
+source_file: products/chronicle/ParserExtension.yaml
+api_service_name: chronicle.googleapis.com
+api_version: v1
+api_resource_type_kind: ParserExtension
+autogen_status: true
+autogen_version: 1
+fields:
+    - api_field: cbnSnippet
+    - api_field: createTime
+    - api_field: dynamicParsing.optedFields.path
+    - api_field: dynamicParsing.optedFields.sampleValue
+    - api_field: extensionValidationReport
+    - api_field: fieldExtractors.appendRepeatedFields
+    - api_field: fieldExtractors.extractors.destinationPath
+    - api_field: fieldExtractors.extractors.fieldPath
+    - api_field: fieldExtractors.extractors.preconditionOp
+    - api_field: fieldExtractors.extractors.preconditionPath
+    - api_field: fieldExtractors.extractors.preconditionValue
+    - api_field: fieldExtractors.extractors.value
+    - api_field: fieldExtractors.logFormat
+    - api_field: fieldExtractors.preprocessConfig.grokRegex
+    - api_field: fieldExtractors.preprocessConfig.target
+    - api_field: fieldExtractors.transformedCbnSnippet
+    - field: instance
+      provider_only: true
+    - api_field: lastLiveTime
+    - field: location
+      provider_only: true
+    - api_field: log
+    - field: log_type
+      provider_only: true
+    - api_field: name
+    - api_field: parserextension
+    - api_field: state
+    - api_field: stateLastChangedTime
+    - api_field: validationReport
+    - api_field: validationSkipped
+    - field: deletion_policy
+      provider_only: true
