@@ -108,6 +108,35 @@ func expandIcebergTableSortOrderForCommit(v interface{}) map[string]interface{} 
 	}
 }
 
+// addIcebergTableAccessDelegationHeader sets the X-Iceberg-Access-Delegation
+// header that the Iceberg REST catalog requires for every table operation when
+// the parent catalog uses credential_mode = CREDENTIAL_MODE_VENDED_CREDENTIALS.
+// The credential mode is a property of the catalog, not the table, so it is
+// looked up at request time. Catalogs in the default end-user mode reject the
+// header, so it is only added when vending is actually enabled.
+func addIcebergTableAccessDelegationHeader(d *schema.ResourceData, config *transport_tpg.Config, billingProject, userAgent string, headers http.Header) error {
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{catalog}}")
+	if err != nil {
+		return err
+	}
+
+	catalog, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog to determine credential mode: %s", err)
+	}
+
+	if mode, ok := catalog["credential-mode"].(string); ok && mode == "CREDENTIAL_MODE_VENDED_CREDENTIALS" {
+		headers.Add("X-Iceberg-Access-Delegation", "vended-credentials")
+	}
+	return nil
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -483,6 +512,9 @@ func resourceBiglakeIcebergIcebergTableCreate(d *schema.ResourceData, meta inter
 	}
 
 	headers := make(http.Header)
+	if err := addIcebergTableAccessDelegationHeader(d, config, billingProject, userAgent, headers); err != nil {
+		return err
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -565,6 +597,9 @@ func resourceBiglakeIcebergIcebergTableRead(d *schema.ResourceData, meta interfa
 	}
 
 	headers := make(http.Header)
+	if err := addIcebergTableAccessDelegationHeader(d, config, billingProject, userAgent, headers); err != nil {
+		return err
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -870,6 +905,10 @@ func resourceBiglakeIcebergIcebergTableUpdate(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Updating IcebergTable %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+	if err := addIcebergTableAccessDelegationHeader(d, config, billingProject, userAgent, headers); err != nil {
+		return err
+	}
+
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
 		billingProject = parts[1]
 	}
@@ -936,6 +975,9 @@ func resourceBiglakeIcebergIcebergTableDelete(d *schema.ResourceData, meta inter
 	}
 
 	headers := make(http.Header)
+	if err := addIcebergTableAccessDelegationHeader(d, config, billingProject, userAgent, headers); err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Deleting IcebergTable %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
