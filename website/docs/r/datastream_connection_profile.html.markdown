@@ -512,9 +512,13 @@ resource "google_datastream_connection_profile" "default" {
         replica_set = "myReplicaSet"
         username    = "mongoUser"
         password    = "mongoPassword"
-        database    = "myDatabase"
 
-        standard_connection_format = {}
+        standard_connection_format {}
+
+        additional_options = {
+          readPreference     = "secondary"
+          readPreferenceTags = "nodeType:ANALYTICS"
+        }
     }
 }
 ```
@@ -918,6 +922,12 @@ The following arguments are supported:
   (Optional)
   SSL configuration for the MongoDB connection.
   Structure is [documented below](#nested_mongodb_profile_ssl_config).
+
+* `additional_options` -
+  (Optional)
+  A map of additional options for the MongoDB connection.
+  Keys are case-sensitive and should match the official
+  MongoDB connection string options: https://www.mongodb.com/docs/manual/reference/connection-string-options/
 
 * `srv_connection_format` -
   (Optional)

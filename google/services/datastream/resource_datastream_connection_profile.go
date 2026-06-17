@@ -291,6 +291,14 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 							Required:    true,
 							Description: `Username for the MongoDB connection.`,
 						},
+						"additional_options": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Description: `A map of additional options for the MongoDB connection.
+Keys are case-sensitive and should match the official
+MongoDB connection string options: https://www.mongodb.com/docs/manual/reference/connection-string-options/`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
 						"password": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -1736,6 +1744,8 @@ func flattenDatastreamConnectionProfileMongodbProfile(v interface{}, d *schema.R
 		flattenDatastreamConnectionProfileMongodbProfileSecretManagerStoredPassword(original["secretManagerStoredPassword"], d, config)
 	transformed["ssl_config"] =
 		flattenDatastreamConnectionProfileMongodbProfileSslConfig(original["sslConfig"], d, config)
+	transformed["additional_options"] =
+		flattenDatastreamConnectionProfileMongodbProfileAdditionalOptions(original["additionalOptions"], d, config)
 	transformed["srv_connection_format"] =
 		flattenDatastreamConnectionProfileMongodbProfileSrvConnectionFormat(original["srvConnectionFormat"], d, config)
 	transformed["standard_connection_format"] =
@@ -1849,6 +1859,10 @@ func flattenDatastreamConnectionProfileMongodbProfileSslConfigCaCertificateSet(v
 
 func flattenDatastreamConnectionProfileMongodbProfileSslConfigSecretManagerStoredClientKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("mongodb_profile.0.ssl_config.0.secret_manager_stored_client_key")
+}
+
+func flattenDatastreamConnectionProfileMongodbProfileAdditionalOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDatastreamConnectionProfileMongodbProfileSrvConnectionFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2605,6 +2619,13 @@ func expandDatastreamConnectionProfileMongodbProfile(v interface{}, d tpgresourc
 		transformed["sslConfig"] = transformedSslConfig
 	}
 
+	transformedAdditionalOptions, err := expandDatastreamConnectionProfileMongodbProfileAdditionalOptions(original["additional_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAdditionalOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["additionalOptions"] = transformedAdditionalOptions
+	}
+
 	transformedSrvConnectionFormat, err := expandDatastreamConnectionProfileMongodbProfileSrvConnectionFormat(original["srv_connection_format"], d, config)
 	if err != nil {
 		return nil, err
@@ -2768,6 +2789,17 @@ func expandDatastreamConnectionProfileMongodbProfileSslConfigCaCertificateSet(v 
 
 func expandDatastreamConnectionProfileMongodbProfileSslConfigSecretManagerStoredClientKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDatastreamConnectionProfileMongodbProfileAdditionalOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandDatastreamConnectionProfileMongodbProfileSrvConnectionFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

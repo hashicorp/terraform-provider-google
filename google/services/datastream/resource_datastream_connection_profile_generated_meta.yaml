@@ -25,6 +25,7 @@ fields:
     - api_field: labels
     - field: location
       provider_only: true
+    - api_field: mongodbProfile.additionalOptions
     - api_field: mongodbProfile.hostAddresses.hostname
     - api_field: mongodbProfile.hostAddresses.port
     - api_field: mongodbProfile.password
