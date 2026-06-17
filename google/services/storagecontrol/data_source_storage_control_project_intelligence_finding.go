@@ -27,124 +27,31 @@ import (
 )
 
 func DataSourceGoogleStorageControlProjectIntelligenceFinding() *schema.Resource {
-	return &schema.Resource{
-		Read: dataSourceGoogleStorageControlProjectIntelligenceFindingRead,
-		Schema: map[string]*schema.Schema{
-			"finding_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The ID of the intelligence finding.`,
-			},
-			"location": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "global",
-				Description: `The location of the intelligence finding. Currently default value is global and users cannot use for input for now.`,
-			},
-			"project": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
-			},
-			"name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The resource name of the finding.`,
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `A short description of the finding.`,
-			},
-			"type": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The type of this finding.`,
-			},
-			"category": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The category of the finding.`,
-			},
-			"severity": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The severity of the finding.`,
-			},
-			"create_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The time when the finding was created.`,
-			},
-			"update_time": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The time when the finding was last updated.`,
-			},
-			"target_resource": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The fully qualified resource name of the resource that this IntelligenceFinding applies to.`,
-			},
-			"associated_resources": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: `Google Cloud resource names that are relevant to the IntelligenceFinding. This list also includes the targetResource.`,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"observation_period": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: `The time interval from which the underlying data generated this IntelligenceFinding was observed.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"start_time": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"end_time": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"coldline_and_archival_storage_operations_spike": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "A finding about a spike in Class A or Class B operations on Coldline or Archive Cloud Storage objects.",
-				Elem: &schema.Resource{
-					Schema: storageControlColdlineSpikeSchema(),
-				},
-			},
-			"throttled_requests_spike": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "A finding about a spike in throttled requests (429 errors) within a project.",
-				Elem: &schema.Resource{
-					Schema: storageControlThrottledRequestsSpikeSchema(),
-				},
-			},
-			"cross_region_egress_spike": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "A finding about a spike in cross-region egress from Cloud Storage.",
-				Elem: &schema.Resource{
-					Schema: storageControlCrossRegionEgressSpikeSchema(),
-				},
-			},
-			"storage_growth_above_trend": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "A finding about a spike in storage growth (bytes or object count) that is outside the normal historical trend.",
-				Elem: &schema.Resource{
-					Schema: storageControlStorageGrowthSpikeSchema(),
-				},
-			},
+	s := map[string]*schema.Schema{
+		"finding_id": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: `The ID of the intelligence finding.`,
 		},
+		"location": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Default:     "global",
+			Description: `The location of the intelligence finding. Currently default value is global and users cannot use for input for now.`,
+		},
+		"project": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Computed:    true,
+			Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
+		},
+	}
+	for k, v := range storageControlIntelligenceFindingSchema() {
+		s[k] = v
+	}
+	return &schema.Resource{
+		Read:   dataSourceGoogleStorageControlProjectIntelligenceFindingRead,
+		Schema: s,
 	}
 }
 
@@ -177,47 +84,14 @@ func dataSourceGoogleStorageControlProjectIntelligenceFindingRead(d *schema.Reso
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, "StorageControlProjectIntelligenceFinding", fmt.Sprintf("StorageControlProjectIntelligenceFinding %s", findingId))
 	}
 
-	if err := d.Set("name", res["name"]); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
+	flatFinding := flattenStorageControlIntelligenceFinding(res)
+	if flatFinding == nil {
+		return fmt.Errorf("Error flattening intelligence finding response")
 	}
-	if err := d.Set("description", res["description"]); err != nil {
-		return fmt.Errorf("Error setting description: %s", err)
-	}
-	if err := d.Set("type", res["type"]); err != nil {
-		return fmt.Errorf("Error setting type: %s", err)
-	}
-	if err := d.Set("category", res["category"]); err != nil {
-		return fmt.Errorf("Error setting category: %s", err)
-	}
-	if err := d.Set("severity", res["severity"]); err != nil {
-		return fmt.Errorf("Error setting severity: %s", err)
-	}
-	if err := d.Set("create_time", res["createTime"]); err != nil {
-		return fmt.Errorf("Error setting create_time: %s", err)
-	}
-	if err := d.Set("update_time", res["updateTime"]); err != nil {
-		return fmt.Errorf("Error setting update_time: %s", err)
-	}
-	if err := d.Set("target_resource", res["targetResource"]); err != nil {
-		return fmt.Errorf("Error setting target_resource: %s", err)
-	}
-	if err := d.Set("associated_resources", flattenStorageControlStringList(res["associatedResources"])); err != nil {
-		return fmt.Errorf("Error setting associated_resources: %s", err)
-	}
-	if err := d.Set("observation_period", flattenStorageControlObservationPeriod(res["observationPeriod"])); err != nil {
-		return fmt.Errorf("Error setting observation_period: %s", err)
-	}
-	if err := d.Set("coldline_and_archival_storage_operations_spike", flattenStorageControlColdlineSpike(res["coldlineAndArchivalStorageOperationsSpike"])); err != nil {
-		return fmt.Errorf("Error setting coldline_and_archival_storage_operations_spike: %s", err)
-	}
-	if err := d.Set("throttled_requests_spike", flattenStorageControlThrottledRequestsSpike(res["throttledRequestsSpike"])); err != nil {
-		return fmt.Errorf("Error setting throttled_requests_spike: %s", err)
-	}
-	if err := d.Set("cross_region_egress_spike", flattenStorageControlCrossRegionEgressSpike(res["crossRegionEgressSpike"])); err != nil {
-		return fmt.Errorf("Error setting cross_region_egress_spike: %s", err)
-	}
-	if err := d.Set("storage_growth_above_trend", flattenStorageControlStorageGrowthSpike(res["storageGrowthAboveTrend"])); err != nil {
-		return fmt.Errorf("Error setting storage_growth_above_trend: %s", err)
+	for k, v := range flatFinding {
+		if err := d.Set(k, v); err != nil {
+			return fmt.Errorf("Error setting %s: %s", k, err)
+		}
 	}
 
 	d.SetId(fmt.Sprintf("projects/%s/locations/%s/intelligenceFindings/%s", project, location, findingId))
