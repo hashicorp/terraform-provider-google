@@ -1,0 +1,27 @@
+```release-note:new-list-resource
+`google_compute_machine_image` (beta)
+```
+```release-note:new-list-resource
+`google_compute_address`
+```
+```release-note:new-list-resource
+`google_compute_https_health_check`
+```
+```release-note:new-list-resource
+`google_compute_node_template`
+```
+```release-note:new-list-resource
+`google_compute_packet_mirroring`
+```
+```release-note:new-list-resource
+`google_compute_region_autoscaler`
+```
+```release-note:new-list-resource
+`google_compute_region_composite_health_check`
+```
+```release-note:new-list-resource
+`google_compute_region_health_aggregation_policy`
+```
+```release-note:new-list-resource
+`google_compute_region_health_source`
+```
