@@ -1,0 +1,3 @@
+```release-note:bug
+networkconnectivity: fixed `google_network_connectivity_regional_endpoint` being recreated on every apply when `address` is set to a resource URI
+```
