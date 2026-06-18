@@ -598,6 +598,15 @@ func flattenNetworkConnectivityRegionalEndpointNetwork(v interface{}, d *schema.
 }
 
 func flattenNetworkConnectivityRegionalEndpointSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	configured := d.Get("subnetwork").(string)
+	if configured == "" || d.Id() == "" {
+		return v
+	}
+	// The API does not always include the subnetwork in the response.
+	// When absent, preserve the configured value to prevent a permadiff.
+	if v == nil {
+		return configured
+	}
 	return v
 }
 
@@ -610,6 +619,18 @@ func flattenNetworkConnectivityRegionalEndpointPscForwardingRule(v interface{}, 
 }
 
 func flattenNetworkConnectivityRegionalEndpointAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	// The API resolves address resource URIs to raw IPs. If the user
+	// configured a URI, preserve it in state so Terraform doesn't see
+	// a diff between the URI (config) and IP (API response).
+	// This only preserves when the resource already exists (not on create),
+	// so the address field is still sent correctly in the CREATE request.
+	configured := d.Get("address").(string)
+	if configured != "" && strings.Contains(configured, "/") && d.Id() != "" {
+		return configured
+	}
 	return v
 }
 
