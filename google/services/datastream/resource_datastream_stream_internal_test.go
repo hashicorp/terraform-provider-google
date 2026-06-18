@@ -23,6 +23,116 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
+func TestDatastreamStreamObjectsSetStyleDiff(t *testing.T) {
+	t.Parallel()
+
+	basePath := "source_config.0.salesforce_source_config.0.include_objects.0.objects"
+
+	cases := []struct {
+		name        string
+		before      map[string]interface{}
+		after       map[string]interface{}
+		keysPrefix  []string
+		wantCleared bool
+	}{
+		{
+			name: "same objects different order — suppress diff",
+			before: map[string]interface{}{
+				basePath + ".#": 2,
+				basePath + ".0": map[string]interface{}{"object_name": "Account"},
+				basePath + ".1": map[string]interface{}{"object_name": "Contact"},
+			},
+			after: map[string]interface{}{
+				basePath + ".#": 2,
+				basePath + ".0": map[string]interface{}{"object_name": "Contact"},
+				basePath + ".1": map[string]interface{}{"object_name": "Account"},
+			},
+			keysPrefix:  []string{basePath + ".0.object_name", basePath + ".1.object_name"},
+			wantCleared: true,
+		},
+		{
+			name: "different objects same count — show diff",
+			before: map[string]interface{}{
+				basePath + ".#": 2,
+				basePath + ".0": map[string]interface{}{"object_name": "Account"},
+				basePath + ".1": map[string]interface{}{"object_name": "Contact"},
+			},
+			after: map[string]interface{}{
+				basePath + ".#": 2,
+				basePath + ".0": map[string]interface{}{"object_name": "Account"},
+				basePath + ".1": map[string]interface{}{"object_name": "Lead"},
+			},
+			keysPrefix:  []string{basePath + ".1.object_name"},
+			wantCleared: false,
+		},
+		{
+			name: "object added — show diff",
+			before: map[string]interface{}{
+				basePath + ".#": 2,
+				basePath + ".0": map[string]interface{}{"object_name": "Account"},
+				basePath + ".1": map[string]interface{}{"object_name": "Contact"},
+			},
+			after: map[string]interface{}{
+				basePath + ".#": 3,
+				basePath + ".0": map[string]interface{}{"object_name": "Account"},
+				basePath + ".1": map[string]interface{}{"object_name": "Contact"},
+				basePath + ".2": map[string]interface{}{"object_name": "Lead"},
+			},
+			keysPrefix:  []string{basePath + ".2.object_name"},
+			wantCleared: false,
+		},
+		{
+			name: "object removed — show diff",
+			before: map[string]interface{}{
+				basePath + ".#": 3,
+				basePath + ".0": map[string]interface{}{"object_name": "Account"},
+				basePath + ".1": map[string]interface{}{"object_name": "Contact"},
+				basePath + ".2": map[string]interface{}{"object_name": "Lead"},
+			},
+			after: map[string]interface{}{
+				basePath + ".#": 2,
+				basePath + ".0": map[string]interface{}{"object_name": "Account"},
+				basePath + ".1": map[string]interface{}{"object_name": "Contact"},
+			},
+			keysPrefix:  []string{basePath + ".2.object_name"},
+			wantCleared: false,
+		},
+		{
+			name: "no changes — no action",
+			before: map[string]interface{}{
+				basePath + ".#": 2,
+				basePath + ".0": map[string]interface{}{"object_name": "Account"},
+				basePath + ".1": map[string]interface{}{"object_name": "Contact"},
+			},
+			after: map[string]interface{}{
+				basePath + ".#": 2,
+				basePath + ".0": map[string]interface{}{"object_name": "Account"},
+				basePath + ".1": map[string]interface{}{"object_name": "Contact"},
+			},
+			keysPrefix:  []string{},
+			wantCleared: false,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			diff := &tpgresource.ResourceDiffMock{
+				Before:     tc.before,
+				After:      tc.after,
+				KeysPrefix: tc.keysPrefix,
+			}
+			err := resourceDatastreamStreamObjectsSetStyleDiff(diff)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			cleared := diff.Cleared != nil && diff.Cleared[basePath] != nil
+			if cleared != tc.wantCleared {
+				t.Errorf("cleared = %v, want %v", cleared, tc.wantCleared)
+			}
+		})
+	}
+}
+
 func TestDatastreamStreamCustomDiff(t *testing.T) {
 	t.Parallel()
 
