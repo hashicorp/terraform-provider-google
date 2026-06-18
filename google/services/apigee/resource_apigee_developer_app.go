@@ -54,6 +54,132 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// setToList converts a value that may be a *schema.Set (TypeSet fields like
+// api_products and scopes) or already a []interface{} into a []interface{}.
+func setToList(v interface{}) []interface{} {
+	if set, ok := v.(*schema.Set); ok {
+		return set.List()
+	}
+	if list, ok := v.([]interface{}); ok {
+		return list
+	}
+	return nil
+}
+
+// developerAppKeyProductDiff returns the api products that need to be added and
+// removed to take the key's product list from old to new.
+func developerAppKeyProductDiff(oldProducts, newProducts []interface{}) (added []string, removed []string) {
+	oldSet := make(map[string]bool, len(oldProducts))
+	for _, p := range oldProducts {
+		if s, ok := p.(string); ok {
+			oldSet[s] = true
+		}
+	}
+	newSet := make(map[string]bool, len(newProducts))
+	for _, p := range newProducts {
+		if s, ok := p.(string); ok {
+			newSet[s] = true
+		}
+	}
+	for p := range newSet {
+		if !oldSet[p] {
+			added = append(added, p)
+		}
+	}
+	for p := range oldSet {
+		if !newSet[p] {
+			removed = append(removed, p)
+		}
+	}
+	return added, removed
+}
+
+// updateDeveloperAppKeyProductsAndScopes reconciles api_products and scopes on an
+// EXISTING developer app credential (consumer key) using the keys API, instead
+// of PUTting apiProducts on the app object (which causes Apigee to mint a brand
+// new credential, orphaning the previous one).
+//
+//   - Added products:   POST   .../keys/{key}            {"apiProducts":[...]}  (additive)
+//   - Removed products: DELETE .../keys/{key}/apiproducts/{product}
+//   - Scopes:           POST   .../keys/{key}            {"scopes":[...]}       (replaces)
+func updateDeveloperAppKeyProductsAndScopes(config *transport_tpg.Config, d *schema.ResourceData, billingProject, userAgent string) error {
+	consumerKey := ""
+	if creds, ok := d.Get("credentials").([]interface{}); ok && len(creds) > 0 {
+		if cred, ok := creds[0].(map[string]interface{}); ok {
+			if ck, ok := cred["consumer_key"].(string); ok {
+				consumerKey = ck
+			}
+		}
+	}
+	if consumerKey == "" {
+		return fmt.Errorf("cannot update api_products/scopes in place: no existing consumer_key found in state for DeveloperApp %q", d.Id())
+	}
+
+	keyURL, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/developers/{{developer_email}}/apps/{{name}}/keys/"+consumerKey)
+	if err != nil {
+		return err
+	}
+
+	if d.HasChange("api_products") {
+		oldRaw, newRaw := d.GetChange("api_products")
+		// api_products is a TypeSet, so GetChange returns *schema.Set.
+		added, removed := developerAppKeyProductDiff(setToList(oldRaw), setToList(newRaw))
+
+		if len(added) > 0 {
+			addedIfaces := make([]interface{}, len(added))
+			for i, p := range added {
+				addedIfaces[i] = p
+			}
+			log.Printf("[DEBUG] Adding api products %v to DeveloperApp key %s", added, consumerKey)
+			if _, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				Project:   billingProject,
+				RawURL:    keyURL,
+				UserAgent: userAgent,
+				Body:      map[string]interface{}{"apiProducts": addedIfaces},
+				Timeout:   d.Timeout(schema.TimeoutUpdate),
+			}); err != nil {
+				return fmt.Errorf("Error adding api products to DeveloperApp key: %s", err)
+			}
+		}
+
+		for _, p := range removed {
+			delURL := keyURL + "/apiproducts/" + p
+			log.Printf("[DEBUG] Removing api product %s from DeveloperApp key %s", p, consumerKey)
+			if _, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				Project:   billingProject,
+				RawURL:    delURL,
+				UserAgent: userAgent,
+				Timeout:   d.Timeout(schema.TimeoutUpdate),
+			}); err != nil {
+				return fmt.Errorf("Error removing api product %q from DeveloperApp key: %s", p, err)
+			}
+		}
+	}
+
+	if d.HasChange("scopes") {
+		// scopes is a TypeSet.
+		scopesRaw := setToList(d.Get("scopes"))
+		log.Printf("[DEBUG] Setting scopes %v on DeveloperApp key %s", scopesRaw, consumerKey)
+		if _, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    keyURL,
+			UserAgent: userAgent,
+			Body:      map[string]interface{}{"scopes": scopesRaw},
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		}); err != nil {
+			return fmt.Errorf("Error updating scopes on DeveloperApp key: %s", err)
+		}
+	}
+
+	return nil
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -705,29 +831,17 @@ func resourceApigeeDeveloperAppUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	identity, err := d.Identity()
-	if err == nil && identity != nil {
-		if nameValue, ok := d.GetOk("name"); ok && nameValue.(string) != "" {
-			if err = identity.Set("name", nameValue.(string)); err != nil {
-				return fmt.Errorf("Error setting name: %s", err)
-			}
-		}
-		if orgIdValue, ok := d.GetOk("org_id"); ok && orgIdValue.(string) != "" {
-			if err = identity.Set("org_id", orgIdValue.(string)); err != nil {
-				return fmt.Errorf("Error setting org_id: %s", err)
-			}
-		}
-		if developerEmailValue, ok := d.GetOk("developer_email"); ok && developerEmailValue.(string) != "" {
-			if err = identity.Set("developer_email", developerEmailValue.(string)); err != nil {
-				return fmt.Errorf("Error setting developer_email: %s", err)
-			}
-		}
-	} else {
-		log.Printf("[DEBUG] (Update) identity not set: %s", err)
-	}
 
 	billingProject := ""
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
 
+	// Build the app PUT body, intentionally EXCLUDING apiProducts and scopes.
+	// Sending apiProducts on the app object causes Apigee to create a brand new
+	// credential (consumer key) instead of updating the existing one, orphaning the
+	// previous key. apiProducts and scopes are reconciled on the existing key via
+	// the keys API below.
 	obj := make(map[string]interface{})
 	nameProp, err := expandApigeeDeveloperAppName(d.Get("name"), d, config)
 	if err != nil {
@@ -753,18 +867,6 @@ func resourceApigeeDeveloperAppUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("key_expires_in"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, keyExpiresInProp)) {
 		obj["keyExpiresIn"] = keyExpiresInProp
 	}
-	apiProductsProp, err := expandApigeeDeveloperAppApiProducts(d.Get("api_products"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("api_products"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, apiProductsProp)) {
-		obj["apiProducts"] = apiProductsProp
-	}
-	scopesProp, err := expandApigeeDeveloperAppScopes(d.Get("scopes"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("scopes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopesProp)) {
-		obj["scopes"] = scopesProp
-	}
 	statusProp, err := expandApigeeDeveloperAppStatus(d.Get("status"), d, config)
 	if err != nil {
 		return err
@@ -778,34 +880,39 @@ func resourceApigeeDeveloperAppUpdate(d *schema.ResourceData, meta interface{}) 
 		obj["attributes"] = attributesProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/developers/{{developer_email}}/apps/{{name}}")
-	if err != nil {
-		return err
-	}
+	// Only issue the app PUT if a non-key field actually changed.
+	appFieldChanged := d.HasChange("name") || d.HasChange("app_family") || d.HasChange("callback_url") ||
+		d.HasChange("key_expires_in") || d.HasChange("status") || d.HasChange("attributes")
 
-	log.Printf("[DEBUG] Updating DeveloperApp %q: %#v", d.Id(), obj)
-	headers := make(http.Header)
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PUT",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-		Headers:   headers,
-	})
-
-	if err != nil {
-		return fmt.Errorf("Error updating DeveloperApp %q: %s", d.Id(), err)
-	} else {
+	if appFieldChanged {
+		url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/developers/{{developer_email}}/apps/{{name}}")
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Updating DeveloperApp %q: %#v", d.Id(), obj)
+		headers := make(http.Header)
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PUT",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating DeveloperApp %q: %s", d.Id(), err)
+		}
 		log.Printf("[DEBUG] Finished updating DeveloperApp %q: %#v", d.Id(), res)
+	}
+
+	// Reconcile api_products and scopes on the existing credential (keys API),
+	// avoiding creation of a new credential.
+	if d.HasChange("api_products") || d.HasChange("scopes") {
+		if err := updateDeveloperAppKeyProductsAndScopes(config, d, billingProject, userAgent); err != nil {
+			return err
+		}
 	}
 
 	return resourceApigeeDeveloperAppRead(d, meta)

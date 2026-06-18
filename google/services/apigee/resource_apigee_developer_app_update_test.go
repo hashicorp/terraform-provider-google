@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -39,6 +40,11 @@ func TestAccApigeeDeveloperApp_apigeeDeveloperAppUpdateTest(t *testing.T) {
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
+	// Capture the consumer key created on first apply so we can assert that
+	// updating api_products/scopes reuses the SAME credential instead of minting
+	// a new one (the bug in hashicorp/terraform-provider-google#26524).
+	var originalConsumerKey string
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -52,6 +58,8 @@ func TestAccApigeeDeveloperApp_apigeeDeveloperAppUpdateTest(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "credentials.0.consumer_key"),
 					resource.TestCheckResourceAttrSet(resourceName, "credentials.0.consumer_secret"),
+					resource.TestCheckResourceAttr(resourceName, "credentials.#", "1"),
+					testAccApigeeDeveloperAppCaptureConsumerKey(resourceName, &originalConsumerKey),
 				),
 			},
 			{
@@ -65,6 +73,12 @@ func TestAccApigeeDeveloperApp_apigeeDeveloperAppUpdateTest(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "credentials.0.consumer_key"),
 					resource.TestCheckResourceAttrSet(resourceName, "credentials.0.consumer_secret"),
+					// Updating api_products must NOT create a second credential...
+					resource.TestCheckResourceAttr(resourceName, "credentials.#", "1"),
+					// ...and must keep the SAME consumer key.
+					testAccApigeeDeveloperAppCheckConsumerKeyUnchanged(resourceName, &originalConsumerKey),
+					// Both products should now be associated with that single key.
+					resource.TestCheckResourceAttr(resourceName, "api_products.#", "2"),
 				),
 			},
 			{
@@ -75,6 +89,38 @@ func TestAccApigeeDeveloperApp_apigeeDeveloperAppUpdateTest(t *testing.T) {
 			},
 		},
 	})
+}
+
+// testAccApigeeDeveloperAppCaptureConsumerKey records the current consumer key.
+func testAccApigeeDeveloperAppCaptureConsumerKey(resourceName string, dst *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+		key := rs.Primary.Attributes["credentials.0.consumer_key"]
+		if key == "" {
+			return fmt.Errorf("credentials.0.consumer_key is empty")
+		}
+		*dst = key
+		return nil
+	}
+}
+
+// testAccApigeeDeveloperAppCheckConsumerKeyUnchanged asserts the consumer key
+// equals the previously captured value, proving the credential was reused.
+func testAccApigeeDeveloperAppCheckConsumerKeyUnchanged(resourceName string, want *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+		got := rs.Primary.Attributes["credentials.0.consumer_key"]
+		if got != *want {
+			return fmt.Errorf("consumer_key changed after updating api_products: a new credential was minted (was %q, now %q)", *want, got)
+		}
+		return nil
+	}
 }
 
 func testAccApigeeDeveloperApp_apigeeDeveloperAppBasicTest(context map[string]interface{}) string {

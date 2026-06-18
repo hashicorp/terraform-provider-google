@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: `google_apigee_developer_app` now updates `api_products` and `scopes` on the existing credential instead of creating a new credential (consumer key) on update
+```
