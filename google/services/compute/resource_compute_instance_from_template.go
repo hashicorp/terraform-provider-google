@@ -246,7 +246,7 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *transport_t
 	disks := []*compute.AttachedDisk{}
 	re := regexp.MustCompile(`projects/[^/]+/regions/[^/]+/disks/[^/]+$`)
 	if _, hasBootDisk := d.GetOk("boot_disk"); hasBootDisk {
-		bootDisk, err := expandBootDisk(d, config, project)
+		bootDisk, err := expandBootDiskTyped(d, config, project)
 		if err != nil {
 			return nil, err
 		}
@@ -282,7 +282,7 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *transport_t
 	}
 
 	if _, hasScratchDisk := d.GetOk("scratch_disk"); hasScratchDisk {
-		scratchDisks, err := expandScratchDisks(d, config, project)
+		scratchDisks, err := expandScratchDisksTyped(d, config, project)
 		if err != nil {
 			return nil, err
 		}
@@ -307,7 +307,7 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *transport_t
 	if attachedDisksCount > 0 {
 		for i := 0; i < attachedDisksCount; i++ {
 			diskConfig := d.Get(fmt.Sprintf("attached_disk.%d", i)).(map[string]interface{})
-			disk, err := expandAttachedDisk(diskConfig, d, config)
+			disk, err := expandAttachedDiskTyped(diskConfig, d, config)
 			if err != nil {
 				return nil, err
 			}

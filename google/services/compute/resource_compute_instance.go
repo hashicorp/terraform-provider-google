@@ -1676,7 +1676,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 
 	disks := []*compute.AttachedDisk{}
 	if _, hasBootDisk := d.GetOk("boot_disk"); hasBootDisk {
-		bootDisk, err := expandBootDisk(d, config, project)
+		bootDisk, err := expandBootDiskTyped(d, config, project)
 		if err != nil {
 			return nil, err
 		}
@@ -1684,7 +1684,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 	}
 
 	if _, hasScratchDisk := d.GetOk("scratch_disk"); hasScratchDisk {
-		scratchDisks, err := expandScratchDisks(d, config, project)
+		scratchDisks, err := expandScratchDisksTyped(d, config, project)
 		if err != nil {
 			return nil, err
 		}
@@ -1695,7 +1695,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 
 	for i := 0; i < attachedDisksCount; i++ {
 		diskConfig := d.Get(fmt.Sprintf("attached_disk.%d", i)).(map[string]interface{})
-		disk, err := expandAttachedDisk(diskConfig, d, config)
+		disk, err := expandAttachedDiskTyped(diskConfig, d, config)
 		if err != nil {
 			return nil, err
 		}
@@ -1708,7 +1708,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		return nil, fmt.Errorf("Error creating scheduling: %s", err)
 	}
 
-	params, err := expandParams(d)
+	params, err := expandParamsTyped(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating params: %s", err)
 	}
@@ -1733,7 +1733,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 			return nil, fmt.Errorf("Error converting networkPerformanceConfig: %s", err)
 		}
 	}
-	accels, err := expandInstanceGuestAccelerators(d, config)
+	accels, err := expandInstanceGuestAcceleratorsTyped(d, config)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating guest accelerators: %s", err)
 	}
@@ -2540,13 +2540,9 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return fmt.Errorf("Error retrieving instance: %s", err)
 				}
 
-				params, err := expandParams(d)
+				paramsMap, err := expandParams(d)
 				if err != nil {
 					return fmt.Errorf("Error updating params: %s", err)
-				}
-				paramsMap, err := tpgresource.ConvertToMap(params)
-				if err != nil {
-					return fmt.Errorf("Error converting params: %s", err)
 				}
 				instMap["params"] = paramsMap
 
@@ -3122,7 +3118,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		oDisks := map[uint64]string{}
 		for _, disk := range o.([]interface{}) {
 			diskConfig := disk.(map[string]interface{})
-			computeDisk, err := expandAttachedDisk(diskConfig, d, config)
+			computeDisk, err := expandAttachedDiskTyped(diskConfig, d, config)
 			if err != nil {
 				return err
 			}
@@ -3143,7 +3139,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		var attach []*compute.AttachedDisk
 		for _, disk := range n.([]interface{}) {
 			diskConfig := disk.(map[string]interface{})
-			computeDisk, err := expandAttachedDisk(diskConfig, d, config)
+			computeDisk, err := expandAttachedDiskTyped(diskConfig, d, config)
 			if err != nil {
 				return err
 			}
@@ -3779,7 +3775,7 @@ func startInstanceOperation(d *schema.ResourceData, config *transport_tpg.Config
 	})
 }
 
-func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*compute.AttachedDisk, error) {
+func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (map[string]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
 
 	s := diskConfig["source"].(string)
@@ -3798,27 +3794,28 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 		sourceLink = source.RelativeLink()
 	}
 
-	disk := &compute.AttachedDisk{
-		Source: sourceLink,
+	disk := map[string]interface{}{
+		"source": sourceLink,
 	}
 
 	if v, ok := diskConfig["mode"]; ok {
-		disk.Mode = v.(string)
+		disk["mode"] = v.(string)
 	}
 
 	if v, ok := diskConfig["device_name"]; ok {
-		disk.DeviceName = v.(string)
+		disk["deviceName"] = v.(string)
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.interface"); ok && v != "" {
-		disk.Interface = v.(string)
+		disk["interface"] = v.(string)
 	}
 
+	var diskEncryptionKey map[string]interface{}
 	keyValue, keyOk := diskConfig["disk_encryption_key_raw"]
 	if keyOk {
 		if keyValue != "" {
-			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
-				RawKey: keyValue.(string),
+			diskEncryptionKey = map[string]interface{}{
+				"rawKey": keyValue.(string),
 			}
 		}
 	}
@@ -3826,8 +3823,8 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 	keyValue, keyOk = diskConfig["disk_encryption_key_rsa"]
 	if keyOk {
 		if keyValue != "" {
-			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
-				RsaEncryptedKey: keyValue.(string),
+			diskEncryptionKey = map[string]interface{}{
+				"rsaEncryptedKey": keyValue.(string),
 			}
 		}
 	}
@@ -3838,8 +3835,8 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 			return nil, errors.New("Only one of kms_key_self_link and disk_encryption_key_raw can be set")
 		}
 		if kmsValue != "" {
-			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
-				KmsKeyName: kmsValue.(string),
+			diskEncryptionKey = map[string]interface{}{
+				"kmsKeyName": kmsValue.(string),
 			}
 		}
 	}
@@ -3847,31 +3844,48 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 	kmsServiceAccount, kmsServiceAccountOk := diskConfig["disk_encryption_service_account"]
 	if kmsServiceAccountOk {
 		if kmsServiceAccount != "" {
-			if disk.DiskEncryptionKey == nil {
-				disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
-					KmsKeyServiceAccount: kmsServiceAccount.(string),
-				}
+			if diskEncryptionKey == nil {
+				diskEncryptionKey = map[string]interface{}{}
 			}
-			disk.DiskEncryptionKey.KmsKeyServiceAccount = kmsServiceAccount.(string)
+			diskEncryptionKey["kmsKeyServiceAccount"] = kmsServiceAccount.(string)
 		}
 	}
 
+	if diskEncryptionKey != nil {
+		disk["diskEncryptionKey"] = diskEncryptionKey
+	}
+
 	if forceAttach, ok := diskConfig["force_attach"]; ok {
-		disk.ForceAttach = forceAttach.(bool)
+		disk["forceAttach"] = forceAttach.(bool)
 	}
 
 	return disk, nil
 }
 
+// expandAttachedDiskTyped adapts the map-based expandAttachedDisk output to the
+// typed *compute.AttachedDisk still required by callers that build Apiary
+// request structs directly or read typed fields.
+func expandAttachedDiskTyped(diskConfig map[string]interface{}, d *schema.ResourceData, meta interface{}) (*compute.AttachedDisk, error) {
+	expanded, err := expandAttachedDisk(diskConfig, d, meta)
+	if err != nil {
+		return nil, err
+	}
+	disk := &compute.AttachedDisk{}
+	if err := convertViaJSON(expanded, disk); err != nil {
+		return nil, fmt.Errorf("Error converting attached disk: %s", err)
+	}
+	return disk, nil
+}
+
 // See comment on expandInstanceTemplateGuestAccelerators regarding why this
 // code is duplicated.
-func expandInstanceGuestAccelerators(d tpgresource.TerraformResourceData, config *transport_tpg.Config) ([]*compute.AcceleratorConfig, error) {
+func expandInstanceGuestAccelerators(d tpgresource.TerraformResourceData, config *transport_tpg.Config) ([]interface{}, error) {
 	configs, ok := d.GetOk("guest_accelerator")
 	if !ok {
 		return nil, nil
 	}
 	accels := configs.([]interface{})
-	guestAccelerators := make([]*compute.AcceleratorConfig, 0, len(accels))
+	guestAccelerators := make([]interface{}, 0, len(accels))
 	for _, raw := range accels {
 		data := raw.(map[string]interface{})
 		if data["count"].(int) == 0 {
@@ -3881,13 +3895,32 @@ func expandInstanceGuestAccelerators(d tpgresource.TerraformResourceData, config
 		if err != nil {
 			return nil, fmt.Errorf("cannot parse accelerator type: %v", err)
 		}
-		guestAccelerators = append(guestAccelerators, &compute.AcceleratorConfig{
-			AcceleratorCount: int64(data["count"].(int)),
-			AcceleratorType:  at.RelativeLink(),
+		guestAccelerators = append(guestAccelerators, map[string]interface{}{
+			"acceleratorCount": int64(data["count"].(int)),
+			"acceleratorType":  at.RelativeLink(),
 		})
 	}
 
 	return guestAccelerators, nil
+}
+
+// expandInstanceGuestAcceleratorsTyped adapts the map-based
+// expandInstanceGuestAccelerators output to the typed
+// []*compute.AcceleratorConfig still required by callers that build Apiary
+// request structs directly.
+func expandInstanceGuestAcceleratorsTyped(d tpgresource.TerraformResourceData, config *transport_tpg.Config) ([]*compute.AcceleratorConfig, error) {
+	expanded, err := expandInstanceGuestAccelerators(d, config)
+	if err != nil {
+		return nil, err
+	}
+	if expanded == nil {
+		return nil, nil
+	}
+	accels := make([]*compute.AcceleratorConfig, 0, len(expanded))
+	if err := convertViaJSON(expanded, &accels); err != nil {
+		return nil, fmt.Errorf("Error converting guest accelerators: %s", err)
+	}
+	return accels, nil
 }
 
 // suppressEmptyGuestAcceleratorDiff is used to work around perpetual diff
@@ -4073,76 +4106,87 @@ func resourceComputeInstanceImportState(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
-func expandParams(d *schema.ResourceData) (*compute.InstanceParams, error) {
-	params := &compute.InstanceParams{}
+func expandParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	params := map[string]interface{}{}
 
 	if _, ok := d.GetOk("params.0.resource_manager_tags"); ok {
-		params.ResourceManagerTags = tpgresource.ExpandStringMap(d, "params.0.resource_manager_tags")
+		params["resourceManagerTags"] = tpgresource.ExpandStringMap(d, "params.0.resource_manager_tags")
 	}
 
 	return params, nil
 }
 
-func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, project string) (*compute.AttachedDisk, error) {
+// expandParamsTyped adapts the map-based expandParams output to the typed
+// *compute.InstanceParams still required by callers that build Apiary request
+// structs directly.
+func expandParamsTyped(d *schema.ResourceData) (*compute.InstanceParams, error) {
+	expanded, err := expandParams(d)
+	if err != nil {
+		return nil, err
+	}
+	params := &compute.InstanceParams{}
+	if err := convertViaJSON(expanded, params); err != nil {
+		return nil, fmt.Errorf("Error converting params: %s", err)
+	}
+	return params, nil
+}
+
+func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, project string) (map[string]interface{}, error) {
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return nil, err
 	}
 
-	disk := &compute.AttachedDisk{
-		AutoDelete: d.Get("boot_disk.0.auto_delete").(bool),
-		Boot:       true,
+	disk := map[string]interface{}{
+		"autoDelete": d.Get("boot_disk.0.auto_delete").(bool),
+		"boot":       true,
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.device_name"); ok {
-		disk.DeviceName = v.(string)
+		disk["deviceName"] = v.(string)
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.interface"); ok {
-		disk.Interface = v.(string)
+		disk["interface"] = v.(string)
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.guest_os_features"); ok {
-		guestOsFeaturesSlice := expandComputeInstanceGuestOsFeatures(v)
-		disk.GuestOsFeatures = make([]*compute.GuestOsFeature, len(guestOsFeaturesSlice))
-		for i, raw := range guestOsFeaturesSlice {
-			disk.GuestOsFeatures[i] = &compute.GuestOsFeature{}
-			if m, ok := raw.(map[string]interface{}); ok && m != nil {
-				if err := tpgresource.Convert(m, disk.GuestOsFeatures[i]); err != nil {
-					return nil, fmt.Errorf("Error converting guest_os_features: %s", err)
-				}
-			}
-		}
+		disk["guestOsFeatures"] = expandComputeInstanceGuestOsFeatures(v)
 	}
 
+	var diskEncryptionKey map[string]interface{}
 	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_raw"); ok {
 		if v != "" {
-			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
-				RawKey: v.(string),
+			diskEncryptionKey = map[string]interface{}{
+				"rawKey": v.(string),
 			}
 		}
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_rsa"); ok {
 		if v != "" {
-			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
-				RsaEncryptedKey: v.(string),
+			diskEncryptionKey = map[string]interface{}{
+				"rsaEncryptedKey": v.(string),
 			}
 		}
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.kms_key_self_link"); ok {
 		if v != "" {
-			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
-				KmsKeyName: v.(string),
+			diskEncryptionKey = map[string]interface{}{
+				"kmsKeyName": v.(string),
 			}
 		}
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.disk_encryption_service_account"); ok {
 		if v != "" {
-			disk.DiskEncryptionKey.KmsKeyServiceAccount = v.(string)
+			diskEncryptionKey["kmsKeyServiceAccount"] = v.(string)
 		}
+	}
+
+	if diskEncryptionKey != nil {
+		disk["diskEncryptionKey"] = diskEncryptionKey
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.source"); ok {
@@ -4158,26 +4202,26 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 		if err != nil {
 			return nil, err
 		}
-		disk.Source = source.RelativeLink()
+		disk["source"] = source.RelativeLink()
 	}
 
 	if _, ok := d.GetOk("boot_disk.0.initialize_params"); ok {
-		disk.InitializeParams = &compute.AttachedDiskInitializeParams{}
+		initializeParams := map[string]interface{}{}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.size"); ok {
-			disk.InitializeParams.DiskSizeGb = int64(v.(int))
+			initializeParams["diskSizeGb"] = strconv.Itoa(v.(int))
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.provisioned_iops"); ok {
-			disk.InitializeParams.ProvisionedIops = int64(v.(int))
+			initializeParams["provisionedIops"] = strconv.Itoa(v.(int))
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.provisioned_throughput"); ok {
-			disk.InitializeParams.ProvisionedThroughput = int64(v.(int))
+			initializeParams["provisionedThroughput"] = strconv.Itoa(v.(int))
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.enable_confidential_compute"); ok {
-			disk.InitializeParams.EnableConfidentialCompute = v.(bool)
+			initializeParams["enableConfidentialCompute"] = v.(bool)
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.type"); ok {
@@ -4186,7 +4230,7 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 			if err != nil {
 				return nil, fmt.Errorf("Error loading disk type '%s': %s", diskTypeName, err)
 			}
-			disk.InitializeParams.DiskType = diskType.RelativeLink()
+			initializeParams["diskType"] = diskType.RelativeLink()
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image"); ok {
@@ -4196,16 +4240,13 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 				return nil, fmt.Errorf("Error resolving image name '%s': %s", imageName, err)
 			}
 
-			disk.InitializeParams.SourceImage = imageUrl
+			initializeParams["sourceImage"] = imageUrl
 		}
 
 		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.source_image_encryption_key"); ok {
 			sourceImageEncryptionKeyMap := expandComputeInstanceSourceEncryptionKey(d, "boot_disk.0.initialize_params.0.source_image_encryption_key")
 			if sourceImageEncryptionKeyMap != nil {
-				disk.InitializeParams.SourceImageEncryptionKey = &compute.CustomerEncryptionKey{}
-				if err := tpgresource.Convert(sourceImageEncryptionKeyMap, disk.InitializeParams.SourceImageEncryptionKey); err != nil {
-					return nil, fmt.Errorf("Error converting source_image_encryption_key: %s", err)
-				}
+				initializeParams["sourceImageEncryptionKey"] = sourceImageEncryptionKeyMap
 			}
 		}
 
@@ -4215,29 +4256,26 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 			if err != nil {
 				return nil, fmt.Errorf("Error resolving snapshot name '%s': %s", snapshotName, err)
 			}
-			disk.InitializeParams.SourceSnapshot = snapshotUrl.RelativeLink()
+			initializeParams["sourceSnapshot"] = snapshotUrl.RelativeLink()
 		}
 
 		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.source_snapshot_encryption_key"); ok {
 			sourceSnapshotEncryptionKeyMap := expandComputeInstanceSourceEncryptionKey(d, "boot_disk.0.initialize_params.0.source_snapshot_encryption_key")
 			if sourceSnapshotEncryptionKeyMap != nil {
-				disk.InitializeParams.SourceSnapshotEncryptionKey = &compute.CustomerEncryptionKey{}
-				if err := tpgresource.Convert(sourceSnapshotEncryptionKeyMap, disk.InitializeParams.SourceSnapshotEncryptionKey); err != nil {
-					return nil, fmt.Errorf("Error converting source_snapshot_encryption_key: %s", err)
-				}
+				initializeParams["sourceSnapshotEncryptionKey"] = sourceSnapshotEncryptionKeyMap
 			}
 		}
 
 		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.labels"); ok {
-			disk.InitializeParams.Labels = tpgresource.ExpandStringMap(d, "boot_disk.0.initialize_params.0.labels")
+			initializeParams["labels"] = tpgresource.ExpandStringMap(d, "boot_disk.0.initialize_params.0.labels")
 		}
 
 		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.resource_manager_tags"); ok {
-			disk.InitializeParams.ResourceManagerTags = tpgresource.ExpandStringMap(d, "boot_disk.0.initialize_params.0.resource_manager_tags")
+			initializeParams["resourceManagerTags"] = tpgresource.ExpandStringMap(d, "boot_disk.0.initialize_params.0.resource_manager_tags")
 		}
 
 		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.resource_policies"); ok {
-			disk.InitializeParams.ResourcePolicies = tpgresource.ConvertStringArr(d.Get("boot_disk.0.initialize_params.0.resource_policies").([]interface{}))
+			initializeParams["resourcePolicies"] = tpgresource.ConvertStringArr(d.Get("boot_disk.0.initialize_params.0.resource_policies").([]interface{}))
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.storage_pool"); ok {
@@ -4245,11 +4283,11 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 			if err != nil {
 				return nil, fmt.Errorf("Error resolving storage pool name '%s': '%s'", v.(string), err)
 			}
-			disk.InitializeParams.StoragePool = storagePoolUrl.(string)
+			initializeParams["storagePool"] = storagePoolUrl.(string)
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.architecture"); ok {
-			disk.InitializeParams.Architecture = v.(string)
+			initializeParams["architecture"] = v.(string)
 		}
 
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.replica_zones"); ok {
@@ -4262,18 +4300,35 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 				}
 				replicaZones = append(replicaZones, zoneStr)
 			}
-			disk.InitializeParams.ReplicaZones = replicaZones
+			initializeParams["replicaZones"] = replicaZones
 		}
+
+		disk["initializeParams"] = initializeParams
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.mode"); ok {
-		disk.Mode = v.(string)
+		disk["mode"] = v.(string)
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.force_attach"); ok {
-		disk.ForceAttach = v.(bool)
+		disk["forceAttach"] = v.(bool)
 	}
 
+	return disk, nil
+}
+
+// expandBootDiskTyped adapts the map-based expandBootDisk output to the typed
+// *compute.AttachedDisk still required by callers that build Apiary request
+// structs directly.
+func expandBootDiskTyped(d *schema.ResourceData, config *transport_tpg.Config, project string) (*compute.AttachedDisk, error) {
+	expanded, err := expandBootDisk(d, config, project)
+	if err != nil {
+		return nil, err
+	}
+	disk := &compute.AttachedDisk{}
+	if err := convertViaJSON(expanded, disk); err != nil {
+		return nil, fmt.Errorf("Error converting boot disk: %s", err)
+	}
 	return disk, nil
 }
 
@@ -4359,28 +4414,43 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 	return []map[string]interface{}{result}
 }
 
-func expandScratchDisks(d *schema.ResourceData, config *transport_tpg.Config, project string) ([]*compute.AttachedDisk, error) {
+func expandScratchDisks(d *schema.ResourceData, config *transport_tpg.Config, project string) ([]interface{}, error) {
 	diskType, err := readDiskType(config, d, "local-ssd")
 	if err != nil {
 		return nil, fmt.Errorf("Error loading disk type 'local-ssd': %s", err)
 	}
 
 	n := d.Get("scratch_disk.#").(int)
-	scratchDisks := make([]*compute.AttachedDisk, 0, n)
+	scratchDisks := make([]interface{}, 0, n)
 	for i := 0; i < n; i++ {
-		scratchDisks = append(scratchDisks, &compute.AttachedDisk{
-			AutoDelete: true,
-			Type:       "SCRATCH",
-			DeviceName: d.Get(fmt.Sprintf("scratch_disk.%d.device_name", i)).(string),
-			Interface:  d.Get(fmt.Sprintf("scratch_disk.%d.interface", i)).(string),
-			DiskSizeGb: int64(d.Get(fmt.Sprintf("scratch_disk.%d.size", i)).(int)),
-			InitializeParams: &compute.AttachedDiskInitializeParams{
-				DiskType: diskType.RelativeLink(),
+		scratchDisks = append(scratchDisks, map[string]interface{}{
+			"autoDelete": true,
+			"type":       "SCRATCH",
+			"deviceName": d.Get(fmt.Sprintf("scratch_disk.%d.device_name", i)).(string),
+			"interface":  d.Get(fmt.Sprintf("scratch_disk.%d.interface", i)).(string),
+			"diskSizeGb": strconv.Itoa(d.Get(fmt.Sprintf("scratch_disk.%d.size", i)).(int)),
+			"initializeParams": map[string]interface{}{
+				"diskType": diskType.RelativeLink(),
 			},
 		})
 	}
 
 	return scratchDisks, nil
+}
+
+// expandScratchDisksTyped adapts the map-based expandScratchDisks output to the
+// typed []*compute.AttachedDisk still required by callers that build Apiary
+// request structs directly.
+func expandScratchDisksTyped(d *schema.ResourceData, config *transport_tpg.Config, project string) ([]*compute.AttachedDisk, error) {
+	expanded, err := expandScratchDisks(d, config, project)
+	if err != nil {
+		return nil, err
+	}
+	disks := make([]*compute.AttachedDisk, 0, len(expanded))
+	if err := convertViaJSON(expanded, &disks); err != nil {
+		return nil, fmt.Errorf("Error converting scratch disks: %s", err)
+	}
+	return disks, nil
 }
 
 func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
