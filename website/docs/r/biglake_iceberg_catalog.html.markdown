@@ -84,6 +84,37 @@ resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
     ]
 }
 ```
+## Example Usage - Biglake Iceberg Catalog Biglake
+
+
+```hcl
+resource "google_storage_bucket" "default_bucket" {
+  name                        = "my_iceberg_catalog-default"
+  location                    = "us-central1"
+  force_destroy               = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket" "restricted_bucket" {
+  name                        = "my_iceberg_catalog-restricted"
+  location                    = "us-central1"
+  force_destroy               = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
+    name             = "my_iceberg_catalog"
+    catalog_type     = "CATALOG_TYPE_BIGLAKE"
+    credential_mode  = "CREDENTIAL_MODE_VENDED_CREDENTIALS"
+    default_location = "gs://${google_storage_bucket.default_bucket.name}"
+    restricted_locations_config {
+      restricted_locations = [
+        "gs://${google_storage_bucket.default_bucket.name}",
+        "gs://${google_storage_bucket.restricted_bucket.name}",
+      ]
+    }
+}
+```
 
 ## Argument Reference
 
@@ -92,8 +123,8 @@ The following arguments are supported:
 
 * `catalog_type` -
   (Required)
-  The catalog type of the IcebergCatalog. Currently only supports the type for Google Cloud Storage Buckets.
-  Possible values are: `CATALOG_TYPE_GCS_BUCKET`.
+  The catalog type of the IcebergCatalog.
+  Possible values are: `CATALOG_TYPE_GCS_BUCKET`, `CATALOG_TYPE_BIGLAKE`.
 
 * `name` -
   (Required)
@@ -107,6 +138,18 @@ The following arguments are supported:
   (Optional)
   The credential mode used for the catalog. CREDENTIAL_MODE_END_USER - End user credentials, default. The authenticating user must have access to the catalog resources and the corresponding Google Cloud Storage files. CREDENTIAL_MODE_VENDED_CREDENTIALS - Use credential vending. The authenticating user must have access to the catalog resources and the system will provide the caller with downscoped credentials to access the Google Cloud Storage files. All table operations in this mode would require `X-Iceberg-Access-Delegation` header with `vended-credentials` value included. System will generate a service account and the catalog administrator must grant the service account appropriate permissions.
   Possible values are: `CREDENTIAL_MODE_END_USER`, `CREDENTIAL_MODE_VENDED_CREDENTIALS`.
+
+* `default_location` -
+  (Optional)
+  The default storage location for the catalog, e.g., `gs://my-bucket`.
+  Output only when the catalog type is CATALOG_TYPE_GCS_BUCKET.
+  Required when the catalog type is CATALOG_TYPE_BIGLAKE.
+
+* `restricted_locations_config` -
+  (Optional)
+  Configuration for the additional GCS locations that are permitted for use
+  by resources within this catalog.
+  Structure is [documented below](#nested_restricted_locations_config).
 
 * `primary_location` -
   (Optional)
@@ -125,6 +168,14 @@ The following arguments are supported:
 	When set to "DELETE", deleting the resource is allowed.
 
 
+<a name="nested_restricted_locations_config"></a>The `restricted_locations_config` block supports:
+
+* `restricted_locations` -
+  (Optional)
+  A list of GCS locations (e.g., `gs://my-other-bucket/...`) that are
+  permitted for use by resources within this catalog. Each entry can be
+  either a GCS bucket or a path within it.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -133,9 +184,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `biglake_service_account` -
   Output only. The service account used for credential vending. It might be empty if credential vending was never enabled for the catalog.
-
-* `default_location` -
-  Output only. The default storage location for the catalog, e.g., `gs://my-bucket`.
 
 * `storage_regions` -
   Output only. The GCP region(s) where the physical metadata for the tables is stored, e.g. `us-central1`, `nam4` or `us`. This will contain one value for all locations, except for the catalogs that are configured to use custom dual region buckets.

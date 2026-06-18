@@ -1,0 +1,3 @@
+```release-note:enhancement
+biglakeiceberg: Added `CATALOG_TYPE_BIGLAKE` enum to `catalog_type` field and added `restricted_locations_config.restricted_locations` field in `google_biglake_iceberg_catalog ` resource
+```

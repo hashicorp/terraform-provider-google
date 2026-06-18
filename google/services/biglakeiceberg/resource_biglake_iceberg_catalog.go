@@ -141,8 +141,8 @@ func ResourceBiglakeIcebergIcebergCatalog() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"CATALOG_TYPE_GCS_BUCKET"}),
-				Description:  `The catalog type of the IcebergCatalog. Currently only supports the type for Google Cloud Storage Buckets. Possible values: ["CATALOG_TYPE_GCS_BUCKET"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"CATALOG_TYPE_GCS_BUCKET", "CATALOG_TYPE_BIGLAKE"}),
+				Description:  `The catalog type of the IcebergCatalog. Possible values: ["CATALOG_TYPE_GCS_BUCKET", "CATALOG_TYPE_BIGLAKE"]`,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -160,6 +160,14 @@ gs://bucket-name, the catalog name will be exactly "bucket-name".`,
 				ValidateFunc: verify.ValidateEnum([]string{"CREDENTIAL_MODE_END_USER", "CREDENTIAL_MODE_VENDED_CREDENTIALS", ""}),
 				Description:  `The credential mode used for the catalog. CREDENTIAL_MODE_END_USER - End user credentials, default. The authenticating user must have access to the catalog resources and the corresponding Google Cloud Storage files. CREDENTIAL_MODE_VENDED_CREDENTIALS - Use credential vending. The authenticating user must have access to the catalog resources and the system will provide the caller with downscoped credentials to access the Google Cloud Storage files. All table operations in this mode would require 'X-Iceberg-Access-Delegation' header with 'vended-credentials' value included. System will generate a service account and the catalog administrator must grant the service account appropriate permissions. Possible values: ["CREDENTIAL_MODE_END_USER", "CREDENTIAL_MODE_VENDED_CREDENTIALS"]`,
 			},
+			"default_location": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `The default storage location for the catalog, e.g., 'gs://my-bucket'.
+Output only when the catalog type is CATALOG_TYPE_GCS_BUCKET.
+Required when the catalog type is CATALOG_TYPE_BIGLAKE.`,
+			},
 			"primary_location": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -167,6 +175,28 @@ gs://bucket-name, the catalog name will be exactly "bucket-name".`,
 				Description: `The primary location for mirroring the remote catalog metadata. It must be
 a BigLake-supported location, and it should be proximate to the remote
 catalog's location.`,
+			},
+			"restricted_locations_config": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				Description: `Configuration for the additional GCS locations that are permitted for use
+by resources within this catalog.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"restricted_locations": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `A list of GCS locations (e.g., 'gs://my-other-bucket/...') that are
+permitted for use by resources within this catalog. Each entry can be
+either a GCS bucket or a path within it.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 			"biglake_service_account": {
 				Type:        schema.TypeString,
@@ -177,11 +207,6 @@ catalog's location.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Output only. The creation time of the IcebergCatalog.`,
-			},
-			"default_location": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Output only. The default storage location for the catalog, e.g., 'gs://my-bucket'.`,
 			},
 			"replicas": {
 				Type:        schema.TypeList,
@@ -257,6 +282,18 @@ func resourceBiglakeIcebergIcebergCatalogCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("catalog_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(catalogTypeProp)) && (ok || !reflect.DeepEqual(v, catalogTypeProp)) {
 		obj["catalog-type"] = catalogTypeProp
+	}
+	defaultLocationProp, err := expandBiglakeIcebergIcebergCatalogDefaultLocation(d.Get("default_location"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_location"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultLocationProp)) && (ok || !reflect.DeepEqual(v, defaultLocationProp)) {
+		obj["default-location"] = defaultLocationProp
+	}
+	restrictedLocationsConfigProp, err := expandBiglakeIcebergIcebergCatalogRestrictedLocationsConfig(d.Get("restricted_locations_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("restricted_locations_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(restrictedLocationsConfigProp)) && (ok || !reflect.DeepEqual(v, restrictedLocationsConfigProp)) {
+		obj["restricted-locations-config"] = restrictedLocationsConfigProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}&primary_location={{primary_location}}")
@@ -447,6 +484,19 @@ func resourceBiglakeIcebergIcebergCatalogUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("credential_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, credentialModeProp)) {
 		obj["credential-mode"] = credentialModeProp
 	}
+	defaultLocationProp, err := expandBiglakeIcebergIcebergCatalogDefaultLocation(d.Get("default_location"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_location"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultLocationProp)) {
+		obj["default-location"] = defaultLocationProp
+	}
+
+	restrictedLocationsConfigProp, err := expandBiglakeIcebergIcebergCatalogRestrictedLocationsConfig(d.Get("restricted_locations_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("restricted_locations_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, restrictedLocationsConfigProp)) {
+		obj["restricted-locations-config"] = restrictedLocationsConfigProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
 	if err != nil {
@@ -463,11 +513,23 @@ func resourceBiglakeIcebergIcebergCatalogUpdate(d *schema.ResourceData, meta int
 	if d.HasChange("credential_mode") {
 		updateMask = append(updateMask, "credential_mode")
 	}
+
+	if d.HasChange("default_location") {
+		updateMask = append(updateMask, "default_location")
+	}
+
+	if d.HasChange("restricted_locations_config") {
+		updateMask = append(updateMask, "restricted_locations_config")
+	}
+
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
+	}
+	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
+		billingProject = parts[1]
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -631,11 +693,58 @@ func flattenBiglakeIcebergIcebergCatalogReplicasState(v interface{}, d *schema.R
 	return v
 }
 
+func flattenBiglakeIcebergIcebergCatalogRestrictedLocationsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["restricted_locations"] =
+		flattenBiglakeIcebergIcebergCatalogRestrictedLocationsConfigRestrictedLocations(original["restricted-locations"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeIcebergIcebergCatalogRestrictedLocationsConfigRestrictedLocations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBiglakeIcebergIcebergCatalogCredentialMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandBiglakeIcebergIcebergCatalogCatalogType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogDefaultLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogRestrictedLocationsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRestrictedLocations, err := expandBiglakeIcebergIcebergCatalogRestrictedLocationsConfigRestrictedLocations(original["restricted_locations"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRestrictedLocations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["restricted-locations"] = transformedRestrictedLocations
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogRestrictedLocationsConfigRestrictedLocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -664,6 +773,9 @@ func ResourceBiglakeIcebergIcebergCatalogFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
 	}
 	if err = d.Set("replicas", flattenBiglakeIcebergIcebergCatalogReplicas(res["replicas"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+	if err = d.Set("restricted_locations_config", flattenBiglakeIcebergIcebergCatalogRestrictedLocationsConfig(res["restricted-locations-config"], d, config)); err != nil {
 		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
 	}
 
