@@ -82,7 +82,61 @@ func resourceDatastreamStreamCustomDiffFunc(diff tpgresource.TerraformResourceDi
 }
 func resourceDatastreamStreamCustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	// separate func to allow unit testing
-	return resourceDatastreamStreamCustomDiffFunc(diff)
+	if err := resourceDatastreamStreamCustomDiffFunc(diff); err != nil {
+		return err
+	}
+	return resourceDatastreamStreamObjectsSetStyleDiff(diff)
+}
+
+// resourceDatastreamStreamObjectsSetStyleDiff suppresses positional diffs on
+// include_objects.objects and exclude_objects.objects inside the Salesforce
+// source config. These arrays are order-independent but use TypeList, so
+// Terraform would otherwise show misleading rename diffs when an object is
+// added or reordered.
+func resourceDatastreamStreamObjectsSetStyleDiff(diff tpgresource.TerraformResourceDiff) error {
+	paths := []string{
+		"source_config.0.salesforce_source_config.0.include_objects.0.objects",
+		"source_config.0.salesforce_source_config.0.exclude_objects.0.objects",
+	}
+	for _, basePath := range paths {
+		keys := diff.GetChangedKeysPrefix(basePath)
+		if len(keys) == 0 {
+			continue
+		}
+		oldCount, newCount := diff.GetChange(basePath + ".#")
+		oldN, _ := oldCount.(int)
+		newN, _ := newCount.(int)
+		if oldN == 0 && newN == 0 {
+			continue
+		}
+		// Real additions or removals: counts differ, so this is not just reordering.
+		if oldN != newN {
+			continue
+		}
+		old := make([]interface{}, 0, oldN)
+		new := make([]interface{}, 0, newN)
+		for i := 0; i < oldN; i++ {
+			o, n := diff.GetChange(fmt.Sprintf("%s.%d", basePath, i))
+			if o != nil {
+				old = append(old, o)
+			}
+			if n != nil {
+				new = append(new, n)
+			}
+		}
+		hashFunc := func(v interface{}) int {
+			m := v.(map[string]interface{})
+			return schema.HashString(m["object_name"])
+		}
+		oldSet := schema.NewSet(hashFunc, old)
+		newSet := schema.NewSet(hashFunc, new)
+		if oldSet.Equal(newSet) {
+			if err := diff.Clear(basePath); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // waitForDatastreamStreamReady waits for an agent pool to reach a stable state to indicate that it's ready.
