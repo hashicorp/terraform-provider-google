@@ -707,6 +707,20 @@ The optional `settings.password_validation_policy` subblock for instances declar
 
 * `enable_password_policy` - Enables or disable the password validation policy.
 
+The optional `settings.performance_capture_config` (Beta) subblock for instances declares Performance Capture configuration. It contains:
+
+* `enabled` - (Beta) True if the Performance Capture feature is enabled.
+
+* `probing_interval_seconds` - (Beta) The time interval in seconds between any two probes.
+
+* `probe_threshold` - (Beta) The minimum number of consecutive readings above threshold that triggers instance state capture.
+
+* `running_threads_threshold` - (Beta) The minimum number of server threads running to trigger the capture on primary.
+
+* `seconds_behind_source_threshold` - (Beta) The minimum number of seconds replica must be lagging behind primary to trigger capture on replica.
+
+* `transaction_duration_threshold` - (Beta) The amount of time in seconds that a transaction needs to have been open before the watcher starts recording it.
+
 The optional `replica_configuration` block must have `master_instance_name` set
 to work, cannot be updated and supports:
 

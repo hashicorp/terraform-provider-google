@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `performance_capture_config` to `google_sql_database_instance` (beta)
+```
