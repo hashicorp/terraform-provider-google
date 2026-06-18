@@ -18,6 +18,7 @@ fields:
       provider_only: true
     - api_field: replicas.region
     - api_field: replicas.state
+    - api_field: restricted-locations-config.restricted-locations
     - api_field: storage-regions
     - api_field: update-time
     - field: deletion_policy
