@@ -70,5 +70,5 @@ By default each result includes **resource identity** for `google_project_iam_me
 
 With `include_resource = true` on the `list` block, results also include the full resource-style
 attributes documented for the managed
-[`google_service_account` resource](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam#attributes-reference)
+[`google_project_iam_member` resource](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_iam#attributes-reference)
 (for example `etag`and `condition` where present in state).
