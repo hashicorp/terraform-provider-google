@@ -1713,7 +1713,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		return nil, fmt.Errorf("Error creating params: %s", err)
 	}
 
-	metadata, err := resourceInstanceMetadata(d)
+	metadata, err := resourceInstanceMetadataTyped(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating metadata: %s", err)
 	}
@@ -2411,14 +2411,9 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("metadata") {
-		metadata, err := resourceInstanceMetadata(d)
+		metadataBody, err := resourceInstanceMetadata(d)
 		if err != nil {
 			return fmt.Errorf("Error parsing metadata: %s", err)
-		}
-
-		metadataBody, err := tpgresource.ConvertToMap(metadata)
-		if err != nil {
-			return fmt.Errorf("Error converting metadata: %s", err)
 		}
 
 		metadataInstanceUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}")
