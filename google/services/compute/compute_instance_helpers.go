@@ -1290,3 +1290,13 @@ func flattenComputeInstanceSourceEncryptionKey(v map[string]interface{}) []map[s
 		},
 	}
 }
+
+func stripInitializeParams(instanceMap map[string]interface{}) {
+	if disks, ok := instanceMap["disks"].([]interface{}); ok {
+		for _, rawDisk := range disks {
+			if disk, ok := rawDisk.(map[string]interface{}); ok {
+				delete(disk, "initializeParams")
+			}
+		}
+	}
+}
