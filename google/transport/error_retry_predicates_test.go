@@ -220,6 +220,17 @@ func TestFirestoreIndex409_retryUnderlyingDataChanged(t *testing.T) {
 	}
 }
 
+func TestFirestoreUserCreds409Retry(t *testing.T) {
+	err := googleapi.Error{
+		Code: 409,
+		Body: "The operation was aborted.",
+	}
+	isRetryable, _ := FirestoreUserCreds409Retry(&err)
+	if !isRetryable {
+		t.Errorf("Error not detected as retryable")
+	}
+}
+
 func TestIs403ConcurrentOperationsQuotaError_retryable(t *testing.T) {
 	err := googleapi.Error{
 		Code: 403,

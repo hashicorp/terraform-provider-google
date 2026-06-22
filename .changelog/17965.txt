@@ -1,0 +1,3 @@
+```release-note:bug
+firestore: retried on 409 errors in `google_firestore_user_creds` resource
+```
