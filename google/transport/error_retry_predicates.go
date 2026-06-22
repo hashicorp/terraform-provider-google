@@ -461,6 +461,15 @@ func FirestoreIndex409Retry(err error) (bool, string) {
 	return false, ""
 }
 
+func FirestoreUserCreds409Retry(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 {
+			return true, "The operation was aborted."
+		}
+	}
+	return false, ""
+}
+
 func IapClient409Operation(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "operation was aborted") {
