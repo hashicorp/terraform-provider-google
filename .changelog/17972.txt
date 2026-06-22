@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a validation error on `google_compute_instance` (`Provisioned IOPS cannot be specified with disk type pd-balanced`) that occurred during updates on instances with Hyperdisk Balanced boot disks.
+```
