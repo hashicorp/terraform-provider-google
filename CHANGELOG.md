@@ -45,7 +45,6 @@ IMPROVEMENTS:
 * datastream: added `additional_options` field to `google_datastream_connection_profile` resource ([#27915](https://github.com/hashicorp/terraform-provider-google/pull/27915))
 * iamworkforcepool: write-only support for `oidc.client_secret` in `google_iam_workforce_pool_provider` ([#27867](https://github.com/hashicorp/terraform-provider-google/pull/27867))
 * kms: added resource identity support for `google_kms_crypto_key_version` resource ([#27883](https://github.com/hashicorp/terraform-provider-google/pull/27883))
-* networksecurity: added `network_rules` field on `google_network_security_authz_policy` resource ([#27821](https://github.com/hashicorp/terraform-provider-google/pull/27821))
 * networkservices: added `dns_peering_config` field to `google_network_services_agent_gateway` resource ([#27813](https://github.com/hashicorp/terraform-provider-google/pull/27813))
 * sql: added `mode`, `dns_servers`, `admin_credential_secret_name`, and `organizational_unit` fields to `active_directory_config` block in `google_sql_database_instance` resource for SQL Server instances ([#27862](https://github.com/hashicorp/terraform-provider-google/pull/27862))
 * storage: added `lifecycle_rule.condition.size_above_bytes` and `lifecycle_rule.condition.size_below_bytes` fields to `google_storage_bucket` resource ([#27857](https://github.com/hashicorp/terraform-provider-google/pull/27857))
