@@ -238,6 +238,8 @@ func (p *googleEphemeralServiceAccountKey) Open(ctx context.Context, req ephemer
 	nameToWait := saName
 	if serviceAccountKey != nil {
 		nameToWait = serviceAccountKey.Name
+	} else if data.Name.ValueString() != "" {
+		nameToWait = data.Name.ValueString()
 	}
 	log.Printf("[DEBUG] Retrieving Service Account Key %q\n", nameToWait)
 	if err := ServiceAccountKeyWaitTime(keys, nameToWait, publicKeyType, "Retrieving Service account key", 4*time.Minute); err != nil {
