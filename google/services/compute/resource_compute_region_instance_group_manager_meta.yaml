@@ -32,6 +32,7 @@ fields:
   - api_field: 'id'
     field: 'instance_group_manager_id'
   - api_field: 'instanceLifecyclePolicy.defaultActionOnFailure'
+  - api_field: 'instanceLifecyclePolicy.onFailedHealthCheck'
   - api_field: 'instanceLifecyclePolicy.forceUpdateOnRepair'
   - api_field: 'listManagedInstancesResults'
   - api_field: 'name'
