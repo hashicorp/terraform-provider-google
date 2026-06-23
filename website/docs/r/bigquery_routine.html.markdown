@@ -636,6 +636,8 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 ```tf
 import {
   identity = {
+    datasetId = "<-required value->"
+    routineId = "<-required value->"
     project = "<-optional value->"
   }
   to = google_bigquery_routine.default

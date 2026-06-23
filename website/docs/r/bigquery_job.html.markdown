@@ -1202,6 +1202,8 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 ```tf
 import {
   identity = {
+    jobId = "<-required value->"
+    location = "<-optional value->"
     project = "<-optional value->"
   }
   to = google_bigquery_job.default
