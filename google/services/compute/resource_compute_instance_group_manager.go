@@ -365,9 +365,15 @@ func ResourceComputeInstanceGroupManager() *schema.Resource {
 							Default:      "REPAIR",
 							Optional:     true,
 							ValidateFunc: validation.StringInSlice([]string{"REPAIR", "DO_NOTHING"}, true),
-							Description:  `Default behavior for all instance or health check failures.`,
+							Description:  `Specifies the action that a MIG performs on a failed VM. If the value of the "on_failed_health_check" field is DEFAULT_ACTION, then the same action also applies to the VMs on which your application fails a health check. Valid values are: REPAIR, DO_NOTHING. If REPAIR (default), then MIG automatically repairs a failed VM by recreating it. For more information, see about repairing VMs in a MIG. If DO_NOTHING, then MIG does not repair a failed VM.`,
 						},
-
+						"on_failed_health_check": {
+							Type:         schema.TypeString,
+							Default:      "DEFAULT_ACTION",
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"DEFAULT_ACTION", "REPAIR", "DO_NOTHING"}, true),
+							Description:  `Specifies the action that a MIG performs on an unhealthy VM. A VM is marked as unhealthy when the application running on that VM fails a health check. Valid values are: DEFAULT_ACTION, DO_NOTHING, REPAIR. If DEFAULT_ACTION (default), then MIG uses the same action configured for the  "default_action_on_failure" field. If DO_NOTHING, then MIG does not repair unhealthy VM. If REPAIR, then MIG automatically repairs an unhealthy VM by recreating it.`,
+						},
 						"force_update_on_repair": {
 							Type:         schema.TypeString,
 							Default:      "NO",
@@ -1770,7 +1776,7 @@ func expandInstanceLifecyclePolicy(configured []interface{}) *compute.InstanceGr
 		data := raw.(map[string]interface{})
 		instanceLifecyclePolicy.ForceUpdateOnRepair = data["force_update_on_repair"].(string)
 		instanceLifecyclePolicy.DefaultActionOnFailure = data["default_action_on_failure"].(string)
-
+		instanceLifecyclePolicy.OnFailedHealthCheck = data["on_failed_health_check"].(string)
 	}
 	return instanceLifecyclePolicy
 }
@@ -1781,7 +1787,7 @@ func expandInstanceLifecyclePolicyV2(configured []interface{}) map[string]interf
 		data := raw.(map[string]interface{})
 		instanceLifecyclePolicy["forceUpdateOnRepair"] = data["force_update_on_repair"].(string)
 		instanceLifecyclePolicy["defaultActionOnFailure"] = data["default_action_on_failure"].(string)
-
+		instanceLifecyclePolicy["onFailedHealthCheck"] = data["on_failed_health_check"].(string)
 	}
 	return instanceLifecyclePolicy
 }
@@ -2018,6 +2024,7 @@ func flattenInstanceLifecyclePolicy(instanceLifecyclePolicy *compute.InstanceGro
 		ilp := map[string]interface{}{}
 		ilp["force_update_on_repair"] = instanceLifecyclePolicy.ForceUpdateOnRepair
 		ilp["default_action_on_failure"] = instanceLifecyclePolicy.DefaultActionOnFailure
+		ilp["on_failed_health_check"] = instanceLifecyclePolicy.OnFailedHealthCheck
 
 		results = append(results, ilp)
 	}
@@ -2031,6 +2038,7 @@ func flattenInstanceLifecyclePolicyV2(raw interface{}) []map[string]interface{} 
 		ilp := map[string]interface{}{}
 		ilp["force_update_on_repair"] = stringFromMap(instanceLifecyclePolicy, "forceUpdateOnRepair")
 		ilp["default_action_on_failure"] = stringFromMap(instanceLifecyclePolicy, "defaultActionOnFailure")
+		ilp["on_failed_health_check"] = stringFromMap(instanceLifecyclePolicy, "onFailedHealthCheck")
 
 		results = append(results, ilp)
 	}
