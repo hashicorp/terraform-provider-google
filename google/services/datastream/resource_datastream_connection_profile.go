@@ -360,8 +360,7 @@ mandatory.`,
 										Description: `PEM-encoded private key associated with the Client Certificate.
 If this field is used then the 'client_certificate' and the
 'ca_certificate' fields are mandatory.`,
-										Sensitive:    true,
-										ExactlyOneOf: []string{"mongodb_profile.0.ssl_config.0.client_key", "mongodb_profile.0.ssl_config.0.secret_manager_stored_client_key"},
+										Sensitive: true,
 									},
 									"secret_manager_stored_client_key": {
 										Type:     schema.TypeString,
@@ -369,8 +368,7 @@ If this field is used then the 'client_certificate' and the
 										ForceNew: true,
 										Description: `A reference to a Secret Manager resource name storing the
 PEM-encoded private key. Mutually exclusive with clientKey.`,
-										Sensitive:    true,
-										ExactlyOneOf: []string{"mongodb_profile.0.ssl_config.0.client_key", "mongodb_profile.0.ssl_config.0.secret_manager_stored_client_key"},
+										Sensitive: true,
 									},
 									"ca_certificate_set": {
 										Type:        schema.TypeBool,
