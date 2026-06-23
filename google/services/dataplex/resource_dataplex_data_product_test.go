@@ -39,6 +39,9 @@ func TestAccDataplexDataProduct_update(t *testing.T) {
 			{
 				// STEP 1: Initial Creation
 				Config: testAccDataplexDataProduct_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dataplex_data_product.example", "icon", "c29tZSBkYXRh"),
+				),
 			},
 			{
 				ResourceName:      "google_dataplex_data_product.example",
@@ -58,6 +61,9 @@ func TestAccDataplexDataProduct_update(t *testing.T) {
 						plancheck.ExpectResourceAction("google_dataplex_data_product.example", plancheck.ResourceActionUpdate),
 					},
 				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dataplex_data_product.example", "icon", "dXBkYXRlZCBkYXRh"),
+				),
 			},
 			{
 				ResourceName:      "google_dataplex_data_product.example",
@@ -80,6 +86,7 @@ resource "google_dataplex_data_product" "example" {
   data_product_id = "%{data_product_id}"
   display_name    = "initial display name"
   owner_emails    = ["terraform-test@google.com"]
+  icon            = "c29tZSBkYXRh"
 }
 `, context)
 }
@@ -92,6 +99,7 @@ resource "google_dataplex_data_product" "example" {
   display_name    = "updated display name"
   description     = "updated description"
   owner_emails    = ["updated-owner@google.com"]
+  icon            = "dXBkYXRlZCBkYXRh"
 
   labels = {
     env = "test"
