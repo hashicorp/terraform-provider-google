@@ -2002,20 +2002,57 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	md := flattenMetadataBeta(instance.Metadata)
+	zone := tpgresource.GetResourceNameFromSelfLink(instance.Zone)
+
+	if err := populateComputeInstanceResourceData(d, instance, project, zone, config); err != nil {
+		return err
+	}
 
 	// If the existing state contains "metadata_startup_script" instead of "metadata.startup-script",
 	// we should move the remote metadata.startup-script to metadata_startup_script to avoid
 	// specifying it in two places.
 	if _, ok := d.GetOk("metadata_startup_script"); ok {
+		md := d.Get("metadata").(map[string]interface{})
 		if err := d.Set("metadata_startup_script", md["startup-script"]); err != nil {
 			return fmt.Errorf("Error setting metadata_startup_script: %s", err)
 		}
-
 		delete(md, "startup-script")
+		if err := d.Set("metadata", md); err != nil {
+			return fmt.Errorf("Error setting metadata: %s", err)
+		}
 	}
 
-	if err = d.Set("metadata", md); err != nil {
+	// Fall back on internal ip if there is no external ip.  This makes sense in the situation where
+	// terraform is being used on a cloud instance and can therefore access the instances it creates
+	// via their internal ips.
+	networkInterfacesRaw, err := networkInterfacesToInterface(instance.NetworkInterfaces)
+	if err != nil {
+		return err
+	}
+	_, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, networkInterfacesRaw)
+	if err != nil {
+		return err
+	}
+	sshIP := externalIP
+	if sshIP == "" {
+		sshIP = internalIP
+	}
+	d.SetConnInfo(map[string]string{
+		"type": "ssh",
+		"host": sshIP,
+	})
+
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
+
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func populateComputeInstanceResourceData(d *schema.ResourceData, instance *compute.Instance, project, zone string, config *transport_tpg.Config) error {
+	if err := d.Set("metadata", flattenMetadataBeta(instance.Metadata)); err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
@@ -2041,32 +2078,17 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	// Set the networks
-	// Use the first external IP found for the default connection info.
 	networkInterfacesRaw, err := networkInterfacesToInterface(instance.NetworkInterfaces)
 	if err != nil {
 		return err
 	}
-	networkInterfaces, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, networkInterfacesRaw)
+	networkInterfaces, _, _, _, err := flattenNetworkInterfaces(d, config, networkInterfacesRaw)
 	if err != nil {
 		return err
 	}
 	if err := d.Set("network_interface", networkInterfaces); err != nil {
 		return err
 	}
-
-	// Fall back on internal ip if there is no external ip.  This makes sense in the situation where
-	// terraform is being used on a cloud instance and can therefore access the instances it creates
-	// via their internal ips.
-	sshIP := externalIP
-	if sshIP == "" {
-		sshIP = internalIP
-	}
-
-	// Initialize the connection info
-	d.SetConnInfo(map[string]string{
-		"type": "ssh",
-		"host": sshIP,
-	})
 
 	// Set the tags fingerprint if there is one.
 	if instance.Tags != nil {
@@ -2198,14 +2220,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// Remove nils from map in case there were disks in the config that were not present on read;
 	// i.e. a disk was detached out of band
 	ads := []map[string]interface{}{}
-	for _, d := range attachedDisks {
-		if d != nil {
-			ads = append(ads, d)
+	for _, ad := range attachedDisks {
+		if ad != nil {
+			ads = append(ads, ad)
 		}
 	}
-
-	zone := tpgresource.GetResourceNameFromSelfLink(instance.Zone)
-
 	if err := d.Set("service_account", flattenServiceAccounts(serviceAccountsToInterface(instance.ServiceAccounts))); err != nil {
 		return fmt.Errorf("Error setting service_account: %s", err)
 	}
@@ -2219,7 +2238,6 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("scheduling", flattenScheduling(instance.Scheduling)); err != nil {
 		return fmt.Errorf("Error setting scheduling: %s", err)
 	}
-
 	if err := d.Set("guest_accelerator", flattenGuestAccelerators(guestAcceleratorsToInterface(instance.GuestAccelerators))); err != nil {
 		return fmt.Errorf("Error setting guest_accelerator: %s", err)
 	}
@@ -2318,12 +2336,6 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err := d.Set("instance_encryption_key", flattenComputeInstanceEncryptionKey(instanceEncryptionKeyMap)); err != nil {
 		return fmt.Errorf("Error setting instance_encryption_key: %s", err)
-	}
-
-	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
-
-	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
-		return err
 	}
 
 	return nil
