@@ -1,3 +1,0 @@
-```release-note:new-resource
-`google_vertex_ai_online_evaluator` (beta)
-```
