@@ -28,6 +28,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 )
 
 // Test that services can be enabled and disabled on a project
@@ -184,6 +185,45 @@ func TestAccProjectService_renamedService(t *testing.T) {
 			},
 		},
 	})
+}
+
+// TestAccProjectService_importBlockWithResourceIdentity exercises plannable import using the resource identity block (Terraform 1.12+).
+func TestAccProjectService_importBlockWithResourceIdentity(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	service := "iam.googleapis.com"
+
+	acctest.VcrTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_12_0),
+		},
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectService_identityImport(project, service),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_project_service.ps", "project", project),
+					resource.TestCheckResourceAttr("google_project_service.ps", "service", service),
+				),
+			},
+			{
+				ResourceName:    "google_project_service.ps",
+				ImportState:     true,
+				ImportStateKind: resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccProjectService_identityImport(project, service string) string {
+	return fmt.Sprintf(`
+resource "google_project_service" "ps" {
+  project = "%s"
+  service = "%s"
+}
+`, project, service)
 }
 
 func testAccCheckProjectService(t *testing.T, services []string, pid string, expectEnabled bool) resource.TestCheckFunc {
