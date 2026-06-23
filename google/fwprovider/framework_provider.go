@@ -37,7 +37,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/functions"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	"github.com/hashicorp/terraform-provider-google/google/fwvalidators"
-	sdkprovider "github.com/hashicorp/terraform-provider-google/google/provider"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/version"
 
@@ -1370,10 +1369,7 @@ func (p *FrameworkProvider) EphemeralResources(_ context.Context) []func() ephem
 }
 
 func (p *FrameworkProvider) ListResources(_ context.Context) []func() list.ListResource {
-	listResources := registry.FrameworkListResourceFuncs()
-	listResources = append(listResources, sdkprovider.IamMemberListResources()...)
-
-	return listResources
+	return registry.FrameworkListResourceFuncs()
 }
 
 func (p *FrameworkProvider) GenerateResourceConfig(context.Context, any) (any, error) {

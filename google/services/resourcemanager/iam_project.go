@@ -175,6 +175,11 @@ func init() {
 		Type:        registry.SchemaTypeIAMResource,
 		Schema:      ProjectIamMemberResource(),
 	}.Register()
+	registry.FrameworkListResource{
+		Name:        "google_project_iam_member",
+		ProductName: "resourcemanager",
+		Func:        NewProjectIamMemberListResource,
+	}.Register()
 	registry.Schema{
 		Name:        "google_project_iam_binding",
 		ProductName: "resourcemanager",
