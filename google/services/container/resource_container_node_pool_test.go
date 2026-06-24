@@ -948,6 +948,37 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withKubeletConfigShutdownGracePeriod(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withKubeletConfigShutdownGracePeriod(cluster, np, networkName, subnetworkName, 120, 30),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config_shutdown",
+						"node_config.0.kubelet_config.0.shutdown_grace_period_seconds", "120"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config_shutdown",
+						"node_config.0.kubelet_config.0.shutdown_grace_period_critical_pods_seconds", "30"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_kubelet_config_shutdown",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withInvalidKubeletCpuManagerPolicy(t *testing.T) {
 	t.Parallel()
 	// Unit test, no interactions
@@ -4013,6 +4044,40 @@ resource "google_container_node_pool" "with_kubelet_config" {
   }
 }
 `, cluster, networkName, subnetworkName, np, policy, memoryManagerPolicy, topologyManagerPolicy, topologyManagerScope, quota, period, insecureKubeletReadonlyPortEnabled, podPidsLimit, containerLogMaxSize, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent, imageMinimumGcAge, imageMaximumGcAge, singleProcessOomKill, maxContainerRestart)
+}
+
+func testAccContainerNodePool_withKubeletConfigShutdownGracePeriod(cluster, np, networkName, subnetworkName string, shutdownGracePeriodSeconds, shutdownGracePeriodCriticalPodsSeconds int) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "google_container_node_pool" "with_kubelet_config_shutdown" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    machine_type       = "c4-standard-2"
+    image_type = "COS_CONTAINERD"
+    spot = true
+    kubelet_config {
+      shutdown_grace_period_seconds = %d
+      shutdown_grace_period_critical_pods_seconds = %d
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, np, shutdownGracePeriodSeconds, shutdownGracePeriodCriticalPodsSeconds)
 }
 
 func testAccContainerNodePool_withLinuxNodeConfig(cluster, np, tcpMem, networkName, subnetworkName string) string {

@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added new fields `shutdown_grace_period_seconds` and `shutdown_grace_period_critical_pods_seconds` to `node_kubelet_config` block.
+```

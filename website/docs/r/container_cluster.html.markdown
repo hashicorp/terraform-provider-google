@@ -1329,6 +1329,8 @@ workload_identity_config {
 
 <a name="nested_node_pool_node_config"></a>The `node_config` block supports:
 
+* `kubelet_config` - (Optional) Node kubelet configs. Structure is [documented below](#nested_kubelet_config).
+
 * `taint_config` - (Optional) Taint configuration for the node pool. Structure is [documented below](#nested_node_pool_node_config_taint_config).
 
 <a name="nested_node_pool_node_config_taint_config"></a>The `taint_config` block supports:
@@ -1338,7 +1340,7 @@ workload_identity_config {
 <a name="nested_node_pool_auto_config"></a>The `node_pool_auto_config` block supports:
 
 * `node_kubelet_config` - (Optional) Kubelet configuration for Autopilot clusters. Currently, only `insecure_kubelet_readonly_port_enabled` is supported here.
-Structure is [documented below](#nested_node_kubelet_config).
+    Structure is [documented below](#nested_node_kubelet_config).
 
 * `resource_manager_tags` - (Optional) A map of resource manager tag keys and values to be attached to the nodes for managing Compute Engine firewalls using Network Firewall Policies. Tags must be according to specifications found [here](https://cloud.google.com/vpc/docs/tags-firewalls-overview#specifications). A maximum of 5 tag key-value pairs can be specified. Existing tags will be replaced with new values. Tags must be in one of the following formats ([KEY]=[VALUE]) 1. `tagKeys/{tag_key_id}=tagValues/{tag_value_id}` 2. `{org_id}/{tag_key_name}={tag_value_name}` 3. `{project_id}/{tag_key_name}={tag_value_name}`.
 
@@ -1666,6 +1668,10 @@ those in the Guaranteed QoS class, by influencing NUMA affinity. Structure is [d
 * `eviction_minimum_reclaim` - (Optional) Defines a map of signal names to percentage that defines minimum reclaims. It describes the minimum amount of a given resource the kubelet will reclaim when performing a pod eviction. Structure is [documented below](#nested_eviction_minimum_reclaim).
 
 * `crash_loop_back_off` - (Optional) Contains configuration options to modify node-level parameters for container restart behavior. Structure is [documented below](#nested_crash_loop_back_off).
+
+* `shutdown_grace_period_seconds` - (Optional) The grace period (in seconds) to use during a graceful node shutdown. This is the time allocated for all pods (critical and non-critical) to terminate. The value must be between 10 and 10000. This field can only be configured if the node pool uses Spot VMs or Preemptible VMs.
+
+* `shutdown_grace_period_critical_pods_seconds` - (Optional) The grace period (in seconds) to use during a graceful node shutdown for critical pods. This value must be less than or equal to `shutdown_grace_period_seconds`. This field can only be configured if the node pool uses Spot VMs or Preemptible VMs.
 
 <a name="nested_eviction_soft"></a>The `eviction_soft` block supports:
 

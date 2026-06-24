@@ -343,6 +343,8 @@ cluster.
 
 <a name="nested_node_config"></a>The `node_config` block supports:
 
+* `kubelet_config` - (Optional) Node kubelet configs. Structure is [documented below](#nested_kubelet_config).
+
 * `taint_config` - (Optional) Taint configuration for the node pool. Structure is [documented below](#nested_node_config_taint_config).
 
 <a name="nested_node_config_taint_config"></a>The `taint_config` block supports:
@@ -376,6 +378,12 @@ In addition to the arguments listed above, the following computed attributes are
 - `create` - (Default `60 minutes`) Used for adding node pools
 - `update` - (Default `60 minutes`) Used for updates to node pools
 - `delete` - (Default `60 minutes`) Used for removing node pools.
+
+<a name="nested_kubelet_config"></a>The `kubelet_config` block supports:
+
+* `shutdown_grace_period_seconds` - (Optional) The grace period (in seconds) to use during a graceful node shutdown. This is the time allocated for all pods (critical and non-critical) to terminate. The value must be between 10 and 10000. This field can only be configured if the node pool uses Spot VMs or Preemptible VMs.
+
+* `shutdown_grace_period_critical_pods_seconds` - (Optional) The grace period (in seconds) to use during a graceful node shutdown for critical pods. This value must be less than or equal to `shutdown_grace_period_seconds`. This field can only be configured if the node pool uses Spot VMs or Preemptible VMs.
 
 ## Import
 
