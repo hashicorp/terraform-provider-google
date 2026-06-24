@@ -197,6 +197,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+* `name` -
+  The relative resource name of the data asset.
+
 
 ## Timeouts
 
