@@ -80,7 +80,14 @@ func flattenMetadataBeta(metadata *compute.Metadata) map[string]string {
 		return metadataMap
 	}
 	for _, item := range metadata.Items {
-		metadataMap[item.Key] = *item.Value
+		if item == nil {
+			continue
+		}
+		if item.Value == nil {
+			metadataMap[item.Key] = ""
+		} else {
+			metadataMap[item.Key] = *item.Value
+		}
 	}
 	return metadataMap
 }
@@ -95,7 +102,14 @@ func FlattenMetadata(metadata *compute.Metadata) map[string]interface{} {
 		return metadataMap
 	}
 	for _, item := range metadata.Items {
-		metadataMap[item.Key] = *item.Value
+		if item == nil {
+			continue
+		}
+		if item.Value == nil {
+			metadataMap[item.Key] = ""
+		} else {
+			metadataMap[item.Key] = *item.Value
+		}
 	}
 	return metadataMap
 }

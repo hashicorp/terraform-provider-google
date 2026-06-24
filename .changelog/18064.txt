@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Fixed a panic in `google_compute_project_metadata` and `google_compute_project_metadata_item` when project common instance metadata items contain null/empty values.
+```
