@@ -251,6 +251,7 @@ resource "google_network_services_lb_route_extension" "default" {
         fail_open = false
 
         forward_headers  = ["custom-header"]
+        forward_attributes = ["request.host", "request.path"]
 
         supported_events = ["REQUEST_HEADERS", "REQUEST_BODY", "REQUEST_TRAILERS"]
         request_body_send_mode = "BODY_SEND_MODE_FULL_DUPLEX_STREAMED"
@@ -876,6 +877,15 @@ The following arguments are supported:
   (Optional)
   List of the HTTP headers to forward to the extension (from the client or backend).
   If omitted, all headers are sent. Each element is a string indicating the header name.
+
+* `forward_attributes` -
+  (Optional)
+  List of the Envoy attributes to forward to the extension server. The attributes
+  provided here are included as part of the `ProcessingRequest.attributes` field
+  (of type `map`), where the keys are the attribute names. Refer to the
+  [documentation](https://docs.cloud.google.com/service-extensions/docs/attributes)
+  for the names of attributes that can be forwarded. If omitted, no attributes
+  are sent. Each element is a string indicating the attribute name.
 
 * `supported_events` -
   (Optional)

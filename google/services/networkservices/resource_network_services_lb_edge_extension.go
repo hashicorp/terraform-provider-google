@@ -186,6 +186,20 @@ When set to FALSE: * If response headers have not been delivered to the downstre
 a generic 500 error is returned to the client. The error response can be tailored by
 configuring a custom error response in the load balancer.`,
 									},
+									"forward_attributes": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `List of the Envoy attributes to forward to the extension server. The attributes
+provided here are included as part of the 'ProcessingRequest.attributes' field
+(of type 'map'), where the keys are the attribute names. Refer to the
+[documentation](https://docs.cloud.google.com/service-extensions/docs/attributes)
+for the names of attributes that can be forwarded. If omitted, no attributes
+are sent. Each element is a string indicating the attribute name.`,
+										MaxItems: 16,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
 									"forward_headers": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -818,11 +832,12 @@ func flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensions(v interface{
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":             flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsName(original["name"], d, config),
-			"service":          flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsService(original["service"], d, config),
-			"fail_open":        flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsFailOpen(original["failOpen"], d, config),
-			"supported_events": flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsSupportedEvents(original["supportedEvents"], d, config),
-			"forward_headers":  flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsForwardHeaders(original["forwardHeaders"], d, config),
+			"name":               flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsName(original["name"], d, config),
+			"service":            flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsService(original["service"], d, config),
+			"fail_open":          flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsFailOpen(original["failOpen"], d, config),
+			"supported_events":   flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsSupportedEvents(original["supportedEvents"], d, config),
+			"forward_headers":    flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsForwardHeaders(original["forwardHeaders"], d, config),
+			"forward_attributes": flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsForwardAttributes(original["forwardAttributes"], d, config),
 		})
 	}
 	return transformed
@@ -844,6 +859,10 @@ func flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsSupportedEven
 }
 
 func flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsForwardHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesLbEdgeExtensionExtensionChainsExtensionsForwardAttributes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -995,6 +1014,13 @@ func expandNetworkServicesLbEdgeExtensionExtensionChainsExtensions(v interface{}
 			transformed["forwardHeaders"] = transformedForwardHeaders
 		}
 
+		transformedForwardAttributes, err := expandNetworkServicesLbEdgeExtensionExtensionChainsExtensionsForwardAttributes(original["forward_attributes"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedForwardAttributes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["forwardAttributes"] = transformedForwardAttributes
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1017,6 +1043,10 @@ func expandNetworkServicesLbEdgeExtensionExtensionChainsExtensionsSupportedEvent
 }
 
 func expandNetworkServicesLbEdgeExtensionExtensionChainsExtensionsForwardHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesLbEdgeExtensionExtensionChainsExtensionsForwardAttributes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
