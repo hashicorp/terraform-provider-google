@@ -532,8 +532,10 @@ func ResourceComputeGlobalNetworkEndpointGroupFlatten(d *schema.ResourceData, me
 	if err = d.Set("default_port", flattenComputeGlobalNetworkEndpointGroupDefaultPort(res["defaultPort"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
+		}
 	}
 	return nil
 }

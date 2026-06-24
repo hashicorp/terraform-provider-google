@@ -851,8 +851,10 @@ func ResourceComputeHttpHealthCheckFlatten(d *schema.ResourceData, meta interfac
 	if err = d.Set("unhealthy_threshold", flattenComputeHttpHealthCheckUnhealthyThreshold(res["unhealthyThreshold"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+		}
 	}
 	return nil
 }
