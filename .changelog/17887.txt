@@ -1,0 +1,4 @@
+```release-note:bug
+compute: fixed a permadiff where `advanced_machine_features.performance_monitoring_unit` would incorrectly show a diff when defaulting to `STANDARD`
+container: fixed a permadiff where `node_config.advanced_machine_features.performance_monitoring_unit` would incorrectly show a diff when defaulting to `STANDARD`
+```
