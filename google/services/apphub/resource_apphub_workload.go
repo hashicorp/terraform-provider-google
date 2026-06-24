@@ -939,20 +939,31 @@ func flattenApphubWorkloadWorkloadPropertiesExtendedMetadata(v interface{}, d *s
 	if v == nil {
 		return v
 	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
+	if m, ok := v.(map[string]interface{}); ok {
+		transformed := make([]interface{}, 0, len(m))
+		for key, val := range m {
+			transformed = append(transformed, map[string]interface{}{
+				"key":   flattenApphubWorkloadWorkloadPropertiesExtendedMetadataKey(key, d, config),
+				"value": flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValue(val, d, config),
+			})
 		}
-		transformed = append(transformed, map[string]interface{}{
-			"key":   flattenApphubWorkloadWorkloadPropertiesExtendedMetadataKey(original["key"], d, config),
-			"value": flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValue(original["value"], d, config),
-		})
+		return transformed
 	}
-	return transformed
+	if l, ok := v.([]interface{}); ok {
+		transformed := make([]interface{}, 0, len(l))
+		for _, raw := range l {
+			original, ok := raw.(map[string]interface{})
+			if !ok || len(original) < 1 {
+				continue
+			}
+			transformed = append(transformed, map[string]interface{}{
+				"key":   flattenApphubWorkloadWorkloadPropertiesExtendedMetadataKey(original["key"], d, config),
+				"value": flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValue(original["value"], d, config),
+			})
+		}
+		return transformed
+	}
+	return nil
 }
 func flattenApphubWorkloadWorkloadPropertiesExtendedMetadataKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
@@ -974,7 +985,17 @@ func flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValue(v interface{},
 	return []interface{}{transformed}
 }
 func flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValueMetadataStruct(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+	if s, ok := v.(string); ok {
+		return s
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		return ""
+	}
+	return string(b)
 }
 
 func flattenApphubWorkloadWorkloadPropertiesExtendedMetadataValueExtendedMetadataSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
