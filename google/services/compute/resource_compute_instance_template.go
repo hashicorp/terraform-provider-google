@@ -18,6 +18,7 @@ package compute
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -1647,7 +1648,27 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Name:        itName,
 	}
 
-	op, err := NewClient(config, userAgent).InstanceTemplates.Insert(project, instanceTemplate).Do()
+	itBytes, err := json.Marshal(instanceTemplate)
+	if err != nil {
+		return fmt.Errorf("Error marshaling instance template: %s", err)
+	}
+	var itBody map[string]interface{}
+	if err := json.Unmarshal(itBytes, &itBody); err != nil {
+		return fmt.Errorf("Error unmarshaling instance template: %s", err)
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/instanceTemplates")
+	if err != nil {
+		return err
+	}
+	op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      itBody,
+	})
 	if err != nil {
 		return fmt.Errorf("Error creating instance template: %s", err)
 	}
@@ -1655,7 +1676,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	// Store the ID now
 	d.SetId(fmt.Sprintf("projects/%s/global/instanceTemplates/%s", project, instanceTemplate.Name))
 	// And also the unique ID
-	d.Set("self_link_unique", fmt.Sprintf("%v?uniqueId=%v", d.Id(), op.TargetId))
+	d.Set("self_link_unique", fmt.Sprintf("%v?uniqueId=%v", d.Id(), op["targetId"]))
 
 	err = ComputeOperationWaitTime(config, op, project, "Creating Instance Template", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -1942,9 +1963,28 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 
 	splits := strings.Split(idStr, "/")
-	instanceTemplate, err := NewClient(config, userAgent).InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
+	baseUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/instanceTemplates")
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("%s/%s", baseUrl, splits[len(splits)-1])
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
+	}
+	itBytes, err := json.Marshal(res)
+	if err != nil {
+		return fmt.Errorf("Error marshaling instance template response: %s", err)
+	}
+	var instanceTemplate compute.InstanceTemplate
+	if err := json.Unmarshal(itBytes, &instanceTemplate); err != nil {
+		return fmt.Errorf("Error unmarshaling instance template response: %s", err)
 	}
 	// Set the metadata fingerprint if there is one.
 	if instanceTemplate.Properties.Metadata != nil {
@@ -2152,8 +2192,18 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 	}
 
 	splits := strings.Split(d.Id(), "/")
-	op, err := NewClient(config, userAgent).InstanceTemplates.Delete(
-		project, splits[len(splits)-1]).Do()
+	baseUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/instanceTemplates")
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("%s/%s", baseUrl, splits[len(splits)-1])
+	op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return fmt.Errorf("Error deleting instance template: %s", err)
 	}

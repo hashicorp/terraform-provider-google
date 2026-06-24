@@ -1,0 +1,3 @@
+```release-note:note
+compute: Migrate partially `resource_compute_instance_template.go.tmpl` resource to use direct HTTP rather than a client library
+```
