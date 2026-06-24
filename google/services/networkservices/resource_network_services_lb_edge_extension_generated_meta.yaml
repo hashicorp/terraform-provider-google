@@ -11,6 +11,7 @@ fields:
     - field: effective_labels
       provider_only: true
     - api_field: extensionChains.extensions.failOpen
+    - api_field: extensionChains.extensions.forwardAttributes
     - api_field: extensionChains.extensions.forwardHeaders
     - api_field: extensionChains.extensions.name
     - api_field: extensionChains.extensions.service
