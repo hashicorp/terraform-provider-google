@@ -819,8 +819,10 @@ func ResourceComputePublicDelegatedPrefixFlatten(d *schema.ResourceData, meta in
 	if err = d.Set("public_delegated_sub_prefixs", flattenComputePublicDelegatedPrefixPublicDelegatedSubPrefixs(res["publicDelegatedSubPrefixs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading PublicDelegatedPrefix: %s", err)
+		}
 	}
 	return nil
 }

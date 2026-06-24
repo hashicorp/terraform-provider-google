@@ -1177,8 +1177,10 @@ func ResourceComputeRouteFlatten(d *schema.ResourceData, meta interface{}, res m
 	if err = d.Set("route_status", flattenComputeRouteRouteStatus(res["routeStatus"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Route: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Route: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading Route: %s", err)
+		}
 	}
 	return nil
 }

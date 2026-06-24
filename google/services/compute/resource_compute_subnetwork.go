@@ -2247,8 +2247,10 @@ func ResourceComputeSubnetworkFlatten(d *schema.ResourceData, meta interface{}, 
 	if err = d.Set("resolve_subnet_mask", flattenComputeSubnetworkResolveSubnetMask(res["resolveSubnetMask"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Subnetwork: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading Subnetwork: %s", err)
+		}
 	}
 	return nil
 }

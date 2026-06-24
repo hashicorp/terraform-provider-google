@@ -10830,8 +10830,10 @@ func ResourceComputeRegionUrlMapFlatten(d *schema.ResourceData, meta interface{}
 	if err = d.Set("region", flattenComputeRegionUrlMapRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading RegionUrlMap: %s", err)
+		}
 	}
 	return nil
 }

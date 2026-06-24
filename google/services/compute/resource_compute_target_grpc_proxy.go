@@ -672,8 +672,10 @@ func ResourceComputeTargetGrpcProxyFlatten(d *schema.ResourceData, meta interfac
 	if err = d.Set("fingerprint", flattenComputeTargetGrpcProxyFingerprint(res["fingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading TargetGrpcProxy: %s", err)
+		}
 	}
 	return nil
 }

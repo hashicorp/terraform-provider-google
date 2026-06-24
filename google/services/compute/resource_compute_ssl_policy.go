@@ -788,8 +788,10 @@ func ResourceComputeSslPolicyFlatten(d *schema.ResourceData, meta interface{}, r
 	if err = d.Set("fingerprint", flattenComputeSslPolicyFingerprint(res["fingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslPolicy: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading SslPolicy: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading SslPolicy: %s", err)
+		}
 	}
 	return nil
 }
