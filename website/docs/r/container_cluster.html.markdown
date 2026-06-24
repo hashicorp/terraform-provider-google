@@ -494,7 +494,7 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
     It is enabled by default;
     set `disabled = true` to disable.
 
-* `agent_sandbox_config` - (Optional, Beta) Configuration for the Agent Sandbox addon. Structure is documented below:
+* `agent_sandbox_config` - (Optional) Configuration for the Agent Sandbox addon. Structure is documented below:
     * `enabled` - (Required) Whether the Agent Sandbox addon is enabled.
 
 * `http_load_balancing` - (Optional) The status of the HTTP (L7) load balancing

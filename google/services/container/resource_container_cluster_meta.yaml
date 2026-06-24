@@ -11,6 +11,7 @@ cai_asset_name_formats:
   - //container.googleapis.com/projects/{{project}}/locations/{{location}}/clusters/{{name}}
   - //container.googleapis.com/projects/{{project}}/zones/{{location}}/clusters/{{name}}
 fields:
+  - api_field: 'addonsConfig.agentSandboxConfig.enabled'
   - field: 'addons_config.cloudrun_config.disabled'
     api_field: 'addonsConfig.cloudRunConfig.disabled'
   - field: 'addons_config.cloudrun_config.load_balancer_type'
