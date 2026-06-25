@@ -141,7 +141,7 @@ func ResourceApigeeEndpointAttachment() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Location of the endpoint attachment.`,
+				Description: `The location of the endpoint attachment.`,
 			},
 			"org_id": {
 				Type:     schema.TypeString,
@@ -151,15 +151,17 @@ func ResourceApigeeEndpointAttachment() *schema.Resource {
 in the format 'organizations/{{org_name}}'.`,
 			},
 			"service_attachment": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Format: projects/*/regions/*/serviceAttachments/*`,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `The resource URL of the service attachment in the format:
+'projects/*/regions/*/serviceAttachments/*'.`,
 			},
 			"connection_state": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `State of the endpoint attachment connection to the service attachment.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `State of the endpoint attachment connection to the service attachment.
+Possible values are: 'CONNECTION_STATE_UNSPECIFIED', 'PENDING', 'ACCEPTED', 'REJECTED', 'CLOSED'.`,
 			},
 			"host": {
 				Type:        schema.TypeString,
