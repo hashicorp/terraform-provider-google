@@ -1,0 +1,19 @@
+```release-note:new-resource
+`google_agent_registry_service`: Added the `google_agent_registry_service` resource to GA.
+```
+
+```release-note:new-resource
+`google_agent_registry_binding`: Added the `google_agent_registry_binding` resource to GA.
+```
+
+```release-note:new-resource
+`google_agent_registry_agent`: Added the `google_agent_registry_agent` data source.
+```
+
+```release-note:new-resource
+`google_agent_registry_endpoint`: Added the `google_agent_registry_endpoint` data source.
+```
+
+```release-note:new-resource
+`google_agent_registry_mcp_server`: Added the `google_agent_registry_mcp_server` data source.
+```
