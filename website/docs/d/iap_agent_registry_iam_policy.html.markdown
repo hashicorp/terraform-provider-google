@@ -23,8 +23,6 @@ description: |-
 # google_iap_agent_registry_iam_policy
 
 Retrieves the current IAM policy data for agentregistry
-~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage
@@ -32,7 +30,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 data "google_iap_agent_registry_iam_policy" "policy" {
-  provider = google-beta
   project = google_project_service.project_service.project
   location = "us-central1"
 }
