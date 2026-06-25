@@ -7,6 +7,7 @@ api_service_name: dlp.googleapis.com
 api_version: v2
 api_resource_type_kind: InspectTemplate
 fields:
+    - api_field: allowLimitedAvailabilityInfoTypes
     - api_field: description
     - api_field: displayName
     - api_field: inspectConfig.contentOptions
