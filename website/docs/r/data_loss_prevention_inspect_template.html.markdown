@@ -332,6 +332,11 @@ The following arguments are supported:
   The core content of the template.
   Structure is [documented below](#nested_inspect_config).
 
+* `allow_limited_availability_info_types` -
+  (Optional)
+  Enables the use of [limited-availability built-in infoTypes](https://docs.cloud.google.com/sensitive-data-protection/docs/infotypes-reference#limited-availability-infotypes)
+  in inspect_config. These infoTypes are supported only in specific regions and can cause scanning errors if used elsewhere.
+
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
 	the command will fail if this field is set to "PREVENT" in Terraform state.

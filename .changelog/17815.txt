@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: added `allow_limited_availability_info_types` to `google_data_loss_prevention_inspect_template`
+```

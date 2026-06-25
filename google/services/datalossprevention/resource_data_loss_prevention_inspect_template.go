@@ -143,6 +143,12 @@ func ResourceDataLossPreventionInspectTemplate() *schema.Resource {
 * 'organizations/{{organization_id}}'
 * 'organizations/{{organization_id}}/locations/{{location}}'`,
 			},
+			"allow_limited_availability_info_types": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Enables the use of [limited-availability built-in infoTypes](https://docs.cloud.google.com/sensitive-data-protection/docs/infotypes-reference#limited-availability-infotypes)
+in inspect_config. These infoTypes are supported only in specific regions and can cause scanning errors if used elsewhere.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -866,6 +872,12 @@ func resourceDataLossPreventionInspectTemplateCreate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("inspect_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(inspectConfigProp)) && (ok || !reflect.DeepEqual(v, inspectConfigProp)) {
 		obj["inspectConfig"] = inspectConfigProp
 	}
+	allowLimitedAvailabilityInfoTypesProp, err := expandDataLossPreventionInspectTemplateAllowLimitedAvailabilityInfoTypes(d.Get("allow_limited_availability_info_types"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allow_limited_availability_info_types"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowLimitedAvailabilityInfoTypesProp)) && (ok || !reflect.DeepEqual(v, allowLimitedAvailabilityInfoTypesProp)) {
+		obj["allowLimitedAvailabilityInfoTypes"] = allowLimitedAvailabilityInfoTypesProp
+	}
 
 	obj, err = resourceDataLossPreventionInspectTemplateEncoder(d, meta, obj)
 	if err != nil {
@@ -1076,6 +1088,12 @@ func resourceDataLossPreventionInspectTemplateUpdate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("inspect_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, inspectConfigProp)) {
 		obj["inspectConfig"] = inspectConfigProp
 	}
+	allowLimitedAvailabilityInfoTypesProp, err := expandDataLossPreventionInspectTemplateAllowLimitedAvailabilityInfoTypes(d.Get("allow_limited_availability_info_types"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allow_limited_availability_info_types"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, allowLimitedAvailabilityInfoTypesProp)) {
+		obj["allowLimitedAvailabilityInfoTypes"] = allowLimitedAvailabilityInfoTypesProp
+	}
 
 	obj, err = resourceDataLossPreventionInspectTemplateUpdateEncoder(d, meta, obj)
 	if err != nil {
@@ -1101,6 +1119,10 @@ func resourceDataLossPreventionInspectTemplateUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("inspect_config") {
 		updateMask = append(updateMask, "inspectConfig")
+	}
+
+	if d.HasChange("allow_limited_availability_info_types") {
+		updateMask = append(updateMask, "allowLimitedAvailabilityInfoTypes")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -2090,6 +2112,10 @@ func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredT
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredTypeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateAllowLimitedAvailabilityInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3405,6 +3431,10 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredTy
 	return v, nil
 }
 
+func expandDataLossPreventionInspectTemplateAllowLimitedAvailabilityInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceDataLossPreventionInspectTemplateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	newObj := make(map[string]interface{})
 	newObj["inspectTemplate"] = obj
@@ -3456,6 +3486,9 @@ func ResourceDataLossPreventionInspectTemplateFlatten(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading InspectTemplate: %s", err)
 	}
 	if err = d.Set("inspect_config", flattenDataLossPreventionInspectTemplateInspectConfig(res["inspectConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InspectTemplate: %s", err)
+	}
+	if err = d.Set("allow_limited_availability_info_types", flattenDataLossPreventionInspectTemplateAllowLimitedAvailabilityInfoTypes(res["allowLimitedAvailabilityInfoTypes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InspectTemplate: %s", err)
 	}
 
