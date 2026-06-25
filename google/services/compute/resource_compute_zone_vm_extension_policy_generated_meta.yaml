@@ -1,0 +1,28 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_compute_zone_vm_extension_policy
+generation_type: mmv1
+source_file: products/compute/ZoneVmExtensionPolicy.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: ZoneVmExtensionPolicy
+fields:
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: extensionPolicies.key
+      field: extension_policies.extension_name
+    - api_field: extensionPolicies.value.pinnedVersion
+      field: extension_policies.pinned_version
+    - api_field: extensionPolicies.value.stringConfig
+      field: extension_policies.string_config
+    - api_field: id
+    - api_field: instanceSelectors.labelSelector.inclusionLabels
+    - api_field: kind
+    - api_field: managedByGlobal
+    - api_field: name
+    - api_field: priority
+    - api_field: state
+    - field: zone
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
