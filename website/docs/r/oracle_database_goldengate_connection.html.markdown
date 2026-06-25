@@ -36,9 +36,9 @@ GoldengateConnection is a resource that represents metadata to establish a conne
 ```hcl
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "my-connection"
-  location                 = "us-east4"
+  location                 = "asia-south1"
   project                  = "my-project"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "asia-south1-b-r1"
 
 
   properties {
@@ -100,9 +100,9 @@ resource "google_oracle_database_goldengate_connection" "connection" {
 ```hcl
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "my-connection"
-  location                 = "us-east4"
+  location                 = "northamerica-northeast1"
   project                  = "my-project"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "northamerica-northeast1-a-r1"
 
   properties {
     display_name    = "my-connection display name"
@@ -139,9 +139,9 @@ resource "google_oracle_database_goldengate_connection" "connection" {
 ```hcl
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "my-connection"
-  location                 = "us-east4"
+  location                 = "southamerica-east1"
   project                  = "my-project"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "southamerica-east1-a-r1"
 
   properties {
     display_name    = "my-connection display name"
@@ -170,9 +170,9 @@ resource "google_oracle_database_goldengate_connection" "connection" {
 ```hcl
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "my-connection"
-  location                 = "us-east4"
+  location                 = "asia-northeast2"
   project                  = "my-project"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "asia-northeast2-a-r1"
 
   properties {
     display_name    = "my-connection display name"
@@ -200,9 +200,9 @@ resource "google_oracle_database_goldengate_connection" "connection" {
 ```hcl
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "my-connection"
-  location                 = "us-east4"
+  location                 = "europe-west8"
   project                  = "my-project"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "europe-west8-a-r1"
 
   properties {
     display_name    = "my-connection display name"
@@ -236,9 +236,9 @@ resource "google_oracle_database_goldengate_connection" "connection" {
 ```hcl
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "my-connection"
-  location                 = "us-east4"
+  location                 = "australia-southeast1"
   project                  = "my-project"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "australia-southeast1-b-r1"
 
   properties {
     display_name    = "my-connection display name"
@@ -278,9 +278,9 @@ resource "google_oracle_database_goldengate_connection" "connection" {
 ```hcl
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "my-connection"
-  location                 = "us-east4"
+  location                 = "europe-west3"
   project                  = "my-project"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "europe-west3-b-r1"
 
   properties {
     display_name    = "my-connection display name"
@@ -307,9 +307,9 @@ resource "google_oracle_database_goldengate_connection" "connection" {
 ```hcl
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "my-connection"
-  location                 = "us-east4"
+  location                 = "asia-northeast1"
   project                  = "my-project"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "asia-northeast1-a-r1"
 
   properties {
     display_name    = "my-connection display name"
