@@ -20,6 +20,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/accessapproval"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/accesscontextmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/activedirectory"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/agentregistry"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/alloydb"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/apigee"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/apihub"
