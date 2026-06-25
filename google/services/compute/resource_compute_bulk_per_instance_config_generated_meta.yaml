@@ -1,0 +1,18 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_compute_bulk_per_instance_config
+generation_type: mmv1
+source_file: products/compute/BulkPerInstanceConfig.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: InstanceGroupManager
+api_variant_patterns:
+    - projects/{project}/zones/{zone}/instanceGroupManagers/{instanceGroupManager}
+fields:
+    - field: instance_group_manager
+      provider_only: true
+    - api_field: instances.name
+    - field: zone
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
