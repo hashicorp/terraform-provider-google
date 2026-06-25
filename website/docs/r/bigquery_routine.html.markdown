@@ -338,6 +338,7 @@ resource "google_bigquery_routine" "python_function" {
     container_memory = "512Mi"
     container_cpu = 0.5
     runtime_version = "python-3.11"
+    container_request_concurrency = "1"
   }
 
 }
@@ -597,6 +598,12 @@ The following arguments are supported:
 * `runtime_version` -
   (Optional)
   Language runtime version. Example: `python-3.11`.
+
+* `container_request_concurrency` -
+  (Optional)
+  Maximum number of concurrent requests per Python UDF container instance. For more
+  information, see [Configure container limits for Python
+  UDFs](https://cloud.google.com/bigquery/docs/user-defined-functions-python#configure-container-limits)
 
 ## Attributes Reference
 
