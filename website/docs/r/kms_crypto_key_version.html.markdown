@@ -23,7 +23,6 @@ description: |-
 
 A `CryptoKeyVersion` represents an individual cryptographic key, and the associated key material.
 
-
 Destroying a cryptoKeyVersion will not delete the resource from the project.
 
 

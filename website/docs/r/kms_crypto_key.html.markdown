@@ -23,7 +23,6 @@ description: |-
 
 A `CryptoKey` represents a logical key that can be used for cryptographic operations.
 
-
 ~> **Note:** CryptoKeys cannot be deleted from Google Cloud Platform.
 Destroying a Terraform-managed CryptoKey will remove it from state
 and delete all CryptoKeyVersions, rendering the key unusable, but *will
