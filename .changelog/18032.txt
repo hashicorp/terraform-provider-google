@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `external_runtime_options.container_request_concurrency` field to `google_bigquery_routine` resource
+```
