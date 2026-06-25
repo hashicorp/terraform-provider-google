@@ -431,9 +431,10 @@ func resourceComputeBulkPerInstanceConfigDelete(d *schema.ResourceData, meta int
 	var instanceUrls []string
 	var instanceNames []string
 	if v, ok := d.GetOk("instances"); ok {
-		// Cast directly to []interface{} since it is defined as an Array (TypeList)
-		if lst, isList := v.([]interface{}); isList {
-			for _, raw := range lst {
+		// Cast to *schema.Set since it is defined as a Set (TypeSet)
+		if set, isSet := v.(*schema.Set); isSet {
+			// Call List() on the set to get a []interface{} for iteration
+			for _, raw := range set.List() {
 				if instance, isMap := raw.(map[string]interface{}); isMap {
 					// Safely assert the name as a string
 					if name, isString := instance["name"].(string); isString {
