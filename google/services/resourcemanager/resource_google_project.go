@@ -70,6 +70,18 @@ func ResourceGoogleProject() *schema.Resource {
 			State: resourceProjectImportState,
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(10 * time.Minute),
@@ -215,6 +227,12 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 
 	d.SetId(fmt.Sprintf("projects/%s", pid))
 
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project_id": pid,
+	}); err != nil {
+		return err
+	}
+
 	// Wait for the operation to complete
 	opAsMap, err := tpgresource.ConvertToMap(op)
 	if err != nil {
@@ -341,46 +359,8 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	// Explicitly set client-side fields to default values if unset
 
-	if err := tpgresource.DeletionPolicyReadDefault(d, config, "PREVENT"); err != nil {
+	if err := populateGoogleProjectResourceData(d, p, pid, config); err != nil {
 		return err
-	}
-
-	if err := d.Set("project_id", pid); err != nil {
-		return fmt.Errorf("Error setting project_id: %s", err)
-	}
-	if err := d.Set("number", strconv.FormatInt(p.ProjectNumber, 10)); err != nil {
-		return fmt.Errorf("Error setting number: %s", err)
-	}
-	if err := d.Set("name", p.Name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
-	if err := tpgresource.SetLabels(p.Labels, d, "labels"); err != nil {
-		return fmt.Errorf("Error setting labels: %s", err)
-	}
-	if err := tpgresource.SetLabels(p.Labels, d, "terraform_labels"); err != nil {
-		return fmt.Errorf("Error setting terraform_labels: %s", err)
-	}
-	if err := d.Set("effective_labels", p.Labels); err != nil {
-		return fmt.Errorf("Error setting effective_labels: %s", err)
-	}
-
-	if p.Parent != nil {
-		switch p.Parent.Type {
-		case "organization":
-			if err := d.Set("org_id", p.Parent.Id); err != nil {
-				return fmt.Errorf("Error setting org_id: %s", err)
-			}
-			if err := d.Set("folder_id", ""); err != nil {
-				return fmt.Errorf("Error setting folder_id: %s", err)
-			}
-		case "folder":
-			if err := d.Set("folder_id", p.Parent.Id); err != nil {
-				return fmt.Errorf("Error setting folder_id: %s", err)
-			}
-			if err := d.Set("org_id", ""); err != nil {
-				return fmt.Errorf("Error setting org_id: %s", err)
-			}
-		}
 	}
 
 	var ba *cloudbilling.ProjectBillingInfo
@@ -413,6 +393,58 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func populateGoogleProjectResourceData(d *schema.ResourceData, p *cloudresourcemanager.Project, pid string, config *transport_tpg.Config) error {
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "PREVENT"); err != nil {
+		return err
+	}
+
+	if err := d.Set("project_id", pid); err != nil {
+		return fmt.Errorf("Error setting project_id: %s", err)
+	}
+	if err := d.Set("number", strconv.FormatInt(p.ProjectNumber, 10)); err != nil {
+		return fmt.Errorf("Error setting number: %s", err)
+	}
+	if err := d.Set("name", p.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := tpgresource.SetLabels(p.Labels, d, "labels"); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(p.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
+	}
+	if v := d.Get("terraform_labels").(map[string]interface{}); len(v) == 0 && len(p.Labels) > 0 {
+		if err := d.Set("terraform_labels", p.Labels); err != nil {
+			return fmt.Errorf("Error setting terraform_labels: %s", err)
+		}
+	}
+	if err := d.Set("effective_labels", p.Labels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
+	}
+
+	if p.Parent != nil {
+		switch p.Parent.Type {
+		case "organization":
+			if err := d.Set("org_id", p.Parent.Id); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+			if err := d.Set("folder_id", ""); err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
+		case "folder":
+			if err := d.Set("folder_id", p.Parent.Id); err != nil {
+				return fmt.Errorf("Error setting folder_id: %s", err)
+			}
+			if err := d.Set("org_id", ""); err != nil {
+				return fmt.Errorf("Error setting org_id: %s", err)
+			}
+		}
+	}
+	return tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project_id": pid,
+	})
 }
 
 func PrefixedProject(pid string) string {
@@ -515,6 +547,11 @@ func resourceGoogleProjectUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.Partial(false)
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project_id": pid,
+	}); err != nil {
+		return err
+	}
 	return resourceGoogleProjectRead(d, meta)
 }
 
@@ -565,6 +602,25 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceProjectImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	// Handle identity-based import (Terraform 1.12+ import blocks with resource identity).
+	// In this case d.Id() is empty and project_id is available via the identity block.
+	if d.Id() == "" {
+		identity, err := d.Identity()
+		if err != nil || identity == nil {
+			return nil, fmt.Errorf("Error getting identity for import: %v", err)
+		}
+		pidVal, ok := identity.GetOk("project_id")
+		if !ok {
+			return nil, fmt.Errorf("project_id must be set in the identity block for import")
+		}
+		pid := pidVal.(string)
+		d.SetId(fmt.Sprintf("projects/%s", pid))
+		if err := d.Set("auto_create_network", true); err != nil {
+			return nil, fmt.Errorf("Error setting auto_create_network: %s", err)
+		}
+		return []*schema.ResourceData{d}, nil
+	}
+
 	parts := strings.Split(d.Id(), "/")
 	pid := parts[len(parts)-1]
 	// Prevent importing via project number, this will cause issues later
