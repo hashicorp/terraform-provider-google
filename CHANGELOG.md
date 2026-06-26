@@ -1,8 +1,8 @@
 ## 7.39.0 (Unreleased)
 
 NOTES:
-* compute: migrated `resource_compute_instance_template.go.tmpl` resource partially to use direct HTTP rather than a client library ([#28010](https://github.com/hashicorp/terraform-provider-google/pull/28010))
-* compute: migrated `resource_compute_network_peering.go.tmpl` resource to use direct HTTP rather than a client library ([#28021](https://github.com/hashicorp/terraform-provider-google/pull/28021))
+* compute: migrated `resource_compute_instance_template` resource partially to use direct HTTP rather than a client library ([#28010](https://github.com/hashicorp/terraform-provider-google/pull/28010))
+* compute: migrated `resource_compute_network_peering` resource to use direct HTTP rather than a client library ([#28021](https://github.com/hashicorp/terraform-provider-google/pull/28021))
 * compute: migrated `google_compute_metadata` to use direct HTTP rather than a client library ([#27968](https://github.com/hashicorp/terraform-provider-google/pull/27968))
 
 FEATURES:
@@ -78,7 +78,6 @@ BUG FIXES:
 
 NOTES:
 * bigquery: migrated `google_bigquery_table` resource to use direct HTTP rather than a client library ([#27909](https://github.com/hashicorp/terraform-provider-google/pull/27909))
-* compute: migrated `resource_compute_instance_template_test.go.tmpl` resource to use direct HTTP rather than a client library ([#27859](https://github.com/hashicorp/terraform-provider-google/pull/27859))
 * compute: migrated `google_compute_resource_compute_instance`  to use direct HTTP rather than a client library ([#27925](https://github.com/hashicorp/terraform-provider-google/pull/27925))
 * compute: migrated parts of `google_compute_instance` and shared instance functions to use direct HTTP ([#27815](https://github.com/hashicorp/terraform-provider-google/pull/27815))
 
