@@ -593,7 +593,7 @@ func schemaNodeConfig() *schema.Schema {
 								Required:     true,
 								ForceNew:     true,
 								Description:  `Corresponds to the type of reservation consumption.`,
-								ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"}, false),
+								ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION", "ANY_RESERVATION_THEN_FAIL"}, false),
 							},
 							"key": {
 								Type:        schema.TypeString,

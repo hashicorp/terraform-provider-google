@@ -2931,6 +2931,38 @@ func TestAccContainerCluster_withNodeConfigReservationAffinitySpecific(t *testin
 	})
 }
 
+func TestAccContainerCluster_withNodeConfigReservationAffinityAnyReservationThenFail(t *testing.T) {
+	t.Parallel()
+
+	reservationName := fmt.Sprintf("tf-test-reservation-%s", acctest.RandString(t, 10))
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodeConfigReservationAffinityAnyReservationThenFail(reservationName, clusterName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_config",
+						"node_config.0.reservation_affinity.#", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_config",
+						"node_config.0.reservation_affinity.0.consume_reservation_type", "ANY_RESERVATION_THEN_FAIL"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withNodeConfigNodeImageConfig(t *testing.T) {
 	t.Parallel()
 
@@ -9710,6 +9742,75 @@ resource "google_container_cluster" "with_node_config" {
       values = [
         google_compute_reservation.gce_reservation.name
       ]
+    }
+  }
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+  depends_on          = [google_project_service.container]
+}
+`, reservation, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodeConfigReservationAffinityAnyReservationThenFail(reservation, clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+
+resource "google_project_service" "compute" {
+  service = "compute.googleapis.com"
+}
+
+resource "google_project_service" "container" {
+  service = "container.googleapis.com"
+  depends_on = [google_project_service.compute]
+}
+
+
+resource "google_compute_reservation" "gce_reservation" {
+  name = "%s"
+  zone = "us-central1-f"
+
+  specific_reservation {
+    count = 1
+    instance_properties {
+      machine_type     = "n1-standard-1"
+    }
+  }
+
+  specific_reservation_required = false
+  depends_on = [google_project_service.compute]
+}
+
+resource "google_container_cluster" "with_node_config" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "n1-standard-1"
+    disk_size_gb = 15
+    disk_type    = "pd-ssd"
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/compute",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+    ]
+    service_account = "default"
+    metadata = {
+      foo                      = "bar"
+      disable-legacy-endpoints = "true"
+    }
+    labels = {
+      foo = "bar"
+    }
+    tags = ["foo", "bar"]
+
+    // Updatable fields
+    image_type = "COS_CONTAINERD"
+
+    reservation_affinity {
+      consume_reservation_type = "ANY_RESERVATION_THEN_FAIL"
     }
   }
   network    = "%s"

@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `ANY_RESERVATION_THEN_FAIL` option to `consume_reservation_type` field in `google_container_cluster` and `google_container_node_pool` resources
+```
