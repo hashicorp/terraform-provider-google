@@ -1,0 +1,3 @@
+```release-note:bug
+logging: fixed an issue where errors on update would not be propagated in `google_logging_project_bucket_config`
+```
