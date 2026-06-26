@@ -62,6 +62,31 @@ func TestAccComputeRegionNetworkFirewallPolicyWithRules_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionNetworkFirewallPolicyWithRules_targetForwardingRules(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkFirewallPolicyWithRulesDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkFirewallPolicyWithRules_targetForwardingRules(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_firewall_policy_with_rules.region-network-firewall-policy-with-rules",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
 func testAccComputeRegionNetworkFirewallPolicyWithRules_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "project" {
@@ -216,6 +241,99 @@ resource "google_tags_tag_value" "secure_tag_value_1" {
   description = "Tag value"
   parent      = google_tags_tag_key.secure_tag_key_1.id
   short_name  = "tf-test-tf-tag-value%{random_suffix}"
+}
+`, context)
+}
+
+func testAccComputeRegionNetworkFirewallPolicyWithRules_targetForwardingRules(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "target_forwarding_rule" {
+  name                    = "tf-test-network-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "target_forwarding_rule_proxy_subnetwork" {
+  name          = "tf-test-proxy-subnetwork-%{random_suffix}"
+  region        = "us-west2"
+  network       = google_compute_network.target_forwarding_rule.id
+  ip_cidr_range = "10.20.0.0/24"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+}
+
+resource "google_compute_subnetwork" "target_forwarding_rule_default_subnetwork" {
+  name          = "tf-test-default-subnetwork-%{random_suffix}"
+  region        = "us-west2"
+  network       = google_compute_network.target_forwarding_rule.id
+  ip_cidr_range = "10.10.0.0/24"
+}
+
+resource "google_compute_region_health_check" "target_forwarding_rule" {
+  name   = "tf-test-health-check-%{random_suffix}"
+  region = "us-west2"
+
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_compute_region_backend_service" "target_forwarding_rule" {
+  name                  = "tf-test-backend-service-%{random_suffix}"
+  region                = "us-west2"
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  health_checks         = [google_compute_region_health_check.target_forwarding_rule.id]
+}
+
+resource "google_compute_region_url_map" "target_forwarding_rule" {
+  name            = "tf-test-url-map-%{random_suffix}"
+  region          = "us-west2"
+  default_service = google_compute_region_backend_service.target_forwarding_rule.id
+}
+
+resource "google_compute_region_target_http_proxy" "target_forwarding_rule" {
+  name    = "tf-test-target-http-proxy-%{random_suffix}"
+  region  = "us-west2"
+  url_map = google_compute_region_url_map.target_forwarding_rule.id
+}
+
+resource "google_compute_forwarding_rule" "target_forwarding_rule" {
+  name                  = "tf-test-forwarding-rule-%{random_suffix}"
+  region                = "us-west2"
+  network               = google_compute_network.target_forwarding_rule.id
+  subnetwork            = google_compute_subnetwork.target_forwarding_rule_default_subnetwork.id
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  target                = google_compute_region_target_http_proxy.target_forwarding_rule.id
+  ip_protocol           = "TCP"
+  port_range            = "80"
+
+  depends_on = [
+    google_compute_subnetwork.target_forwarding_rule_proxy_subnetwork,
+  ]
+}
+
+resource "google_compute_region_network_firewall_policy_with_rules" "region-network-firewall-policy-with-rules" {
+  name        = "tf-test-tf-region-fw-policy-with-rules-lb%{random_suffix}"
+  region      = "us-west2"
+  description = "Terraform test target forwarding rules"
+
+  rule {
+    priority    = 1000
+    action      = "allow"
+    direction   = "INGRESS"
+    target_type = "INTERNAL_MANAGED_LB"
+    target_forwarding_rules = [
+      google_compute_forwarding_rule.target_forwarding_rule.self_link,
+    ]
+
+    match {
+      src_ip_ranges = ["10.0.0.0/8"]
+
+      layer4_config {
+        ip_protocol = "tcp"
+      }
+    }
+  }
 }
 `, context)
 }

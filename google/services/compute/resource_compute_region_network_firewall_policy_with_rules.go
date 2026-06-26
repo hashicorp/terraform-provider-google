@@ -424,6 +424,21 @@ Example:
 https://networksecurity.googleapis.com/v1/projects/{project}/locations/{location}/securityProfileGroups/my-security-profile-group
 Must be specified if action is 'apply_security_profile_group'.`,
 						},
+						"target_forwarding_rules": {
+							Type:             schema.TypeList,
+							Optional:         true,
+							DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
+							Description: `A list of forwarding rules to which this rule applies.
+This field allows you to control which load balancers get this rule.
+For example, the following are valid values:
+- https://www.googleapis.com/compute/v1/projects/project/global/forwardingRules/forwardingRule
+- https://www.googleapis.com/compute/v1/projects/project/regions/region/forwardingRules/forwardingRule
+- projects/project/global/forwardingRules/forwardingRule
+- projects/project/regions/region/forwardingRules/forwardingRule`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"target_secure_tag": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -464,6 +479,15 @@ instances that are applied with this rule.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+						"target_type": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"INSTANCES", "INTERNAL_MANAGED_LB", ""}),
+							Description: `Target types of the firewall policy rule.
+Default value is INSTANCES.
+When target_type is INTERNAL_MANAGED_LB, target_forwarding_rules must be set Possible values: ["INSTANCES", "INTERNAL_MANAGED_LB"]`,
 						},
 						"tls_inspect": {
 							Type:     schema.TypeBool,
@@ -1313,6 +1337,8 @@ func flattenComputeRegionNetworkFirewallPolicyWithRulesRule(v interface{}, d *sc
 			"security_profile_group":  flattenComputeRegionNetworkFirewallPolicyWithRulesRuleSecurityProfileGroup(original["securityProfileGroup"], d, config),
 			"tls_inspect":             flattenComputeRegionNetworkFirewallPolicyWithRulesRuleTlsInspect(original["tlsInspect"], d, config),
 			"disabled":                flattenComputeRegionNetworkFirewallPolicyWithRulesRuleDisabled(original["disabled"], d, config),
+			"target_type":             flattenComputeRegionNetworkFirewallPolicyWithRulesRuleTargetType(original["targetType"], d, config),
+			"target_forwarding_rules": flattenComputeRegionNetworkFirewallPolicyWithRulesRuleTargetForwardingRules(original["targetForwardingRules"], d, config),
 		})
 	}
 	return transformed
@@ -1523,6 +1549,14 @@ func flattenComputeRegionNetworkFirewallPolicyWithRulesRuleTlsInspect(v interfac
 }
 
 func flattenComputeRegionNetworkFirewallPolicyWithRulesRuleDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionNetworkFirewallPolicyWithRulesRuleTargetType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionNetworkFirewallPolicyWithRulesRuleTargetForwardingRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1902,6 +1936,20 @@ func expandComputeRegionNetworkFirewallPolicyWithRulesRule(v interface{}, d tpgr
 			transformed["disabled"] = transformedDisabled
 		}
 
+		transformedTargetType, err := expandComputeRegionNetworkFirewallPolicyWithRulesRuleTargetType(original["target_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTargetType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["targetType"] = transformedTargetType
+		}
+
+		transformedTargetForwardingRules, err := expandComputeRegionNetworkFirewallPolicyWithRulesRuleTargetForwardingRules(original["target_forwarding_rules"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTargetForwardingRules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["targetForwardingRules"] = transformedTargetForwardingRules
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2203,6 +2251,14 @@ func expandComputeRegionNetworkFirewallPolicyWithRulesRuleTlsInspect(v interface
 }
 
 func expandComputeRegionNetworkFirewallPolicyWithRulesRuleDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionNetworkFirewallPolicyWithRulesRuleTargetType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionNetworkFirewallPolicyWithRulesRuleTargetForwardingRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
