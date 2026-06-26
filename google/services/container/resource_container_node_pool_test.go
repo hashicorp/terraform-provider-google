@@ -791,6 +791,38 @@ func TestAccContainerNodePool_withReservationAffinitySpecific(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withReservationAffinityAnyReservationThenFail(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	reservation := fmt.Sprintf("tf-test-reservation-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withReservationAffinityAnyReservationThenFail(cluster, reservation, np, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.#", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.0.consume_reservation_type", "ANY_RESERVATION_THEN_FAIL"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_reservation_affinity",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 	t.Parallel()
 
@@ -3832,6 +3864,55 @@ resource "google_container_node_pool" "with_reservation_affinity" {
       values = [
         google_compute_reservation.gce_reservation.name
       ]
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, reservation, np)
+}
+
+func testAccContainerNodePool_withReservationAffinityAnyReservationThenFail(cluster, reservation, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "google_compute_reservation" "gce_reservation" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  specific_reservation {
+    count = 1
+    instance_properties {
+      machine_type     = "n1-standard-1"
+    }
+  }
+
+  specific_reservation_required = false
+}
+
+resource "google_container_node_pool" "with_reservation_affinity" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    machine_type    = "n1-standard-1"
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+    reservation_affinity {
+      consume_reservation_type = "ANY_RESERVATION_THEN_FAIL"
     }
   }
 }
