@@ -1789,7 +1789,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		DeletionProtection:       d.Get("deletion_protection").(bool),
 		Hostname:                 d.Get("hostname").(string),
 		ForceSendFields:          []string{"CanIpForward", "DeletionProtection"},
-		AdvancedMachineFeatures:  expandAdvancedMachineFeatures(d),
+		AdvancedMachineFeatures:  expandAdvancedMachineFeaturesTyped(d),
 		ResourcePolicies:         tpgresource.ConvertStringArr(d.Get("resource_policies").([]interface{})),
 		ReservationAffinity:      reservationAffinity,
 		KeyRevocationActionType:  d.Get("key_revocation_action_type").(string),
@@ -2305,7 +2305,7 @@ func populateComputeInstanceResourceData(d *schema.ResourceData, instance *compu
 			return fmt.Errorf("Error setting confidential_instance_config: %s", err)
 		}
 	}
-	if err := d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instance.AdvancedMachineFeatures)); err != nil {
+	if err := d.Set("advanced_machine_features", flattenAdvancedMachineFeaturesTyped(instance.AdvancedMachineFeatures)); err != nil {
 		return fmt.Errorf("Error setting advanced_machine_features: %s", err)
 	}
 	if d.Get("desired_status") != "" {
@@ -3650,11 +3650,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 						return fmt.Errorf("Error retrieving instance: %s", err)
 					}
 
-					featuresMap, err := tpgresource.ConvertToMap(expandAdvancedMachineFeatures(d))
-					if err != nil {
-						return fmt.Errorf("Error converting advanced_machine_features: %s", err)
-					}
-					instMap["advancedMachineFeatures"] = featuresMap
+					instMap["advancedMachineFeatures"] = expandAdvancedMachineFeatures(d)
 
 					stripInitializeParams(instMap)
 

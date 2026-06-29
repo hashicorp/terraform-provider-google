@@ -1280,11 +1280,7 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 		instanceProperties["shieldedInstanceConfig"] = sic
 	}
 	if amf := expandAdvancedMachineFeatures(d); amf != nil {
-		amfMap, err := tpgresource.ConvertToMap(amf)
-		if err != nil {
-			return fmt.Errorf("Error converting advancedMachineFeatures: %s", err)
-		}
-		instanceProperties["advancedMachineFeatures"] = amfMap
+		instanceProperties["advancedMachineFeatures"] = amf
 	}
 	if reservationAffinity != nil {
 		instanceProperties["reservationAffinity"] = reservationAffinity
@@ -1575,7 +1571,7 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 		}
 	}
 	if instanceTemplate.Properties.AdvancedMachineFeatures != nil {
-		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instanceTemplate.Properties.AdvancedMachineFeatures)); err != nil {
+		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeaturesTyped(instanceTemplate.Properties.AdvancedMachineFeatures)); err != nil {
 			return fmt.Errorf("Error setting advanced_machine_features: %s", err)
 		}
 	}
