@@ -935,7 +935,52 @@ func flattenConfidentialInstanceConfig(ConfidentialInstanceConfig map[string]int
 	}}
 }
 
-func expandAdvancedMachineFeatures(d tpgresource.TerraformResourceData) *compute.AdvancedMachineFeatures {
+func expandAdvancedMachineFeatures(d tpgresource.TerraformResourceData) map[string]interface{} {
+	if _, ok := d.GetOk("advanced_machine_features"); !ok {
+		return nil
+	}
+
+	prefix := "advanced_machine_features.0"
+	result := map[string]interface{}{}
+	if v := d.Get(prefix + ".enable_nested_virtualization").(bool); v {
+		result["enableNestedVirtualization"] = v
+	}
+	if v := d.Get(prefix + ".threads_per_core").(int); v != 0 {
+		result["threadsPerCore"] = int64(v)
+	}
+	if v := d.Get(prefix + ".turbo_mode").(string); v != "" {
+		result["turboMode"] = v
+	}
+	if v := d.Get(prefix + ".visible_core_count").(int); v != 0 {
+		result["visibleCoreCount"] = int64(v)
+	}
+	if v := d.Get(prefix + ".performance_monitoring_unit").(string); v != "" {
+		result["performanceMonitoringUnit"] = v
+	}
+	if v := d.Get(prefix + ".enable_uefi_networking").(bool); v {
+		result["enableUefiNetworking"] = v
+	}
+	return result
+}
+
+func flattenAdvancedMachineFeatures(v map[string]interface{}) []map[string]interface{} {
+	if v == nil {
+		return nil
+	}
+	threadsPerCore, _ := v["threadsPerCore"].(float64)
+	visibleCoreCount, _ := v["visibleCoreCount"].(float64)
+	result := map[string]interface{}{
+		"enable_nested_virtualization": v["enableNestedVirtualization"],
+		"threads_per_core":             int64(threadsPerCore),
+		"turbo_mode":                   v["turboMode"],
+		"visible_core_count":           int64(visibleCoreCount),
+		"performance_monitoring_unit":  v["performanceMonitoringUnit"],
+		"enable_uefi_networking":       v["enableUefiNetworking"],
+	}
+	return []map[string]interface{}{result}
+}
+
+func expandAdvancedMachineFeaturesTyped(d tpgresource.TerraformResourceData) *compute.AdvancedMachineFeatures {
 	if _, ok := d.GetOk("advanced_machine_features"); !ok {
 		return nil
 	}
@@ -951,7 +996,7 @@ func expandAdvancedMachineFeatures(d tpgresource.TerraformResourceData) *compute
 	}
 }
 
-func flattenAdvancedMachineFeatures(AdvancedMachineFeatures *compute.AdvancedMachineFeatures) []map[string]interface{} {
+func flattenAdvancedMachineFeaturesTyped(AdvancedMachineFeatures *compute.AdvancedMachineFeatures) []map[string]interface{} {
 	if AdvancedMachineFeatures == nil {
 		return nil
 	}
