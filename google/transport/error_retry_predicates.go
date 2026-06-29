@@ -728,3 +728,15 @@ func IsDataplex1PEntryNotFoundError(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+// Retry on Cloud Scheduler 'Sync Mutate Cannot Be Queued'
+func Is409SyncMutateCannotBeQueuedError(err error) (bool, string) {
+	if err == nil {
+		return false, ""
+	}
+	errStr := err.Error()
+	if strings.Contains(errStr, "Error 409") && strings.Contains(errStr, "sync mutate calls cannot be queued") {
+		return true, "sync mutate calls cannot be queued"
+	}
+	return false, ""
+}
