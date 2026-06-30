@@ -107,9 +107,9 @@ func ResourceOracleDatabaseExascaleDbStorageVault() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(120 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -289,6 +289,14 @@ FAILED`,
 					},
 				},
 			},
+			"exadata_infrastructure": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `The Exadata Infrastructure resource on which ExascaleDbStorageVault resource is created.
+In the format: projects/{project}/locations/{region}/cloudExadataInfrastructures/{cloud_extradata_infrastructure}`,
+			},
 			"gcp_oracle_zone": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -387,6 +395,12 @@ func resourceOracleDatabaseExascaleDbStorageVaultCreate(d *schema.ResourceData, 
 		return err
 	} else if v, ok := d.GetOkExists("gcp_oracle_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(gcpOracleZoneProp)) && (ok || !reflect.DeepEqual(v, gcpOracleZoneProp)) {
 		obj["gcpOracleZone"] = gcpOracleZoneProp
+	}
+	exadataInfrastructureProp, err := expandOracleDatabaseExascaleDbStorageVaultExadataInfrastructure(d.Get("exadata_infrastructure"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("exadata_infrastructure"); !tpgresource.IsEmptyValue(reflect.ValueOf(exadataInfrastructureProp)) && (ok || !reflect.DeepEqual(v, exadataInfrastructureProp)) {
+		obj["exadataInfrastructure"] = exadataInfrastructureProp
 	}
 	propertiesProp, err := expandOracleDatabaseExascaleDbStorageVaultProperties(d.Get("properties"), d, config)
 	if err != nil {
@@ -702,6 +716,13 @@ func flattenOracleDatabaseExascaleDbStorageVaultName(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenOracleDatabaseExascaleDbStorageVaultExadataInfrastructure(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
 func flattenOracleDatabaseExascaleDbStorageVaultProperties(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -887,6 +908,10 @@ func expandOracleDatabaseExascaleDbStorageVaultDisplayName(v interface{}, d tpgr
 }
 
 func expandOracleDatabaseExascaleDbStorageVaultGcpOracleZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseExascaleDbStorageVaultExadataInfrastructure(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1111,6 +1136,9 @@ func ResourceOracleDatabaseExascaleDbStorageVaultFlatten(d *schema.ResourceData,
 		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
 	}
 	if err = d.Set("name", flattenOracleDatabaseExascaleDbStorageVaultName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
+	}
+	if err = d.Set("exadata_infrastructure", flattenOracleDatabaseExascaleDbStorageVaultExadataInfrastructure(res["exadataInfrastructure"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ExascaleDbStorageVault: %s", err)
 	}
 	if err = d.Set("properties", flattenOracleDatabaseExascaleDbStorageVaultProperties(res["properties"], d, config)); err != nil {
