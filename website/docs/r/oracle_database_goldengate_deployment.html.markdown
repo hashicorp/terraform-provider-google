@@ -85,7 +85,6 @@ resource "google_oracle_database_goldengate_deployment" "deployment" {
       admin_username              = "admin"
       admin_password              = "123Abpassword!"
       deployment                  = "deployment"
-      ogg_version                 = "oggoracle:23.26.2.0.0_260417.1915_14223"
     }
 
     maintenance_window {
