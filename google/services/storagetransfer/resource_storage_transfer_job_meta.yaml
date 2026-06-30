@@ -72,6 +72,7 @@ fields:
   - api_field: 'transferSpec.azureBlobStorageDataSource.federatedIdentityConfig.clientId'
   - api_field: 'transferSpec.azureBlobStorageDataSource.federatedIdentityConfig.tenantId'
   - api_field: 'transferSpec.azureBlobStorageDataSource.path'
+  - api_field: 'transferSpec.azureBlobStorageDataSource.privateNetworkService'
   - api_field: 'transferSpec.azureBlobStorageDataSource.storageAccount'
   - api_field: 'transferSpec.awsS3CompatibleDataSource.bucketName'
   - api_field: 'transferSpec.awsS3CompatibleDataSource.path'

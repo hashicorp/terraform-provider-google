@@ -1,0 +1,3 @@
+```release-note:enhancement
+storagetransfer: added `private_network_service` to resource `google_storage_transfer_job`
+```

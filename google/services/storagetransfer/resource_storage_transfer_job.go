@@ -933,6 +933,11 @@ func azureBlobStorageDataSchema() *schema.Resource {
 				},
 				Description: ` Workload Identity Details used to authenticate API requests to Azure.`,
 			},
+			"private_network_service": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Service Directory Service used as the endpoint for transfers from a customer-managed VPC. Format: projects/{projectId}/locations/{location}/namespaces/{namespace}/services/{service}`,
+			},
 		},
 	}
 }
@@ -1798,6 +1803,7 @@ func expandAzureBlobStorageData(azureBlobStorageDatas []interface{}) *storagetra
 		AzureCredentials:        expandAzureCredentials(azureBlobStorageData["azure_credentials"].([]interface{})),
 		CredentialsSecret:       azureBlobStorageData["credentials_secret"].(string),
 		FederatedIdentityConfig: expandAzureFederatedIdentifyConfig(azureBlobStorageData["federated_identity_config"].([]interface{})),
+		PrivateNetworkService:   azureBlobStorageData["private_network_service"].(string),
 	}
 }
 
@@ -1809,6 +1815,7 @@ func flattenAzureBlobStorageData(azureBlobStorageData *storagetransfer.AzureBlob
 		"azure_credentials":         flattenAzureCredentials(d),
 		"federated_identity_config": flattenAzureFederatedIdentifyConfig(d),
 		"credentials_secret":        azureBlobStorageData.CredentialsSecret,
+		"private_network_service":   azureBlobStorageData.PrivateNetworkService,
 	}
 
 	return []map[string]interface{}{data}
