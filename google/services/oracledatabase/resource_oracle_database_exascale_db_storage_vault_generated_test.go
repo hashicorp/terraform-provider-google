@@ -76,7 +76,7 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 				ResourceName:            "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "exascale_db_storage_vault_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "exadata_infrastructure", "exascale_db_storage_vault_id", "labels", "location", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
@@ -130,7 +130,7 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 				ResourceName:            "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "exascale_db_storage_vault_id", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "exadata_infrastructure", "exascale_db_storage_vault_id", "labels", "location", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
@@ -160,6 +160,88 @@ resource "google_oracle_database_exascale_db_storage_vault" "my_storage_vault"{
     additional_flash_cache_percent = 100
     exascale_db_storage_details {
         total_size_gbs = 300
+    }
+  }
+
+  deletion_protection = "%{deletion_protection}"
+}
+`, context)
+}
+
+func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorageVaultDedicatedExadataInfrastructureExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-configured-exadata-%s", acctest.RandString(t, 10)),
+		"deletion_protection":             false,
+		"exascale_db_storage_vault_id":    fmt.Sprintf("ofake-tf-test-vault-on-exadata-%s", acctest.RandString(t, 10)),
+		"project":                         "oci-terraform-testing-prod",
+		"random_suffix":                   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckOracleDatabaseExascaleDbStorageVaultDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorageVaultDedicatedExadataInfrastructureExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "exadata_infrastructure", "exascale_db_storage_vault_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorageVaultDedicatedExadataInfrastructureExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_oracle_database_cloud_exadata_infrastructure" "infra" {
+  cloud_exadata_infrastructure_id = "%{cloud_exadata_infrastructure_id}"
+  display_name                    = "%{cloud_exadata_infrastructure_id} displayname"
+  location                        = "us-east4"
+  project                         = "%{project}"
+
+  properties {
+    shape         = "Exadata.X9M"
+    compute_count = "2"
+    storage_count = "3"
+  }
+
+  deletion_protection = "%{deletion_protection}"
+}
+
+resource "google_oracle_database_cloud_exadata_infrastructure_exascale_config" "exascale_config" {
+  cloud_exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.infra.cloud_exadata_infrastructure_id
+  location                     = "us-east4"
+  project                      = "%{project}"
+  total_storage_size_gb        = 10240
+}
+
+resource "google_oracle_database_exascale_db_storage_vault" "my_storage_vault" {
+  exascale_db_storage_vault_id = "%{exascale_db_storage_vault_id}"
+  display_name                 = "%{exascale_db_storage_vault_id} displayname"
+  location                     = "us-east4"
+  project                      = "%{project}"
+
+  exadata_infrastructure       = google_oracle_database_cloud_exadata_infrastructure.infra.name
+
+  depends_on = [google_oracle_database_cloud_exadata_infrastructure_exascale_config.exascale_config]
+
+  properties {
+    exascale_db_storage_details {
+      total_size_gbs = 2048
     }
   }
 

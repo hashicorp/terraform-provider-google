@@ -1,0 +1,3 @@
+```release-note:enhancement
+oracledatabase: added `exadata_infrastructure` field to `google_oracle_database_exascale_db_storage_vault` resource
+```

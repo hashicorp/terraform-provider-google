@@ -79,6 +79,56 @@ resource "google_oracle_database_exascale_db_storage_vault" "my_storage_vault"{
   deletion_protection = "true"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=oracledatabase_exascale_db_storage_vault_dedicated_exadata_infrastructure&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Oracledatabase Exascale Db Storage Vault Dedicated Exadata Infrastructure
+
+
+```hcl
+resource "google_oracle_database_cloud_exadata_infrastructure" "infra" {
+  cloud_exadata_infrastructure_id = "my-infra"
+  display_name                    = "my-infra displayname"
+  location                        = "us-east4"
+  project                         = "my-project"
+
+  properties {
+    shape         = "Exadata.X9M"
+    compute_count = "2"
+    storage_count = "3"
+  }
+
+  deletion_protection = "true"
+}
+
+resource "google_oracle_database_cloud_exadata_infrastructure_exascale_config" "exascale_config" {
+  cloud_exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.infra.cloud_exadata_infrastructure_id
+  location                     = "us-east4"
+  project                      = "my-project"
+  total_storage_size_gb        = 10240
+}
+
+resource "google_oracle_database_exascale_db_storage_vault" "my_storage_vault" {
+  exascale_db_storage_vault_id = "my-instance"
+  display_name                 = "my-instance displayname"
+  location                     = "us-east4"
+  project                      = "my-project"
+
+  exadata_infrastructure       = google_oracle_database_cloud_exadata_infrastructure.infra.name
+
+  depends_on = [google_oracle_database_cloud_exadata_infrastructure_exascale_config.exascale_config]
+
+  properties {
+    exascale_db_storage_details {
+      total_size_gbs = 2048
+    }
+  }
+
+  deletion_protection = "true"
+}
+```
 
 ## Argument Reference
 
@@ -120,6 +170,11 @@ The following arguments are supported:
   The labels or tags associated with the ExascaleDbStorageVault.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `exadata_infrastructure` -
+  (Optional)
+  The Exadata Infrastructure resource on which ExascaleDbStorageVault resource is created.
+  In the format: projects/{project}/locations/{region}/cloudExadataInfrastructures/{cloud_extradata_infrastructure}
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -242,9 +297,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `create` - Default is 120 minutes.
+- `update` - Default is 60 minutes.
+- `delete` - Default is 60 minutes.
 
 ## Import
 
