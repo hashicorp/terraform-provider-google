@@ -187,6 +187,8 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_compute_instance_group_manager.igm-update", "instance_lifecycle_policy.0.default_action_on_failure", "DO_NOTHING"),
 					resource.TestCheckResourceAttr("google_compute_instance_group_manager.igm-update", "instance_lifecycle_policy.0.on_failed_health_check", "DO_NOTHING"),
+
+					resource.TestCheckResourceAttr("google_compute_instance_group_manager.igm-update", "instance_lifecycle_policy.0.on_repair.0.allow_changing_zone", "NO"),
 				),
 			},
 			{
@@ -200,6 +202,8 @@ func TestAccInstanceGroupManager_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_compute_instance_group_manager.igm-update", "instance_lifecycle_policy.0.default_action_on_failure", "REPAIR"),
 					resource.TestCheckResourceAttr("google_compute_instance_group_manager.igm-update", "instance_lifecycle_policy.0.on_failed_health_check", "REPAIR"),
+
+					resource.TestCheckResourceAttr("google_compute_instance_group_manager.igm-update", "instance_lifecycle_policy.0.on_repair.0.allow_changing_zone", "NO"),
 				),
 			},
 			{
@@ -970,6 +974,10 @@ resource "google_compute_instance_group_manager" "igm-update" {
     force_update_on_repair = "NO"
     default_action_on_failure = "REPAIR"
     on_failed_health_check = "REPAIR"
+
+    on_repair {
+      allow_changing_zone  = "NO"
+    }
   }
 }
 `, template1, target1, target2, template2, description, igm)

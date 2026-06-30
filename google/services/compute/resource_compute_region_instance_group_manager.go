@@ -344,6 +344,25 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"YES", "NO"}, false),
 							Description:  `Specifies whether to apply the group's latest configuration when repairing a VM. Valid options are: YES, NO. If YES and you updated the group's instance template or per-instance configurations after the VM was created, then these changes are applied when VM is repaired. If NO (default), then updates are applied in accordance with the group's update policy type.`,
 						},
+
+						"on_repair": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Configuration for VM repairs in the MIG.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allow_changing_zone": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "NO",
+										ValidateFunc: validation.StringInSlice([]string{"YES", "NO"}, true),
+										Description:  `Specifies whether the MIG can change a VM's zone during a repair. If "YES", MIG can select a different zone for the VM during a repair. Else if "NO", MIG cannot change a VM's zone during a repair. The default value of allow_changing_zone is "NO".`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1586,6 +1605,10 @@ func flattenRegionInstanceLifecyclePolicy(raw interface{}) []map[string]interfac
 		"force_update_on_repair":    ilp["forceUpdateOnRepair"],
 		"default_action_on_failure": ilp["defaultActionOnFailure"],
 		"on_failed_health_check":    ilp["onFailedHealthCheck"],
+	}
+	if onRepair, ok := ilp["onRepair"].(map[string]interface{}); ok && onRepair != nil {
+		onRepairEntry := map[string]any{"allow_changing_zone": onRepair["allowChangingZone"]}
+		entry["on_repair"] = []map[string]any{onRepairEntry}
 	}
 	return append(results, entry)
 }
