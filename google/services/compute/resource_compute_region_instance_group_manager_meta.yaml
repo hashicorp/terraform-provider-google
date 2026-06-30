@@ -34,6 +34,7 @@ fields:
   - api_field: 'instanceLifecyclePolicy.defaultActionOnFailure'
   - api_field: 'instanceLifecyclePolicy.onFailedHealthCheck'
   - api_field: 'instanceLifecyclePolicy.forceUpdateOnRepair'
+  - api_field: 'instanceLifecyclePolicy.onRepair.allowChangingZone'
   - api_field: 'listManagedInstancesResults'
   - api_field: 'name'
   - api_field: 'namedPorts.name'

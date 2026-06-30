@@ -381,6 +381,25 @@ func ResourceComputeInstanceGroupManager() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"YES", "NO"}, true),
 							Description:  `Specifies whether to apply the group's latest configuration when repairing a VM. Valid options are: YES, NO. If YES and you updated the group's instance template or per-instance configurations after the VM was created, then these changes are applied when VM is repaired. If NO (default), then updates are applied in accordance with the group's update policy type.`,
 						},
+
+						"on_repair": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Configuration for VM repairs in the MIG.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allow_changing_zone": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "NO",
+										ValidateFunc: validation.StringInSlice([]string{"YES", "NO"}, true),
+										Description:  `Specifies whether the MIG can change a VM's zone during a repair. If "YES", MIG can select a different zone for the VM during a repair. Else if "NO", MIG cannot change a VM's zone during a repair. The default value of allow_changing_zone is "NO".`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1777,6 +1796,8 @@ func expandInstanceLifecyclePolicy(configured []interface{}) *compute.InstanceGr
 		instanceLifecyclePolicy.ForceUpdateOnRepair = data["force_update_on_repair"].(string)
 		instanceLifecyclePolicy.DefaultActionOnFailure = data["default_action_on_failure"].(string)
 		instanceLifecyclePolicy.OnFailedHealthCheck = data["on_failed_health_check"].(string)
+
+		instanceLifecyclePolicy.OnRepair = expandOnRepair(data["on_repair"].([]any))
 	}
 	return instanceLifecyclePolicy
 }
@@ -1788,8 +1809,28 @@ func expandInstanceLifecyclePolicyV2(configured []interface{}) map[string]interf
 		instanceLifecyclePolicy["forceUpdateOnRepair"] = data["force_update_on_repair"].(string)
 		instanceLifecyclePolicy["defaultActionOnFailure"] = data["default_action_on_failure"].(string)
 		instanceLifecyclePolicy["onFailedHealthCheck"] = data["on_failed_health_check"].(string)
+
+		instanceLifecyclePolicy["onRepair"] = expandOnRepairV2(data["on_repair"].([]any))
 	}
 	return instanceLifecyclePolicy
+}
+
+func expandOnRepair(configured []any) *compute.InstanceGroupManagerInstanceLifecyclePolicyOnRepair {
+	onRepair := &compute.InstanceGroupManagerInstanceLifecyclePolicyOnRepair{}
+	for _, raw := range configured {
+		data := raw.(map[string]any)
+		onRepair.AllowChangingZone = data["allow_changing_zone"].(string)
+	}
+	return onRepair
+}
+
+func expandOnRepairV2(configured []any) map[string]interface{} {
+	onRepair := map[string]interface{}{}
+	for _, raw := range configured {
+		data := raw.(map[string]any)
+		onRepair["allowChangingZone"] = data["allow_changing_zone"].(string)
+	}
+	return onRepair
 }
 
 func expandStandbyPolicy(d *schema.ResourceData) *compute.InstanceGroupManagerStandbyPolicy {
@@ -2026,6 +2067,7 @@ func flattenInstanceLifecyclePolicy(instanceLifecyclePolicy *compute.InstanceGro
 		ilp["default_action_on_failure"] = instanceLifecyclePolicy.DefaultActionOnFailure
 		ilp["on_failed_health_check"] = instanceLifecyclePolicy.OnFailedHealthCheck
 
+		ilp["on_repair"] = flattenOnRepair(instanceLifecyclePolicy.OnRepair)
 		results = append(results, ilp)
 	}
 	return results
@@ -2040,7 +2082,29 @@ func flattenInstanceLifecyclePolicyV2(raw interface{}) []map[string]interface{} 
 		ilp["default_action_on_failure"] = stringFromMap(instanceLifecyclePolicy, "defaultActionOnFailure")
 		ilp["on_failed_health_check"] = stringFromMap(instanceLifecyclePolicy, "onFailedHealthCheck")
 
+		ilp["on_repair"] = flattenOnRepairV2(instanceLifecyclePolicy["onRepair"])
 		results = append(results, ilp)
+	}
+	return results
+}
+
+func flattenOnRepair(onRepair *compute.InstanceGroupManagerInstanceLifecyclePolicyOnRepair) []map[string]any {
+	results := []map[string]any{}
+	if onRepair != nil {
+		or := map[string]any{}
+		or["allow_changing_zone"] = onRepair.AllowChangingZone
+		results = append(results, or)
+	}
+	return results
+}
+
+func flattenOnRepairV2(raw interface{}) []map[string]any {
+	onRepair := mapFromInterface(raw)
+	results := []map[string]any{}
+	if onRepair != nil {
+		results = append(results, map[string]any{
+			"allow_changing_zone": stringFromMap(onRepair, "allowChangingZone"),
+		})
 	}
 	return results
 }
