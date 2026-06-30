@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertex_ai: added `customization_configs` and `structured_memory_configs` fields to `google_vertex_ai_reasoning_engine` resource
+```
