@@ -1,0 +1,3 @@
+```release-note:bug
+hypercomputecluster: fixed 20-minute timeout limit during `google_hypercomputecluster_cluster` resource creation
+```
