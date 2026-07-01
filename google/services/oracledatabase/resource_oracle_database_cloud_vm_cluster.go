@@ -192,6 +192,15 @@ projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{od
 				ForceNew:    true,
 				Description: `User friendly name for this resource.`,
 			},
+			"exascale_db_storage_vault": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `The name of ExascaleDbStorageVault associated with the VM Cluster.
+Format:
+projects/{project}/locations/{location}/exascaleDbStorageVaults/{exascale_db_storage_vault}`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -486,6 +495,15 @@ TERMINATED
 FAILED
 MAINTENANCE_IN_PROGRESS`,
 						},
+						"storage_management_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The storage management type of the VM Cluster.
+Possible values:
+STORAGE_MANAGEMENT_TYPE_UNSPECIFIED
+ASM
+EXASCALE`,
+						},
 						"storage_size_gb": {
 							Type:        schema.TypeInt,
 							Computed:    true,
@@ -646,6 +664,12 @@ func resourceOracleDatabaseCloudVmClusterCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("backup_odb_subnet"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupOdbSubnetProp)) && (ok || !reflect.DeepEqual(v, backupOdbSubnetProp)) {
 		obj["backupOdbSubnet"] = backupOdbSubnetProp
+	}
+	exascaleDbStorageVaultProp, err := expandOracleDatabaseCloudVmClusterExascaleDbStorageVault(d.Get("exascale_db_storage_vault"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("exascale_db_storage_vault"); !tpgresource.IsEmptyValue(reflect.ValueOf(exascaleDbStorageVaultProp)) && (ok || !reflect.DeepEqual(v, exascaleDbStorageVaultProp)) {
+		obj["exascaleDbStorageVault"] = exascaleDbStorageVaultProp
 	}
 	effectiveLabelsProp, err := expandOracleDatabaseCloudVmClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1009,6 +1033,8 @@ func flattenOracleDatabaseCloudVmClusterProperties(v interface{}, d *schema.Reso
 		flattenOracleDatabaseCloudVmClusterPropertiesDnsListenerIp(original["dnsListenerIp"], d, config)
 	transformed["cluster_name"] =
 		flattenOracleDatabaseCloudVmClusterPropertiesClusterName(original["clusterName"], d, config)
+	transformed["storage_management_type"] =
+		flattenOracleDatabaseCloudVmClusterPropertiesStorageManagementType(original["storageManagementType"], d, config)
 	return []interface{}{transformed}
 }
 func flattenOracleDatabaseCloudVmClusterPropertiesOcid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1274,6 +1300,10 @@ func flattenOracleDatabaseCloudVmClusterPropertiesClusterName(v interface{}, d *
 	return v
 }
 
+func flattenOracleDatabaseCloudVmClusterPropertiesStorageManagementType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenOracleDatabaseCloudVmClusterLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1337,6 +1367,10 @@ func flattenOracleDatabaseCloudVmClusterIdentityConnectorServiceAgentEmail(v int
 }
 
 func flattenOracleDatabaseCloudVmClusterIdentityConnectorConnectionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseCloudVmClusterExascaleDbStorageVault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1603,6 +1637,13 @@ func expandOracleDatabaseCloudVmClusterProperties(v interface{}, d tpgresource.T
 		transformed["clusterName"] = transformedClusterName
 	}
 
+	transformedStorageManagementType, err := expandOracleDatabaseCloudVmClusterPropertiesStorageManagementType(original["storage_management_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStorageManagementType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["storageManagementType"] = transformedStorageManagementType
+	}
+
 	return transformed, nil
 }
 
@@ -1811,6 +1852,10 @@ func expandOracleDatabaseCloudVmClusterPropertiesClusterName(v interface{}, d tp
 	return v, nil
 }
 
+func expandOracleDatabaseCloudVmClusterPropertiesStorageManagementType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandOracleDatabaseCloudVmClusterCidr(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1832,6 +1877,10 @@ func expandOracleDatabaseCloudVmClusterOdbSubnet(v interface{}, d tpgresource.Te
 }
 
 func expandOracleDatabaseCloudVmClusterBackupOdbSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseCloudVmClusterExascaleDbStorageVault(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1889,6 +1938,9 @@ func ResourceOracleDatabaseCloudVmClusterFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
 	}
 	if err = d.Set("identity_connector", flattenOracleDatabaseCloudVmClusterIdentityConnector(res["identityConnector"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
+	}
+	if err = d.Set("exascale_db_storage_vault", flattenOracleDatabaseCloudVmClusterExascaleDbStorageVault(res["exascaleDbStorageVault"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenOracleDatabaseCloudVmClusterTerraformLabels(res["labels"], d, config)); err != nil {
