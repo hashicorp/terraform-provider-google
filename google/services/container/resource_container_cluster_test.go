@@ -7440,6 +7440,38 @@ func TestAccContainerCluster_withCpuCfsQuotaPool(t *testing.T) {
 	})
 }
 
+// TestAccContainerCluster_withoutNodeConfigBlock is a regression test for
+// hashicorp/terraform-provider-google#28190. It creates a cluster with
+// remove_default_node_pool=true and no `node_config { ... }` block, which
+// previously caused a "value is null" panic in expandNodeConfig when the
+// cpu_cfs_quota raw-config traversal dereferenced an absent node_pool
+// attribute.
+func TestAccContainerCluster_withoutNodeConfigBlock(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-cluster-nodepool-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withoutNodeConfigBlock(clusterName, npName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.no_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_network_tier_config(t *testing.T) {
 	t.Parallel()
 
@@ -7631,6 +7663,30 @@ resource "google_container_cluster" "primary" {
   }
 }
 `, projectID, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withoutNodeConfigBlock(clusterName, npName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "no_node_config" {
+  name                     = "%s"
+  location                 = "us-central1-a"
+  initial_node_count       = 1
+  remove_default_node_pool = true
+  network                  = "%s"
+  subnetwork               = "%s"
+
+  deletion_protection = false
+  # NOTE: intentionally no `+"`node_config { ... }`"+` block on the cluster.
+  # See hashicorp/terraform-provider-google#28190.
+}
+
+resource "google_container_node_pool" "workload" {
+  name       = "%s"
+  location   = "us-central1-a"
+  cluster    = google_container_cluster.no_node_config.name
+  node_count = 1
+}
+`, clusterName, networkName, subnetworkName, npName)
 }
 
 func testAccContainerCluster_networkingModeRoutes(firstName, secondName, networkName, subnetworkName string) string {

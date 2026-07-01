@@ -1827,6 +1827,14 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 		rawConfigNPRoot := d.GetRawConfig()
 		// if we have a prefix, we're in `node_pool.N.` in GKE Cluster. Traverse the RawConfig object to reach that
 		// root, at which point local references work going forwards.
+		//
+		// Guard: some callers (programmatic SDK bridges such as Crossplane's
+		// upjet-generated provider, Config Connector, etc.) do not populate the
+		// `node_pool` attribute in raw config even though `prefix` is set. In
+		// that case GetAttr("node_pool") returns cty.NullVal and Index(N)
+		// panics with "value is null". Skip the raw-config sub-fixes below
+		// cleanly in that case. See hashicorp/terraform-provider-google#28190.
+		skipRawConfigSubFixes := false
 		if prefix != "" {
 			parts := strings.Split(prefix, ".") // "node_pool.N." -> ["node_pool" "N", ""]
 			npIndex, err := strconv.Atoi(parts[1])
@@ -1834,35 +1842,42 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 				panic(fmt.Errorf("unexpected format for node pool path prefix: %w. value: %v", err, prefix))
 			}
 
-			rawConfigNPRoot = rawConfigNPRoot.GetAttr("node_pool").Index(cty.NumberIntVal(int64(npIndex)))
-		}
-
-		if vNC := rawConfigNPRoot.GetAttr("node_config"); vNC.LengthInt() > 0 {
-			if vKC := vNC.Index(cty.NumberIntVal(0)).GetAttr("kubelet_config"); vKC.LengthInt() > 0 {
-				v := vKC.Index(cty.NumberIntVal(0)).GetAttr("cpu_cfs_quota")
-				if v == cty.NullVal(cty.Bool) {
-					nc.KubeletConfig.CpuCfsQuota = true
-				} else if v.False() { // force-send explicit false to API
-					nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "CpuCfsQuota")
-				}
+			npAttr := rawConfigNPRoot.GetAttr("node_pool")
+			if npAttr.IsNull() || !npAttr.CanIterateElements() || npAttr.LengthInt() <= npIndex {
+				skipRawConfigSubFixes = true
+			} else {
+				rawConfigNPRoot = npAttr.Index(cty.NumberIntVal(int64(npIndex)))
 			}
 		}
-		// end cpu_cfs_quota fix
 
-		// start shutdown_grace_period ForceSendFields fix
-		if vNC := rawConfigNPRoot.GetAttr("node_config"); vNC.LengthInt() > 0 {
-			if vKC := vNC.Index(cty.NumberIntVal(0)).GetAttr("kubelet_config"); vKC.LengthInt() > 0 {
-				vSGP := vKC.Index(cty.NumberIntVal(0)).GetAttr("shutdown_grace_period_seconds")
-				if vSGP != cty.NullVal(cty.Number) && !vSGP.IsNull() {
-					nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "ShutdownGracePeriodSeconds")
-				}
-				vSGPC := vKC.Index(cty.NumberIntVal(0)).GetAttr("shutdown_grace_period_critical_pods_seconds")
-				if vSGPC != cty.NullVal(cty.Number) && !vSGPC.IsNull() {
-					nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "ShutdownGracePeriodCriticalPodsSeconds")
+		if !skipRawConfigSubFixes {
+			if vNC := rawConfigNPRoot.GetAttr("node_config"); vNC.LengthInt() > 0 {
+				if vKC := vNC.Index(cty.NumberIntVal(0)).GetAttr("kubelet_config"); vKC.LengthInt() > 0 {
+					v := vKC.Index(cty.NumberIntVal(0)).GetAttr("cpu_cfs_quota")
+					if v == cty.NullVal(cty.Bool) {
+						nc.KubeletConfig.CpuCfsQuota = true
+					} else if v.False() { // force-send explicit false to API
+						nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "CpuCfsQuota")
+					}
 				}
 			}
+			// end cpu_cfs_quota fix
+
+			// start shutdown_grace_period ForceSendFields fix
+			if vNC := rawConfigNPRoot.GetAttr("node_config"); vNC.LengthInt() > 0 {
+				if vKC := vNC.Index(cty.NumberIntVal(0)).GetAttr("kubelet_config"); vKC.LengthInt() > 0 {
+					vSGP := vKC.Index(cty.NumberIntVal(0)).GetAttr("shutdown_grace_period_seconds")
+					if vSGP != cty.NullVal(cty.Number) && !vSGP.IsNull() {
+						nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "ShutdownGracePeriodSeconds")
+					}
+					vSGPC := vKC.Index(cty.NumberIntVal(0)).GetAttr("shutdown_grace_period_critical_pods_seconds")
+					if vSGPC != cty.NullVal(cty.Number) && !vSGPC.IsNull() {
+						nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "ShutdownGracePeriodCriticalPodsSeconds")
+					}
+				}
+			}
+			// end shutdown_grace_period ForceSendFields fix
 		}
-		// end shutdown_grace_period ForceSendFields fix
 	}
 
 	if v, ok := nodeConfig["linux_node_config"]; ok {

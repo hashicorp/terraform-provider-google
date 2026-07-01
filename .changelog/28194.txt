@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a panic in `expandNodeConfig` when creating `google_container_cluster` resources programmatically via the SDK without a raw `node_config` HCL block (impacts Crossplane's upjet-based provider, Config Connector, and similar callers)
+```
