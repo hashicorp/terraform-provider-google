@@ -371,12 +371,24 @@ The following arguments are supported:
   INSPECT_ONLY
   INSPECT_AND_BLOCK
 
+* `filter_version_selector` -
+  (Optional)
+  Selects the filter version to use for this template.
+  Structure is [documented below](#nested_template_metadata_filter_version_selector).
+
 
 <a name="nested_template_metadata_multi_language_detection"></a>The `multi_language_detection` block supports:
 
 * `enable_multi_language_detection` -
   (Required)
   If true, multi language detection will be enabled.
+
+<a name="nested_template_metadata_filter_version_selector"></a>The `filter_version_selector` block supports:
+
+* `version` -
+  (Optional)
+  The filter version. Accepts `LATEST` (newest version),
+  `STABLE` (current stable version), or a specific version such as `v1`.
 
 ## Attributes Reference
 

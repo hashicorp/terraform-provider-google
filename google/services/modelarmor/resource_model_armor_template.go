@@ -359,6 +359,22 @@ end user if the prompt trips Model Armor filters.`,
 INSPECT_ONLY
 INSPECT_AND_BLOCK`,
 						},
+						"filter_version_selector": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Selects the filter version to use for this template.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"version": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The filter version. Accepts 'LATEST' (newest version),
+'STABLE' (current stable version), or a specific version such as 'v1'.`,
+									},
+								},
+							},
+						},
 						"ignore_partial_invocation_failures": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -1029,6 +1045,21 @@ func flattenModelArmorTemplateTemplateMetadata(v interface{}, d *schema.Resource
 	transformed["custom_llm_response_safety_error_code"] = original["customLlmResponseSafetyErrorCode"]
 	transformed["custom_llm_response_safety_error_message"] = original["customLlmResponseSafetyErrorMessage"]
 	transformed["enforcement_type"] = original["enforcementType"]
+	transformed["filter_version_selector"] =
+		flattenModelArmorTemplateTemplateMetadataFilterVersionSelector(original["filterVersionSelector"], d, config)
+	return []interface{}{transformed}
+}
+
+func flattenModelArmorTemplateTemplateMetadataFilterVersionSelector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original, ok := v.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["version"] = original["version"]
 	return []interface{}{transformed}
 }
 
@@ -1413,6 +1444,13 @@ func expandModelArmorTemplateTemplateMetadata(v interface{}, d tpgresource.Terra
 		transformed["enforcementType"] = transformedEnforcementType
 	}
 
+	transformedFilterVersionSelector, err := expandModelArmorTemplateTemplateMetadataFilterVersionSelector(original["filter_version_selector"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilterVersionSelector); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filterVersionSelector"] = transformedFilterVersionSelector
+	}
+
 	return transformed, nil
 }
 
@@ -1471,6 +1509,32 @@ func expandModelArmorTemplateTemplateMetadataCustomLlmResponseSafetyErrorMessage
 }
 
 func expandModelArmorTemplateTemplateMetadataEnforcementType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandModelArmorTemplateTemplateMetadataFilterVersionSelector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedVersion, err := expandModelArmorTemplateTemplateMetadataFilterVersionSelectorVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
+	return transformed, nil
+}
+
+func expandModelArmorTemplateTemplateMetadataFilterVersionSelectorVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
