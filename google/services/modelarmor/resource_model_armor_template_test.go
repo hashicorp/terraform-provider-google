@@ -151,6 +151,9 @@ func testAccModelArmorTemplate_initial(context map[string]interface{}) string {
           custom_prompt_safety_error_message       = "This is a custom error message for prompt"
           custom_llm_response_safety_error_code    = 401
           enforcement_type                         = "INSPECT_ONLY"
+          filter_version_selector {
+            version = "LATEST"
+          }
         }
       }
     `, context)
