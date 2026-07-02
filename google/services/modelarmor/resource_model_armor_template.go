@@ -369,16 +369,14 @@ INSPECT_AND_BLOCK`,
 									"alias": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Description: `A predefined filter version alias. The template automatically follows the
-version this alias points to. Set only one of 'alias' or 'version'. Possible values:
+										Description: `A predefined filter version alias. Possible values:
 FILTER_VERSION_ALIAS_STABLE
 FILTER_VERSION_ALIAS_LATEST`,
 									},
 									"version": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Description: `Pins the template to a specific, immutable filter version. Expected
-format is a case-sensitive string such as 'v1' or 'v2'. Set only one of 'alias' or 'version'.`,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Pins the template to a specific, immutable filter version, e.g. 'v1'.`,
 									},
 								},
 							},
