@@ -362,15 +362,31 @@ INSPECT_AND_BLOCK`,
 						"filter_version_selector": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Selects the filter version to use for this template.`,
+							Description: `Selects the filter version to use for this template. Set exactly one of 'alias' or 'version'.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"alias": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `A predefined filter version alias. The template automatically follows the
+version this alias points to. Possible values:
+FILTER_VERSION_ALIAS_STABLE
+FILTER_VERSION_ALIAS_LATEST`,
+										ExactlyOneOf: []string{
+											"template_metadata.0.filter_version_selector.0.alias",
+											"template_metadata.0.filter_version_selector.0.version",
+										},
+									},
 									"version": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Description: `The filter version. Accepts 'LATEST' (newest version),
-'STABLE' (current stable version), or a specific version such as 'v1'.`,
+										Description: `Pins the template to a specific, immutable filter version. Expected
+format is a case-sensitive string such as 'v1' or 'v2'.`,
+										ExactlyOneOf: []string{
+											"template_metadata.0.filter_version_selector.0.alias",
+											"template_metadata.0.filter_version_selector.0.version",
+										},
 									},
 								},
 							},
@@ -1059,6 +1075,7 @@ func flattenModelArmorTemplateTemplateMetadataFilterVersionSelector(v interface{
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["alias"] = original["alias"]
 	transformed["version"] = original["version"]
 	return []interface{}{transformed}
 }
@@ -1524,6 +1541,13 @@ func expandModelArmorTemplateTemplateMetadataFilterVersionSelector(v interface{}
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedAlias, err := expandModelArmorTemplateTemplateMetadataFilterVersionSelectorAlias(original["alias"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAlias); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["alias"] = transformedAlias
+	}
+
 	transformedVersion, err := expandModelArmorTemplateTemplateMetadataFilterVersionSelectorVersion(original["version"], d, config)
 	if err != nil {
 		return nil, err
@@ -1532,6 +1556,10 @@ func expandModelArmorTemplateTemplateMetadataFilterVersionSelector(v interface{}
 	}
 
 	return transformed, nil
+}
+
+func expandModelArmorTemplateTemplateMetadataFilterVersionSelectorAlias(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandModelArmorTemplateTemplateMetadataFilterVersionSelectorVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

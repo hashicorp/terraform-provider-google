@@ -152,7 +152,7 @@ func testAccModelArmorTemplate_initial(context map[string]interface{}) string {
           custom_llm_response_safety_error_code    = 401
           enforcement_type                         = "INSPECT_ONLY"
           filter_version_selector {
-            version = "LATEST"
+            alias = "FILTER_VERSION_ALIAS_LATEST"
           }
         }
       }

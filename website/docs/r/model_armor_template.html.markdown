@@ -373,7 +373,7 @@ The following arguments are supported:
 
 * `filter_version_selector` -
   (Optional)
-  Selects the filter version to use for this template.
+  Selects the filter version to use for this template. Set exactly one of `alias` or `version`.
   Structure is [documented below](#nested_template_metadata_filter_version_selector).
 
 
@@ -385,10 +385,16 @@ The following arguments are supported:
 
 <a name="nested_template_metadata_filter_version_selector"></a>The `filter_version_selector` block supports:
 
+* `alias` -
+  (Optional)
+  A predefined filter version alias. The template automatically follows the
+  version this alias points to.
+  Possible values are: `FILTER_VERSION_ALIAS_STABLE`, `FILTER_VERSION_ALIAS_LATEST`.
+
 * `version` -
   (Optional)
-  The filter version. Accepts `LATEST` (newest version),
-  `STABLE` (current stable version), or a specific version such as `v1`.
+  Pins the template to a specific, immutable filter version. Expected
+  format is a case-sensitive string such as `v1` or `v2`.
 
 ## Attributes Reference
 
