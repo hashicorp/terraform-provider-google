@@ -1,0 +1,3 @@
+```release-note:bug
+chronicle: suppressed a permadiff on `google_chronicle_rule.text` caused by the Chronicle API appending a trailing newline to every stored rule body
+```
