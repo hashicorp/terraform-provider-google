@@ -8,6 +8,7 @@ api_version: v1
 api_resource_type_kind: Version
 fields:
     - api_field: appEngineApis
+    - api_field: appEngineBundledServices
     - api_field: automaticScaling.maxConcurrentRequests
     - api_field: automaticScaling.maxIdleInstances
     - api_field: automaticScaling.maxPendingLatency
