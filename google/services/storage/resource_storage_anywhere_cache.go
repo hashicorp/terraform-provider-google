@@ -54,6 +54,16 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// Suppresses diffs for Anywhere Cache admission policy where "admit-on-second-miss"
+// is deprecated and falls back to "admit-on-first-miss".
+func StorageAnywhereCacheAdmissionPolicyDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	if old == new {
+		return true
+	}
+	return (old == "admit-on-first-miss" && new == "admit-on-second-miss") ||
+		(old == "admit-on-second-miss" && new == "admit-on-first-miss")
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -146,11 +156,14 @@ func ResourceStorageAnywhereCache() *schema.Resource {
 				Description: `The zone in which the cache instance needs to be created. For example, 'us-central1-a.'`,
 			},
 			"admission_policy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"admit-on-first-miss", "admit-on-second-miss", ""}),
-				Description:  `The cache admission policy dictates whether a block should be inserted upon a cache miss. Default value: "admit-on-first-miss" Possible values: ["admit-on-first-miss", "admit-on-second-miss"]`,
-				Default:      "admit-on-first-miss",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Deprecated:       "`admit-on-second-miss` is deprecated and will be removed in a future major release. The backend will ignore this attribute and treat it as `admit-on-first-miss`.",
+				ValidateFunc:     verify.ValidateEnum([]string{"admit-on-first-miss", "admit-on-second-miss", ""}),
+				DiffSuppressFunc: StorageAnywhereCacheAdmissionPolicyDiffSuppress,
+				Description: `The cache admission policy dictates whether a block should be inserted upon a cache miss.
+Note: "admit-on-second-miss" is deprecated and will fallback to "admit-on-first-miss". Default value: "admit-on-first-miss" Possible values: ["admit-on-first-miss", "admit-on-second-miss"]`,
+				Default: "admit-on-first-miss",
 			},
 			"ingest_on_write": {
 				Type:        schema.TypeBool,
