@@ -54,6 +54,15 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// chronicleRuleTextDiffSuppress treats two YARA-L rule bodies as equal when
+// they differ only by trailing newline characters. The Chronicle Rules API
+// silently appends a trailing "\n" to every stored rule body, so a rule
+// submitted as `}` is read back as `}\n`, which would otherwise show as a
+// permanent diff on every plan (see hashicorp/terraform-provider-google#27881).
+func chronicleRuleTextDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	return strings.TrimRight(old, "\n") == strings.TrimRight(new, "\n")
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -180,8 +189,9 @@ The scope should be in the format:
 "projects/{project}/locations/{location}/instances/{instance}/dataAccessScopes/{scope}".`,
 			},
 			"text": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: chronicleRuleTextDiffSuppress,
 				Description: `The YARA-L content of the rule.
 Populated in FULL view.`,
 			},
