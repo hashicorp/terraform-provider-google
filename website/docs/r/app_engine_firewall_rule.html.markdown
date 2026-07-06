@@ -49,11 +49,20 @@ resource "google_app_engine_application" "app" {
   location_id = "us-central"
 }
 
+# Wait for 5 minutes seconds to ensure IAM permission propagation completes
+resource "time_sleep" "wait_300_seconds" {
+  depends_on = [google_app_engine_application.app]
+  create_duration = "300s"
+}
+
+
 resource "google_app_engine_firewall_rule" "rule" {
   project      = google_app_engine_application.app.project
   priority     = 1000
   action       = "ALLOW"
   source_range = "*"
+
+  depends_on = [time_sleep.wait_300_seconds]
 }
 ```
 
