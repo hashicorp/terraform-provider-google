@@ -1,0 +1,3 @@
+```release-note:new-resource
+chronicle: `google_chronicle_environment` (GA)
+```
