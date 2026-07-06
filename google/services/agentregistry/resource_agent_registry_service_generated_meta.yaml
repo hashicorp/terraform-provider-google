@@ -21,6 +21,7 @@ fields:
     - api_field: mcpServerSpec.content
       json: true
     - api_field: mcpServerSpec.type
+    - api_field: name
     - api_field: registryResource
     - field: service_id
       provider_only: true

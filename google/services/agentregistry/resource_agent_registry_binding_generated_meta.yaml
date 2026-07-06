@@ -17,6 +17,7 @@ fields:
     - api_field: displayName
     - field: location
       provider_only: true
+    - api_field: name
     - api_field: source.identifier
     - api_field: target.identifier
     - api_field: updateTime

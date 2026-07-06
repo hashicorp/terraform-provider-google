@@ -251,6 +251,11 @@ func ResourceAgentRegistryService() *schema.Resource {
 				Computed:    true,
 				Description: `The timestamp when the resource was created.`,
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The resource name of the Service.`,
+			},
 			"registry_resource": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -738,6 +743,10 @@ func resourceAgentRegistryServiceImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenAgentRegistryServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAgentRegistryServiceDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1031,6 +1040,9 @@ func expandAgentRegistryServiceEndpointSpecType(v interface{}, d tpgresource.Ter
 func ResourceAgentRegistryServiceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
+	if err = d.Set("name", flattenAgentRegistryServiceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 	if err = d.Set("display_name", flattenAgentRegistryServiceDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
