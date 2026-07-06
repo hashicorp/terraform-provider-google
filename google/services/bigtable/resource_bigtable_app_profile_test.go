@@ -650,6 +650,24 @@ func TestAccBigtableAppProfile_updateRowAffinity(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"ignore_warnings"},
 			},
 			{
+				Config: testAccBigtableAppProfile_updateMC1(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+			{
+				Config: testAccBigtableAppProfile_updateRowAffinity(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+			{
 				Config: testAccBigtableAppProfile_update1(instanceName),
 			},
 			{
