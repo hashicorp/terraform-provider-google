@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixed a bug where `row_affinity` updates did not persist on `google_bigtable_app_profile`
+```

@@ -595,7 +595,7 @@ func resourceBigtableAppProfileUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	if d.HasChange("multi_cluster_routing_cluster_ids") && !tpgresource.StringInSlice(updateMask, "multiClusterRoutingUseAny") {
+	if (d.HasChange("multi_cluster_routing_cluster_ids") || d.HasChange("row_affinity")) && !tpgresource.StringInSlice(updateMask, "multiClusterRoutingUseAny") {
 		updateMask = append(updateMask, "multiClusterRoutingUseAny")
 	}
 
