@@ -319,6 +319,9 @@ fields:
   - api_field: 'nodeDrainConfig.graceTerminationDuration'
   - api_field: 'nodeDrainConfig.pdbTimeoutDuration'
   - api_field: 'nodeDrainConfig.respectPdbDuringNodePoolDeletion'
+  - api_field: 'maintenancePolicy.exclusionUntilEndOfSupport.enabled'
+  - api_field: 'maintenancePolicy.exclusionUntilEndOfSupport.startTime'
+  - api_field: 'maintenancePolicy.exclusionUntilEndOfSupport.endTime'
   - field: 'node_count'
     provider_only: true
   - field: 'node_locations'

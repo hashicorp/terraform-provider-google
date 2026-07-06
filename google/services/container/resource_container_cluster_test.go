@@ -3509,6 +3509,36 @@ func TestAccContainerCluster_withNodePoolNodeDrainConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodePoolMaintenancePolicy(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodePoolMaintenancyPolicy(cluster, np, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool_maintenance_policy",
+						"node_pool.0.maintenance_policy.0.exclusion_until_end_of_support.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_pool_maintenance_policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withClusterDisruptionBudget(t *testing.T) {
 	t.Parallel()
 
@@ -10969,6 +10999,33 @@ resource "google_container_cluster" "with_node_pool_node_drain_config" {
   deletion_protection = false
 }
 `, cluster, np, privateName, privateVal, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodePoolMaintenancyPolicy(cluster, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_node_pool_maintenance_policy" {
+  name     = "%s"
+  location = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  node_pool {
+    name       = "%s"
+    initial_node_count = 1
+	maintenance_policy {
+		exclusion_until_end_of_support {
+			enabled = true
+		}
+	}
+  }
+
+  network    = "%s"
+  subnetwork = "%s"
+  deletion_protection = false
+}
+`, cluster, np, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withClusterDisruptionBudget(clusterName, interval, networkName, subnetworkName string) string {
