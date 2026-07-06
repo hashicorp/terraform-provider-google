@@ -173,6 +173,8 @@ cluster.
 
 * `node_drain_config` - (Optional) The node drain configuration of the pool. Structure is [documented below](#nested_node_drain_config).
 
+* `maintenance_policy` - (Optional) The maintenance policy of the pool. Structure is [documented below](#nested_maintenance_policy).
+
 * `project` - (Optional) The ID of the project in which to create the node pool. If blank,
     the provider-configured project will be used.
 
@@ -280,6 +282,16 @@ cluster.
 * `pdb_timeout_duration` - (Optional) The duration of the PDB timeout period for node drain.
 
 * `respect_pdb_during_node_pool_deletion` - (Optional) Whether to respect PodDisruptionBudget policy during node pool deletion.
+
+<a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
+
+* `exclusion_until_end_of_support` - (Optional) When enabled, the node pool will not be automatically upgraded by GKE until the node pool version's end of support date. Structure is [documented below](#nested_exclusion_until_end_of_support).
+
+<a name="nested_exclusion_until_end_of_support"></a>The `exclusion_until_end_of_support` block supports:
+
+* `enabled` - (Optional) When true, the node pool will not be automatically upgraded by GKE until the node pool version's end of support date.
+* `start_time` - (Optional) The time when the maintenance policy is first created.
+* `end_time` - (Optional) The time when the maintenance policy is no longer effective, i.e., the node pool version's end of support date.
 
 <a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
 

@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `maintenance_policy` field to `google_container_node_pool` resource
+```
