@@ -71,10 +71,13 @@ The following arguments are supported:
 
 
 * `admission_policy` -
-  (Optional)
+  (Optional, Deprecated)
   The cache admission policy dictates whether a block should be inserted upon a cache miss.
+  Note: "admit-on-second-miss" is deprecated and will fallback to "admit-on-first-miss".
   Default value is `admit-on-first-miss`.
   Possible values are: `admit-on-first-miss`, `admit-on-second-miss`.
+
+  ~> **Warning:** `admit-on-second-miss` is deprecated and will be removed in a future major release. The backend will ignore this attribute and treat it as `admit-on-first-miss`.
 
 * `ttl` -
   (Optional)
