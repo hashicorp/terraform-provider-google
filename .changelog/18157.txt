@@ -1,0 +1,7 @@
+```release-note:enhancement
+agentregistry: added `name` field to `google_agent_registry_service` resource
+```
+
+```release-note:enhancement
+agentregistry: added `name` field to `google_agent_registry_binding` resource
+```

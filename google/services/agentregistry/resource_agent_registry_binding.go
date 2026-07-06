@@ -227,6 +227,11 @@ func ResourceAgentRegistryBinding() *schema.Resource {
 				Computed:    true,
 				Description: `The timestamp when the resource was created.`,
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The resource name of the Binding.`,
+			},
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -693,6 +698,10 @@ func resourceAgentRegistryBindingImport(d *schema.ResourceData, meta interface{}
 	return []*schema.ResourceData{d}, nil
 }
 
+func flattenAgentRegistryBindingName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAgentRegistryBindingDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -883,6 +892,9 @@ func expandAgentRegistryBindingAuthProviderBindingContinueUri(v interface{}, d t
 func ResourceAgentRegistryBindingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
+	if err = d.Set("name", flattenAgentRegistryBindingName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Binding: %s", err)
+	}
 	if err = d.Set("display_name", flattenAgentRegistryBindingDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Binding: %s", err)
 	}

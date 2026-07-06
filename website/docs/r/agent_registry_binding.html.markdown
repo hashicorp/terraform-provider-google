@@ -150,6 +150,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/bindings/{{binding_id}}`
 
+* `name` -
+  The resource name of the Binding.
+
 * `create_time` -
   The timestamp when the resource was created.
 

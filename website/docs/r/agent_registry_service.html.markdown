@@ -176,6 +176,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/services/{{service_id}}`
 
+* `name` -
+  The resource name of the Service.
+
 * `registry_resource` -
   The resource name of the resulting Agent, MCP Server, or Endpoint.
 
