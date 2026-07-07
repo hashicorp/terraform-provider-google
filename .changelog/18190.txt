@@ -1,0 +1,11 @@
+```release-note:bug
+gemini: fixed truncated timeouts in `google_gemini_code_tools_setting`, `google_gemini_data_sharing_with_google_setting_binding`, `google_gemini_gemini_gcp_enablement_setting_binding`, and `google_gemini_release_channel_setting_binding`
+```
+
+```release-note:bug
+observability: fixed unintentionally long timeouts in `google_observability_folder_settings`, `google_observability_organization_settings`, and `google_observability_project_settings`
+```
+
+```release-note:bug
+oracledatabase: fixed truncated timeouts in `google_oracle_database_exadb_vm_cluster`, `google_oracle_database_goldengate_connection`, and `google_oracle_database_odb_subnet`
+```
