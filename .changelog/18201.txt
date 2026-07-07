@@ -1,0 +1,11 @@
+```release-note:new-resource
+`google_iap_agent_registry_endpoint_iam_policy`
+```
+
+```release-note:new-resource
+`google_iap_agent_registry_endpoint_iam_binding`
+```
+
+```release-note:new-resource
+`google_iap_agent_registry_endpoint_iam_member`
+```
