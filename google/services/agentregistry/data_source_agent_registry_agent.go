@@ -47,6 +47,7 @@ func DataSourceAgentRegistryAgent() *schema.Resource {
 			"agent_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
+				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"filter"},
 				Description:   `The unique identifier for the Agent.`,
