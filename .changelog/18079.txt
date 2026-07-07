@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where `preview = false` updates for `google_compute_organization_security_policy_rule` were omitted from API requests.
+```
