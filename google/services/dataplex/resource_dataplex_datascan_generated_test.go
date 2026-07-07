@@ -900,7 +900,9 @@ resource "google_dataplex_datascan" "documentation" {
     }
   }
 
-  data_documentation_spec {}
+  data_documentation_spec {
+    catalog_publishing_enabled = true
+  }
 
   project = "%{project_name}"
 }
