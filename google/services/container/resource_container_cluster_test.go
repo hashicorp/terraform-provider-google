@@ -3565,7 +3565,7 @@ func TestAccContainerCluster_withClusterDisruptionBudget(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
+func TestAccContainerCluster_withDailyMaintenanceWindow(t *testing.T) {
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
@@ -3579,7 +3579,7 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withMaintenanceWindow(clusterName, "03:00", networkName, subnetworkName),
+				Config: testAccContainerCluster_withDailyMaintenanceWindow(clusterName, "03:00", networkName, subnetworkName),
 			},
 			{
 				ResourceName:            resourceName,
@@ -3588,16 +3588,70 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withMaintenanceWindow(clusterName, "", networkName, subnetworkName),
+				Config: testAccContainerCluster_withDailyMaintenanceWindow(clusterName, "", networkName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr(resourceName,
 						"maintenance_policy.0.daily_maintenance_window.0.start_time"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.recurring_maintenance_window.0.window_start_time"),
 				),
 			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				// maintenance_policy.# = 0 is equivalent to no maintenance policy at all,
+				// but will still cause an import diff
+				ImportStateVerifyIgnore: []string{"maintenance_policy.#", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withRecurringTimeWindow(t *testing.T) {
+	t.Parallel()
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	resourceName := "google_container_cluster.with_recurring_maintenance_window"
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withRecurringTimeWindow(cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.daily_maintenance_window.0.start_time"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.recurring_maintenance_window.0.window_start_time"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withRecurringTimeWindow(cluster, "", "", networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.daily_maintenance_window.0.start_time"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.recurring_window.0.start_time"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.recurring_maintenance_window.0.window_start_time"),
+				),
+			},
+			{
+				ResourceName:        resourceName,
+				ImportStateIdPrefix: "us-central1-a/",
+				ImportState:         true,
+				ImportStateVerify:   true,
 				// maintenance_policy.# = 0 is equivalent to no maintenance policy at all,
 				// but will still cause an import diff
 				ImportStateVerifyIgnore: []string{"maintenance_policy.#", "deletion_protection"},
@@ -3619,10 +3673,12 @@ func TestAccContainerCluster_withRecurringMaintenanceWindow(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withRecurringMaintenanceWindow(cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", networkName, subnetworkName),
+				Config: testAccContainerCluster_withRecurringMaintenanceWindow(cluster, 2019, 1, 1, 10, 0, "24h", networkName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr(resourceName,
 						"maintenance_policy.0.daily_maintenance_window.0.start_time"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.recurring_window.0.start_time"),
 				),
 			},
 			{
@@ -3633,22 +3689,22 @@ func TestAccContainerCluster_withRecurringMaintenanceWindow(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withRecurringMaintenanceWindow(cluster, "", "", networkName, subnetworkName),
+				Config: testAccContainerCluster_withRecurringMaintenanceWindow(cluster, 0, 0, 0, 10, 0, "4h", networkName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr(resourceName,
 						"maintenance_policy.0.daily_maintenance_window.0.start_time"),
 					resource.TestCheckNoResourceAttr(resourceName,
 						"maintenance_policy.0.recurring_window.0.start_time"),
+					resource.TestCheckNoResourceAttr(resourceName,
+						"maintenance_policy.0.recurring_maintenance_window.0.delay_until.0.year"),
 				),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
-				// maintenance_policy.# = 0 is equivalent to no maintenance policy at all,
-				// but will still cause an import diff
-				ImportStateVerifyIgnore: []string{"maintenance_policy.#", "deletion_protection"},
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -11052,7 +11108,7 @@ resource "google_container_cluster" "with_cluster_disruption_budget" {
 `, clusterName, interval, interval, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_withMaintenanceWindow(clusterName, startTime, networkName, subnetworkName string) string {
+func testAccContainerCluster_withDailyMaintenanceWindow(clusterName, startTime, networkName, subnetworkName string) string {
 	maintenancePolicy := ""
 	if len(startTime) > 0 {
 		maintenancePolicy = fmt.Sprintf(`
@@ -11078,7 +11134,7 @@ resource "google_container_cluster" "with_maintenance_window" {
 `, clusterName, maintenancePolicy, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_withRecurringMaintenanceWindow(clusterName, startTime, endTime, networkName, subnetworkName string) string {
+func testAccContainerCluster_withRecurringTimeWindow(clusterName, startTime, endTime, networkName, subnetworkName string) string {
 	maintenancePolicy := ""
 	if len(startTime) > 0 {
 		maintenancePolicy = fmt.Sprintf(`
@@ -11104,6 +11160,51 @@ resource "google_container_cluster" "with_recurring_maintenance_window" {
   deletion_protection = false
 }
 `, clusterName, maintenancePolicy, networkName, subnetworkName)
+
+}
+
+func testAccContainerCluster_withRecurringMaintenanceWindow(clusterName string, startYear, startMonth, startDay, startHours, startMinutes int, duration string, networkName, subnetworkName string) string {
+	maintenancePolicy := ""
+	delayUntil := ""
+	if startYear != 0 && startMonth != 0 && startDay != 0 {
+		delayUntil = fmt.Sprintf(`
+			delay_until {
+				year  = %d
+				month = %d
+				day   = %d
+			}
+		`, startYear, startMonth, startDay)
+	}
+
+	maintenancePolicy = fmt.Sprintf(`
+		maintenance_policy {
+			recurring_maintenance_window {
+			  %s
+		
+			  window_duration = "%s"
+		
+			  window_start_time {
+				hours = %d
+				minutes = %d
+				seconds = 0
+			  }
+			  recurrence = "FREQ=DAILY"
+			}
+		}
+		`, delayUntil, duration, startHours, startMinutes)
+
+	return fmt.Sprintf(`
+		resource "google_container_cluster" "with_recurring_maintenance_window" {
+		  name               = "%s"
+		  location           = "us-central1-a"
+		  initial_node_count = 1
+		  %s
+		  network    = "%s"
+		  subnetwork = "%s"
+		
+		  deletion_protection = false
+		}
+	`, clusterName, maintenancePolicy, networkName, subnetworkName)
 
 }
 
