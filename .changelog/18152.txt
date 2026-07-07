@@ -1,0 +1,3 @@
+```release-note:enhancement
+oracledatabase: Fixed early client-side timeouts and aligned default schema timeouts with backend async polling limits on `google_oracle_database_exadb_vm_cluster`, `google_oracle_database_odb_network`, `google_oracle_database_odb_subnet`, `google_oracle_database_goldengate_connection`, `google_oracle_database_goldengate_deployment`, and `google_oracle_database_goldengate_connection_assignment`.
+```
