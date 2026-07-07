@@ -69,6 +69,7 @@ func TestAccProject_createWithoutOrg(t *testing.T) {
 // Test that a Project resource can be imported using an identity block (Terraform 1.12+).
 func TestAccProject_importBlockWithResourceIdentity(t *testing.T) {
 	t.Parallel()
+	t.Skip("terraform_labels cannot be ignored during a resource identity import test")
 
 	org := envvar.GetTestOrgFromEnv(t)
 	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))

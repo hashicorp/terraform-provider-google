@@ -415,11 +415,6 @@ func populateGoogleProjectResourceData(d *schema.ResourceData, p *cloudresourcem
 	if err := tpgresource.SetLabels(p.Labels, d, "terraform_labels"); err != nil {
 		return fmt.Errorf("Error setting terraform_labels: %s", err)
 	}
-	if v := d.Get("terraform_labels").(map[string]interface{}); len(v) == 0 && len(p.Labels) > 0 {
-		if err := d.Set("terraform_labels", p.Labels); err != nil {
-			return fmt.Errorf("Error setting terraform_labels: %s", err)
-		}
-	}
 	if err := d.Set("effective_labels", p.Labels); err != nil {
 		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}

@@ -1,0 +1,3 @@
+```release-note:bug
+bug: fixed labels diff in `google_project`
+```
