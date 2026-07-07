@@ -780,10 +780,11 @@ This block also contains several computed attributes, documented below.
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 * `daily_maintenance_window` - (Optional) structure documented below.
 * `recurring_window` - (Optional) structure documented below
+* `recurring_maintenance_window` - (Optional) structure documented below
 * `maintenance_exclusion` - (Optional) structure documented below
 * `disruption_budget` - (Optional) structure documented below
 
-In beta, one or the other of `recurring_window` and `daily_maintenance_window` is required if a `maintenance_policy` block is supplied.
+In beta, one of `recurring_window`, `recurring_maintenance_window` and `daily_maintenance_window` is required if a `maintenance_policy` block is supplied.
 
 * `daily_maintenance_window` - Time window specified for daily maintenance operations.
     Specify `start_time` in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) format "HH:MM”,
@@ -822,6 +823,60 @@ maintenance_policy {
     start_time = "2019-01-01T09:00:00Z"
     end_time = "2019-01-01T17:00:00Z"
     recurrence = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR"
+  }
+}
+```
+
+* `recurring_maintenance_window` - Defines a recurring window for maintenance operations.
+  *   `delay_until`: (Optional) Specifies the initial date when the recurring window can start.
+      *   `day`: The day of the month (integer value between 1 and 31).
+      *   `month`: The month of the year (integer value between 1 and 12).
+      *   `year`: The year (integer value).
+
+  *   `window_start_time`: The time of day when each maintenance window instance begins.
+      *   `hours`: The hour of the day (integer value between 0 and 23).
+      *   `minutes`: The minute of the hour (integer value between 0 and 59).
+      *   `seconds`: The second of the minute (integer value between 0 and 59).
+
+  *   `window_duration`: The length of each maintenance window instance. Specified as a sequence of decimal numbers, each with an optional fraction and a unit suffix, such as `"300s"`, `"1.5m"`, and `"2h45m"`. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". The value must be a positive duration.
+
+  *   `recurrence`: Defines when the window recurs, using the [RFC5545](https://tools.ietf.org/html/rfc5545#section-3.8.5.3) RRULE format.
+
+Examples:
+```
+maintenance_policy {
+  recurring_maintenance_window {
+    delay_until {
+      day   = 1
+      month = 8
+      year  = 2019
+    }
+    window_start_time {
+      hours   = 2
+      minutes = 0
+      seconds = 0
+    }
+    window_duration = "4h"
+    recurrence      = "FREQ=DAILY"
+  }
+}
+```
+
+```
+maintenance_policy {
+  recurring_maintenance_window {
+    delay_until {
+      day   = 1
+      month = 1
+      year  = 2019
+    }
+    window_start_time {
+      hours   = 9
+      minutes = 0
+      seconds = 0
+    }
+    window_duration = "8h"
+    recurrence      = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR"
   }
 }
 ```
