@@ -1075,7 +1075,38 @@ func flattenEventarcTriggerChannel(v interface{}, d *schema.ResourceData, config
 }
 
 func flattenEventarcTriggerConditions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+
+	original, ok := v.(map[string]interface{})
+	if !ok {
+		return v
+	}
+
+	flatConditions := make(map[string]string)
+	for k, rawVal := range original {
+		if rawVal == nil {
+			continue
+		}
+
+		if nestedMap, ok := rawVal.(map[string]interface{}); ok {
+			if message, exists := nestedMap["message"]; exists {
+				if msgStr, isStr := message.(string); isStr {
+					flatConditions[k] = msgStr
+					continue
+				}
+			}
+		}
+
+		if valStr, ok := rawVal.(string); ok {
+			flatConditions[k] = valStr
+		} else {
+			flatConditions[k] = fmt.Sprintf("%v", rawVal)
+		}
+	}
+
+	return flatConditions
 }
 
 func flattenEventarcTriggerEventDataContentType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
