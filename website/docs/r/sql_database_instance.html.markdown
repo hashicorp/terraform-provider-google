@@ -634,6 +634,8 @@ The optional `settings.ip_configuration.psc_config` sublist supports:
 
 * `psc_write_endpoint_dns_enabled` - (Optional) Whether PSC write endpoint DNS is enabled for this instance. This is only supported for Enterprise Plus edition instances.
 
+* `settings.ip_configuration.psc_config.psc_auto_connection_policy_enabled` - (Optional) Whether a service connection policy is created for the auto connections configured for the instance.
+
 * `allowed_consumer_projects` - (Optional) List of consumer projects that are allow-listed for PSC connections to this instance. This instance can be connected to with PSC from any network in these projects. Each consumer project in this list may be represented by a project number (numeric) or by a project id (alphanumeric).
 
 * The optional `psc_config.psc_auto_connections` subblock - (Optional) A comma-separated list of networks or a comma-separated list of network-project pairs. Each project in this list is represented by a project number (numeric) or by a project ID (alphanumeric). This allows Private Service Connect connections to be created automatically for the specified networks.
@@ -911,6 +913,10 @@ performing filtering in a Terraform config.
 * `settings.ip_configuration.psc_config.psc_auto_connections.ip_address` - (Output) The IP address of the consumer endpoint.
 
 * `settings.ip_configuration.psc_config.psc_auto_connections.status` - (Output) The connection status of the consumer endpoint.
+
+* `settings.ip_configuration.psc_config.psc_auto_connections.service_connection_policy` - (Output) The service connection policy created for the auto connection.
+
+* `settings.ip_configuration.psc_config.psc_auto_connections.service_connection_policy_creation_result` - (Output) The result of the service connection policy creation.
 
 * `settings.version` - Used to make sure changes to the `settings` block are
     atomic.

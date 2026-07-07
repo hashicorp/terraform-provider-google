@@ -680,6 +680,12 @@ API (for read pools, effective_availability_type may differ from availability_ty
 													Computed:    true,
 													Description: `Whether PSC write endpoint DNS is enabled for this instance.`,
 												},
+												"psc_auto_connection_policy_enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Computed:    true,
+													Description: `Whether a service connection policy is created for the auto connections configured for the instance.`,
+												},
 												"allowed_consumer_projects": {
 													Type:     schema.TypeSet,
 													Optional: true,
@@ -702,6 +708,7 @@ API (for read pools, effective_availability_type may differ from availability_ty
 															"consumer_service_project_id": {
 																Type:        schema.TypeString,
 																Optional:    true,
+																Computed:    true,
 																Description: `The project ID of consumer service project of this consumer endpoint.`,
 															},
 															"consumer_network": {
@@ -723,6 +730,16 @@ API (for read pools, effective_availability_type may differ from availability_ty
 																Type:        schema.TypeString,
 																Computed:    true,
 																Description: `The connection status of the consumer endpoint.`,
+															},
+															"service_connection_policy": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The service connection policy created for the auto connection.`,
+															},
+															"service_connection_policy_creation_result": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The result of the service connection policy creation.`,
 															},
 														},
 													},
@@ -2078,12 +2095,13 @@ func expandPscConfig(configured []interface{}) *sqladmin.PscConfig {
 	for _, _pscConfig := range configured {
 		_entry := _pscConfig.(map[string]interface{})
 		return &sqladmin.PscConfig{
-			PscEnabled:                 _entry["psc_enabled"].(bool),
-			PscAutoDnsEnabled:          _entry["psc_auto_dns_enabled"].(bool),
-			PscWriteEndpointDnsEnabled: _entry["psc_write_endpoint_dns_enabled"].(bool),
-			AllowedConsumerProjects:    tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
-			NetworkAttachmentUri:       _entry["network_attachment_uri"].(string),
-			PscAutoConnections:         expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
+			PscEnabled:                     _entry["psc_enabled"].(bool),
+			PscAutoDnsEnabled:              _entry["psc_auto_dns_enabled"].(bool),
+			PscWriteEndpointDnsEnabled:     _entry["psc_write_endpoint_dns_enabled"].(bool),
+			PscAutoConnectionPolicyEnabled: _entry["psc_auto_connection_policy_enabled"].(bool),
+			AllowedConsumerProjects:        tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
+			NetworkAttachmentUri:           _entry["network_attachment_uri"].(string),
+			PscAutoConnections:             expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
 		}
 	}
 
@@ -3446,11 +3464,13 @@ func flattenPscAutoConnections(pscAutoConnections []*sqladmin.PscAutoConnectionC
 
 	for _, flag := range pscAutoConnections {
 		data := map[string]interface{}{
-			"consumer_network":            flag.ConsumerNetwork,
-			"consumer_network_status":     flag.ConsumerNetworkStatus,
-			"consumer_service_project_id": flag.ConsumerProject,
-			"ip_address":                  flag.IpAddress,
-			"status":                      flag.Status,
+			"consumer_network":                          flag.ConsumerNetwork,
+			"consumer_network_status":                   flag.ConsumerNetworkStatus,
+			"consumer_service_project_id":               flag.ConsumerProject,
+			"ip_address":                                flag.IpAddress,
+			"status":                                    flag.Status,
+			"service_connection_policy":                 flag.ServiceConnectionPolicy,
+			"service_connection_policy_creation_result": flag.ServiceConnectionPolicyCreationResult,
 		}
 
 		flags = append(flags, data)
@@ -3461,12 +3481,13 @@ func flattenPscAutoConnections(pscAutoConnections []*sqladmin.PscAutoConnectionC
 
 func flattenPscConfigs(pscConfig *sqladmin.PscConfig) interface{} {
 	data := map[string]interface{}{
-		"psc_enabled":                    pscConfig.PscEnabled,
-		"psc_auto_dns_enabled":           pscConfig.PscAutoDnsEnabled,
-		"psc_write_endpoint_dns_enabled": pscConfig.PscWriteEndpointDnsEnabled,
-		"allowed_consumer_projects":      schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(pscConfig.AllowedConsumerProjects)),
-		"network_attachment_uri":         pscConfig.NetworkAttachmentUri,
-		"psc_auto_connections":           flattenPscAutoConnections(pscConfig.PscAutoConnections),
+		"psc_enabled":                        pscConfig.PscEnabled,
+		"psc_auto_dns_enabled":               pscConfig.PscAutoDnsEnabled,
+		"psc_write_endpoint_dns_enabled":     pscConfig.PscWriteEndpointDnsEnabled,
+		"psc_auto_connection_policy_enabled": pscConfig.PscAutoConnectionPolicyEnabled,
+		"allowed_consumer_projects":          schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(pscConfig.AllowedConsumerProjects)),
+		"network_attachment_uri":             pscConfig.NetworkAttachmentUri,
+		"psc_auto_connections":               flattenPscAutoConnections(pscConfig.PscAutoConnections),
 	}
 
 	return []map[string]interface{}{data}
