@@ -258,6 +258,39 @@ resource "google_firestore_database" "database" {
 	}
   }
 ```
+## Example Usage - Firestore Field Skip Wait
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_field" "skip_wait" {
+  project    = "my-project-name"
+  database   = google_firestore_database.database.name
+  collection = "chatrooms_%{random_suffix}"
+  field      = "skip_wait"
+
+  index_config {
+    indexes {
+      order       = "ASCENDING"
+      query_scope = "COLLECTION_GROUP"
+    }
+    indexes {
+      array_config = "CONTAINS"
+    }
+  }
+
+  skip_wait = true
+}
+```
 
 ## Argument Reference
 
@@ -299,6 +332,7 @@ The following arguments are supported:
 	When set to "ABANDON", the command will remove the resource from Terraform
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
+* `skip_wait` - (Optional) Whether to skip waiting for the field operation to complete.
 
 
 <a name="nested_index_config"></a>The `index_config` block supports:
