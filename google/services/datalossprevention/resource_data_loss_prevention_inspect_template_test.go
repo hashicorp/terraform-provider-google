@@ -1350,3 +1350,116 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 }
 `, context)
 }
+
+func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplate_minLikelihoodPerInfoType(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withMinLikelihoodPerInfoType(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withMinLikelihoodPerInfoTypeUpdate(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withMinLikelihoodPerInfoType(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent = "projects/%{project}"
+	description = "Description"
+	display_name = "Display"
+
+	inspect_config {
+		info_types {
+			name = "EMAIL_ADDRESS"
+		}
+		info_types {
+			name    = "PERSON_NAME"
+			version = "latest"
+		}
+		info_types {
+			name = "LAST_NAME"
+		}
+		info_types {
+			name = "DOMAIN_NAME"
+		}
+		info_types {
+			name = "PHONE_NUMBER"
+		}
+		info_types {
+			name = "FIRST_NAME"
+		}
+		min_likelihood_per_info_type {
+			info_type {
+				name    = "PERSON_NAME"
+				version = "latest"
+			}
+			min_likelihood = "UNLIKELY"
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_withMinLikelihoodPerInfoTypeUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent = "projects/%{project}"
+	description = "Updated"
+	display_name = "Different"
+
+	inspect_config {
+		info_types {
+			name    = "PERSON_NAME"
+			version = "latest"
+		}
+		info_types {
+			name = "LAST_NAME"
+		}
+		info_types {
+			name = "DOMAIN_NAME"
+		}
+		info_types {
+			name = "PHONE_NUMBER"
+		}
+		info_types {
+			name = "FIRST_NAME"
+		}
+		min_likelihood_per_info_type {
+			info_type {
+				name    = "PERSON_NAME"
+				version = "latest"
+			}
+			min_likelihood = "POSSIBLE"
+		}
+		min_likelihood_per_info_type {
+			info_type {
+				name    = "PHONE_NUMBER"
+			}
+			min_likelihood = "VERY_LIKELY"
+		}
+	}
+}
+`, context)
+}
