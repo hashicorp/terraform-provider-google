@@ -35,6 +35,9 @@ fields:
     - api_field: inspectConfig.limits.maxFindingsPerItem
     - api_field: inspectConfig.limits.maxFindingsPerRequest
     - api_field: inspectConfig.minLikelihood
+    - api_field: inspectConfig.minLikelihoodPerInfoType.infoType.name
+    - api_field: inspectConfig.minLikelihoodPerInfoType.infoType.version
+    - api_field: inspectConfig.minLikelihoodPerInfoType.minLikelihood
     - api_field: inspectConfig.ruleSet.infoTypes.name
     - api_field: inspectConfig.ruleSet.infoTypes.sensitivityScore.score
     - api_field: inspectConfig.ruleSet.infoTypes.version

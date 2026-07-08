@@ -361,6 +361,13 @@ The following arguments are supported:
   Default value is `POSSIBLE`.
   Possible values are: `VERY_UNLIKELY`, `UNLIKELY`, `POSSIBLE`, `LIKELY`, `VERY_LIKELY`.
 
+* `min_likelihood_per_info_type` -
+  (Optional)
+  Minimum likelihood per infotype. For each infotype, a user can specify a minimum likelihood.
+  The system only returns a finding if its likelihood is above this threshold. If this field
+  is not set, the system uses the InspectConfig min_likelihood.
+  Structure is [documented below](#nested_inspect_config_min_likelihood_per_info_type).
+
 * `limits` -
   (Optional)
   Configuration to control the number of findings returned.
@@ -390,6 +397,31 @@ The following arguments are supported:
   Custom info types to be used. See https://cloud.google.com/dlp/docs/creating-custom-infotypes to learn more.
   Structure is [documented below](#nested_inspect_config_custom_info_types).
 
+
+<a name="nested_inspect_config_min_likelihood_per_info_type"></a>The `min_likelihood_per_info_type` block supports:
+
+* `info_type` -
+  (Optional)
+  Type of information the likeliness threshold applies to. Only one likelihood per info_type should be provided.
+  If InfoTypeLikelihood does not have an info_type, the configuration fails.
+  Structure is [documented below](#nested_inspect_config_min_likelihood_per_info_type_info_type).
+
+* `min_likelihood` -
+  (Required)
+  Only returns findings equal or above this threshold. See https://cloud.google.com/dlp/docs/likelihood for more info.
+  Possible values are: `VERY_UNLIKELY`, `UNLIKELY`, `POSSIBLE`, `LIKELY`, `VERY_LIKELY`.
+
+
+<a name="nested_inspect_config_min_likelihood_per_info_type_info_type"></a>The `info_type` block supports:
+
+* `name` -
+  (Required)
+  Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
+  at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.
+
+* `version` -
+  (Optional)
+  Version name for this InfoType.
 
 <a name="nested_inspect_config_limits"></a>The `limits` block supports:
 

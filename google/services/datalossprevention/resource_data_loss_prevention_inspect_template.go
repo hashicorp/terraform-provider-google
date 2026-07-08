@@ -481,6 +481,45 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 							Description:  `Only returns findings equal or above this threshold. See https://cloud.google.com/dlp/docs/likelihood for more info Default value: "POSSIBLE" Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
 							Default:      "POSSIBLE",
 						},
+						"min_likelihood_per_info_type": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Minimum likelihood per infotype. For each infotype, a user can specify a minimum likelihood.
+The system only returns a finding if its likelihood is above this threshold. If this field
+is not set, the system uses the InspectConfig min_likelihood.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"min_likelihood": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"}),
+										Description:  `Only returns findings equal or above this threshold. See https://cloud.google.com/dlp/docs/likelihood for more info. Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
+									},
+									"info_type": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Type of information the likeliness threshold applies to. Only one likelihood per info_type should be provided.
+If InfoTypeLikelihood does not have an info_type, the configuration fails.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
+at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.`,
+												},
+												"version": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Version name for this InfoType.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"rule_set": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1274,6 +1313,8 @@ func flattenDataLossPreventionInspectTemplateInspectConfig(v interface{}, d *sch
 		flattenDataLossPreventionInspectTemplateInspectConfigIncludeQuote(original["includeQuote"], d, config)
 	transformed["min_likelihood"] =
 		flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihood(original["minLikelihood"], d, config)
+	transformed["min_likelihood_per_info_type"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoType(original["minLikelihoodPerInfoType"], d, config)
 	transformed["limits"] =
 		flattenDataLossPreventionInspectTemplateInspectConfigLimits(original["limits"], d, config)
 	transformed["info_types"] =
@@ -1295,6 +1336,52 @@ func flattenDataLossPreventionInspectTemplateInspectConfigIncludeQuote(v interfa
 }
 
 func flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihood(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"info_type":      flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoType(original["infoType"], d, config),
+			"min_likelihood": flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeMinLikelihood(original["minLikelihood"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoTypeName(original["name"], d, config)
+	transformed["version"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(original["version"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoTypeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeMinLikelihood(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2160,6 +2247,13 @@ func expandDataLossPreventionInspectTemplateInspectConfig(v interface{}, d tpgre
 		transformed["minLikelihood"] = transformedMinLikelihood
 	}
 
+	transformedMinLikelihoodPerInfoType, err := expandDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoType(original["min_likelihood_per_info_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinLikelihoodPerInfoType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minLikelihoodPerInfoType"] = transformedMinLikelihoodPerInfoType
+	}
+
 	transformedLimits, err := expandDataLossPreventionInspectTemplateInspectConfigLimits(original["limits"], d, config)
 	if err != nil {
 		return nil, err
@@ -2207,6 +2301,79 @@ func expandDataLossPreventionInspectTemplateInspectConfigIncludeQuote(v interfac
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigMinLikelihood(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedInfoType, err := expandDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoType(original["info_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedInfoType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["infoType"] = transformedInfoType
+		}
+
+		transformedMinLikelihood, err := expandDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeMinLikelihood(original["min_likelihood"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMinLikelihood); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["minLikelihood"] = transformedMinLikelihood
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoTypeName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedVersion, err := expandDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoTypeName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigMinLikelihoodPerInfoTypeMinLikelihood(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
