@@ -8,10 +8,26 @@ api_version: v1
 api_resource_type_kind: IcebergCatalog
 fields:
     - api_field: biglake-service-account
+    - api_field: biglake-service-account-id
     - api_field: catalog-type
     - api_field: create-time
     - api_field: credential-mode
     - api_field: default-location
+    - api_field: description
+    - api_field: federated-catalog-options.glue-catalog-info.aws-region
+    - api_field: federated-catalog-options.glue-catalog-info.aws-role-arn
+    - api_field: federated-catalog-options.glue-catalog-info.warehouse
+    - api_field: federated-catalog-options.refresh-options.refresh-schedule.refresh-interval
+    - api_field: federated-catalog-options.refresh-options.refresh-scope.namespace-filters
+    - api_field: federated-catalog-options.refresh-status.end-time
+    - api_field: federated-catalog-options.refresh-status.start-time
+    - api_field: federated-catalog-options.refresh-status.status.code
+    - api_field: federated-catalog-options.refresh-status.status.message
+    - api_field: federated-catalog-options.secret-name
+    - api_field: federated-catalog-options.service-directory-name
+    - api_field: federated-catalog-options.unity-catalog-info.catalog-name
+    - api_field: federated-catalog-options.unity-catalog-info.instance-name
+    - api_field: federated-catalog-options.unity-catalog-info.service-principal-application-id
     - field: name
       provider_only: true
     - field: primary_location
