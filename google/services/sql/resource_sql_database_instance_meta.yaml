@@ -76,6 +76,8 @@ fields:
   - api_field: 'replicaConfiguration.mysqlReplicaConfiguration.verifyServerCertificate'
     field: 'replica_configuration.verify_server_certificate'
   - api_field: 'replicaNames'
+  - api_field: 'sqlNetworkArchitecture'
+    field: 'enforce_new_sql_network_architecture'
   - api_field: 'replicationCluster.drReplica'
   - api_field: 'replicationCluster.failoverDrReplicaName'
   - api_field: 'replicationCluster.psaWriteEndpoint'

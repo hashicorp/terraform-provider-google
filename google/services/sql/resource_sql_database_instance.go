@@ -267,6 +267,13 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 				Optional:    true,
 				Description: `Used to block Terraform from deleting a SQL Instance. Defaults to true.`,
 			},
+			"enforce_new_sql_network_architecture": {
+				Type:             schema.TypeBool,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: sqlNetworkArchitectureDiffSuppress,
+				Description:      `Whether to enforce the new SQL network architecture.`,
+			},
 			"final_backup_description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1640,6 +1647,14 @@ func pitrSupportDbCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v 
 	return nil
 }
 
+func sqlNetworkArchitectureDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// By default, new Cloud SQL instances created in projects created after August 2021 use the new network architecture.
+	// If the state is true and the config is false, suppress the diff.
+	// This follows the gcloud pattern where the flag is an irreversible opt-in.
+	// See https://docs.cloud.google.com/sql/docs/mysql/upgrade-cloud-sql-instance-new-network-architecture#new-arch
+	return old == "true" && new == "false"
+}
+
 func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -1686,6 +1701,10 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		DatabaseVersion:      databaseVersion,
 		MasterInstanceName:   d.Get("master_instance_name").(string),
 		ReplicaConfiguration: expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
+	}
+
+	if d.Get("enforce_new_sql_network_architecture").(bool) {
+		instance.SqlNetworkArchitecture = "NEW_NETWORK_ARCHITECTURE"
 	}
 
 	cloneContext, cloneSourceInstance := expandCloneContext(d.Get("clone").([]interface{}))
@@ -2442,6 +2461,9 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("instance_type", instance.InstanceType); err != nil {
 		return fmt.Errorf("Error setting instance_type: %s", err)
 	}
+	if err := d.Set("enforce_new_sql_network_architecture", instance.SqlNetworkArchitecture == "NEW_NETWORK_ARCHITECTURE"); err != nil {
+		return fmt.Errorf("Error setting enforce_new_sql_network_architecture: %s", err)
+	}
 	if err := d.Set("node_count", instance.NodeCount); err != nil {
 		return fmt.Errorf("Error setting node_count: %s", err)
 	}
@@ -2592,6 +2614,32 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		})
 		if err != nil {
 			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
+		}
+		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+		err = resourceSqlDatabaseInstanceRead(d, meta)
+		if err != nil {
+			return err
+		}
+	}
+
+	// We check for HasChange because we only want to trigger the network architecture upgrade
+	// if the configuration has explicitly changed. We also check the current value to ensure
+	// it's true, as this is an irreversible opt-in.
+	if d.HasChange("enforce_new_sql_network_architecture") && d.Get("enforce_new_sql_network_architecture").(bool) {
+		instance = &sqladmin.DatabaseInstance{SqlNetworkArchitecture: "NEW_NETWORK_ARCHITECTURE"}
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
+		if err != nil {
+			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", d.Get("name").(string), err)
 		}
 		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {

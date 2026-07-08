@@ -413,6 +413,11 @@ includes an up-to-date reference of supported versions.
 
   ~> **NOTE:** This flag only protects instances from deletion within Terraform. To protect your instances from accidental deletion across all surfaces (API, gcloud, Cloud Console and Terraform), use the API flag `settings.deletion_protection_enabled`.
 
+* `enforce_new_sql_network_architecture` - (Optional) Whether to enforce the new SQL network architecture. 
+    By default, new Cloud SQL instances created in projects created after August 2021 use the new network architecture. 
+    This follows the gcloud pattern where the flag is an irreversible opt-in.
+    See [official documentation](https://docs.cloud.google.com/sql/docs/mysql/upgrade-cloud-sql-instance-new-network-architecture#new-arch) for more details.
+
 * `final_backup_description` - (Optional) The description of final backup. Only set this field when `final_backup_config.enabled` is true.
 
 * `restore_backup_context` - (optional) The context needed to restore the database to a backup run. This field will

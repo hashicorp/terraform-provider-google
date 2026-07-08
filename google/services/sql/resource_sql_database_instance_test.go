@@ -278,6 +278,40 @@ func TestAccSqlDatabaseInstance_basicSecondGen(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_enforceNewSqlNetworkArchitecture(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_enforceNewSqlNetworkArchitecture(instanceName, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "enforce_new_sql_network_architecture", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccSqlDatabaseInstance_enforceNewSqlNetworkArchitecture(instanceName, false),
+				Check: resource.ComposeTestCheckFunc(
+					// Verify that even though we set it to false in HCL, the state stays true
+					// and no diff was generated (otherwise this step would fail or show a plan).
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "enforce_new_sql_network_architecture", "true"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_basicMSSQL(t *testing.T) {
 	t.Parallel()
 
@@ -10121,4 +10155,20 @@ func testGoogleSqlDatabaseInstanceCheckNodeCount(t *testing.T, instance string, 
 
 		return nil
 	}
+}
+
+func testAccSqlDatabaseInstance_enforceNewSqlNetworkArchitecture(instanceName string, enforce bool) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "POSTGRES_14"
+  enforce_new_sql_network_architecture = %t
+  settings {
+    tier = "db-f1-micro"
+  }
+
+  deletion_protection =  false
+}
+`, instanceName, enforce)
 }
