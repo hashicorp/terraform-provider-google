@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_chronicle_findings_refinement_deployment` (ga)
+```
