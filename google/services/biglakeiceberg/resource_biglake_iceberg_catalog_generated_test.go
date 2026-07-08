@@ -236,6 +236,120 @@ resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
 `, context)
 }
 
+func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogFederatedUnityExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"name":          "tf_test_my_iceberg_catalog" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBiglakeIcebergIcebergCatalogDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogFederatedUnityExample(context),
+			},
+			{
+				ResourceName:            "google_biglake_iceberg_catalog.my_iceberg_catalog",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "primary_location"},
+			},
+			{
+				ResourceName:       "google_biglake_iceberg_catalog.my_iceberg_catalog",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogFederatedUnityExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
+  catalog_type     = "CATALOG_TYPE_FEDERATED"
+  name             = "%{name}"
+  primary_location = "us-central1"
+
+  federated_catalog_options {
+    unity_catalog_info {
+      catalog_name                     = "my_catalog"
+      instance_name                    = "1.1.gcp.databricks.com"
+      service_principal_application_id = "b3204274-6556-4d40-ad18-556f91659745"
+    }
+    refresh_options {
+      refresh_schedule {
+        refresh_interval = "300s"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogFederatedGlueExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"name":          "tf_test_my_iceberg_catalog" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBiglakeIcebergIcebergCatalogDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogFederatedGlueExample(context),
+			},
+			{
+				ResourceName:            "google_biglake_iceberg_catalog.my_iceberg_catalog",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "primary_location"},
+			},
+			{
+				ResourceName:       "google_biglake_iceberg_catalog.my_iceberg_catalog",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogFederatedGlueExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
+  catalog_type     = "CATALOG_TYPE_FEDERATED"
+  name             = "%{name}"
+  primary_location = "us-central1"
+
+  federated_catalog_options {
+    glue_catalog_info {
+      aws_region   = "us-east-1"
+      aws_role_arn = "arn:aws:iam::111222333444:role/my-glue-role"
+      warehouse    = "111222333444:s3tablescatalog/example"
+    }
+    refresh_options {
+      refresh_schedule {
+        refresh_interval = "300s"
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckBiglakeIcebergIcebergCatalogDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

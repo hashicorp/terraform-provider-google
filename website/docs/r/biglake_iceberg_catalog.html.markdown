@@ -115,6 +115,52 @@ resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
     }
 }
 ```
+## Example Usage - Biglake Iceberg Catalog Federated Unity
+
+
+```hcl
+resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
+  catalog_type     = "CATALOG_TYPE_FEDERATED"
+  name             = "my_iceberg_catalog"
+  primary_location = "us-central1"
+
+  federated_catalog_options {
+    unity_catalog_info {
+      catalog_name                     = "my_catalog"
+      instance_name                    = "1.1.gcp.databricks.com"
+      service_principal_application_id = "b3204274-6556-4d40-ad18-556f91659745"
+    }
+    refresh_options {
+      refresh_schedule {
+        refresh_interval = "300s"
+      }
+    }
+  }
+}
+```
+## Example Usage - Biglake Iceberg Catalog Federated Glue
+
+
+```hcl
+resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
+  catalog_type     = "CATALOG_TYPE_FEDERATED"
+  name             = "my_iceberg_catalog"
+  primary_location = "us-central1"
+
+  federated_catalog_options {
+    glue_catalog_info {
+      aws_region   = "us-east-1"
+      aws_role_arn = "arn:aws:iam::111222333444:role/my-glue-role"
+      warehouse    = "111222333444:s3tablescatalog/example"
+    }
+    refresh_options {
+      refresh_schedule {
+        refresh_interval = "300s"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -124,7 +170,10 @@ The following arguments are supported:
 * `catalog_type` -
   (Required)
   The catalog type of the IcebergCatalog.
-  Possible values are: `CATALOG_TYPE_GCS_BUCKET`, `CATALOG_TYPE_BIGLAKE`.
+  * `CATALOG_TYPE_GCS_BUCKET`: Google Cloud Storage bucket catalog type.
+  * `CATALOG_TYPE_BIGLAKE`: BigLake catalog type.
+  * `CATALOG_TYPE_FEDERATED`: Federated catalog type, for integrating with external Iceberg REST Catalogs such as Databricks Unity Catalog or AWS Glue.
+  Possible values are: `CATALOG_TYPE_GCS_BUCKET`, `CATALOG_TYPE_BIGLAKE`, `CATALOG_TYPE_FEDERATED`.
 
 * `name` -
   (Required)
@@ -145,11 +194,21 @@ The following arguments are supported:
   Output only when the catalog type is CATALOG_TYPE_GCS_BUCKET.
   Required when the catalog type is CATALOG_TYPE_BIGLAKE.
 
+* `description` -
+  (Optional)
+  A user-provided description of the catalog. Maximum 1024 UTF-8 characters.
+
 * `restricted_locations_config` -
   (Optional)
   Configuration for the additional GCS locations that are permitted for use
   by resources within this catalog.
   Structure is [documented below](#nested_restricted_locations_config).
+
+* `federated_catalog_options` -
+  (Optional)
+  Options for a CATALOG_TYPE_FEDERATED catalog. Required when catalog_type
+  is CATALOG_TYPE_FEDERATED.
+  Structure is [documented below](#nested_federated_catalog_options).
 
 * `primary_location` -
   (Optional)
@@ -176,6 +235,124 @@ The following arguments are supported:
   permitted for use by resources within this catalog. Each entry can be
   either a GCS bucket or a path within it.
 
+<a name="nested_federated_catalog_options"></a>The `federated_catalog_options` block supports:
+
+* `secret_name` -
+  (Optional)
+  The secret resource name in Secret Manager, in the format
+  `projects/{projectId}/locations/{location}/secrets/{secret_id}`.
+  Used to store credentials for authenticating with the remote catalog.
+
+* `service_directory_name` -
+  (Optional)
+  The Service Directory service name for private network connectivity
+  through Cross-Cloud Interconnect.
+
+* `refresh_options` -
+  (Optional)
+  Configuration for metadata synchronization from the remote catalog.
+  Structure is [documented below](#nested_federated_catalog_options_refresh_options).
+
+* `refresh_status` -
+  (Output)
+  Output only. The status of the most recent metadata refresh.
+  Structure is [documented below](#nested_federated_catalog_options_refresh_status).
+
+* `unity_catalog_info` -
+  (Optional)
+  Configuration for a Databricks Unity Catalog remote catalog. Exactly
+  one of unity_catalog_info or glue_catalog_info must be specified.
+  Structure is [documented below](#nested_federated_catalog_options_unity_catalog_info).
+
+* `glue_catalog_info` -
+  (Optional)
+  Configuration for an AWS Glue remote catalog. Exactly one of
+  unity_catalog_info or glue_catalog_info must be specified.
+  Structure is [documented below](#nested_federated_catalog_options_glue_catalog_info).
+
+
+<a name="nested_federated_catalog_options_refresh_options"></a>The `refresh_options` block supports:
+
+* `refresh_schedule` -
+  (Optional)
+  Schedule for periodic metadata refresh.
+  Structure is [documented below](#nested_federated_catalog_options_refresh_options_refresh_schedule).
+
+* `refresh_scope` -
+  (Optional)
+  Scope of metadata to synchronize from the remote catalog.
+  Structure is [documented below](#nested_federated_catalog_options_refresh_options_refresh_scope).
+
+
+<a name="nested_federated_catalog_options_refresh_options_refresh_schedule"></a>The `refresh_schedule` block supports:
+
+* `refresh_interval` -
+  (Optional)
+  The interval between metadata refreshes, expressed as a duration
+  string (e.g., `300s`).
+  The value must be at least 300s or 0s to disable refresh.
+
+<a name="nested_federated_catalog_options_refresh_options_refresh_scope"></a>The `refresh_scope` block supports:
+
+* `namespace_filters` -
+  (Optional)
+  A list of namespace filters to limit which namespaces are
+  synchronized from the remote catalog.
+
+<a name="nested_federated_catalog_options_refresh_status"></a>The `refresh_status` block contains:
+
+* `start_time` -
+  (Output)
+  Output only. The start time of the most recent refresh.
+
+* `end_time` -
+  (Output)
+  Output only. The end time of the most recent refresh.
+
+* `status` -
+  (Output)
+  Output only. The error result of the last failed refresh, if any.
+  Structure is [documented below](#nested_federated_catalog_options_refresh_status_status).
+
+
+<a name="nested_federated_catalog_options_refresh_status_status"></a>The `status` block contains:
+
+* `code` -
+  (Output)
+  Output only. The status code, which should be an enum value of google.rpc.Code.
+
+* `message` -
+  (Output)
+  Output only. A developer-facing error message in English.
+
+<a name="nested_federated_catalog_options_unity_catalog_info"></a>The `unity_catalog_info` block supports:
+
+* `instance_name` -
+  (Required)
+  The Databricks workspace instance name.
+
+* `catalog_name` -
+  (Required)
+  The name of the catalog within the Unity Catalog instance.
+
+* `service_principal_application_id` -
+  (Optional)
+  The application ID of the Databricks service principal for OIDC authentication.
+
+<a name="nested_federated_catalog_options_glue_catalog_info"></a>The `glue_catalog_info` block supports:
+
+* `warehouse` -
+  (Required)
+  The AWS Glue warehouse identifier (account ID or S3 table bucket).
+
+* `aws_region` -
+  (Required)
+  The AWS region where the Glue catalog is located.
+
+* `aws_role_arn` -
+  (Required)
+  The ARN of the AWS IAM role to assume for accessing the Glue catalog.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -184,6 +361,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `biglake_service_account` -
   Output only. The service account used for credential vending. It might be empty if credential vending was never enabled for the catalog.
+
+* `biglake_service_account_id` -
+  Output only. The unique ID of the service account used for credential vending. Used for federation scenarios.
 
 * `storage_regions` -
   Output only. The GCP region(s) where the physical metadata for the tables is stored, e.g. `us-central1`, `nam4` or `us`. This will contain one value for all locations, except for the catalogs that are configured to use custom dual region buckets.
