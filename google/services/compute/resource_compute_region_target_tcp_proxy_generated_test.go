@@ -59,6 +59,7 @@ func TestAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBasicExample(t *test
 
 	context := map[string]interface{}{
 		"health_check_name":            "tf-test-health-check" + randomSuffix,
+		"region":                       "us-central1",
 		"region_backend_service_name":  "tf-test-backend-service" + randomSuffix,
 		"region_target_tcp_proxy_name": "tf-test-test-proxy" + randomSuffix,
 		"random_suffix":                randomSuffix,
@@ -92,7 +93,7 @@ func testAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBasicExample(context
 	return acctest.Nprintf(`
 resource "google_compute_region_target_tcp_proxy" "default" {
   name            = "%{region_target_tcp_proxy_name}"
-  region          = "europe-west4"
+  region          = "%{region}"
   backend_service = google_compute_region_backend_service.default.id
 }
 
@@ -100,7 +101,7 @@ resource "google_compute_region_backend_service" "default" {
   name        = "%{region_backend_service_name}"
   protocol    = "TCP"
   timeout_sec = 10
-  region      = "europe-west4"
+  region      = "%{region}"
 
   health_checks         = [google_compute_region_health_check.default.id]
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -108,7 +109,7 @@ resource "google_compute_region_backend_service" "default" {
 
 resource "google_compute_region_health_check" "default" {
   name               = "%{health_check_name}"
-  region             = "europe-west4"
+  region             = "%{region}"
   timeout_sec        = 1
   check_interval_sec = 1
   tcp_health_check {
