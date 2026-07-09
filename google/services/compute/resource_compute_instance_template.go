@@ -1215,6 +1215,29 @@ be from 0 to 999,999,999 inclusive.`,
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "STOP", ""}, false),
 				Description:  `Action to be taken when a customer's encryption key is revoked. Supports "STOP" and "NONE", with "NONE" being the default.`,
 			},
+			"workload_identity_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Workload identity config.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"identity": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Identity SPIFFE id.`,
+						},
+						"identity_certificate_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies whether identity certificates are enabled.`,
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -1604,6 +1627,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		ResourcePolicies:         resourcePolicies,
 		ReservationAffinity:      reservationAffinity,
 		KeyRevocationActionType:  d.Get("key_revocation_action_type").(string),
+		WorkloadIdentityConfig:   expandWorkloadIdentityConfig(d),
 	}
 	if cic := expandConfidentialInstanceConfig(d); cic != nil {
 		instanceProperties.ConfidentialInstanceConfig = &compute.ConfidentialInstanceConfig{
@@ -2173,6 +2197,12 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 		if err = d.Set("reservation_affinity", flattenReservationAffinity(reservationAffinityMap)); err != nil {
 			return fmt.Errorf("Error setting reservation_affinity: %s", err)
+		}
+	}
+
+	if instanceTemplate.Properties.WorkloadIdentityConfig != nil {
+		if err = d.Set("workload_identity_config", flattenWorkloadIdentityConfig(instanceTemplate.Properties.WorkloadIdentityConfig)); err != nil {
+			return fmt.Errorf("Error setting workload_identity_config: %s", err)
 		}
 	}
 

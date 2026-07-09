@@ -1511,6 +1511,36 @@ func TestAccComputeRegionInstanceTemplate_keyRevocationActionType(t *testing.T) 
 	})
 }
 
+func TestAccComputeRegionInstanceTemplate_workloadIdentity(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate map[string]interface{}
+	suffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_workloadIdentity(suffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "workload_identity_config.0.identity", fmt.Sprintf("ns/tf-test-ns-%s/sa/tf-test-id-%s", suffix, suffix)),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "workload_identity_config.0.identity_certificate_enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionInstanceTemplate_GuestOsFeatures(t *testing.T) {
 	t.Parallel()
 
@@ -4760,4 +4790,49 @@ resource "google_compute_region_instance_template" "foobar" {
   }
 }
 `, context)
+}
+
+func testAccComputeRegionInstanceTemplate_workloadIdentity(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_iam_workload_identity_pool" "pool" {
+  workload_identity_pool_id = "tf-test-pool-%s"
+  mode                      = "TRUST_DOMAIN"
+}
+
+resource "google_iam_workload_identity_pool_namespace" "ns" {
+  workload_identity_pool_id        = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_namespace_id = "tf-test-ns-%s"
+}
+
+resource "google_iam_workload_identity_pool_managed_identity" "id" {
+  workload_identity_pool_id            = google_iam_workload_identity_pool_namespace.ns.workload_identity_pool_id
+  workload_identity_pool_namespace_id = google_iam_workload_identity_pool_namespace.ns.workload_identity_pool_namespace_id
+  workload_identity_pool_managed_identity_id = "tf-test-id-%s"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%s"
+  machine_type = "e2-medium"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  workload_identity_config {
+    identity = "ns/tf-test-ns-%s/sa/tf-test-id-%s"
+    identity_certificate_enabled = true
+  }
+}
+`, suffix, suffix, suffix, suffix, suffix, suffix)
 }

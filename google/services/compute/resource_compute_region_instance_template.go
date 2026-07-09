@@ -1179,6 +1179,30 @@ be from 0 to 999,999,999 inclusive.`,
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "STOP", ""}, false),
 				Description:  `Action to be taken when a customer's encryption key is revoked. Supports "STOP" and "NONE", with "NONE" being the default.`,
 			},
+
+			"workload_identity_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Workload identity config.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"identity": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Identity SPIFFE id.`,
+						},
+						"identity_certificate_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies whether identity certificates are enabled.`,
+						},
+					},
+				},
+			},
 			//UDP schema start
 			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
 			//UDP schema end
@@ -1290,6 +1314,9 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 	}
 	if _, ok := d.GetOk("resource_manager_tags"); ok {
 		instanceProperties["resourceManagerTags"] = tpgresource.ExpandStringMap(d, "resource_manager_tags")
+	}
+	if workloadIdentityConfig := expandWorkloadIdentityConfig(d); workloadIdentityConfig != nil {
+		instanceProperties["workloadIdentityConfig"] = workloadIdentityConfig
 	}
 
 	var itName string
@@ -1594,6 +1621,12 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 
 	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
 		return err
+	}
+
+	if instanceTemplate.Properties.WorkloadIdentityConfig != nil {
+		if err = d.Set("workload_identity_config", flattenWorkloadIdentityConfig(instanceTemplate.Properties.WorkloadIdentityConfig)); err != nil {
+			return fmt.Errorf("Error setting workload_identity_config: %s", err)
+		}
 	}
 
 	return nil

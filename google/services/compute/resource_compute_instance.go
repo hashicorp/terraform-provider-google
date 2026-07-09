@@ -139,6 +139,11 @@ var (
 		"shielded_instance_config.0.enable_vtpm",
 		"shielded_instance_config.0.enable_integrity_monitoring",
 	}
+
+	workloadIdentityConfigKeys = []string{
+		"workload_identity_config.0.identity",
+		"workload_identity_config.0.identity_certificate_enabled",
+	}
 )
 
 // This checks if the project provided in subnetwork's self_link matches
@@ -1565,6 +1570,28 @@ be from 0 to 999,999,999 inclusive.`,
 					},
 				},
 			},
+			"workload_identity_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Description: `Workload identity config.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"identity": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Identity SPIFFE id.`,
+						},
+						"identity_certificate_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies whether identity certificates are enabled.`,
+						},
+					},
+				},
+			},
 			//UDP schema start
 			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
 			//UDP schema end
@@ -1794,6 +1821,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		ReservationAffinity:      reservationAffinity,
 		KeyRevocationActionType:  d.Get("key_revocation_action_type").(string),
 		InstanceEncryptionKey:    instanceEncryptionKey,
+		WorkloadIdentityConfig:   expandWorkloadIdentityConfig(d),
 	}
 	if cic := expandConfidentialInstanceConfig(d); cic != nil {
 		instance.ConfidentialInstanceConfig = &compute.ConfidentialInstanceConfig{

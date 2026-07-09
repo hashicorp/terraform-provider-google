@@ -1345,3 +1345,28 @@ func stripInitializeParams(instanceMap map[string]interface{}) {
 		}
 	}
 }
+
+func expandWorkloadIdentityConfig(d tpgresource.TerraformResourceData) *compute.WorkloadIdentityConfig {
+	iek, ok := d.GetOk("workload_identity_config")
+	if !ok {
+		return nil
+	}
+
+	wicRes := iek.([]interface{})[0].(map[string]interface{})
+	return &compute.WorkloadIdentityConfig{
+		Identity:                   wicRes["identity"].(string),
+		IdentityCertificateEnabled: wicRes["identity_certificate_enabled"].(bool),
+	}
+}
+
+func flattenWorkloadIdentityConfig(v *compute.WorkloadIdentityConfig) []map[string]interface{} {
+	if v == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"identity":                     v.Identity,
+			"identity_certificate_enabled": v.IdentityCertificateEnabled,
+		},
+	}
+}
