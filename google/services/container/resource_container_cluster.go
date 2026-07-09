@@ -50,6 +50,15 @@ func Rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
+func validateDuration(v interface{}, k string) (ws []string, errors []error) {
+	s := v.(string)
+	_, err := time.ParseDuration(s)
+	if err != nil {
+		errors = append(errors, fmt.Errorf("%q is not a valid duration: %s", k, err))
+	}
+	return
+}
+
 var (
 	instanceGroupManagerURL = regexp.MustCompile(fmt.Sprintf("projects/(%s)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)", verify.ProjectRegex))
 
@@ -115,6 +124,7 @@ var (
 		"addons_config.0.slice_controller_config",
 		"addons_config.0.pod_snapshot_config",
 		"addons_config.0.slurm_operator_config",
+		"addons_config.0.agent_sandbox_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -666,6 +676,23 @@ func ResourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"agent_sandbox_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `The status of the Agent Sandbox addon. It is disabled by default. Set enabled = true to enable.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether the Agent Sandbox feature is enabled.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1141,6 +1168,7 @@ func ResourceContainerCluster() *schema.Resource {
 							ExactlyOneOf: []string{
 								"maintenance_policy.0.daily_maintenance_window",
 								"maintenance_policy.0.recurring_window",
+								"maintenance_policy.0.recurring_maintenance_window",
 							},
 							MaxItems:    1,
 							Description: `Time window specified for daily maintenance operations. Specify start_time in RFC3339 format "HH:MM”, where HH : [00-23] and MM : [00-59] GMT.`,
@@ -1166,6 +1194,7 @@ func ResourceContainerCluster() *schema.Resource {
 							ExactlyOneOf: []string{
 								"maintenance_policy.0.daily_maintenance_window",
 								"maintenance_policy.0.recurring_window",
+								"maintenance_policy.0.recurring_maintenance_window",
 							},
 							Description: `Time window for recurring maintenance operations.`,
 							Elem: &schema.Resource{
@@ -1179,6 +1208,74 @@ func ResourceContainerCluster() *schema.Resource {
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: verify.ValidateRFC3339Date,
+									},
+									"recurrence": {
+										Type:             schema.TypeString,
+										Required:         true,
+										DiffSuppressFunc: rfc5545RecurrenceDiffSuppress,
+									},
+								},
+							},
+						},
+						"recurring_maintenance_window": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							ExactlyOneOf: []string{
+								"maintenance_policy.0.daily_maintenance_window",
+								"maintenance_policy.0.recurring_window",
+								"maintenance_policy.0.recurring_maintenance_window",
+							},
+							Description: `Time window for recurring maintenance operations.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"delay_until": {
+										Type:     schema.TypeList,
+										Optional: true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"year": {
+													Type:     schema.TypeInt,
+													Required: true,
+												},
+												"month": {
+													Type:     schema.TypeInt,
+													Required: true,
+												},
+												"day": {
+													Type:     schema.TypeInt,
+													Required: true,
+												},
+											},
+										},
+									},
+									"window_duration": {
+										Required:         true,
+										Type:             schema.TypeString,
+										DiffSuppressFunc: tpgresource.DurationDiffSuppress,
+										ValidateFunc:     validateDuration,
+									},
+									"window_start_time": {
+										Required: true,
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hours": {
+													Type:     schema.TypeInt,
+													Required: true,
+												},
+												"minutes": {
+													Type:     schema.TypeInt,
+													Required: true,
+												},
+												"seconds": {
+													Type:     schema.TypeInt,
+													Required: true,
+												},
+											},
+										},
 									},
 									"recurrence": {
 										Type:             schema.TypeString,
@@ -5616,6 +5713,14 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
+	if v, ok := config["agent_sandbox_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.AgentSandboxConfig = &container.AgentSandboxConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
+
 	return ac
 }
 
@@ -5844,6 +5949,35 @@ func expandMaintenancePolicy(d *schema.ResourceData, meta interface{}) *containe
 			DisruptionBudget: budget,
 			ResourceVersion:  resourceVersion,
 		}
+	}
+	if recurringMaintenanceWindow, ok := maintenancePolicy["recurring_maintenance_window"]; ok && len(recurringMaintenanceWindow.([]interface{})) > 0 {
+		rmw := recurringMaintenanceWindow.([]interface{})[0].(map[string]interface{})
+		duration, _ := time.ParseDuration(rmw["window_duration"].(string))
+
+		policy := &container.MaintenancePolicy{
+			Window: &container.MaintenanceWindow{
+				MaintenanceExclusions: exclusions,
+				RecurringMaintenanceWindow: &container.RecurringMaintenanceWindow{
+					WindowStartTime: &container.TimeOfDay{
+						Hours:   int64(rmw["window_start_time"].([]interface{})[0].(map[string]interface{})["hours"].(int)),
+						Minutes: int64(rmw["window_start_time"].([]interface{})[0].(map[string]interface{})["minutes"].(int)),
+						Seconds: int64(rmw["window_start_time"].([]interface{})[0].(map[string]interface{})["seconds"].(int)),
+					},
+					WindowDuration: fmt.Sprintf("%ds", int(duration.Seconds())),
+					Recurrence:     rmw["recurrence"].(string),
+				},
+			},
+			ResourceVersion: resourceVersion,
+		}
+
+		if _, ok := rmw["delay_until"]; ok && len(rmw["delay_until"].([]interface{})) == 1 {
+			policy.Window.RecurringMaintenanceWindow.DelayUntil = &container.Date{
+				Year:  int64(rmw["delay_until"].([]interface{})[0].(map[string]interface{})["year"].(int)),
+				Month: int64(rmw["delay_until"].([]interface{})[0].(map[string]interface{})["month"].(int)),
+				Day:   int64(rmw["delay_until"].([]interface{})[0].(map[string]interface{})["day"].(int)),
+			}
+		}
+		return policy
 	}
 	return nil
 }
@@ -7193,6 +7327,14 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 		}
 	}
 
+	if c.AgentSandboxConfig != nil {
+		result["agent_sandbox_config"] = []map[string]interface{}{
+			{
+				"enabled": c.AgentSandboxConfig.Enabled,
+			},
+		}
+	}
+
 	return []map[string]interface{}{result}
 }
 
@@ -7557,6 +7699,37 @@ func flattenMaintenancePolicy(mp *container.MaintenancePolicy) []map[string]inte
 				"disruption_budget":     budget,
 			},
 		}
+	}
+	if mp.Window.RecurringMaintenanceWindow != nil {
+		window := []map[string]interface{}{
+			{
+				"recurring_maintenance_window": []map[string]interface{}{
+					{
+						"window_start_time": []map[string]interface{}{
+							{
+								"hours":   mp.Window.RecurringMaintenanceWindow.WindowStartTime.Hours,
+								"minutes": mp.Window.RecurringMaintenanceWindow.WindowStartTime.Minutes,
+								"seconds": mp.Window.RecurringMaintenanceWindow.WindowStartTime.Seconds,
+							},
+						},
+						"window_duration": mp.Window.RecurringMaintenanceWindow.WindowDuration,
+						"recurrence":      mp.Window.RecurringMaintenanceWindow.Recurrence,
+					},
+				},
+				"maintenance_exclusion": exclusions,
+			},
+		}
+
+		if mp.Window.RecurringMaintenanceWindow.DelayUntil != nil {
+			window[0]["recurring_maintenance_window"].([]map[string]interface{})[0]["delay_until"] = []map[string]interface{}{
+				{
+					"year":  mp.Window.RecurringMaintenanceWindow.DelayUntil.Year,
+					"month": mp.Window.RecurringMaintenanceWindow.DelayUntil.Month,
+					"day":   mp.Window.RecurringMaintenanceWindow.DelayUntil.Day,
+				},
+			}
+		}
+		return window
 	}
 	return nil
 }
@@ -8628,6 +8801,28 @@ func clusterAcceleratorNetworkProfileCustomizeDiff(_ context.Context, diff *sche
 	}
 
 	return nil
+}
+
+func expandAgentSandboxConfig(v interface{}) *container.AgentSandboxConfig {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	raw := l[0].(map[string]interface{})
+	return &container.AgentSandboxConfig{
+		Enabled: raw["enabled"].(bool),
+	}
+}
+
+func flattenAgentSandboxConfig(v *container.AgentSandboxConfig) []interface{} {
+	if v == nil {
+		return nil
+	}
+	return []interface{}{
+		map[string]interface{}{
+			"enabled": v.Enabled,
+		},
+	}
 }
 
 func init() {

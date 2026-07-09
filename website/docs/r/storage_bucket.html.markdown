@@ -191,6 +191,21 @@ resource "google_storage_bucket" "hns-enabled" {
   }
 }
 ```
+## Example Usage - Enabling RAPID storage bucket
+
+```hcl
+resource "google_storage_bucket" "zonal_bucket" {
+  location                    = "US-CENTRAL1"
+  custom_placement_config {
+    data_locations = ["US-CENTRAL1-B"]
+  }
+  name                        = "zonal-rapid-bucket"
+  storage_class               = "RAPID"
+  hierarchical_namespace {
+    enabled = true
+  }
+}
+```
 
 ## Argument Reference
 

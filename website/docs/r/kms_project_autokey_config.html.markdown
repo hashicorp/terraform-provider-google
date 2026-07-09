@@ -25,7 +25,6 @@ description: |-
 `ProjectAutokeyConfig` is a singleton resource used to configure the auto-provisioning
 flow of CryptoKeys for CMEK.
 
-
 ~> **Note:** ProjectAutokeyConfigs cannot be deleted from Google Cloud Platform.
 Destroying a Terraform-managed ProjectAutokeyConfigs will remove it from state but
 *will not delete the resource from the project.*

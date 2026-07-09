@@ -80,7 +80,14 @@ func flattenMetadataBeta(metadata *compute.Metadata) map[string]string {
 		return metadataMap
 	}
 	for _, item := range metadata.Items {
-		metadataMap[item.Key] = *item.Value
+		if item == nil {
+			continue
+		}
+		if item.Value == nil {
+			metadataMap[item.Key] = ""
+		} else {
+			metadataMap[item.Key] = *item.Value
+		}
 	}
 	return metadataMap
 }
@@ -95,13 +102,26 @@ func FlattenMetadata(metadata *compute.Metadata) map[string]interface{} {
 		return metadataMap
 	}
 	for _, item := range metadata.Items {
-		metadataMap[item.Key] = *item.Value
+		if item == nil {
+			continue
+		}
+		if item.Value == nil {
+			metadataMap[item.Key] = ""
+		} else {
+			metadataMap[item.Key] = *item.Value
+		}
 	}
 	return metadataMap
 }
 
-func resourceInstanceMetadata(d tpgresource.TerraformResourceData) (*compute.Metadata, error) {
-	m := &compute.Metadata{}
+// resourceInstanceMetadata builds the instance metadata as a JSON-shaped
+// map[string]interface{} mirroring the compute.Metadata API type (camelCase
+// keys: "items" -> [{"key", "value"}], "fingerprint"). Empty values are omitted
+// to mirror the Apiary struct's omitempty tags, so the marshaled request body is
+// byte-identical whether the map is sent directly or round-tripped through the
+// typed struct via resourceInstanceMetadataTyped.
+func resourceInstanceMetadata(d tpgresource.TerraformResourceData) (map[string]interface{}, error) {
+	m := map[string]interface{}{}
 	mdMap := d.Get("metadata").(map[string]interface{})
 	if v, ok := d.GetOk("metadata_startup_script"); ok && v.(string) != "" {
 		if w, ok := mdMap["startup-script"]; ok {
@@ -113,7 +133,7 @@ func resourceInstanceMetadata(d tpgresource.TerraformResourceData) (*compute.Met
 		mdMap["startup-script"] = v
 	}
 	if len(mdMap) > 0 {
-		m.Items = make([]*compute.MetadataItems, 0, len(mdMap))
+		items := make([]interface{}, 0, len(mdMap))
 		var keys []string
 		for k := range mdMap {
 			keys = append(keys, k)
@@ -121,16 +141,35 @@ func resourceInstanceMetadata(d tpgresource.TerraformResourceData) (*compute.Met
 		sort.Strings(keys)
 		for _, k := range keys {
 			v := mdMap[k].(string)
-			m.Items = append(m.Items, &compute.MetadataItems{
-				Key:   k,
-				Value: &v,
+			items = append(items, map[string]interface{}{
+				"key":   k,
+				"value": v,
 			})
 		}
+		m["items"] = items
 
 		// Set the fingerprint. If the metadata has never been set before
-		// then this will just be blank.
-		m.Fingerprint = d.Get("metadata_fingerprint").(string)
+		// then this will just be blank, in which case we omit it to mirror
+		// the compute.Metadata omitempty behaviour.
+		if fp := d.Get("metadata_fingerprint").(string); fp != "" {
+			m["fingerprint"] = fp
+		}
 	}
 
+	return m, nil
+}
+
+// resourceInstanceMetadataTyped adapts the map-based resourceInstanceMetadata
+// output to the typed *compute.Metadata still required by callers that build
+// Apiary request structs directly.
+func resourceInstanceMetadataTyped(d tpgresource.TerraformResourceData) (*compute.Metadata, error) {
+	mdMap, err := resourceInstanceMetadata(d)
+	if err != nil {
+		return nil, err
+	}
+	m := &compute.Metadata{}
+	if err := convertViaJSON(mdMap, m); err != nil {
+		return nil, err
+	}
 	return m, nil
 }

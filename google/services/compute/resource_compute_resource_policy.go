@@ -1956,8 +1956,10 @@ func ResourceComputeResourcePolicyFlatten(d *schema.ResourceData, meta interface
 	if err = d.Set("workload_policy", flattenComputeResourcePolicyWorkloadPolicy(res["workloadPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading ResourcePolicy: %s", err)
+		}
 	}
 	return nil
 }

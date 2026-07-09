@@ -18,6 +18,7 @@ package compute
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -1059,11 +1060,12 @@ be from 0 to 999,999,999 inclusive.`,
 							Description: `The number of physical cores to expose to an instance. Multiply by the number of threads per core to compute the total number of virtual CPUs to expose to the instance. If unset, the number of cores is inferred from the instance\'s nominal CPU count and the underlying platform\'s SMT width.`,
 						},
 						"performance_monitoring_unit": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ForceNew:     true,
-							ValidateFunc: validation.StringInSlice([]string{"STANDARD", "ENHANCED", "ARCHITECTURAL"}, false),
-							Description:  `The PMU is a hardware component within the CPU core that monitors how the processor runs code. Valid values for the level of PMU are "STANDARD", "ENHANCED", and "ARCHITECTURAL".`,
+							Type:             schema.TypeString,
+							Optional:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("STANDARD"),
+							ValidateFunc:     validation.StringInSlice([]string{"STANDARD", "ENHANCED", "ARCHITECTURAL"}, false),
+							Description:      `The PMU is a hardware component within the CPU core that monitors how the processor runs code. Valid values for the level of PMU are "STANDARD", "ENHANCED", and "ARCHITECTURAL".`,
 						},
 						"enable_uefi_networking": {
 							Type:        schema.TypeBool,
@@ -1538,7 +1540,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	metadata, err := resourceInstanceMetadata(d)
+	metadata, err := resourceInstanceMetadataTyped(d)
 	if err != nil {
 		return err
 	}
@@ -1598,7 +1600,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Scheduling:               scheduling,
 		ServiceAccounts:          expandServiceAccountsTyped(d.Get("service_account").([]interface{})),
 		Tags:                     tags,
-		AdvancedMachineFeatures:  expandAdvancedMachineFeatures(d),
+		AdvancedMachineFeatures:  expandAdvancedMachineFeaturesTyped(d),
 		ResourcePolicies:         resourcePolicies,
 		ReservationAffinity:      reservationAffinity,
 		KeyRevocationActionType:  d.Get("key_revocation_action_type").(string),
@@ -1646,7 +1648,27 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Name:        itName,
 	}
 
-	op, err := NewClient(config, userAgent).InstanceTemplates.Insert(project, instanceTemplate).Do()
+	itBytes, err := json.Marshal(instanceTemplate)
+	if err != nil {
+		return fmt.Errorf("Error marshaling instance template: %s", err)
+	}
+	var itBody map[string]interface{}
+	if err := json.Unmarshal(itBytes, &itBody); err != nil {
+		return fmt.Errorf("Error unmarshaling instance template: %s", err)
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/instanceTemplates")
+	if err != nil {
+		return err
+	}
+	op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      itBody,
+	})
 	if err != nil {
 		return fmt.Errorf("Error creating instance template: %s", err)
 	}
@@ -1654,7 +1676,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 	// Store the ID now
 	d.SetId(fmt.Sprintf("projects/%s/global/instanceTemplates/%s", project, instanceTemplate.Name))
 	// And also the unique ID
-	d.Set("self_link_unique", fmt.Sprintf("%v?uniqueId=%v", d.Id(), op.TargetId))
+	d.Set("self_link_unique", fmt.Sprintf("%v?uniqueId=%v", d.Id(), op["targetId"]))
 
 	err = ComputeOperationWaitTime(config, op, project, "Creating Instance Template", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -1941,9 +1963,28 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 	}
 
 	splits := strings.Split(idStr, "/")
-	instanceTemplate, err := NewClient(config, userAgent).InstanceTemplates.Get(project, splits[len(splits)-1]).Do()
+	baseUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/instanceTemplates")
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("%s/%s", baseUrl, splits[len(splits)-1])
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Instance Template %q", d.Get("name").(string)))
+	}
+	itBytes, err := json.Marshal(res)
+	if err != nil {
+		return fmt.Errorf("Error marshaling instance template response: %s", err)
+	}
+	var instanceTemplate compute.InstanceTemplate
+	if err := json.Unmarshal(itBytes, &instanceTemplate); err != nil {
+		return fmt.Errorf("Error unmarshaling instance template response: %s", err)
 	}
 	// Set the metadata fingerprint if there is one.
 	if instanceTemplate.Properties.Metadata != nil {
@@ -2114,7 +2155,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if instanceTemplate.Properties.AdvancedMachineFeatures != nil {
-		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instanceTemplate.Properties.AdvancedMachineFeatures)); err != nil {
+		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeaturesTyped(instanceTemplate.Properties.AdvancedMachineFeatures)); err != nil {
 			return fmt.Errorf("Error setting advanced_machine_features: %s", err)
 		}
 	}
@@ -2151,8 +2192,18 @@ func resourceComputeInstanceTemplateDelete(d *schema.ResourceData, meta interfac
 	}
 
 	splits := strings.Split(d.Id(), "/")
-	op, err := NewClient(config, userAgent).InstanceTemplates.Delete(
-		project, splits[len(splits)-1]).Do()
+	baseUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/instanceTemplates")
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("%s/%s", baseUrl, splits[len(splits)-1])
+	op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return fmt.Errorf("Error deleting instance template: %s", err)
 	}

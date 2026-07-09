@@ -318,6 +318,132 @@ data "google_oracle_database_db_servers" "mydbserver" {
 `, context)
 }
 
+func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterExascaleExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-for-vmcluster-exascale-%s", acctest.RandString(t, 10)),
+		"cloud_vm_cluster_id":             fmt.Sprintf("ofake-tf-test-vmcluster-exascale-%s", acctest.RandString(t, 10)),
+		"deletion_protection":             false,
+		"exascale_db_storage_vault_id":    fmt.Sprintf("ofake-tf-test-vault-for-vmcluster-exascale-%s", acctest.RandString(t, 10)),
+		"project":                         "oci-terraform-testing-prod",
+		"random_suffix":                   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckOracleDatabaseCloudVmClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterExascaleExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_cloud_vm_cluster.my_vmcluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_vm_cluster_id", "deletion_protection", "labels", "location", "properties.0.gi_version", "properties.0.hostname_prefix", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterExascaleExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster" {
+  cloud_vm_cluster_id    = "%{cloud_vm_cluster_id}"
+  display_name           = "%{cloud_vm_cluster_id} displayname"
+  location               = "us-east4"
+  project                = "%{project}"
+  exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.infra.id
+  network                = data.google_compute_network.default.id
+  cidr                   = "10.5.0.0/24"
+  backup_subnet_cidr     = "10.6.0.0/24"
+
+  exascale_db_storage_vault = google_oracle_database_exascale_db_storage_vault.vault.name
+
+  properties {
+    license_type    = "LICENSE_INCLUDED"
+    ssh_public_keys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz1X2744t+6vRLmE5u6nHi6/QWh8bQDgHmd+OIxRQIGA/IWUtCs2FnaCNZcqvZkaeyjk5v0lTA/n+9jvO42Ipib53athrfVG8gRt8fzPL66C6ZqHq+6zZophhrCdfJh/0G4x9xJh5gdMprlaCR1P8yAaVvhBQSKGc4SiIkyMNBcHJ5YTtMQMTfxaB4G1sHZ6SDAY9a6Cq/zNjDwfPapWLsiP4mRhE5SSjJX6l6EYbkm0JeLQg+AbJiNEPvrvDp1wtTxzlPJtIivthmLMThFxK7+DkrYFuLvN5AHUdo9KTDLvHtDCvV70r8v0gafsrKkM/OE9Jtzoo0e1N/5K/ZdyFRbAkFT4QSF3nwpbmBWLf2Evg//YyEuxnz4CwPqFST2mucnrCCGCVWp1vnHZ0y30nM35njLOmWdRDFy5l27pKUTwLp02y3UYiiZyP7d3/u5pKiN4vC27VuvzprSdJxWoAvluOiDeRh+/oeQDowxoT/Oop8DzB9uJmjktXw8jyMW2+Rpg+ENQqeNgF1OGlEzypaWiRskEFlkpLb4v/s3ZDYkL1oW0Nv/J8LTjTOTEaYt2Udjoe9x2xWiGnQixhdChWuG+MaoWffzUgx1tsVj/DBXijR5DjkPkrA1GA98zd3q8GKEaAdcDenJjHhNYSd4+rE9pIsnYn7fo5X/tFfcQH1XQ== nobody@google.com"]
+    cpu_core_count  = "4"
+    gi_version      = "23.0.0.0"
+    hostname_prefix = "hostname1"
+
+    # Required fields for Exascale-based VM Clusters:
+    memory_size_gb          = 60
+    db_node_storage_size_gb = 120
+    db_server_ocids         = [
+      data.google_oracle_database_db_servers.db_servers.db_servers.0.properties.0.ocid,
+      data.google_oracle_database_db_servers.db_servers.db_servers.1.properties.0.ocid
+    ]
+  }
+
+  deletion_protection = "%{deletion_protection}"
+
+  depends_on = [google_oracle_database_cloud_exadata_infrastructure_exascale_config.exascale_config]
+}
+
+resource "google_oracle_database_cloud_exadata_infrastructure" "infra" {
+  cloud_exadata_infrastructure_id = "%{cloud_exadata_infrastructure_id}"
+  display_name                    = "%{cloud_exadata_infrastructure_id} displayname"
+  location                        = "us-east4"
+  project                         = "%{project}"
+  properties {
+    shape         = "Exadata.X9M"
+    compute_count = "2"
+    storage_count = "3"
+  }
+
+  deletion_protection = "%{deletion_protection}"
+}
+
+resource "google_oracle_database_cloud_exadata_infrastructure_exascale_config" "exascale_config" {
+  cloud_exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.infra.cloud_exadata_infrastructure_id
+  location                     = "us-east4"
+  project                      = "%{project}"
+  total_storage_size_gb        = 10240
+}
+
+resource "google_oracle_database_exascale_db_storage_vault" "vault" {
+  exascale_db_storage_vault_id = "%{exascale_db_storage_vault_id}"
+  display_name                 = "%{exascale_db_storage_vault_id} displayname"
+  location                     = "us-east4"
+  project                      = "%{project}"
+
+  exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.infra.name
+
+  depends_on = [google_oracle_database_cloud_exadata_infrastructure_exascale_config.exascale_config]
+
+  properties {
+    exascale_db_storage_details {
+      total_size_gbs = 2048
+    }
+  }
+
+  deletion_protection = "%{deletion_protection}"
+}
+
+data "google_compute_network" "default" {
+  name    = "new"
+  project = "%{project}"
+}
+
+data "google_oracle_database_db_servers" "db_servers" {
+  location                     = "us-east4"
+  project                      = "%{project}"
+  cloud_exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.infra.cloud_exadata_infrastructure_id
+}
+`, context)
+}
+
 func testAccCheckOracleDatabaseCloudVmClusterDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

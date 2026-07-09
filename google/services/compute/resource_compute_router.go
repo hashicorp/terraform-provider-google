@@ -1168,8 +1168,10 @@ func ResourceComputeRouterFlatten(d *schema.ResourceData, meta interface{}, res 
 	if err = d.Set("region", flattenComputeRouterRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Router: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading Router: %s", err)
+		}
 	}
 	return nil
 }

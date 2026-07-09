@@ -24,7 +24,6 @@ description: |-
 
 A Cloud AI Platform Notebook runtime.
 
-
 ~> **Note:** Due to limitations of the Notebooks Runtime API, many fields
 in this resource do not properly detect drift. These fields will also not
 appear in state once imported.

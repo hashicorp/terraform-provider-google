@@ -593,7 +593,7 @@ func schemaNodeConfig() *schema.Schema {
 								Required:     true,
 								ForceNew:     true,
 								Description:  `Corresponds to the type of reservation consumption.`,
-								ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"}, false),
+								ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION", "ANY_RESERVATION_THEN_FAIL"}, false),
 							},
 							"key": {
 								Type:        schema.TypeString,
@@ -888,6 +888,18 @@ func schemaNodeConfig() *schema.Schema {
 								Type:        schema.TypeInt,
 								Optional:    true,
 								Description: `Defines the maximum allowed grace period (in seconds) to use when terminating pods in response to a soft eviction threshold being met.`,
+							},
+							"shutdown_grace_period_seconds": {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Computed:    true,
+								Description: `Controls the total duration of time (in seconds) the node delays shutdown.`,
+							},
+							"shutdown_grace_period_critical_pods_seconds": {
+								Type:        schema.TypeInt,
+								Optional:    true,
+								Computed:    true,
+								Description: `Controls the portion of total grace period (in seconds) that is specifically reserved for terminating critical pods.`,
 							},
 							"eviction_soft": {
 								Type:        schema.TypeList,
@@ -1250,10 +1262,11 @@ func schemaNodeConfig() *schema.Schema {
 								Description: `Whether the node should have nested virtualization enabled.`,
 							},
 							"performance_monitoring_unit": {
-								Type:         schema.TypeString,
-								Optional:     true,
-								ValidateFunc: verify.ValidateEnum([]string{"ARCHITECTURAL", "STANDARD", "ENHANCED"}),
-								Description:  `Level of Performance Monitoring Unit (PMU) requested. If unset, no access to the PMU is assumed.`,
+								Type:             schema.TypeString,
+								Optional:         true,
+								DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("STANDARD"),
+								ValidateFunc:     verify.ValidateEnum([]string{"ARCHITECTURAL", "STANDARD", "ENHANCED"}),
+								Description:      `Level of Performance Monitoring Unit (PMU) requested. If unset, no access to the PMU is assumed.`,
 							},
 						},
 					},
@@ -1835,6 +1848,21 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 			}
 		}
 		// end cpu_cfs_quota fix
+
+		// start shutdown_grace_period ForceSendFields fix
+		if vNC := rawConfigNPRoot.GetAttr("node_config"); vNC.LengthInt() > 0 {
+			if vKC := vNC.Index(cty.NumberIntVal(0)).GetAttr("kubelet_config"); vKC.LengthInt() > 0 {
+				vSGP := vKC.Index(cty.NumberIntVal(0)).GetAttr("shutdown_grace_period_seconds")
+				if vSGP != cty.NullVal(cty.Number) && !vSGP.IsNull() {
+					nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "ShutdownGracePeriodSeconds")
+				}
+				vSGPC := vKC.Index(cty.NumberIntVal(0)).GetAttr("shutdown_grace_period_critical_pods_seconds")
+				if vSGPC != cty.NullVal(cty.Number) && !vSGPC.IsNull() {
+					nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "ShutdownGracePeriodCriticalPodsSeconds")
+				}
+			}
+		}
+		// end shutdown_grace_period ForceSendFields fix
 	}
 
 	if v, ok := nodeConfig["linux_node_config"]; ok {
@@ -2032,6 +2060,12 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 	}
 	if evictionMaxPodGracePeriodSeconds, ok := cfg["eviction_max_pod_grace_period_seconds"]; ok {
 		kConfig.EvictionMaxPodGracePeriodSeconds = int64(evictionMaxPodGracePeriodSeconds.(int))
+	}
+	if shutdownGracePeriodSeconds, ok := cfg["shutdown_grace_period_seconds"]; ok {
+		kConfig.ShutdownGracePeriodSeconds = int64(shutdownGracePeriodSeconds.(int))
+	}
+	if shutdownGracePeriodCriticalPodsSeconds, ok := cfg["shutdown_grace_period_critical_pods_seconds"]; ok {
+		kConfig.ShutdownGracePeriodCriticalPodsSeconds = int64(shutdownGracePeriodCriticalPodsSeconds.(int))
 	}
 	if v, ok := cfg["eviction_soft"]; ok && len(v.([]interface{})) > 0 {
 		es := v.([]interface{})[0].(map[string]interface{})
@@ -3173,27 +3207,29 @@ func flattenKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{
-			"cpu_cfs_quota":                          c.CpuCfsQuota,
-			"cpu_cfs_quota_period":                   c.CpuCfsQuotaPeriod,
-			"cpu_manager_policy":                     c.CpuManagerPolicy,
-			"memory_manager":                         flattenMemoryManager(c.MemoryManager),
-			"topology_manager":                       flattenTopologyManager(c.TopologyManager),
-			"insecure_kubelet_readonly_port_enabled": flattenInsecureKubeletReadonlyPortEnabled(c),
-			"pod_pids_limit":                         c.PodPidsLimit,
-			"container_log_max_size":                 c.ContainerLogMaxSize,
-			"container_log_max_files":                c.ContainerLogMaxFiles,
-			"image_gc_low_threshold_percent":         c.ImageGcLowThresholdPercent,
-			"image_gc_high_threshold_percent":        c.ImageGcHighThresholdPercent,
-			"image_minimum_gc_age":                   c.ImageMinimumGcAge,
-			"image_maximum_gc_age":                   c.ImageMaximumGcAge,
-			"allowed_unsafe_sysctls":                 c.AllowedUnsafeSysctls,
-			"single_process_oom_kill":                c.SingleProcessOomKill,
-			"max_parallel_image_pulls":               c.MaxParallelImagePulls,
-			"eviction_max_pod_grace_period_seconds":  c.EvictionMaxPodGracePeriodSeconds,
-			"eviction_soft":                          flattenEvictionSignals(c.EvictionSoft),
-			"eviction_soft_grace_period":             flattenEvictionGracePeriod(c.EvictionSoftGracePeriod),
-			"eviction_minimum_reclaim":               flattenEvictionMinimumReclaim(c.EvictionMinimumReclaim),
-			"crash_loop_back_off":                    flattenCrashLoopBackOffConfig(c.CrashLoopBackOff),
+			"cpu_cfs_quota":                               c.CpuCfsQuota,
+			"cpu_cfs_quota_period":                        c.CpuCfsQuotaPeriod,
+			"cpu_manager_policy":                          c.CpuManagerPolicy,
+			"memory_manager":                              flattenMemoryManager(c.MemoryManager),
+			"topology_manager":                            flattenTopologyManager(c.TopologyManager),
+			"insecure_kubelet_readonly_port_enabled":      flattenInsecureKubeletReadonlyPortEnabled(c),
+			"pod_pids_limit":                              c.PodPidsLimit,
+			"container_log_max_size":                      c.ContainerLogMaxSize,
+			"container_log_max_files":                     c.ContainerLogMaxFiles,
+			"image_gc_low_threshold_percent":              c.ImageGcLowThresholdPercent,
+			"image_gc_high_threshold_percent":             c.ImageGcHighThresholdPercent,
+			"image_minimum_gc_age":                        c.ImageMinimumGcAge,
+			"image_maximum_gc_age":                        c.ImageMaximumGcAge,
+			"allowed_unsafe_sysctls":                      c.AllowedUnsafeSysctls,
+			"single_process_oom_kill":                     c.SingleProcessOomKill,
+			"max_parallel_image_pulls":                    c.MaxParallelImagePulls,
+			"eviction_max_pod_grace_period_seconds":       c.EvictionMaxPodGracePeriodSeconds,
+			"shutdown_grace_period_seconds":               c.ShutdownGracePeriodSeconds,
+			"shutdown_grace_period_critical_pods_seconds": c.ShutdownGracePeriodCriticalPodsSeconds,
+			"eviction_soft":                               flattenEvictionSignals(c.EvictionSoft),
+			"eviction_soft_grace_period":                  flattenEvictionGracePeriod(c.EvictionSoftGracePeriod),
+			"eviction_minimum_reclaim":                    flattenEvictionMinimumReclaim(c.EvictionMinimumReclaim),
+			"crash_loop_back_off":                         flattenCrashLoopBackOffConfig(c.CrashLoopBackOff),
 		})
 	}
 	return result

@@ -1710,8 +1710,10 @@ func ResourceComputeRegionAutoscalerFlatten(d *schema.ResourceData, meta interfa
 	if err = d.Set("target", flattenComputeRegionAutoscalerTarget(res["target"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading RegionAutoscaler: %s", err)
+		}
 	}
 	return nil
 }

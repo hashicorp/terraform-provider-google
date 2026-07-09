@@ -572,3 +572,127 @@ func flattenStorageControlInt(v interface{}) int {
 	}
 	return 0
 }
+
+func storageControlFindingSummariesSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Computed:    true,
+		Description: `A list of summaries for individual finding types.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"type": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `The type of finding.`,
+				},
+				"category": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `The category of the finding.`,
+				},
+				"target_resource": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `The fully qualified Cloud resource name for which this summary was generated.`,
+				},
+				"create_time": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `The creation time of the earliest finding that this summary is based on.`,
+				},
+				"update_time": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `The time of the most recent update among all the findings that this summary is based on.`,
+				},
+				"severity": {
+					Type:        schema.TypeString,
+					Computed:    true,
+					Description: `Severity of the finding.`,
+				},
+				"summary_details": {
+					Type:        schema.TypeList,
+					Computed:    true,
+					Description: `The SummaryDetails resources.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"count": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The count of impacted resources.`,
+							},
+							"percentage": {
+								Type:        schema.TypeFloat,
+								Computed:    true,
+								Description: `The percentage of impacted resources.`,
+							},
+							"resource_type": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `The type of Cloud resource this summary detail applies to.`,
+							},
+							"description": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `A short description about the FindingSummary.`,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func flattenStorageControlFindingSummaries(v interface{}) []map[string]interface{} {
+	if v == nil {
+		return nil
+	}
+	ls, ok := v.([]interface{})
+	if !ok {
+		return nil
+	}
+	summaries := make([]map[string]interface{}, 0, len(ls))
+	for _, raw := range ls {
+		o, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		summary := map[string]interface{}{
+			"type":            o["type"],
+			"category":        o["category"],
+			"target_resource": o["targetResource"],
+			"create_time":     o["createTime"],
+			"update_time":     o["updateTime"],
+			"severity":        o["severity"],
+			"summary_details": flattenStorageControlSummaryDetails(o["summaryDetails"]),
+		}
+		summaries = append(summaries, summary)
+	}
+	return summaries
+}
+
+func flattenStorageControlSummaryDetails(v interface{}) []map[string]interface{} {
+	if v == nil {
+		return nil
+	}
+	ls, ok := v.([]interface{})
+	if !ok {
+		return nil
+	}
+	details := make([]map[string]interface{}, 0, len(ls))
+	for _, raw := range ls {
+		o, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		detail := map[string]interface{}{
+			"count":         o["count"],
+			"percentage":    flattenStorageControlFloat(o["percentage"]),
+			"resource_type": o["resourceType"],
+			"description":   o["description"],
+		}
+		details = append(details, detail)
+	}
+	return details
+}

@@ -206,6 +206,25 @@ func ResourceBigQueryDataset() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"dataset_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"dataset_id": {
 				Type:         schema.TypeString,
@@ -806,6 +825,22 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Finished creating Dataset %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if datasetIdValue, ok := d.GetOk("dataset_id"); ok && datasetIdValue.(string) != "" {
+			if err = identity.Set("dataset_id", datasetIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting dataset_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceBigQueryDatasetRead(d, meta)
 }
 
@@ -877,6 +912,24 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("dataset_id"); !ok && v == "" {
+			err = identity.Set("dataset_id", d.Get("dataset_id").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting dataset_id: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -898,6 +951,21 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if datasetIdValue, ok := d.GetOk("dataset_id"); ok && datasetIdValue.(string) != "" {
+			if err = identity.Set("dataset_id", datasetIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting dataset_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
 	billingProject := ""
@@ -2147,8 +2215,10 @@ func ResourceBigQueryDatasetFlatten(d *schema.ResourceData, meta interface{}, re
 	if err = d.Set("effective_labels", flattenBigQueryDatasetEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Dataset: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading Dataset: %s", err)
+		}
 	}
 	return nil
 }

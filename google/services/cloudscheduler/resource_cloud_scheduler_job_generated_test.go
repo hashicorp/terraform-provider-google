@@ -434,11 +434,12 @@ func testAccCheckCloudSchedulerJobDestroyProducer(t *testing.T) func(s *terrafor
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
+				Config:               config,
+				Method:               "GET",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            config.UserAgent,
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is409SyncMutateCannotBeQueuedError},
 			})
 			if err == nil {
 				return fmt.Errorf("CloudSchedulerJob still exists at %s", url)

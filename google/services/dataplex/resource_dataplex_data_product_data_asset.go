@@ -206,6 +206,11 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The relative resource name of the data asset.`,
+			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -714,6 +719,10 @@ func flattenDataplexDataProductDataAssetEffectiveLabels(v interface{}, d *schema
 	return v
 }
 
+func flattenDataplexDataProductDataAssetName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandDataplexDataProductDataAssetResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -777,6 +786,9 @@ func ResourceDataplexDataProductDataAssetFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading DataProductDataAsset: %s", err)
 	}
 	if err = d.Set("effective_labels", flattenDataplexDataProductDataAssetEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataProductDataAsset: %s", err)
+	}
+	if err = d.Set("name", flattenDataplexDataProductDataAssetName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataProductDataAsset: %s", err)
 	}
 

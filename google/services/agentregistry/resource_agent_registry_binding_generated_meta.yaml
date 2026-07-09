@@ -1,0 +1,25 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_agent_registry_binding
+generation_type: mmv1
+source_file: products/agentregistry/Binding.yaml
+api_service_name: agentregistry.googleapis.com
+api_version: v1
+api_resource_type_kind: Binding
+fields:
+    - api_field: authProviderBinding.authProvider
+    - api_field: authProviderBinding.continueUri
+    - api_field: authProviderBinding.scopes
+    - field: binding_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: source.identifier
+    - api_field: target.identifier
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

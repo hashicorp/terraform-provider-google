@@ -205,7 +205,6 @@ value should be 4-32 characters, and may contain the characters [a-z0-9-]. The p
 * start with an alphanumeric character
 * end with an alphanumeric character
 
-
 The prefix 'gcp-' will be reserved for future uses.`,
 			},
 			"description": {

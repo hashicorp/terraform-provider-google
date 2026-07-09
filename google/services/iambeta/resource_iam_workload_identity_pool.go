@@ -267,7 +267,6 @@ to '50'.`,
 CA in the same region as the workload will be selected to issue the certificate. Enabling
 this will clear any existing 'ca_pools' configuration to provision the certificates.
 
-
 ~> **Note** This field is mutually exclusive with 'ca_pools'. If this flag is enabled,
 certificates will be automatically provisioned from the default shared CAs. This flag should
 not be set if you want to use your own CA pools to provision the certificates.`,
@@ -327,7 +326,6 @@ certificate(either root or intermediate cert).`,
 										Description: `If set to True, the trust bundle will include the private ca managed identity regional root
 public certificates.
 
-
 ~> **Note** 'trust_default_shared_ca' is only supported for managed identity trust domain
 resource.`,
 									},
@@ -344,7 +342,6 @@ resource.`,
 				ValidateFunc: verify.ValidateEnum([]string{"FEDERATION_ONLY", "TRUST_DOMAIN", "SYSTEM_TRUST_DOMAIN", ""}),
 				Description: `The mode for the pool is operating in. Pools with an unspecified mode will operate as if they
 are in 'FEDERATION_ONLY' mode.
-
 
 ~> **Note** This field cannot be changed after the Workload Identity Pool is created. While
 'terraform plan' may show an update if you change this field's value, 'terraform apply'

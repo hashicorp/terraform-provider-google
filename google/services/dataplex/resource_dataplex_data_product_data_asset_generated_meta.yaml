@@ -5,7 +5,7 @@ generation_type: mmv1
 source_file: products/dataplex/DataProductDataAsset.yaml
 api_service_name: dataplex.googleapis.com
 api_version: v1
-api_resource_type_kind: DataProductDataAsset
+api_resource_type_kind: DataAsset
 fields:
     - api_field: accessGroupConfigs.key
       field: access_group_configs.access_group
@@ -20,6 +20,7 @@ fields:
     - api_field: labels
     - field: location
       provider_only: true
+    - api_field: name
     - api_field: resource
     - field: terraform_labels
       provider_only: true

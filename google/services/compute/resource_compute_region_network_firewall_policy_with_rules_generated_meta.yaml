@@ -92,12 +92,16 @@ fields:
       field: rule.rule_name
     - api_field: rules.securityProfileGroup
       field: rule.security_profile_group
+    - api_field: rules.targetForwardingRules
+      field: rule.target_forwarding_rules
     - api_field: rules.targetSecureTags.name
       field: rule.target_secure_tag.name
     - api_field: rules.targetSecureTags.state
       field: rule.target_secure_tag.state
     - api_field: rules.targetServiceAccounts
       field: rule.target_service_accounts
+    - api_field: rules.targetType
+      field: rule.target_type
     - api_field: rules.tlsInspect
       field: rule.tls_inspect
     - api_field: ruleTupleCount

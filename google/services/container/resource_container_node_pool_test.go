@@ -791,6 +791,38 @@ func TestAccContainerNodePool_withReservationAffinitySpecific(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withReservationAffinityAnyReservationThenFail(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	reservation := fmt.Sprintf("tf-test-reservation-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withReservationAffinityAnyReservationThenFail(cluster, reservation, np, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.#", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_reservation_affinity",
+						"node_config.0.reservation_affinity.0.consume_reservation_type", "ANY_RESERVATION_THEN_FAIL"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_reservation_affinity",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 	t.Parallel()
 
@@ -941,6 +973,37 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_kubelet_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withKubeletConfigShutdownGracePeriod(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withKubeletConfigShutdownGracePeriod(cluster, np, networkName, subnetworkName, 120, 30),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config_shutdown",
+						"node_config.0.kubelet_config.0.shutdown_grace_period_seconds", "120"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config_shutdown",
+						"node_config.0.kubelet_config.0.shutdown_grace_period_critical_pods_seconds", "30"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_kubelet_config_shutdown",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -1614,6 +1677,34 @@ func TestAccContainerNodePool_withNodeDrainConfig(t *testing.T) {
 			{
 				Config:      testAccContainerNodePool_withPrivateNodeDrainConfig(cluster, nodePool, networkName, subnetworkName, "grace_termination_duration", "300s"),
 				ExpectError: regexp.MustCompile(`node drain timeout is not enabled for this project`),
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_withMaintenancePolicy(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePool := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withMaintenancePolicy(cluster, nodePool, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np_with_maintenance_policy", "maintenance_policy.0.exclusion_until_end_of_support.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np_with_maintenance_policy",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -3807,6 +3898,55 @@ resource "google_container_node_pool" "with_reservation_affinity" {
 `, cluster, networkName, subnetworkName, reservation, np)
 }
 
+func testAccContainerNodePool_withReservationAffinityAnyReservationThenFail(cluster, reservation, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "google_compute_reservation" "gce_reservation" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  specific_reservation {
+    count = 1
+    instance_properties {
+      machine_type     = "n1-standard-1"
+    }
+  }
+
+  specific_reservation_required = false
+}
+
+resource "google_container_node_pool" "with_reservation_affinity" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    machine_type    = "n1-standard-1"
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+    reservation_affinity {
+      consume_reservation_type = "ANY_RESERVATION_THEN_FAIL"
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, reservation, np)
+}
+
 func testAccContainerNodePool_withWorkloadMetadataConfig(cluster, np, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
@@ -4013,6 +4153,40 @@ resource "google_container_node_pool" "with_kubelet_config" {
   }
 }
 `, cluster, networkName, subnetworkName, np, policy, memoryManagerPolicy, topologyManagerPolicy, topologyManagerScope, quota, period, insecureKubeletReadonlyPortEnabled, podPidsLimit, containerLogMaxSize, containerLogMaxFiles, imageGcLowThresholdPercent, imageGcHighThresholdPercent, imageMinimumGcAge, imageMaximumGcAge, singleProcessOomKill, maxContainerRestart)
+}
+
+func testAccContainerNodePool_withKubeletConfigShutdownGracePeriod(cluster, np, networkName, subnetworkName string, shutdownGracePeriodSeconds, shutdownGracePeriodCriticalPodsSeconds int) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "google_container_node_pool" "with_kubelet_config_shutdown" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    machine_type       = "c4-standard-2"
+    image_type = "COS_CONTAINERD"
+    spot = true
+    kubelet_config {
+      shutdown_grace_period_seconds = %d
+      shutdown_grace_period_critical_pods_seconds = %d
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, np, shutdownGracePeriodSeconds, shutdownGracePeriodCriticalPodsSeconds)
 }
 
 func testAccContainerNodePool_withLinuxNodeConfig(cluster, np, tcpMem, networkName, subnetworkName string) string {
@@ -4712,6 +4886,36 @@ resource "google_container_node_pool" "np_with_node_drain_config" {
   }
 }
 `, cluster, networkName, subnetworkName, np, privateName, privateVal)
+}
+
+func testAccContainerNodePool_withMaintenancePolicy(cluster, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "google_container_node_pool" "np_with_maintenance_policy" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  maintenance_policy {
+     exclusion_until_end_of_support {
+		enabled = true
+	}
+  }
+}
+`, cluster, networkName, subnetworkName, np)
 }
 
 func testAccContainerNodePool_withAccurateTimeConfig(cluster, np, networkName, subnetworkName string, enablePTP bool) string {

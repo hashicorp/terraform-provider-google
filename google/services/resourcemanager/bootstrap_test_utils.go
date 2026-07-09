@@ -17,6 +17,8 @@
 package resourcemanager
 
 import (
+	"fmt"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -145,4 +147,102 @@ func BootstrapProjectWithParent(t *testing.T, projectID string, billingAccount s
 	}
 
 	return project
+}
+
+func BootstrapSharedTestFolder(t *testing.T, folderDisplayName string) string {
+	t.Helper()
+
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+	resourceManagerBasePath := "https://cloudresourcemanager.googleapis.com/"
+
+	parent := fmt.Sprintf("organizations/%s", envvar.GetTestOrgFromEnv(t))
+
+	searchURL := fmt.Sprintf("%sv3/folders:search?query=%s",
+		resourceManagerBasePath,
+		url.QueryEscape(fmt.Sprintf("displayName=%s AND parent=%s", folderDisplayName, parent)),
+	)
+
+	searchRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		RawURL:    searchURL,
+		UserAgent: config.UserAgent,
+	})
+
+	if err != nil {
+		t.Fatalf("error searching for bootstarp folder %q: %s", folderDisplayName, err)
+	}
+
+	if folders, ok := searchRes["folders"].([]interface{}); ok {
+		for _, folder := range folders {
+			folderMap, ok := folder.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if folderMap["displayName"] == folderDisplayName && folderMap["parent"] == parent {
+				if name, ok := folderMap["name"].(string); ok && name != "" {
+					return name
+				}
+			}
+		}
+	}
+	createURL := fmt.Sprintf("%sv3/folders", resourceManagerBasePath)
+	op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		RawURL:    createURL,
+		UserAgent: config.UserAgent,
+		Body: map[string]interface{}{
+			"displayName": folderDisplayName,
+			"parent":      parent,
+		},
+	})
+
+	if err != nil {
+		t.Fatalf("error creating bootstrap folder %q: %s", folderDisplayName, err)
+	}
+
+	opName, ok := op["name"].(string)
+	if !ok || opName == "" {
+		t.Fatalf("bootstrap folder create returned no operation name: %v", op)
+	}
+
+	opURL := fmt.Sprintf("%sv3/%s", resourceManagerBasePath, opName)
+	deadline := time.Now().Add(2 * time.Minute)
+
+	for time.Now().Before(deadline) {
+		opRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			RawURL:    opURL,
+			UserAgent: config.UserAgent,
+		})
+
+		if err != nil {
+			t.Fatalf("error polling bootstrap folder operation %q: %s", opName, err)
+		}
+
+		if opErr, ok := opRes["error"].(map[string]interface{}); ok {
+			t.Fatalf("bootstrap folder operation %q failed: %v", opName, opErr)
+		}
+
+		if done, _ := opRes["done"].(bool); done {
+			response, ok := opRes["response"].(map[string]interface{})
+			if !ok {
+				t.Fatalf("bootstrap folder operation %q finished without response: %v", opName, opRes)
+			}
+
+			name, ok := response["name"].(string)
+			if !ok || name == "" {
+				t.Fatalf("bootstrap folder operation %q finished without folder name: %v", opName, opRes)
+			}
+			return name
+		}
+		time.Sleep(2 * time.Second)
+	}
+	t.Fatalf("timed out waiting for bootstrap folder %q creation operation %q", folderDisplayName, opName)
+	return ""
 }

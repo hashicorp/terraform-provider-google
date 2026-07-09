@@ -1346,11 +1346,12 @@ be from 0 to 999,999,999 inclusive.`,
 							Description:  `The number of physical cores to expose to an instance. Multiply by the number of threads per core to compute the total number of virtual CPUs to expose to the instance. If unset, the number of cores is inferred from the instance\'s nominal CPU count and the underlying platform\'s SMT width.`,
 						},
 						"performance_monitoring_unit": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							AtLeastOneOf: advancedMachineFeaturesKeys,
-							ValidateFunc: validation.StringInSlice([]string{"STANDARD", "ENHANCED", "ARCHITECTURAL"}, false),
-							Description:  `The PMU is a hardware component within the CPU core that monitors how the processor runs code. Valid values for the level of PMU are "STANDARD", "ENHANCED", and "ARCHITECTURAL".`,
+							Type:             schema.TypeString,
+							Optional:         true,
+							AtLeastOneOf:     advancedMachineFeaturesKeys,
+							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("STANDARD"),
+							ValidateFunc:     validation.StringInSlice([]string{"STANDARD", "ENHANCED", "ARCHITECTURAL"}, false),
+							Description:      `The PMU is a hardware component within the CPU core that monitors how the processor runs code. Valid values for the level of PMU are "STANDARD", "ENHANCED", and "ARCHITECTURAL".`,
 						},
 						"enable_uefi_networking": {
 							Type:         schema.TypeBool,
@@ -1713,7 +1714,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		return nil, fmt.Errorf("Error creating params: %s", err)
 	}
 
-	metadata, err := resourceInstanceMetadata(d)
+	metadata, err := resourceInstanceMetadataTyped(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating metadata: %s", err)
 	}
@@ -1788,7 +1789,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		DeletionProtection:       d.Get("deletion_protection").(bool),
 		Hostname:                 d.Get("hostname").(string),
 		ForceSendFields:          []string{"CanIpForward", "DeletionProtection"},
-		AdvancedMachineFeatures:  expandAdvancedMachineFeatures(d),
+		AdvancedMachineFeatures:  expandAdvancedMachineFeaturesTyped(d),
 		ResourcePolicies:         tpgresource.ConvertStringArr(d.Get("resource_policies").([]interface{})),
 		ReservationAffinity:      reservationAffinity,
 		KeyRevocationActionType:  d.Get("key_revocation_action_type").(string),
@@ -2002,20 +2003,57 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	md := flattenMetadataBeta(instance.Metadata)
+	zone := tpgresource.GetResourceNameFromSelfLink(instance.Zone)
+
+	if err := populateComputeInstanceResourceData(d, instance, project, zone, config); err != nil {
+		return err
+	}
 
 	// If the existing state contains "metadata_startup_script" instead of "metadata.startup-script",
 	// we should move the remote metadata.startup-script to metadata_startup_script to avoid
 	// specifying it in two places.
 	if _, ok := d.GetOk("metadata_startup_script"); ok {
+		md := d.Get("metadata").(map[string]interface{})
 		if err := d.Set("metadata_startup_script", md["startup-script"]); err != nil {
 			return fmt.Errorf("Error setting metadata_startup_script: %s", err)
 		}
-
 		delete(md, "startup-script")
+		if err := d.Set("metadata", md); err != nil {
+			return fmt.Errorf("Error setting metadata: %s", err)
+		}
 	}
 
-	if err = d.Set("metadata", md); err != nil {
+	// Fall back on internal ip if there is no external ip.  This makes sense in the situation where
+	// terraform is being used on a cloud instance and can therefore access the instances it creates
+	// via their internal ips.
+	networkInterfacesRaw, err := networkInterfacesToInterface(instance.NetworkInterfaces)
+	if err != nil {
+		return err
+	}
+	_, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, networkInterfacesRaw)
+	if err != nil {
+		return err
+	}
+	sshIP := externalIP
+	if sshIP == "" {
+		sshIP = internalIP
+	}
+	d.SetConnInfo(map[string]string{
+		"type": "ssh",
+		"host": sshIP,
+	})
+
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
+
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func populateComputeInstanceResourceData(d *schema.ResourceData, instance *compute.Instance, project, zone string, config *transport_tpg.Config) error {
+	if err := d.Set("metadata", flattenMetadataBeta(instance.Metadata)); err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
 
@@ -2041,32 +2079,17 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	// Set the networks
-	// Use the first external IP found for the default connection info.
 	networkInterfacesRaw, err := networkInterfacesToInterface(instance.NetworkInterfaces)
 	if err != nil {
 		return err
 	}
-	networkInterfaces, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, networkInterfacesRaw)
+	networkInterfaces, _, _, _, err := flattenNetworkInterfaces(d, config, networkInterfacesRaw)
 	if err != nil {
 		return err
 	}
 	if err := d.Set("network_interface", networkInterfaces); err != nil {
 		return err
 	}
-
-	// Fall back on internal ip if there is no external ip.  This makes sense in the situation where
-	// terraform is being used on a cloud instance and can therefore access the instances it creates
-	// via their internal ips.
-	sshIP := externalIP
-	if sshIP == "" {
-		sshIP = internalIP
-	}
-
-	// Initialize the connection info
-	d.SetConnInfo(map[string]string{
-		"type": "ssh",
-		"host": sshIP,
-	})
 
 	// Set the tags fingerprint if there is one.
 	if instance.Tags != nil {
@@ -2198,14 +2221,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	// Remove nils from map in case there were disks in the config that were not present on read;
 	// i.e. a disk was detached out of band
 	ads := []map[string]interface{}{}
-	for _, d := range attachedDisks {
-		if d != nil {
-			ads = append(ads, d)
+	for _, ad := range attachedDisks {
+		if ad != nil {
+			ads = append(ads, ad)
 		}
 	}
-
-	zone := tpgresource.GetResourceNameFromSelfLink(instance.Zone)
-
 	if err := d.Set("service_account", flattenServiceAccounts(serviceAccountsToInterface(instance.ServiceAccounts))); err != nil {
 		return fmt.Errorf("Error setting service_account: %s", err)
 	}
@@ -2219,7 +2239,6 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("scheduling", flattenScheduling(instance.Scheduling)); err != nil {
 		return fmt.Errorf("Error setting scheduling: %s", err)
 	}
-
 	if err := d.Set("guest_accelerator", flattenGuestAccelerators(guestAcceleratorsToInterface(instance.GuestAccelerators))); err != nil {
 		return fmt.Errorf("Error setting guest_accelerator: %s", err)
 	}
@@ -2286,7 +2305,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("Error setting confidential_instance_config: %s", err)
 		}
 	}
-	if err := d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(instance.AdvancedMachineFeatures)); err != nil {
+	if err := d.Set("advanced_machine_features", flattenAdvancedMachineFeaturesTyped(instance.AdvancedMachineFeatures)); err != nil {
 		return fmt.Errorf("Error setting advanced_machine_features: %s", err)
 	}
 	if d.Get("desired_status") != "" {
@@ -2318,12 +2337,6 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err := d.Set("instance_encryption_key", flattenComputeInstanceEncryptionKey(instanceEncryptionKeyMap)); err != nil {
 		return fmt.Errorf("Error setting instance_encryption_key: %s", err)
-	}
-
-	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
-
-	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
-		return err
 	}
 
 	return nil
@@ -2389,6 +2402,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 				instMap["description"] = d.Get("description").(string)
 
+				stripInitializeParams(instMap)
+
 				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 					Config:    config,
 					Method:    "PUT",
@@ -2411,14 +2426,9 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("metadata") {
-		metadata, err := resourceInstanceMetadata(d)
+		metadataBody, err := resourceInstanceMetadata(d)
 		if err != nil {
 			return fmt.Errorf("Error parsing metadata: %s", err)
-		}
-
-		metadataBody, err := tpgresource.ConvertToMap(metadata)
-		if err != nil {
-			return fmt.Errorf("Error converting metadata: %s", err)
 		}
 
 		metadataInstanceUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}")
@@ -2545,6 +2555,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 					return fmt.Errorf("Error updating params: %s", err)
 				}
 				instMap["params"] = paramsMap
+
+				stripInitializeParams(instMap)
 
 				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 					Config:    config,
@@ -3311,6 +3323,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 				instMap["canIpForward"] = d.Get("can_ip_forward").(bool)
 
+				stripInitializeParams(instMap)
+
 				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 					Config:    config,
 					Method:    "PUT",
@@ -3636,11 +3650,9 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 						return fmt.Errorf("Error retrieving instance: %s", err)
 					}
 
-					featuresMap, err := tpgresource.ConvertToMap(expandAdvancedMachineFeatures(d))
-					if err != nil {
-						return fmt.Errorf("Error converting advanced_machine_features: %s", err)
-					}
-					instMap["advancedMachineFeatures"] = featuresMap
+					instMap["advancedMachineFeatures"] = expandAdvancedMachineFeatures(d)
+
+					stripInitializeParams(instMap)
 
 					res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 						Config:    config,

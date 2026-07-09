@@ -935,6 +935,36 @@ func flattenPrivilegedAccessManagerEntitlementApprovalWorkflow(v interface{}, d 
 	transformed := make(map[string]interface{})
 	transformed["manual_approvals"] =
 		flattenPrivilegedAccessManagerEntitlementApprovalWorkflowManualApprovals(original["manualApprovals"], d, config)
+
+	// begin handwritten code (all other parts of this file are forked from generated code)
+	// solve for the following diff when no approval workflow is configured:
+	//
+	// - approval_workflow {
+	//   - manual_approvals = null
+	// }
+	//
+	// the PAM API returns the field as:
+	//
+	// "approvalWorkflow": {
+	//   "manualApprovals": {}
+	// },
+	//
+	// for entitlements that were created without an approval workflow (for example via
+	// gcloud or the Cloud console). the outer `len(original) == 0` guard above does not
+	// fire because the `manualApprovals` key is present, and the inner flattener returns
+	// nil for the empty `manualApprovals` object. without this guard the resource ends
+	// up with a phantom `approval_workflow = [{manual_approvals = null}]` block in state,
+	// which cannot be reconciled with any user configuration (`manual_approvals` is
+	// Required, `manual_approvals.steps` has MinItems: 1, and `approval_workflow` is
+	// ForceNew), producing a permanent destroy+recreate diff.
+	//
+	// if any new sibling field is added under approvalWorkflow, this block must be updated
+	// to also check that the new field is nil before short-circuiting.
+	if transformed["manual_approvals"] == nil {
+		return nil
+	}
+	// end handwritten code
+
 	return []interface{}{transformed}
 }
 func flattenPrivilegedAccessManagerEntitlementApprovalWorkflowManualApprovals(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

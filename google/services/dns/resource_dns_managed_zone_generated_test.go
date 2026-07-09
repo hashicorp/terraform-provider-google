@@ -63,7 +63,7 @@ func TestAccDNSManagedZone_dnsManagedZoneQuickstartExample(t *testing.T) {
 	context := map[string]interface{}{
 		"allow_http_traffic":              "tf-test-allow-http-traffic" + randomSuffix,
 		"dns_compute_instance":            "tf-test-dns-compute-instance" + randomSuffix,
-		"dns_name":                        "m-z.gcp.tfacc.hashicorptest.com.",
+		"dns_name":                        "m-z-" + randomSuffix + ".gcp.tfacc.hashicorptest.com.",
 		"example_zone_googlecloudexample": "tf-test-example-zone-googlecloudexample" + randomSuffix,
 		"random_suffix":                   randomSuffix,
 	}

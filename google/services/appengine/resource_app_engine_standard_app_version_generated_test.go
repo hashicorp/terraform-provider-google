@@ -80,7 +80,7 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 				ResourceName:            "google_app_engine_standard_app_version.myapp_v1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_service_on_destroy", "deployment", "entrypoint", "env_variables", "service", "threadsafe"},
+				ImportStateVerifyIgnore: []string{"app_engine_bundled_services", "delete_service_on_destroy", "deployment", "entrypoint", "env_variables", "service", "threadsafe"},
 			},
 			{
 				ResourceName:       "google_app_engine_standard_app_version.myapp_v1",
@@ -185,6 +185,113 @@ resource "google_storage_bucket_object" "object" {
   name   = "hello-world.zip"
   bucket = google_storage_bucket.bucket.name
   source = "./test-fixtures/hello-world.zip"
+}
+`, context)
+}
+
+func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionBundledServicesExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"bucket_name":   "tf-test-tf-test-gae-bkt-bundled" + randomSuffix,
+		"project_id":    "tf-test-tf-test-project" + randomSuffix,
+		"sa_email":      "tf-test-gae-sa" + randomSuffix,
+		"service_id":    "tf-test-bundled-service" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAppEngineStandardAppVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAppEngineStandardAppVersion_appEngineStandardAppVersionBundledServicesExample(context),
+			},
+			{
+				ResourceName:            "google_app_engine_standard_app_version.gae-std-app-ver-bundled",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_engine_bundled_services", "delete_service_on_destroy", "deployment", "entrypoint", "env_variables", "service", "threadsafe"},
+			},
+			{
+				ResourceName:       "google_app_engine_standard_app_version.gae-std-app-ver-bundled",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccAppEngineStandardAppVersion_appEngineStandardAppVersionBundledServicesExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_service_account" "service_account" {
+  account_id   = "%{sa_email}"
+  display_name = "Test Service Account for GAE"
+}
+
+resource "google_project_iam_member" "gae_api" {
+  project = google_service_account.service_account.project
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:${google_service_account.service_account.email}"
+}
+
+resource "google_project_iam_member" "storage_viewer" {
+  project = google_service_account.service_account.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.service_account.email}"
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "%{bucket_name}"
+  location = "US"
+}
+
+resource "google_storage_bucket_object" "requirements" {
+  name   = "requirements.txt"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/hello-world-flask/requirements.txt"
+}
+
+resource "google_storage_bucket_object" "main" {
+  name   = "main.py"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/hello-world-flask/main.py"
+}
+
+resource "google_app_engine_standard_app_version" "gae-std-app-ver-bundled" {
+  version_id   = "v1"
+  service      = "%{service_id}"
+  runtime      = "python310"
+
+  deployment {
+    files {
+      name       = "main.py"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.main.name}"
+    }
+    files {
+      name       = "requirements.txt"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
+    }
+  }
+
+  entrypoint {
+    shell = "gunicorn -b :$PORT main:app"
+  }
+
+# Testing the app_engine_bundled_services field
+  app_engine_bundled_services = ["BUNDLED_SERVICE_TYPE_MAIL", "BUNDLED_SERVICE_TYPE_DATASTORE_V3"]
+
+  delete_service_on_destroy = true
+  service_account = google_service_account.service_account.email
+
+  depends_on = [
+    google_project_iam_member.gae_api,
+    google_project_iam_member.storage_viewer,
+  ]
 }
 `, context)
 }

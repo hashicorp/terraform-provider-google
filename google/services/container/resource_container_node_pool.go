@@ -695,6 +695,40 @@ var schemaNodePool = map[string]*schema.Schema{
 		Optional:    true,
 		Description: `When true, the provider ignores external changes (drift) to the node count by skipping GCE API queries to the Instance Group Managers. This is a performance optimization for large clusters that saves API quota. Setting this to true will result in missing managed_instance_group_urls in the state.`,
 	},
+
+	"maintenance_policy": {
+		Type:        schema.TypeList,
+		Optional:    true,
+		Description: `Maintenance policy for this NodePool.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"exclusion_until_end_of_support": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Description: `Maintenance exclusion until the end of support.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"enabled": {
+								Type:        schema.TypeBool,
+								Optional:    true,
+								Description: `Whether to enable the maintenance exclusion until the end of support for this NodePool.`,
+							},
+							"start_time": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `Start time of the maintenance exclusion.`,
+							},
+							"end_time": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `End time of the maintenance exclusion.`,
+							},
+						},
+					},
+				},
+			},
+		},
+	},
 }
 
 type NodePoolInformation struct {
@@ -1319,6 +1353,19 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "maintenance_policy"); ok {
+		maintenancePolicy := v.([]interface{})[0].(map[string]interface{})
+		if v, ok := maintenancePolicy["exclusion_until_end_of_support"]; ok && len(v.([]interface{})) > 0 {
+			np.MaintenancePolicy = &container.NodePoolMaintenancePolicy{
+				ExclusionUntilEndOfSupport: &container.ExclusionUntilEndOfSupport{},
+			}
+			exclusionUntilEndOfSupport := v.([]interface{})[0].(map[string]interface{})
+			if v, ok := exclusionUntilEndOfSupport["enabled"]; ok {
+				np.MaintenancePolicy.ExclusionUntilEndOfSupport.Enabled = v.(bool)
+			}
+		}
+	}
+
 	return np, nil
 }
 
@@ -1374,6 +1421,30 @@ func flattenNodePoolNodeDrainConfig(ndc *container.NodeDrainConfig) []map[string
 	nodeDrainConfig["grace_termination_duration"] = ndc.GraceTerminationDuration
 	nodeDrainConfig["pdb_timeout_duration"] = ndc.PdbTimeoutDuration
 	return []map[string]interface{}{nodeDrainConfig}
+}
+
+func flattenExlusionUntilEndOfSupport(ex *container.ExclusionUntilEndOfSupport) []map[string]interface{} {
+	if ex == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"enabled":    ex.Enabled,
+			"start_time": ex.StartTime,
+			"end_time":   ex.EndTime,
+		},
+	}
+}
+
+func flattenNodePoolMaintenancePolicy(mp *container.NodePoolMaintenancePolicy) []map[string]interface{} {
+	if mp == nil {
+		return nil
+	}
+
+	maintenancePolicy := make(map[string]interface{})
+
+	maintenancePolicy["exclusion_until_end_of_support"] = flattenExlusionUntilEndOfSupport(mp.ExclusionUntilEndOfSupport)
+	return []map[string]interface{}{maintenancePolicy}
 }
 
 func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *container.NodePool, prefix string) (map[string]interface{}, error) {
@@ -1502,6 +1573,10 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 
 	if np.NodeDrainConfig != nil {
 		nodePool["node_drain_config"] = flattenNodePoolNodeDrainConfig(np.NodeDrainConfig)
+	}
+
+	if np.MaintenancePolicy != nil {
+		nodePool["maintenance_policy"] = flattenNodePoolMaintenancePolicy(np.MaintenancePolicy)
 	}
 
 	return nodePool, nil

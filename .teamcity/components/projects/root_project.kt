@@ -68,6 +68,7 @@ fun googleCloudRootProject(allConfig: AllContextParameters): Project {
 
         params {
             readOnlySettings()
+            param("teamcity.buildQueue.allowMerging", "false")
         }
     }
 }

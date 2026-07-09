@@ -543,7 +543,9 @@ resource "google_dataplex_datascan" "documentation" {
     }
   }
 
-  data_documentation_spec {}
+  data_documentation_spec {
+    catalog_publishing_enabled = true
+  }
 
   project = "my-project-name"
 }
@@ -1188,6 +1190,7 @@ The following arguments are supported:
 * `data_documentation_spec` -
   (Optional)
   DataDocumentationScan related setting.
+  Structure is [documented below](#nested_data_documentation_spec).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -1696,6 +1699,12 @@ The following arguments are supported:
 * `type_inference_disabled` -
   (Optional)
   Whether to disable the inference of data types for JSON data. If true, all columns are registered as their primitive types (strings, number, or boolean).
+
+<a name="nested_data_documentation_spec"></a>The `data_documentation_spec` block supports:
+
+* `catalog_publishing_enabled` -
+  (Optional)
+  If set, the latest DataScan job result will be published to Knowledge Catalog.
 
 ## Attributes Reference
 

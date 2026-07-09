@@ -28,12 +28,10 @@ Resize Requests are the Managed Instance Group implementation of Dynamic Workloa
 
 With Dynamic Workload Scheduler in Flex Start mode, you submit a GPU capacity request for your AI/ML jobs by indicating how many you need, a duration, and your preferred region. Dynamic Workload Scheduler intelligently persists the request; once the capacity becomes available, it automatically provisions your VMs enabling your workloads to run continuously for the entire duration of the capacity allocation.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about RegionResizeRequest, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/regionInstanceGroupManagerResizeRequests)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/regionInstanceGroupManagerResizeRequests)
 * How-to Guides
     * [About resize requests in a MIG](https://cloud.google.com/compute/docs/instance-groups/about-resize-requests-mig)
 
@@ -47,7 +45,6 @@ To get more information about RegionResizeRequest, see:
 
 ```hcl
 resource "google_compute_region_instance_template" "a3_dws" {
-  provider = google-beta
   name                 = "a3-dws"
   region               = "us-central1"
   description          = "This template is used to create a mig instance that is compatible with DWS resize requests."
@@ -56,8 +53,14 @@ resource "google_compute_region_instance_template" "a3_dws" {
   can_ip_forward       = false
 
   scheduling {
-    automatic_restart   = false
-    on_host_maintenance = "TERMINATE"
+    provisioning_model          = "FLEX_START"
+    automatic_restart           = false
+    on_host_maintenance         = "TERMINATE"
+    instance_termination_action = "DELETE"
+    max_run_duration {
+      seconds = 7200
+      nanos   = 0
+    }
   }
 
   disk {
@@ -89,7 +92,6 @@ resource "google_compute_region_instance_template" "a3_dws" {
 }
 
 resource "google_compute_region_instance_group_manager" "a3_dws" {
-  provider = google-beta
   name               = "a3-dws"
   base_instance_name = "a3-dws"
   region               = "us-central1"
@@ -112,7 +114,6 @@ resource "google_compute_region_instance_group_manager" "a3_dws" {
 }
 
 resource "google_compute_region_resize_request" "a3_resize_request" {
-  provider = google-beta
   name                   = "a3-dws"
   instance_group_manager = google_compute_region_instance_group_manager.a3_dws.name
   region                 = "us-central1"

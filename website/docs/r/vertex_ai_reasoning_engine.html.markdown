@@ -493,6 +493,88 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
         embedding_model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/text-embedding-005"
       }
       disable_memory_revisions = false
+
+      # 1. User-level Customization Config (Lifelong baseline)
+      customization_configs {
+        scope_keys                   = ["user_id"]
+        enable_third_person_memories = true
+        consolidation_config {
+          revisions_per_candidate_count = 1
+        }
+        memory_topics {
+          managed_memory_topic {
+            managed_topic_enum = "USER_PREFERENCES"
+          }
+        }
+      }
+
+      # 2. Session-level Customization Config (Transient scratchpad)
+      customization_configs {
+        scope_keys                   = ["user_id", "session_id"]
+        enable_third_person_memories = true
+        memory_topics {
+          custom_memory_topic {
+            label       = "session_scratchpad"
+            description = "Active consideration details, recent queries, and temporary workflow state."
+          }
+        }
+      }
+
+      # 1. Standard User Profile Schema (from official documentation)
+      structured_memory_configs {
+        scope_keys = ["user_id"]
+        schema_configs {
+          id            = "user-profile"
+          memory_schema = jsonencode({
+            type = "OBJECT"
+            properties = {
+              name = {
+                type        = "STRING"
+                description = "Name of the user."
+              }
+              technical_stack = {
+                type        = "STRING"
+                description = "Comma-separated list tools or languages used by the user."
+              }
+              primary_goal = {
+                type        = "STRING"
+                description = "The main objective the user is pursuing."
+              }
+              expertise_level = {
+                type        = "STRING"
+                description = "Current skill level (e.g., Junior, Senior)."
+              }
+              job_status = {
+                type        = "STRING"
+                description = "The job status of the individual"
+                enum        = ["unemployed", "part_time", "full_time", "student"]
+              }
+            }
+          })
+        }
+      }
+
+      # 2. Conversation Summary Schema (Demonstrating session scope)
+      structured_memory_configs {
+        scope_keys = ["user_id", "session_id"]
+        schema_configs {
+          id            = "conversation-summary"
+          memory_schema = jsonencode({
+            type = "OBJECT"
+            properties = {
+              main_topic = {
+                type        = "STRING"
+                description = "The primary topic of this specific chat session."
+              }
+              status = {
+                type        = "STRING"
+                description = "Current resolution state of the discussion."
+                enum        = ["open", "in_progress", "resolved"]
+              }
+            }
+          })
+        }
+      }
       ttl_config {
         default_ttl = "86400s"
       }
@@ -948,6 +1030,16 @@ When set to "DELETE", deleting the resource is permitted.
   (Optional)
   If true, no memory revisions will be created for any requests to the Memory Bank.
 
+* `customization_configs` -
+  (Optional)
+  Optional. Customization configs for how Agent Engine sub-resources manage context at different scope levels.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_customization_configs).
+
+* `structured_memory_configs` -
+  (Optional)
+  Optional. Structured memory configurations for Agent Engine sub-resources.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_structured_memory_configs).
+
 
 <a name="nested_context_spec_memory_bank_config_generation_config"></a>The `generation_config` block supports:
 
@@ -990,6 +1082,84 @@ When set to "DELETE", deleting the resource is permitted.
 * `generate_updated_ttl` -
   (Optional)
   The TTL duration for memories updated via GenerateMemories.
+
+<a name="nested_context_spec_memory_bank_config_customization_configs"></a>The `customization_configs` block supports:
+
+* `scope_keys` -
+  (Optional)
+  Optional. List of scope keys that this customization config applies to.
+
+* `memory_topics` -
+  (Optional)
+  Optional. List of topics that the memory should be associated with.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_customization_configs_memory_topics).
+
+* `consolidation_config` -
+  (Optional)
+  Optional. Configuration for how many memory revisions Memory Bank considers when consolidating each memory candidate.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_customization_configs_consolidation_config).
+
+* `enable_third_person_memories` -
+  (Optional)
+  Optional. Generate memories in the third person if set to true.
+
+
+<a name="nested_context_spec_memory_bank_config_customization_configs_memory_topics"></a>The `memory_topics` block supports:
+
+* `managed_memory_topic` -
+  (Optional)
+  Optional. Managed memory topic.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_customization_configs_memory_topics_managed_memory_topic).
+
+* `custom_memory_topic` -
+  (Optional)
+  Optional. Custom memory topic.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_customization_configs_memory_topics_custom_memory_topic).
+
+
+<a name="nested_context_spec_memory_bank_config_customization_configs_memory_topics_managed_memory_topic"></a>The `managed_memory_topic` block supports:
+
+* `managed_topic_enum` -
+  (Optional)
+  Managed topic enum (e.g. USER_PREFERENCES, EXPLICIT_INSTRUCTIONS).
+
+<a name="nested_context_spec_memory_bank_config_customization_configs_memory_topics_custom_memory_topic"></a>The `custom_memory_topic` block supports:
+
+* `label` -
+  (Optional)
+  Label of custom memory topic.
+
+* `description` -
+  (Optional)
+  Description of custom memory topic.
+
+<a name="nested_context_spec_memory_bank_config_customization_configs_consolidation_config"></a>The `consolidation_config` block supports:
+
+* `revisions_per_candidate_count` -
+  (Optional)
+  Number of revisions to consider per candidate count.
+
+<a name="nested_context_spec_memory_bank_config_structured_memory_configs"></a>The `structured_memory_configs` block supports:
+
+* `scope_keys` -
+  (Optional)
+  Optional. List of scope keys that this structured memory config applies to.
+
+* `schema_configs` -
+  (Optional)
+  Optional. List of schema configs that this structured memory config applies to.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_structured_memory_configs_schema_configs).
+
+
+<a name="nested_context_spec_memory_bank_config_structured_memory_configs_schema_configs"></a>The `schema_configs` block supports:
+
+* `id` -
+  (Required)
+  Required. Unique ID identifying the memory schema.
+
+* `memory_schema` -
+  (Optional)
+  Optional. The memory schema defined as an OpenAPI Schema Object JSON string.
 
 ## Attributes Reference
 

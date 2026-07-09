@@ -163,6 +163,7 @@ func flattenDatasourceGoogleDatabaseInstancesList(fetchedInstances []*sqladmin.D
 		instance["available_maintenance_versions"] = rawInstance.AvailableMaintenanceVersions
 		instance["instance_type"] = rawInstance.InstanceType
 		instance["service_account_email_address"] = rawInstance.ServiceAccountEmailAddress
+		instance["enforce_new_sql_network_architecture"] = rawInstance.SqlNetworkArchitecture == "NEW_NETWORK_ARCHITECTURE"
 		instance["settings"] = flattenSettings(rawInstance.Settings, rawInstance.InstanceType, d)
 
 		if rawInstance.DiskEncryptionConfiguration != nil {

@@ -21,6 +21,7 @@ fields:
     - field: effective_labels
       provider_only: true
     - api_field: exadataInfrastructure
+    - api_field: exascaleDbStorageVault
     - api_field: gcpOracleZone
     - api_field: identityConnector.connectionState
     - api_field: identityConnector.serviceAgentEmail
@@ -62,6 +63,7 @@ fields:
     - api_field: properties.sparseDiskgroupEnabled
     - api_field: properties.sshPublicKeys
     - api_field: properties.state
+    - api_field: properties.storageManagementType
     - api_field: properties.storageSizeGb
     - api_field: properties.systemVersion
     - api_field: properties.timeZone.id

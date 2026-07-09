@@ -28,6 +28,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudbilling"
@@ -60,6 +61,44 @@ func TestAccProject_createWithoutOrg(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 				),
+			},
+		},
+	})
+}
+
+// Test that a Project resource can be imported using an identity block (Terraform 1.12+).
+func TestAccProject_importBlockWithResourceIdentity(t *testing.T) {
+	t.Parallel()
+	t.Skip("terraform_labels cannot be ignored during a resource identity import test")
+
+	org := envvar.GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_12_0),
+		},
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProject(pid, org),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
+				),
+			},
+			{
+				// The import step config must use deletion_policy = "PREVENT" because
+				// DeletionPolicyReadDefault sets that value during import (it is a
+				// client-side field not stored in the GCP API). Using a mismatching
+				// value would cause a non-empty plan and fail the no-op import check.
+				ResourceName:    "google_project.acceptance",
+				ImportState:     true,
+				ImportStateKind: resource.ImportBlockWithResourceIdentity,
+				Config:          testAccProject_noAllowDestroy(pid, org),
+			},
+			{
+				// Reset deletion_policy to "DELETE" so the project can be cleaned up.
+				Config: testAccProject(pid, org),
 			},
 		},
 	})
