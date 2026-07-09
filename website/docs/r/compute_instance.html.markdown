@@ -277,6 +277,9 @@ is desired, you will need to modify your state file manually using
     management without updating or deleting the resource in the API.
     When set to "DELETE", deleting the resource is allowed.
 
+* `workload_identity_config` - (Optional) Workload Identity Config. More details about
+    this configuration option are [detailed below](#nested_workload_identity_config).
+
 ---
 
 <a name="nested_boot_disk"></a>The `boot_disk` block supports:
@@ -740,6 +743,12 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 * `key` - (Required) Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.
 
 * `values` - (Required) Corresponds to the label values of a reservation resource.
+
+<a name="nested_workload_identity_config"></a>The `workload_identity_config` block supports:
+
+* `identity` - (Required) Identity SPIFFE id.
+
+* `identity_certificate_enabled` - (Required) Specifies whether identity certificates are enabled.
 
 ## Attributes Reference
 

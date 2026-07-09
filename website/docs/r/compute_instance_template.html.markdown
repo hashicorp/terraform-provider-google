@@ -444,6 +444,10 @@ The following arguments are supported:
 
 * `key_revocation_action_type` - (optional) Action to be taken when a customer's encryption key is revoked. Supports `STOP` and `NONE`, with `NONE` being the default.
 
+* `workload_identity_config` - (Optional) Workload Identity Config. More details about
+    this configuration option are [detailed below](#nested_workload_identity_config).
+
+
 <a name="nested_disk"></a>The `disk` block supports:
 
 * `auto_delete` - (Optional) Whether or not the disk should be auto-deleted.
@@ -830,6 +834,12 @@ The `specific_reservation` block supports:
 * `performance_monitoring_unit` - (Optional) [The PMU](https://cloud.google.com/compute/docs/pmu-overview) is a hardware component within the CPU core that monitors how the processor runs code. Valid values for the level of PMU are `STANDARD`, `ENHANCED`, and `ARCHITECTURAL`.
 
 * `enable_uefi_networking` - (Optional) Whether to enable UEFI networking for instance creation.
+
+<a name="nested_workload_identity_config"></a>The `workload_identity_config` block supports:
+
+* `identity` - (Required) Identity SPIFFE id.
+
+* `identity_certificate_enabled` - (Required) Specifies whether identity certificates are enabled.
 
 ## Attributes Reference
 
