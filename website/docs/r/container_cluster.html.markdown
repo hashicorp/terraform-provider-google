@@ -1803,6 +1803,8 @@ linux_node_config {
 
 * `accurate_time_config` - (Optional) Accurate time configuration for the node. Structure is [documented below](#nested_accurate_time_config).
 
+* `custom_node_init` - (Optional) Custom node init settings. Structure is [documented below](#nested_custom_node_init).
+
 <a name="nested_swap_config"></a>The `swap_config` block supports:
 
 * `enabled` - (Optional) Enables or disables swap for the node pool.
@@ -1868,6 +1870,18 @@ linux_node_config {
     * `POLICY_UNSPECIFIED`: Default if unset. GKE selects the image based on node type. For CPU and TPU nodes, the image will not allow loading external kernel modules. For GPU nodes, the image will allow loading any module, whether it is signed or not.
     * `ENFORCE_SIGNED_MODULES`: Enforced signature verification: Node pools will use a Container-Optimized OS image configured to allow loading of *Google-signed* external kernel modules. Loadpin is enabled but configured to exclude modules, and kernel module signature checking is enforced.
     * `DO_NOT_ENFORCE_SIGNED_MODULES`: Mirrors existing DEFAULT behavior: For CPU and TPU nodes, the image will not allow loading external kernel modules. For GPU nodes, the image will allow loading any module, whether it is signed or not.
+
+<a name="nested_custom_node_init"></a>The `custom_node_init` block supports:
+
+* `init_script` - (Optional) The init script configuration. Structure is [documented below](#nested_init_script).
+
+<a name="nested_init_script"></a>The `init_script` block supports:
+
+* `gcs_uri` - (Optional) The Google Cloud Storage URI for storing the init script. Format: `gs://BUCKET_NAME/OBJECT_NAME`. The service account on the nodepool must have read access to the object. Conflicts with `gcp_secret_manager_secret_uri`. If `gcs_uri` is used, `gcs_generation` is required.
+
+* `gcs_generation` - (Optional) The generation of the init script in Google Cloud Storage. If `gcs_uri` is used, `gcs_generation` is required.
+
+* `gcp_secret_manager_secret_uri` - (Optional) The Google Cloud Secret Manager secret version URI for storing the init script. Format: `projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION`. The service account on the nodepool must have access to the secret version. Conflicts with `gcs_uri`.
 
 <a name="nested_containerd_config"></a>The `containerd_config` block supports:
 

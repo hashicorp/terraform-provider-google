@@ -7143,3 +7143,187 @@ resource "google_container_node_pool" "np" {
 }
 `, cluster, networkName, subnetworkName, np, behavior)
 }
+
+func TestAccContainerNodePool_withCustomNodeInit(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePool := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withCustomNodeInit(cluster, nodePool, bucketName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np_with_custom_node_init", "node_config.0.linux_node_config.0.custom_node_init.0.init_script.0.gcs_uri", fmt.Sprintf("gs://%s/script.sh", bucketName)),
+					resource.TestCheckResourceAttrSet("google_container_node_pool.np_with_custom_node_init", "node_config.0.linux_node_config.0.custom_node_init.0.init_script.0.gcs_generation"),
+				),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np_with_custom_node_init",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_node_count", "cluster"},
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_withCustomNodeInit(cluster, np, bucket, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_object" "script" {
+  name   = "script.sh"
+  bucket = google_storage_bucket.bucket.name
+  content = "#!/bin/bash\necho 'Hello World' > /tmp/hello.txt"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "google_container_node_pool" "np_with_custom_node_init" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    image_type = "COS_CONTAINERD"
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+    linux_node_config {
+      custom_node_init {
+        init_script {
+          gcs_uri = "gs://${google_storage_bucket.bucket.name}/${google_storage_bucket_object.script.name}"
+          gcs_generation = google_storage_bucket_object.script.generation
+        }
+      }
+    }
+  }
+}
+`, bucket, cluster, networkName, subnetworkName, np)
+}
+
+func TestAccContainerNodePool_withCustomNodeInitSecret(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePool := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	secretId := fmt.Sprintf("tf-test-secret-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withCustomNodeInitSecret(cluster, nodePool, secretId, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_node_pool.np_with_custom_node_init_secret", "node_config.0.linux_node_config.0.custom_node_init.0.init_script.0.gcp_secret_manager_secret_uri"),
+				),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np_with_custom_node_init_secret",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_node_count", "cluster"},
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_withCustomNodeInitSecret(cluster, np, secretId, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "secret" {
+  secret_id = "%s"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "version" {
+  secret = google_secret_manager_secret.secret.id
+  secret_data = "#!/bin/bash\necho 'Hello World' > /tmp/hello.txt"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_accessor" {
+  secret_id = google_secret_manager_secret.secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on = [
+    google_secret_manager_secret_iam_member.secret_accessor
+  ]
+}
+
+resource "google_container_node_pool" "np_with_custom_node_init_secret" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    image_type = "COS_CONTAINERD"
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+    linux_node_config {
+      custom_node_init {
+        init_script {
+          gcp_secret_manager_secret_uri = google_secret_manager_secret_version.version.name
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    time_sleep.wait_60_seconds
+  ]
+}
+`, secretId, cluster, networkName, subnetworkName, np)
+}
