@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `send_empty_value` field to `enableProxyProtocol` on `ServiceAttachment` resource
+```
