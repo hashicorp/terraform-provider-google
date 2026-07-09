@@ -1,0 +1,11 @@
+```release-note:new-datasource
+`google_oracle_database_exascale_db_storage_vault`
+```
+
+```release-note:new-list-resource
+`google_oracle_database_exascale_db_storage_vaults`
+```
+
+```release-note:enhancement
+oracledatabase: added `exascale_db_storage_vault` and `storage_management_type` fields to `google_oracle_database_cloud_vm_clusters` data source
+```
