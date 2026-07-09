@@ -482,7 +482,7 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 	enableProxyProtocolProp, err := expandComputeServiceAttachmentEnableProxyProtocol(d.Get("enable_proxy_protocol"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enable_proxy_protocol"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableProxyProtocolProp)) && (ok || !reflect.DeepEqual(v, enableProxyProtocolProp)) {
+	} else if v, ok := d.GetOkExists("enable_proxy_protocol"); ok || !reflect.DeepEqual(v, enableProxyProtocolProp) {
 		obj["enableProxyProtocol"] = enableProxyProtocolProp
 	}
 	domainNamesProp, err := expandComputeServiceAttachmentDomainNames(d.Get("domain_names"), d, config)
@@ -788,7 +788,7 @@ func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interfa
 	enableProxyProtocolProp, err := expandComputeServiceAttachmentEnableProxyProtocol(d.Get("enable_proxy_protocol"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("enable_proxy_protocol"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableProxyProtocolProp)) {
+	} else if v, ok := d.GetOkExists("enable_proxy_protocol"); ok || !reflect.DeepEqual(v, enableProxyProtocolProp) {
 		obj["enableProxyProtocol"] = enableProxyProtocolProp
 	}
 	consumerRejectListsProp, err := expandComputeServiceAttachmentConsumerRejectLists(d.Get("consumer_reject_lists"), d, config)
