@@ -1,0 +1,1 @@
+unknown: Bugfix/add missing update mask for additional_options in datastream mongodb connection profile
