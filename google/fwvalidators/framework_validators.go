@@ -265,8 +265,18 @@ func (v jwtValidator) ValidateString(ctx context.Context, request validator.Stri
 		return
 	}
 
-	// Check that each part is base64 encoded
+	// Check that each part is non-empty and base64url encoded. An empty
+	// segment decodes without error, so a token like ".." would otherwise
+	// be accepted as a valid JWT.
 	for i, part := range parts {
+		if part == "" {
+			response.Diagnostics.AddAttributeError(
+				request.Path,
+				"Invalid JWT Format",
+				fmt.Sprintf("Part %d of JWT must not be empty (expected header.payload.signature)", i+1),
+			)
+			continue
+		}
 		if _, err := base64.RawURLEncoding.DecodeString(part); err != nil {
 			response.Diagnostics.AddAttributeError(
 				request.Path,
