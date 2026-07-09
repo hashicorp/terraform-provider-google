@@ -92,9 +92,9 @@ func testAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	return acctest.Nprintf(`
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "%{goldengate_connection_id}"
-  location                 = "us-east4"
+  location                 = "asia-south1"
   project                  = "%{project}"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "asia-south1-b-r1"
 
 
   properties {
@@ -221,9 +221,9 @@ func testAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	return acctest.Nprintf(`
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "%{goldengate_connection_id}"
-  location                 = "us-east4"
+  location                 = "northamerica-northeast1"
   project                  = "%{project}"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "northamerica-northeast1-a-r1"
 
   properties {
     display_name    = "%{goldengate_connection_id} display name"
@@ -291,9 +291,9 @@ func testAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	return acctest.Nprintf(`
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "%{goldengate_connection_id}"
-  location                 = "us-east4"
+  location                 = "southamerica-east1"
   project                  = "%{project}"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "southamerica-east1-a-r1"
 
   properties {
     display_name    = "%{goldengate_connection_id} display name"
@@ -353,9 +353,9 @@ func testAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	return acctest.Nprintf(`
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "%{goldengate_connection_id}"
-  location                 = "us-east4"
+  location                 = "asia-northeast2"
   project                  = "%{project}"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "asia-northeast2-a-r1"
 
   properties {
     display_name    = "%{goldengate_connection_id} display name"
@@ -414,9 +414,9 @@ func testAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	return acctest.Nprintf(`
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "%{goldengate_connection_id}"
-  location                 = "us-east4"
+  location                 = "europe-west8"
   project                  = "%{project}"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "europe-west8-a-r1"
 
   properties {
     display_name    = "%{goldengate_connection_id} display name"
@@ -481,9 +481,9 @@ func testAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	return acctest.Nprintf(`
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "%{goldengate_connection_id}"
-  location                 = "us-east4"
+  location                 = "australia-southeast1"
   project                  = "%{project}"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "australia-southeast1-b-r1"
 
   properties {
     display_name    = "%{goldengate_connection_id} display name"
@@ -554,9 +554,9 @@ func testAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	return acctest.Nprintf(`
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "%{goldengate_connection_id}"
-  location                 = "us-east4"
+  location                 = "europe-west3"
   project                  = "%{project}"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "europe-west3-b-r1"
 
   properties {
     display_name    = "%{goldengate_connection_id} display name"
@@ -614,9 +614,9 @@ func testAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	return acctest.Nprintf(`
 resource "google_oracle_database_goldengate_connection" "connection" {
   goldengate_connection_id = "%{goldengate_connection_id}"
-  location                 = "us-east4"
+  location                 = "asia-northeast1"
   project                  = "%{project}"
-  gcp_oracle_zone          = "us-east4-b-r1"
+  gcp_oracle_zone          = "asia-northeast1-a-r1"
 
   properties {
     display_name    = "%{goldengate_connection_id} display name"

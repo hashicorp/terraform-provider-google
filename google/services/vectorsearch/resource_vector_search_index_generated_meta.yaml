@@ -1,0 +1,37 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vector_search_index
+generation_type: mmv1
+source_file: products/vectorsearch/Index.yaml
+api_service_name: vectorsearch.googleapis.com
+api_version: v1
+api_resource_type_kind: Index
+autogen_status: true
+autogen_version: 1
+fields:
+    - field: collection_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: dedicatedInfrastructure.autoscalingSpec.maxReplicaCount
+    - api_field: dedicatedInfrastructure.autoscalingSpec.minReplicaCount
+    - api_field: dedicatedInfrastructure.mode
+    - api_field: denseScann.featureNormType
+    - api_field: description
+    - api_field: displayName
+    - api_field: distanceMetric
+    - field: effective_labels
+      provider_only: true
+    - api_field: filterFields
+    - api_field: indexField
+    - field: index_id
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: storeFields
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

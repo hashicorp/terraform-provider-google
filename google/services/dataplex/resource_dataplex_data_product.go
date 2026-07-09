@@ -238,6 +238,15 @@ func ResourceDataplexDataProduct() *schema.Resource {
 				Optional:    true,
 				Description: `Description of the data product.`,
 			},
+			"icon": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Base64 encoded image representing the data product. Max Size: 3.0MiB
+Expected image dimensions are 512x512 pixels, however the API only
+performs validation on size of the encoded data.
+Note: For byte fields, the content of the fields are base64-encoded (which
+increases the size of the data by 33-36%) when using JSON on the wire.`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -338,6 +347,12 @@ func resourceDataplexDataProductCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	iconProp, err := expandDataplexDataProductIcon(d.Get("icon"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("icon"); !tpgresource.IsEmptyValue(reflect.ValueOf(iconProp)) && (ok || !reflect.DeepEqual(v, iconProp)) {
+		obj["icon"] = iconProp
 	}
 	ownerEmailsProp, err := expandDataplexDataProductOwnerEmails(d.Get("owner_emails"), d, config)
 	if err != nil {
@@ -591,6 +606,12 @@ func resourceDataplexDataProductUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	iconProp, err := expandDataplexDataProductIcon(d.Get("icon"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("icon"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, iconProp)) {
+		obj["icon"] = iconProp
+	}
 	ownerEmailsProp, err := expandDataplexDataProductOwnerEmails(d.Get("owner_emails"), d, config)
 	if err != nil {
 		return err
@@ -629,6 +650,10 @@ func resourceDataplexDataProductUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("icon") {
+		updateMask = append(updateMask, "icon")
 	}
 
 	if d.HasChange("owner_emails") {
@@ -827,6 +852,10 @@ func flattenDataplexDataProductDescription(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenDataplexDataProductIcon(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataplexDataProductOwnerEmails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -951,6 +980,10 @@ func expandDataplexDataProductDisplayName(v interface{}, d tpgresource.Terraform
 }
 
 func expandDataplexDataProductDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDataProductIcon(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1092,6 +1125,9 @@ func ResourceDataplexDataProductFlatten(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading DataProduct: %s", err)
 	}
 	if err = d.Set("description", flattenDataplexDataProductDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataProduct: %s", err)
+	}
+	if err = d.Set("icon", flattenDataplexDataProductIcon(res["icon"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataProduct: %s", err)
 	}
 	if err = d.Set("owner_emails", flattenDataplexDataProductOwnerEmails(res["ownerEmails"], d, config)); err != nil {

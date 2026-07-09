@@ -91,7 +91,6 @@ The following arguments are supported:
   * contain only lowercase alphanumeric characters or `-`
   * start with an alphanumeric character
   * end with an alphanumeric character
-  
   The prefix `gcp-` will be reserved for future uses.
 
 

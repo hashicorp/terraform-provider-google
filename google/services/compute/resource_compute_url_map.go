@@ -16397,8 +16397,10 @@ func ResourceComputeUrlMapFlatten(d *schema.ResourceData, meta interface{}, res 
 	if err = d.Set("default_route_action", flattenComputeUrlMapDefaultRouteAction(res["defaultRouteAction"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UrlMap: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading UrlMap: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading UrlMap: %s", err)
+		}
 	}
 	return nil
 }

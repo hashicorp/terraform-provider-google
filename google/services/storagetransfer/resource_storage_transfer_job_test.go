@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -692,6 +693,52 @@ func TestAccStorageTransferJob_awsS3CompatibleDataSource(t *testing.T) {
 				ResourceName:      "google_storage_transfer_job.transfer_job",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccStorageTransferJob_azureBlobStorageDataSourcePrivateNetwork(t *testing.T) {
+	t.Skip("only works locally: requires a private cross-cloud interconnect between Azure and GCP that is not available in the test environment")
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	testDataSinkName := acctest.RandString(t, 10)
+	suffix := acctest.RandString(t, 10)
+	namespaceId := "tf-test-sts-azure-" + suffix
+	serviceIdA := "tf-test-sts-azure-svc-a-" + suffix
+	serviceIdB := "tf-test-sts-azure-svc-b-" + suffix
+	location := "us-central1"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageTransferJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageTransferJob_azureBlobStorageDataSourcePrivateNetwork(project, testDataSinkName, namespaceId, serviceIdA, serviceIdB, location, "a"),
+			},
+			{
+				ResourceName:      "google_storage_transfer_job.transfer_job",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// azure_credentials is input-only on the API and not returned on Read.
+				ImportStateVerifyIgnore: []string{"transfer_spec.0.azure_blob_storage_data_source.0.azure_credentials"},
+			},
+			{
+				Config: testAccStorageTransferJob_azureBlobStorageDataSourcePrivateNetwork(project, testDataSinkName, namespaceId, serviceIdA, serviceIdB, location, "b"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						// private_network_service is mutable; switching it must update in-place, not recreate.
+						plancheck.ExpectResourceAction("google_storage_transfer_job.transfer_job", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_storage_transfer_job.transfer_job",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"transfer_spec.0.azure_blob_storage_data_source.0.azure_credentials"},
 			},
 		},
 	})
@@ -3085,6 +3132,85 @@ resource "google_storage_transfer_job" "transfer_job" {
 
 }
 `, project, dataSourceBucketName, dataSinkBucketName, transferJobDescription, manifestObjectName)
+}
+
+func testAccStorageTransferJob_azureBlobStorageDataSourcePrivateNetwork(project, dataSinkBucketName, namespaceId, serviceIdA, serviceIdB, location, which string) string {
+	pnsRef := "google_service_directory_service.sts_azure_a.id"
+	if which == "b" {
+		pnsRef = "google_service_directory_service.sts_azure_b.id"
+	}
+	return fmt.Sprintf(`
+data "google_storage_transfer_project_service_account" "default" {
+  project = "%[1]s"
+}
+
+resource "google_storage_bucket" "data_sink" {
+  name          = "%[2]s"
+  project       = "%[1]s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_iam_member" "data_sink" {
+  bucket = google_storage_bucket.data_sink.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${data.google_storage_transfer_project_service_account.default.email}"
+}
+
+resource "google_service_directory_namespace" "sts_azure" {
+  project      = "%[1]s"
+  namespace_id = "%[3]s"
+  location     = "%[6]s"
+}
+
+resource "google_service_directory_service" "sts_azure_a" {
+  service_id = "%[4]s"
+  namespace  = google_service_directory_namespace.sts_azure.id
+}
+
+resource "google_service_directory_service" "sts_azure_b" {
+  service_id = "%[5]s"
+  namespace  = google_service_directory_namespace.sts_azure.id
+}
+
+resource "google_storage_transfer_job" "transfer_job" {
+  description = "Azure source with private network service"
+  project     = "%[1]s"
+
+  transfer_spec {
+    azure_blob_storage_data_source {
+      storage_account = "examplestorageaccount"
+      container       = "example-container"
+      path            = "foo/bar/"
+      azure_credentials {
+        sas_token = "fakesastoken"
+      }
+      private_network_service = %[7]s
+    }
+    gcs_data_sink {
+      bucket_name = google_storage_bucket.data_sink.name
+      path        = "foo/bar/"
+    }
+  }
+
+  schedule {
+    schedule_start_date {
+      year  = 2024
+      month = 1
+      day   = 1
+    }
+    schedule_end_date {
+      year  = 2024
+      month = 1
+      day   = 1
+    }
+  }
+
+  depends_on = [
+    google_storage_bucket_iam_member.data_sink,
+  ]
+}
+`, project, dataSinkBucketName, namespaceId, serviceIdA, serviceIdB, location, pnsRef)
 }
 
 func testAccStorageTransferJob_withoutTransferManifest(project, dataSourceBucketName, dataSinkBucketName, transferJobDescription string) string {

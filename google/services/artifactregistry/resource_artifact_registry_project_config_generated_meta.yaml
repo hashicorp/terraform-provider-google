@@ -1,0 +1,14 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_artifact_registry_project_config
+generation_type: mmv1
+source_file: products/artifactregistry/ProjectConfig.yaml
+api_service_name: artifactregistry.googleapis.com
+api_version: v1
+api_resource_type_kind: ProjectConfig
+fields:
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: platformLogsConfig.loggingState
+    - api_field: platformLogsConfig.severityLevel

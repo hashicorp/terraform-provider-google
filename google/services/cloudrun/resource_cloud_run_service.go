@@ -63,9 +63,9 @@ func revisionNameCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v i
 	return nil
 }
 
-var cloudRunGoogleProvidedTemplateAnnotations = regexp.MustCompile(`template\.0\.metadata\.0\.annotations\.run\.googleapis\.com/sandbox`)
-var cloudRunGoogleProvidedTemplateAnnotations_autoscaling_maxscale = regexp.MustCompile(`template\.0\.metadata\.0\.annotations\.autoscaling\.knative\.dev/maxScale`)
-var cloudRunGoogleProvidedTemplateAnnotations_gpu_zonal_redundancy_disabled = regexp.MustCompile(`template\.0\.metadata\.0\.annotations\.run\.googleapis\.com/gpu-zonal-redundancy-disabled`)
+var cloudRunGoogleProvidedTemplateAnnotations = regexp.MustCompile(`^template\.0\.metadata\.0\.annotations\.run\.googleapis\.com/sandbox$`)
+var cloudRunGoogleProvidedTemplateAnnotations_autoscaling_maxscale = regexp.MustCompile(`^template\.0\.metadata\.0\.annotations\.autoscaling\.knative\.dev/maxScale$`)
+var cloudRunGoogleProvidedTemplateAnnotations_gpu_zonal_redundancy_disabled = regexp.MustCompile(`^template\.0\.metadata\.0\.annotations\.run\.googleapis\.com/gpu-zonal-redundancy-disabled$`)
 
 func cloudrunTemplateAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// Suppress diffs for the annotations provided by API

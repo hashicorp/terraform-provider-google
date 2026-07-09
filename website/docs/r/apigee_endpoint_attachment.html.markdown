@@ -16,12 +16,14 @@
 # ----------------------------------------------------------------------------
 subcategory: "Apigee"
 description: |-
-  Apigee Endpoint Attachment.
+  An `EndpointAttachment` in Apigee is a resource that facilitates private connectivity between Apigee and backend services using Private Service Connect (PSC).
 ---
 
 # google_apigee_endpoint_attachment
 
-Apigee Endpoint Attachment.
+An `EndpointAttachment` in Apigee is a resource that facilitates private connectivity between Apigee and backend services using Private Service Connect (PSC).
+
+For more information, see the [Apigee documentation](https://docs.cloud.google.com/apigee/docs/api-platform/architecture/southbound-networking-patterns-endpoints).
 
 
 To get more information about EndpointAttachment, see:
@@ -30,6 +32,124 @@ To get more information about EndpointAttachment, see:
 * How-to Guides
     * [Creating an environment](https://cloud.google.com/apigee/docs/api-platform/get-started/create-environment)
 
+## Example Usage - Apigee Endpoint Attachment Basic
+
+
+```hcl
+data "google_client_config" "current" {}
+
+resource "google_compute_network" "apigee_network" {
+  name       = "apigee-network"
+  project    = data.google_client_config.current.project
+}
+
+resource "google_compute_global_address" "apigee_range" {
+  name          = "apigee-range"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.apigee_network.id
+  project       = data.google_client_config.current.project
+}
+
+resource "google_service_networking_connection" "apigee_vpc_connection" {
+  network                 = google_compute_network.apigee_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.apigee_range.name]
+}
+
+resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
+  name   = "producer-forwarding-rule"
+  region = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.psc_ilb_network.name
+  subnetwork            = google_compute_subnetwork.psc_ilb_producer_subnetwork.name
+
+  project = google_project.project.project_id
+}
+
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  name   = "producer-service"
+  region = "us-central1"
+
+  health_checks = [google_compute_health_check.producer_service_health_check.id]
+
+  project = data.google_client_config.current.project
+}
+
+resource "google_compute_health_check" "producer_service_health_check" {
+  name = "producer-service-health-check"
+
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+
+  project    = data.google_client_config.current.project
+}
+
+resource "google_compute_network" "psc_ilb_network" {
+  name = "psc-ilb-network"
+  auto_create_subnetworks = false
+
+  project     = data.google_client_config.current.project
+}
+
+resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
+  name   = "psc-ilb-producer-subnetwork"
+  region = "us-central1"
+
+  network       = google_compute_network.psc_ilb_network.id
+  ip_cidr_range = "10.0.99.0/24"
+
+  project = data.google_client_config.current.project
+}
+
+resource "google_compute_subnetwork" "psc_ilb_nat" {
+  name   = "psc-ilb-nat"
+  region = "us-central1"
+
+  network       = google_compute_network.psc_ilb_network.id
+  purpose       =  "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.0.199.0/24"
+
+  project = data.google_client_config.current.project
+}
+
+resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
+  name        = "my-psc-ilb"
+  region      = "us-central1"
+  description = "A service attachment configured with Terraform"
+
+  enable_proxy_protocol    = true
+  connection_preference    = "ACCEPT_AUTOMATIC"
+  nat_subnets              = [google_compute_subnetwork.psc_ilb_nat.id]
+  target_service           = google_compute_forwarding_rule.psc_ilb_target_service.id
+
+  project = data.google_client_config.current.project
+}
+
+resource "google_apigee_organization" "apigee_org" {
+  analytics_region   = "us-central1"
+  project_id         = data.google_client_config.current.project
+  authorized_network = google_compute_network.apigee_network.id
+  depends_on         = [
+    google_service_networking_connection.apigee_vpc_connection
+  ]
+}
+
+resource "google_apigee_endpoint_attachment" "apigee_endpoint_attachment"" {
+  org_id                 = google_apigee_organization.apigee_org.id
+  endpoint_attachment_id = "tf-test%{random_suffix}
+  location               = "us-central1"
+  service_attachment     = google_compute_service_attachment.psc_ilb_service_attachment.id
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -37,11 +157,12 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  Location of the endpoint attachment.
+  The location of the endpoint attachment.
 
 * `service_attachment` -
   (Required)
-  Format: projects/*/regions/*/serviceAttachments/*
+  The resource URL of the service attachment in the format:
+  `projects/*/regions/*/serviceAttachments/*`.
 
 * `org_id` -
   (Required)
@@ -76,6 +197,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `connection_state` -
   State of the endpoint attachment connection to the service attachment.
+  Possible values are: `CONNECTION_STATE_UNSPECIFIED`, `PENDING`, `ACCEPTED`, `REJECTED`, `CLOSED`.
 
 
 ## Timeouts

@@ -130,6 +130,81 @@ resource "google_storage_bucket_object" "object" {
   source = "./test-fixtures/hello-world.zip"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=app_engine_standard_app_version_bundled_services&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - App Engine Standard App Version Bundled Services
+
+
+```hcl
+resource "google_service_account" "service_account" {
+  account_id   = "gae-sa"
+  display_name = "Test Service Account for GAE"
+}
+
+resource "google_project_iam_member" "gae_api" {
+  project = google_service_account.service_account.project
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:${google_service_account.service_account.email}"
+}
+
+resource "google_project_iam_member" "storage_viewer" {
+  project = google_service_account.service_account.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.service_account.email}"
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "tf-test-gae-bkt-bundled"
+  location = "US"
+}
+
+resource "google_storage_bucket_object" "requirements" {
+  name   = "requirements.txt"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/hello-world-flask/requirements.txt"
+}
+
+resource "google_storage_bucket_object" "main" {
+  name   = "main.py"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/hello-world-flask/main.py"
+}
+
+resource "google_app_engine_standard_app_version" "gae-std-app-ver-bundled" {
+  version_id   = "v1"
+  service      = "bundled-service"
+  runtime      = "python310"
+
+  deployment {
+    files {
+      name       = "main.py"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.main.name}"
+    }
+    files {
+      name       = "requirements.txt"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
+    }
+  }
+
+  entrypoint {
+    shell = "gunicorn -b :$PORT main:app"
+  }
+
+# Testing the app_engine_bundled_services field
+  app_engine_bundled_services = ["BUNDLED_SERVICE_TYPE_MAIL", "BUNDLED_SERVICE_TYPE_DATASTORE_V3"]
+
+  delete_service_on_destroy = true
+  service_account = google_service_account.service_account.email
+
+  depends_on = [
+    google_project_iam_member.gae_api,
+    google_project_iam_member.storage_viewer,
+  ]
+}
+```
 
 ## Argument Reference
 
@@ -170,6 +245,7 @@ The following arguments are supported:
 * `app_engine_apis` -
   (Optional)
   Allows App Engine second generation runtimes to access the legacy bundled services.
+  Cannot specify both `app_engine_apis` and 'app_engine_bundled_services` together.
 
 * `runtime_api_version` -
   (Optional)
@@ -223,6 +299,12 @@ The following arguments are supported:
   (Optional)
   A service with manual scaling runs continuously, allowing you to perform complex initialization and rely on the state of its memory over time.
   Structure is [documented below](#nested_manual_scaling).
+
+* `app_engine_bundled_services` -
+  (Optional)
+  A list of legacy bundled services to enable for this version on an App Engine second-generation runtime.
+  Cannot specify both `app_engine_apis` and `app_engine_bundled_services` together.
+  Each value may be one of: `BUNDLED_SERVICE_TYPE_APP_IDENTITY_SERVICE`, `BUNDLED_SERVICE_TYPE_BLOBSTORE`, `BUNDLED_SERVICE_TYPE_CAPABILITY_SERVICE`, `BUNDLED_SERVICE_TYPE_DATASTORE_V3`, `BUNDLED_SERVICE_TYPE_IMAGES`, `BUNDLED_SERVICE_TYPE_MAIL`, `BUNDLED_SERVICE_TYPE_MEMCACHE`, `BUNDLED_SERVICE_TYPE_MODULES`, `BUNDLED_SERVICE_TYPE_SEARCH`, `BUNDLED_SERVICE_TYPE_TASKQUEUES`, `BUNDLED_SERVICE_TYPE_URLFETCH`, `BUNDLED_SERVICE_TYPE_USERS`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

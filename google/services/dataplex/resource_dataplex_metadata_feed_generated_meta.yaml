@@ -1,0 +1,33 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dataplex_metadata_feed
+generation_type: mmv1
+source_file: products/dataplex/MetadataFeed.yaml
+api_service_name: dataplex.googleapis.com
+api_version: v1
+api_resource_type_kind: MetadataFeed
+autogen_status: true
+autogen_version: 2
+fields:
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: filters.aspectTypes
+    - api_field: filters.changeTypes
+    - api_field: filters.entryTypes
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: metadata_feed_id
+      provider_only: true
+    - api_field: name
+    - api_field: pubsubTopic
+    - api_field: scope.entryGroups
+    - api_field: scope.organizationLevel
+    - api_field: scope.projects
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

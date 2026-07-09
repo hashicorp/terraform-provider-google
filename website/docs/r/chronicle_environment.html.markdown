@@ -23,12 +23,10 @@ description: |-
 
 An environment is logical container for different networks or customers that are managed by the SOC or MSSP. This is useful for SOCs who provide services to several different networks, customers or business units within the organization. The Platform comes with a predefined environment named Default Environment.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about Environment, see:
 
-* [API documentation](https://docs.cloud.google.com/chronicle/docs/reference/rest/v1beta/projects.locations.instances.environments)
+* [API documentation](https://docs.cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.environments)
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
@@ -37,7 +35,6 @@ To get more information about Environment, see:
 
 ```hcl
 resource "google_chronicle_environment" "sample" {
-  provider = google-beta
   location = "us"
   instance = "00000000-0000-0000-0000-000000000000"
 

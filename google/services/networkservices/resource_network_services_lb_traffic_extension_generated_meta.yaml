@@ -12,6 +12,7 @@ fields:
       provider_only: true
     - api_field: extensionChains.extensions.authority
     - api_field: extensionChains.extensions.failOpen
+    - api_field: extensionChains.extensions.forwardAttributes
     - api_field: extensionChains.extensions.forwardHeaders
     - api_field: extensionChains.extensions.metadata
     - api_field: extensionChains.extensions.name

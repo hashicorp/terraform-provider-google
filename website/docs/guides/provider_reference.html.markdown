@@ -369,6 +369,12 @@ instead.
 
 ---
 
+* `deletion_policy` - (Optional) The default deletion policy for provider resources. Defaults to `"DELETE"`.
+  This can be set to `"DELETE"`, `"PREVENT"`, or `"ABANDON"`.
+  Any resource-level `deletion_policy` configured on a resource takes precedence over this provider-level setting.
+
+---
+
 
 * `{{service}}_custom_endpoint` - (Optional) The endpoint for a service's APIs,
 such as `compute_custom_endpoint`. Defaults to the production GCP endpoint for

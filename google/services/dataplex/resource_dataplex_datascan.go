@@ -378,7 +378,13 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 				Description: `DataDocumentationScan related setting.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{},
+					Schema: map[string]*schema.Schema{
+						"catalog_publishing_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If set, the latest DataScan job result will be published to Knowledge Catalog.`,
+						},
+					},
 				},
 				ExactlyOneOf: []string{"data_discovery_spec", "data_documentation_spec", "data_profile_spec", "data_quality_spec"},
 			},
@@ -2413,8 +2419,14 @@ func flattenDataplexDatascanDataDocumentationSpec(v interface{}, d *schema.Resou
 	if v == nil {
 		return nil
 	}
+	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
+	transformed["catalog_publishing_enabled"] =
+		flattenDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(original["catalogPublishingEnabled"], d, config)
 	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDataplexDatascanTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3971,9 +3983,22 @@ func expandDataplexDatascanDataDocumentationSpec(v interface{}, d tpgresource.Te
 		transformed := make(map[string]interface{})
 		return transformed, nil
 	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedCatalogPublishingEnabled, err := expandDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(original["catalog_publishing_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCatalogPublishingEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["catalogPublishingEnabled"] = transformedCatalogPublishingEnabled
+	}
+
 	return transformed, nil
+}
+
+func expandDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandDataplexDatascanEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

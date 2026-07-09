@@ -180,7 +180,6 @@ The following arguments are supported:
   (Optional)
   The mode for the pool is operating in. Pools with an unspecified mode will operate as if they
   are in `FEDERATION_ONLY` mode.
-  
   ~> **Note** This field cannot be changed after the Workload Identity Pool is created. While
   `terraform plan` may show an update if you change this field's value, `terraform apply`
   **will fail with an API error** (such as `Error 400: Attempted to update an immutable field.`).
@@ -255,7 +254,6 @@ The following arguments are supported:
   If set to true, the trust domain will utilize the GCP-provisioned default CA. A default
   CA in the same region as the workload will be selected to issue the certificate. Enabling
   this will clear any existing `ca_pools` configuration to provision the certificates.
-  
   ~> **Note** This field is mutually exclusive with `ca_pools`. If this flag is enabled,
   certificates will be automatically provisioned from the default shared CAs. This flag should
   not be set if you want to use your own CA pools to provision the certificates.
@@ -313,7 +311,6 @@ The following arguments are supported:
   (Optional)
   If set to True, the trust bundle will include the private ca managed identity regional root
   public certificates.
-  
   ~> **Note** `trust_default_shared_ca` is only supported for managed identity trust domain
   resource.
 

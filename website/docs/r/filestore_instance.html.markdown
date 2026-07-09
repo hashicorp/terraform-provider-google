@@ -533,9 +533,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `create` - Default is 14400 minutes.
+- `update` - Default is 120 minutes.
+- `delete` - Default is 120 minutes.
 
 ## Import
 

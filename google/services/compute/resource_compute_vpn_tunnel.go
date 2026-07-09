@@ -1770,8 +1770,10 @@ func ResourceComputeVpnTunnelFlatten(d *schema.ResourceData, meta interface{}, r
 	if err = d.Set("region", flattenComputeVpnTunnelRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading VpnTunnel: %s", err)
+		}
 	}
 	return nil
 }

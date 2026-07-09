@@ -194,7 +194,8 @@ func ResourceBigqueryAnalyticsHubListing() *schema.Resource {
 							Optional:    true,
 							Description: `A list of regions where the publisher has created shared dataset replicas.`,
 							Elem: &schema.Schema{
-								Type: schema.TypeString,
+								Type:             schema.TypeString,
+								DiffSuppressFunc: tpgresource.CaseDiffSuppress,
 							},
 							Set: tpgresource.CaseInsensitiveHash,
 						},

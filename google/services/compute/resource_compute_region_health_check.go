@@ -2580,8 +2580,10 @@ func ResourceComputeRegionHealthCheckFlatten(d *schema.ResourceData, meta interf
 	if err = d.Set("region", flattenComputeRegionHealthCheckRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading RegionHealthCheck: %s", err)
+		}
 	}
 	return nil
 }

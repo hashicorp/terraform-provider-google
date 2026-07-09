@@ -196,6 +196,99 @@ data "google_oracle_database_db_servers" "mydbserver" {
   cloud_exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.cloudExadataInfrastructures.cloud_exadata_infrastructure_id
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=oracledatabase_cloud_vmcluster_exascale&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Oracledatabase Cloud Vmcluster Exascale
+
+
+```hcl
+resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster" {
+  cloud_vm_cluster_id    = "my-instance"
+  display_name           = "my-instance displayname"
+  location               = "us-east4"
+  project                = "my-project"
+  exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.infra.id
+  network                = data.google_compute_network.default.id
+  cidr                   = "10.5.0.0/24"
+  backup_subnet_cidr     = "10.6.0.0/24"
+
+  exascale_db_storage_vault = google_oracle_database_exascale_db_storage_vault.vault.name
+
+  properties {
+    license_type    = "LICENSE_INCLUDED"
+    ssh_public_keys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz1X2744t+6vRLmE5u6nHi6/QWh8bQDgHmd+OIxRQIGA/IWUtCs2FnaCNZcqvZkaeyjk5v0lTA/n+9jvO42Ipib53athrfVG8gRt8fzPL66C6ZqHq+6zZophhrCdfJh/0G4x9xJh5gdMprlaCR1P8yAaVvhBQSKGc4SiIkyMNBcHJ5YTtMQMTfxaB4G1sHZ6SDAY9a6Cq/zNjDwfPapWLsiP4mRhE5SSjJX6l6EYbkm0JeLQg+AbJiNEPvrvDp1wtTxzlPJtIivthmLMThFxK7+DkrYFuLvN5AHUdo9KTDLvHtDCvV70r8v0gafsrKkM/OE9Jtzoo0e1N/5K/ZdyFRbAkFT4QSF3nwpbmBWLf2Evg//YyEuxnz4CwPqFST2mucnrCCGCVWp1vnHZ0y30nM35njLOmWdRDFy5l27pKUTwLp02y3UYiiZyP7d3/u5pKiN4vC27VuvzprSdJxWoAvluOiDeRh+/oeQDowxoT/Oop8DzB9uJmjktXw8jyMW2+Rpg+ENQqeNgF1OGlEzypaWiRskEFlkpLb4v/s3ZDYkL1oW0Nv/J8LTjTOTEaYt2Udjoe9x2xWiGnQixhdChWuG+MaoWffzUgx1tsVj/DBXijR5DjkPkrA1GA98zd3q8GKEaAdcDenJjHhNYSd4+rE9pIsnYn7fo5X/tFfcQH1XQ== nobody@google.com"]
+    cpu_core_count  = "4"
+    gi_version      = "23.0.0.0"
+    hostname_prefix = "hostname1"
+
+    # Required fields for Exascale-based VM Clusters:
+    memory_size_gb          = 60
+    db_node_storage_size_gb = 120
+    db_server_ocids         = [
+      data.google_oracle_database_db_servers.db_servers.db_servers.0.properties.0.ocid,
+      data.google_oracle_database_db_servers.db_servers.db_servers.1.properties.0.ocid
+    ]
+  }
+
+  deletion_protection = "true"
+
+  depends_on = [google_oracle_database_cloud_exadata_infrastructure_exascale_config.exascale_config]
+}
+
+resource "google_oracle_database_cloud_exadata_infrastructure" "infra" {
+  cloud_exadata_infrastructure_id = "my-exadata"
+  display_name                    = "my-exadata displayname"
+  location                        = "us-east4"
+  project                         = "my-project"
+  properties {
+    shape         = "Exadata.X9M"
+    compute_count = "2"
+    storage_count = "3"
+  }
+
+  deletion_protection = "true"
+}
+
+resource "google_oracle_database_cloud_exadata_infrastructure_exascale_config" "exascale_config" {
+  cloud_exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.infra.cloud_exadata_infrastructure_id
+  location                     = "us-east4"
+  project                      = "my-project"
+  total_storage_size_gb        = 10240
+}
+
+resource "google_oracle_database_exascale_db_storage_vault" "vault" {
+  exascale_db_storage_vault_id = "my-vault"
+  display_name                 = "my-vault displayname"
+  location                     = "us-east4"
+  project                      = "my-project"
+
+  exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.infra.name
+
+  depends_on = [google_oracle_database_cloud_exadata_infrastructure_exascale_config.exascale_config]
+
+  properties {
+    exascale_db_storage_details {
+      total_size_gbs = 2048
+    }
+  }
+
+  deletion_protection = "true"
+}
+
+data "google_compute_network" "default" {
+  name    = "new"
+  project = "my-project"
+}
+
+data "google_oracle_database_db_servers" "db_servers" {
+  location                     = "us-east4"
+  project                      = "my-project"
+  cloud_exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.infra.cloud_exadata_infrastructure_id
+}
+```
 
 ## Argument Reference
 
@@ -267,6 +360,12 @@ The following arguments are supported:
   The name of the backup OdbSubnet associated with the VM Cluster.
   Format:
   projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{odb_subnet}
+
+* `exascale_db_storage_vault` -
+  (Optional)
+  The name of ExascaleDbStorageVault associated with the VM Cluster.
+  Format:
+  projects/{project}/locations/{location}/exascaleDbStorageVaults/{exascale_db_storage_vault}
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -433,6 +532,14 @@ The following arguments are supported:
 * `cluster_name` -
   (Optional)
   OCI Cluster name.
+
+* `storage_management_type` -
+  (Output)
+  The storage management type of the VM Cluster.
+  Possible values:
+  STORAGE_MANAGEMENT_TYPE_UNSPECIFIED
+  ASM
+  EXASCALE
 
 
 <a name="nested_properties_time_zone"></a>The `time_zone` block supports:

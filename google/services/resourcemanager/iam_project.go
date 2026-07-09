@@ -74,17 +74,21 @@ func ProjectIamParentResourceIdentityParser(d *schema.ResourceData, identity *sc
 	return s, nil
 }
 
+func ProjectIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		IamProjectSchema,
+		NewProjectIamUpdater,
+		ProjectIdParseFunc,
+		tpgiamresource.IamWithBatching,
+		tpgiamresource.IamWithParentResourceIdentity(ProjectIamParentResourceIdentityParser),
+	)
+}
+
 // NewProjectIamMemberListResource returns the list implementation for google_project_iam_member.
 func NewProjectIamMemberListResource() list.ListResource {
 	return tpgiamresource.NewIamMemberListResource(
 		"google_project_iam_member",
-		tpgiamresource.ResourceIamMember(
-			IamProjectSchema,
-			NewProjectIamUpdater,
-			ProjectIdParseFunc,
-			tpgiamresource.IamWithBatching,
-			tpgiamresource.IamWithParentResourceIdentity(ProjectIamParentResourceIdentityParser),
-		),
+		ProjectIamMemberResource(),
 		NewProjectIamUpdater,
 		tpgiamresource.IamMemberListCallConfig{
 			ParentResourceField: "project",
@@ -169,7 +173,12 @@ func init() {
 		Name:        "google_project_iam_member",
 		ProductName: "resourcemanager",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IamProjectSchema, NewProjectIamUpdater, ProjectIdParseFunc, tpgiamresource.IamWithBatching, tpgiamresource.IamWithParentResourceIdentity(ProjectIamParentResourceIdentityParser)),
+		Schema:      ProjectIamMemberResource(),
+	}.Register()
+	registry.FrameworkListResource{
+		Name:        "google_project_iam_member",
+		ProductName: "resourcemanager",
+		Func:        NewProjectIamMemberListResource,
 	}.Register()
 	registry.Schema{
 		Name:        "google_project_iam_binding",

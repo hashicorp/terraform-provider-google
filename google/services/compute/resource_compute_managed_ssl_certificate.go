@@ -645,8 +645,10 @@ func ResourceComputeManagedSslCertificateFlatten(d *schema.ResourceData, meta in
 	if err = d.Set("expire_time", flattenComputeManagedSslCertificateExpireTime(res["expireTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading ManagedSslCertificate: %s", err)
+		}
 	}
 	return nil
 }

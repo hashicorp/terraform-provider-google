@@ -172,6 +172,9 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 ```tf
 import {
   identity = {
+    datasetId = "<-required value->"
+    tableId = "<-required value->"
+    policyId = "<-required value->"
     project = "<-optional value->"
   }
   to = google_bigquery_row_access_policy.default

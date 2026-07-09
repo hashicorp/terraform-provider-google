@@ -461,6 +461,15 @@ func FirestoreIndex409Retry(err error) (bool, string) {
 	return false, ""
 }
 
+func FirestoreUserCreds409Retry(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 409 {
+			return true, "The operation was aborted."
+		}
+	}
+	return false, ""
+}
+
 func IapClient409Operation(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
 		if gerr.Code == 409 && strings.Contains(strings.ToLower(gerr.Body), "operation was aborted") {
@@ -716,6 +725,18 @@ func IsDataplex1PEntryNotFoundError(err error) (bool, string) {
 		if gerr.Code == 404 && strings.Contains(gerr.Body, "Entry `") && strings.Contains(gerr.Body, "` does not exist.") && (strings.Contains(gerr.Body, "@dataplex/entries/") || strings.Contains(gerr.Body, "@bigquery/entries/")) {
 			return true, fmt.Sprintf("Retry 404s for Dataplex Entry Ingestion")
 		}
+	}
+	return false, ""
+}
+
+// Retry on Cloud Scheduler 'Sync Mutate Cannot Be Queued'
+func Is409SyncMutateCannotBeQueuedError(err error) (bool, string) {
+	if err == nil {
+		return false, ""
+	}
+	errStr := err.Error()
+	if strings.Contains(errStr, "Error 409") && strings.Contains(errStr, "sync mutate calls cannot be queued") {
+		return true, "sync mutate calls cannot be queued"
 	}
 	return false, ""
 }

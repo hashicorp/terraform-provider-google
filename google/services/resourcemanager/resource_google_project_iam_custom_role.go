@@ -175,7 +175,21 @@ func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, d.Id())
 	}
 
-	if err := d.Set("role_id", tpgresource.GetResourceNameFromSelfLink(role.Name)); err != nil {
+	if err := FlattenProjectIamCustomRole(d, role, project); err != nil {
+		return err
+	}
+
+	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func FlattenProjectIamCustomRole(d *schema.ResourceData, role *iam.Role, project string) error {
+	roleID := tpgresource.GetResourceNameFromSelfLink(role.Name)
+
+	if err := d.Set("role_id", roleID); err != nil {
 		return fmt.Errorf("Error setting role_id: %s", err)
 	}
 	if err := d.Set("title", role.Title); err != nil {
@@ -198,10 +212,6 @@ func resourceGoogleProjectIamCustomRoleRead(d *schema.ResourceData, meta interfa
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
-	}
-
-	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
-		return err
 	}
 
 	return nil

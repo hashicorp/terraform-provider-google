@@ -37,14 +37,11 @@ A data source can be used to retrieve policy data in advent you do not need crea
 
 ~> **Note:**  This resource supports IAM Conditions but they have some known limitations which can be found [here](https://cloud.google.com/iam/docs/conditions-overview#limitations). Please review this article if you are having issues with IAM Conditions.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 ## google_iap_agent_registry_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
-  provider = google-beta
   binding {
     role = "roles/iap.egressor"
     members = [
@@ -54,7 +51,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_iap_agent_registry_iam_policy" "policy" {
-  provider = google-beta
   project = google_project_service.project_service.project
   location = "us-central1"
   policy_data = data.google_iam_policy.admin.policy_data
@@ -65,7 +61,6 @@ With IAM Conditions:
 
 ```hcl
 data "google_iam_policy" "admin" {
-  provider = google-beta
   binding {
     role = "roles/iap.egressor"
     members = [
@@ -81,7 +76,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_iap_agent_registry_iam_policy" "policy" {
-  provider = google-beta
   project = google_project_service.project_service.project
   location = "us-central1"
   policy_data = data.google_iam_policy.admin.policy_data
@@ -91,7 +85,6 @@ resource "google_iap_agent_registry_iam_policy" "policy" {
 
 ```hcl
 resource "google_iap_agent_registry_iam_binding" "binding" {
-  provider = google-beta
   project = google_project_service.project_service.project
   location = "us-central1"
   role = "roles/iap.egressor"
@@ -105,7 +98,6 @@ With IAM Conditions:
 
 ```hcl
 resource "google_iap_agent_registry_iam_binding" "binding" {
-  provider = google-beta
   project = google_project_service.project_service.project
   location = "us-central1"
   role = "roles/iap.egressor"
@@ -124,7 +116,6 @@ resource "google_iap_agent_registry_iam_binding" "binding" {
 
 ```hcl
 resource "google_iap_agent_registry_iam_member" "member" {
-  provider = google-beta
   project = google_project_service.project_service.project
   location = "us-central1"
   role = "roles/iap.egressor"
@@ -136,7 +127,6 @@ With IAM Conditions:
 
 ```hcl
 resource "google_iap_agent_registry_iam_member" "member" {
-  provider = google-beta
   project = google_project_service.project_service.project
   location = "us-central1"
   role = "roles/iap.egressor"

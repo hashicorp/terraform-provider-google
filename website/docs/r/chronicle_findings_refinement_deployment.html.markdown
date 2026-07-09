@@ -23,12 +23,10 @@ description: |-
 
 The FindingsRefinementDeployment resource represents the deployment state of a findings refinement.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about FindingsRefinementDeployment, see:
 
-* [API documentation](https://docs.cloud.google.com/chronicle/docs/reference/rest/v1beta/FindingsRefinementDeployment)
+* [API documentation](https://docs.cloud.google.com/chronicle/docs/reference/rest/v1/FindingsRefinementDeployment)
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
@@ -37,7 +35,6 @@ To get more information about FindingsRefinementDeployment, see:
 
 ```hcl
 resource "google_chronicle_findings_refinement" "my-findings-refinement" {
-  provider = google-beta
   location = "us"
   instance = "00000000-0000-0000-0000-000000000000"
   display_name = "findings_refinement_display_name" 
@@ -51,7 +48,6 @@ resource "google_chronicle_findings_refinement" "my-findings-refinement" {
 }
 
 resource "google_chronicle_findings_refinement_deployment" "example" {
- provider = google-beta
  location = "us"
  instance = "00000000-0000-0000-0000-000000000000"
  findings_refinement = element(split("/", resource.google_chronicle_findings_refinement.my-findings-refinement.name), length(split("/", resource.google_chronicle_findings_refinement.my-findings-refinement.name)) - 1)

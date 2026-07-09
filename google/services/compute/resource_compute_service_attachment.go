@@ -1354,8 +1354,10 @@ func ResourceComputeServiceAttachmentFlatten(d *schema.ResourceData, meta interf
 	if err = d.Set("propagated_connection_limit", flattenComputeServiceAttachmentPropagatedConnectionLimit(res["propagatedConnectionLimit"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+		}
 	}
 	return nil
 }

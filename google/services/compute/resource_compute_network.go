@@ -1234,8 +1234,10 @@ func ResourceComputeNetworkFlatten(d *schema.ResourceData, meta interface{}, res
 	if err = d.Set("network_profile", flattenComputeNetworkNetworkProfile(res["networkProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading Network: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading Network: %s", err)
+		}
 	}
 	return nil
 }

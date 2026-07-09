@@ -224,9 +224,25 @@ All files must be readable using the credentials supplied with this call.`,
 				Description:      `AppEngine service resource`,
 			},
 			"app_engine_apis": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: `Allows App Engine second generation runtimes to access the legacy bundled services.`,
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Allows App Engine second generation runtimes to access the legacy bundled services.
+Cannot specify both 'app_engine_apis' and 'app_engine_bundled_services' together.`,
+				ConflictsWith: []string{"app_engine_bundled_services"},
+			},
+			"app_engine_bundled_services": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: true,
+				Description: `A list of legacy bundled services to enable for this version on an App Engine second-generation runtime.
+Cannot specify both 'app_engine_apis' and 'app_engine_bundled_services' together. Possible values: ["BUNDLED_SERVICE_TYPE_APP_IDENTITY_SERVICE", "BUNDLED_SERVICE_TYPE_BLOBSTORE", "BUNDLED_SERVICE_TYPE_CAPABILITY_SERVICE", "BUNDLED_SERVICE_TYPE_DATASTORE_V3", "BUNDLED_SERVICE_TYPE_IMAGES", "BUNDLED_SERVICE_TYPE_MAIL", "BUNDLED_SERVICE_TYPE_MEMCACHE", "BUNDLED_SERVICE_TYPE_MODULES", "BUNDLED_SERVICE_TYPE_SEARCH", "BUNDLED_SERVICE_TYPE_TASKQUEUES", "BUNDLED_SERVICE_TYPE_URLFETCH", "BUNDLED_SERVICE_TYPE_USERS"]`,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: verify.ValidateEnum([]string{"BUNDLED_SERVICE_TYPE_APP_IDENTITY_SERVICE", "BUNDLED_SERVICE_TYPE_BLOBSTORE", "BUNDLED_SERVICE_TYPE_CAPABILITY_SERVICE", "BUNDLED_SERVICE_TYPE_DATASTORE_V3", "BUNDLED_SERVICE_TYPE_IMAGES", "BUNDLED_SERVICE_TYPE_MAIL", "BUNDLED_SERVICE_TYPE_MEMCACHE", "BUNDLED_SERVICE_TYPE_MODULES", "BUNDLED_SERVICE_TYPE_SEARCH", "BUNDLED_SERVICE_TYPE_TASKQUEUES", "BUNDLED_SERVICE_TYPE_URLFETCH", "BUNDLED_SERVICE_TYPE_USERS"}),
+				},
+				Set:           schema.HashString,
+				ConflictsWith: []string{"app_engine_apis"},
 			},
 			"automatic_scaling": {
 				Type:        schema.TypeList,
@@ -689,6 +705,12 @@ func resourceAppEngineStandardAppVersionCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("manual_scaling"); !tpgresource.IsEmptyValue(reflect.ValueOf(manualScalingProp)) && (ok || !reflect.DeepEqual(v, manualScalingProp)) {
 		obj["manualScaling"] = manualScalingProp
 	}
+	appEngineBundledServicesProp, err := expandAppEngineStandardAppVersionAppEngineBundledServices(d.Get("app_engine_bundled_services"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("app_engine_bundled_services"); !tpgresource.IsEmptyValue(reflect.ValueOf(appEngineBundledServicesProp)) && (ok || !reflect.DeepEqual(v, appEngineBundledServicesProp)) {
+		obj["appEngineBundledServices"] = appEngineBundledServicesProp
+	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "apps/{{project}}")
 	if err != nil {
@@ -1025,6 +1047,12 @@ func resourceAppEngineStandardAppVersionUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("manual_scaling"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, manualScalingProp)) {
 		obj["manualScaling"] = manualScalingProp
+	}
+	appEngineBundledServicesProp, err := expandAppEngineStandardAppVersionAppEngineBundledServices(d.Get("app_engine_bundled_services"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("app_engine_bundled_services"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, appEngineBundledServicesProp)) {
+		obj["appEngineBundledServices"] = appEngineBundledServicesProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "apps/{{project}}")
@@ -2295,6 +2323,11 @@ func expandAppEngineStandardAppVersionManualScaling(v interface{}, d tpgresource
 }
 
 func expandAppEngineStandardAppVersionManualScalingInstances(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAppEngineStandardAppVersionAppEngineBundledServices(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 

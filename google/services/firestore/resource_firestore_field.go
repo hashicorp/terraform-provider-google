@@ -200,6 +200,12 @@ the field.`,
 				Description: `The name of this field. Format:
 'projects/{{project}}/databases/{{database}}/collectionGroups/{{collection}}/fields/{{field}}'`,
 			},
+			"skip_wait": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to skip waiting for the field operation to complete.`,
+				Default:     false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -323,21 +329,37 @@ func resourceFirestoreFieldCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.SetId(id)
 
-	// Use the resource in the operation response to populate
-	// identity fields and d.Id() before read
-	var opRes map[string]interface{}
-	err = FirestoreOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Field", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
+	if d.Get("skip_wait").(bool) {
+		// If skip_wait, the LRO will not be complete so the response will not be populated.
+		// Extract the field name from the metadata field.
+		metadata, ok := res["metadata"].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("Error constructing id from result.")
+		}
+		field, ok := metadata["field"].(string)
+		if !ok {
+			return fmt.Errorf("Error constructing id from result.")
+		}
+		if err := d.Set("name", flattenFirestoreFieldName(field, d, config)); err != nil {
+			return err
+		}
+	} else {
+		// Use the resource in the operation response to populate
+		// identity fields and d.Id() before read
+		var opRes map[string]interface{}
+		err = FirestoreOperationWaitTimeWithResponse(
+			config, res, &opRes, project, "Creating Field", userAgent,
+			d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			// The resource didn't actually create
+			d.SetId("")
 
-		return fmt.Errorf("Error waiting to create Field: %s", err)
-	}
+			return fmt.Errorf("Error waiting to create Field: %s", err)
+		}
 
-	if err := d.Set("name", flattenFirestoreFieldName(opRes["name"], d, config)); err != nil {
-		return err
+		if err := d.Set("name", flattenFirestoreFieldName(opRes["name"], d, config)); err != nil {
+			return err
+		}
 	}
 
 	// This may have caused the ID to update - update it if so.
@@ -405,6 +427,11 @@ func resourceFirestoreFieldRead(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Finished reading FirestoreField %q: %#v", d.Id(), res)
 
 	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("skip_wait"); !ok {
+		if err := d.Set("skip_wait", false); err != nil {
+			return fmt.Errorf("Error setting skip_wait: %s", err)
+		}
+	}
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
 		if config.DeletionPolicy != "" {
@@ -546,12 +573,14 @@ func resourceFirestoreFieldUpdate(d *schema.ResourceData, meta interface{}) erro
 			log.Printf("[DEBUG] Finished updating Field %q: %#v", d.Id(), res)
 		}
 
-		err = FirestoreOperationWaitTime(
-			config, res, project, "Updating Field", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
+		if !d.Get("skip_wait").(bool) {
+			err = FirestoreOperationWaitTime(
+				config, res, project, "Updating Field", userAgent,
+				d.Timeout(schema.TimeoutUpdate))
 
-		if err != nil {
-			return err
+			if err != nil {
+				return err
+			}
 		}
 	}
 

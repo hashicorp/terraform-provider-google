@@ -23,8 +23,6 @@ description: |-
 
 RolloutSequence defines the desired order of upgrades.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about RolloutSequence, see:
 
@@ -37,7 +35,6 @@ To get more information about RolloutSequence, see:
 
 ```hcl
 resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
-  provider = google-beta
   rollout_sequence_id = "rs-basic"
   display_name        = "Basic Rollout Sequence"
   ignored_clusters_selector {
@@ -64,7 +61,6 @@ resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
 
 ```hcl
 resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
-  provider = google-beta
   rollout_sequence_id = "rs-basic"
   display_name        = "Modified Rollout Sequence"
   ignored_clusters_selector {

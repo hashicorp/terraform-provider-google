@@ -17,11 +17,13 @@
 package cloudscheduler_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudscheduler"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccCloudSchedulerJob_schedulerPausedExample(t *testing.T) {
@@ -139,4 +141,35 @@ resource "google_cloud_scheduler_job" "job" {
   }
 }
 `, context)
+}
+
+func TestUnitCloudSchedulerJob_Is409SyncMutateCannotBeQueuedError(t *testing.T) {
+	cases := map[string]struct {
+		Err      error
+		Expected bool
+	}{
+		"sync mutate cannot be queued error": {
+			Err:      fmt.Errorf("googleapi: Error 409: sync mutate calls cannot be queued"),
+			Expected: true,
+		},
+		"operation in progress error": {
+			Err:      fmt.Errorf("googleapi: Error 409: operationInProgress"),
+			Expected: false,
+		},
+		"generic error": {
+			Err:      fmt.Errorf("some generic error"),
+			Expected: false,
+		},
+		"nil error": {
+			Err:      nil,
+			Expected: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		retry, _ := transport_tpg.Is409SyncMutateCannotBeQueuedError(tc.Err)
+		if retry != tc.Expected {
+			t.Fatalf("bad: %s, expected %t got %t", tn, tc.Expected, retry)
+		}
+	}
 }

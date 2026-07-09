@@ -141,8 +141,11 @@ func ResourceBiglakeIcebergIcebergCatalog() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"CATALOG_TYPE_GCS_BUCKET", "CATALOG_TYPE_BIGLAKE"}),
-				Description:  `The catalog type of the IcebergCatalog. Possible values: ["CATALOG_TYPE_GCS_BUCKET", "CATALOG_TYPE_BIGLAKE"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"CATALOG_TYPE_GCS_BUCKET", "CATALOG_TYPE_BIGLAKE", "CATALOG_TYPE_FEDERATED"}),
+				Description: `The catalog type of the IcebergCatalog.
+* 'CATALOG_TYPE_GCS_BUCKET': Google Cloud Storage bucket catalog type.
+* 'CATALOG_TYPE_BIGLAKE': BigLake catalog type.
+* 'CATALOG_TYPE_FEDERATED': Federated catalog type, for integrating with external Iceberg REST Catalogs such as Databricks Unity Catalog or AWS Glue. Possible values: ["CATALOG_TYPE_GCS_BUCKET", "CATALOG_TYPE_BIGLAKE", "CATALOG_TYPE_FEDERATED"]`,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -167,6 +170,175 @@ gs://bucket-name, the catalog name will be exactly "bucket-name".`,
 				Description: `The default storage location for the catalog, e.g., 'gs://my-bucket'.
 Output only when the catalog type is CATALOG_TYPE_GCS_BUCKET.
 Required when the catalog type is CATALOG_TYPE_BIGLAKE.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A user-provided description of the catalog. Maximum 1024 UTF-8 characters.`,
+			},
+			"federated_catalog_options": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Options for a CATALOG_TYPE_FEDERATED catalog. Required when catalog_type
+is CATALOG_TYPE_FEDERATED.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"glue_catalog_info": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Configuration for an AWS Glue remote catalog. Exactly one of
+unity_catalog_info or glue_catalog_info must be specified.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"aws_region": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `The AWS region where the Glue catalog is located.`,
+									},
+									"aws_role_arn": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The ARN of the AWS IAM role to assume for accessing the Glue catalog.`,
+									},
+									"warehouse": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `The AWS Glue warehouse identifier (account ID or S3 table bucket).`,
+									},
+								},
+							},
+						},
+						"refresh_options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration for metadata synchronization from the remote catalog.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"refresh_schedule": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Schedule for periodic metadata refresh.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"refresh_interval": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The interval between metadata refreshes, expressed as a duration
+string (e.g., '300s').
+The value must be at least 300s or 0s to disable refresh.`,
+												},
+											},
+										},
+									},
+									"refresh_scope": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Scope of metadata to synchronize from the remote catalog.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"namespace_filters": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of namespace filters to limit which namespaces are
+synchronized from the remote catalog.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"secret_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The secret resource name in Secret Manager, in the format
+'projects/{projectId}/locations/{location}/secrets/{secret_id}'.
+Used to store credentials for authenticating with the remote catalog.`,
+						},
+						"service_directory_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The Service Directory service name for private network connectivity
+through Cross-Cloud Interconnect.`,
+						},
+						"unity_catalog_info": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Configuration for a Databricks Unity Catalog remote catalog. Exactly
+one of unity_catalog_info or glue_catalog_info must be specified.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"catalog_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `The name of the catalog within the Unity Catalog instance.`,
+									},
+									"instance_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `The Databricks workspace instance name.`,
+									},
+									"service_principal_application_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The application ID of the Databricks service principal for OIDC authentication.`,
+									},
+								},
+							},
+						},
+						"refresh_status": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Output only. The status of the most recent metadata refresh.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"end_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Output only. The end time of the most recent refresh.`,
+									},
+									"start_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Output only. The start time of the most recent refresh.`,
+									},
+									"status": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Output only. The error result of the last failed refresh, if any.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"code": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: `Output only. The status code, which should be an enum value of google.rpc.Code.`,
+												},
+												"message": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Output only. A developer-facing error message in English.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"primary_location": {
 				Type:     schema.TypeString,
@@ -202,6 +374,11 @@ either a GCS bucket or a path within it.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Output only. The service account used for credential vending. It might be empty if credential vending was never enabled for the catalog.`,
+			},
+			"biglake_service_account_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The unique ID of the service account used for credential vending. Used for federation scenarios.`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -289,11 +466,23 @@ func resourceBiglakeIcebergIcebergCatalogCreate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("default_location"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultLocationProp)) && (ok || !reflect.DeepEqual(v, defaultLocationProp)) {
 		obj["default-location"] = defaultLocationProp
 	}
+	descriptionProp, err := expandBiglakeIcebergIcebergCatalogDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
 	restrictedLocationsConfigProp, err := expandBiglakeIcebergIcebergCatalogRestrictedLocationsConfig(d.Get("restricted_locations_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("restricted_locations_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(restrictedLocationsConfigProp)) && (ok || !reflect.DeepEqual(v, restrictedLocationsConfigProp)) {
 		obj["restricted-locations-config"] = restrictedLocationsConfigProp
+	}
+	federatedCatalogOptionsProp, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptions(d.Get("federated_catalog_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("federated_catalog_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(federatedCatalogOptionsProp)) && (ok || !reflect.DeepEqual(v, federatedCatalogOptionsProp)) {
+		obj["federated-catalog-options"] = federatedCatalogOptionsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs?iceberg-catalog-id={{name}}&primary_location={{primary_location}}")
@@ -498,6 +687,20 @@ func resourceBiglakeIcebergIcebergCatalogUpdate(d *schema.ResourceData, meta int
 		obj["restricted-locations-config"] = restrictedLocationsConfigProp
 	}
 
+	descriptionProp, err := expandBiglakeIcebergIcebergCatalogDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+
+	federatedCatalogOptionsProp, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptions(d.Get("federated_catalog_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("federated_catalog_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, federatedCatalogOptionsProp)) {
+		obj["federated-catalog-options"] = federatedCatalogOptionsProp
+	}
+
 	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
 	if err != nil {
 		return err
@@ -520,6 +723,28 @@ func resourceBiglakeIcebergIcebergCatalogUpdate(d *schema.ResourceData, meta int
 
 	if d.HasChange("restricted_locations_config") {
 		updateMask = append(updateMask, "restricted_locations_config")
+	}
+
+	if d.HasChange("description") {
+		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("federated_catalog_options") {
+		if d.HasChange("federated_catalog_options.0.secret_name") {
+			updateMask = append(updateMask, "federated_catalog_options.secret_name")
+		}
+		if d.HasChange("federated_catalog_options.0.service_directory_name") {
+			updateMask = append(updateMask, "federated_catalog_options.service_directory_name")
+		}
+		if d.HasChange("federated_catalog_options.0.refresh_options") {
+			updateMask = append(updateMask, "federated_catalog_options.refresh_options")
+		}
+		if d.HasChange("federated_catalog_options.0.glue_catalog_info.0.aws_role_arn") {
+			updateMask = append(updateMask, "federated_catalog_options.glue_catalog_info.aws_role_arn")
+		}
+		if d.HasChange("federated_catalog_options.0.unity_catalog_info.0.service_principal_application_id") {
+			updateMask = append(updateMask, "federated_catalog_options.unity_catalog_info.service_principal_application_id")
+		}
 	}
 
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -646,6 +871,10 @@ func flattenBiglakeIcebergIcebergCatalogBiglakeServiceAccount(v interface{}, d *
 	return v
 }
 
+func flattenBiglakeIcebergIcebergCatalogBiglakeServiceAccountId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBiglakeIcebergIcebergCatalogCatalogType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -663,6 +892,10 @@ func flattenBiglakeIcebergIcebergCatalogCreateTime(v interface{}, d *schema.Reso
 }
 
 func flattenBiglakeIcebergIcebergCatalogUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -710,6 +943,205 @@ func flattenBiglakeIcebergIcebergCatalogRestrictedLocationsConfigRestrictedLocat
 	return v
 }
 
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["secret_name"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsSecretName(original["secret-name"], d, config)
+	transformed["service_directory_name"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsServiceDirectoryName(original["service-directory-name"], d, config)
+	transformed["refresh_options"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptions(original["refresh-options"], d, config)
+	transformed["refresh_status"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatus(original["refresh-status"], d, config)
+	transformed["unity_catalog_info"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfo(original["unity-catalog-info"], d, config)
+	transformed["glue_catalog_info"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfo(original["glue-catalog-info"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsSecretName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsServiceDirectoryName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["refresh_schedule"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshSchedule(original["refresh-schedule"], d, config)
+	transformed["refresh_scope"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScope(original["refresh-scope"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["refresh_interval"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScheduleRefreshInterval(original["refresh-interval"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScheduleRefreshInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScope(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["namespace_filters"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScopeNamespaceFilters(original["namespace-filters"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScopeNamespaceFilters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["start_time"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStartTime(original["start-time"], d, config)
+	transformed["end_time"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusEndTime(original["end-time"], d, config)
+	transformed["status"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatus(original["status"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusEndTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["code"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatusCode(original["code"], d, config)
+	transformed["message"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatusMessage(original["message"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatusCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatusMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["instance_name"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoInstanceName(original["instance-name"], d, config)
+	transformed["catalog_name"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoCatalogName(original["catalog-name"], d, config)
+	transformed["service_principal_application_id"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoServicePrincipalApplicationId(original["service-principal-application-id"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoInstanceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoCatalogName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoServicePrincipalApplicationId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["warehouse"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoWarehouse(original["warehouse"], d, config)
+	transformed["aws_region"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoAwsRegion(original["aws-region"], d, config)
+	transformed["aws_role_arn"] =
+		flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoAwsRoleArn(original["aws-role-arn"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoWarehouse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoAwsRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoAwsRoleArn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBiglakeIcebergIcebergCatalogCredentialMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -719,6 +1151,10 @@ func expandBiglakeIcebergIcebergCatalogCatalogType(v interface{}, d tpgresource.
 }
 
 func expandBiglakeIcebergIcebergCatalogDefaultLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -748,6 +1184,329 @@ func expandBiglakeIcebergIcebergCatalogRestrictedLocationsConfigRestrictedLocati
 	return v, nil
 }
 
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSecretName, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsSecretName(original["secret_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["secret-name"] = transformedSecretName
+	}
+
+	transformedServiceDirectoryName, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsServiceDirectoryName(original["service_directory_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceDirectoryName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["service-directory-name"] = transformedServiceDirectoryName
+	}
+
+	transformedRefreshOptions, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptions(original["refresh_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRefreshOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["refresh-options"] = transformedRefreshOptions
+	}
+
+	transformedRefreshStatus, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatus(original["refresh_status"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRefreshStatus); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["refresh-status"] = transformedRefreshStatus
+	}
+
+	transformedUnityCatalogInfo, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfo(original["unity_catalog_info"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUnityCatalogInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["unity-catalog-info"] = transformedUnityCatalogInfo
+	}
+
+	transformedGlueCatalogInfo, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfo(original["glue_catalog_info"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGlueCatalogInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["glue-catalog-info"] = transformedGlueCatalogInfo
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsSecretName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsServiceDirectoryName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRefreshSchedule, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshSchedule(original["refresh_schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRefreshSchedule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["refresh-schedule"] = transformedRefreshSchedule
+	}
+
+	transformedRefreshScope, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScope(original["refresh_scope"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRefreshScope); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["refresh-scope"] = transformedRefreshScope
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshSchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRefreshInterval, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScheduleRefreshInterval(original["refresh_interval"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRefreshInterval); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["refresh-interval"] = transformedRefreshInterval
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScheduleRefreshInterval(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedNamespaceFilters, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScopeNamespaceFilters(original["namespace_filters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNamespaceFilters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["namespace-filters"] = transformedNamespaceFilters
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshOptionsRefreshScopeNamespaceFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStartTime, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["start-time"] = transformedStartTime
+	}
+
+	transformedEndTime, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusEndTime(original["end_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEndTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["end-time"] = transformedEndTime
+	}
+
+	transformedStatus, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatus(original["status"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStatus); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["status"] = transformedStatus
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusEndTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCode, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatusCode(original["code"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["code"] = transformedCode
+	}
+
+	transformedMessage, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatusMessage(original["message"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMessage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["message"] = transformedMessage
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatusCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsRefreshStatusStatusMessage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInstanceName, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoInstanceName(original["instance_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInstanceName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["instance-name"] = transformedInstanceName
+	}
+
+	transformedCatalogName, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoCatalogName(original["catalog_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCatalogName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["catalog-name"] = transformedCatalogName
+	}
+
+	transformedServicePrincipalApplicationId, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoServicePrincipalApplicationId(original["service_principal_application_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServicePrincipalApplicationId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["service-principal-application-id"] = transformedServicePrincipalApplicationId
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoInstanceName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoCatalogName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsUnityCatalogInfoServicePrincipalApplicationId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWarehouse, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoWarehouse(original["warehouse"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWarehouse); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["warehouse"] = transformedWarehouse
+	}
+
+	transformedAwsRegion, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoAwsRegion(original["aws_region"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAwsRegion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["aws-region"] = transformedAwsRegion
+	}
+
+	transformedAwsRoleArn, err := expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoAwsRoleArn(original["aws_role_arn"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAwsRoleArn); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["aws-role-arn"] = transformedAwsRoleArn
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoWarehouse(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoAwsRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeIcebergIcebergCatalogFederatedCatalogOptionsGlueCatalogInfoAwsRoleArn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceBiglakeIcebergIcebergCatalogFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -755,6 +1514,9 @@ func ResourceBiglakeIcebergIcebergCatalogFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
 	}
 	if err = d.Set("biglake_service_account", flattenBiglakeIcebergIcebergCatalogBiglakeServiceAccount(res["biglake-service-account"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+	if err = d.Set("biglake_service_account_id", flattenBiglakeIcebergIcebergCatalogBiglakeServiceAccountId(res["biglake-service-account-id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
 	}
 	if err = d.Set("catalog_type", flattenBiglakeIcebergIcebergCatalogCatalogType(res["catalog-type"], d, config)); err != nil {
@@ -772,10 +1534,16 @@ func ResourceBiglakeIcebergIcebergCatalogFlatten(d *schema.ResourceData, meta in
 	if err = d.Set("update_time", flattenBiglakeIcebergIcebergCatalogUpdateTime(res["update-time"], d, config)); err != nil {
 		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
 	}
+	if err = d.Set("description", flattenBiglakeIcebergIcebergCatalogDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
 	if err = d.Set("replicas", flattenBiglakeIcebergIcebergCatalogReplicas(res["replicas"], d, config)); err != nil {
 		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
 	}
 	if err = d.Set("restricted_locations_config", flattenBiglakeIcebergIcebergCatalogRestrictedLocationsConfig(res["restricted-locations-config"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
+	}
+	if err = d.Set("federated_catalog_options", flattenBiglakeIcebergIcebergCatalogFederatedCatalogOptions(res["federated-catalog-options"], d, config)); err != nil {
 		return fmt.Errorf("Error reading IcebergCatalog: %s", err)
 	}
 

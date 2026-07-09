@@ -27,6 +27,8 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/querycheck"
+	"github.com/hashicorp/terraform-plugin-testing/querycheck/queryfilter"
 	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 )
 
@@ -82,6 +84,55 @@ func TestAccKmsCryptoKeyVersion_importBlockWithResourceIdentity(t *testing.T) {
 				ResourceName:    "google_kms_crypto_key_version.crypto_key_version",
 				ImportState:     true,
 				ImportStateKind: resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func TestAccKmsCryptoKeyVersionListResource_queryIdentity(t *testing.T) {
+	t.Parallel()
+
+	projectId := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	var listDisplayName acctest.ListDisplayName
+	var listScope acctest.ListScopeCapture
+	acctest.VcrTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_14_0),
+		},
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleKmsCryptoKeyVersion_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
+				Check: resource.ComposeTestCheckFunc(
+					listDisplayName.Capture(
+						"google_kms_crypto_key_version.crypto_key_version",
+						[]string{
+							"name",
+						},
+					),
+					listScope.Capture(map[string]string{
+						"crypto_key": "google_kms_crypto_key_version.crypto_key_version",
+					}),
+				),
+			},
+			{
+				Query:           true,
+				Config:          testGoogleKmsCryptoKeyVersion_listQuery(),
+				ConfigVariables: listScope.AsConfigVariables(),
+				QueryResultChecks: []querycheck.QueryResultCheck{
+					querycheck.ExpectLengthAtLeast("google_kms_crypto_key_version.list_query", 1),
+					querycheck.ExpectResourceDisplayName(
+						"google_kms_crypto_key_version.list_query",
+						queryfilter.ByDisplayName(listDisplayName.CheckValue()),
+						listDisplayName.CheckValue(),
+					),
+				},
 			},
 		},
 	})
@@ -363,6 +414,21 @@ resource "google_kms_crypto_key" "crypto_key" {
 	}
 }
 `, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
+}
+
+func testGoogleKmsCryptoKeyVersion_listQuery() string {
+	return `
+variable "crypto_key" { type = string }
+
+list "google_kms_crypto_key_version" "list_query" {
+	provider = google
+	limit    = 10000
+
+	config {
+		crypto_key = var.crypto_key
+	}
+}
+`
 }
 
 func testGoogleKmsCryptoKeyVersion_skipInitialVersion(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName string) string {

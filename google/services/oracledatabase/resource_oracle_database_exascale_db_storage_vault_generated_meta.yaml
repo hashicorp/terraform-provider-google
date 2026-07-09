@@ -16,6 +16,7 @@ fields:
     - field: effective_labels
       provider_only: true
     - api_field: entitlementId
+    - api_field: exadataInfrastructure
     - field: exascale_db_storage_vault_id
       provider_only: true
     - api_field: gcpOracleZone

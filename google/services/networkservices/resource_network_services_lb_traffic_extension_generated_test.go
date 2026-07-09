@@ -310,6 +310,7 @@ resource "google_network_services_lb_traffic_extension" "default" {
 
           supported_events = ["REQUEST_HEADERS"]
           forward_headers = ["custom-header"]
+          forward_attributes = ["request.host", "request.path"]
           metadata = {
             "key1" = "value1"
             "key2" = "value2"

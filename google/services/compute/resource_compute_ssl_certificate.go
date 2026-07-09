@@ -636,8 +636,10 @@ func ResourceComputeSslCertificateFlatten(d *schema.ResourceData, meta interface
 	if err = d.Set("private_key_wo_version", flattenComputeSslCertificatePrivateKeyWoVersion(res["privateKeyWoVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SslCertificate: %s", err)
 	}
-	if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
-		return fmt.Errorf("Error reading SslCertificate: %s", err)
+	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {
+		if err = d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
+			return fmt.Errorf("Error reading SslCertificate: %s", err)
+		}
 	}
 	return nil
 }
