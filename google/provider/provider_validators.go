@@ -85,8 +85,14 @@ func ValidateJWT(v interface{}, k string) (warnings []string, errors []error) {
 		return
 	}
 
-	// Check that each part is base64 encoded
+	// Check that each part is non-empty and base64url encoded. An empty
+	// segment decodes without error, so a token like ".." would otherwise
+	// be accepted as a valid JWT.
 	for i, part := range parts {
+		if part == "" {
+			errors = append(errors, fmt.Errorf("part %d of JWT must not be empty (expected header.payload.signature)", i+1))
+			continue
+		}
 		if _, err := base64.RawURLEncoding.DecodeString(part); err != nil {
 			errors = append(errors, fmt.Errorf("part %d of JWT is not valid base64: %v", i+1, err))
 		}
