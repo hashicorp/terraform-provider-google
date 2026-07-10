@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added `traffic_config`, `url`, `agent_server_mode`, `agent_gateway_config`, `keep_alive_probe`, `dedicated_ingress_endpoint_enabled`, `agent_config_source`, `agent_card`, `example_store`, `build_spec`, `traffic_config`, and `example_store_config` fields to `google_vertex_ai_reasoning_engine` (beta)
+```

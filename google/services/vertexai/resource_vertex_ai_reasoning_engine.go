@@ -478,6 +478,7 @@ container image that is to be run on each worker replica.`,
 						},
 						"deployment_spec": {
 							Type:        schema.TypeList,
+							Computed:    true,
 							Optional:    true,
 							Description: `Optional. The specification of a Reasoning Engine deployment.`,
 							MaxItems:    1,
@@ -1214,6 +1215,28 @@ func resourceVertexAIReasoningEngineUpdate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	// Remove unchanged fields from the request body to avoid API validation errors on defaulted fields.
+	if !d.HasChange("context_spec") {
+		delete(obj, "contextSpec")
+	}
+
+	if !d.HasChange("traffic_config") {
+		delete(obj, "trafficConfig")
+	}
+
+	if !d.HasChange("spec") {
+		delete(obj, "spec")
+	} else {
+		// If spec changed, check if deployment_spec inside it changed.
+		// If deployment_spec didn't change, remove it from spec map.
+		if specList, ok := obj["spec"].([]interface{}); ok && len(specList) > 0 {
+			if specMap, ok := specList[0].(map[string]interface{}); ok {
+				if !d.HasChange("spec.0.deployment_spec") {
+					delete(specMap, "deploymentSpec")
+				}
+			}
+		}
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -1473,29 +1496,24 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpec(v interface{}, d *schema.R
 }
 func flattenVertexAIReasoningEngineSpecDeploymentSpecEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return v
+		return nil
 	}
 	l := v.([]interface{})
-	transformed := schema.NewSet(schema.HashResource(vertexaiReasoningEngineSpecDeploymentSpecEnvSchema()), []interface{}{})
+	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
+		if raw == nil {
 			continue
 		}
-		transformed.Add(map[string]interface{}{
-			"name":  flattenVertexAIReasoningEngineSpecDeploymentSpecEnvName(original["name"], d, config),
-			"value": flattenVertexAIReasoningEngineSpecDeploymentSpecEnvValue(original["value"], d, config),
+		original := raw.(map[string]interface{})
+		if original["name"] == "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY" {
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":  original["name"],
+			"value": original["value"],
 		})
 	}
 	return transformed
-}
-func flattenVertexAIReasoningEngineSpecDeploymentSpecEnvName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIReasoningEngineSpecDeploymentSpecEnvValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenVertexAIReasoningEngineSpecDeploymentSpecSecretEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
