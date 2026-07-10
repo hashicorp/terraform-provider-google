@@ -1,0 +1,3 @@
+```release-note:enhancement
+discoveryengine: added `enable_llm_layout_parsing` and `enable_get_processed_document` fields to `google_discovery_engine_data_store`
+```
