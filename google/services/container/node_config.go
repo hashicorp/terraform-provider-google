@@ -405,13 +405,13 @@ func schemaNodeConfig() *schema.Schema {
 								Type:        schema.TypeString,
 								Optional:    true,
 								Computed:    true,
-								Description: `The name of the image to use for this node.`,
+								Description: `The Operating System image for the node pool. This is a private feature, please contact your Google account team for allowlisting this feature.`,
 							},
 							"image_project": {
 								Type:        schema.TypeString,
 								Optional:    true,
 								Computed:    true,
-								Description: `The project containing the image to use for this node.`,
+								Description: `The GCP project storing the Operating System image for the node pool. This is a private feature, please contact your Google account team for allowlisting this feature.`,
 							},
 						},
 					},
@@ -4230,7 +4230,8 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 			log.Printf("[INFO] Updated labels for node pool %s", name)
 		}
 
-		if d.HasChange(prefix + "node_config.0.image_type") {
+		// The case updating both image_type and node_image_config will be handled in the node_image_config section.
+		if d.HasChange(prefix+"node_config.0.image_type") && !d.HasChange(prefix+"node_config.0.node_image_config") {
 			req := &container.UpdateClusterRequest{
 				Update: &container.ClusterUpdate{
 					DesiredNodePoolId: name,
@@ -4465,19 +4466,31 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 			log.Printf("[INFO] Updated windows_node_config for node pool %s", name)
 		}
 		if d.HasChange(prefix + "node_config.0.node_image_config") {
-			imageConfig := expandNodeImageConfig(d.Get(prefix + "node_config.0.node_image_config"))
-			req := &container.UpdateNodePoolRequest{
-				Name:         name,
-				Image:        imageConfig.Image,
-				ImageProject: imageConfig.ImageProject,
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredNodePoolId: name,
+				},
+			}
+			if imageConfig := expandNodeImageConfig(d.Get(prefix + "node_config.0.node_image_config")); imageConfig != nil {
+				req.Update.DesiredImage = imageConfig.Image
+				req.Update.DesiredImageProject = imageConfig.ImageProject
+			}
+
+			if d.HasChange(prefix + "node_config.0.image_type") {
+				req.Update.DesiredImageType = d.Get(prefix + "node_config.0.image_type").(string)
+			} else {
+				// If only updating the node_image_config (DesiredImage and/or DesiredImage) and
+				// the image_type unspecified, then it is an use case of custom image feature, where
+				// the DesiredImageType should be CUSTOM_CONTAINERD (go/gke-custom-image-builder-ug-edit)
+				req.Update.DesiredImageType = "CUSTOM_CONTAINERD"
 			}
 
 			updateF := func() error {
-				clusterNodePoolsUpdateCall := NewClient(config, userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				clusterUpdateCall := NewClient(config, userAgent).Projects.Locations.Clusters.Update(nodePoolInfo.parent(), req)
 				if config.UserProjectOverride {
-					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+					clusterUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 				}
-				op, err := clusterNodePoolsUpdateCall.Do()
+				op, err := clusterUpdateCall.Do()
 				if err != nil {
 					return err
 				}
@@ -4485,8 +4498,7 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 				// Wait until it's updated
 				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
-					nodePoolInfo.location,
-					"updating GKE node pool custom image config", userAgent,
+					nodePoolInfo.location, "updating GKE node pool", userAgent,
 					timeout)
 			}
 

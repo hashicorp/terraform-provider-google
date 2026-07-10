@@ -1238,6 +1238,14 @@ func TestAccContainerNodePool_withNodeImageConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccContainerNodePool_withNodeImageConfigBase(cluster, np),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_node_image_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config:      testAccContainerNodePool_withNodeImageConfig(cluster, np, "test-cos-images", "test-image-project"),
 				ExpectError: regexp.MustCompile(`image 'test-cos-images' is not available in project 'test-image-project'`),
 			},
@@ -4350,6 +4358,38 @@ resource "google_container_node_pool" "with_windows_node_config" {
   }
 }
 `, cluster, np, osversion)
+}
+
+func testAccContainerNodePool_withNodeImageConfigBase(cluster, np string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  networking_mode     = "VPC_NATIVE"
+  ip_allocation_policy {}
+}
+
+resource "google_container_node_pool" "with_node_image_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    image_type = "COS_CONTAINERD"
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+  }
+}
+`, cluster, np)
 }
 
 func testAccContainerNodePool_withNodeImageConfig(cluster, np, imageName, imageProject string) string {
