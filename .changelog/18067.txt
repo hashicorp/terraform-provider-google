@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed permadiff on `keepalive_interval` for `google_compute_router` bgp block when set to default value
+```

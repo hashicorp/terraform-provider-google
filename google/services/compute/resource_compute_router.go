@@ -897,20 +897,17 @@ func flattenComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d *sche
 }
 
 func flattenComputeRouterBgpKeepaliveInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
+		return 20
+	}
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
 			return intVal
-		}
+		} // let terraform core handle it if we can't convert the string to an int.
 	}
 
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return v
 }
 
 func flattenComputeRouterBgpIdentifierRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
