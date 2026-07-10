@@ -1,0 +1,1 @@
+unknown: support of updating `node_image_config  and `image_type` at the same time

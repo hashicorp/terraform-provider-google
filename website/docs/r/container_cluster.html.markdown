@@ -1289,9 +1289,9 @@ sole_tenant_config {
 
 <a name="nested_node_image_config"></a>The `node_image_config` block supports:
 
-* `image` (Optional) - The name of the image to use for this node.
+* `image` (Optional) - The Operating System image for the node pool. This is a private feature, please contact your Google account team for allowlisting this feature.
 
-* `image_project` (Optional) - The project containing the image to use for this node.
+* `image_project` (Optional) - The GCP project storing the Operating System image for the node pool. This is a private feature, please contact your Google account team for allowlisting this feature.
 
 <a name="nested_advanced_machine_features"></a>The `advanced_machine_features` block supports:
 
