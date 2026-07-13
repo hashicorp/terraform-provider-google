@@ -37,7 +37,6 @@ FEATURES:
 * **New Resource:** `google_iap_agent_registry_mcp_server_iam_binding` ([#28231](https://github.com/hashicorp/terraform-provider-google/pull/28231))
 * **New Resource:** `google_iap_agent_registry_mcp_server_iam_member` ([#28231](https://github.com/hashicorp/terraform-provider-google/pull/28231))
 * **New Resource:** `google_iap_agent_registry_mcp_server_iam_policy` ([#28231](https://github.com/hashicorp/terraform-provider-google/pull/28231))
-* **New Resource:** `google_network_connectivity_custom_hardware_instance` ([#28219](https://github.com/hashicorp/terraform-provider-google/pull/28219))
 * **New Resource:** `google_tags_tag_binding_collection` ([#28180](https://github.com/hashicorp/terraform-provider-google/pull/28180))
 * **New Resource:** `google_vector_search_index` ([#28238](https://github.com/hashicorp/terraform-provider-google/pull/28238))
 * **New Resource:** `google_chronicle_environment` ([#28206](https://github.com/hashicorp/terraform-provider-google/pull/28206))
