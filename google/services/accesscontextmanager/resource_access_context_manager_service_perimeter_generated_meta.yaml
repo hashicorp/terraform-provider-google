@@ -17,6 +17,7 @@ fields:
     - api_field: spec.egressPolicies.egressFrom.identityType
     - api_field: spec.egressPolicies.egressFrom.sourceRestriction
     - api_field: spec.egressPolicies.egressFrom.sources.accessLevel
+    - api_field: spec.egressPolicies.egressFrom.sources.pscEndpoint.forwardingRule
     - api_field: spec.egressPolicies.egressFrom.sources.resource
     - api_field: spec.egressPolicies.egressTo.externalResources
     - api_field: spec.egressPolicies.egressTo.operations.methodSelectors.method
@@ -28,6 +29,7 @@ fields:
     - api_field: spec.ingressPolicies.ingressFrom.identities
     - api_field: spec.ingressPolicies.ingressFrom.identityType
     - api_field: spec.ingressPolicies.ingressFrom.sources.accessLevel
+    - api_field: spec.ingressPolicies.ingressFrom.sources.pscEndpoint.forwardingRule
     - api_field: spec.ingressPolicies.ingressFrom.sources.resource
     - api_field: spec.ingressPolicies.ingressTo.operations.methodSelectors.method
     - api_field: spec.ingressPolicies.ingressTo.operations.methodSelectors.permission
@@ -44,6 +46,7 @@ fields:
     - api_field: status.egressPolicies.egressFrom.identityType
     - api_field: status.egressPolicies.egressFrom.sourceRestriction
     - api_field: status.egressPolicies.egressFrom.sources.accessLevel
+    - api_field: status.egressPolicies.egressFrom.sources.pscEndpoint.forwardingRule
     - api_field: status.egressPolicies.egressFrom.sources.resource
     - api_field: status.egressPolicies.egressTo.externalResources
     - api_field: status.egressPolicies.egressTo.operations.methodSelectors.method
@@ -55,6 +58,7 @@ fields:
     - api_field: status.ingressPolicies.ingressFrom.identities
     - api_field: status.ingressPolicies.ingressFrom.identityType
     - api_field: status.ingressPolicies.ingressFrom.sources.accessLevel
+    - api_field: status.ingressPolicies.ingressFrom.sources.pscEndpoint.forwardingRule
     - api_field: status.ingressPolicies.ingressFrom.sources.resource
     - api_field: status.ingressPolicies.ingressTo.operations.methodSelectors.method
     - api_field: status.ingressPolicies.ingressTo.operations.methodSelectors.permission

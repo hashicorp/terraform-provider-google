@@ -17,6 +17,8 @@ fields:
       field: ingress_from.identity_type
     - api_field: spec.ingressPolicies.ingressFrom.sources.accessLevel
       field: ingress_from.sources.access_level
+    - api_field: spec.ingressPolicies.ingressFrom.sources.pscEndpoint.forwardingRule
+      field: ingress_from.sources.psc_endpoint.forwarding_rule
     - api_field: spec.ingressPolicies.ingressFrom.sources.resource
       field: ingress_from.sources.resource
     - api_field: spec.ingressPolicies.ingressTo.operations.methodSelectors.method
