@@ -382,6 +382,42 @@ func resourceSqlUserCreate(d *schema.ResourceData, meta interface{}) error {
 	return resourceSqlUserRead(d, meta)
 }
 
+func flattenSqlUser(user *sqladmin.User, d *schema.ResourceData, project string) error {
+	if err := d.Set("host", user.Host); err != nil {
+		return fmt.Errorf("Error setting host: %s", err)
+	}
+	if err := d.Set("instance", user.Instance); err != nil {
+		return fmt.Errorf("Error setting instance: %s", err)
+	}
+	if err := d.Set("name", user.Name); err != nil {
+		return fmt.Errorf("Error setting name: %s", err)
+	}
+	if err := d.Set("type", user.Type); err != nil {
+		return fmt.Errorf("Error setting type: %s", err)
+	}
+	if err := d.Set("iam_email", user.IamEmail); err != nil {
+		return fmt.Errorf("Error setting iam_email: %s", err)
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("sql_server_user_details", flattenSqlServerUserDetails(user.SqlserverUserDetails)); err != nil {
+		return fmt.Errorf("Error setting sql server user details: %s", err)
+	}
+	if user.PasswordPolicy != nil {
+		passwordPolicy := flattenPasswordPolicy(user.PasswordPolicy)
+		if len(passwordPolicy.([]map[string]interface{})[0]) != 0 {
+			if err := d.Set("password_policy", passwordPolicy); err != nil {
+				return fmt.Errorf("Error setting password_policy: %s", err)
+			}
+		}
+	}
+
+	d.SetId(fmt.Sprintf("%s/%s/%s", user.Name, user.Host, user.Instance))
+
+	return nil
+}
+
 func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -451,37 +487,9 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	if err := d.Set("host", user.Host); err != nil {
-		return fmt.Errorf("Error setting host: %s", err)
+	if err := flattenSqlUser(user, d, project); err != nil {
+		return err
 	}
-	if err := d.Set("instance", user.Instance); err != nil {
-		return fmt.Errorf("Error setting instance: %s", err)
-	}
-	if err := d.Set("name", user.Name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
-	}
-	if err := d.Set("type", user.Type); err != nil {
-		return fmt.Errorf("Error setting type: %s", err)
-	}
-	if err := d.Set("iam_email", user.IamEmail); err != nil {
-		return fmt.Errorf("Error setting iam_email: %s", err)
-	}
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error setting project: %s", err)
-	}
-	if err := d.Set("sql_server_user_details", flattenSqlServerUserDetails(user.SqlserverUserDetails)); err != nil {
-		return fmt.Errorf("Error setting sql server user details: %s", err)
-	}
-	if user.PasswordPolicy != nil {
-		passwordPolicy := flattenPasswordPolicy(user.PasswordPolicy)
-		if len(passwordPolicy.([]map[string]interface{})[0]) != 0 {
-			if err := d.Set("password_policy", passwordPolicy); err != nil {
-				return fmt.Errorf("Error setting password_policy: %s", err)
-			}
-		}
-	}
-
-	d.SetId(fmt.Sprintf("%s/%s/%s", user.Name, user.Host, user.Instance))
 
 	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
 		return err
