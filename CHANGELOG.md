@@ -72,7 +72,7 @@ BUG FIXES:
 * compute: fixed an issue where `preview = false` updates for `google_compute_organization_security_policy_rule` were omitted from API requests. ([#28223](https://github.com/hashicorp/terraform-provider-google/pull/28223))
 * compute: fixed bug where it wasn't possible to disable `enable_proxy_protocol` on `google_compute_service_attachment` resource ([#28264](https://github.com/hashicorp/terraform-provider-google/pull/28264))
 * datastream: fixed a bug in update functionality in `google_datastream_connection_profile` `mongodb_profile.additional_options` ([#28254](https://github.com/hashicorp/terraform-provider-google/pull/28254))
-* eventarc: added a custom flattener to fix a type mismatch when an `google_eventarc_trigger` resource returns non-empty `conditions`. ([#28226](https://github.com/hashicorp/terraform-provider-google/pull/28226))
+* eventarc: fixed a type mismatch when an `google_eventarc_trigger` resource returns non-empty `conditions`. ([#28226](https://github.com/hashicorp/terraform-provider-google/pull/28226))
 * filestore: aligned `google_filestore_instance` resource timeouts with the Filestore service instance operations TTLs ([#28208](https://github.com/hashicorp/terraform-provider-google/pull/28208))
 * gemini: fixed truncated timeouts in `google_gemini_code_tools_setting`, `google_gemini_data_sharing_with_google_setting_binding`, `google_gemini_gemini_gcp_enablement_setting_binding`, and `google_gemini_release_channel_setting_binding` ([#28220](https://github.com/hashicorp/terraform-provider-google/pull/28220))
 * hypercomputecluster: fixed 20-minute timeout limit during `google_hypercomputecluster_cluster` resource creation ([#28182](https://github.com/hashicorp/terraform-provider-google/pull/28182))
