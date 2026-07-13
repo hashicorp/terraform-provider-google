@@ -31,6 +31,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/container"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -125,6 +126,122 @@ resource "google_compute_network" "network_primary" {
 resource "google_compute_network" "network_secondary" {
   name                    = "%{network_secondary_name}"
   auto_create_subnetworks = "false"
+}
+`, context)
+}
+
+func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkePeeredVpcExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"deletion_protection":          false,
+		"gke_cluster_name":             "tf-test-gke-cluster" + randomSuffix,
+		"gke_network_name":             "tf-test-gke-network" + randomSuffix,
+		"gke_subnetwork_name":          "tf-test-gke-subnetwork" + randomSuffix,
+		"peering_gke_to_workload_name": "tf-test-peering-gke-to-workload" + randomSuffix,
+		"peering_workload_to_gke_name": "tf-test-peering-workload-to-gke" + randomSuffix,
+		"workload_network_name":        "tf-test-workload-network" + randomSuffix,
+		"random_suffix":                randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkePeeredVpcExample(context),
+			},
+			{
+				ResourceName:            "google_compute_network_peering_routes_config.peering_gke_routes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network"},
+			},
+			{
+				ResourceName:       "google_compute_network_peering_routes_config.peering_gke_routes",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkePeeredVpcExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network_peering_routes_config" "peering_gke_routes" {
+  peering = google_compute_network_peering.peering_gke_to_workload.name
+  network = google_compute_network.gke_network.name
+
+  import_custom_routes = true
+  export_custom_routes = true
+}
+
+resource "google_compute_network_peering" "peering_gke_to_workload" {
+  name         = "%{peering_gke_to_workload_name}"
+  network      = google_compute_network.gke_network.id
+  peer_network = google_compute_network.workload_network.id
+
+  import_custom_routes = true
+  export_custom_routes = true
+}
+
+resource "google_compute_network_peering" "peering_workload_to_gke" {
+  name         = "%{peering_workload_to_gke_name}"
+  network      = google_compute_network.workload_network.id
+  peer_network = google_compute_network.gke_network.id
+}
+
+resource "google_compute_network" "gke_network" {
+  name                    = "%{gke_network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "workload_network" {
+  name                    = "%{workload_network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "gke_subnetwork" {
+  name                     = "%{gke_subnetwork_name}"
+  region                   = "us-central1"
+  network                  = google_compute_network.gke_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+}
+
+resource "google_container_cluster" "gke_cluster" {
+  name               = "%{gke_cluster_name}"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  network    = google_compute_network.gke_network.name
+  subnetwork = google_compute_subnetwork.gke_subnetwork.name
+
+  private_cluster_config {
+    enable_private_nodes    = true
+    master_ipv4_cidr_block  = "10.42.0.0/28"
+  }
+
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.gke_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.gke_subnetwork.secondary_ip_range[1].range_name
+  }
+
+  deletion_protection = %{deletion_protection}
 }
 `, context)
 }
