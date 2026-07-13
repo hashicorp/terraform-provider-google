@@ -291,6 +291,23 @@ with request origins within the perimeter.
 Example 'accessPolicies/MY_POLICY/accessLevels/MY_LEVEL.'
 If * is specified, then all IngressSources will be allowed.`,
 									},
+									"psc_endpoint": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A Private Service Connect endpoint that is allowed to access the perimeter.
+The Private Service Connect endpoint may be in any organization, not just the organization that the perimeter is defined in.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"forwarding_rule": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The full resource name of the global forwarding rule that identifies a Private Service Connect endpoint.
+Forwarding rule format: '//compute.googleapis.com/projects/{PROJECT_ID}/global/forwardingRules/{FORWARDING_RULE_ID}'.`,
+												},
+											},
+										},
+									},
 									"resource": {
 										Type:     schema.TypeString,
 										Optional: true,
@@ -888,6 +905,7 @@ func flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSo
 		transformed = append(transformed, map[string]interface{}{
 			"access_level": flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesAccessLevel(original["accessLevel"], d, config),
 			"resource":     flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesResource(original["resource"], d, config),
+			"psc_endpoint": flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesPscEndpoint(original["pscEndpoint"], d, config),
 		})
 	}
 	return transformed
@@ -897,6 +915,23 @@ func flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSo
 }
 
 func flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesPscEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["forwarding_rule"] =
+		flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesPscEndpointForwardingRule(original["forwardingRule"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesPscEndpointForwardingRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1077,6 +1112,13 @@ func expandNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSou
 			transformed["resource"] = transformedResource
 		}
 
+		transformedPscEndpoint, err := expandNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesPscEndpoint(original["psc_endpoint"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPscEndpoint); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["pscEndpoint"] = transformedPscEndpoint
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1087,6 +1129,32 @@ func expandNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSou
 }
 
 func expandNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesPscEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedForwardingRule, err := expandNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesPscEndpointForwardingRule(original["forwarding_rule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedForwardingRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["forwardingRule"] = transformedForwardingRule
+	}
+
+	return transformed, nil
+}
+
+func expandNestedAccessContextManagerServicePerimeterIngressPolicyIngressFromSourcesPscEndpointForwardingRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

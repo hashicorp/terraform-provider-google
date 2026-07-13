@@ -305,6 +305,20 @@ The following arguments are supported:
   organization that the perimeter is defined in. `*` is not allowed, the case
   of allowing all Google Cloud resources only is not supported.
 
+* `psc_endpoint` -
+  (Optional)
+  A Private Service Connect endpoint that is allowed to access the perimeter.
+  The Private Service Connect endpoint may be in any organization, not just the organization that the perimeter is defined in.
+  Structure is [documented below](#nested_service_perimeters_status_ingress_policies_ingress_from_sources_psc_endpoint).
+
+
+<a name="nested_service_perimeters_status_ingress_policies_ingress_from_sources_psc_endpoint"></a>The `psc_endpoint` block supports:
+
+* `forwarding_rule` -
+  (Optional)
+  The full resource name of the global forwarding rule that identifies a Private Service Connect endpoint.
+  Forwarding rule format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/forwardingRules/{FORWARDING_RULE_ID}`.
+
 <a name="nested_service_perimeters_status_ingress_policies_ingress_to"></a>The `ingress_to` block supports:
 
 * `resources` -
@@ -419,6 +433,20 @@ The following arguments are supported:
   The resource may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the
   case of allowing all Google Cloud resources only is not supported.
+
+* `psc_endpoint` -
+  (Optional)
+  A Private Service Connect endpoint that is allowed to access data outside the perimeter.
+  The Private Service Connect endpoint may be in any organization, not just the organization that the perimeter is defined in.
+  Structure is [documented below](#nested_service_perimeters_status_egress_policies_egress_from_sources_psc_endpoint).
+
+
+<a name="nested_service_perimeters_status_egress_policies_egress_from_sources_psc_endpoint"></a>The `psc_endpoint` block supports:
+
+* `forwarding_rule` -
+  (Optional)
+  The full resource name of the global forwarding rule that identifies a Private Service Connect endpoint.
+  Forwarding rule format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/forwardingRules/{FORWARDING_RULE_ID}`.
 
 <a name="nested_service_perimeters_status_egress_policies_egress_to"></a>The `egress_to` block supports:
 
@@ -604,6 +632,20 @@ The following arguments are supported:
   organization that the perimeter is defined in. `*` is not allowed, the case
   of allowing all Google Cloud resources only is not supported.
 
+* `psc_endpoint` -
+  (Optional)
+  A Private Service Connect endpoint that is allowed to access the perimeter.
+  The Private Service Connect endpoint may be in any organization, not just the organization that the perimeter is defined in.
+  Structure is [documented below](#nested_service_perimeters_spec_ingress_policies_ingress_from_sources_psc_endpoint).
+
+
+<a name="nested_service_perimeters_spec_ingress_policies_ingress_from_sources_psc_endpoint"></a>The `psc_endpoint` block supports:
+
+* `forwarding_rule` -
+  (Optional)
+  The full resource name of the global forwarding rule that identifies a Private Service Connect endpoint.
+  Forwarding rule format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/forwardingRules/{FORWARDING_RULE_ID}`.
+
 <a name="nested_service_perimeters_spec_ingress_policies_ingress_to"></a>The `ingress_to` block supports:
 
 * `resources` -
@@ -720,6 +762,20 @@ The following arguments are supported:
   The resource may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the
   case of allowing all Google Cloud resources only is not supported.
+
+* `psc_endpoint` -
+  (Optional)
+  A Private Service Connect endpoint that is allowed to access data outside the perimeter.
+  The Private Service Connect endpoint may be in any organization, not just the organization that the perimeter is defined in.
+  Structure is [documented below](#nested_service_perimeters_spec_egress_policies_egress_from_sources_psc_endpoint).
+
+
+<a name="nested_service_perimeters_spec_egress_policies_egress_from_sources_psc_endpoint"></a>The `psc_endpoint` block supports:
+
+* `forwarding_rule` -
+  (Optional)
+  The full resource name of the global forwarding rule that identifies a Private Service Connect endpoint.
+  Forwarding rule format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/forwardingRules/{FORWARDING_RULE_ID}`.
 
 <a name="nested_service_perimeters_spec_egress_policies_egress_to"></a>The `egress_to` block supports:
 

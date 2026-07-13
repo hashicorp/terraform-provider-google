@@ -1,0 +1,3 @@
+```release-note:enhancement
+accesscontextmanager: added `pscEndpoint` to `sources` in `ingress_from` and `egress_from` under resources `google_access_context_manager_service_perimeter` and variants
+```
