@@ -50,14 +50,14 @@ func DataSourceGoogleServiceAccountJwt() *schema.Resource {
 			"target_service_account": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: verify.ValidateRegexp("(" + strings.Join(verify.PossibleServiceAccountNames, "|") + ")"),
+				ValidateFunc: verify.ValidateRegexp("^(" + strings.Join(verify.PossibleServiceAccountNames, "|") + ")$"),
 			},
 			"delegates": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: verify.ValidateRegexp(verify.ServiceAccountLinkRegex),
+					ValidateFunc: verify.ValidateRegexp("^" + verify.ServiceAccountLinkRegex + "$"),
 				},
 			},
 			"jwt": {

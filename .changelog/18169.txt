@@ -1,0 +1,3 @@
+```release-note:bug
+resourcemanager: fixed validation of `target_service_account` and `delegates` in the `google_service_account_access_token`, `google_service_account_id_token`, and `google_service_account_jwt` data sources, and of `name` in the `google_service_account_key` data source, to reject identifiers that contain path separators
+```
