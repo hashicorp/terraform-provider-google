@@ -628,13 +628,6 @@ The following arguments are supported:
   Settings for the Binary Authorization feature.
   Structure is [documented below](#nested_binary_authorization).
 
-* `custom_audiences` -
-  (Optional, Deprecated)
-  One or more custom audiences that you want this worker pool to support. Specify each custom audience as the full URL in a string. The custom audiences are encoded in the token and used to authenticate requests.
-  For more information, see https://cloud.google.com/run/docs/configuring/custom-audiences.
-
-  ~> **Warning:** `custom_audiences` is deprecated since it is not applicable to WorkerPool resource and will be removed in a future major release.
-
 * `scaling` -
   (Optional)
   Scaling settings that apply to the worker pool.
