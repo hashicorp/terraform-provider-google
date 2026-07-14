@@ -311,10 +311,13 @@ See https://cloud.google.com/load-balancing/docs/backend-authenticated-tls-backe
 			"self_managed": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `Certificate data for a SelfManaged Certificate.
 SelfManaged Certificates are uploaded by the user. Updating such
-certificates before they expire remains the user's responsibility.`,
+certificates before they expire remains the user's responsibility.
+
+The certificate data can be updated in place; changes to 'pem_certificate'
+and 'pem_private_key' are applied via the API's PATCH method instead of
+forcing recreation of the certificate.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -322,7 +325,6 @@ certificates before they expire remains the user's responsibility.`,
 							Type:       schema.TypeString,
 							Optional:   true,
 							Deprecated: "`certificate_pem` is deprecated and will be removed in a future major release. Use `pem_certificate` instead.",
-							ForceNew:   true,
 							Description: `The certificate chain in PEM-encoded form.
 
 Leaf certificate comes first, followed by intermediate ones if any.`,
@@ -332,7 +334,6 @@ Leaf certificate comes first, followed by intermediate ones if any.`,
 						"pem_certificate": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Description: `The certificate chain in PEM-encoded form.
 
 Leaf certificate comes first, followed by intermediate ones if any.`,
@@ -341,7 +342,6 @@ Leaf certificate comes first, followed by intermediate ones if any.`,
 						"pem_private_key": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     true,
 							Description:  `The private key of the leaf certificate in PEM-encoded form.`,
 							Sensitive:    true,
 							ExactlyOneOf: []string{"self_managed.0.pem_private_key", "self_managed.0.private_key_pem"},
@@ -350,7 +350,6 @@ Leaf certificate comes first, followed by intermediate ones if any.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							Deprecated:   "`private_key_pem` is deprecated and will be removed in a future major release. Use `pem_private_key` instead.",
-							ForceNew:     true,
 							Description:  `The private key of the leaf certificate in PEM-encoded form.`,
 							Sensitive:    true,
 							ExactlyOneOf: []string{"self_managed.0.pem_private_key", "self_managed.0.private_key_pem"},
@@ -663,6 +662,12 @@ func resourceCertificateManagerCertificateUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	selfManagedProp, err := expandCertificateManagerCertificateSelfManaged(d.Get("self_managed"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("self_managed"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, selfManagedProp)) {
+		obj["selfManaged"] = selfManagedProp
+	}
 	effectiveLabelsProp, err := expandCertificateManagerCertificateEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -681,6 +686,10 @@ func resourceCertificateManagerCertificateUpdate(d *schema.ResourceData, meta in
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("self_managed") {
+		updateMask = append(updateMask, "selfManaged")
 	}
 
 	if d.HasChange("effective_labels") {
