@@ -1,0 +1,3 @@
+```release-note:enhancement
+certificatemanager: added in-place update support for the `self_managed` certificate data (`pem_certificate` / `pem_private_key`) on `google_certificate_manager_certificate`; changing the certificate data is now applied via update instead of forcing recreation
+```
