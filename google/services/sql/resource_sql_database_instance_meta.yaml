@@ -170,6 +170,8 @@ fields:
   - api_field: 'settings.ipConfiguration.pscConfig.pscAutoConnections.consumerNetworkStatus'
   - api_field: 'settings.ipConfiguration.pscConfig.pscAutoConnections.consumerProject'
     field: 'settings.ip_configuration.psc_config.psc_auto_connections.consumer_service_project_id'
+  - api_field: 'settings.ipConfiguration.pscConfig.pscAutoConnections.instanceAutoDnsStatus'
+  - api_field: 'settings.ipConfiguration.pscConfig.pscAutoConnections.writeEndpointAutoDnsStatus'
   - api_field: 'settings.ipConfiguration.pscConfig.pscAutoConnections.ipAddress'
   - api_field: 'settings.ipConfiguration.pscConfig.pscAutoConnections.status'
   - api_field: 'settings.ipConfiguration.pscConfig.pscAutoConnections.serviceConnectionPolicy'

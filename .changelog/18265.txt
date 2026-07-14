@@ -1,0 +1,3 @@
+```release-note:enhancement
+google_sql_database_instance: Added `instance_auto_dns_status` and `write_endpoint_auto_dns_status` output fields to the `psc_auto_connections` block in `google_sql_database_instance`.
+```

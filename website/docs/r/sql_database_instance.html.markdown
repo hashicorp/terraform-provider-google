@@ -917,6 +917,10 @@ performing filtering in a Terraform config.
 
 * `settings.ip_configuration.psc_config.psc_auto_connections.consumer_network_status` - (Output) The connection policy status of the consumer network.
 
+* `settings.ip_configuration.psc_config.psc_auto_connections.instance_auto_dns_status` - (Output) The status of the automated DNS provisioning for the instance.
+
+* `settings.ip_configuration.psc_config.psc_auto_connections.write_endpoint_auto_dns_status` - (Output) The status of the automated DNS provisioning for the write endpoint.
+
 * `settings.ip_configuration.psc_config.psc_auto_connections.ip_address` - (Output) The IP address of the consumer endpoint.
 
 * `settings.ip_configuration.psc_config.psc_auto_connections.status` - (Output) The connection status of the consumer endpoint.
