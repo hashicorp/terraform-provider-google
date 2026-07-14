@@ -2606,6 +2606,75 @@ func TestAccSqlDatabaseInstance_AutoUpgradeEnabled(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_switchTransactionLogsToCloudStorage(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+	testId := "sql-instance-txlog-switch-1"
+	addressName := tpgcompute.BootstrapSharedTestGlobalAddress(t, testId)
+	networkName := servicenetworking.BootstrapSharedServiceNetworkingConnection(t, testId)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_switchTransactionLogsToCloudStorage(databaseName, networkName, addressName, false),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password", "switch_transaction_logs_to_cloud_storage_enabled", "settings.0.version"},
+			},
+			{
+				// Flip the flag on an existing instance: PITR transaction logs move to Cloud Storage.
+				Config: testGoogleSqlDatabaseInstance_switchTransactionLogsToCloudStorage(databaseName, networkName, addressName, true),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password", "switch_transaction_logs_to_cloud_storage_enabled", "settings.0.version"},
+			},
+		},
+	})
+}
+
+func testGoogleSqlDatabaseInstance_switchTransactionLogsToCloudStorage(databaseName, networkName, addressRangeName string, switchEnabled bool) string {
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name = "%s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_8_0"
+  deletion_protection = false
+  root_password       = "rand-pwd-%s"
+
+  switch_transaction_logs_to_cloud_storage_enabled = %t
+
+  settings {
+    tier              = "db-g1-small"
+    availability_type = "ZONAL"
+    ip_configuration {
+      ipv4_enabled       = "false"
+      private_network    = data.google_compute_network.servicenet.self_link
+      allocated_ip_range = "%s"
+    }
+    backup_configuration {
+      enabled            = true
+      start_time         = "00:00"
+      binary_log_enabled = true
+    }
+  }
+}
+`, networkName, databaseName, databaseName, switchEnabled, addressRangeName)
+}
+
 func TestAccSqlDatabaseInstance_EnableGoogleDataplexIntegration(t *testing.T) {
 	t.Parallel()
 
