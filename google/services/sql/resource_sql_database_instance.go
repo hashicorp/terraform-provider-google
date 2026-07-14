@@ -728,6 +728,16 @@ API (for read pools, effective_availability_type may differ from availability_ty
 																Computed:    true,
 																Description: `The connection policy status of the consumer network.`,
 															},
+															"instance_auto_dns_status": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The status of the automated DNS provisioning for the instance.`,
+															},
+															"write_endpoint_auto_dns_status": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The status of the automated DNS provisioning for the write endpoint.`,
+															},
 															"ip_address": {
 																Type:        schema.TypeString,
 																Computed:    true,
@@ -3527,6 +3537,8 @@ func flattenPscAutoConnections(pscAutoConnections []*sqladmin.PscAutoConnectionC
 		data := map[string]interface{}{
 			"consumer_network":                          flag.ConsumerNetwork,
 			"consumer_network_status":                   flag.ConsumerNetworkStatus,
+			"instance_auto_dns_status":                  flag.InstanceAutoDnsStatus,
+			"write_endpoint_auto_dns_status":            flag.WriteEndpointAutoDnsStatus,
 			"consumer_service_project_id":               flag.ConsumerProject,
 			"ip_address":                                flag.IpAddress,
 			"status":                                    flag.Status,

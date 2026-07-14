@@ -7740,6 +7740,14 @@ func verifyPscAutoConnectionsOperation(resourceName string, isPscConfigExpected 
 				if !ok || consumerProject != expectedConsumerProject {
 					return fmt.Errorf("settings.0.ip_configuration.0.psc_config.0.psc_auto_connections.0.consumer_service_project_id property is not present or set as expected in state of %s", resourceName)
 				}
+
+				if _, ok = resourceAttributes["settings.0.ip_configuration.0.psc_config.0.psc_auto_connections.0.instance_auto_dns_status"]; !ok {
+					return fmt.Errorf("settings.0.ip_configuration.0.psc_config.0.psc_auto_connections.0.instance_auto_dns_status property is not present in state of %s", resourceName)
+				}
+
+				if _, ok = resourceAttributes["settings.0.ip_configuration.0.psc_config.0.psc_auto_connections.0.write_endpoint_auto_dns_status"]; !ok {
+					return fmt.Errorf("settings.0.ip_configuration.0.psc_config.0.psc_auto_connections.0.write_endpoint_auto_dns_status property is not present in state of %s", resourceName)
+				}
 			}
 		}
 
