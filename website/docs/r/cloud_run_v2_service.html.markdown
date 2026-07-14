@@ -739,6 +739,24 @@ resource "google_cloud_run_v2_service" "default" {
   }
 }
 ```
+## Example Usage - Cloudrunv2 Service Tags
+
+
+```hcl
+resource "google_cloud_run_v2_service" "default" {
+  name     = "cloudrun-service"
+  location = "us-central1"
+  deletion_protection = false
+  tags = {
+    "tagKeys/1234" = "tagValues/5678"
+  }
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -780,6 +798,12 @@ The following arguments are supported:
   This field follows Kubernetes annotations' namespacing, limits, and rules.
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `tags` -
+  (Optional)
+  A map of resource manager tags.
+  Resource manager tag keys and values have the same definition as resource manager tags.
+  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_value_id}.
 
 * `client` -
   (Optional)
