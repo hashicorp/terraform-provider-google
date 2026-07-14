@@ -1128,6 +1128,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 				Description:      `The MySQL, PostgreSQL or SQL Server version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, MYSQL_8_4, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, POSTGRES_15, POSTGRES_16, POSTGRES_17, POSTGRES_18, SQLSERVER_2022_STANDARD, SQLSERVER_2022_ENTERPRISE, SQLSERVER_2022_EXPRESS, SQLSERVER_2022_WEB, SQLSERVER_2025_STANDARD, SQLSERVER_2025_ENTERPRISE, SQLSERVER_2025_EXPRESS, SQLSERVER_2025_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 				DiffSuppressFunc: databaseVersionDiffSuppress,
 			},
+			"switch_transaction_logs_to_cloud_storage_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `When set to true, Cloud SQL instances can switch storing point-in-time recovery transaction logs from a data disk to Cloud Storage, freeing up data disk space and enabling longer retention windows. This is an input-only field that is not persisted in the API.`,
+			},
 			"encryption_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1737,6 +1742,9 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if _, ok := d.GetOk("node_count"); ok {
 		instance.NodeCount = int64(d.Get("node_count").(int))
+	}
+	if v, ok := d.GetOk("switch_transaction_logs_to_cloud_storage_enabled"); ok {
+		instance.SwitchTransactionLogsToCloudStorageEnabled = v.(bool)
 	}
 	if _, ok := d.GetOk("root_password_wo_version"); ok {
 		instance.RootPassword = tpgresource.GetRawConfigAttributeAsString(d, "root_password_wo")
@@ -2939,6 +2947,11 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 				PsaWriteEndpoint: psaWriteEndpoint,
 			}
 		}
+	}
+
+	// switch_transaction_logs_to_cloud_storage_enabled is input-only; send it only when toggled.
+	if d.HasChange("switch_transaction_logs_to_cloud_storage_enabled") {
+		instance.SwitchTransactionLogsToCloudStorageEnabled = d.Get("switch_transaction_logs_to_cloud_storage_enabled").(bool)
 	}
 
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{

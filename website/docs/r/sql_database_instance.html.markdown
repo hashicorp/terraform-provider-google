@@ -369,6 +369,8 @@ SQL Server version to use. Supported values include `MYSQL_5_6`,
 [Database Version Policies](https://cloud.google.com/sql/docs/db-versions)
 includes an up-to-date reference of supported versions.
 
+* `switch_transaction_logs_to_cloud_storage_enabled` - (Optional) When set to `true`, Cloud SQL instances can switch storing point-in-time recovery transaction logs from a data disk to Cloud Storage, freeing up data disk space and enabling longer retention windows. This is an input-only field that is not persisted in the API.
+
 * `name` - (Optional, Computed) The name of the instance. If the name is left
     blank, Terraform will randomly generate one when the instance is first
     created. This is done because after a name is used, it cannot be reused for
