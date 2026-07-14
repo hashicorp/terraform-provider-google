@@ -23,7 +23,6 @@ fields:
     - api_field: conditions.type
     - api_field: createTime
     - api_field: creator
-    - api_field: customAudiences
     - api_field: deleteTime
     - field: deletion_protection
       provider_only: true

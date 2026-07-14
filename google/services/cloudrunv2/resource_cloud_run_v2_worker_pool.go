@@ -831,16 +831,6 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 				Optional:    true,
 				Description: `Arbitrary version identifier for the API client.`,
 			},
-			"custom_audiences": {
-				Type:       schema.TypeList,
-				Optional:   true,
-				Deprecated: "`custom_audiences` is deprecated since it is not applicable to WorkerPool resource and will be removed in a future major release.",
-				Description: `One or more custom audiences that you want this worker pool to support. Specify each custom audience as the full URL in a string. The custom audiences are encoded in the token and used to authenticate requests.
-For more information, see https://cloud.google.com/run/docs/configuring/custom-audiences.`,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1268,12 +1258,6 @@ func resourceCloudRunV2WorkerPoolCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("binary_authorization"); !tpgresource.IsEmptyValue(reflect.ValueOf(binaryAuthorizationProp)) && (ok || !reflect.DeepEqual(v, binaryAuthorizationProp)) {
 		obj["binaryAuthorization"] = binaryAuthorizationProp
 	}
-	customAudiencesProp, err := expandCloudRunV2WorkerPoolCustomAudiences(d.Get("custom_audiences"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("custom_audiences"); !tpgresource.IsEmptyValue(reflect.ValueOf(customAudiencesProp)) && (ok || !reflect.DeepEqual(v, customAudiencesProp)) {
-		obj["customAudiences"] = customAudiencesProp
-	}
 	scalingProp, err := expandCloudRunV2WorkerPoolScaling(d.Get("scaling"), d, config)
 	if err != nil {
 		return err
@@ -1559,12 +1543,6 @@ func resourceCloudRunV2WorkerPoolUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("binary_authorization"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, binaryAuthorizationProp)) {
 		obj["binaryAuthorization"] = binaryAuthorizationProp
 	}
-	customAudiencesProp, err := expandCloudRunV2WorkerPoolCustomAudiences(d.Get("custom_audiences"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("custom_audiences"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customAudiencesProp)) {
-		obj["customAudiences"] = customAudiencesProp
-	}
 	scalingProp, err := expandCloudRunV2WorkerPoolScaling(d.Get("scaling"), d, config)
 	if err != nil {
 		return err
@@ -1836,10 +1814,6 @@ func flattenCloudRunV2WorkerPoolBinaryAuthorizationUseDefault(v interface{}, d *
 }
 
 func flattenCloudRunV2WorkerPoolBinaryAuthorizationPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCloudRunV2WorkerPoolCustomAudiences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3244,10 +3218,6 @@ func expandCloudRunV2WorkerPoolBinaryAuthorizationUseDefault(v interface{}, d tp
 }
 
 func expandCloudRunV2WorkerPoolBinaryAuthorizationPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2WorkerPoolCustomAudiences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -4832,9 +4802,6 @@ func ResourceCloudRunV2WorkerPoolFlatten(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading WorkerPool: %s", err)
 	}
 	if err = d.Set("binary_authorization", flattenCloudRunV2WorkerPoolBinaryAuthorization(res["binaryAuthorization"], d, config)); err != nil {
-		return fmt.Errorf("Error reading WorkerPool: %s", err)
-	}
-	if err = d.Set("custom_audiences", flattenCloudRunV2WorkerPoolCustomAudiences(res["customAudiences"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WorkerPool: %s", err)
 	}
 	if err = d.Set("scaling", flattenCloudRunV2WorkerPoolScaling(res["scaling"], d, config)); err != nil {

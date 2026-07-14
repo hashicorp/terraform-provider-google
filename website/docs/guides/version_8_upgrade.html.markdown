@@ -105,3 +105,9 @@ terraform {
 ## Datasources
 
 ## Resources
+
+## Resource: `google_cloud_run_v2_worker_pool`
+
+### `custom_audiences` is now removed
+
+The `custom_audiences` field has been removed from this resource because it is not supported for Cloud Run v2 Worker Pools. Remove it from your configuration after upgrading.
