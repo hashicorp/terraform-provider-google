@@ -463,6 +463,26 @@ resource "google_cloud_run_v2_job" "default" {
   }
 }
 ```
+## Example Usage - Cloudrunv2 Job Tags
+
+
+```hcl
+resource "google_cloud_run_v2_job" "default" {
+  name     = "cloudrun-job"
+  location = "us-central1"
+  deletion_protection = false
+  tags = {
+    "tagKeys/1234" = "tagValues/5678"
+  }
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/job"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -530,6 +550,12 @@ The following arguments are supported:
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   A unique string used as a suffix creating a new execution upon job create or update. The Job will become ready when the execution is successfully completed.
   The sum of job name and token length must be fewer than 63 characters.
+
+* `tags` -
+  (Optional)
+  A map of resource manager tags.
+  Resource manager tag keys and values have the same definition as resource manager tags.
+  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_value_id}.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
