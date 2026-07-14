@@ -1,0 +1,31 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_compute_router_named_set
+generation_type: mmv1
+source_file: products/compute/RouterNamedSet.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: Router
+fields:
+    - api_field: resource.description
+      field: description
+    - api_field: resource.elements.description
+      field: elements.description
+    - api_field: resource.elements.expression
+      field: elements.expression
+    - api_field: resource.elements.location
+      field: elements.location
+    - api_field: resource.elements.title
+      field: elements.title
+    - api_field: resource.fingerprint
+      field: fingerprint
+    - api_field: resource.name
+      field: name
+    - field: region
+      provider_only: true
+    - field: router
+      provider_only: true
+    - api_field: resource.type
+      field: type
+    - field: deletion_policy
+      provider_only: true
