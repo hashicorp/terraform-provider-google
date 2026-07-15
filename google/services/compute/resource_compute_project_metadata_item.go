@@ -27,8 +27,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	"google.golang.org/api/compute/v1"
 )
 
 type metadataPresentBehavior bool
@@ -128,7 +126,11 @@ func resourceComputeProjectMetadataItemRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 	}
 
-	md := FlattenMetadata(project.CommonInstanceMetadata)
+	var commonInstanceMetadata map[string]interface{}
+	if v, ok := project["commonInstanceMetadata"].(map[string]interface{}); ok {
+		commonInstanceMetadata = v
+	}
+	md := FlattenMetadata(commonInstanceMetadata)
 	val, ok := md[d.Id()]
 	if !ok {
 		// Resource no longer exists
@@ -242,7 +244,11 @@ func updateComputeCommonInstanceMetadata(d *schema.ResourceData, config *transpo
 			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 		}
 
-		md := FlattenMetadata(project.CommonInstanceMetadata)
+		var commonInstanceMetadata map[string]interface{}
+		if v, ok := project["commonInstanceMetadata"].(map[string]interface{}); ok {
+			commonInstanceMetadata = v
+		}
+		md := FlattenMetadata(commonInstanceMetadata)
 
 		val, ok := md[key]
 
@@ -267,17 +273,13 @@ func updateComputeCommonInstanceMetadata(d *schema.ResourceData, config *transpo
 			md[key] = *afterVal
 		}
 
-		var fingerprint string
-		if project.CommonInstanceMetadata != nil {
-			fingerprint = project.CommonInstanceMetadata.Fingerprint
+		body := map[string]interface{}{
+			"items": expandComputeMetadata(md),
 		}
-
-		body, err := computeMetadataToMap(&compute.Metadata{
-			Fingerprint: fingerprint,
-			Items:       expandComputeMetadata(md),
-		})
-		if err != nil {
-			return fmt.Errorf("Error encoding metadata: %s", err)
+		if commonInstanceMetadata != nil {
+			if fp, ok := commonInstanceMetadata["fingerprint"].(string); ok && fp != "" {
+				body["fingerprint"] = fp
+			}
 		}
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
@@ -300,7 +302,8 @@ func updateComputeCommonInstanceMetadata(d *schema.ResourceData, config *transpo
 
 		log.Printf("[DEBUG] SetCommonInstanceMetadata: %v", res["selfLink"])
 
-		return ComputeOperationWaitTime(config, res, project.Name, "SetCommonInstanceMetadata", userAgent, timeout)
+		projectName, _ := project["name"].(string)
+		return ComputeOperationWaitTime(config, res, projectName, "SetCommonInstanceMetadata", userAgent, timeout)
 	}
 
 	return transport_tpg.MetadataRetryWrapper(updateMD)

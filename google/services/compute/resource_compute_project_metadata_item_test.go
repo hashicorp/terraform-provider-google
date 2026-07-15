@@ -17,6 +17,7 @@
 package compute_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"testing"
@@ -176,7 +177,12 @@ func testAccCheckProjectMetadataItemDestroyProducer(t *testing.T) func(s *terraf
 			return err
 		}
 
-		metadata := tpgcompute.FlattenMetadata(project.CommonInstanceMetadata)
+		var commonInstanceMetadataMap map[string]interface{}
+		if project.CommonInstanceMetadata != nil {
+			metaBytes, _ := json.Marshal(project.CommonInstanceMetadata)
+			_ = json.Unmarshal(metaBytes, &commonInstanceMetadataMap)
+		}
+		metadata := tpgcompute.FlattenMetadata(commonInstanceMetadataMap)
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_project_metadata_item" {

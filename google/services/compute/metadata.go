@@ -20,8 +20,6 @@ import (
 	"errors"
 	"sort"
 
-	"google.golang.org/api/compute/v1"
-
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -55,61 +53,61 @@ func BetaMetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]int
 	MetadataUpdate(oldMDMap, newMDMap, serverMD)
 }
 
-func expandComputeMetadata(m map[string]interface{}) []*compute.MetadataItems {
-	metadata := make([]*compute.MetadataItems, 0, len(m))
+func expandComputeMetadata(m map[string]interface{}) []interface{} {
+	metadata := make([]interface{}, 0, len(m))
 	var keys []string
 	for key := range m {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
-	// Append new metadata to existing metadata
 	for _, key := range keys {
 		v := m[key].(string)
-		metadata = append(metadata, &compute.MetadataItems{
-			Key:   key,
-			Value: &v,
+		metadata = append(metadata, map[string]interface{}{
+			"key":   key,
+			"value": v,
 		})
 	}
-
 	return metadata
 }
 
-func flattenMetadataBeta(metadata *compute.Metadata) map[string]string {
+func flattenMetadataBeta(metadata map[string]interface{}) map[string]string {
 	metadataMap := make(map[string]string)
 	if metadata == nil {
 		return metadataMap
 	}
-	for _, item := range metadata.Items {
-		if item == nil {
+	items, _ := metadata["items"].([]interface{})
+	for _, raw := range items {
+		item, ok := raw.(map[string]interface{})
+		if !ok || item == nil {
 			continue
 		}
-		if item.Value == nil {
-			metadataMap[item.Key] = ""
-		} else {
-			metadataMap[item.Key] = *item.Value
+		key, _ := item["key"].(string)
+		if key == "" {
+			continue
 		}
+		val, _ := item["value"].(string)
+		metadataMap[key] = val
 	}
 	return metadataMap
 }
 
-// This function differs from flattenMetadataBeta only in that it takes
-// compute.metadata rather than compute.metadata as an argument. It should
-// be removed in favour of flattenMetadataBeta if/when all resources using it get
-// beta support.
-func FlattenMetadata(metadata *compute.Metadata) map[string]interface{} {
+func FlattenMetadata(metadata map[string]interface{}) map[string]interface{} {
 	metadataMap := make(map[string]interface{})
 	if metadata == nil {
 		return metadataMap
 	}
-	for _, item := range metadata.Items {
-		if item == nil {
+	items, _ := metadata["items"].([]interface{})
+	for _, raw := range items {
+		item, ok := raw.(map[string]interface{})
+		if !ok || item == nil {
 			continue
 		}
-		if item.Value == nil {
-			metadataMap[item.Key] = ""
-		} else {
-			metadataMap[item.Key] = *item.Value
+		key, _ := item["key"].(string)
+		if key == "" {
+			continue
 		}
+		val, _ := item["value"].(string)
+		metadataMap[key] = val
 	}
 	return metadataMap
 }
@@ -117,9 +115,7 @@ func FlattenMetadata(metadata *compute.Metadata) map[string]interface{} {
 // resourceInstanceMetadata builds the instance metadata as a JSON-shaped
 // map[string]interface{} mirroring the compute.Metadata API type (camelCase
 // keys: "items" -> [{"key", "value"}], "fingerprint"). Empty values are omitted
-// to mirror the Apiary struct's omitempty tags, so the marshaled request body is
-// byte-identical whether the map is sent directly or round-tripped through the
-// typed struct via resourceInstanceMetadataTyped.
+// to mirror the Apiary struct's omitempty tags.
 func resourceInstanceMetadata(d tpgresource.TerraformResourceData) (map[string]interface{}, error) {
 	m := map[string]interface{}{}
 	mdMap := d.Get("metadata").(map[string]interface{})
@@ -156,20 +152,5 @@ func resourceInstanceMetadata(d tpgresource.TerraformResourceData) (map[string]i
 		}
 	}
 
-	return m, nil
-}
-
-// resourceInstanceMetadataTyped adapts the map-based resourceInstanceMetadata
-// output to the typed *compute.Metadata still required by callers that build
-// Apiary request structs directly.
-func resourceInstanceMetadataTyped(d tpgresource.TerraformResourceData) (*compute.Metadata, error) {
-	mdMap, err := resourceInstanceMetadata(d)
-	if err != nil {
-		return nil, err
-	}
-	m := &compute.Metadata{}
-	if err := convertViaJSON(mdMap, m); err != nil {
-		return nil, err
-	}
 	return m, nil
 }

@@ -57,7 +57,13 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Instance %s", name), id)
 	}
 
-	md := flattenMetadataBeta(instance.Metadata)
+	var metadataMap map[string]interface{}
+	if instance.Metadata != nil {
+		if metadataMap, err = tpgresource.ConvertToMap(instance.Metadata); err != nil {
+			return fmt.Errorf("error converting metadata: %s", err)
+		}
+	}
+	md := flattenMetadataBeta(metadataMap)
 	if err = d.Set("metadata", md); err != nil {
 		return fmt.Errorf("error setting metadata: %s", err)
 	}
@@ -168,7 +174,11 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	err = d.Set("scheduling", flattenScheduling(instance.Scheduling))
+	schedulingMap, err := tpgresource.ConvertToMap(instance.Scheduling)
+	if err != nil {
+		return fmt.Errorf("Error converting scheduling: %s", err)
+	}
+	err = d.Set("scheduling", flattenScheduling(schedulingMap))
 	if err != nil {
 		return err
 	}
