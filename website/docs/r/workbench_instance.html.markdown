@@ -173,12 +173,10 @@ resource "google_compute_address" "static" {
   name = "wbi-test-default"
 }
 
-resource "google_service_account_iam_binding" "act_as_permission" {
+resource "google_service_account_iam_member" "act_as_permission" {
   service_account_id = "projects/my-project-name/serviceAccounts/my@service-account.com"
   role               = "roles/iam.serviceAccountUser"
-  members = [
-    "user:example@example.com",
-  ]
+  member             = "user:example@example.com"
 }
 
 resource "google_compute_reservation" "gpu_reservation" {
@@ -199,6 +197,19 @@ resource "google_compute_reservation" "gpu_reservation" {
   }
 
   specific_reservation_required = true
+}
+
+resource "google_compute_resource_policy" "my_policy" {
+  name   = "wbi-policy"
+  region = "us-central1"
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time    = "04:00"
+      }
+    }
+  }
 }
 
 resource "google_workbench_instance" "instance" {
@@ -236,6 +247,7 @@ resource "google_workbench_instance" "instance" {
       disk_type = "PD_SSD"
       disk_encryption = "CMEK"
       kms_key = "my-crypto-key"
+      resource_policies = [google_compute_resource_policy.my_policy.id]
     }
 
     network_interfaces {
@@ -281,8 +293,9 @@ resource "google_workbench_instance" "instance" {
     google_compute_network.my_network,
     google_compute_subnetwork.my_subnetwork,
     google_compute_address.static,
-    google_service_account_iam_binding.act_as_permission,
-    google_compute_reservation.gpu_reservation
+    google_service_account_iam_member.act_as_permission,
+    google_compute_reservation.gpu_reservation,
+    google_compute_resource_policy.my_policy
   ]
 }
 ```
@@ -618,6 +631,10 @@ The following arguments are supported:
   'Optional. The KMS key used to encrypt the disks,
   only applicable if disk_encryption is CMEK. Format: `projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}`
   Learn more about using your own encryption keys.'
+
+* `resource_policies` -
+  (Optional)
+  Optional. Resource policies applied to this disk.
 
 <a name="nested_gce_setup_network_interfaces"></a>The `network_interfaces` block supports:
 

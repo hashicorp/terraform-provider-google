@@ -55,7 +55,8 @@ import (
 )
 
 var metadataDefaults = map[string]string{
-	"enable-jupyterlab4": "true",
+	"enable-jupyterlab4":      "true",
+	"new-proxy-agent-enabled": "true",
 }
 
 var WorkbenchInstanceSettableUnmodifiableDefaultMetadata = []string{
@@ -652,6 +653,16 @@ up to a maximum of 64000 GB (64 TB). If not specified, this defaults to
 										Description: `'Optional. The KMS key used to encrypt the disks,
 only applicable if disk_encryption is CMEK. Format: 'projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}'
 Learn more about using your own encryption keys.'`,
+									},
+									"resource_policies": {
+										Type:             schema.TypeList,
+										Computed:         true,
+										Optional:         true,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
+										Description:      `Optional. Resource policies applied to this disk.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 									},
 								},
 							},
@@ -1458,6 +1469,9 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		newUpdateMask = append(newUpdateMask, "gce_setup.container_image")
 		stopInstance = true
 	}
+	if d.HasChange("gce_setup.0.data_disks.0.resource_policies") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.data_disks.resource_policies")
+	}
 	updateMask = newUpdateMask
 	// Overwrite the previously set mask.
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
@@ -1868,10 +1882,11 @@ func flattenWorkbenchInstanceGceSetupDataDisks(v interface{}, d *schema.Resource
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"disk_size_gb":    flattenWorkbenchInstanceGceSetupDataDisksDiskSizeGb(original["diskSizeGb"], d, config),
-			"disk_type":       flattenWorkbenchInstanceGceSetupDataDisksDiskType(original["diskType"], d, config),
-			"disk_encryption": flattenWorkbenchInstanceGceSetupDataDisksDiskEncryption(original["diskEncryption"], d, config),
-			"kms_key":         flattenWorkbenchInstanceGceSetupDataDisksKmsKey(original["kmsKey"], d, config),
+			"disk_size_gb":      flattenWorkbenchInstanceGceSetupDataDisksDiskSizeGb(original["diskSizeGb"], d, config),
+			"disk_type":         flattenWorkbenchInstanceGceSetupDataDisksDiskType(original["diskType"], d, config),
+			"disk_encryption":   flattenWorkbenchInstanceGceSetupDataDisksDiskEncryption(original["diskEncryption"], d, config),
+			"kms_key":           flattenWorkbenchInstanceGceSetupDataDisksKmsKey(original["kmsKey"], d, config),
+			"resource_policies": flattenWorkbenchInstanceGceSetupDataDisksResourcePolicies(original["resourcePolicies"], d, config),
 		})
 	}
 	return transformed
@@ -1889,6 +1904,10 @@ func flattenWorkbenchInstanceGceSetupDataDisksDiskEncryption(v interface{}, d *s
 }
 
 func flattenWorkbenchInstanceGceSetupDataDisksKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkbenchInstanceGceSetupDataDisksResourcePolicies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2595,6 +2614,13 @@ func expandWorkbenchInstanceGceSetupDataDisks(v interface{}, d tpgresource.Terra
 			transformed["kmsKey"] = transformedKmsKey
 		}
 
+		transformedResourcePolicies, err := expandWorkbenchInstanceGceSetupDataDisksResourcePolicies(original["resource_policies"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedResourcePolicies); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["resourcePolicies"] = transformedResourcePolicies
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2613,6 +2639,10 @@ func expandWorkbenchInstanceGceSetupDataDisksDiskEncryption(v interface{}, d tpg
 }
 
 func expandWorkbenchInstanceGceSetupDataDisksKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupDataDisksResourcePolicies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
