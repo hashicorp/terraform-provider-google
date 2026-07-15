@@ -29,6 +29,7 @@ fields:
     - api_field: gceSetup.dataDisks.diskSizeGb
     - api_field: gceSetup.dataDisks.diskType
     - api_field: gceSetup.dataDisks.kmsKey
+    - api_field: gceSetup.dataDisks.resourcePolicies
     - api_field: gceSetup.disablePublicIp
     - api_field: gceSetup.enableIpForwarding
     - api_field: gceSetup.machineType

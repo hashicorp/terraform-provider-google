@@ -1032,3 +1032,99 @@ resource "google_workbench_instance" "instance" {
 }
 `, context)
 }
+
+func TestAccWorkbenchInstance_updateResourcePolicies(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckWorkbenchInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkbenchInstance_resourcePolicies(context, "google_compute_resource_policy.policy_a.id"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "gce_setup.0.data_disks.0.resource_policies.#", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state", "update_time", "health_info", "health_state", "gce_setup.0.metadata"},
+			},
+			{
+				// resource_policies is mutable, so changing it must update the
+				// instance in place rather than forcing a recreation.
+				Config: testAccWorkbenchInstance_resourcePolicies(context, "google_compute_resource_policy.policy_b.id"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_workbench_instance.instance", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "gce_setup.0.data_disks.0.resource_policies.#", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state", "update_time", "health_info", "health_state", "gce_setup.0.metadata"},
+			},
+		},
+	})
+}
+
+func testAccWorkbenchInstance_resourcePolicies(context map[string]interface{}, policyRef string) string {
+	context["policy_ref"] = policyRef
+	return acctest.Nprintf(`
+resource "google_compute_resource_policy" "policy_a" {
+  name   = "tf-test-wbi-policy-a-%{random_suffix}"
+  region = "us-central1"
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time    = "04:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_resource_policy" "policy_b" {
+  name   = "tf-test-wbi-policy-b-%{random_suffix}"
+  region = "us-central1"
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time    = "05:00"
+      }
+    }
+  }
+}
+
+resource "google_workbench_instance" "instance" {
+  name     = "tf-test-workbench-instance%{random_suffix}"
+  location = "us-central1-a"
+
+  gce_setup {
+    data_disks {
+      disk_size_gb      = 330
+      resource_policies = [%{policy_ref}]
+    }
+  }
+}
+`, context)
+}
