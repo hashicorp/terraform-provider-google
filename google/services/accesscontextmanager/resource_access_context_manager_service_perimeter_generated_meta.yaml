@@ -39,8 +39,13 @@ fields:
     - api_field: spec.ingressPolicies.title
     - api_field: spec.resources
     - api_field: spec.restrictedServices
+    - api_field: spec.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.key
+    - api_field: spec.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.value
+    - api_field: spec.vpcAccessibleServices.allowedServicePatterns.pattern
+    - api_field: spec.vpcAccessibleServices.allowedServicePatterns.service
     - api_field: spec.vpcAccessibleServices.allowedServices
     - api_field: spec.vpcAccessibleServices.enableRestriction
+    - api_field: spec.vpcAccessibleServices.servicePatternsEnforcementScopes
     - api_field: status.accessLevels
     - api_field: status.egressPolicies.egressFrom.identities
     - api_field: status.egressPolicies.egressFrom.identityType
@@ -68,8 +73,13 @@ fields:
     - api_field: status.ingressPolicies.title
     - api_field: status.resources
     - api_field: status.restrictedServices
+    - api_field: status.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.key
+    - api_field: status.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.value
+    - api_field: status.vpcAccessibleServices.allowedServicePatterns.pattern
+    - api_field: status.vpcAccessibleServices.allowedServicePatterns.service
     - api_field: status.vpcAccessibleServices.allowedServices
     - api_field: status.vpcAccessibleServices.enableRestriction
+    - api_field: status.vpcAccessibleServices.servicePatternsEnforcementScopes
     - api_field: title
     - api_field: updateTime
     - api_field: useExplicitDryRunSpec

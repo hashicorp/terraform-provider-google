@@ -42,6 +42,8 @@ func TestAccAccessContextManager(t *testing.T) {
 		"access_policy_iam_policy":                      testAccAccessContextManagerAccessPolicyIamPolicy,
 		"service_perimeter":                             testAccAccessContextManagerServicePerimeter_basicTest,
 		"service_perimeter_update":                      testAccAccessContextManagerServicePerimeter_updateTest,
+		"service_perimeter_nongcp_patterns":             testAccAccessContextManagerServicePerimeter_nonGcpServicePatternsTest,
+		"service_perimeters_nongcp_patterns":            testAccAccessContextManagerServicePerimeters_nonGcpServicePatternsTest,
 		"service_perimeter_resource":                    testAccAccessContextManagerServicePerimeterResource_basicTest,
 		"service_perimeter_dry_run_resource":            testAccAccessContextManagerServicePerimeterResource_basicTest,
 		"access_level":                                  testAccAccessContextManagerAccessLevel_basicTest,
