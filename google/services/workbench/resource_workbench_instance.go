@@ -487,6 +487,12 @@ func ResourceWorkbenchInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `Optional. If true, the workbench instance will not register with the proxy.`,
 			},
+			"enable_deletion_protection": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				Description: `Optional. If true, deletion protection will be enabled for this Workbench Instance.`,
+			},
 			"enable_managed_euc": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -1115,6 +1121,12 @@ func resourceWorkbenchInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("enable_managed_euc"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableManagedEucProp)) && (ok || !reflect.DeepEqual(v, enableManagedEucProp)) {
 		obj["enableManagedEuc"] = enableManagedEucProp
 	}
+	enableDeletionProtectionProp, err := expandWorkbenchInstanceEnableDeletionProtection(d.Get("enable_deletion_protection"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_deletion_protection"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableDeletionProtectionProp)) && (ok || !reflect.DeepEqual(v, enableDeletionProtectionProp)) {
+		obj["enableDeletionProtection"] = enableDeletionProtectionProp
+	}
 	effectiveLabelsProp, err := expandWorkbenchInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1376,6 +1388,12 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("enable_managed_euc"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableManagedEucProp)) {
 		obj["enableManagedEuc"] = enableManagedEucProp
 	}
+	enableDeletionProtectionProp, err := expandWorkbenchInstanceEnableDeletionProtection(d.Get("enable_deletion_protection"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_deletion_protection"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableDeletionProtectionProp)) {
+		obj["enableDeletionProtection"] = enableDeletionProtectionProp
+	}
 	effectiveLabelsProp, err := expandWorkbenchInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1402,6 +1420,10 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("enable_managed_euc") {
 		updateMask = append(updateMask, "enableManagedEuc")
+	}
+
+	if d.HasChange("enable_deletion_protection") {
+		updateMask = append(updateMask, "enableDeletionProtection")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1464,6 +1486,9 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 	if d.HasChange("effective_labels") {
 		newUpdateMask = append(newUpdateMask, "labels")
+	}
+	if d.HasChange("enable_deletion_protection") {
+		newUpdateMask = append(newUpdateMask, "enable_deletion_protection")
 	}
 	if d.HasChange("gce_setup.0.container_image") {
 		newUpdateMask = append(newUpdateMask, "gce_setup.container_image")
@@ -2150,6 +2175,10 @@ func flattenWorkbenchInstanceEnableThirdPartyIdentity(v interface{}, d *schema.R
 }
 
 func flattenWorkbenchInstanceEnableManagedEuc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkbenchInstanceEnableDeletionProtection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2846,6 +2875,10 @@ func expandWorkbenchInstanceEnableManagedEuc(v interface{}, d tpgresource.Terraf
 	return v, nil
 }
 
+func expandWorkbenchInstanceEnableDeletionProtection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandWorkbenchInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -2897,6 +2930,9 @@ func ResourceWorkbenchInstanceFlatten(d *schema.ResourceData, meta interface{}, 
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err = d.Set("enable_managed_euc", flattenWorkbenchInstanceEnableManagedEuc(res["enableManagedEuc"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("enable_deletion_protection", flattenWorkbenchInstanceEnableDeletionProtection(res["enableDeletionProtection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenWorkbenchInstanceTerraformLabels(res["labels"], d, config)); err != nil {

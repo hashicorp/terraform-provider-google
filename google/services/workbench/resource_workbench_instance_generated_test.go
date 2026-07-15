@@ -405,6 +405,8 @@ resource "google_workbench_instance" "instance" {
   name = "%{instance_name}"
   location = "us-central1-a"
 
+  enable_deletion_protection = false
+
   gce_setup {
     machine_type = "n1-standard-4" // cant be e2 because of accelerator
     accelerator_configs {
