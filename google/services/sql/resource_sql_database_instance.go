@@ -1143,6 +1143,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 				Optional:    true,
 				Description: `When set to true, Cloud SQL instances can switch storing point-in-time recovery transaction logs from a data disk to Cloud Storage, freeing up data disk space and enabling longer retention windows. This is an input-only field that is not persisted in the API.`,
 			},
+			"include_replicas_for_major_version_upgrade": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `When this parameter is set to true, Cloud SQL instances can perform in-place major version upgrades of read replicas along with the primary instance when 'database_version' is updated. This is an input-only field that is not persisted in the API and only takes effect during a major version upgrade.`,
+			},
 			"encryption_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -2672,7 +2677,10 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	// Check if the database version is being updated, because patching database version is an atomic operation and can not be
 	// performed with other fields, we first patch database version before updating the rest of the fields.
 	if d.HasChange("database_version") {
-		instance = &sqladmin.DatabaseInstance{DatabaseVersion: databaseVersion}
+		instance = &sqladmin.DatabaseInstance{
+			DatabaseVersion:                       databaseVersion,
+			IncludeReplicasForMajorVersionUpgrade: d.Get("include_replicas_for_major_version_upgrade").(bool),
+		}
 		err = transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() (rerr error) {
 				op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()

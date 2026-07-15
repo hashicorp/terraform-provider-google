@@ -2642,6 +2642,43 @@ func TestAccSqlDatabaseInstance_switchTransactionLogsToCloudStorage(t *testing.T
 	})
 }
 
+func TestAccSqlDatabaseInstance_includeReplicasForMajorVersionUpgrade(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+	testId := "sql-instance-major-upgrade-1"
+	addressName := tpgcompute.BootstrapSharedTestGlobalAddress(t, testId)
+	networkName := servicenetworking.BootstrapSharedServiceNetworkingConnection(t, testId)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_includeReplicasForMajorVersionUpgrade(databaseName, networkName, addressName, "MYSQL_8_0"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password", "include_replicas_for_major_version_upgrade", "replica_names", "settings.0.version"},
+			},
+			{
+				// Upgrade the primary's major version; with the flag set, the in-place upgrade
+				// propagates to the read replica automatically (the replica ignores database_version changes).
+				Config: testGoogleSqlDatabaseInstance_includeReplicasForMajorVersionUpgrade(databaseName, networkName, addressName, "MYSQL_8_4"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password", "include_replicas_for_major_version_upgrade", "replica_names", "settings.0.version"},
+			},
+		},
+	})
+}
+
 func testGoogleSqlDatabaseInstance_switchTransactionLogsToCloudStorage(databaseName, networkName, addressRangeName string, switchEnabled bool) string {
 	return fmt.Sprintf(`
 data "google_compute_network" "servicenet" {
@@ -8860,6 +8897,62 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, masterID, dbVersion, masterID, tier, autoUpgradeEnabled)
+}
+
+func testGoogleSqlDatabaseInstance_includeReplicasForMajorVersionUpgrade(databaseName, networkName, addressRangeName, dbVersion string) string {
+	return fmt.Sprintf(`
+data "google_compute_network" "servicenet" {
+  name = "%s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "%s"
+  deletion_protection = false
+  root_password       = "rand-pwd-%s"
+
+  include_replicas_for_major_version_upgrade = true
+
+  settings {
+    tier              = "db-g1-small"
+    availability_type = "ZONAL"
+    ip_configuration {
+      ipv4_enabled    = "false"
+      private_network = data.google_compute_network.servicenet.self_link
+    }
+    backup_configuration {
+      enabled            = true
+      start_time         = "00:00"
+      binary_log_enabled = true
+    }
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  name                 = "%s-replica"
+  region               = "us-central1"
+  database_version     = "MYSQL_8_0"
+  master_instance_name = google_sql_database_instance.instance.name
+  deletion_protection  = false
+
+  settings {
+    tier              = "db-g1-small"
+    availability_type = "ZONAL"
+    ip_configuration {
+      ipv4_enabled       = "false"
+      private_network    = data.google_compute_network.servicenet.self_link
+      allocated_ip_range = "%s"
+    }
+  }
+
+  # When the primary is upgraded with include_replicas_for_major_version_upgrade,
+  # the replica is upgraded in place by the API; ignore the resulting version drift.
+  lifecycle {
+    ignore_changes = [database_version]
+  }
+}
+`, networkName, databaseName, dbVersion, databaseName, databaseName, addressRangeName)
 }
 
 func testGoogleSqlDatabaseInstance_EnableDataplexIntegration(masterID int, enableDataplexIntegration bool) string {
