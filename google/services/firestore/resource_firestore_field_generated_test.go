@@ -20,6 +20,7 @@ package firestore_test
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -40,6 +41,7 @@ import (
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
+	_ = regexp.MatchString
 	_ = strconv.Atoi
 	_ = strings.Trim
 	_ = time.Now
@@ -627,6 +629,10 @@ func testAccCheckFirestoreFieldDestroyProducer(t *testing.T) func(s *terraform.S
 					// The acceptance test has provisioned the resources under test in a new project, and the destroy check is seeing the
 					// effects of the project not existing. This means the service isn't enabled, and that the resource is definitely destroyed.
 					// We do not return the error in this case - destroy was successful
+					return nil
+				}
+				if e.Code == 404 && regexp.MustCompile(`Project .* or database .* does not exist`).MatchString(e.Message) {
+					// The project or database does not exist, which means the resource is destroyed.
 					return nil
 				}
 
