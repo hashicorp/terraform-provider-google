@@ -29,6 +29,7 @@ fields:
   - field: 'final_backup_description'
   - api_field: 'ipAddresses.ipAddress'
     field: 'first_ip_address'
+  - api_field: 'includeReplicasForMajorVersionUpgrade'
   - api_field: 'instanceType'
   - api_field: 'ipAddresses.ipAddress'
     field: 'ip_address.ip_address'

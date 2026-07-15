@@ -371,6 +371,8 @@ includes an up-to-date reference of supported versions.
 
 * `switch_transaction_logs_to_cloud_storage_enabled` - (Optional) When set to `true`, Cloud SQL instances can switch storing point-in-time recovery transaction logs from a data disk to Cloud Storage, freeing up data disk space and enabling longer retention windows. This is an input-only field that is not persisted in the API.
 
+* `include_replicas_for_major_version_upgrade` - (Optional) When this parameter is set to `true`, Cloud SQL instances can perform in-place major version upgrades of read replicas along with the primary instance when `database_version` is updated. This is an input-only field that is not persisted in the API and only takes effect during a major version upgrade.
+
 * `name` - (Optional, Computed) The name of the instance. If the name is left
     blank, Terraform will randomly generate one when the instance is first
     created. This is done because after a name is used, it cannot be reused for
