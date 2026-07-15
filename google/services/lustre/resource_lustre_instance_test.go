@@ -431,7 +431,7 @@ resource "google_lustre_instance" "instance" {
 }
 
 resource "google_compute_resource_policy" "lustre_policy" {
-  name   = "gce-policy"
+  name   = "tf-test-gce-policy-%{random_suffix}"
   region = "us-central1"
   snapshot_schedule_policy {
     schedule {
