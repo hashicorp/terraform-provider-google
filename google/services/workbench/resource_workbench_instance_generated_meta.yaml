@@ -14,6 +14,7 @@ fields:
     - api_field: disableProxyAccess
     - field: effective_labels
       provider_only: true
+    - api_field: enableDeletionProtection
     - api_field: enableManagedEuc
     - api_field: enableThirdPartyIdentity
     - api_field: gceSetup.acceleratorConfigs.coreCount

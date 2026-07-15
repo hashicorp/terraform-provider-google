@@ -1033,6 +1033,58 @@ resource "google_workbench_instance" "instance" {
 `, context)
 }
 
+func TestAccWorkbenchInstance_updateDeleteProtection(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkbenchInstance_deleteProtection(context, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "enable_deletion_protection", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state", "update_time", "health_info", "health_state"},
+			},
+			{
+				Config: testAccWorkbenchInstance_deleteProtection(context, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "enable_deletion_protection", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state", "update_time", "health_info", "health_state"},
+			},
+		},
+	})
+}
+
+func testAccWorkbenchInstance_deleteProtection(context map[string]interface{}, protection string) string {
+	context["protection"] = protection
+	return acctest.Nprintf(`
+resource "google_workbench_instance" "instance" {
+  name = "tf-test-workbench-instance%{random_suffix}"
+  location = "us-central1-a"
+  enable_deletion_protection = %{protection}
+}
+`, context)
+}
+
 func TestAccWorkbenchInstance_updateResourcePolicies(t *testing.T) {
 	t.Parallel()
 
