@@ -39,8 +39,13 @@ fields:
     - api_field: servicePerimeters.spec.ingressPolicies.title
     - api_field: servicePerimeters.spec.resources
     - api_field: servicePerimeters.spec.restrictedServices
+    - api_field: servicePerimeters.spec.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.key
+    - api_field: servicePerimeters.spec.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.value
+    - api_field: servicePerimeters.spec.vpcAccessibleServices.allowedServicePatterns.pattern
+    - api_field: servicePerimeters.spec.vpcAccessibleServices.allowedServicePatterns.service
     - api_field: servicePerimeters.spec.vpcAccessibleServices.allowedServices
     - api_field: servicePerimeters.spec.vpcAccessibleServices.enableRestriction
+    - api_field: servicePerimeters.spec.vpcAccessibleServices.servicePatternsEnforcementScopes
     - api_field: servicePerimeters.status.accessLevels
     - api_field: servicePerimeters.status.egressPolicies.egressFrom.identities
     - api_field: servicePerimeters.status.egressPolicies.egressFrom.identityType
@@ -68,8 +73,13 @@ fields:
     - api_field: servicePerimeters.status.ingressPolicies.title
     - api_field: servicePerimeters.status.resources
     - api_field: servicePerimeters.status.restrictedServices
+    - api_field: servicePerimeters.status.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.key
+    - api_field: servicePerimeters.status.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.value
+    - api_field: servicePerimeters.status.vpcAccessibleServices.allowedServicePatterns.pattern
+    - api_field: servicePerimeters.status.vpcAccessibleServices.allowedServicePatterns.service
     - api_field: servicePerimeters.status.vpcAccessibleServices.allowedServices
     - api_field: servicePerimeters.status.vpcAccessibleServices.enableRestriction
+    - api_field: servicePerimeters.status.vpcAccessibleServices.servicePatternsEnforcementScopes
     - api_field: servicePerimeters.title
     - api_field: servicePerimeters.updateTime
     - api_field: servicePerimeters.useExplicitDryRunSpec

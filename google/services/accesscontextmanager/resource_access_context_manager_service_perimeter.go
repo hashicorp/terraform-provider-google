@@ -708,6 +708,55 @@ Perimeter.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"allowed_service_patterns": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Specifies which Google services are allowed to be accessed from
+VPC networks in the service perimeter.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"modifiers": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Modifiers to apply to the requests that match the URL pattern.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"add_request_header": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Adds additional HTTP request headers.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"key": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `HTTP header key.`,
+																		},
+																		"value": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `HTTP header value.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"pattern": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `URL pattern to allow.`,
+												},
+												"service": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Supported service to allow.`,
+												},
+											},
+										},
+									},
 									"allowed_services": {
 										Type:     schema.TypeSet,
 										Optional: true,
@@ -723,6 +772,15 @@ Must be empty unless 'enableRestriction' is True.`,
 										Optional: true,
 										Description: `Whether to restrict API calls within the Service Perimeter to the
 list of APIs specified in 'allowedServices'.`,
+									},
+									"service_patterns_enforcement_scopes": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Defines the enforcement scopes of service patterns. Possible values: ["GOOGLE_APIS_VIA_PRIVATE_PATH"]`,
+										Elem: &schema.Schema{
+											Type:         schema.TypeString,
+											ValidateFunc: verify.ValidateEnum([]string{"GOOGLE_APIS_VIA_PRIVATE_PATH"}),
+										},
 									},
 								},
 							},
@@ -1155,6 +1213,55 @@ Perimeter.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"allowed_service_patterns": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Specifies which Google services are allowed to be accessed from
+VPC networks in the service perimeter.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"modifiers": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Modifiers to apply to the requests that match the URL pattern.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"add_request_header": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Adds additional HTTP request headers.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"key": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `HTTP header key.`,
+																		},
+																		"value": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `HTTP header value.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"pattern": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `URL pattern to allow.`,
+												},
+												"service": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Supported service to allow.`,
+												},
+											},
+										},
+									},
 									"allowed_services": {
 										Type:     schema.TypeSet,
 										Optional: true,
@@ -1170,6 +1277,15 @@ Must be empty unless 'enableRestriction' is True.`,
 										Optional: true,
 										Description: `Whether to restrict API calls within the Service Perimeter to the
 list of APIs specified in 'allowedServices'.`,
+									},
+									"service_patterns_enforcement_scopes": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Defines the enforcement scopes of service patterns. Possible values: ["GOOGLE_APIS_VIA_PRIVATE_PATH"]`,
+										Elem: &schema.Schema{
+											Type:         schema.TypeString,
+											ValidateFunc: verify.ValidateEnum([]string{"GOOGLE_APIS_VIA_PRIVATE_PATH"}),
+										},
 									},
 								},
 							},
@@ -1724,6 +1840,10 @@ func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServices(v in
 		flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesEnableRestriction(original["enableRestriction"], d, config)
 	transformed["allowed_services"] =
 		flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServices(original["allowedServices"], d, config)
+	transformed["allowed_service_patterns"] =
+		flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatterns(original["allowedServicePatterns"], d, config)
+	transformed["service_patterns_enforcement_scopes"] =
+		flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesServicePatternsEnforcementScopes(original["servicePatternsEnforcementScopes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1735,6 +1855,79 @@ func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllow
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatterns(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"service":   flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsService(original["service"], d, config),
+			"pattern":   flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsPattern(original["pattern"], d, config),
+			"modifiers": flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiers(original["modifiers"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsPattern(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"add_request_header": flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeader(original["addRequestHeader"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key"] =
+		flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderKey(original["key"], d, config)
+	transformed["value"] =
+		flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderValue(original["value"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterStatusVpcAccessibleServicesServicePatternsEnforcementScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenAccessContextManagerServicePerimeterStatusIngressPolicies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2159,6 +2352,10 @@ func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServices(v inte
 		flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesEnableRestriction(original["enableRestriction"], d, config)
 	transformed["allowed_services"] =
 		flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServices(original["allowedServices"], d, config)
+	transformed["allowed_service_patterns"] =
+		flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatterns(original["allowedServicePatterns"], d, config)
+	transformed["service_patterns_enforcement_scopes"] =
+		flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesServicePatternsEnforcementScopes(original["servicePatternsEnforcementScopes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesEnableRestriction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2170,6 +2367,79 @@ func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowed
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatterns(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"service":   flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsService(original["service"], d, config),
+			"pattern":   flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsPattern(original["pattern"], d, config),
+			"modifiers": flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiers(original["modifiers"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsPattern(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"add_request_header": flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeader(original["addRequestHeader"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key"] =
+		flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderKey(original["key"], d, config)
+	transformed["value"] =
+		flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderValue(original["value"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterSpecVpcAccessibleServicesServicePatternsEnforcementScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenAccessContextManagerServicePerimeterSpecIngressPolicies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2655,6 +2925,20 @@ func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServices(v int
 		transformed["allowedServices"] = transformedAllowedServices
 	}
 
+	transformedAllowedServicePatterns, err := expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatterns(original["allowed_service_patterns"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedServicePatterns); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowedServicePatterns"] = transformedAllowedServicePatterns
+	}
+
+	transformedServicePatternsEnforcementScopes, err := expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesServicePatternsEnforcementScopes(original["service_patterns_enforcement_scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServicePatternsEnforcementScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["servicePatternsEnforcementScopes"] = transformedServicePatternsEnforcementScopes
+	}
+
 	return transformed, nil
 }
 
@@ -2664,6 +2948,119 @@ func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesEnable
 
 func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServices(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatterns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedService, err := expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsService(original["service"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedService); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["service"] = transformedService
+		}
+
+		transformedPattern, err := expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsPattern(original["pattern"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPattern); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["pattern"] = transformedPattern
+		}
+
+		transformedModifiers, err := expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiers(original["modifiers"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedModifiers); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["modifiers"] = transformedModifiers
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsPattern(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedAddRequestHeader, err := expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeader(original["add_request_header"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAddRequestHeader); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["addRequestHeader"] = transformedAddRequestHeader
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeader(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKey, err := expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	transformedValue, err := expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderValue(original["value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["value"] = transformedValue
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterStatusVpcAccessibleServicesServicePatternsEnforcementScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3352,6 +3749,20 @@ func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServices(v inter
 		transformed["allowedServices"] = transformedAllowedServices
 	}
 
+	transformedAllowedServicePatterns, err := expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatterns(original["allowed_service_patterns"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedServicePatterns); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowedServicePatterns"] = transformedAllowedServicePatterns
+	}
+
+	transformedServicePatternsEnforcementScopes, err := expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesServicePatternsEnforcementScopes(original["service_patterns_enforcement_scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServicePatternsEnforcementScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["servicePatternsEnforcementScopes"] = transformedServicePatternsEnforcementScopes
+	}
+
 	return transformed, nil
 }
 
@@ -3361,6 +3772,119 @@ func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesEnableRe
 
 func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServices(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatterns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedService, err := expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsService(original["service"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedService); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["service"] = transformedService
+		}
+
+		transformedPattern, err := expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsPattern(original["pattern"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPattern); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["pattern"] = transformedPattern
+		}
+
+		transformedModifiers, err := expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiers(original["modifiers"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedModifiers); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["modifiers"] = transformedModifiers
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsPattern(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedAddRequestHeader, err := expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeader(original["add_request_header"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAddRequestHeader); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["addRequestHeader"] = transformedAddRequestHeader
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeader(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKey, err := expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	transformedValue, err := expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderValue(original["value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["value"] = transformedValue
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesAllowedServicePatternsModifiersAddRequestHeaderValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterSpecVpcAccessibleServicesServicePatternsEnforcementScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
