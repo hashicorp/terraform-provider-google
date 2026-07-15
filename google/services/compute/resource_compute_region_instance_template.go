@@ -151,7 +151,7 @@ func ResourceComputeRegionInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be one of 375 or 3000 GB, with a default of 375 GB.`,
+							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be one of 375, 3000, 3500, 7000 or 14000 GB, with a default of 375 GB.`,
 						},
 
 						"disk_type": {

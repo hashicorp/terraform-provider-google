@@ -1022,6 +1022,25 @@ func TestAccComputeInstanceTemplate_invalidDiskType(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_invalidScratchDiskInterface(t *testing.T) {
+	t.Parallel()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeInstanceTemplate_invalidScratchDiskInterface(acctest.RandString(t, 10), 3500),
+				ExpectError: regexp.MustCompile("SCRATCH disks with a size of 3500 GB must have an interface of NVME"),
+			},
+			{
+				Config:      testAccComputeInstanceTemplate_invalidScratchDiskInterface(acctest.RandString(t, 10), 14000),
+				ExpectError: regexp.MustCompile("SCRATCH disks with a size of 14000 GB must have an interface of NVME"),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_withNamePrefix(t *testing.T) {
 	// Randomness from generated name suffix
 	acctest.SkipIfVcr(t)
@@ -4526,6 +4545,35 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 `, suffix)
+}
+
+func testAccComputeInstanceTemplate_invalidScratchDiskInterface(suffix string, diskSize int) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-12"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "n2-standard-64"
+  can_ip_forward = false
+  disk {
+    source_image = data.google_compute_image.my_image.name
+    auto_delete  = true
+    boot         = true
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = %d
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+    interface    = "SCSI"
+  }
+  network_interface {
+    network = "default"
+  }
+}`, suffix, diskSize)
 }
 
 func testAccComputeInstanceTemplate_imageResourceTest(diskName string, imageName string, imageDescription string) string {

@@ -943,6 +943,25 @@ func TestAccComputeRegionInstanceTemplate_invalidDiskType(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionInstanceTemplate_invalidScratchDiskInterface(t *testing.T) {
+	t.Parallel()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeRegionInstanceTemplate_invalidScratchDiskInterface(acctest.RandString(t, 10), 3500),
+				ExpectError: regexp.MustCompile("SCRATCH disks with a size of 3500 GB must have an interface of NVME"),
+			},
+			{
+				Config:      testAccComputeRegionInstanceTemplate_invalidScratchDiskInterface(acctest.RandString(t, 10), 14000),
+				ExpectError: regexp.MustCompile("SCRATCH disks with a size of 14000 GB must have an interface of NVME"),
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionInstanceTemplate_withScratchDisk(t *testing.T) {
 	t.Parallel()
 
@@ -3870,6 +3889,36 @@ resource "google_compute_region_instance_template" "foobar" {
   }
 }
 `, suffix)
+}
+
+func testAccComputeRegionInstanceTemplate_invalidScratchDiskInterface(suffix string, diskSize int) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-12"
+	project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  region         = "us-central1"
+  machine_type   = "n2-standard-64"
+  can_ip_forward = false
+  disk {
+    source_image = data.google_compute_image.my_image.name
+    auto_delete  = true
+    boot         = true
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = %d
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+    interface    = "SCSI"
+  }
+  network_interface {
+    network = "default"
+  }
+}`, suffix, diskSize)
 }
 
 func testAccComputeRegionInstanceTemplate_imageResourceTest(diskName string, imageName string, imageDescription string) string {
