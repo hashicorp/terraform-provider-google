@@ -3760,6 +3760,51 @@ func TestAccComputeInstance_queueCount(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_flexStart(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_flexStart(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceTerminationAction(&instance, "DELETE"),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_provisioningModelEmptyString(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_provisioningModelEmptyString(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
 func TestAccComputeInstance_spotVM(t *testing.T) {
 	t.Parallel()
 
@@ -10551,6 +10596,121 @@ resource "google_compute_instance" "foobar" {
   network_interface {
     network = "default"
     queue_count = 2
+  }
+}
+`, instance)
+}
+
+func testAccComputeInstance_flexStart(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family    = "ubuntu-2204-lts"
+  project   = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "g2-standard-4"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+      size  = 50
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  guest_accelerator {
+    type  = "nvidia-l4"
+    count = 1
+  }
+
+  scheduling {
+    provisioning_model = "FLEX_START"
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+    instance_termination_action = "DELETE"
+    max_run_duration {
+      nanos = 0
+      seconds = 3600
+    }
+  }
+}
+`, instance)
+}
+
+func testAccComputeInstance_reservationBound(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  provider  = google-beta
+  family    = "ubuntu-2204-lts"
+  project   = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  provider     = google-beta
+  name         = "%{instance_name}"
+  machine_type = "n2-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+      size  = 50
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    provisioning_model = "RESERVATION_BOUND"
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+    instance_termination_action = "DELETE"
+  }
+
+  reservation_affinity {
+    type = "SPECIFIC_RESERVATION"
+    specific_reservation {
+      key    = "compute.googleapis.com/reservation-name"
+      values = ["%{reservation_name}"]
+    }
+  }
+}
+`, context)
+}
+
+func testAccComputeInstance_provisioningModelEmptyString(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family    = "debian-11"
+  project   = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    provisioning_model = ""
+    automatic_restart = false
   }
 }
 `, instance)
