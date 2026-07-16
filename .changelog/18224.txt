@@ -1,0 +1,3 @@
+```release-note:bug
+securityposture: Fixed a bug where the `enforce` field in `google_securityposture_posture` was always set, causing failures for list constraints.
+```

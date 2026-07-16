@@ -98,6 +98,23 @@ resource "google_securityposture_posture" "posture1"{
   state       = "ACTIVE"
   description = "a new posture"
   policy_sets {
+    policy_set_id = "list_constraint_policy_set"
+    description   = "set of org policies with a list constraint"
+    policies {
+      policy_id = "resource_locations_policy"
+      constraint {
+        org_policy_constraint {
+          canned_constraint_id = "gcp.resourceLocations"
+          policy_rules {
+            values {
+              allowed_values = ["in:us-locations"]
+            }
+          }
+        }
+      }
+    }
+  }
+  policy_sets {
     policy_set_id = "org_policy_set"
     description   = "set of org policies"
     policies {
@@ -183,6 +200,7 @@ resource "google_securityposture_posture" "posture1"{
       }
     }
   }
+
 }
 `, context)
 }
