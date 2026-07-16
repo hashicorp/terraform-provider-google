@@ -1265,6 +1265,59 @@ func TestAccComputeInstanceTemplate_managedEnvoy(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_flexStart(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate map[string]interface{}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_flexStart(acctest.RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateAutomaticRestart(&instanceTemplate, false),
+					testAccCheckComputeInstanceTemplateProvisioningModel(&instanceTemplate, "FLEX_START"),
+					testAccCheckComputeInstanceTemplateInstanceTerminationAction(&instanceTemplate, "DELETE"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_provisioningModelEmptyString(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate map[string]interface{}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_provisioningModelEmptyString(acctest.RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_spot(t *testing.T) {
 	t.Parallel()
 
@@ -4792,6 +4845,81 @@ resource "google_compute_instance_template" "foobar" {
 
   labels = {
     gce-service-proxy = "on"
+  }
+}
+`, suffix)
+}
+
+func testAccComputeInstanceTemplate_flexStart(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    automatic_restart = false
+    provisioning_model = "FLEX_START"
+    instance_termination_action = "DELETE"
+    on_host_maintenance = "TERMINATE"
+    max_run_duration {
+      nanos = 0
+      seconds = 3600
+    }
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, suffix)
+}
+
+func testAccComputeInstanceTemplate_provisioningModelEmptyString(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    automatic_restart = false
+    provisioning_model = ""
   }
 }
 `, suffix)
