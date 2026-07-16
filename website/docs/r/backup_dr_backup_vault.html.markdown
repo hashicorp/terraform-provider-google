@@ -145,6 +145,10 @@ The following arguments are supported:
    expiration schedule defined by the associated backup plan is shorter than the minimum
    retention set by the backup vault.
 
+* `force_update_access_restriction` -
+  (Optional)
+  If set to true, we will force update access restriction even if some non compliant data sources are present.
+
 * `force_delete` -
   (Optional, Deprecated)
   If set, the following restrictions against deletion of the backup vault instance can be overridden:
@@ -213,6 +217,7 @@ In addition to the arguments listed above, the following computed attributes are
    ACTIVE
    DELETING
    ERROR
+   UPDATING
 
 * `backup_count` -
   Output only. The number of backups in this backup vault.
