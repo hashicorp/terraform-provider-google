@@ -1004,36 +1004,68 @@ func resourceVmwareenginePrivateCloudUpdate(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Updating PrivateCloud %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+	updateMask := []string{}
+
+	if d.HasChange("description") {
+		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("management_cluster") {
+		updateMask = append(updateMask, "managementCluster")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+	// managementCluster is updated via its own separate endpoint.
+	// We remove it from the update mask of the PrivateCloud resource update.
+	var filteredUpdateMask []string
+	for _, mask := range updateMask {
+		if mask != "managementCluster" {
+			filteredUpdateMask = append(filteredUpdateMask, mask)
+		}
+	}
+	updateMask = filteredUpdateMask
+
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:               config,
-		Method:               "PATCH",
-		Project:              billingProject,
-		RawURL:               url,
-		UserAgent:            userAgent,
-		Body:                 obj,
-		Timeout:              d.Timeout(schema.TimeoutUpdate),
-		Headers:              headers,
-		ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
-	})
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:               config,
+			Method:               "PATCH",
+			Project:              billingProject,
+			RawURL:               url,
+			UserAgent:            userAgent,
+			Body:                 obj,
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			Headers:              headers,
+			ErrorAbortPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.Is429QuotaError},
+		})
 
-	if err != nil {
-		return fmt.Errorf("Error updating PrivateCloud %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating PrivateCloud %q: %#v", d.Id(), res)
-	}
+		if err != nil {
+			return fmt.Errorf("Error updating PrivateCloud %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating PrivateCloud %q: %#v", d.Id(), res)
+		}
 
-	err = VmwareengineOperationWaitTime(
-		config, res, project, "Updating PrivateCloud", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+		err = VmwareengineOperationWaitTime(
+			config, res, project, "Updating PrivateCloud", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
 
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	mgmtClusterProp, err := expandVmwareenginePrivateCloudManagementCluster(d.Get("management_cluster"), d, config)

@@ -1,0 +1,3 @@
+```release-note:bug
+vmwareengine: added correct `update_mask` value to `google_vmwareengine_private_cloud` updates
+```
