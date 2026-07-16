@@ -281,6 +281,62 @@ resource "google_workbench_instance" "instance" {
 `, context)
 }
 
+func TestAccWorkbenchInstance_updateMinCpuPlatform(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkbenchInstance_minCpuPlatform(context, "Intel Broadwell"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "gce_setup.0.min_cpu_platform", "Intel Broadwell"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state", "update_time", "health_info", "health_state"},
+			},
+			{
+				Config: testAccWorkbenchInstance_minCpuPlatform(context, "Intel Skylake"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "gce_setup.0.min_cpu_platform", "Intel Skylake"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state", "update_time", "health_info", "health_state"},
+			},
+		},
+	})
+}
+
+func testAccWorkbenchInstance_minCpuPlatform(context map[string]interface{}, minCpuPlatform string) string {
+	context["min_cpu_platform"] = minCpuPlatform
+	return acctest.Nprintf(`
+resource "google_workbench_instance" "instance" {
+  name = "tf-test-workbench-instance%{random_suffix}"
+  location = "us-central1-a"
+
+  gce_setup {
+    machine_type = "n1-standard-4" // cant be e2 because min_cpu_platform is unsupported
+    min_cpu_platform = "%{min_cpu_platform}"
+  }
+}
+`, context)
+}
+
 func TestAccWorkbenchInstance_updateMetadata(t *testing.T) {
 	t.Parallel()
 

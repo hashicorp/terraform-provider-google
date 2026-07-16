@@ -188,7 +188,8 @@ resource "google_compute_reservation" "gpu_reservation" {
     
     instance_properties {
       machine_type = "n1-standard-4"
-      
+      min_cpu_platform = "Intel Broadwell"
+
       guest_accelerators {
         accelerator_type  = "nvidia-tesla-t4"
         accelerator_count = 1
@@ -220,6 +221,7 @@ resource "google_workbench_instance" "instance" {
 
   gce_setup {
     machine_type = "n1-standard-4" // cant be e2 because of accelerator
+    min_cpu_platform = "Intel Broadwell"
     accelerator_configs {
       type         = "NVIDIA_TESLA_T4"
       core_count   = 1
@@ -515,6 +517,10 @@ The following arguments are supported:
   (Optional)
   Reservations that this instance can consume from.
   Structure is [documented below](#nested_gce_setup_reservation_affinity).
+
+* `min_cpu_platform` -
+  (Optional)
+  Optional. The minimum CPU platform to use for this instance.
 
 
 <a name="nested_gce_setup_accelerator_configs"></a>The `accelerator_configs` block supports:

@@ -377,7 +377,8 @@ resource "google_compute_reservation" "gpu_reservation" {
     
     instance_properties {
       machine_type = "n1-standard-4"
-      
+      min_cpu_platform = "Intel Broadwell"
+
       guest_accelerators {
         accelerator_type  = "nvidia-tesla-t4"
         accelerator_count = 1
@@ -409,6 +410,7 @@ resource "google_workbench_instance" "instance" {
 
   gce_setup {
     machine_type = "n1-standard-4" // cant be e2 because of accelerator
+    min_cpu_platform = "Intel Broadwell"
     accelerator_configs {
       type         = "NVIDIA_TESLA_T4"
       core_count   = 1
