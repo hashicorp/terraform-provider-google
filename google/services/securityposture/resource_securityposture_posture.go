@@ -765,6 +765,11 @@ func resourceSecurityposturePostureCreate(d *schema.ResourceData, meta interface
 		obj["policySets"] = policySetsProp
 	}
 
+	obj, err = resourceSecurityposturePostureEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/postures?postureId={{posture_id}}")
 	if err != nil {
 		return err
@@ -982,6 +987,11 @@ func resourceSecurityposturePostureUpdate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("policy_sets"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, policySetsProp)) {
 		obj["policySets"] = policySetsProp
+	}
+
+	obj, err = resourceSecurityposturePostureEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/postures/{{posture_id}}?revisionId={{revision_id}}")
@@ -2785,6 +2795,38 @@ func expandSecurityposturePosturePolicySetsPoliciesConstraintSecurityHealthAnaly
 
 func expandSecurityposturePosturePolicySetsPoliciesConstraintSecurityHealthAnalyticsCustomModuleConfigRecommendation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceSecurityposturePostureEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	if policySets, ok := obj["policySets"].([]interface{}); ok {
+		for _, ps := range policySets {
+			if psMap, ok := ps.(map[string]interface{}); ok {
+				if policies, ok := psMap["policies"].([]interface{}); ok {
+					for _, p := range policies {
+						if pMap, ok := p.(map[string]interface{}); ok {
+							if constraint, ok := pMap["constraint"].(map[string]interface{}); ok {
+								if opc, ok := constraint["orgPolicyConstraint"].(map[string]interface{}); ok {
+									if rules, ok := opc["policyRules"].([]interface{}); ok {
+										for _, r := range rules {
+											if rule, ok := r.(map[string]interface{}); ok {
+												_, isList := rule["values"]
+												_, hasAllow := rule["allowAll"]
+												_, hasDeny := rule["denyAll"]
+												if isList || hasAllow || hasDeny {
+													delete(rule, "enforce") // enforce is only valid for boolean constraints
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return obj, nil
 }
 
 func ResourceSecurityposturePostureFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
