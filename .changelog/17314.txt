@@ -1,0 +1,3 @@
+```release-note:enhancement
+workbench: added support for `min_cpu_platform` in `google_workbench_instance`
+```
