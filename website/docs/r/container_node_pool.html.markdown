@@ -388,9 +388,9 @@ In addition to the arguments listed above, the following computed attributes are
 `google_container_node_pool` provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options: configuration options:
 
-- `create` - (Default `60 minutes`) Used for adding node pools
-- `update` - (Default `60 minutes`) Used for updates to node pools
-- `delete` - (Default `60 minutes`) Used for removing node pools.
+- `create` - (Default `2 hours`) Used for adding node pools
+- `update` - (Default `2 hours`) Used for updates to node pools
+- `delete` - (Default `2 hours`) Used for removing node pools.
 
 <a name="nested_kubelet_config"></a>The `kubelet_config` block supports:
 
