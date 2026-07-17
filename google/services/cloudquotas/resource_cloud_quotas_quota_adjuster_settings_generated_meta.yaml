@@ -1,0 +1,16 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_cloud_quotas_quota_adjuster_settings
+generation_type: mmv1
+source_file: products/cloudquotas/QuotaAdjusterSettings.yaml
+api_service_name: cloudquotas.googleapis.com
+api_version: v1
+api_resource_type_kind: QuotaAdjusterSettings
+fields:
+    - api_field: effectiveContainer
+    - api_field: effectiveEnablement
+    - api_field: enablement
+    - api_field: inherited
+    - api_field: inheritedFrom
+    - field: parent
+      provider_only: true
