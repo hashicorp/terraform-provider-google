@@ -111,3 +111,9 @@ terraform {
 ### `custom_audiences` is now removed
 
 The `custom_audiences` field has been removed from this resource because it is not supported for Cloud Run v2 Worker Pools. Remove it from your configuration after upgrading.
+
+## Resource: `google_netapp_storage_pool`
+
+### `scale_tier` has been removed
+
+The `scale_tier` argument has been removed from this resource. It was previously deprecated in favor of `scale_type`. When upgrading to version 8.0.0, remove any usage of `scale_tier` from your `google_netapp_storage_pool` configurations. You should use the `scale_type` argument instead for specifying the scale type.
