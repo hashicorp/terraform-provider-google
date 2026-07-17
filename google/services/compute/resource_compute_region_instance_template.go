@@ -151,7 +151,7 @@ func ResourceComputeRegionInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be one of 375 or 3000 GB, with a default of 375 GB.`,
+							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be one of 375, 3000, 3500, 7000 or 14000 GB, with a default of 375 GB.`,
 						},
 
 						"disk_type": {
@@ -767,7 +767,7 @@ Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key m
 							Computed:     true,
 							ForceNew:     true,
 							AtLeastOneOf: schedulingInstTemplateKeys,
-							Description:  `Whether the instance is spot. If this is set as SPOT.`,
+							Description:  `Describes the desired provisioning model for the instance. Possible values are STANDARD, SPOT, FLEX_START, and RESERVATION_BOUND. For STANDARD, resources are provisioned immediately. For SPOT, resources are offered at a discount compared to standard pricing but may be preempted. For FLEX_START, resources are offered at a discount with flexible start times. For RESERVATION_BOUND, the instance is bound to a specific reservation and will only consume capacity from that reservation.`,
 						},
 						"instance_termination_action": {
 							Type:         schema.TypeString,
@@ -1179,6 +1179,30 @@ be from 0 to 999,999,999 inclusive.`,
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "STOP", ""}, false),
 				Description:  `Action to be taken when a customer's encryption key is revoked. Supports "STOP" and "NONE", with "NONE" being the default.`,
 			},
+
+			"workload_identity_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Workload identity config.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"identity": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Identity SPIFFE id.`,
+						},
+						"identity_certificate_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies whether identity certificates are enabled.`,
+						},
+					},
+				},
+			},
 			//UDP schema start
 			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
 			//UDP schema end
@@ -1264,9 +1288,7 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 	if v := d.Get("key_revocation_action_type").(string); v != "" {
 		instanceProperties["keyRevocationActionType"] = v
 	}
-	if metadata != nil {
-		instanceProperties["metadata"] = metadata
-	}
+	instanceProperties["metadata"] = metadata
 	if networkPerformanceConfig != nil {
 		instanceProperties["networkPerformanceConfig"] = networkPerformanceConfig
 	}
@@ -1290,6 +1312,9 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 	}
 	if _, ok := d.GetOk("resource_manager_tags"); ok {
 		instanceProperties["resourceManagerTags"] = tpgresource.ExpandStringMap(d, "resource_manager_tags")
+	}
+	if workloadIdentityConfig := expandWorkloadIdentityConfig(d); workloadIdentityConfig != nil {
+		instanceProperties["workloadIdentityConfig"] = workloadIdentityConfig
 	}
 
 	var itName string
@@ -1395,6 +1420,12 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 	}
 	delete(res, "id")
 
+	var schedulingMapFromResponse map[string]interface{}
+	if propsMap, ok := res["properties"].(map[string]interface{}); ok {
+		schedulingMapFromResponse, _ = propsMap["scheduling"].(map[string]interface{})
+		delete(propsMap, "scheduling")
+	}
+
 	resBytes, err := json.Marshal(res)
 	if err != nil {
 		return fmt.Errorf("Error marshaling instance template response: %s", err)
@@ -1411,9 +1442,15 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 			return fmt.Errorf("Error setting metadata_fingerprint: %s", err)
 		}
 
-		md := instanceTemplate.Properties.Metadata
-
-		_md := flattenMetadataBeta(md)
+		metadata := instanceTemplate.Properties.Metadata
+		var metadataMap map[string]interface{}
+		if metadata != nil {
+			var convErr error
+			if metadataMap, convErr = tpgresource.ConvertToMap(metadata); convErr != nil {
+				return fmt.Errorf("Error converting metadata: %s", convErr)
+			}
+		}
+		_md := flattenMetadataBeta(metadataMap)
 
 		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
 			if err = d.Set("metadata_startup_script", script); err != nil {
@@ -1524,8 +1561,8 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 			}
 		}
 	}
-	if instanceTemplate.Properties.Scheduling != nil {
-		scheduling := flattenScheduling(instanceTemplate.Properties.Scheduling)
+	if schedulingMapFromResponse != nil {
+		scheduling := flattenScheduling(schedulingMapFromResponse)
 
 		if err = d.Set("scheduling", scheduling); err != nil {
 			return fmt.Errorf("Error setting scheduling: %s", err)
@@ -1571,7 +1608,11 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 		}
 	}
 	if instanceTemplate.Properties.AdvancedMachineFeatures != nil {
-		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeaturesTyped(instanceTemplate.Properties.AdvancedMachineFeatures)); err != nil {
+		amfMap, err := tpgresource.ConvertToMap(instanceTemplate.Properties.AdvancedMachineFeatures)
+		if err != nil {
+			return fmt.Errorf("Error converting advanced_machine_features: %s", err)
+		}
+		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(amfMap)); err != nil {
 			return fmt.Errorf("Error setting advanced_machine_features: %s", err)
 		}
 	}
@@ -1594,6 +1635,16 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 
 	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
 		return err
+	}
+
+	if instanceTemplate.Properties.WorkloadIdentityConfig != nil {
+		wicMap, convErr := tpgresource.ConvertToMap(instanceTemplate.Properties.WorkloadIdentityConfig)
+		if convErr != nil {
+			return fmt.Errorf("Error converting workload_identity_config: %s", convErr)
+		}
+		if err = d.Set("workload_identity_config", flattenWorkloadIdentityConfig(wicMap)); err != nil {
+			return fmt.Errorf("Error setting workload_identity_config: %s", err)
+		}
 	}
 
 	return nil

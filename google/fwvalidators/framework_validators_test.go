@@ -18,6 +18,7 @@ package fwvalidators_test
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -171,6 +172,99 @@ func TestServiceAccountEmailValidator(t *testing.T) {
 				}
 				if !foundError {
 					t.Errorf("expected error with summary %q, got none", test.errorContains)
+				}
+			}
+		})
+	}
+}
+
+func TestJWTValidator(t *testing.T) {
+	t.Parallel()
+
+	type testCase struct {
+		value         types.String
+		expectError   bool
+		errorContains string
+	}
+
+	tests := map[string]testCase{
+		"valid jwt": {
+			value:       types.StringValue("eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIxMjMifQ.c2ln"),
+			expectError: false,
+		},
+		"empty string": {
+			value:         types.StringValue(""),
+			expectError:   true,
+			errorContains: "JWT token must not be empty",
+		},
+		"wrong number of segments": {
+			value:         types.StringValue("header.payload"),
+			expectError:   true,
+			errorContains: "JWT token must have 3 parts separated by dots (header.payload.signature)",
+		},
+		"all segments empty": {
+			value:         types.StringValue(".."),
+			expectError:   true,
+			errorContains: "Part 1 of JWT must not be empty (expected header.payload.signature)",
+		},
+		"empty payload segment": {
+			value:         types.StringValue("ab..cd"),
+			expectError:   true,
+			errorContains: "Part 2 of JWT must not be empty (expected header.payload.signature)",
+		},
+		"empty signature segment": {
+			value:         types.StringValue("eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIxMjMifQ."),
+			expectError:   true,
+			errorContains: "Part 3 of JWT must not be empty (expected header.payload.signature)",
+		},
+		"invalid base64 segment": {
+			value:         types.StringValue("not base64.eyJzdWIiOiIxMjMifQ.c2ln"),
+			expectError:   true,
+			errorContains: "Part 1 of JWT is not valid base64",
+		},
+		"null value": {
+			value:       types.StringNull(),
+			expectError: false,
+		},
+		"unknown value": {
+			value:       types.StringUnknown(),
+			expectError: false,
+		},
+	}
+
+	for name, test := range tests {
+		name, test := name, test
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			request := validator.StringRequest{
+				Path:           path.Root("test"),
+				PathExpression: path.MatchRoot("test"),
+				ConfigValue:    test.value,
+			}
+			response := validator.StringResponse{}
+			v := fwvalidators.JWTValidator()
+
+			v.ValidateString(context.Background(), request, &response)
+
+			if test.expectError && !response.Diagnostics.HasError() {
+				t.Errorf("expected error, got none for value: %q", test.value.ValueString())
+			}
+
+			if !test.expectError && response.Diagnostics.HasError() {
+				t.Errorf("got unexpected error for value: %q: %s", test.value.ValueString(), response.Diagnostics.Errors())
+			}
+
+			if test.errorContains != "" {
+				foundError := false
+				for _, err := range response.Diagnostics.Errors() {
+					if strings.Contains(err.Detail(), test.errorContains) {
+						foundError = true
+						break
+					}
+				}
+				if !foundError {
+					t.Errorf("expected error containing %q, got %v", test.errorContains, response.Diagnostics.Errors())
 				}
 			}
 		})

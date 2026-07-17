@@ -19,7 +19,6 @@ package compute
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 
@@ -1494,22 +1493,6 @@ func flattenDistributionPolicy(distributionPolicyRaw interface{}) []string {
 		}
 	}
 	return zones
-}
-
-func getInt(v interface{}) int64 {
-	switch t := v.(type) {
-	case int:
-		return int64(t)
-	case int64:
-		return t
-	case float64:
-		return int64(t)
-	case string:
-		i, _ := strconv.ParseInt(t, 10, 64)
-		return i
-	default:
-		return 0
-	}
 }
 
 func flattenRegionNamedPorts(raw interface{}) []map[string]interface{} {

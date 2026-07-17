@@ -481,7 +481,9 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
     * `node_group_uri` - (Required) The URI of a sole-tenant node group resource that the cluster will be created on.
 
 * `confidential_instance_config` - (Optional) Confidential Instance Config for clusters using [Confidential VMs](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/confidential-compute)
-    * `enable_confidential_compute` - (Optional) Defines whether the instance should have confidential compute enabled.
+    * `enable_confidential_compute` - (Optional) Defines whether the instance should have confidential compute enabled. `enable_confidential_compute` is deprecated and will be removed in a future major release. Use `confidential_instance_type` instead.
+    
+    * `confidential_instance_type` - (Optional) Defines the confidential compute type of the instance. Valid values are `"CONFIDENTIAL_INSTANCE_TYPE_UNSPECIFIED"`, `"SEV"`, `"SEV_SNP"`, `"TDX"`.
 
 * `shielded_instance_config` (Optional) Shielded Instance Config for clusters using [Compute Engine Shielded VMs](https://cloud.google.com/security/shielded-cloud/shielded-vm).
 
@@ -582,6 +584,14 @@ cluster_config {
 
         * `rank` - (Optional) Preference of this instance selection. A lower number means higher preference. Dataproc will first try to create a VM based on the machine-type with priority rank and fallback to next rank based on availability. Machine types and instance selections with the same priority have the same preference.
 
+        * `disk_config` - (Optional) Disk configuration to apply to the instances in this instance selection.
+            * `boot_disk_size_gb` - (Optional) Size of the primary disk attached to each node, specified in GB. The smallest allowed disk size is 10GB.
+            * `boot_disk_type` - (Optional) The disk type of the primary disk attached to each node. Such as "pd-ssd" or "pd-standard".
+            * `num_local_ssds` - (Optional) The amount of local SSD disks that will be attached to each cluster node. Defaults to 0.
+            * `boot_disk_provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
+            * `boot_disk_provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
+            * `local_ssd_interface` - (Optional) Interface type of local SSDs (no Local SSDs or NVMe).
+
 * `accelerators` (Optional) The Compute Engine accelerator (GPU) configuration for these instances. Can be specified multiple times.
 
     * `accelerator_type` - (Required) The short name of the accelerator type to expose to this instance. For example, `nvidia-tesla-k80`.
@@ -666,6 +676,14 @@ cluster_config {
         * `machine_types` - (Optional) Full machine-type names, e.g. `"n1-standard-16"`.
 
         * `rank` - (Optional) Preference of this instance selection. A lower number means higher preference. Dataproc will first try to create a VM based on the machine-type with priority rank and fallback to next rank based on availability. Machine types and instance selections with the same priority have the same preference.
+
+        * `disk_config` - (Optional) Disk configuration to apply to the instances in this instance selection.
+            * `boot_disk_size_gb` - (Optional) Size of the primary disk attached to each node, specified in GB. The smallest allowed disk size is 10GB.
+            * `boot_disk_type` - (Optional) The disk type of the primary disk attached to each node. Such as "pd-ssd" or "pd-standard".
+            * `num_local_ssds` - (Optional) The amount of local SSD disks that will be attached to each cluster node. Defaults to 0.
+            * `boot_disk_provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
+            * `boot_disk_provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
+            * `local_ssd_interface` - (Optional) Interface type of local SSDs (no Local SSDs or NVMe).
 
 * `accelerators` (Optional) The Compute Engine accelerator configuration for these instances. Can be specified multiple times.
 

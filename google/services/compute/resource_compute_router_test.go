@@ -266,6 +266,45 @@ func TestAccComputeRouter_resourceManagerTags(t *testing.T) {
 	})
 }
 
+func TestAccComputeRouter_keepaliveIntervalDefault(t *testing.T) {
+	t.Parallel()
+
+	testId := acctest.RandString(t, 10)
+	routerName := fmt.Sprintf("tf-test-router-%s", testId)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouter_keepaliveIntervalDefault(routerName),
+			},
+			{
+				ResourceName:      "google_compute_router.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRouter_keepaliveIntervalDefault(routerName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name                    = "%s-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%s"
+  network = google_compute_network.foobar.name
+  bgp {
+    asn = 64514
+  }
+}
+`, routerName, routerName)
+}
+
 func testAccComputeRouterBasic(routerName, resourceRegion string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {

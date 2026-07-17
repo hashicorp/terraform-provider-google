@@ -18,6 +18,7 @@ package backupdr_test
 
 import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/backupdr"
@@ -51,16 +52,24 @@ func TestAccBackupDRBackupVault_fullUpdate(t *testing.T) {
 				ResourceName:            "google_backup_dr_backup_vault.backup-vault-test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_vault_id", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "backup_retention_inheritance", "access_restriction", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_vault_id", "force_delete", "force_update", "force_update_access_restriction", "ignore_backup_plan_references", "ignore_inactive_datasources", "backup_retention_inheritance", "access_restriction", "labels", "location", "terraform_labels"},
 			},
 			{
 				Config: testAccBackupDRBackupVault_fullUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_backup_dr_backup_vault.backup-vault-test",
+							plancheck.ResourceActionUpdate,
+						),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_backup_dr_backup_vault.backup-vault-test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_vault_id", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "backup_retention_inheritance", "access_restriction", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_vault_id", "force_delete", "force_update", "force_update_access_restriction", "ignore_backup_plan_references", "ignore_inactive_datasources", "backup_retention_inheritance", "access_restriction", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -109,7 +118,8 @@ resource "google_backup_dr_backup_vault" "backup-vault-test" {
 	annotations2 = "baz1"
   }
   force_update = "true"
-  access_restriction = "WITHIN_ORGANIZATION"
+  force_update_access_restriction = "true"
+  access_restriction = "WITHIN_PROJECT"
   backup_retention_inheritance = "INHERIT_VAULT_RETENTION"
   ignore_inactive_datasources = "true"
   ignore_backup_plan_references = "true"

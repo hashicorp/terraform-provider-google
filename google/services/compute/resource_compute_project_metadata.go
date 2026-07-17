@@ -17,7 +17,6 @@
 package compute
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -28,8 +27,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	"google.golang.org/api/compute/v1"
 )
 
 func ResourceComputeProjectMetadata() *schema.Resource {
@@ -94,11 +91,7 @@ func resourceComputeProjectMetadataCreateOrUpdate(d *schema.ResourceData, meta i
 		return err
 	}
 
-	md := &compute.Metadata{
-		Items: expandComputeMetadata(d.Get("metadata").(map[string]interface{})),
-	}
-
-	if err = resourceComputeProjectMetadataSet(d, projectID, userAgent, config, md, d.Timeout(schema.TimeoutCreate)); err != nil {
+	if err = resourceComputeProjectMetadataSet(d, projectID, userAgent, config, d.Get("metadata").(map[string]interface{}), d.Timeout(schema.TimeoutCreate)); err != nil {
 		return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
 	}
 
@@ -130,7 +123,11 @@ func resourceComputeProjectMetadataRead(d *schema.ResourceData, meta interface{}
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project metadata for project %q", projectId))
 	}
 
-	err = d.Set("metadata", FlattenMetadata(project.CommonInstanceMetadata))
+	var commonInstanceMetadata map[string]interface{}
+	if v, ok := project["commonInstanceMetadata"].(map[string]interface{}); ok {
+		commonInstanceMetadata = v
+	}
+	err = d.Set("metadata", FlattenMetadata(commonInstanceMetadata))
 	if err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
@@ -165,15 +162,14 @@ func resourceComputeProjectMetadataDelete(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	md := &compute.Metadata{}
-	if err = resourceComputeProjectMetadataSet(d, projectID, userAgent, config, md, d.Timeout(schema.TimeoutDelete)); err != nil {
+	if err = resourceComputeProjectMetadataSet(d, projectID, userAgent, config, nil, d.Timeout(schema.TimeoutDelete)); err != nil {
 		return fmt.Errorf("SetCommonInstanceMetadata failed: %s", err)
 	}
 
 	return resourceComputeProjectMetadataRead(d, meta)
 }
 
-func resourceComputeProjectMetadataSet(d *schema.ResourceData, projectID, userAgent string, config *transport_tpg.Config, md *compute.Metadata, timeout time.Duration) error {
+func resourceComputeProjectMetadataSet(d *schema.ResourceData, projectID, userAgent string, config *transport_tpg.Config, mdItems map[string]interface{}, timeout time.Duration) error {
 	createMD := func() error {
 		log.Printf("[DEBUG] Loading project service: %s", projectID)
 		project, err := getComputeProject(d, config, projectID, userAgent)
@@ -181,13 +177,14 @@ func resourceComputeProjectMetadataSet(d *schema.ResourceData, projectID, userAg
 			return fmt.Errorf("Error loading project '%s': %s", projectID, err)
 		}
 
-		if project.CommonInstanceMetadata != nil {
-			md.Fingerprint = project.CommonInstanceMetadata.Fingerprint
+		body := map[string]interface{}{}
+		if mdItems != nil {
+			body["items"] = expandComputeMetadata(mdItems)
 		}
-
-		body, err := computeMetadataToMap(md)
-		if err != nil {
-			return fmt.Errorf("Error encoding metadata: %s", err)
+		if commonInstanceMetadata, ok := project["commonInstanceMetadata"].(map[string]interface{}); ok {
+			if fp, ok := commonInstanceMetadata["fingerprint"].(string); ok && fp != "" {
+				body["fingerprint"] = fp
+			}
 		}
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
@@ -209,51 +206,27 @@ func resourceComputeProjectMetadataSet(d *schema.ResourceData, projectID, userAg
 		}
 
 		log.Printf("[DEBUG] SetCommonMetadata: %v", res["selfLink"])
-		return ComputeOperationWaitTime(config, res, project.Name, "SetCommonMetadata", userAgent, timeout)
+		projectName, _ := project["name"].(string)
+		return ComputeOperationWaitTime(config, res, projectName, "SetCommonMetadata", userAgent, timeout)
 	}
 
 	err := transport_tpg.MetadataRetryWrapper(createMD)
 	return err
 }
 
-func getComputeProject(d *schema.ResourceData, config *transport_tpg.Config, projectID, userAgent string) (*compute.Project, error) {
+func getComputeProject(d *schema.ResourceData, config *transport_tpg.Config, projectID, userAgent string) (map[string]interface{}, error) {
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
 	if err != nil {
 		return nil, err
 	}
 	url = fmt.Sprintf("%sprojects/%s", url, projectID)
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   projectID,
 		RawURL:    url,
 		UserAgent: userAgent,
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	resBytes, err := json.Marshal(res)
-	if err != nil {
-		return nil, err
-	}
-	project := &compute.Project{}
-	if err := json.Unmarshal(resBytes, project); err != nil {
-		return nil, err
-	}
-	return project, nil
-}
-
-func computeMetadataToMap(md *compute.Metadata) (map[string]interface{}, error) {
-	mdBytes, err := json.Marshal(md)
-	if err != nil {
-		return nil, err
-	}
-	body := map[string]interface{}{}
-	if err := json.Unmarshal(mdBytes, &body); err != nil {
-		return nil, err
-	}
-	return body, nil
 }
 
 func init() {

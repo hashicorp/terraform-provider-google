@@ -15,3 +15,118 @@
 //
 // ----------------------------------------------------------------------------
 package vertexai_test
+
+import (
+	"fmt"
+	"strings"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+)
+
+// Handwritten lifecycle test (Create + Import; deprovision via CheckDestroy).
+// The generated example is exclude_test — see the singleton-aware
+// CheckDestroy below for why.
+func TestAccVertexAISemanticGovernancePolicyEngine_lifecycle(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAISemanticGovernancePolicyEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAISemanticGovernancePolicyEngine_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"state", "ACTIVE"),
+					resource.TestCheckResourceAttrSet(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"name"),
+					resource.TestCheckResourceAttrSet(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"create_time"),
+					resource.TestCheckResourceAttrSet(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"psc_service_attachment"),
+					// ip_address and psc_forwarding_rule are not asserted: they
+					// populate only after a consumer creates a PSC forwarding
+					// rule, which the basic fixture has none of.
+				),
+			},
+			{
+				ResourceName:      "google_vertex_ai_semantic_governance_policy_engine.sgpe",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccVertexAISemanticGovernancePolicyEngine_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_semantic_governance_policy_engine" "sgpe" {
+  region = "us-central1"
+}
+`, context)
+}
+
+// testAccCheckVertexAISemanticGovernancePolicyEngineDestroyProducer
+// asserts the engine has been deprovisioned. SGPE is a singleton per
+// AIP-156: a Get against a deprovisioned engine returns HTTP 200 with
+// state INACTIVE, NOT a 404. This destroy check therefore asserts
+// state == "INACTIVE", not "GET returns error".
+func testAccCheckVertexAISemanticGovernancePolicyEngineDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_vertex_ai_semantic_governance_policy_engine" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := acctest.GoogleProviderConfig(t)
+
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(registry.GetProduct("vertexai"), config)+"projects/{{project}}/locations/{{region}}/semanticGovernancePolicyEngine")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
+			if err != nil {
+				// Unexpected error (not the "200 with INACTIVE" we expect).
+				return fmt.Errorf("unexpected error checking SemanticGovernancePolicyEngine deprovision state at %s: %s", url, err)
+			}
+
+			state, ok := res["state"].(string)
+			if !ok {
+				return fmt.Errorf("SemanticGovernancePolicyEngine GET at %s returned no state field; backend regression", url)
+			}
+			if state != "INACTIVE" {
+				return fmt.Errorf("SemanticGovernancePolicyEngine at %s was not deprovisioned: state is %q (expected INACTIVE)", url, state)
+			}
+		}
+		return nil
+	}
+}

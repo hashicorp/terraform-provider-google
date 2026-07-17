@@ -729,3 +729,134 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
 }
 `, context)
 }
+
+func TestAccVertexAIReasoningEngine_apiParity(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIEndpointDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_apiParity(context),
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_apiParity(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_cloudbuild_worker_pool" "pool" {
+  name     = "pool-%{random_suffix}"
+  location = "us-central1"
+  worker_config {
+    disk_size_gb   = 100
+    machine_type   = "e2-standard-4"
+    no_external_ip = false
+  }
+}
+
+resource "google_vertex_ai_reasoning_engine" "primary" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  description  = "Reasoning engine testing API parity fields"
+  region       = "us-central1"
+
+  context_spec {
+    example_store_config {
+      similarity_search_config {
+        embedding_model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/text-embedding-005"
+      }
+    }
+  }
+  spec {
+    agent_card = jsonencode({
+      name        = "test-agent"
+      description = "a test agent card"
+    })
+    build_spec {
+      worker_pool = google_cloudbuild_worker_pool.pool.id
+    }
+    deployment_spec {
+      agent_server_mode                  = "EXPERIMENTAL"
+      dedicated_ingress_endpoint_enabled = false
+    }
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/agent_src.tar.gz")
+      }
+      image_spec {
+        build_args = {}
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      spec[0].agent_card,
+      context_spec,
+    ]
+  }
+}
+`, context)
+}
+
+func TestAccVertexAIReasoningEngine_apiParityExternal(t *testing.T) {
+	t.Skip("Skipping agent_gateway and runtime_revision_name due to external infrastructure dependencies")
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIEndpointDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_apiParityExternal(context),
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_apiParityExternal(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_vertex_ai_reasoning_engine" "primary" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  description  = "Reasoning engine testing external API parity fields"
+  region       = "us-central1"
+
+  spec {
+    identity_type = "AGENT_IDENTITY"
+    deployment_spec {
+      agent_gateway_config {
+        agent_to_anywhere_config {
+          agent_gateway = "projects/${data.google_project.project.project_id}/locations/us-central1/agentGateways/test-gateway"
+        }
+        client_to_agent_config {
+          agent_gateway = "projects/${data.google_project.project.project_id}/locations/us-central1/agentGateways/test-gateway"
+        }
+      }
+    }
+  }
+  traffic_config {
+    traffic_split_manual {
+      targets {
+        percent               = 100
+        runtime_revision_name = "projects/${data.google_project.project.project_id}/locations/us-central1/reasoningEngines/%{random_suffix}/runtimeRevisions/1"
+      }
+    }
+  }
+}
+`, context)
+}

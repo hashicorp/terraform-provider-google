@@ -50,6 +50,7 @@ fields:
     - api_field: host.gceInstance.disablePublicIpAddresses
     - api_field: host.gceInstance.disableSsh
     - api_field: host.gceInstance.enableNestedVirtualization
+    - api_field: host.gceInstance.instanceMetadata
     - api_field: host.gceInstance.machineType
     - api_field: host.gceInstance.poolSize
     - api_field: host.gceInstance.serviceAccount

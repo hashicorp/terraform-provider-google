@@ -23,6 +23,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/backupdr"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/sql"
 	"testing"
 	"time"
 )
@@ -265,6 +266,211 @@ resource "google_backup_dr_backup_plan_association" "bpa" {
   resource =   google_compute_instance.default.id
   resource_type= "compute.googleapis.com/Instance"
   backup_plan = google_backup_dr_backup_plan.updated-bp.name
+}
+`, context)
+}
+
+func TestAccBackupDRBackupPlanAssociation_sqlUpdate(t *testing.T) {
+	// Uses time.Now
+	acctest.SkipIfVcr(t)
+
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBackupDRBackupPlanAssociation_sqlCreate(context),
+			},
+			{
+				ResourceName:            "google_backup_dr_backup_plan_association.bpa",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"resource"},
+			},
+			{
+				Config: testAccBackupDRBackupPlanAssociation_sqlUpdate(context),
+			},
+			{
+				ResourceName:            "google_backup_dr_backup_plan_association.bpa",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"resource"},
+			},
+		},
+	})
+}
+
+func testAccBackupDRBackupPlanAssociation_sqlCreate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "tf-test-sql-%{random_suffix}"
+  database_version    = "MYSQL_8_0"
+  region              = "us-central1"
+  project             = "%{project}"
+  settings {
+    tier = "db-f1-micro"
+    backup_configuration {
+      enabled = true
+    }
+  }
+  deletion_protection = false
+}
+
+resource "google_backup_dr_backup_vault" "my-backup-vault" {
+  location                                   = "us-central1"
+  backup_vault_id                            = "tf-test-bv-%{random_suffix}"
+  description                                = "Backup vault built by Terraform."
+  backup_minimum_enforced_retention_duration = "100000s"
+  force_update                               = "true"
+  force_delete                               = "true"
+  allow_missing                              = "true" 
+}
+
+resource "google_backup_dr_backup_plan" "bp1" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-1-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = google_backup_dr_backup_vault.my-backup-vault.name
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 366
+
+    standard_schedule {
+      recurrence_type = "YEARLY"
+      months          = ["JANUARY"]
+      days_of_month   = [15]
+      time_zone       = "UTC"
+
+      backup_window {
+        start_hour_of_day = 2  # Backup starts at 2:00 AM UTC
+        end_hour_of_day   = 8  # Optional, backup window ends at 3:00 AM
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan" "bp2" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-2-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = google_backup_dr_backup_vault.my-backup-vault.name
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 366
+
+    standard_schedule {
+      recurrence_type = "YEARLY"
+      months          = ["JANUARY"]
+      days_of_month   = [15]
+      time_zone       = "UTC"
+
+      backup_window {
+        start_hour_of_day = 2  # Backup starts at 2:00 AM UTC
+        end_hour_of_day   = 8  # Optional, backup window ends at 3:00 AM
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "bpa" { 
+  location                   = "us-central1" 
+  backup_plan_association_id = "tf-test-bpa-%{random_suffix}"
+  resource                   = "projects/%{project}/instances/${google_sql_database_instance.instance.name}"
+  resource_type              = "sqladmin.googleapis.com/Instance"
+  backup_plan                = google_backup_dr_backup_plan.bp1.name
+}
+`, context)
+}
+
+func testAccBackupDRBackupPlanAssociation_sqlUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "tf-test-sql-%{random_suffix}"
+  database_version    = "MYSQL_8_0"
+  region              = "us-central1"
+  project             = "%{project}"
+  settings {
+    tier = "db-f1-micro"
+    backup_configuration {
+      enabled = true
+    }
+  }
+  deletion_protection = false
+}
+
+resource "google_backup_dr_backup_vault" "my-backup-vault" {
+  location                                   = "us-central1"
+  backup_vault_id                            = "tf-test-bv-%{random_suffix}"
+  description                                = "Backup vault built by Terraform."
+  backup_minimum_enforced_retention_duration = "100000s"
+  force_update                               = "true"
+  force_delete                               = "true"
+  allow_missing                              = "true" 
+}
+
+resource "google_backup_dr_backup_plan" "bp1" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-1-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = google_backup_dr_backup_vault.my-backup-vault.name
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 366
+
+    standard_schedule {
+      recurrence_type = "YEARLY"
+      months          = ["JANUARY"]
+      days_of_month   = [15]
+      time_zone       = "UTC"
+
+      backup_window {
+        start_hour_of_day = 2  # Backup starts at 2:00 AM UTC
+        end_hour_of_day   = 8  # Optional, backup window ends at 3:00 AM
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan" "bp2" {
+  location       = "us-central1"
+  backup_plan_id = "tf-test-bp-2-%{random_suffix}"
+  resource_type  = "sqladmin.googleapis.com/Instance"
+  backup_vault   = google_backup_dr_backup_vault.my-backup-vault.name
+
+  backup_rules {
+    rule_id                = "rule-1"
+    backup_retention_days  = 366
+
+    standard_schedule {
+      recurrence_type = "YEARLY"
+      months          = ["JANUARY"]
+      days_of_month   = [15]
+      time_zone       = "UTC"
+
+      backup_window {
+        start_hour_of_day = 2  # Backup starts at 2:00 AM UTC
+        end_hour_of_day   = 8  # Optional, backup window ends at 3:00 AM
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "bpa" { 
+  location                   = "us-central1" 
+  backup_plan_association_id = "tf-test-bpa-%{random_suffix}"
+  resource                   = "projects/%{project}/instances/${google_sql_database_instance.instance.name}"
+  resource_type              = "sqladmin.googleapis.com/Instance"
+  backup_plan                = google_backup_dr_backup_plan.bp2.name
 }
 `, context)
 }

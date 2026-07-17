@@ -405,13 +405,13 @@ func schemaNodeConfig() *schema.Schema {
 								Type:        schema.TypeString,
 								Optional:    true,
 								Computed:    true,
-								Description: `The name of the image to use for this node.`,
+								Description: `The Operating System image for the node pool. This is a private feature, please contact your Google account team for allowlisting this feature.`,
 							},
 							"image_project": {
 								Type:        schema.TypeString,
 								Optional:    true,
 								Computed:    true,
-								Description: `The project containing the image to use for this node.`,
+								Description: `The GCP project storing the Operating System image for the node pool. This is a private feature, please contact your Google account team for allowlisting this feature.`,
 							},
 						},
 					},
@@ -1209,6 +1209,42 @@ func schemaNodeConfig() *schema.Schema {
 											Type:        schema.TypeBool,
 											Optional:    true,
 											Description: `Whether to enable accurate time synchronization with PTP-KVM.`,
+										},
+									},
+								},
+							},
+							"custom_node_init": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								MaxItems:    1,
+								Description: `The custom node init settings.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"init_script": {
+											Type:        schema.TypeList,
+											Optional:    true,
+											MaxItems:    1,
+											Description: `The init script configuration.`,
+											Elem: &schema.Resource{
+												Schema: map[string]*schema.Schema{
+													"gcs_uri": {
+														Type:        schema.TypeString,
+														Optional:    true,
+														Description: `The GCS URI of the init script.`,
+													},
+													"gcs_generation": {
+														Type:        schema.TypeInt,
+														Optional:    true,
+														Computed:    true,
+														Description: `The GCS generation of the init script.`,
+													},
+													"gcp_secret_manager_secret_uri": {
+														Type:        schema.TypeString,
+														Optional:    true,
+														Description: `The Secret Manager secret URI of the init script.`,
+													},
+												},
+											},
 										},
 									},
 								},
@@ -2249,6 +2285,10 @@ func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
 		linuxNodeConfig.AccurateTimeConfig = expandAccurateTimeConfig(v)
 	}
 
+	if v, ok := cfg["custom_node_init"]; ok {
+		linuxNodeConfig.CustomNodeInit = expandCustomNodeInit(v)
+	}
+
 	return linuxNodeConfig
 }
 
@@ -2381,6 +2421,52 @@ func expandAccurateTimeConfig(v interface{}) *container.AccurateTimeConfig {
 	}
 
 	return accurateTimeConfig
+}
+
+func expandCustomNodeInit(v interface{}) *container.CustomNodeInit {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.CustomNodeInit{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	customNodeInit := &container.CustomNodeInit{}
+	if v, ok := cfg["init_script"]; ok {
+		customNodeInit.InitScript = expandInitScript(v)
+	}
+	return customNodeInit
+}
+
+func expandInitScript(v interface{}) *container.InitScript {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.InitScript{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	initScript := &container.InitScript{}
+	if v, ok := cfg["gcs_uri"]; ok {
+		initScript.GcsUri = v.(string)
+	}
+	if v, ok := cfg["gcs_generation"]; ok {
+		initScript.GcsGeneration = int64(v.(int))
+	}
+	if v, ok := cfg["gcp_secret_manager_secret_uri"]; ok {
+		initScript.GcpSecretManagerSecretUri = v.(string)
+	}
+	return initScript
 }
 
 func expandSwapConfig(v interface{}) *container.SwapConfig {
@@ -3333,6 +3419,7 @@ func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface
 			"node_kernel_module_loading":   flattenNodeKernelModuleLoading(c.NodeKernelModuleLoading),
 			"swap_config":                  flattenSwapConfig(c.SwapConfig),
 			"accurate_time_config":         flattenAccurateTimeConfig(c.AccurateTimeConfig),
+			"custom_node_init":             flattenCustomNodeInit(c.CustomNodeInit),
 		})
 	}
 	return result
@@ -3343,6 +3430,28 @@ func flattenAccurateTimeConfig(c *container.AccurateTimeConfig) []map[string]int
 	if c != nil {
 		result = append(result, map[string]interface{}{
 			"enable_ptp_kvm_time_sync": c.EnablePtpKvmTimeSync,
+		})
+	}
+	return result
+}
+
+func flattenCustomNodeInit(c *container.CustomNodeInit) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"init_script": flattenInitScript(c.InitScript),
+		})
+	}
+	return result
+}
+
+func flattenInitScript(c *container.InitScript) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"gcs_uri":                       c.GcsUri,
+			"gcs_generation":                c.GcsGeneration,
+			"gcp_secret_manager_secret_uri": c.GcpSecretManagerSecretUri,
 		})
 	}
 	return result
@@ -4121,7 +4230,8 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 			log.Printf("[INFO] Updated labels for node pool %s", name)
 		}
 
-		if d.HasChange(prefix + "node_config.0.image_type") {
+		// The case updating both image_type and node_image_config will be handled in the node_image_config section.
+		if d.HasChange(prefix+"node_config.0.image_type") && !d.HasChange(prefix+"node_config.0.node_image_config") {
 			req := &container.UpdateClusterRequest{
 				Update: &container.ClusterUpdate{
 					DesiredNodePoolId: name,
@@ -4356,19 +4466,31 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 			log.Printf("[INFO] Updated windows_node_config for node pool %s", name)
 		}
 		if d.HasChange(prefix + "node_config.0.node_image_config") {
-			imageConfig := expandNodeImageConfig(d.Get(prefix + "node_config.0.node_image_config"))
-			req := &container.UpdateNodePoolRequest{
-				Name:         name,
-				Image:        imageConfig.Image,
-				ImageProject: imageConfig.ImageProject,
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredNodePoolId: name,
+				},
+			}
+			if imageConfig := expandNodeImageConfig(d.Get(prefix + "node_config.0.node_image_config")); imageConfig != nil {
+				req.Update.DesiredImage = imageConfig.Image
+				req.Update.DesiredImageProject = imageConfig.ImageProject
+			}
+
+			if d.HasChange(prefix + "node_config.0.image_type") {
+				req.Update.DesiredImageType = d.Get(prefix + "node_config.0.image_type").(string)
+			} else {
+				// If only updating the node_image_config (DesiredImage and/or DesiredImage) and
+				// the image_type unspecified, then it is an use case of custom image feature, where
+				// the DesiredImageType should be CUSTOM_CONTAINERD (go/gke-custom-image-builder-ug-edit)
+				req.Update.DesiredImageType = "CUSTOM_CONTAINERD"
 			}
 
 			updateF := func() error {
-				clusterNodePoolsUpdateCall := NewClient(config, userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				clusterUpdateCall := NewClient(config, userAgent).Projects.Locations.Clusters.Update(nodePoolInfo.parent(), req)
 				if config.UserProjectOverride {
-					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+					clusterUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 				}
-				op, err := clusterNodePoolsUpdateCall.Do()
+				op, err := clusterUpdateCall.Do()
 				if err != nil {
 					return err
 				}
@@ -4376,8 +4498,7 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 				// Wait until it's updated
 				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
-					nodePoolInfo.location,
-					"updating GKE node pool custom image config", userAgent,
+					nodePoolInfo.location, "updating GKE node pool", userAgent,
 					timeout)
 			}
 

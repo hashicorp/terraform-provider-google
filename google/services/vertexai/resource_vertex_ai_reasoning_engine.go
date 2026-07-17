@@ -210,7 +210,253 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 							ValidateFunc: validation.StringIsJSON,
 							StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 							Description: `Optional. Declarations for object class methods in OpenAPI
-specification format.`,
+specification format.
+
+**Note**: When deploying via Terraform, this field must be populated manually.
+Otherwise, client SDKs (like 'agent_engines.get()') will not be able to discover the methods, and calls to the engine (or A2A integrations) will fail.
+
+Depending on the template/framework used ('agent_framework'), the required class methods and their parameters differ:
+
+**Warning**: The configuration snippets below are illustrative, may not be exhaustive, and could stop working over time. For the most up-to-date method lists and schemas, please consult the respective SDK source code:
+* For Google ADK: See [ADK Python SDK cli_deploy.py](https://github.com/google/adk-python/blob/68a780306e3bdd648a882ef34c0abf8e5148353e/src/google/adk/cli/cli_deploy.py#L109).
+* For Langchain: See [Vertex AI Python SDK langchain.py](https://github.com/googleapis/python-aiplatform/blob/c8a38a085931b01f4d6071f0ab7a64cb42851829/agentplatform/agent_engines/templates/langchain.py#L642-L717).
+
+### 1. Langchain Template
+* 'query' (api_mode = "sync" or empty)
+* 'stream_query' (api_mode = "stream")
+
+Example for Langchain:
+'''hcl
+class_methods = jsonencode([
+  {
+    name        = "query"
+    api_mode    = "sync"
+    description = "Queries the reasoning engine"
+    parameters  = {
+      type       = "object"
+      required   = ["input"]
+      properties = {
+        input = {
+          type        = "string"
+          description = "The input prompt"
+        }
+      }
+    }
+  },
+  {
+    name        = "stream_query"
+    api_mode    = "stream"
+    description = "Streams queries from the reasoning engine"
+    parameters  = {
+      type       = "object"
+      required   = ["input"]
+      properties = {
+        input = {
+          type        = "string"
+          description = "The input prompt"
+        }
+      }
+    }
+  }
+])
+'''
+
+### 2. Google ADK Template (Standard - No A2A)
+For standard Google ADK (Agent Development Kit) deployments, you must define the following 11 methods:
+
+Example for Standard ADK:
+'''hcl
+class_methods = jsonencode([
+  {
+    name        = "get_session"
+    api_mode    = ""
+    description = "Retrieve session by ID"
+    parameters  = {
+      type     = "object"
+      required = ["user_id", "session_id"]
+      properties = {
+        user_id    = { type = "string" }
+        session_id = { type = "string" }
+      }
+    }
+  },
+  {
+    name        = "async_get_session"
+    api_mode    = "async"
+    description = "Retrieve session asynchronously by ID"
+    parameters  = {
+      type     = "object"
+      required = ["user_id", "session_id"]
+      properties = {
+        user_id    = { type = "string" }
+        session_id = { type = "string" }
+      }
+    }
+  },
+  {
+    name        = "list_sessions"
+    api_mode    = ""
+    description = "List all sessions for a user"
+    parameters  = {
+      type     = "object"
+      required = ["user_id"]
+      properties = {
+        user_id = { type = "string" }
+      }
+    }
+  },
+  {
+    name        = "async_list_sessions"
+    api_mode    = "async"
+    description = "List all sessions for a user asynchronously"
+    parameters  = {
+      type     = "object"
+      required = ["user_id"]
+      properties = {
+        user_id = { type = "string" }
+      }
+    }
+  },
+  {
+    name        = "create_session"
+    api_mode    = ""
+    description = "Create a new session"
+    parameters  = {
+      type     = "object"
+      required = ["user_id"]
+      properties = {
+        user_id    = { type = "string" }
+        session_id = { type = "string" }
+        state      = { type = "object" }
+      }
+    }
+  },
+  {
+    name        = "async_create_session"
+    api_mode    = "async"
+    description = "Create a new session asynchronously"
+    parameters  = {
+      type     = "object"
+      required = ["user_id"]
+      properties = {
+        user_id    = { type = "string" }
+        session_id = { type = "string" }
+        state      = { type = "object" }
+      }
+    }
+  },
+  {
+    name        = "delete_session"
+    api_mode    = ""
+    description = "Delete session by ID"
+    parameters  = {
+      type     = "object"
+      required = ["user_id", "session_id"]
+      properties = {
+        user_id    = { type = "string" }
+        session_id = { type = "string" }
+      }
+    }
+  },
+  {
+    name        = "async_delete_session"
+    api_mode    = "async"
+    description = "Delete session asynchronously by ID"
+    parameters  = {
+      type     = "object"
+      required = ["user_id", "session_id"]
+      properties = {
+        user_id    = { type = "string" }
+        session_id = { type = "string" }
+      }
+    }
+  },
+  {
+    name        = "stream_query"
+    api_mode    = "stream"
+    description = "Stream queries from the agent"
+    parameters  = {
+      type     = "object"
+      required = ["message", "user_id"]
+      properties = {
+        message    = { description = "Message string or object" }
+        user_id    = { type = "string" }
+        session_id = { type = "string" }
+        run_config = { type = "object" }
+      }
+    }
+  },
+  {
+    name        = "async_stream_query"
+    api_mode    = "async_stream"
+    description = "Stream queries asynchronously from the agent"
+    parameters  = {
+      type     = "object"
+      required = ["message", "user_id"]
+      properties = {
+        message        = { description = "Message string or object" }
+        user_id        = { type = "string" }
+        session_id     = { type = "string" }
+        session_events = { type = "array", items = { type = "object" } }
+        run_config     = { type = "object" }
+      }
+    }
+  },
+  {
+    name        = "streaming_agent_run_with_events"
+    api_mode    = "async_stream"
+    description = "Stream agent run with events asynchronously"
+    parameters  = {
+      type     = "object"
+      required = ["request_json"]
+      properties = {
+        request_json = { type = "string" }
+      }
+    }
+  }
+])
+'''
+
+### 3. Google ADK Template (A2A-Enabled)
+If the agent integrates with the Gemini Enterprise Agent Registry (A2A), you must inject the 'a2a_agent_card' JSON metadata as a string **specifically inside the 'async_create_session' method definition**:
+
+Example for A2A-Enabled ADK:
+'''hcl
+locals {
+  # Construct the A2A endpoint URL
+  a2a_url = "https://us-central1-aiplatform.googleapis.com/v1/projects/my-project/locations/us-central1/reasoningEngines/my-agent/a2a"
+
+  agent_card = {
+    name                 = "my-agent"
+    description          = "A2A Agent"
+    version              = "1.0.0"
+    preferred_transport  = "HTTP_JSON"
+    supported_interfaces = [{ url = local.a2a_url, protocol_binding = "HTTP_JSON" }]
+    capabilities         = { streaming = true }
+  }
+}
+
+# In class_methods, append "a2a_agent_card" key ONLY to the "async_create_session" method:
+class_methods = jsonencode([
+  # ... other 10 standard methods (same as Standard ADK) ...
+  {
+    name        = "async_create_session"
+    api_mode    = "async"
+    description = "Create a new session asynchronously"
+    parameters  = {
+      type     = "object"
+      required = ["user_id"]
+      properties = {
+        user_id    = { type = "string" }
+        session_id = { type = "string" }
+        state      = { type = "object" }
+      }
+    }
+    # Inject the serialized Agent Card here
+    a2a_agent_card = jsonencode(local.agent_card)
+  }
+])
+'''`,
 						},
 						"container_spec": {
 							Type:        schema.TypeList,
@@ -232,6 +478,7 @@ container image that is to be run on each worker replica.`,
 						},
 						"deployment_spec": {
 							Type:        schema.TypeList,
+							Computed:    true,
 							Optional:    true,
 							Description: `Optional. The specification of a Reasoning Engine deployment.`,
 							MaxItems:    1,
@@ -968,6 +1215,28 @@ func resourceVertexAIReasoningEngineUpdate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	// Remove unchanged fields from the request body to avoid API validation errors on defaulted fields.
+	if !d.HasChange("context_spec") {
+		delete(obj, "contextSpec")
+	}
+
+	if !d.HasChange("traffic_config") {
+		delete(obj, "trafficConfig")
+	}
+
+	if !d.HasChange("spec") {
+		delete(obj, "spec")
+	} else {
+		// If spec changed, check if deployment_spec inside it changed.
+		// If deployment_spec didn't change, remove it from spec map.
+		if specList, ok := obj["spec"].([]interface{}); ok && len(specList) > 0 {
+			if specMap, ok := specList[0].(map[string]interface{}); ok {
+				if !d.HasChange("spec.0.deployment_spec") {
+					delete(specMap, "deploymentSpec")
+				}
+			}
+		}
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -1227,29 +1496,24 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpec(v interface{}, d *schema.R
 }
 func flattenVertexAIReasoningEngineSpecDeploymentSpecEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return v
+		return nil
 	}
 	l := v.([]interface{})
-	transformed := schema.NewSet(schema.HashResource(vertexaiReasoningEngineSpecDeploymentSpecEnvSchema()), []interface{}{})
+	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
+		if raw == nil {
 			continue
 		}
-		transformed.Add(map[string]interface{}{
-			"name":  flattenVertexAIReasoningEngineSpecDeploymentSpecEnvName(original["name"], d, config),
-			"value": flattenVertexAIReasoningEngineSpecDeploymentSpecEnvValue(original["value"], d, config),
+		original := raw.(map[string]interface{})
+		if original["name"] == "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY" {
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":  original["name"],
+			"value": original["value"],
 		})
 	}
 	return transformed
-}
-func flattenVertexAIReasoningEngineSpecDeploymentSpecEnvName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIReasoningEngineSpecDeploymentSpecEnvValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenVertexAIReasoningEngineSpecDeploymentSpecSecretEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

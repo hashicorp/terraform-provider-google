@@ -81,7 +81,10 @@ func TestAccBiglakeIcebergIcebergTable_vendedCredentials(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckBiglakeIcebergIcebergTableDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckBiglakeIcebergIcebergTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccBiglakeIcebergIcebergTable_vendedCredentials(context),
@@ -111,12 +114,22 @@ resource "google_biglake_iceberg_catalog" "catalog" {
   credential_mode = "CREDENTIAL_MODE_VENDED_CREDENTIALS"
 }
 
+# The catalog's generated service account is not immediately usable in an IAM
+# binding right after the catalog is created, so wait for it to propagate before
+# referencing it.
+resource "time_sleep" "wait_for_biglake_service_account" {
+  depends_on      = [google_biglake_iceberg_catalog.catalog]
+  create_duration = "60s"
+}
+
 # Credential vending downscopes a generated service account to access the GCS
 # bucket, so it must be granted access before any table operation runs.
 resource "google_storage_bucket_iam_member" "cv_sa_storage_admin" {
   bucket = google_storage_bucket.bucket.name
   role   = "roles/storage.admin"
   member = "serviceAccount:${google_biglake_iceberg_catalog.catalog.biglake_service_account}"
+
+  depends_on = [time_sleep.wait_for_biglake_service_account]
 }
 
 resource "google_biglake_iceberg_namespace" "namespace" {

@@ -236,6 +236,8 @@ fields:
     field: 'tags_fingerprint'
   - field: 'terraform_labels'
     provider_only: true
+  - api_field: 'workloadIdentityConfig.identity'
+  - api_field: 'workloadIdentityConfig.identityCertificateEnabled'
   - api_field: 'zone'
   - field: 'deletion_policy'
     provider_only: true

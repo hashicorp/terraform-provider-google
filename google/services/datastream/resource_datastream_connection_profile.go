@@ -1195,6 +1195,9 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 	if d.HasChange("mongodb_profile.0.host_addresses") {
 		updateMask = append(updateMask, "mongodbProfile.hostAddresses")
 	}
+	if d.HasChange("mongodb_profile.0.additional_options") {
+		updateMask = append(updateMask, "mongodbProfile.additionalOptions")
+	}
 
 	// Override the previous setting of updateMask to include state.
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars

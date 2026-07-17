@@ -922,6 +922,10 @@ The following arguments are supported:
   Keys must be in the format `tagKeys/{tag_key_id}`, and
   values are in the format `tagValues/456`.
 
+* `instance_metadata` -
+  (Optional)
+  Client-specified metadata key-value pairs, to be passed to the start-up script in the VM.
+
 
 <a name="nested_host_gce_instance_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 

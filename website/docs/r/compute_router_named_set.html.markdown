@@ -25,12 +25,10 @@ description: |-
 A Named Set is a collection of IP addresses or ranges (for PREFIX type) or
 BGP communities (for COMMUNITY type) that can be used in route policies.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about RouterNamedSet, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/routers)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/routers)
 * How-to Guides
     * [Google Cloud Router](https://cloud.google.com/router/docs/)
 
@@ -44,13 +42,11 @@ To get more information about RouterNamedSet, see:
 
 ```hcl
 resource "google_compute_network" "my_network" {
-  provider = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_router" "my_router" {
-  provider = google-beta
   name    = "my-router"
   network = google_compute_network.my_network.name
   region  = "us-central1"
@@ -60,7 +56,6 @@ resource "google_compute_router" "my_router" {
 }
 
 resource "google_compute_router_named_set" "my_prefix_set" {
-  provider = google-beta
   name        = "prefix-set-name"
   router      = google_compute_router.my_router.name
   region      = google_compute_router.my_router.region
@@ -83,7 +78,6 @@ resource "google_compute_router_named_set" "my_prefix_set" {
 }
 
 resource "google_compute_router_route_policy" "my_route_policy" {
-  provider = google-beta
   name   = "policy-name"
   router = google_compute_router.my_router.name
   region = google_compute_router.my_router.region
@@ -112,20 +106,17 @@ resource "google_compute_router_route_policy" "my_route_policy" {
 
 ```hcl
 resource "google_compute_network" "net" {
-  provider = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_router" "router" {
-  provider = google-beta
   name    = "my-router"
   network = google_compute_network.net.name
   region  = "us-central1"
 }
 
 resource "google_compute_router_named_set" "prefix_set" {
-  provider = google-beta
   name        = "my-prefix-set"
   router      = google_compute_router.router.name
   region      = "us-central1"
@@ -154,20 +145,17 @@ resource "google_compute_router_named_set" "prefix_set" {
 
 ```hcl
 resource "google_compute_network" "net" {
-  provider = google-beta
   name                    = "my-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_router" "router" {
-  provider = google-beta
   name    = "my-router"
   network = google_compute_network.net.name
   region  = "us-central1"
 }
 
 resource "google_compute_router_named_set" "community_set" {
-  provider = google-beta
   name        = "my-community-set"
   router      = google_compute_router.router.name
   region      = "us-central1"

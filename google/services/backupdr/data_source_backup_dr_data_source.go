@@ -76,6 +76,11 @@ var singleDataSourceSchema = map[string]*schema.Schema{
 		Computed:    true,
 		Description: `The backup configuration state.`,
 	},
+	"backup_blocked_by_vault_access_restriction": {
+		Type:        schema.TypeBool,
+		Computed:    true,
+		Description: `This field is set to true if the backup is blocked by vault access restriction.`,
+	},
 	"backup_config_info": {
 		Type:     schema.TypeList,
 		Computed: true,
@@ -388,6 +393,12 @@ func flattenDataSourceIntoResourceData(d *schema.ResourceData, res map[string]in
 	if err := d.Set("total_stored_bytes", flattenDataSourceBackupDRDataSourceTotalStoredBytes(res["totalStoredBytes"], d, config)); err != nil {
 		return fmt.Errorf("Error setting total_stored_bytes: %s", err)
 	}
+	if err := d.Set("config_state", flattenDataSourceBackupDRDataSourceConfigState(res["configState"], d, config)); err != nil {
+		return fmt.Errorf("Error setting config_state: %s", err)
+	}
+	if err := d.Set("backup_blocked_by_vault_access_restriction", flattenDataSourceBackupDRDataSourceBackupBlockedByVaultAccessRestriction(res["backupBlockedByVaultAccessRestriction"], d, config)); err != nil {
+		return fmt.Errorf("Error setting backup_blocked_by_vault_access_restriction: %s", err)
+	}
 	if err := d.Set("backup_config_info", flattenDataSourceBackupDRDataSourceBackupConfigInfo(res["backupConfigInfo"], d, config)); err != nil {
 		return fmt.Errorf("Error setting backup_config_info: %s", err)
 	}
@@ -564,6 +575,14 @@ func flattenDataSourceBackupDRDataSourceEtag(v interface{}, d *schema.ResourceDa
 }
 
 func flattenDataSourceBackupDRDataSourceState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataSourceBackupDRDataSourceConfigState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataSourceBackupDRDataSourceBackupBlockedByVaultAccessRestriction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

@@ -20,12 +20,14 @@ package certificatemanager_test
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -41,6 +43,7 @@ import (
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
+	_ = regexp.MatchString
 	_ = strconv.Atoi
 	_ = strings.Trim
 	_ = time.Now
@@ -252,6 +255,11 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 		"random_suffix": randomSuffix,
 	}
 
+	context_1 := map[string]interface{}{
+		"cert_name":     "tf-test-self-managed-cert" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -259,6 +267,26 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(context),
+			},
+			{
+				ResourceName:            "google_certificate_manager_certificate.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_certificate_manager_certificate.default", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_certificate_manager_certificate.default",
@@ -285,6 +313,20 @@ resource "google_certificate_manager_certificate" "default" {
   self_managed {
     pem_certificate = file("test-fixtures/cert.pem")
     pem_private_key = file("test-fixtures/private-key.pem")
+  }
+}
+`, context)
+}
+
+func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_certificate_manager_certificate" "default" {
+  name        = "%{cert_name}"
+  description = "Global cert"
+  scope       = "ALL_REGIONS"
+  self_managed {
+    pem_certificate = file("test-fixtures/cert-updated.pem")
+    pem_private_key = file("test-fixtures/private-key-updated.pem")
   }
 }
 `, context)
