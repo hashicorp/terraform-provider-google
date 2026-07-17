@@ -28,6 +28,7 @@ fields:
   - field: 'cluster_config.encryption_config.kms_key_name'
   - field: 'cluster_config.endpoint_config.enable_http_port_access'
   - field: 'cluster_config.endpoint_config.http_ports'
+  - field: 'cluster_config.gce_cluster_config.confidential_instance_config.confidential_instance_type'
   - field: 'cluster_config.gce_cluster_config.confidential_instance_config.enable_confidential_compute'
   - field: 'cluster_config.gce_cluster_config.internal_ip_only'
   - field: 'cluster_config.gce_cluster_config.metadata'

@@ -481,7 +481,9 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
     * `node_group_uri` - (Required) The URI of a sole-tenant node group resource that the cluster will be created on.
 
 * `confidential_instance_config` - (Optional) Confidential Instance Config for clusters using [Confidential VMs](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/confidential-compute)
-    * `enable_confidential_compute` - (Optional) Defines whether the instance should have confidential compute enabled.
+    * `enable_confidential_compute` - (Optional) Defines whether the instance should have confidential compute enabled. `enable_confidential_compute` is deprecated and will be removed in a future major release. Use `confidential_instance_type` instead.
+    
+    * `confidential_instance_type` - (Optional) Defines the confidential compute type of the instance. Valid values are `"CONFIDENTIAL_INSTANCE_TYPE_UNSPECIFIED"`, `"SEV"`, `"SEV_SNP"`, `"TDX"`.
 
 * `shielded_instance_config` (Optional) Shielded Instance Config for clusters using [Compute Engine Shielded VMs](https://cloud.google.com/security/shielded-cloud/shielded-vm).
 

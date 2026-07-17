@@ -98,6 +98,7 @@ var (
 
 	confidentialInstanceConfigKeys = []string{
 		"cluster_config.0.gce_cluster_config.0.confidential_instance_config.0.enable_confidential_compute",
+		"cluster_config.0.gce_cluster_config.0.confidential_instance_config.0.confidential_instance_type",
 	}
 
 	masterDiskConfigKeys            = diskConfigKeys("master_config")
@@ -839,7 +840,16 @@ func ResourceDataprocCluster() *schema.Resource {
 													Default:      false,
 													AtLeastOneOf: confidentialInstanceConfigKeys,
 													ForceNew:     true,
+													Deprecated:   `enable_confidential_compute is deprecated and will be removed in a future major release. Use confidential_instance_type instead.`,
 													Description:  `Defines whether the instance should have confidential compute enabled.`,
+												},
+												"confidential_instance_type": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													AtLeastOneOf: confidentialInstanceConfigKeys,
+													ValidateFunc: validation.StringInSlice([]string{"SEV", "SEV_SNP", "TDX"}, false),
+													ForceNew:     true,
+													Description:  `Defines the type of Confidential Compute technology to use.`,
 												},
 											},
 										},
@@ -2762,6 +2772,9 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 		if v, ok := cfgCic["enable_confidential_compute"]; ok {
 			conf.ConfidentialInstanceConfig.EnableConfidentialCompute = v.(bool)
 		}
+		if v, ok := cfgCic["confidential_instance_type"]; ok && v.(string) != "" {
+			conf.ConfidentialInstanceConfig.ConfidentialInstanceType = v.(string)
+		}
 	}
 	return conf, nil
 }
@@ -3864,6 +3877,7 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 		gceConfig["confidential_instance_config"] = []map[string]interface{}{
 			{
 				"enable_confidential_compute": gcc.ConfidentialInstanceConfig.EnableConfidentialCompute,
+				"confidential_instance_type":  gcc.ConfidentialInstanceConfig.ConfidentialInstanceType,
 			},
 		}
 	}

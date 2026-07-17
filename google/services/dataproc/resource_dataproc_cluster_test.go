@@ -348,6 +348,35 @@ func TestAccDataprocCluster_withConfidentialCompute(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withConfidentialComputeType(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(t, 10)
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	imageUri := "https://www.googleapis.com/compute/v1/projects/cloud-dataproc/global/images/dataproc-2-1-ubu20-20241026-165100-rc01"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withConfidentialComputeType(rnd, subnetworkName, imageUri, "SEV"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.confidential_type", &cluster),
+
+					// Check confidential compute type
+					resource.TestCheckResourceAttr("google_dataproc_cluster.confidential_type",
+						"cluster_config.0.gce_cluster_config.0.confidential_instance_config.0.confidential_instance_type", "SEV"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withMetadataAndTags(t *testing.T) {
 	t.Parallel()
 
@@ -2224,6 +2253,37 @@ resource "google_dataproc_cluster" "confidential" {
     }
 }
 `, rnd, subnetworkName, imageUri, imageUri)
+}
+
+func testAccDataprocCluster_withConfidentialComputeType(rnd, subnetworkName, imageUri string, confType string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "confidential_type" {
+    name   = "tf-test-dproc-%s"
+    region = "us-central1"
+
+
+    cluster_config {
+        gce_cluster_config {
+					subnetwork = "%s"
+            confidential_instance_config {
+                confidential_instance_type = "%s"
+            }
+        }
+
+        master_config {
+            machine_type     = "n2d-standard-2"
+            image_uri        = "%s"
+            min_cpu_platform = "AMD Rome"
+        }
+
+        worker_config {
+            machine_type     = "n2d-standard-2"
+            image_uri        = "%s"
+            min_cpu_platform = "AMD Rome"
+        }
+    }
+}
+`, rnd, subnetworkName, confType, imageUri, imageUri)
 }
 
 func testAccDataprocCluster_withMetadataAndTags(rnd, subnetworkName string) string {
