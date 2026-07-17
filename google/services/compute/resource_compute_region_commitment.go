@@ -54,6 +54,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// computeRegionCommitmentExistingReservationsDiffSuppress suppresses diffs for existing resources
+// when state (old) is empty. This prevents forced recreations when upgrading from provider versions prior to 7.37.0.
+func computeRegionCommitmentExistingReservationsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return d.Id() != "" && old == ""
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -185,10 +191,13 @@ Note that only MACHINE commitments should have a Type specified. Possible values
 				Description: `An optional description of this resource.`,
 			},
 			"existing_reservations": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Specifies the already existing reservations to attach to the Commitment.`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: computeRegionCommitmentExistingReservationsDiffSuppress,
+				Description: `Specifies the already existing reservations to attach to the Commitment. This field will suppress
+diffs that change the value from empty to non-empty. To force changing this field from empty to non-empty,
+change another field at the same time.`,
 			},
 			"license_resource": {
 				Type:        schema.TypeList,

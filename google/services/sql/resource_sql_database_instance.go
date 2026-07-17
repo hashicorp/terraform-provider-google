@@ -728,6 +728,16 @@ API (for read pools, effective_availability_type may differ from availability_ty
 																Computed:    true,
 																Description: `The connection policy status of the consumer network.`,
 															},
+															"instance_auto_dns_status": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The status of the automated DNS provisioning for the instance.`,
+															},
+															"write_endpoint_auto_dns_status": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The status of the automated DNS provisioning for the write endpoint.`,
+															},
 															"ip_address": {
 																Type:        schema.TypeString,
 																Computed:    true,
@@ -1127,6 +1137,16 @@ API (for read pools, effective_availability_type may differ from availability_ty
 				Required:         true,
 				Description:      `The MySQL, PostgreSQL or SQL Server version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, MYSQL_8_4, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, POSTGRES_15, POSTGRES_16, POSTGRES_17, POSTGRES_18, SQLSERVER_2022_STANDARD, SQLSERVER_2022_ENTERPRISE, SQLSERVER_2022_EXPRESS, SQLSERVER_2022_WEB, SQLSERVER_2025_STANDARD, SQLSERVER_2025_ENTERPRISE, SQLSERVER_2025_EXPRESS, SQLSERVER_2025_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 				DiffSuppressFunc: databaseVersionDiffSuppress,
+			},
+			"switch_transaction_logs_to_cloud_storage_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `When set to true, Cloud SQL instances can switch storing point-in-time recovery transaction logs from a data disk to Cloud Storage, freeing up data disk space and enabling longer retention windows. This is an input-only field that is not persisted in the API.`,
+			},
+			"include_replicas_for_major_version_upgrade": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `When this parameter is set to true, Cloud SQL instances can perform in-place major version upgrades of read replicas along with the primary instance when 'database_version' is updated. This is an input-only field that is not persisted in the API and only takes effect during a major version upgrade.`,
 			},
 			"encryption_key_name": {
 				Type:     schema.TypeString,
@@ -1737,6 +1757,9 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	if _, ok := d.GetOk("node_count"); ok {
 		instance.NodeCount = int64(d.Get("node_count").(int))
+	}
+	if v, ok := d.GetOk("switch_transaction_logs_to_cloud_storage_enabled"); ok {
+		instance.SwitchTransactionLogsToCloudStorageEnabled = v.(bool)
 	}
 	if _, ok := d.GetOk("root_password_wo_version"); ok {
 		instance.RootPassword = tpgresource.GetRawConfigAttributeAsString(d, "root_password_wo")
@@ -2654,7 +2677,10 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	// Check if the database version is being updated, because patching database version is an atomic operation and can not be
 	// performed with other fields, we first patch database version before updating the rest of the fields.
 	if d.HasChange("database_version") {
-		instance = &sqladmin.DatabaseInstance{DatabaseVersion: databaseVersion}
+		instance = &sqladmin.DatabaseInstance{
+			DatabaseVersion:                       databaseVersion,
+			IncludeReplicasForMajorVersionUpgrade: d.Get("include_replicas_for_major_version_upgrade").(bool),
+		}
 		err = transport_tpg.Retry(transport_tpg.RetryOptions{
 			RetryFunc: func() (rerr error) {
 				op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
@@ -2939,6 +2965,11 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 				PsaWriteEndpoint: psaWriteEndpoint,
 			}
 		}
+	}
+
+	// switch_transaction_logs_to_cloud_storage_enabled is input-only; send it only when toggled.
+	if d.HasChange("switch_transaction_logs_to_cloud_storage_enabled") {
+		instance.SwitchTransactionLogsToCloudStorageEnabled = d.Get("switch_transaction_logs_to_cloud_storage_enabled").(bool)
 	}
 
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
@@ -3514,6 +3545,8 @@ func flattenPscAutoConnections(pscAutoConnections []*sqladmin.PscAutoConnectionC
 		data := map[string]interface{}{
 			"consumer_network":                          flag.ConsumerNetwork,
 			"consumer_network_status":                   flag.ConsumerNetworkStatus,
+			"instance_auto_dns_status":                  flag.InstanceAutoDnsStatus,
+			"write_endpoint_auto_dns_status":            flag.WriteEndpointAutoDnsStatus,
 			"consumer_service_project_id":               flag.ConsumerProject,
 			"ip_address":                                flag.IpAddress,
 			"status":                                    flag.Status,

@@ -230,3 +230,7 @@ fields:
     api_field: 'properties.tags.fingerprint'
   - field: 'terraform_labels'
     provider_only: true
+  - field: 'workload_identity_config.identity'
+    api_field: 'properties.workloadIdentityConfig.identity'
+  - field: 'workload_identity_config.identity_certificate_enabled'
+    api_field: 'properties.workloadIdentityConfig.identityCertificateEnabled'

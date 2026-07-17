@@ -132,6 +132,20 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	metadataMap, err := resourceInstanceMetadata(d)
+	if err != nil {
+		return fmt.Errorf("Error creating metadata: %s", err)
+	}
+	if len(metadataMap) > 0 {
+		metadataBytes, err := json.Marshal(metadataMap)
+		if err != nil {
+			return fmt.Errorf("Error marshaling metadata: %s", err)
+		}
+		if err := json.Unmarshal(metadataBytes, &instance.Metadata); err != nil {
+			return fmt.Errorf("Error setting metadata: %s", err)
+		}
+	}
+
 	sourceInstanceTemplate := ConvertToUniqueIdWhenPresent(d.Get("source_instance_template").(string))
 	tpl, err := tpgresource.ParseInstanceTemplateFieldValue(sourceInstanceTemplate, d, config)
 	if err != nil {
@@ -193,10 +207,40 @@ func resourceComputeInstanceFromTemplateCreate(d *schema.ResourceData, meta inte
 		}
 	}
 
-	// when we make the original call to expandComputeInstance expandScheduling is called, which sets default values.
-	// However, we want the values to be read from the template instead.
+	// expandComputeInstance no longer sets Scheduling; handle it here so the user's
+	// scheduling overrides are applied. When no scheduling block is set, inherit from
+	// the instance template. When set, convert the map-based result from expandScheduling
+	// into the typed struct required by the API client.
 	if _, hasSchedule := d.GetOk("scheduling"); !hasSchedule {
 		instance.Scheduling = it.Properties.Scheduling
+	} else {
+		schedulingMap, err := expandScheduling(d.Get("scheduling"))
+		if err != nil {
+			return fmt.Errorf("Error expanding scheduling: %s", err)
+		}
+		for _, key := range []string{"localSsdRecoveryTimeout", "maxRunDuration", "preemptionNoticeDuration"} {
+			if dur, ok := schedulingMap[key].(map[string]interface{}); ok {
+				if sec, ok := dur["seconds"]; ok {
+					dur["seconds"] = fmt.Sprintf("%d", getInt(sec))
+				}
+			}
+		}
+		if gs, ok := schedulingMap["gracefulShutdown"].(map[string]interface{}); ok {
+			if md, ok := gs["maxDuration"].(map[string]interface{}); ok {
+				if sec, ok := md["seconds"]; ok {
+					md["seconds"] = fmt.Sprintf("%d", getInt(sec))
+				}
+			}
+		}
+		schedulingBytes, err := json.Marshal(schedulingMap)
+		if err != nil {
+			return fmt.Errorf("Error marshaling scheduling: %s", err)
+		}
+		schedulingTyped := &compute.Scheduling{}
+		if err := json.Unmarshal(schedulingBytes, schedulingTyped); err != nil {
+			return fmt.Errorf("Error setting scheduling: %s", err)
+		}
+		instance.Scheduling = schedulingTyped
 	}
 
 	// Force send all top-level fields that have been set in case they're overridden to zero values.

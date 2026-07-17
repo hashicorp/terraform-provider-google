@@ -149,7 +149,8 @@ func ResourceBackupDRBackupPlanAssociation() *schema.Resource {
 Note:
 - A Backup Plan configured for 'compute.googleapis.com/Instance', can only protect instance type resources.
 - A Backup Plan configured for 'compute.googleapis.com/Disk' can be used to protect both standard Disks and Regional Disks resources.
-- A Backup Plan configured for 'file.googleapis.com/Instance' can only protect Filestore instances.`,
+- A Backup Plan configured for 'file.googleapis.com/Instance' can only protect Filestore instances.
+- A Backup Plan configured for 'sqladmin.googleapis.com/Instance' can only protect Cloud SQL instances.`,
 			},
 			"backup_plan_association_id": {
 				Type:        schema.TypeString,

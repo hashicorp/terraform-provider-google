@@ -20,6 +20,7 @@ package backupdr_test
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -42,6 +43,7 @@ import (
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
+	_ = regexp.MatchString
 	_ = strconv.Atoi
 	_ = strings.Trim
 	_ = time.Now
@@ -77,7 +79,7 @@ func TestAccBackupDRBackupVault_backupDrBackupVaultSimpleExample(t *testing.T) {
 				ResourceName:            "google_backup_dr_backup_vault.backup-vault-test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_retention_inheritance", "backup_vault_id", "encryption_config", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_retention_inheritance", "backup_vault_id", "encryption_config", "force_delete", "force_update", "force_update_access_restriction", "ignore_backup_plan_references", "ignore_inactive_datasources", "labels", "location", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_backup_dr_backup_vault.backup-vault-test",
@@ -144,7 +146,7 @@ func TestAccBackupDRBackupVault_backupDrBackupVaultCmekExample(t *testing.T) {
 				ResourceName:            "google_backup_dr_backup_vault.backup-vault-cmek",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_retention_inheritance", "backup_vault_id", "encryption_config", "force_delete", "force_update", "ignore_backup_plan_references", "ignore_inactive_datasources", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"allow_missing", "annotations", "backup_retention_inheritance", "backup_vault_id", "encryption_config", "force_delete", "force_update", "force_update_access_restriction", "ignore_backup_plan_references", "ignore_inactive_datasources", "labels", "location", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_backup_dr_backup_vault.backup-vault-cmek",

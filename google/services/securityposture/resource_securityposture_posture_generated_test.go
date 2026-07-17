@@ -20,6 +20,7 @@ package securityposture_test
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -40,6 +41,7 @@ import (
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
+	_ = regexp.MatchString
 	_ = strconv.Atoi
 	_ = strings.Trim
 	_ = time.Now
@@ -95,6 +97,23 @@ resource "google_securityposture_posture" "posture1"{
   location    = "global"
   state       = "ACTIVE"
   description = "a new posture"
+  policy_sets {
+    policy_set_id = "list_constraint_policy_set"
+    description   = "set of org policies with a list constraint"
+    policies {
+      policy_id = "resource_locations_policy"
+      constraint {
+        org_policy_constraint {
+          canned_constraint_id = "gcp.resourceLocations"
+          policy_rules {
+            values {
+              allowed_values = ["in:us-locations"]
+            }
+          }
+        }
+      }
+    }
+  }
   policy_sets {
     policy_set_id = "org_policy_set"
     description   = "set of org policies"
@@ -181,6 +200,7 @@ resource "google_securityposture_posture" "posture1"{
       }
     }
   }
+
 }
 `, context)
 }

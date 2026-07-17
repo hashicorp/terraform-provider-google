@@ -30,6 +30,8 @@ fields:
       provider_only: true
     - field: force_update
       provider_only: true
+    - field: force_update_access_restriction
+      provider_only: true
     - field: ignore_backup_plan_references
       provider_only: true
     - field: ignore_inactive_datasources

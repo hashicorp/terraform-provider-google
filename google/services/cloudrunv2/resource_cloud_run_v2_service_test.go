@@ -31,6 +31,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkservices"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
 )
 
@@ -1605,6 +1606,55 @@ resource "google_project_iam_member" "logs_writer" {
   project = data.google_project.project.project_id
   role    = "roles/logging.logWriter"
   member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+`, context)
+}
+
+func TestAccCloudRunV2Service_cloudrunv2ServiceWithTags(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+	tagKeyResult := tags.BootstrapSharedTestTagKeyDetails(t, "cloud-run-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagkey := tagKeyResult["shared_tag_key"]
+	tagValueResult := tags.BootstrapSharedTestTagValueDetails(t, "cloud-run-tagvalue", sharedTagkey, org)
+
+	context := map[string]interface{}{}
+	context["random_suffix"] = acctest.RandString(t, 10)
+	context["tag_key_id"] = tagKeyResult["name"]
+	context["tag_value_id"] = tagValueResult["name"]
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWithTags(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels", "tags"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWithTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-tags-service%{random_suffix}"
+  location = "us-central1"
+  deletion_protection = false
+  tags = {
+    "%{tag_key_id}" = "%{tag_value_id}"
+  }
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
 }
 `, context)
 }

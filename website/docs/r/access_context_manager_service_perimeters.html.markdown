@@ -243,6 +243,52 @@ The following arguments are supported:
   The list of APIs usable within the Service Perimeter.
   Must be empty unless `enableRestriction` is True.
 
+* `allowed_service_patterns` -
+  (Optional)
+  Specifies which Google services are allowed to be accessed from
+  VPC networks in the service perimeter.
+  Structure is [documented below](#nested_service_perimeters_status_vpc_accessible_services_allowed_service_patterns).
+
+* `service_patterns_enforcement_scopes` -
+  (Optional)
+  Defines the enforcement scopes of service patterns.
+  Each value may be one of: `GOOGLE_APIS_VIA_PRIVATE_PATH`.
+
+
+<a name="nested_service_perimeters_status_vpc_accessible_services_allowed_service_patterns"></a>The `allowed_service_patterns` block supports:
+
+* `service` -
+  (Optional)
+  Supported service to allow.
+
+* `pattern` -
+  (Optional)
+  URL pattern to allow.
+
+* `modifiers` -
+  (Optional)
+  Modifiers to apply to the requests that match the URL pattern.
+  Structure is [documented below](#nested_service_perimeters_status_vpc_accessible_services_allowed_service_patterns_modifiers).
+
+
+<a name="nested_service_perimeters_status_vpc_accessible_services_allowed_service_patterns_modifiers"></a>The `modifiers` block supports:
+
+* `add_request_header` -
+  (Optional)
+  Adds additional HTTP request headers.
+  Structure is [documented below](#nested_service_perimeters_status_vpc_accessible_services_allowed_service_patterns_modifiers_add_request_header).
+
+
+<a name="nested_service_perimeters_status_vpc_accessible_services_allowed_service_patterns_modifiers_add_request_header"></a>The `add_request_header` block supports:
+
+* `key` -
+  (Required)
+  HTTP header key.
+
+* `value` -
+  (Required)
+  HTTP header value.
+
 <a name="nested_service_perimeters_status_ingress_policies"></a>The `ingress_policies` block supports:
 
 * `ingress_from` -
@@ -304,6 +350,20 @@ The following arguments are supported:
   The project may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the case
   of allowing all Google Cloud resources only is not supported.
+
+* `psc_endpoint` -
+  (Optional)
+  A Private Service Connect endpoint that is allowed to access the perimeter.
+  The Private Service Connect endpoint may be in any organization, not just the organization that the perimeter is defined in.
+  Structure is [documented below](#nested_service_perimeters_status_ingress_policies_ingress_from_sources_psc_endpoint).
+
+
+<a name="nested_service_perimeters_status_ingress_policies_ingress_from_sources_psc_endpoint"></a>The `psc_endpoint` block supports:
+
+* `forwarding_rule` -
+  (Optional)
+  The full resource name of the global forwarding rule that identifies a Private Service Connect endpoint.
+  Forwarding rule format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/forwardingRules/{FORWARDING_RULE_ID}`.
 
 <a name="nested_service_perimeters_status_ingress_policies_ingress_to"></a>The `ingress_to` block supports:
 
@@ -419,6 +479,20 @@ The following arguments are supported:
   The resource may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the
   case of allowing all Google Cloud resources only is not supported.
+
+* `psc_endpoint` -
+  (Optional)
+  A Private Service Connect endpoint that is allowed to access data outside the perimeter.
+  The Private Service Connect endpoint may be in any organization, not just the organization that the perimeter is defined in.
+  Structure is [documented below](#nested_service_perimeters_status_egress_policies_egress_from_sources_psc_endpoint).
+
+
+<a name="nested_service_perimeters_status_egress_policies_egress_from_sources_psc_endpoint"></a>The `psc_endpoint` block supports:
+
+* `forwarding_rule` -
+  (Optional)
+  The full resource name of the global forwarding rule that identifies a Private Service Connect endpoint.
+  Forwarding rule format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/forwardingRules/{FORWARDING_RULE_ID}`.
 
 <a name="nested_service_perimeters_status_egress_policies_egress_to"></a>The `egress_to` block supports:
 
@@ -542,6 +616,52 @@ The following arguments are supported:
   The list of APIs usable within the Service Perimeter.
   Must be empty unless `enableRestriction` is True.
 
+* `allowed_service_patterns` -
+  (Optional)
+  Specifies which Google services are allowed to be accessed from
+  VPC networks in the service perimeter.
+  Structure is [documented below](#nested_service_perimeters_spec_vpc_accessible_services_allowed_service_patterns).
+
+* `service_patterns_enforcement_scopes` -
+  (Optional)
+  Defines the enforcement scopes of service patterns.
+  Each value may be one of: `GOOGLE_APIS_VIA_PRIVATE_PATH`.
+
+
+<a name="nested_service_perimeters_spec_vpc_accessible_services_allowed_service_patterns"></a>The `allowed_service_patterns` block supports:
+
+* `service` -
+  (Optional)
+  Supported service to allow.
+
+* `pattern` -
+  (Optional)
+  URL pattern to allow.
+
+* `modifiers` -
+  (Optional)
+  Modifiers to apply to the requests that match the URL pattern.
+  Structure is [documented below](#nested_service_perimeters_spec_vpc_accessible_services_allowed_service_patterns_modifiers).
+
+
+<a name="nested_service_perimeters_spec_vpc_accessible_services_allowed_service_patterns_modifiers"></a>The `modifiers` block supports:
+
+* `add_request_header` -
+  (Optional)
+  Adds additional HTTP request headers.
+  Structure is [documented below](#nested_service_perimeters_spec_vpc_accessible_services_allowed_service_patterns_modifiers_add_request_header).
+
+
+<a name="nested_service_perimeters_spec_vpc_accessible_services_allowed_service_patterns_modifiers_add_request_header"></a>The `add_request_header` block supports:
+
+* `key` -
+  (Required)
+  HTTP header key.
+
+* `value` -
+  (Required)
+  HTTP header value.
+
 <a name="nested_service_perimeters_spec_ingress_policies"></a>The `ingress_policies` block supports:
 
 * `ingress_from` -
@@ -603,6 +723,20 @@ The following arguments are supported:
   The project may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the case
   of allowing all Google Cloud resources only is not supported.
+
+* `psc_endpoint` -
+  (Optional)
+  A Private Service Connect endpoint that is allowed to access the perimeter.
+  The Private Service Connect endpoint may be in any organization, not just the organization that the perimeter is defined in.
+  Structure is [documented below](#nested_service_perimeters_spec_ingress_policies_ingress_from_sources_psc_endpoint).
+
+
+<a name="nested_service_perimeters_spec_ingress_policies_ingress_from_sources_psc_endpoint"></a>The `psc_endpoint` block supports:
+
+* `forwarding_rule` -
+  (Optional)
+  The full resource name of the global forwarding rule that identifies a Private Service Connect endpoint.
+  Forwarding rule format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/forwardingRules/{FORWARDING_RULE_ID}`.
 
 <a name="nested_service_perimeters_spec_ingress_policies_ingress_to"></a>The `ingress_to` block supports:
 
@@ -720,6 +854,20 @@ The following arguments are supported:
   The resource may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the
   case of allowing all Google Cloud resources only is not supported.
+
+* `psc_endpoint` -
+  (Optional)
+  A Private Service Connect endpoint that is allowed to access data outside the perimeter.
+  The Private Service Connect endpoint may be in any organization, not just the organization that the perimeter is defined in.
+  Structure is [documented below](#nested_service_perimeters_spec_egress_policies_egress_from_sources_psc_endpoint).
+
+
+<a name="nested_service_perimeters_spec_egress_policies_egress_from_sources_psc_endpoint"></a>The `psc_endpoint` block supports:
+
+* `forwarding_rule` -
+  (Optional)
+  The full resource name of the global forwarding rule that identifies a Private Service Connect endpoint.
+  Forwarding rule format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/forwardingRules/{FORWARDING_RULE_ID}`.
 
 <a name="nested_service_perimeters_spec_egress_policies_egress_to"></a>The `egress_to` block supports:
 

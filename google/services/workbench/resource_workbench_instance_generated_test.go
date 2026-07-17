@@ -20,6 +20,7 @@ package workbench_test
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -43,6 +44,7 @@ import (
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
+	_ = regexp.MatchString
 	_ = strconv.Atoi
 	_ = strings.Trim
 	_ = time.Now
@@ -308,13 +310,14 @@ func TestAccWorkbenchInstance_workbenchInstanceFullExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_id":       envvar.GetTestProjectFromEnv(),
-		"service_account":  envvar.GetTestServiceAccountFromEnv(t),
-		"instance_name":    "tf-test-workbench-instance" + randomSuffix,
-		"key_name":         kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"network_name":     "tf-test-wbi-test-default" + randomSuffix,
-		"reservation_name": "tf-test-wbi-reservation" + randomSuffix,
-		"random_suffix":    randomSuffix,
+		"project_id":           envvar.GetTestProjectFromEnv(),
+		"service_account":      envvar.GetTestServiceAccountFromEnv(t),
+		"instance_name":        "tf-test-workbench-instance" + randomSuffix,
+		"key_name":             kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"network_name":         "tf-test-wbi-test-default" + randomSuffix,
+		"reservation_name":     "tf-test-wbi-reservation" + randomSuffix,
+		"resource_policy_name": "tf-test-wbi-policy" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -359,12 +362,10 @@ resource "google_compute_address" "static" {
   name = "%{network_name}"
 }
 
-resource "google_service_account_iam_binding" "act_as_permission" {
+resource "google_service_account_iam_member" "act_as_permission" {
   service_account_id = "projects/%{project_id}/serviceAccounts/%{service_account}"
   role               = "roles/iam.serviceAccountUser"
-  members = [
-    "user:example@example.com",
-  ]
+  member             = "user:example@example.com"
 }
 
 resource "google_compute_reservation" "gpu_reservation" {
@@ -376,7 +377,8 @@ resource "google_compute_reservation" "gpu_reservation" {
     
     instance_properties {
       machine_type = "n1-standard-4"
-      
+      min_cpu_platform = "Intel Broadwell"
+
       guest_accelerators {
         accelerator_type  = "nvidia-tesla-t4"
         accelerator_count = 1
@@ -387,12 +389,28 @@ resource "google_compute_reservation" "gpu_reservation" {
   specific_reservation_required = true
 }
 
+resource "google_compute_resource_policy" "my_policy" {
+  name   = "%{resource_policy_name}"
+  region = "us-central1"
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time    = "04:00"
+      }
+    }
+  }
+}
+
 resource "google_workbench_instance" "instance" {
   name = "%{instance_name}"
   location = "us-central1-a"
 
+  enable_deletion_protection = false
+
   gce_setup {
     machine_type = "n1-standard-4" // cant be e2 because of accelerator
+    min_cpu_platform = "Intel Broadwell"
     accelerator_configs {
       type         = "NVIDIA_TESLA_T4"
       core_count   = 1
@@ -422,6 +440,7 @@ resource "google_workbench_instance" "instance" {
       disk_type = "PD_SSD"
       disk_encryption = "CMEK"
       kms_key = "%{key_name}"
+      resource_policies = [google_compute_resource_policy.my_policy.id]
     }
 
     network_interfaces {
@@ -467,8 +486,9 @@ resource "google_workbench_instance" "instance" {
     google_compute_network.my_network,
     google_compute_subnetwork.my_subnetwork,
     google_compute_address.static,
-    google_service_account_iam_binding.act_as_permission,
-    google_compute_reservation.gpu_reservation
+    google_service_account_iam_member.act_as_permission,
+    google_compute_reservation.gpu_reservation,
+    google_compute_resource_policy.my_policy
   ]
 }
 `, context)

@@ -369,6 +369,10 @@ SQL Server version to use. Supported values include `MYSQL_5_6`,
 [Database Version Policies](https://cloud.google.com/sql/docs/db-versions)
 includes an up-to-date reference of supported versions.
 
+* `switch_transaction_logs_to_cloud_storage_enabled` - (Optional) When set to `true`, Cloud SQL instances can switch storing point-in-time recovery transaction logs from a data disk to Cloud Storage, freeing up data disk space and enabling longer retention windows. This is an input-only field that is not persisted in the API.
+
+* `include_replicas_for_major_version_upgrade` - (Optional) When this parameter is set to `true`, Cloud SQL instances can perform in-place major version upgrades of read replicas along with the primary instance when `database_version` is updated. This is an input-only field that is not persisted in the API and only takes effect during a major version upgrade.
+
 * `name` - (Optional, Computed) The name of the instance. If the name is left
     blank, Terraform will randomly generate one when the instance is first
     created. This is done because after a name is used, it cannot be reused for
@@ -914,6 +918,10 @@ performing filtering in a Terraform config.
 ~> **NOTE:** Users can upgrade a read replica instance to a stand-alone Cloud SQL instance with the help of `instance_type`. To promote, users have to set the `instance_type` property as `CLOUD_SQL_INSTANCE` and remove/unset `master_instance_name` and `replica_configuration` from instance configuration. This operation might cause your instance to restart.
 
 * `settings.ip_configuration.psc_config.psc_auto_connections.consumer_network_status` - (Output) The connection policy status of the consumer network.
+
+* `settings.ip_configuration.psc_config.psc_auto_connections.instance_auto_dns_status` - (Output) The status of the automated DNS provisioning for the instance.
+
+* `settings.ip_configuration.psc_config.psc_auto_connections.write_endpoint_auto_dns_status` - (Output) The status of the automated DNS provisioning for the write endpoint.
 
 * `settings.ip_configuration.psc_config.psc_auto_connections.ip_address` - (Output) The IP address of the consumer endpoint.
 

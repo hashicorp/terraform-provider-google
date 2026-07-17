@@ -129,6 +129,20 @@ func TestProvider_ValidateJWT(t *testing.T) {
 				errors.New("\"\" is not a valid JWT format"),
 			},
 		},
+		"a JWT with an empty segment is rejected": {
+			ConfigValue: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..c2ln",
+			ExpectedErrors: []error{
+				errors.New("part 2 of JWT must not be empty (expected header.payload.signature)"),
+			},
+		},
+		"a JWT with all empty segments is rejected": {
+			ConfigValue: "..",
+			ExpectedErrors: []error{
+				errors.New("part 1 of JWT must not be empty (expected header.payload.signature)"),
+				errors.New("part 2 of JWT must not be empty (expected header.payload.signature)"),
+				errors.New("part 3 of JWT must not be empty (expected header.payload.signature)"),
+			},
+		},
 		"unconfigured value is not valid": {
 			ValueNotProvided: true,
 			ExpectedErrors: []error{

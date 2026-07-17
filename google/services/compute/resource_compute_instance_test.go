@@ -607,6 +607,131 @@ func TestAccComputeInstance_descriptionUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_workloadIdentity_add(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	randomSuffix := acctest.RandString(t, 10)
+	context := map[string]interface{}{
+		"instance_name":                instanceName,
+		"random_suffix":                randomSuffix,
+		"identity_id":                  "tf-test-id-" + randomSuffix,
+		"identity_certificate_enabled": true,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_noWorkloadIdentity(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_workloadIdentity(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "workload_identity_config.0.identity", fmt.Sprintf("ns/tf-test-ns-%s/sa/tf-test-id-%s", randomSuffix, randomSuffix)),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "workload_identity_config.0.identity_certificate_enabled", fmt.Sprintf("%t", context["identity_certificate_enabled"].(bool))),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_workloadIdentity_remove(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	randomSuffix := acctest.RandString(t, 10)
+	context := map[string]interface{}{
+		"instance_name":                instanceName,
+		"random_suffix":                randomSuffix,
+		"identity_id":                  "tf-test-id-" + randomSuffix,
+		"identity_certificate_enabled": true,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_workloadIdentity(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "workload_identity_config.0.identity", fmt.Sprintf("ns/tf-test-ns-%s/sa/tf-test-id-%s", randomSuffix, randomSuffix)),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "workload_identity_config.0.identity_certificate_enabled", fmt.Sprintf("%t", context["identity_certificate_enabled"].(bool))),
+				),
+			},
+			{
+				Config: testAccComputeInstance_noWorkloadIdentity(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "workload_identity_config.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_workloadIdentity_update(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"instance_name":                instanceName,
+		"random_suffix":                randomSuffix,
+		"identity_id":                  "tf-test-id-1-" + randomSuffix,
+		"identity_certificate_enabled": true,
+	}
+
+	contextUpdate := map[string]interface{}{
+		"instance_name":                instanceName,
+		"random_suffix":                randomSuffix,
+		"identity_id":                  "tf-test-id-2-" + randomSuffix,
+		"identity_certificate_enabled": true,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_workloadIdentity(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "workload_identity_config.0.identity", fmt.Sprintf("ns/tf-test-ns-%s/sa/tf-test-id-1-%s", randomSuffix, randomSuffix)),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "workload_identity_config.0.identity_certificate_enabled", fmt.Sprintf("%t", context["identity_certificate_enabled"].(bool))),
+				),
+			},
+			{
+				Config: testAccComputeInstance_workloadIdentity(contextUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "workload_identity_config.0.identity", fmt.Sprintf("ns/tf-test-ns-%s/sa/tf-test-id-2-%s", randomSuffix, randomSuffix)),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "workload_identity_config.0.identity_certificate_enabled", fmt.Sprintf("%t", contextUpdate["identity_certificate_enabled"].(bool))),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_IP(t *testing.T) {
 	t.Parallel()
 
@@ -3631,6 +3756,51 @@ func TestAccComputeInstance_queueCount(t *testing.T) {
 				Config: testAccComputeInstance_queueCountSet(instanceName),
 			},
 			computeInstanceImportStep("us-east1-d", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
+func TestAccComputeInstance_flexStart(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_flexStart(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceTerminationAction(&instance, "DELETE"),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func TestAccComputeInstance_provisioningModelEmptyString(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_provisioningModelEmptyString(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
 }
@@ -10431,6 +10601,121 @@ resource "google_compute_instance" "foobar" {
 `, instance)
 }
 
+func testAccComputeInstance_flexStart(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family    = "ubuntu-2204-lts"
+  project   = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "g2-standard-4"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+      size  = 50
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  guest_accelerator {
+    type  = "nvidia-l4"
+    count = 1
+  }
+
+  scheduling {
+    provisioning_model = "FLEX_START"
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+    instance_termination_action = "DELETE"
+    max_run_duration {
+      nanos = 0
+      seconds = 3600
+    }
+  }
+}
+`, instance)
+}
+
+func testAccComputeInstance_reservationBound(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  provider  = google-beta
+  family    = "ubuntu-2204-lts"
+  project   = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  provider     = google-beta
+  name         = "%{instance_name}"
+  machine_type = "n2-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+      size  = 50
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    provisioning_model = "RESERVATION_BOUND"
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+    instance_termination_action = "DELETE"
+  }
+
+  reservation_affinity {
+    type = "SPECIFIC_RESERVATION"
+    specific_reservation {
+      key    = "compute.googleapis.com/reservation-name"
+      values = ["%{reservation_name}"]
+    }
+  }
+}
+`, context)
+}
+
+func testAccComputeInstance_provisioningModelEmptyString(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family    = "debian-11"
+  project   = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    provisioning_model = ""
+    automatic_restart = false
+  }
+}
+`, instance)
+}
+
 func testAccComputeInstance_spotVM(instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -11787,6 +12072,77 @@ resource "google_compute_instance" "foobar" {
 }
 
 data "google_compute_default_service_account" "default" {
+}
+`, context)
+}
+
+func testAccComputeInstance_workloadIdentity(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_iam_workload_identity_pool" "pool" {
+  workload_identity_pool_id = "tf-test-pool-%{random_suffix}"
+  mode                      = "TRUST_DOMAIN"
+}
+
+resource "google_iam_workload_identity_pool_namespace" "ns" {
+  workload_identity_pool_id        = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_namespace_id = "tf-test-ns-%{random_suffix}"
+}
+
+resource "google_iam_workload_identity_pool_managed_identity" "id" {
+  workload_identity_pool_id            = google_iam_workload_identity_pool_namespace.ns.workload_identity_pool_id
+  workload_identity_pool_namespace_id = google_iam_workload_identity_pool_namespace.ns.workload_identity_pool_namespace_id
+  workload_identity_pool_managed_identity_id = "%{identity_id}"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%{instance_name}"
+	machine_type = "e2-medium"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.self_link
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	workload_identity_config {
+		identity = "ns/tf-test-ns-%{random_suffix}/sa/%{identity_id}"
+		identity_certificate_enabled = %{identity_certificate_enabled}
+	}
+}
+`, context)
+}
+
+func testAccComputeInstance_noWorkloadIdentity(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name         = "%{instance_name}"
+	machine_type = "e2-medium"
+	zone         = "us-central1-a"
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.self_link
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
 }
 `, context)
 }

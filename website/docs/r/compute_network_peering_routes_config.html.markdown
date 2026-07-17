@@ -80,6 +80,87 @@ resource "google_compute_network" "network_secondary" {
   auto_create_subnetworks = "false"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_peering_routes_config_gke_peered_vpc&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Peering Routes Config Gke Peered Vpc
+
+
+```hcl
+resource "google_compute_network_peering_routes_config" "peering_gke_routes" {
+  peering = google_compute_network_peering.peering_gke_to_workload.name
+  network = google_compute_network.gke_network.name
+
+  import_custom_routes = true
+  export_custom_routes = true
+}
+
+resource "google_compute_network_peering" "peering_gke_to_workload" {
+  name         = "peering-gke-to-workload"
+  network      = google_compute_network.gke_network.id
+  peer_network = google_compute_network.workload_network.id
+
+  import_custom_routes = true
+  export_custom_routes = true
+}
+
+resource "google_compute_network_peering" "peering_workload_to_gke" {
+  name         = "peering-workload-to-gke"
+  network      = google_compute_network.workload_network.id
+  peer_network = google_compute_network.gke_network.id
+}
+
+resource "google_compute_network" "gke_network" {
+  name                    = "gke-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "workload_network" {
+  name                    = "workload-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "gke_subnetwork" {
+  name                     = "gke-subnetwork"
+  region                   = "us-central1"
+  network                  = google_compute_network.gke_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+}
+
+resource "google_container_cluster" "gke_cluster" {
+  name               = "gke-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  network    = google_compute_network.gke_network.name
+  subnetwork = google_compute_subnetwork.gke_subnetwork.name
+
+  private_cluster_config {
+    enable_private_nodes    = true
+    master_ipv4_cidr_block  = "10.42.0.0/28"
+  }
+
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.gke_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.gke_subnetwork.secondary_ip_range[1].range_name
+  }
+
+  deletion_protection = true
+}
+```
 
 ## Argument Reference
 

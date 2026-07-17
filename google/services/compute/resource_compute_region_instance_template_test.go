@@ -943,6 +943,25 @@ func TestAccComputeRegionInstanceTemplate_invalidDiskType(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionInstanceTemplate_invalidScratchDiskInterface(t *testing.T) {
+	t.Parallel()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeRegionInstanceTemplate_invalidScratchDiskInterface(acctest.RandString(t, 10), 3500),
+				ExpectError: regexp.MustCompile("SCRATCH disks with a size of 3500 GB must have an interface of NVME"),
+			},
+			{
+				Config:      testAccComputeRegionInstanceTemplate_invalidScratchDiskInterface(acctest.RandString(t, 10), 14000),
+				ExpectError: regexp.MustCompile("SCRATCH disks with a size of 14000 GB must have an interface of NVME"),
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionInstanceTemplate_withScratchDisk(t *testing.T) {
 	t.Parallel()
 
@@ -1120,6 +1139,59 @@ func TestAccComputeRegionInstanceTemplate_managedEnvoy(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func TestAccComputeRegionInstanceTemplate_flexStart(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate map[string]interface{}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_flexStart(acctest.RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeRegionInstanceTemplateAutomaticRestart(&instanceTemplate, false),
+					testAccCheckComputeRegionInstanceTemplateProvisioningModel(&instanceTemplate, "FLEX_START"),
+					testAccCheckComputeRegionInstanceTemplateInstanceTerminationAction(&instanceTemplate, "DELETE"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_region_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeRegionInstanceTemplate_provisioningModelEmptyString(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate map[string]interface{}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_provisioningModelEmptyString(acctest.RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+				),
+			},
+			{
+				ResourceName:      "google_compute_region_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -1506,6 +1578,36 @@ func TestAccComputeRegionInstanceTemplate_keyRevocationActionType(t *testing.T) 
 						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
 					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "key_revocation_action_type", ""),
 				),
+			},
+		},
+	})
+}
+
+func TestAccComputeRegionInstanceTemplate_workloadIdentity(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate map[string]interface{}
+	suffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_workloadIdentity(suffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "workload_identity_config.0.identity", fmt.Sprintf("ns/tf-test-ns-%s/sa/tf-test-id-%s", suffix, suffix)),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "workload_identity_config.0.identity_certificate_enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -3842,6 +3944,36 @@ resource "google_compute_region_instance_template" "foobar" {
 `, suffix)
 }
 
+func testAccComputeRegionInstanceTemplate_invalidScratchDiskInterface(suffix string, diskSize int) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-12"
+	project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  region         = "us-central1"
+  machine_type   = "n2-standard-64"
+  can_ip_forward = false
+  disk {
+    source_image = data.google_compute_image.my_image.name
+    auto_delete  = true
+    boot         = true
+  }
+  disk {
+    auto_delete  = true
+    disk_size_gb = %d
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+    interface    = "SCSI"
+  }
+  network_interface {
+    network = "default"
+  }
+}`, suffix, diskSize)
+}
+
 func testAccComputeRegionInstanceTemplate_imageResourceTest(diskName string, imageName string, imageDescription string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -4063,6 +4195,83 @@ resource "google_compute_region_instance_template" "foobar" {
 
   labels = {
     gce-service-proxy = "on"
+  }
+}
+`, suffix)
+}
+
+func testAccComputeRegionInstanceTemplate_flexStart(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  region      = "us-central1"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    automatic_restart = false
+    provisioning_model = "FLEX_START"
+    instance_termination_action = "DELETE"
+    on_host_maintenance = "TERMINATE"
+    max_run_duration {
+      nanos = 0
+      seconds = 3600
+    }
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, suffix)
+}
+
+func testAccComputeRegionInstanceTemplate_provisioningModelEmptyString(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  region         = "us-central1"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    automatic_restart = false
+    provisioning_model = ""
   }
 }
 `, suffix)
@@ -4760,4 +4969,49 @@ resource "google_compute_region_instance_template" "foobar" {
   }
 }
 `, context)
+}
+
+func testAccComputeRegionInstanceTemplate_workloadIdentity(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_iam_workload_identity_pool" "pool" {
+  workload_identity_pool_id = "tf-test-pool-%s"
+  mode                      = "TRUST_DOMAIN"
+}
+
+resource "google_iam_workload_identity_pool_namespace" "ns" {
+  workload_identity_pool_id        = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_namespace_id = "tf-test-ns-%s"
+}
+
+resource "google_iam_workload_identity_pool_managed_identity" "id" {
+  workload_identity_pool_id            = google_iam_workload_identity_pool_namespace.ns.workload_identity_pool_id
+  workload_identity_pool_namespace_id = google_iam_workload_identity_pool_namespace.ns.workload_identity_pool_namespace_id
+  workload_identity_pool_managed_identity_id = "tf-test-id-%s"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%s"
+  machine_type = "e2-medium"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  workload_identity_config {
+    identity = "ns/tf-test-ns-%s/sa/tf-test-id-%s"
+    identity_certificate_enabled = true
+  }
+}
+`, suffix, suffix, suffix, suffix, suffix, suffix)
 }

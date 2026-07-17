@@ -63,7 +63,7 @@ var (
 )
 
 var DEFAULT_SCRATCH_DISK_SIZE_GB = 375
-var VALID_SCRATCH_DISK_SIZES_GB [2]int = [2]int{375, 3000}
+var VALID_SCRATCH_DISK_SIZES_GB = []int{375, 3000, 3500, 7000, 14000}
 
 func ResourceComputeInstanceTemplate() *schema.Resource {
 	return &schema.Resource{
@@ -173,7 +173,7 @@ func ResourceComputeInstanceTemplate() *schema.Resource {
 							Optional:    true,
 							ForceNew:    true,
 							Computed:    true,
-							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be one of 375 or 3000 GB, with a default of 375 GB.`,
+							Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be one of 375, 3000, 3500, 7000 or 14000 GB, with a default of 375 GB.`,
 						},
 
 						"disk_type": {
@@ -796,7 +796,7 @@ Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key m
 							Computed:     true,
 							ForceNew:     true,
 							AtLeastOneOf: schedulingInstTemplateKeys,
-							Description:  `Whether the instance is spot. If this is set as SPOT.`,
+							Description:  `Describes the desired provisioning model for the instance. Possible values are STANDARD, SPOT, FLEX_START, and RESERVATION_BOUND. For STANDARD, resources are provisioned immediately. For SPOT, resources are offered at a discount compared to standard pricing but may be preempted. For FLEX_START, resources are offered at a discount with flexible start times. For RESERVATION_BOUND, the instance is bound to a specific reservation and will only consume capacity from that reservation.`,
 						},
 						"instance_termination_action": {
 							Type:         schema.TypeString,
@@ -1215,6 +1215,29 @@ be from 0 to 999,999,999 inclusive.`,
 				ValidateFunc: validation.StringInSlice([]string{"NONE", "STOP", ""}, false),
 				Description:  `Action to be taken when a customer's encryption key is revoked. Supports "STOP" and "NONE", with "NONE" being the default.`,
 			},
+			"workload_identity_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Workload identity config.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"identity": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Identity SPIFFE id.`,
+						},
+						"identity_certificate_enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies whether identity certificates are enabled.`,
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -1287,13 +1310,13 @@ func resourceComputeInstanceTemplateScratchDiskCustomizeDiffFunc(diff tpgresourc
 		}
 
 		diskSize := diff.Get(fmt.Sprintf("disk.%d.disk_size_gb", i)).(int)
-		if typee == "SCRATCH" && !(diskSize == 375 || diskSize == 3000) { // see VALID_SCRATCH_DISK_SIZES_GB
+		if typee == "SCRATCH" && !(diskSize == 375 || diskSize == 3000 || diskSize == 3500 || diskSize == 7000 || diskSize == 14000) { // see VALID_SCRATCH_DISK_SIZES_GB
 			return fmt.Errorf("SCRATCH disks must be one of %v GB, disk %d is %d", VALID_SCRATCH_DISK_SIZES_GB, i, diskSize)
 		}
 
 		interfacee := diff.Get(fmt.Sprintf("disk.%d.interface", i)).(string)
-		if typee == "SCRATCH" && diskSize == 3000 && interfacee != "NVME" {
-			return fmt.Errorf("SCRATCH disks with a size of 3000 GB must have an interface of NVME. disk %d has interface %s", i, interfacee)
+		if typee == "SCRATCH" && (diskSize == 3000 || diskSize == 3500 || diskSize == 7000 || diskSize == 14000) && interfacee != "NVME" {
+			return fmt.Errorf("SCRATCH disks with a size of %d GB must have an interface of NVME. disk %d has interface %s", diskSize, i, interfacee)
 		}
 	}
 
@@ -1540,7 +1563,7 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	metadata, err := resourceInstanceMetadataTyped(d)
+	metadataMap, err := resourceInstanceMetadata(d)
 	if err != nil {
 		return err
 	}
@@ -1594,7 +1617,6 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		MachineType:              d.Get("machine_type").(string),
 		MinCpuPlatform:           d.Get("min_cpu_platform").(string),
 		Disks:                    disks,
-		Metadata:                 metadata,
 		NetworkInterfaces:        networks,
 		NetworkPerformanceConfig: networkPerformanceConfig,
 		Scheduling:               scheduling,
@@ -1604,6 +1626,12 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		ResourcePolicies:         resourcePolicies,
 		ReservationAffinity:      reservationAffinity,
 		KeyRevocationActionType:  d.Get("key_revocation_action_type").(string),
+	}
+	if wic := expandWorkloadIdentityConfig(d); wic != nil {
+		instanceProperties.WorkloadIdentityConfig = &compute.WorkloadIdentityConfig{
+			Identity:                   wic["identity"].(string),
+			IdentityCertificateEnabled: wic["identityCertificateEnabled"].(bool),
+		}
 	}
 	if cic := expandConfidentialInstanceConfig(d); cic != nil {
 		instanceProperties.ConfidentialInstanceConfig = &compute.ConfidentialInstanceConfig{
@@ -1648,13 +1676,12 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		Name:        itName,
 	}
 
-	itBytes, err := json.Marshal(instanceTemplate)
+	itBody, err := tpgresource.ConvertToMap(instanceTemplate)
 	if err != nil {
-		return fmt.Errorf("Error marshaling instance template: %s", err)
+		return fmt.Errorf("Error converting instance template: %s", err)
 	}
-	var itBody map[string]interface{}
-	if err := json.Unmarshal(itBytes, &itBody); err != nil {
-		return fmt.Errorf("Error unmarshaling instance template: %s", err)
+	if props, ok := itBody["properties"].(map[string]interface{}); ok {
+		props["metadata"] = metadataMap
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/instanceTemplates")
@@ -1992,9 +2019,14 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error setting metadata_fingerprint: %s", err)
 		}
 
-		md := instanceTemplate.Properties.Metadata
-
-		_md := flattenMetadataBeta(md)
+		metadata := instanceTemplate.Properties.Metadata
+		var metadataMap map[string]interface{}
+		if metadata != nil {
+			if metadataMap, err = tpgresource.ConvertToMap(metadata); err != nil {
+				return fmt.Errorf("Error converting metadata: %s", err)
+			}
+		}
+		_md := flattenMetadataBeta(metadataMap)
 
 		if script, scriptExists := d.GetOk("metadata_startup_script"); scriptExists {
 			if err = d.Set("metadata_startup_script", script); err != nil {
@@ -2109,7 +2141,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if instanceTemplate.Properties.Scheduling != nil {
-		scheduling := flattenScheduling(instanceTemplate.Properties.Scheduling)
+		schedulingMap, err := tpgresource.ConvertToMap(instanceTemplate.Properties.Scheduling)
+		if err != nil {
+			return fmt.Errorf("Error converting scheduling: %s", err)
+		}
+		scheduling := flattenScheduling(schedulingMap)
 
 		if err = d.Set("scheduling", scheduling); err != nil {
 			return fmt.Errorf("Error setting scheduling: %s", err)
@@ -2155,7 +2191,11 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if instanceTemplate.Properties.AdvancedMachineFeatures != nil {
-		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeaturesTyped(instanceTemplate.Properties.AdvancedMachineFeatures)); err != nil {
+		amfMap, err := tpgresource.ConvertToMap(instanceTemplate.Properties.AdvancedMachineFeatures)
+		if err != nil {
+			return fmt.Errorf("Error converting advanced_machine_features: %s", err)
+		}
+		if err = d.Set("advanced_machine_features", flattenAdvancedMachineFeatures(amfMap)); err != nil {
 			return fmt.Errorf("Error setting advanced_machine_features: %s", err)
 		}
 	}
@@ -2173,6 +2213,16 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 		if err = d.Set("reservation_affinity", flattenReservationAffinity(reservationAffinityMap)); err != nil {
 			return fmt.Errorf("Error setting reservation_affinity: %s", err)
+		}
+	}
+
+	if instanceTemplate.Properties.WorkloadIdentityConfig != nil {
+		wicMap, convErr := tpgresource.ConvertToMap(instanceTemplate.Properties.WorkloadIdentityConfig)
+		if convErr != nil {
+			return fmt.Errorf("Error converting workload_identity_config: %s", convErr)
+		}
+		if err = d.Set("workload_identity_config", flattenWorkloadIdentityConfig(wicMap)); err != nil {
+			return fmt.Errorf("Error setting workload_identity_config: %s", err)
 		}
 	}
 
@@ -2235,10 +2285,150 @@ func expandResourceComputeInstanceTemplateScheduling(d *schema.ResourceData, met
 	}
 
 	// Make sure we have an appropriate value for OnHostMaintenance if Preemptible
-	if expanded.Preemptible && expanded.OnHostMaintenance == "" {
-		expanded.OnHostMaintenance = "TERMINATE"
+	preemptible, _ := expanded["preemptible"].(bool)
+	onHostMaintenance, _ := expanded["onHostMaintenance"].(string)
+	if preemptible && onHostMaintenance == "" {
+		expanded["onHostMaintenance"] = "TERMINATE"
 	}
-	return expanded, nil
+
+	for _, key := range []string{"localSsdRecoveryTimeout", "maxRunDuration", "preemptionNoticeDuration"} {
+		if dur, ok := expanded[key].(map[string]interface{}); ok {
+			if sec, ok := dur["seconds"]; ok {
+				dur["seconds"] = strconv.FormatInt(getInt(sec), 10)
+			}
+		}
+	}
+	if gs, ok := expanded["gracefulShutdown"].(map[string]interface{}); ok {
+		if md, ok := gs["maxDuration"].(map[string]interface{}); ok {
+			if sec, ok := md["seconds"]; ok {
+				md["seconds"] = strconv.FormatInt(getInt(sec), 10)
+			}
+		}
+	}
+
+	schedulingTyped := &compute.Scheduling{}
+	if err := tpgresource.Convert(expanded, schedulingTyped); err != nil {
+		return nil, fmt.Errorf("Error converting scheduling: %s", err)
+	}
+	for _, pair := range [][2]string{
+		{"preemptible", "Preemptible"},
+		{"onHostMaintenance", "OnHostMaintenance"},
+		{"provisioningModel", "ProvisioningModel"},
+		{"instanceTerminationAction", "InstanceTerminationAction"},
+		{"skipGuestOsShutdown", "SkipGuestOsShutdown"},
+	} {
+		if _, ok := expanded[pair[0]]; ok {
+			schedulingTyped.ForceSendFields = append(schedulingTyped.ForceSendFields, pair[1])
+		}
+	}
+	return schedulingTyped, nil
+}
+
+// networkInterfacesToInterface converts a slice of typed Apiary network
+// interface structs into the []interface{} of JSON-shaped maps expected by
+// flattenNetworkInterfaces.
+func networkInterfacesToInterface(networkInterfaces []*compute.NetworkInterface) ([]interface{}, error) {
+	result := make([]interface{}, 0, len(networkInterfaces))
+	for _, ni := range networkInterfaces {
+		m, err := tpgresource.ConvertToMap(ni)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, m)
+	}
+	return result, nil
+}
+
+func convertViaJSON(in, out interface{}) error {
+	bytes, err := json.Marshal(in)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(bytes, out)
+}
+
+func expandNetworkInterfacesTyped(d tpgresource.TerraformResourceData, config *transport_tpg.Config) ([]*compute.NetworkInterface, error) {
+	expanded, err := expandNetworkInterfaces(d, config)
+	if err != nil {
+		return nil, err
+	}
+	ifaces := make([]*compute.NetworkInterface, 0, len(expanded))
+	if err := convertViaJSON(expanded, &ifaces); err != nil {
+		return nil, fmt.Errorf("Error converting network interfaces: %s", err)
+	}
+	return ifaces, nil
+}
+
+func expandAccessConfigsTyped(configs []interface{}) ([]*compute.AccessConfig, error) {
+	return accessConfigsToTyped(expandAccessConfigs(configs))
+}
+
+func expandIpv6AccessConfigsTyped(configs []interface{}) ([]*compute.AccessConfig, error) {
+	return accessConfigsToTyped(expandIpv6AccessConfigs(configs))
+}
+
+func accessConfigsToTyped(expanded []interface{}) ([]*compute.AccessConfig, error) {
+	acs := make([]*compute.AccessConfig, 0, len(expanded))
+	if err := convertViaJSON(expanded, &acs); err != nil {
+		return nil, fmt.Errorf("Error converting access configs: %s", err)
+	}
+	return acs, nil
+}
+
+func expandAliasIpRangesTyped(ranges []interface{}) ([]*compute.AliasIpRange, error) {
+	expanded := expandAliasIpRanges(ranges)
+	out := make([]*compute.AliasIpRange, 0, len(expanded))
+	if err := convertViaJSON(expanded, &out); err != nil {
+		return nil, fmt.Errorf("Error converting alias ip ranges: %s", err)
+	}
+	return out, nil
+}
+
+func expandServiceAccountsTyped(configs []interface{}) []*compute.ServiceAccount {
+	expanded := expandServiceAccounts(configs)
+	accounts := make([]*compute.ServiceAccount, len(expanded))
+	for i, raw := range expanded {
+		data := raw.(map[string]interface{})
+		accounts[i] = &compute.ServiceAccount{
+			Email:  data["email"].(string),
+			Scopes: data["scopes"].([]string),
+		}
+	}
+	return accounts
+}
+
+func serviceAccountsToInterface(serviceAccounts []*compute.ServiceAccount) []interface{} {
+	result := make([]interface{}, len(serviceAccounts))
+	for i, sa := range serviceAccounts {
+		result[i] = map[string]interface{}{
+			"email":  sa.Email,
+			"scopes": tpgresource.ConvertStringArrToInterface(sa.Scopes),
+		}
+	}
+	return result
+}
+
+func guestAcceleratorsToInterface(accelerators []*compute.AcceleratorConfig) []interface{} {
+	result := make([]interface{}, len(accelerators))
+	for i, a := range accelerators {
+		result[i] = map[string]interface{}{
+			"acceleratorCount": a.AcceleratorCount,
+			"acceleratorType":  a.AcceleratorType,
+		}
+	}
+	return result
+}
+
+func expandAdvancedMachineFeaturesTyped(d tpgresource.TerraformResourceData) *compute.AdvancedMachineFeatures {
+	amfMap := expandAdvancedMachineFeatures(d)
+	if amfMap == nil {
+		return nil
+	}
+	typed := &compute.AdvancedMachineFeatures{}
+	if err := tpgresource.Convert(amfMap, typed); err != nil {
+		return nil
+	}
+	return typed
 }
 
 func resourceComputeInstanceTemplateImportState(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

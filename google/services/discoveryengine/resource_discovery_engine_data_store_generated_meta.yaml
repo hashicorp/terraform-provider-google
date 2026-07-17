@@ -22,7 +22,9 @@ fields:
     - api_field: documentProcessingConfig.chunkingConfig.layoutBasedChunkingConfig.chunkSize
     - api_field: documentProcessingConfig.chunkingConfig.layoutBasedChunkingConfig.includeAncestorHeadings
     - api_field: documentProcessingConfig.defaultParsingConfig.digitalParsingConfig
+    - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.enableGetProcessedDocument
     - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.enableImageAnnotation
+    - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.enableLlmLayoutParsing
     - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.enableTableAnnotation
     - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.excludeHtmlClasses
     - api_field: documentProcessingConfig.defaultParsingConfig.layoutParsingConfig.excludeHtmlElements
@@ -34,8 +36,12 @@ fields:
       field: document_processing_config.parsing_config_overrides.file_type
     - api_field: documentProcessingConfig.parsingConfigOverrides.value.digitalParsingConfig
       field: document_processing_config.parsing_config_overrides.digital_parsing_config
+    - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.enableGetProcessedDocument
+      field: document_processing_config.parsing_config_overrides.layout_parsing_config.enable_get_processed_document
     - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.enableImageAnnotation
       field: document_processing_config.parsing_config_overrides.layout_parsing_config.enable_image_annotation
+    - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.enableLlmLayoutParsing
+      field: document_processing_config.parsing_config_overrides.layout_parsing_config.enable_llm_layout_parsing
     - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.enableTableAnnotation
       field: document_processing_config.parsing_config_overrides.layout_parsing_config.enable_table_annotation
     - api_field: documentProcessingConfig.parsingConfigOverrides.value.layoutParsingConfig.excludeHtmlClasses

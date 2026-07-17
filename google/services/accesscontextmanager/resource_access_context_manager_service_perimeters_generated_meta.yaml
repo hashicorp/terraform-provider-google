@@ -17,6 +17,7 @@ fields:
     - api_field: servicePerimeters.spec.egressPolicies.egressFrom.identityType
     - api_field: servicePerimeters.spec.egressPolicies.egressFrom.sourceRestriction
     - api_field: servicePerimeters.spec.egressPolicies.egressFrom.sources.accessLevel
+    - api_field: servicePerimeters.spec.egressPolicies.egressFrom.sources.pscEndpoint.forwardingRule
     - api_field: servicePerimeters.spec.egressPolicies.egressFrom.sources.resource
     - api_field: servicePerimeters.spec.egressPolicies.egressTo.externalResources
     - api_field: servicePerimeters.spec.egressPolicies.egressTo.operations.methodSelectors.method
@@ -28,6 +29,7 @@ fields:
     - api_field: servicePerimeters.spec.ingressPolicies.ingressFrom.identities
     - api_field: servicePerimeters.spec.ingressPolicies.ingressFrom.identityType
     - api_field: servicePerimeters.spec.ingressPolicies.ingressFrom.sources.accessLevel
+    - api_field: servicePerimeters.spec.ingressPolicies.ingressFrom.sources.pscEndpoint.forwardingRule
     - api_field: servicePerimeters.spec.ingressPolicies.ingressFrom.sources.resource
     - api_field: servicePerimeters.spec.ingressPolicies.ingressTo.operations.methodSelectors.method
     - api_field: servicePerimeters.spec.ingressPolicies.ingressTo.operations.methodSelectors.permission
@@ -37,13 +39,19 @@ fields:
     - api_field: servicePerimeters.spec.ingressPolicies.title
     - api_field: servicePerimeters.spec.resources
     - api_field: servicePerimeters.spec.restrictedServices
+    - api_field: servicePerimeters.spec.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.key
+    - api_field: servicePerimeters.spec.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.value
+    - api_field: servicePerimeters.spec.vpcAccessibleServices.allowedServicePatterns.pattern
+    - api_field: servicePerimeters.spec.vpcAccessibleServices.allowedServicePatterns.service
     - api_field: servicePerimeters.spec.vpcAccessibleServices.allowedServices
     - api_field: servicePerimeters.spec.vpcAccessibleServices.enableRestriction
+    - api_field: servicePerimeters.spec.vpcAccessibleServices.servicePatternsEnforcementScopes
     - api_field: servicePerimeters.status.accessLevels
     - api_field: servicePerimeters.status.egressPolicies.egressFrom.identities
     - api_field: servicePerimeters.status.egressPolicies.egressFrom.identityType
     - api_field: servicePerimeters.status.egressPolicies.egressFrom.sourceRestriction
     - api_field: servicePerimeters.status.egressPolicies.egressFrom.sources.accessLevel
+    - api_field: servicePerimeters.status.egressPolicies.egressFrom.sources.pscEndpoint.forwardingRule
     - api_field: servicePerimeters.status.egressPolicies.egressFrom.sources.resource
     - api_field: servicePerimeters.status.egressPolicies.egressTo.externalResources
     - api_field: servicePerimeters.status.egressPolicies.egressTo.operations.methodSelectors.method
@@ -55,6 +63,7 @@ fields:
     - api_field: servicePerimeters.status.ingressPolicies.ingressFrom.identities
     - api_field: servicePerimeters.status.ingressPolicies.ingressFrom.identityType
     - api_field: servicePerimeters.status.ingressPolicies.ingressFrom.sources.accessLevel
+    - api_field: servicePerimeters.status.ingressPolicies.ingressFrom.sources.pscEndpoint.forwardingRule
     - api_field: servicePerimeters.status.ingressPolicies.ingressFrom.sources.resource
     - api_field: servicePerimeters.status.ingressPolicies.ingressTo.operations.methodSelectors.method
     - api_field: servicePerimeters.status.ingressPolicies.ingressTo.operations.methodSelectors.permission
@@ -64,8 +73,13 @@ fields:
     - api_field: servicePerimeters.status.ingressPolicies.title
     - api_field: servicePerimeters.status.resources
     - api_field: servicePerimeters.status.restrictedServices
+    - api_field: servicePerimeters.status.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.key
+    - api_field: servicePerimeters.status.vpcAccessibleServices.allowedServicePatterns.modifiers.addRequestHeader.value
+    - api_field: servicePerimeters.status.vpcAccessibleServices.allowedServicePatterns.pattern
+    - api_field: servicePerimeters.status.vpcAccessibleServices.allowedServicePatterns.service
     - api_field: servicePerimeters.status.vpcAccessibleServices.allowedServices
     - api_field: servicePerimeters.status.vpcAccessibleServices.enableRestriction
+    - api_field: servicePerimeters.status.vpcAccessibleServices.servicePatternsEnforcementScopes
     - api_field: servicePerimeters.title
     - api_field: servicePerimeters.updateTime
     - api_field: servicePerimeters.useExplicitDryRunSpec

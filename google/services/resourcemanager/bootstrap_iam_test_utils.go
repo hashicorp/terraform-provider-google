@@ -60,9 +60,10 @@ func BootstrapIamMembers(t *testing.T, members []IamMember) {
 
 	if len(projectMembers) > 0 {
 		// Get the project since we need its number, id, and policy.
-		project, err := client.Projects.Get(envvar.GetTestProjectFromEnv()).Do()
+		projectId := envvar.GetTestProjectFromEnv()
+		project, err := client.Projects.Get(projectId).Do()
 		if err != nil {
-			t.Fatalf("Error getting project with id %q: %s", project.ProjectId, err)
+			t.Fatalf("Error getting project with id %q: %s", projectId, err)
 		}
 
 		var projectBindings []*cloudresourcemanager.Binding

@@ -65,6 +65,7 @@ fields:
     - api_field: scaling.maxInstanceCount
     - api_field: scaling.minInstanceCount
     - api_field: scaling.scalingMode
+    - api_field: tags
     - api_field: template.annotations
     - api_field: template.containers.args
     - api_field: template.containers.baseImageUri

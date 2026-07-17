@@ -148,7 +148,9 @@ The following arguments are supported:
 
 * `existing_reservations` -
   (Optional)
-  Specifies the already existing reservations to attach to the Commitment.
+  Specifies the already existing reservations to attach to the Commitment. This field will suppress
+  diffs that change the value from empty to non-empty. To force changing this field from empty to non-empty,
+  change another field at the same time.
 
 * `params` -
   (Optional)

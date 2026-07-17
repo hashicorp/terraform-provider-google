@@ -51,7 +51,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(t *test
 				ImportStateVerifyIgnore: []string{"target_service", "region"},
 			},
 			{
-				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, true, -1),
+				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, true, -1, true),
 			},
 			{
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
@@ -60,7 +60,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(t *test
 				ImportStateVerifyIgnore: []string{"target_service", "region"},
 			},
 			{
-				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, false, -1),
+				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, false, -1, true),
 			},
 			{
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
@@ -69,12 +69,32 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(t *test
 				ImportStateVerifyIgnore: []string{"target_service", "region"},
 			},
 			{
-				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, false, 0),
+				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, false, 0, true),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectNonEmptyPlan(),
 					},
 				},
+			},
+			{
+				// Regression test: disabling enable_proxy_protocol after it was enabled must
+				// actually be sent to the API (it's a zero-valued bool), not silently dropped.
+				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, false, 0, false),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_service_attachment.psc_ilb_service_attachment", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.TestCheckResourceAttr(
+					"google_compute_service_attachment.psc_ilb_service_attachment", "enable_proxy_protocol", "false"),
+			},
+			{
+				ResourceName:      "google_compute_service_attachment.psc_ilb_service_attachment",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// send_propagated_connection_limit_if_zero is a virtual field with no API
+				// representation, so it can't be reconstructed on import.
+				ImportStateVerifyIgnore: []string{"target_service", "region", "send_propagated_connection_limit_if_zero"},
 			},
 		},
 	})
@@ -358,7 +378,7 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 `, context)
 }
 
-func testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context map[string]interface{}, preventDestroy bool, propagatedConnectionLimit int) string {
+func testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context map[string]interface{}, preventDestroy bool, propagatedConnectionLimit int, enableProxyProtocol bool) string {
 	context["lifecycle_block"] = ""
 	if preventDestroy {
 		context["lifecycle_block"] = `
@@ -366,6 +386,8 @@ func testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context
 			prevent_destroy = true
 		}`
 	}
+
+	context["enable_proxy_protocol"] = enableProxyProtocol
 
 	switch {
 	case propagatedConnectionLimit == 0:
@@ -385,7 +407,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   region      = "us-west2"
   description = "A service attachment configured with Terraforms"
 
-  enable_proxy_protocol    = true
+  enable_proxy_protocol    = %{enable_proxy_protocol}
   connection_preference    = "ACCEPT_MANUAL"
   nat_subnets              = [google_compute_subnetwork.psc_ilb_nat.id]
   target_service           = google_compute_forwarding_rule.psc_ilb_target_service.id

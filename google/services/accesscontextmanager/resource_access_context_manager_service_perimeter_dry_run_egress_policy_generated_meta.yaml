@@ -17,6 +17,8 @@ fields:
       field: egress_from.source_restriction
     - api_field: spec.egressPolicies.egressFrom.sources.accessLevel
       field: egress_from.sources.access_level
+    - api_field: spec.egressPolicies.egressFrom.sources.pscEndpoint.forwardingRule
+      field: egress_from.sources.psc_endpoint.forwarding_rule
     - api_field: spec.egressPolicies.egressFrom.sources.resource
       field: egress_from.sources.resource
     - api_field: spec.egressPolicies.egressTo.externalResources

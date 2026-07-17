@@ -38,8 +38,6 @@ are not managed by this resource.
 Reading an uninitialized or deprovisioned engine returns the singleton
 with state INACTIVE rather than reporting it as absent.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about SemanticGovernancePolicyEngine, see:
 * How-to Guides
@@ -50,8 +48,7 @@ To get more information about SemanticGovernancePolicyEngine, see:
 
 ```hcl
 resource "google_vertex_ai_semantic_governance_policy_engine" "sgpe" {
-  region   = "us-central1"
-  provider = google-beta
+  region = "us-central1"
 }
 ```
 

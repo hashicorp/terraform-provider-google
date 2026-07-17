@@ -1,0 +1,22 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_chronicle_environment_group
+generation_type: mmv1
+source_file: products/chronicle/EnvironmentGroup.yaml
+api_service_name: chronicle.googleapis.com
+api_version: v1
+api_resource_type_kind: EnvironmentGroup
+autogen_status: true
+autogen_version: 1
+fields:
+    - api_field: description
+    - api_field: displayName
+    - api_field: environmentGroupId
+    - api_field: environmentsIds
+    - field: instance
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: deletion_policy
+      provider_only: true

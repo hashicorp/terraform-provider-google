@@ -277,6 +277,9 @@ is desired, you will need to modify your state file manually using
     management without updating or deleting the resource in the API.
     When set to "DELETE", deleting the resource is allowed.
 
+* `workload_identity_config` - (Optional) Workload Identity Config. More details about
+    this configuration option are [detailed below](#nested_workload_identity_config).
+
 ---
 
 <a name="nested_boot_disk"></a>The `boot_disk` block supports:
@@ -597,10 +600,13 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `min_node_cpus` - (Optional) The minimum number of virtual CPUs this instance will consume when running on a sole-tenant node.
 
-* `provisioning_model` - (Optional) Describe the type of preemptible VM. This field accepts the value `STANDARD` or `SPOT`. If the value is `STANDARD`, there will be no discount. If this   is set to `SPOT`,
+* `provisioning_model` - (Optional) Describe the type of provisioning model for the instance. This field accepts the value `STANDARD`, `SPOT`, `FLEX_START`, or `RESERVATION_BOUND`. If the value is `STANDARD`, there will be no discount. If this is set to `SPOT`,
     `preemptible` should be `true` and `automatic_restart` should be
     `false`. For more info about
-    `SPOT`, read [here](https://cloud.google.com/compute/docs/instances/spot)
+    `SPOT`, read [here](https://cloud.google.com/compute/docs/instances/spot).
+    If this is set to `FLEX_START`, `automatic_restart` should be `false` and `instance_termination_action` should be set to `DELETE`. A `max_run_duration` must also be specified. For more info about
+    `FLEX_START`, read [here](https://cloud.google.com/compute/docs/instances/flex-start-vms).
+    If this is set to `RESERVATION_BOUND`, the instance is bound to a specific reservation and will only consume capacity from that reservation. A `reservation_affinity` block with `type` set to `SPECIFIC_RESERVATION` should also be configured.
 
 * `instance_termination_action` - (Optional) Describe the type of termination action for VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot)
 
@@ -740,6 +746,12 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 * `key` - (Required) Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.
 
 * `values` - (Required) Corresponds to the label values of a reservation resource.
+
+<a name="nested_workload_identity_config"></a>The `workload_identity_config` block supports:
+
+* `identity` - (Required) Identity SPIFFE id.
+
+* `identity_certificate_enabled` - (Required) Specifies whether identity certificates are enabled.
 
 ## Attributes Reference
 

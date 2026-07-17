@@ -41,3 +41,24 @@ The following arguments are supported:
 * `project` - (Required) The Google Cloud Project in which the Data Source belongs.
 * `data_source_id` - (Required) The ID of the Data Source.
 * `backup_vault_id` - (Required) The ID of the Backup Vault in which the Data Source belongs.
+
+* `state` - The current state of the DataSource (e.g., ACTIVE, CREATING, DELETING).
+* `config_state` - The configuration state of the DataSource.
+* `backup_blocked_by_vault_access_restriction` - Boolean indicating if the backup is blocked by vault access restriction.
+* `create_time` - Timestamp of when the DataSource was created.
+* `update_time` - Timestamp of when the DataSource was last updated.
+* `backup_count` - Number of backups in the data source.
+* `etag` - Server specified ETag for the resource.
+* `total_stored_bytes` - The number of bytes stored in this datasource.
+* `labels` - Resource labels to represent user provided metadata.
+* `backup_config_info` - An object containing information about the backup configuration. Structure is documented below.
+The `backup_config_info` block contains:
+* `last_backup_state` - The state of the last backup attempt.
+* `last_successful_backup_consistency_time` - The consistency time of the last successful backup.
+* `last_backup_error` - If the last backup failed, this field has the error message.
+* `gcp_backup_config` - Details about the GCP backup configuration. Structure is documented below.
+The `gcp_backup_config` block contains:
+* `backup_plan` - The name of the backup plan.
+* `backup_plan_description` - The description of the backup plan.
+* `backup_plan_association` - The name of the backup plan association.
+* `backup_plan_rules` - The rules of the backup plan.

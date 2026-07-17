@@ -26,6 +26,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
 )
 
@@ -489,6 +490,57 @@ func testAccCloudRunV2Job_cloudrunv2JobWithNfsVolume(context map[string]interfac
       ]
     }
   }
+`, context)
+}
+
+func TestAccCloudRunV2Job_cloudrunv2JobWithTags(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+	tagKeyResult := tags.BootstrapSharedTestTagKeyDetails(t, "cloud-run-tagkey", "organizations/"+org, make(map[string]interface{}))
+	sharedTagkey := tagKeyResult["shared_tag_key"]
+	tagValueResult := tags.BootstrapSharedTestTagValueDetails(t, "cloud-run-tagvalue", sharedTagkey, org)
+
+	context := map[string]interface{}{}
+	context["random_suffix"] = acctest.RandString(t, 10)
+	context["tag_key_id"] = tagKeyResult["name"]
+	context["tag_value_id"] = tagValueResult["name"]
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobWithTags(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "deletion_protection", "tags"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobWithTags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "tf-test-cloudrun-tags-job%{random_suffix}"
+  location = "us-central1"
+  deletion_protection = false
+  tags = {
+    "%{tag_key_id}" = "%{tag_value_id}"
+  }
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/job"
+      }
+    }
+  }
+}
 `, context)
 }
 

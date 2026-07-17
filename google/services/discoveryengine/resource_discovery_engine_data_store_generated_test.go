@@ -20,6 +20,7 @@ package discoveryengine_test
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -41,6 +42,7 @@ import (
 var (
 	_ = fmt.Sprintf
 	_ = log.Print
+	_ = regexp.MatchString
 	_ = strconv.Atoi
 	_ = strings.Trim
 	_ = time.Now
@@ -373,18 +375,29 @@ resource "google_discovery_engine_data_store" "document_processing_config_layout
   document_processing_config {
     default_parsing_config {
       layout_parsing_config {
-        enable_table_annotation  = true
-        enable_image_annotation  = true
-        structured_content_types = ["shareholder-structure"]
-        exclude_html_elements    = ["nav", "footer"]
-        exclude_html_classes     = ["overlay", "screenreader"]
-        exclude_html_ids         = ["cookie-banner"]
+        enable_table_annotation       = true
+        enable_image_annotation       = true
+        enable_llm_layout_parsing     = true
+        enable_get_processed_document = true
+        structured_content_types      = ["shareholder-structure"]
+        exclude_html_elements         = ["nav", "footer"]
+        exclude_html_classes          = ["overlay", "screenreader"]
+        exclude_html_ids              = ["cookie-banner"]
       }
     }
     chunking_config {
       layout_based_chunking_config {
         chunk_size                = 500
         include_ancestor_headings = true
+      }
+    }
+    parsing_config_overrides {
+      file_type = "pdf"
+      layout_parsing_config {
+        enable_table_annotation       = true
+        enable_image_annotation       = true
+        enable_llm_layout_parsing     = true
+        enable_get_processed_document = true
       }
     }
   }
