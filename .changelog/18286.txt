@@ -1,0 +1,1 @@
+unknown: netapp: Remove deprecated scale_tier from google_netapp_storage_pool
