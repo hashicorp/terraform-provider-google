@@ -46,6 +46,8 @@ fields:
       provider_only: true
     - api_field: observedGeneration
     - api_field: reconciling
+    - api_field: runExecutionToken
+    - api_field: startExecutionToken
     - api_field: tags
     - api_field: template.annotations
     - api_field: template.labels
