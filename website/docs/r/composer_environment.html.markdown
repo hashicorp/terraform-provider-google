@@ -612,6 +612,20 @@ block supports:
   /20 IPv4 cidr range that will be used by the environment's internal
   components. Cannot be updated.
 
+* `traffic_routing_config` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown),
+  Managed Airflow (Gen 3) only)
+  Traffic routing configuration for Cloud Composer environment.
+  Structure is [documented below](#nested_traffic_routing_config).
+
+
+<a name="nested_traffic_routing_config"></a>The `traffic_routing_config` block supports:
+
+* `cloud_run_functions_routing` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Traffic routing mode for Cloud Run functions. Possible values: `DIRECT`, `VIA_NETWORK_ATTACHMENT`.
+  If unspecified, defaults to `DIRECT`.
+
 <a name="nested_software_config_gen_3"></a>The `software_config` block supports:
 
 * `airflow_config_overrides` -
