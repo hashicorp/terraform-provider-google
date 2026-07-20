@@ -31,6 +31,8 @@ fields:
     - api_field: templateMetadata.customPromptSafetyErrorCode
     - api_field: templateMetadata.customPromptSafetyErrorMessage
     - api_field: templateMetadata.enforcementType
+    - api_field: templateMetadata.filterVersionSelector.alias
+    - api_field: templateMetadata.filterVersionSelector.version
     - api_field: templateMetadata.ignorePartialInvocationFailures
     - api_field: templateMetadata.logSanitizeOperations
     - api_field: templateMetadata.logTemplateOperations
