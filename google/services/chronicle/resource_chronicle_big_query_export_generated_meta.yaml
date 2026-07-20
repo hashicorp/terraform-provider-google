@@ -1,0 +1,41 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_chronicle_big_query_export
+generation_type: mmv1
+source_file: products/chronicle/BigQueryExport.yaml
+api_service_name: chronicle.googleapis.com
+api_version: v1
+api_resource_type_kind: BigQueryExport
+fields:
+    - api_field: bigQueryExportPackage
+    - api_field: entityGraphSettings.dataFreshnessTime
+    - api_field: entityGraphSettings.dataVolume
+    - api_field: entityGraphSettings.enabled
+    - api_field: entityGraphSettings.latestExportJobState
+    - api_field: entityGraphSettings.retentionDays
+    - field: instance
+      provider_only: true
+    - api_field: iocMatchesSettings.dataFreshnessTime
+    - api_field: iocMatchesSettings.dataVolume
+    - api_field: iocMatchesSettings.enabled
+    - api_field: iocMatchesSettings.latestExportJobState
+    - api_field: iocMatchesSettings.retentionDays
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: provisioned
+    - api_field: ruleDetectionsSettings.dataFreshnessTime
+    - api_field: ruleDetectionsSettings.dataVolume
+    - api_field: ruleDetectionsSettings.enabled
+    - api_field: ruleDetectionsSettings.latestExportJobState
+    - api_field: ruleDetectionsSettings.retentionDays
+    - api_field: udmEventsAggregatesSettings.dataFreshnessTime
+    - api_field: udmEventsAggregatesSettings.dataVolume
+    - api_field: udmEventsAggregatesSettings.enabled
+    - api_field: udmEventsAggregatesSettings.latestExportJobState
+    - api_field: udmEventsAggregatesSettings.retentionDays
+    - api_field: udmEventsSettings.dataFreshnessTime
+    - api_field: udmEventsSettings.dataVolume
+    - api_field: udmEventsSettings.enabled
+    - api_field: udmEventsSettings.latestExportJobState
+    - api_field: udmEventsSettings.retentionDays
