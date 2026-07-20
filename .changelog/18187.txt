@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixed an issue where `bigtable_custom_endpoint` and `universe_domain` were ignored when creating Bigtable resources.
+```
