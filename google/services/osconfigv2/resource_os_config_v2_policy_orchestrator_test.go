@@ -17,6 +17,7 @@
 package osconfigv2_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -162,6 +163,78 @@ resource "google_os_config_v2_policy_orchestrator" "policy_orchestrator" {
     }
     labels = {
         state = "active"
+    }
+}
+`, context)
+}
+
+func TestAccOSConfigV2PolicyOrchestrator_conflictingSelectors(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccOSConfigV2PolicyOrchestrator_conflictingSelectors(context),
+				ExpectError: regexp.MustCompile("only one of orchestration_scope.selectors.location_selector or orchestration_scope.selectors.resource_hierarchy_selector can be set"),
+			},
+		},
+	})
+}
+
+func testAccOSConfigV2PolicyOrchestrator_conflictingSelectors(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_os_config_v2_policy_orchestrator" "policy_orchestrator" {
+    policy_orchestrator_id = "tf-test-test-po%{random_suffix}"
+    
+    state = "ACTIVE"
+    action = "UPSERT"
+
+    orchestration_scope {
+        selectors {
+            location_selector {
+                included_locations = ["us-central1-a"]
+            }
+            resource_hierarchy_selector {
+                included_folders = ["folders/12345"]
+            }
+        }
+    }
+
+    orchestrated_resource {
+        id = "tf-test-test-orchestrated-resource%{random_suffix}"
+        os_policy_assignment_v1_payload {
+            os_policies {
+                id = "tf-test-os-policy%{random_suffix}"
+                mode = "VALIDATION"
+                resource_groups {
+                    resources {
+                        id = "resource-tf"
+                        file {
+                            content = "file-content-tf"
+                            path = "file-path-tf-1"
+                            state = "PRESENT"
+                        }
+                    }
+                }
+            }
+            instance_filter {
+                inventories {
+                    os_short_name = "windows-10"
+                }
+            }
+            rollout {
+                disruption_budget {
+                    percent = 100
+                }
+                min_wait_duration = "60s"
+            }
+        }
     }
 }
 `, context)
