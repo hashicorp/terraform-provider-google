@@ -104,6 +104,7 @@ func ResourceVertexAIEndpointWithModelGardenDeployment() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(180 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -250,7 +251,6 @@ GKE. (Example: tpu_topology: "2x2x1").`,
 									"min_replica_count": {
 										Type:     schema.TypeInt,
 										Required: true,
-										ForceNew: true,
 										Description: `The minimum number of machine replicas that will be always deployed on.
 This value must be greater than or equal to 1.
 
@@ -260,7 +260,6 @@ and as traffic decreases, some of these extra replicas may be freed.`,
 									"autoscaling_metric_specs": {
 										Type:     schema.TypeList,
 										Optional: true,
-										ForceNew: true,
 										Description: `The metric specifications that overrides a resource
 utilization metric (CPU utilization, accelerator's duty cycle, and so on)
 target value (default to 60 if not set). At most one entry is allowed per
@@ -286,7 +285,6 @@ autoscaling_metric_specs.target to '80'.`,
 												"metric_name": {
 													Type:     schema.TypeString,
 													Required: true,
-													ForceNew: true,
 													Description: `The resource metric name.
 Supported metrics:
 
@@ -297,7 +295,6 @@ Supported metrics:
 												"target": {
 													Type:     schema.TypeInt,
 													Optional: true,
-													ForceNew: true,
 													Description: `The target resource utilization in percentage (1% - 100%) for the given
 metric; once the real usage deviates from the target by a certain
 percentage, the machine replicas change. The default value is 60
@@ -309,7 +306,6 @@ percentage, the machine replicas change. The default value is 60
 									"max_replica_count": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ForceNew: true,
 										Description: `The maximum number of replicas that may be deployed on when the traffic
 against it increases. If the requested value is too large, the deployment
 will error, but if deployment succeeds then the ability to scale to that
@@ -326,7 +322,6 @@ number of GPUs per replica in the selected machine type).`,
 									"required_replica_count": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ForceNew: true,
 										Description: `Number of required available replicas for the deployment to succeed.
 This field is only needed when partial deployment/mutation is
 desired. If set, the deploy/mutate operation will succeed once
@@ -1723,7 +1718,109 @@ func resourceVertexAIEndpointWithModelGardenDeploymentRead(d *schema.ResourceDat
 }
 
 func resourceVertexAIEndpointWithModelGardenDeploymentUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceVertexAIEndpointWithModelGardenDeployment().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceVertexAIEndpointWithModelGardenDeploymentRead(d, meta)
+	}
+
+	config := meta.(*transport_tpg.Config)
+	// `config` is declared in the enclosing generated Update body; do not redeclare.
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for EndpointWithModelGardenDeployment: %s", err)
+	}
+	billingProject = project
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	deployedModelId, _ := d.Get("deployed_model_id").(string)
+	if deployedModelId == "" {
+		return fmt.Errorf("cannot update EndpointWithModelGardenDeployment %q: deployed_model_id is empty (resource may be in an inconsistent state)", d.Id())
+	}
+
+	dedicatedResources := map[string]interface{}{}
+	updateMask := []string{}
+
+	if d.HasChange("deploy_config.0.dedicated_resources.0.min_replica_count") {
+		dedicatedResources["minReplicaCount"] = d.Get("deploy_config.0.dedicated_resources.0.min_replica_count")
+		updateMask = append(updateMask, "dedicatedResources.minReplicaCount")
+	}
+	if d.HasChange("deploy_config.0.dedicated_resources.0.max_replica_count") {
+		dedicatedResources["maxReplicaCount"] = d.Get("deploy_config.0.dedicated_resources.0.max_replica_count")
+		updateMask = append(updateMask, "dedicatedResources.maxReplicaCount")
+	}
+	if d.HasChange("deploy_config.0.dedicated_resources.0.required_replica_count") {
+		dedicatedResources["requiredReplicaCount"] = d.Get("deploy_config.0.dedicated_resources.0.required_replica_count")
+		updateMask = append(updateMask, "dedicatedResources.requiredReplicaCount")
+	}
+	if d.HasChange("deploy_config.0.dedicated_resources.0.autoscaling_metric_specs") {
+		expanded, err := expandVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesAutoscalingMetricSpecs(
+			d.Get("deploy_config.0.dedicated_resources.0.autoscaling_metric_specs"), d, config)
+		if err != nil {
+			return err
+		}
+		dedicatedResources["autoscalingMetricSpecs"] = expanded
+		updateMask = append(updateMask, "dedicatedResources.autoscalingMetricSpecs")
+	}
+
+	if len(updateMask) == 0 {
+		return resourceVertexAIEndpointWithModelGardenDeploymentRead(d, meta)
+	}
+
+	body := map[string]interface{}{
+		"deployedModel": map[string]interface{}{
+			"id":                 deployedModelId,
+			"dedicatedResources": dedicatedResources,
+		},
+		"updateMask": strings.Join(updateMask, ","),
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}:mutateDeployedModel")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating EndpointWithModelGardenDeployment %q via mutateDeployedModel with mask %q", d.Id(), strings.Join(updateMask, ","))
+
+	headers := make(http.Header)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      body,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+	if err != nil {
+		return fmt.Errorf("Error updating EndpointWithModelGardenDeployment %q: %s", d.Id(), err)
+	}
+
+	err = VertexAIOperationWaitTime(
+		config, res, project, "Updating EndpointWithModelGardenDeployment", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("Error waiting to update EndpointWithModelGardenDeployment %q: %s", d.Id(), err)
+	}
+
+	log.Printf("[DEBUG] Finished updating EndpointWithModelGardenDeployment %q", d.Id())
+
 	return resourceVertexAIEndpointWithModelGardenDeploymentRead(d, meta)
 }
 
