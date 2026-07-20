@@ -1,0 +1,3 @@
+```release-note:bug
+osconfig: added client-side validation to ensure `resource_hierarchy_selector` and `location_selector` are not set at the same time in `google_os_config_v2_policy_orchestrator`, `google_os_config_v2_policy_orchestrator_for_folder` and `google_os_config_v2_policy_orchestrator_for_organization`.
+```

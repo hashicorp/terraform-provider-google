@@ -113,6 +113,7 @@ func ResourceOSConfigV2PolicyOrchestratorForOrganization() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			policyOrchestratorCustomizeDiff,
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
