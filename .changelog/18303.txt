@@ -1,0 +1,7 @@
+```release-note:enhancement
+colab: added `catch_up`, `create_pipeline_job_request`, `create_time`, `last_pause_time`, `last_resume_time`, `last_scheduled_run_response`, `max_concurrent_active_run_count`, `next_run_time`, `started_run_count`, `update_time`, and sub-fields under `create_notebook_execution_job_request.notebook_execution_job` (`create_time`, `custom_environment_spec`, `encryption_spec`, `job_state`, `kernel_name`, `labels`, `name`, `schedule_resource_name`, `workbench_runtime`) and sub-fields under `create_notebook_execution_job_request` (`notebook_execution_job_id`, `parent`) to `google_colab_schedule`
+```
+
+```release-note:deprecation
+vertexai: deprecated `google_vertex_ai_schedule`, an accidentally-added duplicate resource. Use `google_colab_schedule` instead.
+```

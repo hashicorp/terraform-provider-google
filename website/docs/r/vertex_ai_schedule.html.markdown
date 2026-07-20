@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_vertex_ai_schedule
+~> **Warning:** `google_vertex_ai_schedule` is deprecated and will be removed in a future major release. Use `google_colab_schedule` instead.
 
 An online schedule that triggers running pipeline jobs or notebook execution jobs.
 

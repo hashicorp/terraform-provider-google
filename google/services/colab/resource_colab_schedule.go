@@ -160,9 +160,34 @@ func ResourceColabSchedule() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"cron": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Cron schedule (https://en.wikipedia.org/wiki/Cron) to launch scheduled runs.`,
+			},
+			"display_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Required. The display name of the Schedule.`,
+			},
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The location for the resource: https://cloud.google.com/colab/docs/locations`,
+			},
+			"max_concurrent_run_count": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Maximum number of runs that can be started concurrently for this Schedule. This is the limit for starting the scheduled requests and not the execution of the notebook execution jobs created by the requests.`,
+			},
+			"allow_queueing": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether new scheduled runs can be queued when max_concurrent_runs limit is reached. If set to true, new runs will be queued instead of skipped. Default to false.`,
+			},
 			"create_notebook_execution_job_request": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `Request for google_colab_notebook_execution.`,
 				MaxItems:    1,
@@ -185,10 +210,132 @@ func ResourceColabSchedule() *schema.Resource {
 										Required:    true,
 										Description: `The Cloud Storage location to upload the result to. Format:'gs://bucket-name'`,
 									},
-									"notebook_runtime_template_resource_name": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `The NotebookRuntimeTemplate to source compute configuration from.`,
+									"custom_environment_spec": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Compute configuration to use for an execution job.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"machine_spec": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Specification of a single machine.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"accelerator_count": {
+																Type:        schema.TypeInt,
+																Optional:    true,
+																Description: `The number of accelerators to attach to the machine. For accelerator optimized machine types (https://cloud.google.com/compute/docs/accelerator-optimized-machines), One may set the accelerator_count from 1 to N for machine with N GPUs. If accelerator_count is less than or equal to N / 2, Vertex will co-schedule the replicas of the model into the same VM to save cost. For example, if the machine type is a3-highgpu-8g, which has 8 H100 GPUs, one can set accelerator_count to 1 to 8. If accelerator_count is 1, 2, 3, or 4, Vertex will co-schedule 8, 4, 2, or 2 replicas of the model into the same VM to save cost. When co-scheduling, CPU, memory and storage on the VM will be distributed to replicas on the VM. For example, one can expect a co-scheduled replica requesting 2 GPUs out of a 8-GPU VM will receive 25% of the CPU, memory and storage of the VM. Note that the feature is not compatible with multihost_gpu_node_count. When multihost_gpu_node_count is set, the co-scheduling will not be enabled.`,
+															},
+															"accelerator_type": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Possible values: NVIDIA_TESLA_K80 NVIDIA_TESLA_P100 NVIDIA_TESLA_V100 NVIDIA_TESLA_P4 NVIDIA_TESLA_T4 NVIDIA_TESLA_A100 NVIDIA_A100_80GB NVIDIA_L4 NVIDIA_H100_80GB NVIDIA_H100_MEGA_80GB NVIDIA_H200_141GB NVIDIA_B200 NVIDIA_GB200 NVIDIA_RTX_PRO_6000 TPU_V2 TPU_V3 TPU_V4_POD TPU_V5_LITEPOD`,
+															},
+															"gpu_partition_size": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																ForceNew:    true,
+																Description: `The Nvidia GPU partition size. When specified, the requested accelerators will be partitioned into smaller GPU partitions. For example, if the request is for 8 units of NVIDIA A100 GPUs, and gpu_partition_size="1g.10gb", the service will create 8 * 7 = 56 partitioned MIG instances. The partition size must be a value supported by the requested accelerator. Refer to [Nvidia GPU Partitioning](https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions) for the available partition sizes. If set, the accelerator_count should be set to 1.`,
+															},
+															"machine_type": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																ForceNew:    true,
+																Description: `The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is 'n1-standard-2'. For BatchPredictionJob or as part of WorkerPoolSpec this field is required.`,
+															},
+															"reservation_affinity": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a Shared Reservation, or exclusively from on-demand capacity.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"reservation_affinity_type": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Specifies the reservation affinity type. Possible values: NO_RESERVATION ANY_RESERVATION SPECIFIC_RESERVATION SPECIFIC_THEN_ANY_RESERVATION SPECIFIC_THEN_NO_RESERVATION`,
+																		},
+																		"key": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, use 'compute.googleapis.com/reservation-name' as the key and specify the name of your reservation as its value.`,
+																		},
+																		"use_reservation_pool": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `When set to true, resources will be drawn from go/cloud-ai-gcp-pool.`,
+																		},
+																		"values": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Corresponds to the label values of a reservation resource. This must be the full resource name of the reservation or reservation block.`,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																		},
+																	},
+																},
+															},
+															"tpu_topology": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																ForceNew:    true,
+																Description: `The topology of the TPUs. Corresponds to the TPU topologies available from GKE. (Example: tpu_topology: "2x2x1").`,
+															},
+														},
+													},
+												},
+												"network_spec": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Network spec.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"enable_internet_access": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: `Whether to enable public internet access. Default false.`,
+															},
+															"network": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks)`,
+															},
+															"subnetwork": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The name of the subnet that this instance is in. Format: 'projects/{project_id_or_number}/regions/{region}/subnetworks/{subnetwork_id}'`,
+															},
+														},
+													},
+												},
+												"persistent_disk_spec": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Represents the spec of persistent disk options.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"disk_size_gb": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Size in GB of the disk (default is 100GB).`,
+															},
+															"disk_type": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Type of the disk (default is "pd-standard"). Valid values: "pd-ssd" (Persistent Disk Solid State Drive) "pd-standard" (Persistent Disk Hard Disk Drive) "pd-balanced" (Balanced Persistent Disk) "pd-extreme" (Extreme Persistent Disk)`,
+															},
+														},
+													},
+												},
+											},
+										},
+										ExactlyOneOf: []string{"create_notebook_execution_job_request.0.notebook_execution_job.0.custom_environment_spec", "create_notebook_execution_job_request.0.notebook_execution_job.0.notebook_runtime_template_resource_name"},
 									},
 									"dataform_repository_source": {
 										Type:        schema.TypeList,
@@ -201,7 +348,7 @@ func ResourceColabSchedule() *schema.Resource {
 													Type:             schema.TypeString,
 													Required:         true,
 													DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
-													Description:      `The resource name of the Dataform Repository.`,
+													Description:      `The resource name of the Dataform Repository. Format: 'projects/{project_id}/locations/{location}/repositories/{repository_id}'`,
 												},
 												"commit_sha": {
 													Type:        schema.TypeString,
@@ -211,6 +358,21 @@ func ResourceColabSchedule() *schema.Resource {
 											},
 										},
 										ExactlyOneOf: []string{"create_notebook_execution_job_request.0.notebook_execution_job.0.dataform_repository_source", "create_notebook_execution_job_request.0.notebook_execution_job.0.gcs_notebook_source"},
+									},
+									"encryption_spec": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"kms_key_name": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Resource name of the Cloud KMS key used to protect the resource. The Cloud KMS key must be in the same region as the resource. It must have the format 'projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}'.`,
+												},
+											},
+										},
 									},
 									"execution_timeout": {
 										Type:        schema.TypeString,
@@ -244,47 +406,298 @@ func ResourceColabSchedule() *schema.Resource {
 										},
 										ExactlyOneOf: []string{"create_notebook_execution_job_request.0.notebook_execution_job.0.dataform_repository_source", "create_notebook_execution_job_request.0.notebook_execution_job.0.gcs_notebook_source"},
 									},
+									"kernel_name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The name of the kernel to use during notebook execution. If unset, the default kernel is used.`,
+									},
+									"labels": {
+										Type:        schema.TypeMap,
+										Optional:    true,
+										Description: `The labels with user-defined metadata to organize NotebookExecutionJobs.`,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+									"notebook_runtime_template_resource_name": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `The NotebookRuntimeTemplate to source compute configuration from.`,
+										ExactlyOneOf: []string{"create_notebook_execution_job_request.0.notebook_execution_job.0.custom_environment_spec", "create_notebook_execution_job_request.0.notebook_execution_job.0.notebook_runtime_template_resource_name"},
+									},
 									"service_account": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										Description:  `The service account to run the execution as.`,
 										ExactlyOneOf: []string{"create_notebook_execution_job_request.0.notebook_execution_job.0.execution_user", "create_notebook_execution_job_request.0.notebook_execution_job.0.service_account"},
 									},
+									"workbench_runtime": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for a Workbench Instances-based environment.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+									},
+									"create_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Timestamp when this NotebookExecutionJob was created.`,
+									},
+									"job_state": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Possible values: JOB_STATE_QUEUED JOB_STATE_PENDING JOB_STATE_RUNNING JOB_STATE_SUCCEEDED JOB_STATE_FAILED JOB_STATE_CANCELLING JOB_STATE_CANCELLED JOB_STATE_PAUSED JOB_STATE_EXPIRED JOB_STATE_UPDATING JOB_STATE_PARTIALLY_SUCCEEDED`,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The resource name of this NotebookExecutionJob. Format: 'projects/{project_id}/locations/{location}/notebookExecutionJobs/{job_id}'`,
+									},
+									"schedule_resource_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The Schedule resource name if this job is triggered by one. Format: 'projects/{project_id}/locations/{location}/schedules/{schedule_id}'`,
+									},
+									"update_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Timestamp when this NotebookExecutionJob was most recently updated.`,
+									},
 								},
 							},
 						},
+						"parent": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							Description: `The resource name of the Location to create the NotebookExecutionJob. Format: 'projects/{project}/locations/{location}'`,
+						},
+						"notebook_execution_job_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `User specified ID for the NotebookExecutionJob.`,
+						},
 					},
 				},
+				ExactlyOneOf: []string{"create_notebook_execution_job_request", "create_pipeline_job_request"},
 			},
-			"cron": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Cron schedule (https://en.wikipedia.org/wiki/Cron) to launch scheduled runs.`,
-			},
-			"display_name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Required. The display name of the Schedule.`,
-			},
-			"location": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `The location for the resource: https://cloud.google.com/colab/docs/locations`,
-			},
-			"max_concurrent_run_count": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Maximum number of runs that can be started concurrently for this Schedule. This is the limit for starting the scheduled requests and not the execution of the notebook execution jobs created by the requests.`,
-			},
-			"allow_queueing": {
-				Type:        schema.TypeBool,
+			"create_pipeline_job_request": {
+				Type:        schema.TypeList,
 				Optional:    true,
-				Description: `Whether new scheduled runs can be queued when max_concurrent_runs limit is reached. If set to true, new runs will be queued instead of skipped. Default to false.`,
+				Description: `Request message for PipelineService.CreatePipelineJob.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pipeline_job": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `An instance of a machine learning PipelineJob.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"display_name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The display name of the Pipeline. The name can be up to 128 characters long and can consist of any UTF-8 characters.`,
+									},
+									"encryption_spec": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"kms_key_name": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Resource name of the Cloud KMS key used to protect the resource. The Cloud KMS key must be in the same region as the resource. It must have the format 'projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}'.`,
+												},
+											},
+										},
+									},
+									"labels": {
+										Type:        schema.TypeMap,
+										Computed:    true,
+										Optional:    true,
+										Description: `The labels with user-defined metadata to organize PipelineJob. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels. Note there is some reserved label key for Vertex AI Pipelines. - 'vertex-ai-pipelines-run-billing-id', user set value will get overrided.`,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+									"network": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The full name of the Compute Engine [network](/compute/docs/networks-and-firewalls#networks) to which the Pipeline Job's workload should be peered. For example, 'projects/12345/global/networks/myVPC'. [Format](/compute/docs/reference/rest/v1/networks/insert) is of the form 'projects/{project}/global/networks/{network}'. Where {project} is a project number, as in '12345', and {network} is a network name. Private services access must already be configured for the network. Pipeline job will apply the network configuration to the Google Cloud resources being launched, if applied, such as Vertex AI Training or Dataflow job. If left unspecified, the workload is not peered with any network.`,
+									},
+									"pipeline_spec": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A compiled definition of a pipeline, represented as a 'JSON' object. Defines the structure of the pipeline, including its components, tasks, and parameters. This specification is generated by compiling a pipeline function defined in 'Python' using the 'Kubeflow Pipelines SDK'.`,
+									},
+									"preflight_validations": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether to do component level validations before job creation.`,
+									},
+									"psc_interface_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for PSC-I.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"dns_peering_configs": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `DNS peering configurations. When specified, Vertex AI will attempt to configure DNS peering zones in the tenant project VPC to resolve the specified domains using the target network's Cloud DNS. The user must grant the dns.peer role to the Vertex AI Service Agent on the target project.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"domain": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The DNS name suffix of the zone being peered to, e.g., "my-internal-domain.corp.". Must end with a dot.`,
+															},
+															"target_network": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The VPC network name in the target_project where the DNS zone specified by 'domain' is visible.`,
+															},
+															"target_project": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The project ID hosting the Cloud DNS managed zone that contains the 'domain'. The Vertex AI Service Agent requires the dns.peer role on this project.`,
+															},
+														},
+													},
+												},
+												"network_attachment": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The name of the Compute Engine [network attachment](https://cloud.google.com/vpc/docs/about-network-attachments) to attach to the resource within the region and user project. To specify this field, you must have already [created a network attachment] (https://cloud.google.com/vpc/docs/create-manage-network-attachments#create-network-attachments). This field is only used for resources using PSC-I.`,
+												},
+											},
+										},
+									},
+									"reserved_ip_ranges": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Optional:    true,
+										Description: `A list of names for the reserved ip ranges under the VPC network that can be used for this Pipeline Job's workload. If set, we will deploy the Pipeline Job's workload within the provided ip ranges. Otherwise, the job will be deployed to any ip ranges under the provided VPC network. Example: ['vertex-ai-ip-range'].`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"runtime_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The runtime config of a PipelineJob.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"gcs_output_directory": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `A path in a Cloud Storage bucket, which will be treated as the root output directory of the pipeline. It is used by the system to generate the paths of output artifacts. The artifact paths are generated with a sub-path pattern '{job_id}/{task_id}/{output_key}' under the specified output directory. The service account specified in this pipeline must have the 'storage.objects.get' and 'storage.objects.create' permissions for this bucket.`,
+												},
+												"failure_policy": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Possible values: PIPELINE_FAILURE_POLICY_FAIL_SLOW PIPELINE_FAILURE_POLICY_FAIL_FAST`,
+												},
+												"parameter_values": {
+													Type:        schema.TypeMap,
+													Computed:    true,
+													Optional:    true,
+													Description: `The runtime parameters of the PipelineJob. The parameters will be passed into PipelineJob.pipeline_spec to replace the placeholders at runtime. This field is used by pipelines built using 'PipelineJob.pipeline_spec.schema_version' 2.1.0, such as pipelines built using Kubeflow Pipelines SDK 1.9 or higher and the v2 DSL.`,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+												},
+											},
+										},
+									},
+									"service_account": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The service account that the pipeline workload runs as. If not specified, the Compute Engine default service account in the project will be used. See https://cloud.google.com/compute/docs/access/service-accounts#default_service_account Users starting the pipeline must have the 'iam.serviceAccounts.actAs' permission on this service account.`,
+									},
+									"template_uri": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A template uri from where the PipelineJob.pipeline_spec, if empty, will be downloaded. Currently, only uri from Vertex Template Registry & Gallery is supported. Reference to https://cloud.google.com/vertex-ai/docs/pipelines/create-pipeline-template.`,
+									},
+									"create_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Pipeline creation time.`,
+									},
+									"end_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Pipeline end time.`,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The resource name of the PipelineJob.`,
+									},
+									"schedule_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The schedule resource name. Only returned if the Pipeline is created by Schedule API.`,
+									},
+									"start_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Pipeline start time.`,
+									},
+									"state": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Possible values: PIPELINE_STATE_QUEUED PIPELINE_STATE_PENDING PIPELINE_STATE_RUNNING PIPELINE_STATE_SUCCEEDED PIPELINE_STATE_FAILED PIPELINE_STATE_CANCELLING PIPELINE_STATE_CANCELLED PIPELINE_STATE_PAUSED`,
+									},
+									"template_metadata": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Pipeline template metadata if PipelineJob.template_uri is from supported template registry. Currently, the only supported registry is Artifact Registry.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"version": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The version_name in artifact registry. Will always be presented in output if the PipelineJob.template_uri is from supported template registry. Format is "sha256:abcdef123456...".`,
+												},
+											},
+										},
+									},
+									"update_time": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Timestamp when this PipelineJob was most recently updated.`,
+									},
+								},
+							},
+						},
+						"parent": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							Description: `The resource name of the Location to create the PipelineJob in. Format: 'projects/{project}/locations/{location}'`,
+						},
+						"pipeline_job_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID to use for the PipelineJob, which will become the final component of the PipelineJob name. If not provided, an ID will be automatically generated. This value should be less than 128 characters, and valid characters are '/a-z-/'.`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"create_notebook_execution_job_request", "create_pipeline_job_request"},
 			},
 			"end_time": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Timestamp after which no new runs can be scheduled. If specified, the schedule will be completed when either end_time is reached or when scheduled_run_count >= max_run_count. Must be in the RFC 3339 (https://www.ietf.org/rfc/rfc3339.txt) format.`,
+			},
+			"max_concurrent_active_run_count": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the maximum number of active runs that can be executed concurrently for this Schedule. This limits the number of runs that can be in a non-terminal state at the same time. Currently, this field is only supported for requests of type CreatePipelineJobRequest.`,
 			},
 			"max_run_count": {
 				Type:        schema.TypeString,
@@ -297,15 +710,69 @@ func ResourceColabSchedule() *schema.Resource {
 				Optional:    true,
 				Description: `The timestamp after which the first run can be scheduled. Defaults to the schedule creation time. Must be in the RFC 3339 (https://www.ietf.org/rfc/rfc3339.txt) format.`,
 			},
+			"catch_up": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether to backfill missed runs when the schedule is resumed from PAUSED state. If set to true, all missed runs will be scheduled. New runs will be scheduled after the backfill is complete. Default to false.`,
+			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Timestamp when this Schedule was created.`,
+			},
+			"last_pause_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Timestamp when this Schedule was last paused. Unset if never paused.`,
+			},
+			"last_resume_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Timestamp when this Schedule was last resumed. Unset if never resumed from pause.`,
+			},
+			"last_scheduled_run_response": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Status of a scheduled run.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"run_response": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The response of the scheduled run.`,
+						},
+						"scheduled_run_time": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The scheduled run time based on the user-specified schedule.`,
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The resource name of the Schedule`,
 			},
+			"next_run_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Timestamp when this Schedule should schedule the next run. Having a next_run_time in the past means the runs are being started behind schedule.`,
+			},
+			"started_run_count": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The number of runs started by this schedule.`,
+			},
 			"state": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Output only. The state of the schedule.`,
+			},
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Timestamp when this Schedule was updated.`,
 			},
 			"desired_state": {
 				Type:        schema.TypeString,
@@ -391,6 +858,18 @@ func resourceColabScheduleCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("create_notebook_execution_job_request"); !tpgresource.IsEmptyValue(reflect.ValueOf(createNotebookExecutionJobRequestProp)) && (ok || !reflect.DeepEqual(v, createNotebookExecutionJobRequestProp)) {
 		obj["createNotebookExecutionJobRequest"] = createNotebookExecutionJobRequestProp
+	}
+	createPipelineJobRequestProp, err := expandColabScheduleCreatePipelineJobRequest(d.Get("create_pipeline_job_request"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("create_pipeline_job_request"); !tpgresource.IsEmptyValue(reflect.ValueOf(createPipelineJobRequestProp)) && (ok || !reflect.DeepEqual(v, createPipelineJobRequestProp)) {
+		obj["createPipelineJobRequest"] = createPipelineJobRequestProp
+	}
+	maxConcurrentActiveRunCountProp, err := expandColabScheduleMaxConcurrentActiveRunCount(d.Get("max_concurrent_active_run_count"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("max_concurrent_active_run_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(maxConcurrentActiveRunCountProp)) && (ok || !reflect.DeepEqual(v, maxConcurrentActiveRunCountProp)) {
+		obj["maxConcurrentActiveRunCount"] = maxConcurrentActiveRunCountProp
 	}
 
 	obj, err = resourceColabScheduleEncoder(d, meta, obj)
@@ -663,6 +1142,18 @@ func resourceColabScheduleUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("allow_queueing"); ok || !reflect.DeepEqual(v, allowQueueingProp) {
 		obj["allowQueueing"] = allowQueueingProp
 	}
+	createPipelineJobRequestProp, err := expandColabScheduleCreatePipelineJobRequest(d.Get("create_pipeline_job_request"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("create_pipeline_job_request"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, createPipelineJobRequestProp)) {
+		obj["createPipelineJobRequest"] = createPipelineJobRequestProp
+	}
+	maxConcurrentActiveRunCountProp, err := expandColabScheduleMaxConcurrentActiveRunCount(d.Get("max_concurrent_active_run_count"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("max_concurrent_active_run_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maxConcurrentActiveRunCountProp)) {
+		obj["maxConcurrentActiveRunCount"] = maxConcurrentActiveRunCountProp
+	}
 
 	obj, err = resourceColabScheduleEncoder(d, meta, obj)
 	if err != nil {
@@ -704,6 +1195,14 @@ func resourceColabScheduleUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("allow_queueing") {
 		updateMask = append(updateMask, "allowQueueing")
+	}
+
+	if d.HasChange("create_pipeline_job_request") {
+		updateMask = append(updateMask, "createPipelineJobRequest")
+	}
+
+	if d.HasChange("max_concurrent_active_run_count") {
+		updateMask = append(updateMask, "maxConcurrentActiveRunCount")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -902,6 +1401,10 @@ func flattenColabScheduleCreateNotebookExecutionJobRequest(v interface{}, d *sch
 	transformed := make(map[string]interface{})
 	transformed["notebook_execution_job"] =
 		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJob(original["notebookExecutionJob"], d, config)
+	transformed["notebook_execution_job_id"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobId(original["notebookExecutionJobId"], d, config)
+	transformed["parent"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestParent(original["parent"], d, config)
 	return []interface{}{transformed}
 }
 func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJob(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -929,6 +1432,26 @@ func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJob(v
 		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobExecutionUser(original["executionUser"], d, config)
 	transformed["service_account"] =
 		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobServiceAccount(original["serviceAccount"], d, config)
+	transformed["create_time"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCreateTime(original["createTime"], d, config)
+	transformed["custom_environment_spec"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpec(original["customEnvironmentSpec"], d, config)
+	transformed["encryption_spec"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobEncryptionSpec(original["encryptionSpec"], d, config)
+	transformed["job_state"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobJobState(original["jobState"], d, config)
+	transformed["kernel_name"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobKernelName(original["kernelName"], d, config)
+	transformed["labels"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobLabels(original["labels"], d, config)
+	transformed["name"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobName(original["name"], d, config)
+	transformed["schedule_resource_name"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobScheduleResourceName(original["scheduleResourceName"], d, config)
+	transformed["update_time"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobUpdateTime(original["updateTime"], d, config)
+	transformed["workbench_runtime"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobWorkbenchRuntime(original["workbenchRuntime"], d, config)
 	return []interface{}{transformed}
 }
 func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1001,6 +1524,542 @@ func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobSe
 	return v
 }
 
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["machine_spec"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpec(original["machineSpec"], d, config)
+	transformed["network_spec"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpec(original["networkSpec"], d, config)
+	transformed["persistent_disk_spec"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpec(original["persistentDiskSpec"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["accelerator_count"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecAcceleratorCount(original["acceleratorCount"], d, config)
+	transformed["accelerator_type"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecAcceleratorType(original["acceleratorType"], d, config)
+	transformed["gpu_partition_size"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecGpuPartitionSize(original["gpuPartitionSize"], d, config)
+	transformed["machine_type"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecMachineType(original["machineType"], d, config)
+	transformed["reservation_affinity"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinity(original["reservationAffinity"], d, config)
+	transformed["tpu_topology"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecTpuTopology(original["tpuTopology"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecAcceleratorCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecAcceleratorType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecGpuPartitionSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecMachineType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityKey(original["key"], d, config)
+	transformed["reservation_affinity_type"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityReservationAffinityType(original["reservationAffinityType"], d, config)
+	transformed["use_reservation_pool"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityUseReservationPool(original["useReservationPool"], d, config)
+	transformed["values"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityReservationAffinityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityUseReservationPool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecTpuTopology(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_internet_access"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecEnableInternetAccess(original["enableInternetAccess"], d, config)
+	transformed["network"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecNetwork(original["network"], d, config)
+	transformed["subnetwork"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecSubnetwork(original["subnetwork"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecEnableInternetAccess(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["disk_size_gb"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpecDiskSizeGb(original["diskSizeGb"], d, config)
+	transformed["disk_type"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpecDiskType(original["diskType"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpecDiskSizeGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpecDiskType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobEncryptionSpecKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobJobState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobKernelName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobScheduleResourceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobWorkbenchRuntime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateNotebookExecutionJobRequestParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCatchUp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequest(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["parent"] =
+		flattenColabScheduleCreatePipelineJobRequestParent(original["parent"], d, config)
+	transformed["pipeline_job"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJob(original["pipelineJob"], d, config)
+	transformed["pipeline_job_id"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobId(original["pipelineJobId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreatePipelineJobRequestParent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJob(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["create_time"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobCreateTime(original["createTime"], d, config)
+	transformed["display_name"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobDisplayName(original["displayName"], d, config)
+	transformed["encryption_spec"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobEncryptionSpec(original["encryptionSpec"], d, config)
+	transformed["end_time"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobEndTime(original["endTime"], d, config)
+	transformed["labels"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobLabels(original["labels"], d, config)
+	transformed["name"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobName(original["name"], d, config)
+	transformed["network"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobNetwork(original["network"], d, config)
+	transformed["pipeline_spec"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobPipelineSpec(original["pipelineSpec"], d, config)
+	transformed["preflight_validations"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobPreflightValidations(original["preflightValidations"], d, config)
+	transformed["psc_interface_config"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfig(original["pscInterfaceConfig"], d, config)
+	transformed["reserved_ip_ranges"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobReservedIpRanges(original["reservedIpRanges"], d, config)
+	transformed["runtime_config"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfig(original["runtimeConfig"], d, config)
+	transformed["schedule_name"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobScheduleName(original["scheduleName"], d, config)
+	transformed["service_account"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobServiceAccount(original["serviceAccount"], d, config)
+	transformed["start_time"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobStartTime(original["startTime"], d, config)
+	transformed["state"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobState(original["state"], d, config)
+	transformed["template_metadata"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobTemplateMetadata(original["templateMetadata"], d, config)
+	transformed["template_uri"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobTemplateUri(original["templateUri"], d, config)
+	transformed["update_time"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobUpdateTime(original["updateTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobEncryptionSpecKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobEncryptionSpecKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobEndTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobPipelineSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobPreflightValidations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dns_peering_configs"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigs(original["dnsPeeringConfigs"], d, config)
+	transformed["network_attachment"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigNetworkAttachment(original["networkAttachment"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"domain":         flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsDomain(original["domain"], d, config),
+			"target_network": flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsTargetNetwork(original["targetNetwork"], d, config),
+			"target_project": flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsTargetProject(original["targetProject"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsDomain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsTargetNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsTargetProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigNetworkAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobReservedIpRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["failure_policy"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigFailurePolicy(original["failurePolicy"], d, config)
+	transformed["gcs_output_directory"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigGcsOutputDirectory(original["gcsOutputDirectory"], d, config)
+	transformed["parameter_values"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigParameterValues(original["parameterValues"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigFailurePolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigGcsOutputDirectory(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigParameterValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobScheduleName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobTemplateMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["version"] =
+		flattenColabScheduleCreatePipelineJobRequestPipelineJobTemplateMetadataVersion(original["version"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobTemplateMetadataVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobTemplateUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreatePipelineJobRequestPipelineJobId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleLastPauseTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleLastResumeTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleLastScheduledRunResponse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["run_response"] =
+		flattenColabScheduleLastScheduledRunResponseRunResponse(original["runResponse"], d, config)
+	transformed["scheduled_run_time"] =
+		flattenColabScheduleLastScheduledRunResponseScheduledRunTime(original["scheduledRunTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabScheduleLastScheduledRunResponseRunResponse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleLastScheduledRunResponseScheduledRunTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleMaxConcurrentActiveRunCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleNextRunTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleStartedRunCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabScheduleUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandColabScheduleDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1046,6 +2105,20 @@ func expandColabScheduleCreateNotebookExecutionJobRequest(v interface{}, d tpgre
 		return nil, err
 	} else if val := reflect.ValueOf(transformedNotebookExecutionJob); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["notebookExecutionJob"] = transformedNotebookExecutionJob
+	}
+
+	transformedNotebookExecutionJobId, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobId(original["notebook_execution_job_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNotebookExecutionJobId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["notebookExecutionJobId"] = transformedNotebookExecutionJobId
+	}
+
+	transformedParent, err := expandColabScheduleCreateNotebookExecutionJobRequestParent(original["parent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parent"] = transformedParent
 	}
 
 	return transformed, nil
@@ -1117,6 +2190,76 @@ func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJob(v 
 		return nil, err
 	} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["serviceAccount"] = transformedServiceAccount
+	}
+
+	transformedCreateTime, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCreateTime(original["create_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCreateTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["createTime"] = transformedCreateTime
+	}
+
+	transformedCustomEnvironmentSpec, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpec(original["custom_environment_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomEnvironmentSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["customEnvironmentSpec"] = transformedCustomEnvironmentSpec
+	}
+
+	transformedEncryptionSpec, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobEncryptionSpec(original["encryption_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEncryptionSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["encryptionSpec"] = transformedEncryptionSpec
+	}
+
+	transformedJobState, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobJobState(original["job_state"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJobState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jobState"] = transformedJobState
+	}
+
+	transformedKernelName, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobKernelName(original["kernel_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKernelName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kernelName"] = transformedKernelName
+	}
+
+	transformedLabels, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobLabels(original["labels"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["labels"] = transformedLabels
+	}
+
+	transformedName, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedScheduleResourceName, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobScheduleResourceName(original["schedule_resource_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScheduleResourceName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scheduleResourceName"] = transformedScheduleResourceName
+	}
+
+	transformedUpdateTime, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobUpdateTime(original["update_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUpdateTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["updateTime"] = transformedUpdateTime
+	}
+
+	transformedWorkbenchRuntime, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobWorkbenchRuntime(original["workbench_runtime"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWorkbenchRuntime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["workbenchRuntime"] = transformedWorkbenchRuntime
 	}
 
 	return transformed, nil
@@ -1220,6 +2363,798 @@ func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobSer
 	return v, nil
 }
 
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCreateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMachineSpec, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpec(original["machine_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMachineSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["machineSpec"] = transformedMachineSpec
+	}
+
+	transformedNetworkSpec, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpec(original["network_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkSpec"] = transformedNetworkSpec
+	}
+
+	transformedPersistentDiskSpec, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpec(original["persistent_disk_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPersistentDiskSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["persistentDiskSpec"] = transformedPersistentDiskSpec
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAcceleratorCount, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecAcceleratorCount(original["accelerator_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAcceleratorCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["acceleratorCount"] = transformedAcceleratorCount
+	}
+
+	transformedAcceleratorType, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecAcceleratorType(original["accelerator_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAcceleratorType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["acceleratorType"] = transformedAcceleratorType
+	}
+
+	transformedGpuPartitionSize, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecGpuPartitionSize(original["gpu_partition_size"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGpuPartitionSize); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gpuPartitionSize"] = transformedGpuPartitionSize
+	}
+
+	transformedMachineType, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecMachineType(original["machine_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMachineType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["machineType"] = transformedMachineType
+	}
+
+	transformedReservationAffinity, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinity(original["reservation_affinity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReservationAffinity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["reservationAffinity"] = transformedReservationAffinity
+	}
+
+	transformedTpuTopology, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecTpuTopology(original["tpu_topology"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTpuTopology); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tpuTopology"] = transformedTpuTopology
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecAcceleratorCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecAcceleratorType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecGpuPartitionSize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecMachineType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKey, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	transformedReservationAffinityType, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityReservationAffinityType(original["reservation_affinity_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReservationAffinityType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["reservationAffinityType"] = transformedReservationAffinityType
+	}
+
+	transformedUseReservationPool, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityUseReservationPool(original["use_reservation_pool"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseReservationPool); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useReservationPool"] = transformedUseReservationPool
+	}
+
+	transformedValues, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityReservationAffinityType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityUseReservationPool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinityValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecTpuTopology(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableInternetAccess, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecEnableInternetAccess(original["enable_internet_access"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableInternetAccess); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableInternetAccess"] = transformedEnableInternetAccess
+	}
+
+	transformedNetwork, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecNetwork(original["network"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["network"] = transformedNetwork
+	}
+
+	transformedSubnetwork, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecSubnetwork(original["subnetwork"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSubnetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["subnetwork"] = transformedSubnetwork
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecEnableInternetAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpecSubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDiskSizeGb, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpecDiskSizeGb(original["disk_size_gb"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDiskSizeGb); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["diskSizeGb"] = transformedDiskSizeGb
+	}
+
+	transformedDiskType, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpecDiskType(original["disk_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDiskType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["diskType"] = transformedDiskType
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpecDiskSizeGb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpecDiskType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobEncryptionSpecKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobEncryptionSpecKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobJobState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobKernelName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobScheduleResourceName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobUpdateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobWorkbenchRuntime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestNotebookExecutionJobId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreateNotebookExecutionJobRequestParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequest(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedParent, err := expandColabScheduleCreatePipelineJobRequestParent(original["parent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parent"] = transformedParent
+	}
+
+	transformedPipelineJob, err := expandColabScheduleCreatePipelineJobRequestPipelineJob(original["pipeline_job"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPipelineJob); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pipelineJob"] = transformedPipelineJob
+	}
+
+	transformedPipelineJobId, err := expandColabScheduleCreatePipelineJobRequestPipelineJobId(original["pipeline_job_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPipelineJobId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pipelineJobId"] = transformedPipelineJobId
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestParent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJob(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCreateTime, err := expandColabScheduleCreatePipelineJobRequestPipelineJobCreateTime(original["create_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCreateTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["createTime"] = transformedCreateTime
+	}
+
+	transformedDisplayName, err := expandColabScheduleCreatePipelineJobRequestPipelineJobDisplayName(original["display_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["displayName"] = transformedDisplayName
+	}
+
+	transformedEncryptionSpec, err := expandColabScheduleCreatePipelineJobRequestPipelineJobEncryptionSpec(original["encryption_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEncryptionSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["encryptionSpec"] = transformedEncryptionSpec
+	}
+
+	transformedEndTime, err := expandColabScheduleCreatePipelineJobRequestPipelineJobEndTime(original["end_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEndTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["endTime"] = transformedEndTime
+	}
+
+	transformedLabels, err := expandColabScheduleCreatePipelineJobRequestPipelineJobLabels(original["labels"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["labels"] = transformedLabels
+	}
+
+	transformedName, err := expandColabScheduleCreatePipelineJobRequestPipelineJobName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedNetwork, err := expandColabScheduleCreatePipelineJobRequestPipelineJobNetwork(original["network"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["network"] = transformedNetwork
+	}
+
+	transformedPipelineSpec, err := expandColabScheduleCreatePipelineJobRequestPipelineJobPipelineSpec(original["pipeline_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPipelineSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pipelineSpec"] = transformedPipelineSpec
+	}
+
+	transformedPreflightValidations, err := expandColabScheduleCreatePipelineJobRequestPipelineJobPreflightValidations(original["preflight_validations"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPreflightValidations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["preflightValidations"] = transformedPreflightValidations
+	}
+
+	transformedPscInterfaceConfig, err := expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfig(original["psc_interface_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPscInterfaceConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pscInterfaceConfig"] = transformedPscInterfaceConfig
+	}
+
+	transformedReservedIpRanges, err := expandColabScheduleCreatePipelineJobRequestPipelineJobReservedIpRanges(original["reserved_ip_ranges"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReservedIpRanges); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["reservedIpRanges"] = transformedReservedIpRanges
+	}
+
+	transformedRuntimeConfig, err := expandColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfig(original["runtime_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRuntimeConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["runtimeConfig"] = transformedRuntimeConfig
+	}
+
+	transformedScheduleName, err := expandColabScheduleCreatePipelineJobRequestPipelineJobScheduleName(original["schedule_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScheduleName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scheduleName"] = transformedScheduleName
+	}
+
+	transformedServiceAccount, err := expandColabScheduleCreatePipelineJobRequestPipelineJobServiceAccount(original["service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccount"] = transformedServiceAccount
+	}
+
+	transformedStartTime, err := expandColabScheduleCreatePipelineJobRequestPipelineJobStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	transformedState, err := expandColabScheduleCreatePipelineJobRequestPipelineJobState(original["state"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["state"] = transformedState
+	}
+
+	transformedTemplateMetadata, err := expandColabScheduleCreatePipelineJobRequestPipelineJobTemplateMetadata(original["template_metadata"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTemplateMetadata); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["templateMetadata"] = transformedTemplateMetadata
+	}
+
+	transformedTemplateUri, err := expandColabScheduleCreatePipelineJobRequestPipelineJobTemplateUri(original["template_uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTemplateUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["templateUri"] = transformedTemplateUri
+	}
+
+	transformedUpdateTime, err := expandColabScheduleCreatePipelineJobRequestPipelineJobUpdateTime(original["update_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUpdateTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["updateTime"] = transformedUpdateTime
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobCreateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandColabScheduleCreatePipelineJobRequestPipelineJobEncryptionSpecKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobEncryptionSpecKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobEndTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobPipelineSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobPreflightValidations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDnsPeeringConfigs, err := expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigs(original["dns_peering_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDnsPeeringConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dnsPeeringConfigs"] = transformedDnsPeeringConfigs
+	}
+
+	transformedNetworkAttachment, err := expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigNetworkAttachment(original["network_attachment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkAttachment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkAttachment"] = transformedNetworkAttachment
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDomain, err := expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsDomain(original["domain"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDomain); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["domain"] = transformedDomain
+		}
+
+		transformedTargetNetwork, err := expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsTargetNetwork(original["target_network"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTargetNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["targetNetwork"] = transformedTargetNetwork
+		}
+
+		transformedTargetProject, err := expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsTargetProject(original["target_project"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTargetProject); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["targetProject"] = transformedTargetProject
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsDomain(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsTargetNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfigsTargetProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobPscInterfaceConfigNetworkAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobReservedIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFailurePolicy, err := expandColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigFailurePolicy(original["failure_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFailurePolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["failurePolicy"] = transformedFailurePolicy
+	}
+
+	transformedGcsOutputDirectory, err := expandColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigGcsOutputDirectory(original["gcs_output_directory"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGcsOutputDirectory); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gcsOutputDirectory"] = transformedGcsOutputDirectory
+	}
+
+	transformedParameterValues, err := expandColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigParameterValues(original["parameter_values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParameterValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parameterValues"] = transformedParameterValues
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigFailurePolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigGcsOutputDirectory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobRuntimeConfigParameterValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobScheduleName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobTemplateMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedVersion, err := expandColabScheduleCreatePipelineJobRequestPipelineJobTemplateMetadataVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
+	return transformed, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobTemplateMetadataVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobTemplateUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobUpdateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleCreatePipelineJobRequestPipelineJobId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabScheduleMaxConcurrentActiveRunCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceColabScheduleEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
@@ -1232,16 +3167,26 @@ func resourceColabScheduleEncoder(d *schema.ResourceData, meta interface{}, obj 
 		return nil, err
 	}
 
-	// createNotebookExecutionJobRequest does not exist in update requests
-	if obj["createNotebookExecutionJobRequest"] == nil {
-		return obj, nil
+	// Handle parent injection for creation requests if parent is not explicitly provided
+	if obj["createNotebookExecutionJobRequest"] != nil {
+		jobRequest, ok := obj["createNotebookExecutionJobRequest"].(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("createNotebookExecutionJobRequest is not of type map[string]interface{} or is nil")
+		}
+		if jobRequest["parent"] == nil || jobRequest["parent"] == "" {
+			jobRequest["parent"] = fmt.Sprintf("projects/%s/locations/%s", project, location)
+		}
 	}
 
-	jobRequest, ok := obj["createNotebookExecutionJobRequest"].(map[string]interface{})
-	if !ok {
-		return nil, fmt.Errorf("createNotebookExecutionJobRequest is not of type map[string]interface{} or is nil")
+	if obj["createPipelineJobRequest"] != nil {
+		pipelineRequest, ok := obj["createPipelineJobRequest"].(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("createPipelineJobRequest is not of type map[string]interface{} or is nil")
+		}
+		if pipelineRequest["parent"] == nil || pipelineRequest["parent"] == "" {
+			pipelineRequest["parent"] = fmt.Sprintf("projects/%s/locations/%s", project, location)
+		}
 	}
-	jobRequest["parent"] = fmt.Sprintf("projects/%s/locations/%s", project, location)
 
 	return obj, nil
 }
@@ -1285,6 +3230,36 @@ func ResourceColabScheduleFlatten(d *schema.ResourceData, meta interface{}, res 
 		return fmt.Errorf("Error reading Schedule: %s", err)
 	}
 	if err = d.Set("create_notebook_execution_job_request", flattenColabScheduleCreateNotebookExecutionJobRequest(res["createNotebookExecutionJobRequest"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schedule: %s", err)
+	}
+	if err = d.Set("catch_up", flattenColabScheduleCatchUp(res["catchUp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schedule: %s", err)
+	}
+	if err = d.Set("create_pipeline_job_request", flattenColabScheduleCreatePipelineJobRequest(res["createPipelineJobRequest"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schedule: %s", err)
+	}
+	if err = d.Set("create_time", flattenColabScheduleCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schedule: %s", err)
+	}
+	if err = d.Set("last_pause_time", flattenColabScheduleLastPauseTime(res["lastPauseTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schedule: %s", err)
+	}
+	if err = d.Set("last_resume_time", flattenColabScheduleLastResumeTime(res["lastResumeTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schedule: %s", err)
+	}
+	if err = d.Set("last_scheduled_run_response", flattenColabScheduleLastScheduledRunResponse(res["lastScheduledRunResponse"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schedule: %s", err)
+	}
+	if err = d.Set("max_concurrent_active_run_count", flattenColabScheduleMaxConcurrentActiveRunCount(res["maxConcurrentActiveRunCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schedule: %s", err)
+	}
+	if err = d.Set("next_run_time", flattenColabScheduleNextRunTime(res["nextRunTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schedule: %s", err)
+	}
+	if err = d.Set("started_run_count", flattenColabScheduleStartedRunCount(res["startedRunCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Schedule: %s", err)
+	}
+	if err = d.Set("update_time", flattenColabScheduleUpdateTime(res["updateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Schedule: %s", err)
 	}
 

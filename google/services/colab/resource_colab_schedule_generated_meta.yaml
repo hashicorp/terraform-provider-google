@@ -8,27 +8,89 @@ api_version: v1
 api_resource_type_kind: Schedule
 fields:
     - api_field: allowQueueing
+    - api_field: catchUp
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.createTime
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.machineSpec.acceleratorCount
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.machineSpec.acceleratorType
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.machineSpec.gpuPartitionSize
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.machineSpec.machineType
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.machineSpec.reservationAffinity.key
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.machineSpec.reservationAffinity.reservationAffinityType
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.machineSpec.reservationAffinity.useReservationPool
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.machineSpec.reservationAffinity.values
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.machineSpec.tpuTopology
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.networkSpec.enableInternetAccess
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.networkSpec.network
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.networkSpec.subnetwork
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.persistentDiskSpec.diskSizeGb
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.customEnvironmentSpec.persistentDiskSpec.diskType
     - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.dataformRepositorySource.commitSha
     - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.dataformRepositorySource.dataformRepositoryResourceName
     - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.displayName
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.encryptionSpec.kmsKeyName
     - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.executionTimeout
     - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.executionUser
     - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.gcsNotebookSource.generation
     - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.gcsNotebookSource.uri
     - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.gcsOutputUri
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.jobState
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.kernelName
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.labels
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.name
     - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.notebookRuntimeTemplateResourceName
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.scheduleResourceName
     - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.serviceAccount
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.updateTime
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJob.workbenchRuntime
+    - api_field: createNotebookExecutionJobRequest.notebookExecutionJobId
+    - api_field: createNotebookExecutionJobRequest.parent
+    - api_field: createPipelineJobRequest.parent
+    - api_field: createPipelineJobRequest.pipelineJob.createTime
+    - api_field: createPipelineJobRequest.pipelineJob.displayName
+    - api_field: createPipelineJobRequest.pipelineJob.encryptionSpec.kmsKeyName
+    - api_field: createPipelineJobRequest.pipelineJob.endTime
+    - api_field: createPipelineJobRequest.pipelineJob.labels
+    - api_field: createPipelineJobRequest.pipelineJob.name
+    - api_field: createPipelineJobRequest.pipelineJob.network
+    - api_field: createPipelineJobRequest.pipelineJob.pipelineSpec
+      json: true
+    - api_field: createPipelineJobRequest.pipelineJob.preflightValidations
+    - api_field: createPipelineJobRequest.pipelineJob.pscInterfaceConfig.dnsPeeringConfigs.domain
+    - api_field: createPipelineJobRequest.pipelineJob.pscInterfaceConfig.dnsPeeringConfigs.targetNetwork
+    - api_field: createPipelineJobRequest.pipelineJob.pscInterfaceConfig.dnsPeeringConfigs.targetProject
+    - api_field: createPipelineJobRequest.pipelineJob.pscInterfaceConfig.networkAttachment
+    - api_field: createPipelineJobRequest.pipelineJob.reservedIpRanges
+    - api_field: createPipelineJobRequest.pipelineJob.runtimeConfig.failurePolicy
+    - api_field: createPipelineJobRequest.pipelineJob.runtimeConfig.gcsOutputDirectory
+    - api_field: createPipelineJobRequest.pipelineJob.runtimeConfig.parameterValues
+    - api_field: createPipelineJobRequest.pipelineJob.scheduleName
+    - api_field: createPipelineJobRequest.pipelineJob.serviceAccount
+    - api_field: createPipelineJobRequest.pipelineJob.startTime
+    - api_field: createPipelineJobRequest.pipelineJob.state
+    - api_field: createPipelineJobRequest.pipelineJob.templateMetadata.version
+    - api_field: createPipelineJobRequest.pipelineJob.templateUri
+    - api_field: createPipelineJobRequest.pipelineJob.updateTime
+    - api_field: createPipelineJobRequest.pipelineJobId
+    - api_field: createTime
     - api_field: cron
     - field: desired_state
       provider_only: true
     - api_field: displayName
     - api_field: endTime
+    - api_field: lastPauseTime
+    - api_field: lastResumeTime
+    - api_field: lastScheduledRunResponse.runResponse
+    - api_field: lastScheduledRunResponse.scheduledRunTime
     - field: location
       provider_only: true
+    - api_field: maxConcurrentActiveRunCount
     - api_field: maxConcurrentRunCount
     - api_field: maxRunCount
     - api_field: name
+    - api_field: nextRunTime
     - api_field: startTime
+    - api_field: startedRunCount
     - api_field: state
+    - api_field: updateTime
     - field: deletion_policy
       provider_only: true
