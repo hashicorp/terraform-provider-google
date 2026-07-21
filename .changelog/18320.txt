@@ -1,0 +1,3 @@
+```release-note:bug
+secretmanager: fixed an issue where `google_secret_manager_secret_version` would fail at apply time with `Field [payload]` is required if neither `secret_data` or `secret_data_wo` was set. The provider  now returns a validation error at plan time.
+```
