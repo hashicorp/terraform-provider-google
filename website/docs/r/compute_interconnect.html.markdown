@@ -42,7 +42,7 @@ resource "google_compute_interconnect" "example-interconnect" {
   customer_name        = "example_customer"
   interconnect_type    = "DEDICATED"
   link_type            = "LINK_TYPE_ETHERNET_10G_LR"
-  location             = "https://www.googleapis.com/compute/v1/${data.google_project.project.id}/global/interconnectLocations/iad-zone1-1"
+  location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.project_id}/global/interconnectLocations/iad-zone1-1"
   requested_link_count = 1
 }
 ```
@@ -62,7 +62,7 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  URL of the InterconnectLocation object that represents where this connection is to be provisioned.
+  URL of the InterconnectLocation object that represents where this connection is requested to be provisioned.
   Specifies the location inside Google's Networks.
 
 * `link_type` -
@@ -290,6 +290,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `effective_location` -
+  URL of the InterconnectLocation object that represents where this connection is to be provisioned.
+  Specifies the location inside Google's Networks.
 
 * `operational_status` -
   The current status of this Interconnect's functionality, which can take one of the following:
