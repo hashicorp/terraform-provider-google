@@ -263,6 +263,22 @@ func resourceContainerClusterResourceV1() *schema.Resource {
 								},
 							},
 						},
+						"node_readiness_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `The status of the Node Readiness Controller addon.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
 						"config_connector_config": {
 							Type:         schema.TypeList,
 							Optional:     true,
