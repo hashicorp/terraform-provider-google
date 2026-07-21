@@ -124,6 +124,7 @@ var (
 		"addons_config.0.slice_controller_config",
 		"addons_config.0.pod_snapshot_config",
 		"addons_config.0.slurm_operator_config",
+		"addons_config.0.node_readiness_config",
 		"addons_config.0.agent_sandbox_config",
 	}
 
@@ -667,6 +668,22 @@ func ResourceContainerCluster() *schema.Resource {
 							AtLeastOneOf: addonsConfigKeys,
 							MaxItems:     1,
 							Description:  `The status of the Slurm Operator addon, which creates slurm related CRDs and KCP pods to manage them. Defaults to disabled for Standard clusters; set enabled = true to enable. It can not be enabled for Autopilot clusters.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+						"node_readiness_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `The status of the Node Readiness Controller addon.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -5713,6 +5730,14 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
+	if v, ok := config["node_readiness_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.NodeReadinessConfig = &container.NodeReadinessConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
+
 	if v, ok := config["agent_sandbox_config"]; ok && len(v.([]interface{})) > 0 {
 		addon := v.([]interface{})[0].(map[string]interface{})
 		ac.AgentSandboxConfig = &container.AgentSandboxConfig{
@@ -7323,6 +7348,14 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 		result["slurm_operator_config"] = []map[string]interface{}{
 			{
 				"enabled": c.SlurmOperatorConfig.Enabled,
+			},
+		}
+	}
+
+	if c.NodeReadinessConfig != nil {
+		result["node_readiness_config"] = []map[string]interface{}{
+			{
+				"enabled": c.NodeReadinessConfig.Enabled,
 			},
 		}
 	}
