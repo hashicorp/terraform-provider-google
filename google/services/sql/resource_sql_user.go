@@ -270,17 +270,24 @@ func expandPasswordPolicy(cfg interface{}) *sqladmin.UserPasswordValidationPolic
 
 	upvp := &sqladmin.UserPasswordValidationPolicy{}
 
+	// Explicitly send fields present in config even when they hold zero
+	// values (0, false, ""). Otherwise the API client omits them from the
+	// request body and updates that disable/zero a field become no-ops.
 	if v, ok := raw["allowed_failed_attempts"]; ok {
 		upvp.AllowedFailedAttempts = int64(v.(int))
+		upvp.ForceSendFields = append(upvp.ForceSendFields, "AllowedFailedAttempts")
 	}
 	if v, ok := raw["password_expiration_duration"]; ok {
 		upvp.PasswordExpirationDuration = v.(string)
+		upvp.ForceSendFields = append(upvp.ForceSendFields, "PasswordExpirationDuration")
 	}
 	if v, ok := raw["enable_failed_attempts_check"]; ok {
 		upvp.EnableFailedAttemptsCheck = v.(bool)
+		upvp.ForceSendFields = append(upvp.ForceSendFields, "EnableFailedAttemptsCheck")
 	}
 	if v, ok := raw["enable_password_verification"]; ok {
 		upvp.EnablePasswordVerification = v.(bool)
+		upvp.ForceSendFields = append(upvp.ForceSendFields, "EnablePasswordVerification")
 	}
 
 	return upvp
@@ -591,6 +598,12 @@ func resourceSqlUserUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		if hasPasswordChange {
 			user.Password = password
+		}
+
+		// Send the password policy on updates too, otherwise changes to
+		// password_policy are silently dropped (never sent to the API).
+		if v, ok := d.GetOk("password_policy"); ok {
+			user.PasswordPolicy = expandPasswordPolicy(v)
 		}
 
 		transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
