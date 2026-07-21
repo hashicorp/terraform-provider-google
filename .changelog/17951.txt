@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `effective-location` field to `google_compute_interconnect` resource
+```
+```release-note:enhancement
+compute: changed `location` field to mutable for `google_compute_interconnect` resource 
+```

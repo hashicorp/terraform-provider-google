@@ -167,9 +167,8 @@ bundle, not the speed of the entire bundle. Can take one of the following values
 			"location": {
 				Type:             schema.TypeString,
 				Required:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description: `URL of the InterconnectLocation object that represents where this connection is to be provisioned.
+				Description: `URL of the InterconnectLocation object that represents where this connection is requested to be provisioned.
 Specifies the location inside Google's Networks.`,
 			},
 			"name": {
@@ -385,6 +384,12 @@ Google to the customer in the LOA.`,
 				Computed:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_location": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `URL of the InterconnectLocation object that represents where this connection is to be provisioned.
+Specifies the location inside Google's Networks.`,
 			},
 			"expected_outages": {
 				Type:        schema.TypeList,
@@ -939,6 +944,12 @@ func resourceComputeInterconnectUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	locationProp, err := expandComputeInterconnectLocation(d.Get("location"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("location"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, locationProp)) {
+		obj["location"] = locationProp
+	}
 	requestedLinkCountProp, err := expandComputeInterconnectRequestedLinkCount(d.Get("requested_link_count"), d, config)
 	if err != nil {
 		return err
@@ -1161,6 +1172,13 @@ func flattenComputeInterconnectName(v interface{}, d *schema.ResourceData, confi
 }
 
 func flattenComputeInterconnectLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeInterconnectEffectiveLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1647,6 +1665,9 @@ func ResourceComputeInterconnectFlatten(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 	if err = d.Set("location", flattenComputeInterconnectLocation(res["location"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("effective_location", flattenComputeInterconnectEffectiveLocation(res["effectiveLocation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 	if err = d.Set("link_type", flattenComputeInterconnectLinkType(res["linkType"], d, config)); err != nil {
