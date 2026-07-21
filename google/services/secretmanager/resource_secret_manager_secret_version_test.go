@@ -17,6 +17,7 @@
 package secretmanager_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -92,6 +93,43 @@ func TestAccSecretManagerSecretVersion_byName(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccSecretManagerSecretVersion_neitherSecretDataSet(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccSecretManagerSecretVersion_noSecretData(context),
+				ExpectError: regexp.MustCompile(`Invalid combination of arguments`),
+			},
+		},
+	})
+}
+
+func testAccSecretManagerSecretVersion_noSecretData(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-version-%{random_suffix}"
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret = google_secret_manager_secret.secret-basic.name
+  secret_data_wo_version = 3
+}
+`, context)
 }
 
 func testAccSecretManagerSecretVersion_basic(context map[string]interface{}) string {
