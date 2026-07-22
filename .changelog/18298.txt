@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added identity support to `google_sql_user` for `terraform query` support
+```
