@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added identity support to `google_compute_instance`, allowing resource import using an identity block
+```

@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -396,6 +397,39 @@ func TestAccComputeInstance_basic5(t *testing.T) {
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceDisk(&instance, instanceName, true, true),
 				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_importBlockWithResourceIdentity(t *testing.T) {
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	project := envvar.GetTestProjectFromEnv()
+	zone := "us-central1-a"
+
+	acctest.VcrTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_12_0),
+		},
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_basic(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "name", instanceName),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "zone", zone),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "project", project),
+				),
+			},
+			{
+				ResourceName:       "google_compute_instance.foobar",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
