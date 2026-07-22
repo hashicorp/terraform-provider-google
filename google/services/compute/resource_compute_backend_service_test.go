@@ -875,6 +875,37 @@ func TestAccComputeBackendService_withLogConfigMode(t *testing.T) {
 	})
 }
 
+func TestAccComputeBackendService_withLogConfigRequestResponseHeaders(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-lc-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-lc-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withLogConfigRequestResponseHeaders(serviceName, checkName, "X-Request-Id", "X-Response-Id"),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withLogConfigRequestResponseHeaders(serviceName, checkName, "X-Request-Id-Updated", "X-Response-Id-Updated"),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeBackendService_trafficDirectorUpdateBasic(t *testing.T) {
 	t.Parallel()
 
@@ -2198,6 +2229,38 @@ resource "google_compute_health_check" "zero" {
   }
 }
 `, serviceName, enabled, mode, checkName)
+}
+
+func testAccComputeBackendService_withLogConfigRequestResponseHeaders(serviceName, checkName, reqHeader, respHeader string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name                  = "%s"
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.zero.self_link]
+
+  log_config {
+    enable      = true
+    sample_rate = 0.5
+    request_headers {
+      header_name = "%s"
+    }
+    response_headers {
+      header_name = "%s"
+    }
+  }
+}
+
+resource "google_compute_health_check" "zero" {
+  name               = "%s"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  http_health_check {
+    port = 80
+  }
+}
+`, serviceName, reqHeader, respHeader, checkName)
 }
 
 func testAccComputeBackendService_withCompressionMode(serviceName, checkName, compressionMode string) string {
