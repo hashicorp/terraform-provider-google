@@ -1,0 +1,7 @@
+```release-note:breaking-change
+cloudrunv2: removed `http_get.http_headers.port` field from container startup probe and liveness probe in `google_cloud_run_v2_worker_pool` resource
+```
+
+```release-note:breaking-change
+cloudrunv2: marked `http_get.http_headers.name` field of container startup probe and liveness probe in `google_cloud_run_v2_worker_pool` resource as required
+```

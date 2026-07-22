@@ -920,14 +920,8 @@ When the field is set to false, deleting the WorkerPool is allowed.
 
 <a name="nested_template_containers_liveness_probe_http_get_http_headers"></a>The `http_headers` block supports:
 
-* `port` -
-  (Optional, Deprecated)
-  Required. The header field name
-
-  ~> **Warning:** `port` field is deprecated and will be removed in a future major release. It was never supported by the API.
-
 * `name` -
-  (Optional)
+  (Required)
   Required. The header field name
 
 * `value` -
@@ -1002,14 +996,8 @@ When the field is set to false, deleting the WorkerPool is allowed.
 
 <a name="nested_template_containers_startup_probe_http_get_http_headers"></a>The `http_headers` block supports:
 
-* `port` -
-  (Optional, Deprecated)
-  Required. The header field name
-
-  ~> **Warning:** `port` field is deprecated and will be removed in a future major release. It was never supported by the API.
-
 * `name` -
-  (Optional)
+  (Required)
   Required. The header field name
 
 * `value` -
