@@ -112,6 +112,15 @@ terraform {
 
 The `custom_audiences` field has been removed from this resource because it is not supported for Cloud Run v2 Worker Pools. Remove it from your configuration after upgrading.
 
+### `http_get.http_headers.port` is now removed
+
+The `http_get.http_headers.port` field of container startup probe and liveness probe have been removed from this resource because it is not supported for Cloud Run v2 Worker Pools. Remove it from your configuration after upgrading.
+
+### `http_get.http_headers.name` is now required
+
+The `http_get.http_headers.name` field of container startup probe and liveness probe are now required in this resource. If `http_get.http_headers` field is used, add the sub field `http_get.http_headers.name` to your configuration after
+upgrading.
+
 ## Resource: `google_netapp_storage_pool`
 
 ### `scale_tier` has been removed
