@@ -53,3 +53,127 @@ func TestRolloutSequenceDurationDiffSuppress(t *testing.T) {
 		}
 	}
 }
+
+func TestShouldUpgradeRolloutSequence(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		minCPVer  string
+		targetVer string
+		want      bool
+		wantErr   bool
+	}{
+		{
+			name:      "minor version bump, want upgrade",
+			minCPVer:  "1.28.0-gke.0",
+			targetVer: "1.27.10-gke.1200",
+			want:      true,
+			wantErr:   false,
+		},
+		{
+			name:      "patch version bump, want upgrade",
+			minCPVer:  "1.27.5-gke.0",
+			targetVer: "1.27.3-gke.100",
+			want:      true,
+			wantErr:   false,
+		},
+		{
+			name:      "GKE patch version bump, want upgrade",
+			minCPVer:  "1.27.3-gke.200",
+			targetVer: "1.27.3-gke.100",
+			want:      true,
+			wantErr:   false,
+		},
+		{
+			name:      "patch version > GKE patch version, want upgrade",
+			minCPVer:  "1.27.1",
+			targetVer: "1.27.1-gke.100",
+			want:      true,
+			wantErr:   false,
+		},
+		{
+			name:      "missing patch version implicitly padded with zero, want NO upgrade",
+			minCPVer:  "1.27",
+			targetVer: "1.27.1",
+			want:      false,
+			wantErr:   false,
+		},
+		{
+			name:      "minor version drop, want NO upgrade",
+			minCPVer:  "1.26.5-gke.100",
+			targetVer: "1.27.3-gke.100",
+			want:      false,
+			wantErr:   false,
+		},
+		{
+			name:      "patch version drop, want NO upgrade",
+			minCPVer:  "1.27.2-gke.500",
+			targetVer: "1.27.3-gke.100",
+			want:      false,
+			wantErr:   false,
+		},
+		{
+			name:      "GKE patch version drop, want NO upgrade",
+			minCPVer:  "1.27.3-gke.50",
+			targetVer: "1.27.3-gke.100",
+			want:      false,
+			wantErr:   false,
+		},
+		{
+			name:      "no version change, want NO upgrade",
+			minCPVer:  "1.27.3-gke.100",
+			targetVer: "1.27.3-gke.100",
+			want:      false,
+			wantErr:   false,
+		},
+		{
+			name:      "empty target version, want upgrade",
+			minCPVer:  "1.27.3-gke.100",
+			targetVer: "",
+			want:      true,
+			wantErr:   false,
+		},
+		{
+			name:      "empty min version, want NO upgrade",
+			minCPVer:  "",
+			targetVer: "1.27.3-gke.100",
+			want:      false,
+			wantErr:   false,
+		},
+		{
+			name:      "malformed min version syntax, want error",
+			minCPVer:  "invalid-semver",
+			targetVer: "1.27.3-gke.100",
+			want:      false,
+			wantErr:   true,
+		},
+		{
+			name:      "malformed target version syntax, want error",
+			minCPVer:  "1.27.3-gke.100",
+			targetVer: "invalid-gke-rev",
+			want:      false,
+			wantErr:   true,
+		},
+		{
+			name:      "latest alias not supported, want error",
+			minCPVer:  "latest",
+			targetVer: "1.27.3-gke.100",
+			want:      false,
+			wantErr:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := shouldUpgradeRolloutSequence(tt.minCPVer, tt.targetVer)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("shouldUpgradeRolloutSequence(%q, %q) error = %v, wantErr %v", tt.minCPVer, tt.targetVer, err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("shouldUpgradeRolloutSequence(%q, %q) = %v, want %v", tt.minCPVer, tt.targetVer, got, tt.want)
+			}
+		})
+	}
+}

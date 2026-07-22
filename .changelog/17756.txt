@@ -1,0 +1,7 @@
+```release-note:enhancement
+gkehub: added `min_control_plane_version`, `min_node_version`, `target_control_plane_version`, `target_node_version` and `operational_state` fields to `google_gke_hub_rollout_sequence` resource
+```
+
+```release-note:bug
+gkehub: fixed `rolloutCreationScope` and `upgradeTypes` fields in `google_gke_hub_rollout_sequence` resource. Empty values can now be sent to the API.
+```
