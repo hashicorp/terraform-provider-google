@@ -32,7 +32,9 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/container"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkehub2"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -61,13 +63,17 @@ func TestAccGKEHub2RolloutSequence_gkeHubRolloutSequenceBasicExample(t *testing.
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_id":          envvar.GetTestProjectFromEnv(),
+		"billing_acct":        envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":              envvar.GetTestOrgFromEnv(t),
+		"project_id":          "tf-test-rs-project" + randomSuffix,
 		"rollout_sequence_id": "tf-test-rs-basic" + randomSuffix,
 		"random_suffix":       randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"project_id":          envvar.GetTestProjectFromEnv(),
+		"billing_acct":        envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":              envvar.GetTestOrgFromEnv(t),
+		"project_id":          "tf-test-rs-project" + randomSuffix,
 		"rollout_sequence_id": "tf-test-rs-basic" + randomSuffix,
 		"random_suffix":       randomSuffix,
 	}
@@ -75,7 +81,10 @@ func TestAccGKEHub2RolloutSequence_gkeHubRolloutSequenceBasicExample(t *testing.
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckGKEHub2RolloutSequenceDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckGKEHub2RolloutSequenceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGKEHub2RolloutSequence_gkeHubRolloutSequenceCreateExample(context),
@@ -118,14 +127,40 @@ func TestAccGKEHub2RolloutSequence_gkeHubRolloutSequenceBasicExample(t *testing.
 
 func testAccGKEHub2RolloutSequence_gkeHubRolloutSequenceCreateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_project" "project" {
+  project_id      = "%{project_id}"
+  name            = "%{project_id}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_acct}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "gkehub" {
+  project            = google_project.project.project_id
+  service            = "gkehub.googleapis.com"
+}
+
+// wait for API enablement
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.gkehub]
+}
+
+resource "google_gke_hub_fleet" "default" {
+  display_name = "rs-fleet"
+  project = google_project.project.project_id
+  depends_on = [time_sleep.wait_120_seconds]
+}
+
 resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
+  project             = google_project.project.project_id
   rollout_sequence_id = "%{rollout_sequence_id}"
   display_name        = "Basic Rollout Sequence"
   ignored_clusters_selector {
     label_selector = "resource.labels.ignored == 'true'"
   }
   stages {
-    fleet_projects = ["projects/%{project_id}"]
+    fleet_projects = ["projects/${google_project.project.project_id}"]
     soak_duration  = "1h"
   }
   auto_upgrade_config {
@@ -138,27 +173,54 @@ resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
       ]
     }
   }
+  depends_on = [google_gke_hub_fleet.default]
 }
 `, context)
 }
 
 func testAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUpdateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_project" "project" {
+  project_id      = "%{project_id}"
+  name            = "%{project_id}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_acct}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "gkehub" {
+  project            = google_project.project.project_id
+  service            = "gkehub.googleapis.com"
+}
+
+// wait for API enablement
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.gkehub]
+}
+
+resource "google_gke_hub_fleet" "default" {
+  display_name = "rs-fleet"
+  project = google_project.project.project_id
+  depends_on = [time_sleep.wait_120_seconds]
+}
+
 resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
+  project             = google_project.project.project_id
   rollout_sequence_id = "%{rollout_sequence_id}"
   display_name        = "Modified Rollout Sequence"
   ignored_clusters_selector {
     label_selector = "resource.labels.ignored == 'super_true'"
   }
   stages {
-    fleet_projects = ["projects/%{project_id}"]
+    fleet_projects = ["projects/${google_project.project.project_id}"]
     cluster_selector {
       label_selector = "resource.labels.canary=='true'"
     }
     soak_duration  = "2h"
   }
   stages {
-    fleet_projects = ["projects/%{project_id}"]
+    fleet_projects = ["projects/${google_project.project.project_id}"]
     soak_duration  = "1d"
   }
   auto_upgrade_config {
@@ -172,6 +234,279 @@ resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
   labels = {
     some_key = "some_value"
   }
+  depends_on = [google_gke_hub_fleet.default]
+}
+`, context)
+}
+
+func TestAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"billing_acct":        envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":              envvar.GetTestOrgFromEnv(t),
+		"cluster_name":        "tf-test-rs-cluster" + randomSuffix,
+		"membership_id":       "tf-test-rs-membership" + randomSuffix,
+		"network_name":        "tf-test-rs-network" + randomSuffix,
+		"project_id":          "tf-test-rs-project" + randomSuffix,
+		"rollout_sequence_id": "tf-test-rs-user-triggered" + randomSuffix,
+		"subnetwork_name":     "tf-test-rs-subnet" + randomSuffix,
+		"random_suffix":       randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"billing_acct":        envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":              envvar.GetTestOrgFromEnv(t),
+		"cluster_name":        "tf-test-rs-cluster" + randomSuffix,
+		"membership_id":       "tf-test-rs-membership" + randomSuffix,
+		"network_name":        "tf-test-rs-network" + randomSuffix,
+		"project_id":          "tf-test-rs-project" + randomSuffix,
+		"rollout_sequence_id": "tf-test-rs-user-triggered" + randomSuffix,
+		"subnetwork_name":     "tf-test-rs-subnet" + randomSuffix,
+		"random_suffix":       randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckGKEHub2RolloutSequenceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredCreateExample(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_rollout_sequence.rollout_sequence",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "min_control_plane_version", "rollout_sequence_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_hub_rollout_sequence.rollout_sequence",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_gke_hub_rollout_sequence.rollout_sequence", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_gke_hub_rollout_sequence.rollout_sequence",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "min_control_plane_version", "min_node_version", "rollout_sequence_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_gke_hub_rollout_sequence.rollout_sequence",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredCreateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "project" {
+  project_id      = "%{project_id}"
+  name            = "%{project_id}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_acct}"
+  deletion_policy = "DELETE"
+}
+
+// Enable APIs in a deterministic order to avoid inconsistent VCR recordings
+resource "google_project_service" "gkehub" {
+  project            = google_project.project.project_id
+  service            = "gkehub.googleapis.com"
+}
+
+resource "google_project_service" "container" {
+  project            = google_project.project.project_id
+  service            = "container.googleapis.com"
+  depends_on = [google_project_service.gkehub]
+}
+
+resource "google_project_service" "compute" {
+  project            = google_project.project.project_id
+  service            = "compute.googleapis.com"
+  depends_on = [google_project_service.container]
+}
+
+// wait for API enablement
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
+}
+
+resource "google_gke_hub_fleet" "default" {
+  display_name = "rs-fleet"
+  project = google_project.project.project_id
+  depends_on = [time_sleep.wait_120_seconds]
+}
+
+data "google_container_engine_versions" "versions" {
+  location = "us-central1-a"
+  project = google_project.project.project_id
+  depends_on = [time_sleep.wait_120_seconds]
+}
+
+resource "google_container_cluster" "primary" {
+  project            = google_project.project.project_id
+  name               = "%{cluster_name}"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.versions.release_channel_default_version["REGULAR"]
+  node_version = data.google_container_engine_versions.versions.release_channel_default_version["REGULAR"]
+  deletion_protection = false
+
+  release_channel {
+    channel = "REGULAR"
+  }
+
+  resource_labels = {
+    rs_test_cluster = "tf-test-%{random_suffix}"
+  }
+
+  fleet {
+    project = google_project.project.number
+  }
+
+  depends_on = [google_gke_hub_fleet.default]
+}
+
+resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
+  project             = google_project.project.project_id
+  rollout_sequence_id = "%{rollout_sequence_id}"
+  display_name        = "User Triggered Rollout Sequence"
+
+  min_control_plane_version = data.google_container_engine_versions.versions.release_channel_latest_version["REGULAR"]
+
+  # Ensures that any rollouts created from this sequence will ignore all clusters in the project, other than the cluster we create for this test.
+  ignored_clusters_selector {
+    label_selector = "!(has(resource.labels.rs_test_cluster) && resource.labels.rs_test_cluster == 'tf-test-%{random_suffix}')"
+  }
+
+  stages {
+    fleet_projects = ["projects/${google_project.project.project_id}"]
+    soak_duration  = "30s"
+  }
+
+  auto_upgrade_config {
+    rollout_creation_scope {
+      upgrade_types = []
+    }
+  }
+
+  depends_on = [google_container_cluster.primary]
+}
+`, context)
+}
+
+func testAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "project" {
+  project_id      = "%{project_id}"
+  name            = "%{project_id}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_acct}"
+  deletion_policy = "DELETE"
+}
+
+// Enable APIs in a deterministic order to avoid inconsistent VCR recordings
+resource "google_project_service" "gkehub" {
+  project            = google_project.project.project_id
+  service            = "gkehub.googleapis.com"
+}
+
+resource "google_project_service" "container" {
+  project            = google_project.project.project_id
+  service            = "container.googleapis.com"
+  depends_on = [google_project_service.gkehub]
+}
+
+resource "google_project_service" "compute" {
+  project            = google_project.project.project_id
+  service            = "compute.googleapis.com"
+  depends_on = [google_project_service.container]
+}
+
+// wait for API enablement
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
+}
+
+resource "google_gke_hub_fleet" "default" {
+  display_name = "rs-fleet"
+  project = google_project.project.project_id
+}
+
+data "google_container_engine_versions" "versions" {
+  location = "us-central1-a"
+  project = google_project.project.project_id
+  depends_on = [time_sleep.wait_120_seconds]
+}
+
+resource "google_container_cluster" "primary" {
+  project            = google_project.project.project_id
+  name               = "%{cluster_name}"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.versions.release_channel_default_version["REGULAR"]
+  node_version = data.google_container_engine_versions.versions.release_channel_default_version["REGULAR"]
+  deletion_protection = false
+
+  release_channel {
+    channel = "REGULAR"
+  }
+
+  resource_labels = {
+    rs_test_cluster = "tf-test-%{random_suffix}"
+  }
+
+  fleet {
+    project = google_project.project.number
+  }
+
+  depends_on = [google_gke_hub_fleet.default]
+}
+
+resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
+  project             = google_project.project.project_id
+  rollout_sequence_id = "%{rollout_sequence_id}"
+  display_name        = "User Triggered Rollout Sequence"
+
+  min_control_plane_version = data.google_container_engine_versions.versions.release_channel_latest_version["REGULAR"]
+  min_node_version          = data.google_container_engine_versions.versions.release_channel_latest_version["REGULAR"]
+
+  # Ensures that any rollouts created from this sequence will ignore all clusters in the project, other than the cluster we create for this test.
+  ignored_clusters_selector {
+    label_selector = "!(has(resource.labels.rs_test_cluster) && resource.labels.rs_test_cluster == 'tf-test-%{random_suffix}')"
+  }
+
+  stages {
+    fleet_projects = ["projects/${google_project.project.project_id}"]
+    soak_duration  = "30s"
+  }
+
+  auto_upgrade_config {
+    rollout_creation_scope {
+      upgrade_types = []
+    }
+  }
+
+  depends_on = [google_container_cluster.primary]
 }
 `, context)
 }
