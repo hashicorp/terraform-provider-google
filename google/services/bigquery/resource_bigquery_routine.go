@@ -153,8 +153,8 @@ If language=SQL, it is the substring inside (but excluding) the parentheses.`,
 						"argument_kind": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"FIXED_TYPE", "ANY_TYPE", ""}),
-							Description:  `Defaults to FIXED_TYPE. Default value: "FIXED_TYPE" Possible values: ["FIXED_TYPE", "ANY_TYPE"]`,
+							ValidateFunc: verify.ValidateEnum([]string{"FIXED_TYPE", "ANY_TYPE", "FIXED_TABLE", ""}),
+							Description:  `Defaults to FIXED_TYPE. Default value: "FIXED_TYPE" Possible values: ["FIXED_TYPE", "ANY_TYPE", "FIXED_TABLE"]`,
 							Default:      "FIXED_TYPE",
 						},
 						"data_type": {
@@ -180,6 +180,43 @@ the schema as returned by the API.`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `The name of this argument. Can be absent for function return argument.`,
+						},
+						"table_type": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `If argumentKind is FIXED_TABLE, a schema for the table type.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"columns": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The columns in the table type.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The name of the column.`,
+												},
+												"type": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validation.StringIsJSON,
+													StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+													Description: `A JSON schema for the data type of the column. Required unless argumentKind = ANY_TYPE.
+~>**NOTE**: Because this field expects a JSON string, any changes to the string
+will create a diff, even if the JSON itself hasn't changed. If the API returns
+a different value for the same schema, e.g. it switched the order of values
+or replaced STRUCT field type with RECORD field type, we currently cannot
+suppress the recurring diff this causes. As a workaround, we recommend using
+the schema as returned by the API.`,
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -915,6 +952,7 @@ func flattenBigQueryRoutineArguments(v interface{}, d *schema.ResourceData, conf
 			"argument_kind": flattenBigQueryRoutineArgumentsArgumentKind(original["argumentKind"], d, config),
 			"mode":          flattenBigQueryRoutineArgumentsMode(original["mode"], d, config),
 			"data_type":     flattenBigQueryRoutineArgumentsDataType(original["dataType"], d, config),
+			"table_type":    flattenBigQueryRoutineArgumentsTableType(original["tableType"], d, config),
 		})
 	}
 	return transformed
@@ -932,6 +970,54 @@ func flattenBigQueryRoutineArgumentsMode(v interface{}, d *schema.ResourceData, 
 }
 
 func flattenBigQueryRoutineArgumentsDataType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenBigQueryRoutineArgumentsTableType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["columns"] =
+		flattenBigQueryRoutineArgumentsTableTypeColumns(original["columns"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigQueryRoutineArgumentsTableTypeColumns(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name": flattenBigQueryRoutineArgumentsTableTypeColumnsName(original["name"], d, config),
+			"type": flattenBigQueryRoutineArgumentsTableTypeColumnsType(original["type"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenBigQueryRoutineArgumentsTableTypeColumnsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryRoutineArgumentsTableTypeColumnsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -1157,6 +1243,13 @@ func expandBigQueryRoutineArguments(v interface{}, d tpgresource.TerraformResour
 			transformed["dataType"] = transformedDataType
 		}
 
+		transformedTableType, err := expandBigQueryRoutineArgumentsTableType(original["table_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTableType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["tableType"] = transformedTableType
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1175,6 +1268,76 @@ func expandBigQueryRoutineArgumentsMode(v interface{}, d tpgresource.TerraformRe
 }
 
 func expandBigQueryRoutineArgumentsDataType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func expandBigQueryRoutineArgumentsTableType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedColumns, err := expandBigQueryRoutineArgumentsTableTypeColumns(original["columns"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedColumns); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["columns"] = transformedColumns
+	}
+
+	return transformed, nil
+}
+
+func expandBigQueryRoutineArgumentsTableTypeColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandBigQueryRoutineArgumentsTableTypeColumnsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedType, err := expandBigQueryRoutineArgumentsTableTypeColumnsType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandBigQueryRoutineArgumentsTableTypeColumnsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryRoutineArgumentsTableTypeColumnsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	b := []byte(v.(string))
 	if len(b) == 0 {
 		return nil, nil
