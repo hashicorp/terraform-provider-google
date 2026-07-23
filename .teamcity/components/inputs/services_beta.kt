@@ -31,6 +31,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Activedirectory",
         "path" to "./google-beta/services/activedirectory"
     ),
+    "agentidentity" to mapOf(
+        "name" to "agentidentity",
+        "displayName" to "Agent Identity",
+        "path" to "./google-beta/services/agentidentity"
+    ),
     "agentregistry" to mapOf(
         "name" to "agentregistry",
         "displayName" to "Agent Registry",
