@@ -1,0 +1,6 @@
+{
+  "name": "prepare-release",
+  "configPath": {
+    "relativePathToConfig": "config.yaml"
+  }
+}
