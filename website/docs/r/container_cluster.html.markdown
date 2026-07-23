@@ -109,6 +109,44 @@ resource "google_container_cluster" "primary" {
 }
 ```
 
+## Example Usage - Rollback-safe (Two-Step) Upgrades
+
+To perform a rollback-safe (two-step) control plane upgrade, you first specify a soak duration in the `rollback_safe_upgrade` block when changing the `min_master_version`. This upgrades the master but keeps the control plane emulating the older version.
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "my-gke-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  min_master_version = "1.32.4-gke.200" # Upgrading to the 1.32 minor track
+
+  # Phase 1: Explicitly opt-in to a rollback-safe upgrade
+  rollback_safe_upgrade {
+    control_plane_soak_duration = "604800s" # Soak for 7 days
+  }
+}
+```
+
+After the soak period concludes, you can declaratively complete the upgrade by specifying the target `desired_emulated_version`.
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "my-gke-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  min_master_version = "1.32.4-gke.200"
+
+  rollback_safe_upgrade {
+    control_plane_soak_duration = "604800s"
+  }
+
+  # Phase 2: Complete the upgrade (updates emulated_version to 1.32)
+  desired_emulated_version = "1.32"
+}
+```
+
+~> **Note:** If you omit the `control_plane_soak_duration` field completely, GKE bypasses the two-step feature and performs a standard one-step upgrade. You must specify a duration between 6 hours and 7 days.
+
 ## Argument Reference
 
 * `name` - (Required) The name of the cluster, unique within the project and
@@ -267,6 +305,10 @@ Structure is [documented below](#nested_master_auth).
 -> If you are using the `google_container_engine_versions` datasource with a regional cluster, ensure that you have provided a `location`
 to the datasource. A region can have a different set of supported versions than its corresponding zones, and not all zones in a
 region are guaranteed to support the same version.
+
+* `rollback_safe_upgrade` - (Optional) Configuration for rollback-safe (two-step) upgrades. Structure is [documented below](#nested_rollback_safe_upgrade).
+
+* `desired_emulated_version` - (Optional) The desired emulated version for the cluster. Used to complete a rollback-safe upgrade after a soak period. Must be in major.minor format (e.g., "1.31"). To complete the upgrade declaratively, set this field to the target minor version. Removing this field from your configuration will not trigger completion.
 
 * `monitoring_config` - (Optional) Monitoring configuration for the cluster.
     Structure is [documented below](#nested_monitoring_config).
@@ -1016,6 +1058,10 @@ Structure is [documented below](#nested_additional_ip_ranges_config).
     * `NETWORK_TIER_PREMIUM`: Premium network tier.
     * `NETWORK_TIER_STANDARD`: Standard network tier.
 
+
+<a name="nested_rollback_safe_upgrade"></a>The `rollback_safe_upgrade` block supports:
+
+* `control_plane_soak_duration` - (Optional) A user-defined period that the cluster remains in the rollbackable state. A duration in seconds with up to nine fractional digits, ending with 's'. Example: "604800s" for 7 days. Minimum is 6 hours, maximum is 7 days. If omitted, the two-step upgrade is skipped and a standard one-step upgrade is performed.
 
 <a name="nested_master_auth"></a>The `master_auth` block supports:
 
@@ -2078,6 +2124,8 @@ exported:
 * `fleet.0.membership_location` - The location of the fleet membership,  extracted from `fleet.0.membership`. You can use this field to configure `membership_location` under [google_gkehub_feature_membership](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/gke_hub_feature_membership).
 
 * `enterprise_config.0.cluster_tier` - The effective tier of the cluster.
+
+* `emulated_version` - The current emulated Kubernetes version running on the GKE cluster control plane.
 
 ## Timeouts
 

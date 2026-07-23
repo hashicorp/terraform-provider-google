@@ -1171,6 +1171,33 @@ func ResourceContainerCluster() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"logging.googleapis.com", "logging.googleapis.com/kubernetes", "none"}, false),
 				Description:  `The logging service that the cluster should write logs to. Available options include logging.googleapis.com(Legacy Stackdriver), logging.googleapis.com/kubernetes(Stackdriver Kubernetes Engine Logging), and none. Defaults to logging.googleapis.com/kubernetes.`,
 			},
+			"rollback_safe_upgrade": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Configuration for rollback-safe (two-step) upgrades.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"control_plane_soak_duration": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A user-defined period that the cluster remains in the rollbackable state. A duration in seconds with up to nine fractional digits, ending with 's'. Example: "604800s" for 7 days. Minimum is 6 hours, maximum is 7 days. If omitted, the two-step upgrade is skipped and a standard one-step upgrade is performed.`,
+						},
+					},
+				},
+			},
+			"desired_emulated_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[0-9]+\.[0-9]+$`), "desired_emulated_version must be in major.minor format"),
+				Description:  "The desired emulated version for the cluster. Used to complete a rollback-safe upgrade after a soak period. Must be in major.minor format (e.g., \"1.31\"). To complete the upgrade declaratively, set this field to the target minor version. Removing this field from your configuration will not trigger completion.",
+			},
+
+			"emulated_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The current emulated Kubernetes version running on the GKE cluster control plane.`,
+			},
 
 			"maintenance_policy": {
 				Type:        schema.TypeList,
@@ -3488,6 +3515,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("master_version", cluster.CurrentMasterVersion); err != nil {
 		return fmt.Errorf("Error setting master_version: %s", err)
 	}
+	if err := d.Set("emulated_version", cluster.CurrentEmulatedVersion); err != nil {
+		return fmt.Errorf("Error setting emulated_version: %s", err)
+	}
 	if err := d.Set("node_version", cluster.CurrentNodeVersion); err != nil {
 		return fmt.Errorf("Error setting node_version: %s", err)
 	}
@@ -4424,6 +4454,24 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s legacy ABAC has been updated to %v", d.Id(), enabled)
 	}
 
+	if d.HasChange("desired_emulated_version") {
+		emulatedVersion := d.Get("desired_emulated_version").(string)
+		if emulatedVersion != "" {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredEmulatedVersion: emulatedVersion,
+				},
+			}
+
+			updateF := updateFunc(req, "updating GKE master emulated version")
+			// Call update serially.
+			if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+			log.Printf("[INFO] GKE cluster %s: master emulated version has been updated to %s", d.Id(), emulatedVersion)
+		}
+	}
+
 	if d.HasChange("monitoring_service") || d.HasChange("logging_service") {
 		logging := d.Get("logging_service").(string)
 		monitoring := d.Get("monitoring_service").(string)
@@ -4625,6 +4673,17 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				Update: &container.ClusterUpdate{
 					DesiredMasterVersion: ver,
 				},
+			}
+
+			if r, ok := d.GetOk("rollback_safe_upgrade"); ok {
+				rls := r.([]interface{})
+				if len(rls) > 0 && rls[0] != nil {
+					req.Update.DesiredRollbackSafeUpgrade = &container.RollbackSafeUpgrade{}
+					rl := rls[0].(map[string]interface{})
+					if soakDuration, ok := rl["control_plane_soak_duration"].(string); ok && soakDuration != "" {
+						req.Update.DesiredRollbackSafeUpgrade.ControlPlaneSoakDuration = soakDuration
+					}
+				}
 			}
 
 			updateF := updateFunc(req, "updating GKE master version")
