@@ -2144,6 +2144,7 @@ func expandPscConfig(configured []interface{}) *sqladmin.PscConfig {
 			AllowedConsumerProjects:        tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
 			NetworkAttachmentUri:           _entry["network_attachment_uri"].(string),
 			PscAutoConnections:             expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
+			ForceSendFields:                []string{"AllowedConsumerProjects"},
 		}
 	}
 

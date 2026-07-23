@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed issue where updates to `settings.ip_configuration.psc_config.allowed_consumer_projects` in `google_sql_database_instance` were silently ignored on in-place updates
+```
