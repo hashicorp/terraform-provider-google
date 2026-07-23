@@ -363,3 +363,70 @@ resource "google_bigquery_routine" "remote_function_routine" {
 }
 `, context)
 }
+
+func TestAccBigQueryRoutine_bigqueryRoutineTableTypeUpdate(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	context := map[string]interface{}{
+		"random_suffix": randomSuffix,
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryRoutineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryRoutine_bigqueryRoutineTableTypeExample(context),
+			},
+			{
+				ResourceName:      "google_bigquery_routine.sproc",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBigQueryRoutine_bigqueryRoutineTableTypeUpdate(context),
+			},
+			{
+				ResourceName:      "google_bigquery_routine.sproc",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryRoutine_bigqueryRoutineTableTypeUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%{dataset_id}"
+}
+
+resource "google_bigquery_routine" "sproc" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "%{routine_id}"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  description     = "Gets every row from a table."
+  definition_body = "SELECT * FROM t1"
+
+  arguments {
+    name          = "t1"
+    argument_kind = "FIXED_TABLE"
+    table_type {
+      columns {
+        name = "year1"
+        type = "{\"typeKind\" :  \"INT64\"}"
+      }
+      columns {
+        name = "year2"
+        type = "{\"typeKind\" :  \"INT64\"}"
+      }
+    }
+  }
+}
+`, context)
+}

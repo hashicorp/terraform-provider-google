@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `table_type` field to `google_bigquery_routine` resource
+```
