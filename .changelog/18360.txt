@@ -1,0 +1,3 @@
+```release-note:new-resource
+apihub: added `google_apihub_runtime_project_attachment` resource
+```
