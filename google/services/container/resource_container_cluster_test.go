@@ -17851,6 +17851,449 @@ resource "google_container_node_pool" "extra" {
 `, suffix, suffix, clusterName, skipRefresh, poolName)
 }
 
+func TestAccContainerCluster_desiredEmulatedVersion(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Step 1 (Create): Spin up a standard cluster at STABLE default
+			{
+				Config: testAccContainerCluster_desiredEmulatedVersionBase(clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			// Step 2 (Soak Upgrade): Upgrade master to target version (RAPID latest) and activate soak
+			{
+				Config: testAccContainerCluster_desiredEmulatedVersionSoak(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					// Assert that the computed emulated_version field is populated in state during soak
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "emulated_version"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection", "rollback_safe_upgrade"},
+			},
+			// Step 3 (Declarative Complete): Set desired_emulated_version to complete the upgrade
+			{
+				Config: testAccContainerCluster_desiredEmulatedVersionComplete(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					// Assert that the computed emulated_version field is cleared in state after completion
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "emulated_version", ""),
+					testAccCheckContainerClusterEmulatedVersion(t, "google_container_cluster.primary"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection", "desired_emulated_version", "rollback_safe_upgrade"},
+			},
+		},
+	})
+}
+
+func testAccCheckContainerClusterEmulatedVersion(t *testing.T, resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("not found: %s", resourceName)
+		}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no GKE cluster ID is set in state")
+		}
+
+		config := acctest.GoogleProviderConfig(t)
+		clusterName := rs.Primary.Attributes["name"]
+		location := rs.Primary.Attributes["location"]
+		project := rs.Primary.Attributes["project"]
+
+		// Retrieve the live GKE cluster object from Google's REST GKE API client
+		cluster, err := container.NewClient(config, config.UserAgent).Projects.Locations.Clusters.Get(
+			fmt.Sprintf("projects/%s/locations/%s/clusters/%s", project, location, clusterName)).Do()
+		if err != nil {
+			return fmt.Errorf("failed to get GKE cluster details from API: %v", err)
+		}
+
+		// Verify GKE emulated version has advanced on the server side and is cleared post-upgrade
+		if cluster.CurrentEmulatedVersion != "" {
+			return fmt.Errorf("expected emulated version to be empty post-upgrade, but live GKE cluster has %q", cluster.CurrentEmulatedVersion)
+		}
+
+		return nil
+	}
+}
+
+func testAccContainerCluster_desiredEmulatedVersionBase(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1" {
+  location = "us-central1"
+}
+
+locals {
+  valid_minors = distinct([
+    for v in data.google_container_engine_versions.central1.valid_master_versions :
+    regex("^[0-9]+\\.([0-9]+)\\.", v)[0]
+  ])
+  target_minor  = local.valid_minors[0]
+  base_minor    = local.valid_minors[1]
+}
+
+data "google_container_engine_versions" "base" {
+  location       = "us-central1"
+  version_prefix = "1.${local.base_minor}."
+}
+
+data "google_container_engine_versions" "target" {
+  location       = "us-central1"
+  version_prefix = "1.${local.target_minor}."
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 1
+
+  release_channel {
+    channel = "RAPID"
+  }
+
+  min_master_version = data.google_container_engine_versions.base.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork = "%s"
+
+  node_config {
+    machine_type = "e2-standard-2"
+  }
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_desiredEmulatedVersionSoak(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1" {
+  location = "us-central1"
+}
+
+locals {
+  valid_minors = distinct([
+    for v in data.google_container_engine_versions.central1.valid_master_versions :
+    regex("^[0-9]+\\.([0-9]+)\\.", v)[0]
+  ])
+  target_minor  = local.valid_minors[0]
+  base_minor    = local.valid_minors[1]
+}
+
+data "google_container_engine_versions" "base" {
+  location       = "us-central1"
+  version_prefix = "1.${local.base_minor}."
+}
+
+data "google_container_engine_versions" "target" {
+  location       = "us-central1"
+  version_prefix = "1.${local.target_minor}."
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 1
+
+  release_channel {
+    channel = "RAPID"
+  }
+
+  min_master_version = data.google_container_engine_versions.target.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork = "%s"
+
+  rollback_safe_upgrade {
+    control_plane_soak_duration = "259200s"
+  }
+
+  node_config {
+    machine_type = "e2-standard-2"
+  }
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_desiredEmulatedVersionComplete(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1" {
+  location = "us-central1"
+}
+
+locals {
+  valid_minors = distinct([
+    for v in data.google_container_engine_versions.central1.valid_master_versions :
+    regex("^[0-9]+\\.([0-9]+)\\.", v)[0]
+  ])
+  target_minor  = local.valid_minors[0]
+  base_minor    = local.valid_minors[1]
+}
+
+data "google_container_engine_versions" "base" {
+  location       = "us-central1"
+  version_prefix = "1.${local.base_minor}."
+}
+
+data "google_container_engine_versions" "target" {
+  location       = "us-central1"
+  version_prefix = "1.${local.target_minor}."
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 1
+
+  release_channel {
+    channel = "RAPID"
+  }
+
+  min_master_version = data.google_container_engine_versions.target.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork = "%s"
+
+  rollback_safe_upgrade {
+    control_plane_soak_duration = "259200s"
+  }
+
+  desired_emulated_version = regex("^[0-9]+\\.[0-9]+", data.google_container_engine_versions.target.latest_master_version)
+
+  node_config {
+    machine_type = "e2-standard-2"
+  }
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func TestAccContainerCluster_desiredEmulatedVersionAutopilot(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-auto-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Step 1 (Create): Spin up a regional GKE Autopilot cluster at STABLE default
+			{
+				Config: testAccContainerCluster_desiredEmulatedVersionAutopilotBase(clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection", "node_pool.0.node_count"},
+			},
+			// Step 2 (Soak Upgrade): Upgrade regional master to target version (RAPID latest) with soak active
+			{
+				Config: testAccContainerCluster_desiredEmulatedVersionAutopilotSoak(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					// Assert that the computed emulated_version field is populated in state during soak
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "emulated_version"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection", "node_pool.0.node_count", "rollback_safe_upgrade"},
+			},
+			// Step 3 (Declarative Complete): Set desired_emulated_version to complete the upgrade
+			{
+				Config: testAccContainerCluster_desiredEmulatedVersionAutopilotComplete(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					// Assert that the computed emulated_version field is cleared in state after completion
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "emulated_version", ""),
+					testAccCheckContainerClusterEmulatedVersion(t, "google_container_cluster.primary"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection", "node_pool.0.node_count", "desired_emulated_version", "rollback_safe_upgrade"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_desiredEmulatedVersionAutopilotBase(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1" {
+  location = "us-central1"
+}
+
+locals {
+  valid_minors = distinct([
+    for v in data.google_container_engine_versions.central1.valid_master_versions :
+    regex("^[0-9]+\\.([0-9]+)\\.", v)[0]
+  ])
+  target_minor  = local.valid_minors[0]
+  base_minor    = local.valid_minors[1]
+}
+
+data "google_container_engine_versions" "base" {
+  location       = "us-central1"
+  version_prefix = "1.${local.base_minor}."
+}
+
+data "google_container_engine_versions" "target" {
+  location       = "us-central1"
+  version_prefix = "1.${local.target_minor}."
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1"
+  enable_autopilot   = true
+  min_master_version = data.google_container_engine_versions.base.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork = "%s"
+  ip_allocation_policy {}
+
+  release_channel {
+    channel = "RAPID"
+  }
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_desiredEmulatedVersionAutopilotSoak(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1" {
+  location = "us-central1"
+}
+
+locals {
+  valid_minors = distinct([
+    for v in data.google_container_engine_versions.central1.valid_master_versions :
+    regex("^[0-9]+\\.([0-9]+)\\.", v)[0]
+  ])
+  target_minor  = local.valid_minors[0]
+  base_minor    = local.valid_minors[1]
+}
+
+data "google_container_engine_versions" "base" {
+  location       = "us-central1"
+  version_prefix = "1.${local.base_minor}."
+}
+
+data "google_container_engine_versions" "target" {
+  location       = "us-central1"
+  version_prefix = "1.${local.target_minor}."
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1"
+  enable_autopilot   = true
+  min_master_version = data.google_container_engine_versions.target.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork = "%s"
+  ip_allocation_policy {}
+
+  release_channel {
+    channel = "RAPID"
+  }
+
+  rollback_safe_upgrade {
+    control_plane_soak_duration = "259200s"
+  }
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_desiredEmulatedVersionAutopilotComplete(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1" {
+  location = "us-central1"
+}
+
+locals {
+  valid_minors = distinct([
+    for v in data.google_container_engine_versions.central1.valid_master_versions :
+    regex("^[0-9]+\\.([0-9]+)\\.", v)[0]
+  ])
+  target_minor  = local.valid_minors[0]
+  base_minor    = local.valid_minors[1]
+}
+
+data "google_container_engine_versions" "base" {
+  location       = "us-central1"
+  version_prefix = "1.${local.base_minor}."
+}
+
+data "google_container_engine_versions" "target" {
+  location       = "us-central1"
+  version_prefix = "1.${local.target_minor}."
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1"
+  enable_autopilot   = true
+  min_master_version = data.google_container_engine_versions.target.latest_master_version
+  deletion_protection = false
+  network    = "%s"
+  subnetwork = "%s"
+  ip_allocation_policy {}
+
+  release_channel {
+    channel = "RAPID"
+  }
+
+  rollback_safe_upgrade {
+    control_plane_soak_duration = "259200s"
+  }
+
+  desired_emulated_version = regex("^[0-9]+\\.[0-9]+", data.google_container_engine_versions.target.latest_master_version)
+}
+`, clusterName, networkName, subnetworkName)
+}
+
 func TestAccContainerCluster_withNodeReadinessConfig(t *testing.T) {
 	t.Parallel()
 
