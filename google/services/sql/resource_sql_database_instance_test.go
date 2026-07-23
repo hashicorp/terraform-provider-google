@@ -1504,6 +1504,56 @@ func TestAccSqlDatabaseInstance_withPSCEnabled_thenAddAllowedConsumerProjects_th
 	})
 }
 
+func TestAccSqlDatabaseInstance_withPSCEnabled_updateAllowedConsumerProjects(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-" + acctest.RandString(t, 10)
+	projectId := "psctestproject" + acctest.RandString(t, 10)
+	orgId := envvar.GetTestOrgFromEnv(t)
+	billingAccount := envvar.GetTestBillingAccountFromEnv(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_withPSCEnabled_withAllowedConsumerProjects(instanceName, projectId, orgId, billingAccount),
+				Check:  resource.ComposeTestCheckFunc(verifyPscOperation("google_sql_database_instance.instance", true, true, []string{envvar.GetTestProjectFromEnv()}, false, false, false, "", "")),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccSqlDatabaseInstance_withPSCEnabled_withEmptyAllowedConsumerProjects(instanceName, projectId, orgId, billingAccount),
+				Check:  resource.ComposeTestCheckFunc(verifyPscOperation("google_sql_database_instance.instance", true, true, []string{}, false, false, false, "", "")),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccSqlDatabaseInstance_withPSCEnabled_withAllowedConsumerProjects(instanceName, projectId, orgId, billingAccount),
+				Check:  resource.ComposeTestCheckFunc(verifyPscOperation("google_sql_database_instance.instance", true, true, []string{envvar.GetTestProjectFromEnv()}, false, false, false, "", "")),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_withPSCEnabled_withoutPscAutoConnections(t *testing.T) {
 	t.Parallel()
 
