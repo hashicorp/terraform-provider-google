@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_compute_global_vm_extension_policy` (ga)
+```
+
+```release-note:new-resource
+`google_compute_rollout_plan` (ga)
+```

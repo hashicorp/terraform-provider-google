@@ -1,0 +1,28 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_compute_rollout_plan
+generation_type: mmv1
+source_file: products/compute/RolloutPlan.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: RolloutPlan
+fields:
+    - api_field: description
+    - api_field: locationScope
+    - api_field: name
+    - api_field: waves.displayName
+    - api_field: waves.number
+    - api_field: waves.orchestrationOptions.delays.delimiter
+    - api_field: waves.orchestrationOptions.delays.duration
+    - api_field: waves.orchestrationOptions.delays.type
+    - api_field: waves.orchestrationOptions.maxConcurrentLocations
+    - api_field: waves.orchestrationOptions.maxConcurrentResourcesPerLocation
+    - api_field: waves.selectors.locationSelector.includedLocations
+    - api_field: waves.selectors.resourceHierarchySelector.includedFolders
+    - api_field: waves.selectors.resourceHierarchySelector.includedOrganizations
+    - api_field: waves.selectors.resourceHierarchySelector.includedProjects
+    - api_field: waves.validation.timeBasedValidationMetadata.waitDuration
+    - api_field: waves.validation.type
+    - api_field: selfLink
+    - field: deletion_policy
+      provider_only: true

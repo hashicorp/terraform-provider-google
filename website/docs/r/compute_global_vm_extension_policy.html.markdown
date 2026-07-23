@@ -23,8 +23,6 @@ description: |-
 
 A Global VM Extension Policy.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -37,7 +35,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  provider    = google-beta
   name        = "global-ops-agent-vme-policy-%{random_suffix}"
   description = "A basic global VM extension policy"
   priority    = 10
@@ -72,7 +69,6 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
 
 ```hcl
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  provider    = google-beta
   name        = "global-ops-agent-vme-policy-%{random_suffix}"
   description = "A basic global VM extension policy"
   priority    = 10
@@ -107,7 +103,6 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
 
 ```hcl
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  provider    = google-beta
   name        = "global-ops-agent-vme-policy-%{random_suffix}"
   description = "A global VM extension policy with a custom rollout plan"
   priority    = 10
@@ -133,11 +128,9 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
 }
 
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_compute_rollout_plan" "custom_rollout" {
-  provider       = google-beta
   name           = "custom-rollout-plan-%{random_suffix}"
   location_scope = "ZONAL"
 
