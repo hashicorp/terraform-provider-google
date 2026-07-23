@@ -32,11 +32,41 @@ fun globalSweepersSubProject(allConfig: AllContextParameters): Project {
     // Create build config for sweeping project resources
     // Uses the HashiCorpVCSRootGa VCS Root so that the latest sweepers in hashicorp/terraform-provider-google are used
     val serviceSweeperConfig = BuildConfigurationForGlobalSweeper("N/A", "Project Sweeper", "GoogleProject", SweepersListGa, sweeperId, HashiCorpVCSRootGa, sharedResources, gaConfig)
-    serviceSweeperConfig.addTrigger(NightlyTriggerConfiguration(startHour=12))
+    serviceSweeperConfig.dependencies {
+        snapshot(jetbrains.buildServer.configs.kotlin.AbsoluteId("GOOGLE_NIGHTLYTESTS_ALL_TESTS")) {
+            onDependencyFailure = jetbrains.buildServer.configs.kotlin.FailureAction.IGNORE
+            onDependencyCancel = jetbrains.buildServer.configs.kotlin.FailureAction.IGNORE
+        }
+        snapshot(jetbrains.buildServer.configs.kotlin.AbsoluteId("GOOGLE_BETA_NIGHTLYTESTS_ALL_TESTS")) {
+            onDependencyFailure = jetbrains.buildServer.configs.kotlin.FailureAction.IGNORE
+            onDependencyCancel = jetbrains.buildServer.configs.kotlin.FailureAction.IGNORE
+        }
+    }
+    serviceSweeperConfig.triggers {
+        finishBuildTrigger {
+            buildType = "GOOGLE_NIGHTLYTESTS_ALL_TESTS"
+            successfulOnly = false
+        }
+    }
 
     // Create build config for sweeping folder resources
     val folderSweeperConfig = BuildConfigurationForGlobalSweeper("N/A", "Folder Sweeper", "GoogleFolder", SweepersListGa, sweeperId, HashiCorpVCSRootGa, sharedResources, gaConfig)
-    folderSweeperConfig.addTrigger(NightlyTriggerConfiguration(startHour=12))
+    folderSweeperConfig.dependencies {
+        snapshot(jetbrains.buildServer.configs.kotlin.AbsoluteId("GOOGLE_NIGHTLYTESTS_ALL_TESTS")) {
+            onDependencyFailure = jetbrains.buildServer.configs.kotlin.FailureAction.IGNORE
+            onDependencyCancel = jetbrains.buildServer.configs.kotlin.FailureAction.IGNORE
+        }
+        snapshot(jetbrains.buildServer.configs.kotlin.AbsoluteId("GOOGLE_BETA_NIGHTLYTESTS_ALL_TESTS")) {
+            onDependencyFailure = jetbrains.buildServer.configs.kotlin.FailureAction.IGNORE
+            onDependencyCancel = jetbrains.buildServer.configs.kotlin.FailureAction.IGNORE
+        }
+    }
+    folderSweeperConfig.triggers {
+        finishBuildTrigger {
+            buildType = "GOOGLE_NIGHTLYTESTS_ALL_TESTS"
+            successfulOnly = false
+        }
+    }
 
     return Project{
         id(sweeperId)
