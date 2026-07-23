@@ -27,12 +27,10 @@ into smaller increments, referred to as "waves". Each wave targets a specific
 portion of the overall affected area and defines criteria that must be met
 before progressing to the subsequent wave.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about RolloutPlan, see:
 
-* [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/rolloutPlans)
+* [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/rolloutPlans)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=rollout_plan_basic&open_in_editor=main.tf" target="_blank">
@@ -44,7 +42,6 @@ To get more information about RolloutPlan, see:
 
 ```hcl
 resource "google_compute_rollout_plan" "default" {
-  provider       = google-beta
   name           = "tf-test-rollout-plan-%{random_suffix}"
   description    = "A test rollout plan"
   location_scope = "ZONAL"
