@@ -1,0 +1,22 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_apihub_runtime_project_attachment
+generation_type: mmv1
+source_file: products/apihub/RuntimeProjectAttachment.yaml
+api_service_name: apihub.googleapis.com
+api_version: v1
+api_resource_type_kind: RuntimeProjectAttachment
+api_variant_patterns:
+    - projects/{project}/locations/{location}/runtimeProjectAttachments/{runtimeProjectAttachment}
+autogen_status: true
+autogen_version: 1
+fields:
+    - api_field: createTime
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: runtimeProject
+    - field: runtime_project_attachment_id
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
