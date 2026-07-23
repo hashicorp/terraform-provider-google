@@ -59,6 +59,7 @@ type ProviderModel struct {
 	AccessApprovalCustomEndpoint           types.String `tfsdk:"access_approval_custom_endpoint"`
 	AccessContextManagerCustomEndpoint     types.String `tfsdk:"access_context_manager_custom_endpoint"`
 	ActiveDirectoryCustomEndpoint          types.String `tfsdk:"active_directory_custom_endpoint"`
+	AgentIdentityCustomEndpoint            types.String `tfsdk:"agent_identity_custom_endpoint"`
 	AgentRegistryCustomEndpoint            types.String `tfsdk:"agent_registry_custom_endpoint"`
 	AlloydbCustomEndpoint                  types.String `tfsdk:"alloydb_custom_endpoint"`
 	ApigeeCustomEndpoint                   types.String `tfsdk:"apigee_custom_endpoint"`

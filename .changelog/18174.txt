@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_agent_identity_auth_provider`
+```
