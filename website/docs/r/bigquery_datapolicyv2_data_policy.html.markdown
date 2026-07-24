@@ -154,6 +154,11 @@ The following arguments are supported:
   This field is supported in V2 Data Policy only. In case of V1 data policies
   (i.e. verion = 1 and policy_tag is set), this field is not populated.
 
+* `data_governance_tag` -
+  (Optional)
+  Data Governance tag bound to the Data Policy.
+  Structure is [documented below](#nested_data_governance_tag).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -185,6 +190,16 @@ The following arguments are supported:
   The name of the BigQuery routine that contains the custom masking
   routine, in the format of
   `projects/{project_number}/datasets/{dataset_id}/routines/{routine_id}`.
+
+<a name="nested_data_governance_tag"></a>The `data_governance_tag` block supports:
+
+* `key` -
+  (Optional)
+  Tag keys are globally unique. Tag key is expected to be in the namespaced format, for example "parent-id/pii" where "parent-id" is the ID of the parent organization or project resource for this tag key.
+
+* `value` -
+  (Optional)
+  Tag value is expected to be the short name.
 
 ## Attributes Reference
 
