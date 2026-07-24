@@ -45,6 +45,7 @@ func TestAccDataSourceGoogleDiscoveryEngineDataStore_basic(t *testing.T) {
 						[]string{
 							"create_advanced_site_search",
 							"skip_default_schema_creation",
+							"acl_enabled",
 						},
 					),
 				),
@@ -74,6 +75,7 @@ func TestAccDataSourceGoogleDiscoveryEngineDataStore_byDisplayName(t *testing.T)
 						[]string{
 							"create_advanced_site_search",
 							"skip_default_schema_creation",
+							"acl_enabled",
 						},
 					),
 				),

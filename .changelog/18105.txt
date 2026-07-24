@@ -1,0 +1,3 @@
+```release-note:enhancement
+discoveryengine: added `acl_enabled` field to `google_discovery_engine_data_store` resource
+```
