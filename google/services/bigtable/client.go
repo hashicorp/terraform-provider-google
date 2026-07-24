@@ -19,7 +19,8 @@ package bigtable
 import (
 	"context"
 	"log"
-	"os"
+	"net"
+	"strings"
 
 	"cloud.google.com/go/bigtable"
 	"golang.org/x/oauth2"
@@ -30,68 +31,93 @@ import (
 )
 
 type ClientFactory struct {
+	BasePath            string
+	AdminBasePath       string
+	UniverseDomain      string
 	GRPCLoggingOptions  []option.ClientOption
 	UserAgent           string
 	TokenSource         oauth2.TokenSource
 	BillingProject      string
 	UserProjectOverride bool
+	RequestReason       string
 }
 
-func (s ClientFactory) NewInstanceAdminClient(project string) (*bigtable.InstanceAdminClient, error) {
+// toGRPCEndpoint converts an HTTP-style base URL (e.g. "https://foo.googleapis.com/")
+// into the "host:port" form that gRPC's option.WithEndpoint requires. If the host
+// has no explicit port, the default TLS port (443) is appended — gRPC's dialer
+// rejects a port-less address with "missing port in address".
+func toGRPCEndpoint(url string) string {
+	endpoint := strings.TrimPrefix(url, "https://")
+	endpoint = strings.TrimPrefix(endpoint, "http://")
+	endpoint = strings.TrimSuffix(endpoint, "/")
+	if _, _, err := net.SplitHostPort(endpoint); err != nil {
+		endpoint = net.JoinHostPort(endpoint, "443")
+	}
+	return endpoint
+}
+
+func (s ClientFactory) getClientOptions(isDataClient bool) []option.ClientOption {
 	var opts []option.ClientOption
-	if requestReason := os.Getenv("CLOUDSDK_CORE_REQUEST_REASON"); requestReason != "" {
-		opts = append(opts, option.WithRequestReason(requestReason))
+	if s.RequestReason != "" {
+		opts = append(opts, option.WithRequestReason(s.RequestReason))
 	}
 
 	if s.UserProjectOverride && s.BillingProject != "" {
 		opts = append(opts, option.WithQuotaProject(s.BillingProject))
 	}
 
+	if s.UniverseDomain != "" {
+		opts = append(opts, option.WithUniverseDomain(s.UniverseDomain))
+	}
+
+	if isDataClient && s.BasePath != "" {
+		basePath := s.BasePath
+		// The bigtable_custom_endpoint provider field targets the Admin API, so a
+		// custom endpoint often looks like "https://bigtableadmin.example/". Rewrite
+		// the "bigtableadmin." host prefix to "bigtable." for the Data API client so
+		// operators only need to configure a single endpoint. Endpoints that already
+		// use a distinct Data-API host (or a non-standard prefix) are left alone.
+		if strings.HasPrefix(strings.TrimPrefix(strings.TrimPrefix(basePath, "https://"), "http://"), "bigtableadmin.") {
+			basePath = strings.Replace(basePath, "bigtableadmin.", "bigtable.", 1)
+		}
+		opts = append(opts, option.WithEndpoint(toGRPCEndpoint(basePath)))
+	} else if !isDataClient && s.AdminBasePath != "" {
+		opts = append(opts, option.WithEndpoint(toGRPCEndpoint(s.AdminBasePath)))
+	}
+
 	opts = append(opts, option.WithTokenSource(s.TokenSource), option.WithUserAgent(s.UserAgent))
 	opts = append(opts, s.GRPCLoggingOptions...)
 
+	return opts
+}
+
+func (s ClientFactory) NewInstanceAdminClient(project string) (*bigtable.InstanceAdminClient, error) {
+	opts := s.getClientOptions(false)
 	return bigtable.NewInstanceAdminClient(context.Background(), project, opts...)
 }
 
 func (s ClientFactory) NewAdminClient(project, instance string) (*bigtable.AdminClient, error) {
-	var opts []option.ClientOption
-	if requestReason := os.Getenv("CLOUDSDK_CORE_REQUEST_REASON"); requestReason != "" {
-		opts = append(opts, option.WithRequestReason(requestReason))
-	}
-
-	if s.UserProjectOverride && s.BillingProject != "" {
-		opts = append(opts, option.WithQuotaProject(s.BillingProject))
-	}
-
-	opts = append(opts, option.WithTokenSource(s.TokenSource), option.WithUserAgent(s.UserAgent))
-	opts = append(opts, s.GRPCLoggingOptions...)
-
+	opts := s.getClientOptions(false)
 	return bigtable.NewAdminClient(context.Background(), project, instance, opts...)
 }
 
 func (s ClientFactory) NewClient(project, instance string) (*bigtable.Client, error) {
-	var opts []option.ClientOption
-	if requestReason := os.Getenv("CLOUDSDK_CORE_REQUEST_REASON"); requestReason != "" {
-		opts = append(opts, option.WithRequestReason(requestReason))
-	}
-
-	if s.UserProjectOverride && s.BillingProject != "" {
-		opts = append(opts, option.WithQuotaProject(s.BillingProject))
-	}
-
-	opts = append(opts, option.WithTokenSource(s.TokenSource), option.WithUserAgent(s.UserAgent))
-	opts = append(opts, s.GRPCLoggingOptions...)
-
+	opts := s.getClientOptions(true)
 	return bigtable.NewClient(context.Background(), project, instance, opts...)
 }
 
 func NewClientFactory(c *transport_tpg.Config, userAgent string) *ClientFactory {
+	baseUrl := transport_tpg.BaseUrl(Product, c)
 	bigtableClientFactory := &ClientFactory{
+		BasePath:            transport_tpg.RemoveBasePathVersion(baseUrl),
+		AdminBasePath:       transport_tpg.RemoveBasePathVersion(baseUrl),
+		UniverseDomain:      c.UniverseDomain,
 		UserAgent:           userAgent,
 		TokenSource:         c.TokenSource,
 		GRPCLoggingOptions:  c.GRPCLoggingOptions,
 		BillingProject:      c.BillingProject,
 		UserProjectOverride: c.UserProjectOverride,
+		RequestReason:       c.RequestReason,
 	}
 
 	return bigtableClientFactory

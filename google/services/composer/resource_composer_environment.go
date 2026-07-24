@@ -1716,9 +1716,9 @@ func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interf
 	transformed["dag_gcs_prefix"] = envCfg.DagGcsPrefix
 	transformed["node_count"] = envCfg.NodeCount
 	transformed["airflow_uri"] = envCfg.AirflowUri
-	transformed["node_config"] = flattenComposerEnvironmentConfigNodeConfig(envCfg.NodeConfig)
 	transformed["software_config"] = flattenComposerEnvironmentConfigSoftwareConfig(envCfg.SoftwareConfig)
 	imageVersion := envCfg.SoftwareConfig.ImageVersion
+	transformed["node_config"] = flattenComposerEnvironmentConfigNodeConfig(envCfg.NodeConfig, imageVersion)
 	if !isComposer3(imageVersion) {
 		transformed["private_environment_config"] = flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg.PrivateEnvironmentConfig)
 	}
@@ -1972,7 +1972,7 @@ func flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg *composer.P
 	return []interface{}{transformed}
 }
 
-func flattenComposerEnvironmentConfigNodeConfig(nodeCfg *composer.NodeConfig) interface{} {
+func flattenComposerEnvironmentConfigNodeConfig(nodeCfg *composer.NodeConfig, imageVersion string) interface{} {
 	if nodeCfg == nil {
 		return nil
 	}
@@ -3130,6 +3130,7 @@ func versionValidationCustomizeDiffFunc(ctx context.Context, d *schema.ResourceD
 		"config.0.master_authorized_networks_config":                         false,
 		"config.0.node_config.0.composer_network_attachment":                 true, // allowed only in composer 3
 		"config.0.node_config.0.composer_internal_ipv4_cidr_block":           true,
+		"config.0.node_config.0.traffic_routing_config":                      true,
 		"config.0.software_config.0.web_server_plugins_mode":                 true,
 		"config.0.enable_private_environment":                                true,
 		"config.0.enable_private_builds_only":                                true,

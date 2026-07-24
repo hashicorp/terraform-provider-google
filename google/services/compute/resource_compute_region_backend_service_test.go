@@ -368,6 +368,37 @@ func TestAccComputeRegionBackendService_withLogConfig(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionBackendService_withLogConfigRequestResponseHeaders(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_withLogConfigRequestResponseHeaders(serviceName, checkName, "X-Request-Id", "X-Response-Id"),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionBackendService_withLogConfigRequestResponseHeaders(serviceName, checkName, "X-Request-Id-Updated", "X-Response-Id-Updated"),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionBackendService_zonalILB(t *testing.T) {
 	t.Parallel()
 
@@ -1453,6 +1484,41 @@ resource "google_compute_region_health_check" "health_check" {
   }
 }
 `, serviceName, checkName)
+}
+
+func testAccComputeRegionBackendService_withLogConfigRequestResponseHeaders(serviceName, checkName, reqHeader, respHeader string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name                  = "%s"
+  region                = "us-central1"
+  health_checks         = [google_compute_region_health_check.health_check.self_link]
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  locality_lb_policy    = "ROUND_ROBIN"
+  
+  log_config {
+    enable      = true
+    sample_rate = 1.0
+    request_headers {
+      header_name = "%s"
+    }
+    response_headers {
+      header_name = "%s"
+    }
+  }
+}
+
+resource "google_compute_region_health_check" "health_check" {
+  name               = "%s"
+  region             = "us-central1"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  http_health_check {
+    port = 80
+  }
+}
+`, serviceName, reqHeader, respHeader, checkName)
 }
 
 func testAccComputeRegionBackendService_withTags(serviceName, checkName string, tagKey string, tagValue string) string {

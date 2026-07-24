@@ -27,11 +27,15 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/colab"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -82,7 +86,7 @@ func TestAccColabSchedule_colabScheduleBasicExample(t *testing.T) {
 				ResourceName:            "google_colab_schedule.schedule",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"last_scheduled_run_response", "location", "next_run_time", "started_run_count"},
 			},
 			{
 				ResourceName:       "google_colab_schedule.schedule",
@@ -213,7 +217,7 @@ func TestAccColabSchedule_colabSchedulePausedExample(t *testing.T) {
 				ResourceName:            "google_colab_schedule.schedule",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"desired_state", "location"},
+				ImportStateVerifyIgnore: []string{"desired_state", "last_scheduled_run_response", "location", "next_run_time", "started_run_count"},
 			},
 			{
 				ResourceName:       "google_colab_schedule.schedule",
@@ -315,6 +319,327 @@ resource "google_colab_schedule" "schedule" {
     google_colab_runtime_template.my_runtime_template,
     google_storage_bucket.output_bucket,
   ]
+}
+`, context)
+}
+
+func TestAccColabSchedule_colabScheduleNotebookFullExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"location":                 envvar.GetTestRegionFromEnv(),
+		"project_id":               envvar.GetTestProjectFromEnv(),
+		"service_account":          envvar.GetTestServiceAccountFromEnv(t),
+		"bucket":                   "tf_test_my_bucket" + randomSuffix,
+		"cron":                     "*/5 * * * *",
+		"display_name":             "full-notebook-schedule",
+		"key_name":                 kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"max_concurrent_run_count": 2,
+		"network_name":             "tf-test-colab-test-default" + randomSuffix,
+		"random_suffix":            randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckColabScheduleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccColabSchedule_colabScheduleNotebookFullExample(context),
+			},
+			{
+				ResourceName:            "google_colab_schedule.schedule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_scheduled_run_response", "location", "next_run_time", "started_run_count"},
+			},
+			{
+				ResourceName:       "google_colab_schedule.schedule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccColabSchedule_colabScheduleNotebookFullExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_storage_bucket" "bucket" {
+  name                        = "%{bucket}"
+  location                    = "us-central1"
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+
+resource "google_storage_bucket_object" "notebook" {
+  name   = "hello_world.ipynb"
+  bucket = google_storage_bucket.bucket.name
+  content = <<EOF
+    {
+      "cells": [
+        {
+          "cell_type": "code",
+          "execution_count": null,
+          "metadata": {},
+          "outputs": [],
+          "source": [
+            "print(\"Hello, World!\")"
+          ]
+        }
+      ],
+      "metadata": {
+        "kernelspec": {
+          "display_name": "Python 3",
+          "language": "python",
+          "name": "python3"
+        },
+        "language_info": {
+          "codemirror_mode": {
+            "name": "ipython",
+            "version": 3
+          },
+          "file_extension": ".py",
+          "mimetype": "text/x-python",
+          "name": "python",
+          "nbconvert_exporter": "python",
+          "pygments_lexer": "ipython3",
+          "version": "3.8.5"
+        }
+      },
+      "nbformat": 4,
+      "nbformat_minor": 4
+    }
+    EOF
+}
+
+resource "google_compute_network" "my_network" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "my_subnetwork" {
+  name          = "%{network_name}"
+  network       = google_compute_network.my_network.id
+  region        = "us-central1"
+  ip_cidr_range = "10.0.1.0/24"
+}
+
+resource "google_colab_schedule" "schedule" {
+  display_name             = "%{display_name}"
+  location                 = "us-central1"
+  max_concurrent_run_count = %{max_concurrent_run_count}
+  cron                     = "%{cron}"
+  start_time               = "2030-01-01T00:00:00Z"
+
+  create_notebook_execution_job_request {
+    parent                    = "projects/${data.google_project.project.project_id}/locations/us-central1"
+    notebook_execution_job {
+      display_name   = "test-notebook-execution-job"
+      gcs_output_uri  = "gs://${google_storage_bucket.bucket.name}"
+      service_account = "%{service_account}"
+      kernel_name    = "python3"
+
+      gcs_notebook_source {
+        uri = "gs://${google_storage_bucket_object.notebook.bucket}/${google_storage_bucket_object.notebook.name}"
+        generation = google_storage_bucket_object.notebook.generation
+      }
+
+      custom_environment_spec {
+        machine_spec {
+          machine_type             = "n1-standard-4"
+          accelerator_type         = "NVIDIA_TESLA_T4"
+          accelerator_count        = 1
+          gpu_partition_size       = "1g.10gb"
+          tpu_topology             = "2x2"
+        }
+        persistent_disk_spec {
+          disk_size_gb = "100"
+          disk_type    = "pd-standard"
+        }
+        network_spec {
+          enable_internet_access = true
+          network                = google_compute_network.my_network.id
+          subnetwork             = google_compute_subnetwork.my_subnetwork.id
+        }
+      }
+
+      encryption_spec {
+        kms_key_name = "%{key_name}"
+      }
+
+      labels = {
+        test = "value"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccColabSchedule_colabSchedulePipelineExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"allow_queueing":                  true,
+		"cron":                            "*/5 * * * *",
+		"display_name":                    "test-schedule",
+		"end_time":                        "2030-01-02T00:00:00Z",
+		"failure_policy":                  "PIPELINE_FAILURE_POLICY_FAIL_FAST",
+		"key_name":                        kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"max_concurrent_active_run_count": 2,
+		"max_concurrent_run_count":        2,
+		"max_run_count":                   10,
+		"network_name":                    "tf-test-colab-test-default" + randomSuffix,
+		"pipeline_job_label_value":        "value-one",
+		"preflight_validations":           true,
+		"storage_bucket":                  "tf-test-pipeline-job" + randomSuffix,
+		"random_suffix":                   randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"allow_queueing":                  false,
+		"cron":                            "*/10 * * * *",
+		"display_name":                    "test-schedule-updated",
+		"end_time":                        "2030-01-03T00:00:00Z",
+		"failure_policy":                  "PIPELINE_FAILURE_POLICY_FAIL_SLOW",
+		"key_name":                        kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"max_concurrent_active_run_count": 3,
+		"max_concurrent_run_count":        3,
+		"max_run_count":                   12,
+		"network_name":                    "tf-test-colab-test-default" + randomSuffix,
+		"pipeline_job_label_value":        "value-updated",
+		"preflight_validations":           false,
+		"storage_bucket":                  "tf-test-pipeline-job" + randomSuffix,
+		"random_suffix":                   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckColabScheduleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccColabSchedule_colabSchedulePipelineExample(context),
+			},
+			{
+				ResourceName:            "google_colab_schedule.schedule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_scheduled_run_response", "location", "next_run_time", "started_run_count"},
+			},
+			{
+				ResourceName:       "google_colab_schedule.schedule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccColabSchedule_colabSchedulePipelineExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_colab_schedule.schedule", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_colab_schedule.schedule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_scheduled_run_response", "location", "next_run_time", "started_run_count"},
+			},
+			{
+				ResourceName:       "google_colab_schedule.schedule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccColabSchedule_colabSchedulePipelineExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_storage_bucket" "bucket" {
+  name                        = "%{storage_bucket}"
+  location                    = "us-central1"
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+
+resource "google_compute_network" "my_network" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_colab_schedule" "schedule" {
+  display_name                    = "%{display_name}"
+  location                        = "us-central1"
+  max_concurrent_run_count        = %{max_concurrent_run_count}
+  cron                            = "%{cron}"
+  allow_queueing                  = %{allow_queueing}
+  max_concurrent_active_run_count = %{max_concurrent_active_run_count}
+  max_run_count                   = "%{max_run_count}"
+  start_time                      = "2030-01-01T00:00:00Z"
+  end_time                        = "%{end_time}"
+
+  create_pipeline_job_request {
+    parent          = "projects/${data.google_project.project.project_id}/locations/us-central1"
+    pipeline_job {
+      display_name          = "test-pipeline-job"
+      preflight_validations = %{preflight_validations}
+      network               = google_compute_network.my_network.id
+      service_account       = "${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+      template_uri          = "https://us-kfp.pkg.dev/proj/repo/template/v1"
+      reserved_ip_ranges    = ["vertex-ai-ip-range"]
+
+      labels = {
+        "key" = "%{pipeline_job_label_value}"
+      }
+
+      encryption_spec {
+        kms_key_name = "%{key_name}"
+      }
+
+      psc_interface_config {
+        network_attachment = "projects/${data.google_project.project.project_id}/regions/us-central1/networkAttachments/my-attachment"
+        dns_peering_configs {
+          domain         = "my-internal-domain.corp."
+          target_network = google_compute_network.my_network.id
+          target_project = data.google_project.project.project_id
+        }
+      }
+
+      pipeline_spec = jsonencode({
+        pipelineInfo = {
+          name = "hello-world"
+        }
+        root = {
+          dag = {
+            tasks = {}
+          }
+        }
+        schemaVersion = "2.1.0"
+        sdkVersion    = "kfp-2.0.0"
+      })
+
+      runtime_config {
+        gcs_output_directory = "gs://${google_storage_bucket.bucket.name}/pipeline_root"
+        failure_policy       = "%{failure_policy}"
+        parameter_values     = {
+          param1 = "val1"
+        }
+      }
+    }
+  }
 }
 `, context)
 }

@@ -17,11 +17,12 @@
 package compute
 
 import (
-	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 
@@ -739,19 +740,79 @@ func resourceComputeSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams
 	}
 }
 
-// resourceComputeSecurityPolicyRuleHash hashes security policy rules by priority and action.
-// Using only priority causes hash collisions when two rules share the same priority (which
-// the API rejects, but which users may write transiently), causing schema.Set to silently
-// drop one rule and bypass the duplicate-priority validation in rulesCustomizeDiff.
-// Including action ensures distinct rules always produce distinct hashes while still
-// excluding volatile optional fields (description, preview, match sub-fields) that the
-// API may return as empty strings instead of nil, preventing unnecessary rule recreation.
+// resourceComputeSecurityPolicyRuleHash computes a deterministic hash of all configured rule attributes.
+// It normalizes empty/default values and sorts string collections to prevent permadiffs and unnecessary
+// rule recreation from API return defaults while ensuring any configuration change produces a distinct hash.
 func resourceComputeSecurityPolicyRuleHash(v interface{}) int {
-	raw := v.(map[string]interface{})
-	var buf bytes.Buffer
-	buf.WriteString(fmt.Sprintf("%d-", raw["priority"].(int)))
-	buf.WriteString(fmt.Sprintf("%s-", raw["action"].(string)))
-	return tpgresource.Hashcode(buf.String())
+	norm := normalizeRuleForHash(v)
+	b, err := json.Marshal(norm)
+	if err != nil {
+		return 0
+	}
+	return tpgresource.Hashcode(string(b))
+}
+
+func normalizeRuleForHash(v interface{}) interface{} {
+	if v == nil {
+		return nil
+	}
+	switch val := v.(type) {
+	case *schema.Set:
+		return normalizeRuleForHash(val.List())
+	case []interface{}:
+		var list []interface{}
+		for _, item := range val {
+			norm := normalizeRuleForHash(item)
+			if norm != nil {
+				list = append(list, norm)
+			}
+		}
+		if len(list) == 0 {
+			return nil
+		}
+		if isStringSlice(list) {
+			strs := make([]string, len(list))
+			for i, s := range list {
+				strs[i] = s.(string)
+			}
+			sort.Strings(strs)
+			return strs
+		}
+		return list
+	case map[string]interface{}:
+		m := make(map[string]interface{})
+		for k, item := range val {
+			norm := normalizeRuleForHash(item)
+			if norm != nil {
+				m[k] = norm
+			}
+		}
+		if len(m) == 0 {
+			return nil
+		}
+		return m
+	case string:
+		if val == "" {
+			return nil
+		}
+		return val
+	case bool:
+		if !val {
+			return nil
+		}
+		return val
+	default:
+		return val
+	}
+}
+
+func isStringSlice(list []interface{}) bool {
+	for _, item := range list {
+		if _, ok := item.(string); !ok {
+			return false
+		}
+	}
+	return true
 }
 
 func rulesCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {

@@ -21,12 +21,13 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/recaptchaenterprise"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -2398,4 +2399,585 @@ resource "google_compute_security_policy" "policy" {
   }
 }
 `, spName)
+}
+
+func TestAccComputeSecurityPolicy_inlineRuleUpdate(t *testing.T) {
+	t.Parallel()
+
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicy_inlineRuleUpdate_step1(spName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckTypeSetElemNestedAttrs("google_compute_security_policy.policy", "rule.*", map[string]string{
+						"priority":                         "1000",
+						"action":                           "allow",
+						"description":                      "initial description",
+						"match.0.config.0.src_ip_ranges.#": "1",
+					}),
+				),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicy_inlineRuleUpdate_step2(spName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_security_policy.policy", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckTypeSetElemNestedAttrs("google_compute_security_policy.policy", "rule.*", map[string]string{
+						"priority":                         "1000",
+						"action":                           "allow",
+						"description":                      "updated description",
+						"match.0.config.0.src_ip_ranges.#": "2",
+					}),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeSecurityPolicy_inlineRuleUpdate_step1(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "test policy"
+
+  rule {
+    action   = "allow"
+    priority = "2147483647"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
+
+  rule {
+    action      = "allow"
+    priority    = "1000"
+    description = "initial description"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["9.9.9.0/24"]
+      }
+    }
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_inlineRuleUpdate_step2(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "test policy"
+
+  rule {
+    action   = "allow"
+    priority = "2147483647"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
+
+  rule {
+    action      = "allow"
+    priority    = "1000"
+    description = "updated description"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["9.9.9.0/24", "10.0.0.0/8"]
+      }
+    }
+  }
+}
+`, spName)
+}
+
+func TestComputeSecurityPolicyRuleHash_nilAndEmptyCases(t *testing.T) {
+	ruleSchema := tpgcompute.ResourceComputeSecurityPolicy().Schema["rule"]
+	ruleSetFunc := ruleSchema.Set
+
+	nilHash := ruleSetFunc(nil)
+
+	emptyCases := map[string]interface{}{
+		"nil":                                 nil,
+		"typed nil map":                       (map[string]interface{})(nil),
+		"empty map":                           map[string]interface{}{},
+		"map with nil values":                 map[string]interface{}{"description": nil, "priority": nil, "match": nil},
+		"map with empty strings":              map[string]interface{}{"description": "", "action": ""},
+		"map with false bools":                map[string]interface{}{"preview": false},
+		"map with empty slice":                map[string]interface{}{"match": []interface{}{}},
+		"map with nested empty map in slice":  map[string]interface{}{"match": []interface{}{map[string]interface{}{}}},
+		"map with nested empty match configs": map[string]interface{}{"match": []interface{}{map[string]interface{}{"versioned_expr": "", "config": []interface{}{map[string]interface{}{"src_ip_ranges": []interface{}{}}}}}},
+		"map with empty string slice element": map[string]interface{}{"match": []interface{}{map[string]interface{}{"config": []interface{}{map[string]interface{}{"src_ip_ranges": []interface{}{""}}}}}},
+		"empty schema.Set":                    schema.NewSet(schema.HashResource(ruleSchema.Elem.(*schema.Resource)), []interface{}{}),
+		"schema.Set containing empty map":     schema.NewSet(schema.HashResource(ruleSchema.Elem.(*schema.Resource)), []interface{}{map[string]interface{}{}}),
+	}
+
+	for name, input := range emptyCases {
+		t.Run(name, func(t *testing.T) {
+			h := ruleSetFunc(input)
+			if h != nilHash {
+				t.Fatalf("expected hash for %s to equal nilHash %d, got %d", name, nilHash, h)
+			}
+		})
+	}
+}
+
+func TestComputeSecurityPolicyRuleHash_defaultAndZeroValueEquivalence(t *testing.T) {
+	ruleSchema := tpgcompute.ResourceComputeSecurityPolicy().Schema["rule"]
+	ruleSetFunc := ruleSchema.Set
+
+	baseRule := map[string]interface{}{
+		"priority": 1000,
+		"action":   "allow",
+	}
+	baseHash := ruleSetFunc(baseRule)
+
+	equivalentCases := map[string]map[string]interface{}{
+		"explicit empty description": {
+			"priority":    1000,
+			"action":      "allow",
+			"description": "",
+		},
+		"nil description": {
+			"priority":    1000,
+			"action":      "allow",
+			"description": nil,
+		},
+		"explicit preview false": {
+			"priority": 1000,
+			"action":   "allow",
+			"preview":  false,
+		},
+		"explicit empty match list": {
+			"priority": 1000,
+			"action":   "allow",
+			"match":    []interface{}{},
+		},
+		"nested empty match config": {
+			"priority": 1000,
+			"action":   "allow",
+			"match": []interface{}{
+				map[string]interface{}{
+					"versioned_expr": "",
+					"config":         []interface{}{},
+				},
+			},
+		},
+		"all zero/empty fields simultaneously present": {
+			"priority":                 1000,
+			"action":                   "allow",
+			"description":              "",
+			"preview":                  false,
+			"match":                    []interface{}{},
+			"rate_limit_options":       []interface{}{},
+			"redirect_options":         []interface{}{},
+			"header_action":            []interface{}{},
+			"preconfigured_waf_config": []interface{}{},
+		},
+	}
+
+	for name, rule := range equivalentCases {
+		t.Run(name, func(t *testing.T) {
+			h := ruleSetFunc(rule)
+			if h != baseHash {
+				t.Fatalf("expected hash for %s (%d) to match baseHash (%d)", name, h, baseHash)
+			}
+		})
+	}
+}
+
+func TestComputeSecurityPolicyRuleHash_inlineRuleModification(t *testing.T) {
+	ruleSchema := tpgcompute.ResourceComputeSecurityPolicy().Schema["rule"]
+	ruleSetFunc := ruleSchema.Set
+
+	baseRule := map[string]interface{}{
+		"priority":    1000,
+		"action":      "allow",
+		"description": "initial description",
+		"preview":     false,
+		"match": []interface{}{
+			map[string]interface{}{
+				"versioned_expr": "SRC_IPS_V1",
+				"config": []interface{}{
+					map[string]interface{}{
+						"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+					},
+				},
+			},
+		},
+	}
+	baseHash := ruleSetFunc(baseRule)
+
+	testCases := map[string]struct {
+		modifiedRule map[string]interface{}
+		expectEqual  bool
+	}{
+		"description modification": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "updated description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"action modification": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "deny",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"priority modification": {
+			modifiedRule: map[string]interface{}{
+				"priority":    2000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"priority set to 0": {
+			modifiedRule: map[string]interface{}{
+				"priority":    0,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"preview boolean toggle": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     true,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"versioned_expr modification": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "FIREWALL",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"match expr expression added": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"expr": []interface{}{
+							map[string]interface{}{
+								"expression": "request.headers['host'].contains('test')",
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"number of src_ip_ranges increased": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24", "10.0.0.0/8"},
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"src_ip_range value changed": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"192.168.1.0/24"},
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"rate_limit_options added": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+							},
+						},
+					},
+				},
+				"rate_limit_options": []interface{}{
+					map[string]interface{}{
+						"conform_action": "allow",
+						"exceed_action":  "deny(502)",
+						"rate_limit_threshold": []interface{}{
+							map[string]interface{}{
+								"count":        10,
+								"interval_sec": 60,
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"redirect_options added": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+							},
+						},
+					},
+				},
+				"redirect_options": []interface{}{
+					map[string]interface{}{
+						"type":   "EXTERNAL_302",
+						"target": "https://example.com",
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"header_action added": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+							},
+						},
+					},
+				},
+				"header_action": []interface{}{
+					map[string]interface{}{
+						"request_headers_to_adds": []interface{}{
+							map[string]interface{}{
+								"header_name":  "X-Custom-Header",
+								"header_value": "value",
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"preconfigured_waf_config added": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24"},
+							},
+						},
+					},
+				},
+				"preconfigured_waf_config": []interface{}{
+					map[string]interface{}{
+						"exclusions": []interface{}{
+							map[string]interface{}{
+								"target_rule_set": "sqli-v33-stable",
+							},
+						},
+					},
+				},
+			},
+			expectEqual: false,
+		},
+		"src_ip_ranges with empty string filtered out should produce identical hash": {
+			modifiedRule: map[string]interface{}{
+				"priority":    1000,
+				"action":      "allow",
+				"description": "initial description",
+				"preview":     false,
+				"match": []interface{}{
+					map[string]interface{}{
+						"versioned_expr": "SRC_IPS_V1",
+						"config": []interface{}{
+							map[string]interface{}{
+								"src_ip_ranges": []interface{}{"9.9.9.0/24", ""},
+							},
+						},
+					},
+				},
+			},
+			expectEqual: true,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			modHash := ruleSetFunc(tc.modifiedRule)
+			if tc.expectEqual && modHash != baseHash {
+				t.Fatalf("expected equal hash %d, got %d for case %q", baseHash, modHash, name)
+			}
+			if !tc.expectEqual && modHash == baseHash {
+				t.Fatalf("expected different hashes when %s, but both produced %d", name, baseHash)
+			}
+		})
+	}
+
+	// Specifically test that order of elements in a multi-element src_ip_ranges does not change hash
+	multiRange1 := map[string]interface{}{
+		"priority": 1000,
+		"action":   "allow",
+		"match": []interface{}{
+			map[string]interface{}{
+				"config": []interface{}{
+					map[string]interface{}{
+						"src_ip_ranges": []interface{}{"9.9.9.0/24", "10.0.0.0/8"},
+					},
+				},
+			},
+		},
+	}
+	multiRange2 := map[string]interface{}{
+		"priority": 1000,
+		"action":   "allow",
+		"match": []interface{}{
+			map[string]interface{}{
+				"config": []interface{}{
+					map[string]interface{}{
+						"src_ip_ranges": []interface{}{"10.0.0.0/8", "9.9.9.0/24"},
+					},
+				},
+			},
+		},
+	}
+	if h1, h2 := ruleSetFunc(multiRange1), ruleSetFunc(multiRange2); h1 != h2 {
+		t.Fatalf("expected identical hash for reordered IP ranges, got %d and %d", h1, h2)
+	}
 }

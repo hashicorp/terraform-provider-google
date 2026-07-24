@@ -117,6 +117,8 @@ func ResourceVertexAISchedule() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		DeprecationMessage: "`google_vertex_ai_schedule` is deprecated and will be removed in a future major release. Use `google_colab_schedule` instead.",
+
 		Identity: &schema.ResourceIdentity{
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {

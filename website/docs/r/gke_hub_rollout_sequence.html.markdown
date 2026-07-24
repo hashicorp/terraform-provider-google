@@ -34,14 +34,40 @@ To get more information about RolloutSequence, see:
 
 
 ```hcl
+resource "google_project" "project" {
+  project_id      = "rs-project"
+  name            = "rs-project"
+  org_id          = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "gkehub" {
+  project            = google_project.project.project_id
+  service            = "gkehub.googleapis.com"
+}
+
+// wait for API enablement
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.gkehub]
+}
+
+resource "google_gke_hub_fleet" "default" {
+  display_name = "rs-fleet"
+  project = google_project.project.project_id
+  depends_on = [time_sleep.wait_120_seconds]
+}
+
 resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
+  project             = google_project.project.project_id
   rollout_sequence_id = "rs-basic"
   display_name        = "Basic Rollout Sequence"
   ignored_clusters_selector {
     label_selector = "resource.labels.ignored == 'true'"
   }
   stages {
-    fleet_projects = ["projects/my-project-name"]
+    fleet_projects = ["projects/${google_project.project.project_id}"]
     soak_duration  = "1h"
   }
   auto_upgrade_config {
@@ -54,27 +80,54 @@ resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
       ]
     }
   }
+  depends_on = [google_gke_hub_fleet.default]
 }
 ```
 ## Example Usage - Gke Hub Rollout Sequence Update
 
 
 ```hcl
+resource "google_project" "project" {
+  project_id      = "rs-project"
+  name            = "rs-project"
+  org_id          = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "gkehub" {
+  project            = google_project.project.project_id
+  service            = "gkehub.googleapis.com"
+}
+
+// wait for API enablement
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.gkehub]
+}
+
+resource "google_gke_hub_fleet" "default" {
+  display_name = "rs-fleet"
+  project = google_project.project.project_id
+  depends_on = [time_sleep.wait_120_seconds]
+}
+
 resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
+  project             = google_project.project.project_id
   rollout_sequence_id = "rs-basic"
   display_name        = "Modified Rollout Sequence"
   ignored_clusters_selector {
     label_selector = "resource.labels.ignored == 'super_true'"
   }
   stages {
-    fleet_projects = ["projects/my-project-name"]
+    fleet_projects = ["projects/${google_project.project.project_id}"]
     cluster_selector {
       label_selector = "resource.labels.canary=='true'"
     }
     soak_duration  = "2h"
   }
   stages {
-    fleet_projects = ["projects/my-project-name"]
+    fleet_projects = ["projects/${google_project.project.project_id}"]
     soak_duration  = "1d"
   }
   auto_upgrade_config {
@@ -88,6 +141,105 @@ resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
   labels = {
     some_key = "some_value"
   }
+  depends_on = [google_gke_hub_fleet.default]
+}
+```
+## Example Usage - Gke Hub Rollout Sequence User Triggered Create
+
+
+```hcl
+resource "google_project" "project" {
+  project_id      = "rs-project"
+  name            = "rs-project"
+  org_id          = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
+  deletion_policy = "DELETE"
+}
+
+// Enable APIs in a deterministic order to avoid inconsistent VCR recordings
+resource "google_project_service" "gkehub" {
+  project            = google_project.project.project_id
+  service            = "gkehub.googleapis.com"
+}
+
+resource "google_project_service" "container" {
+  project            = google_project.project.project_id
+  service            = "container.googleapis.com"
+  depends_on = [google_project_service.gkehub]
+}
+
+resource "google_project_service" "compute" {
+  project            = google_project.project.project_id
+  service            = "compute.googleapis.com"
+  depends_on = [google_project_service.container]
+}
+
+// wait for API enablement
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+  depends_on = [google_project_service.compute]
+}
+
+resource "google_gke_hub_fleet" "default" {
+  display_name = "rs-fleet"
+  project = google_project.project.project_id
+  depends_on = [time_sleep.wait_120_seconds]
+}
+
+data "google_container_engine_versions" "versions" {
+  location = "us-central1-a"
+  project = google_project.project.project_id
+  depends_on = [time_sleep.wait_120_seconds]
+}
+
+resource "google_container_cluster" "primary" {
+  project            = google_project.project.project_id
+  name               = "rs-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  min_master_version = data.google_container_engine_versions.versions.release_channel_default_version["REGULAR"]
+  node_version = data.google_container_engine_versions.versions.release_channel_default_version["REGULAR"]
+  deletion_protection = false
+
+  release_channel {
+    channel = "REGULAR"
+  }
+
+  resource_labels = {
+    rs_test_cluster = "tf-test-%{random_suffix}"
+  }
+
+  fleet {
+    project = google_project.project.number
+  }
+
+  depends_on = [google_gke_hub_fleet.default]
+}
+
+resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
+  project             = google_project.project.project_id
+  rollout_sequence_id = "rs-user-triggered"
+  display_name        = "User Triggered Rollout Sequence"
+
+  min_control_plane_version = data.google_container_engine_versions.versions.release_channel_latest_version["REGULAR"]
+
+  # Ensures that any rollouts created from this sequence will ignore all clusters in the project, other than the cluster we create for this test.
+  ignored_clusters_selector {
+    label_selector = "!(has(resource.labels.rs_test_cluster) && resource.labels.rs_test_cluster == 'tf-test-%{random_suffix}')"
+  }
+
+  stages {
+    fleet_projects = ["projects/${google_project.project.project_id}"]
+    soak_duration  = "30s"
+  }
+
+  auto_upgrade_config {
+    rollout_creation_scope {
+      upgrade_types = []
+    }
+  }
+
+  depends_on = [google_container_cluster.primary]
 }
 ```
 
@@ -137,6 +289,22 @@ The following arguments are supported:
 	When set to "ABANDON", the command will remove the resource from Terraform
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
+* `min_control_plane_version` - (Optional) Minimum control plane version that the clusters in the sequence should be upgraded to.
+Setting this field will cause the creation of a rollout to the specified version.
+Any rollout of the same type already running on the first stage of the sequence will be cancelled to allow for the creation of the new rollout.
+Should be a valid [semantic version](https://semver.org/).
+Version aliases are supported, as described in the [cluster version docs](https://docs.cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version).
+Note that the `latest` and `-` aliases are not supported for this field.
+Supported formats: `1.X`, `1.X.Y`, `1.X.Y-gke.N`.
+
+* `min_node_version` - (Optional) Minimum node version that the clusters in the sequence should be upgraded to.
+Setting this field will cause the creation of a rollout to the specified version.
+Any rollout of the same type already running on the first stage of the sequence will be cancelled to allow for the creation of the new rollout.
+Should be a valid [semantic version](https://semver.org/).
+Version aliases are supported, as described in the [cluster version docs](https://docs.cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version).
+Note that the `latest` and `-` aliases are not supported for this field.
+Supported formats: `1.X`, `1.X.Y`, `1.X.Y-gke.N`.
+
 
 
 <a name="nested_stages"></a>The `stages` block supports:
@@ -219,6 +387,16 @@ In addition to the arguments listed above, the following computed attributes are
 * `delete_time` -
   The timestamp at the Rollout Sequence was deleted.
 
+* `target_control_plane_version` -
+  The current target control plane version.
+
+* `target_node_version` -
+  The current target node version.
+
+* `operational_state` -
+  The operational state of the rollout sequence.
+  Structure is [documented below](#nested_operational_state).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -226,6 +404,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_operational_state"></a>The `operational_state` block contains:
+
+* `state` -
+  (Output)
+  The state of the rollout sequence.
 
 ## Timeouts
 

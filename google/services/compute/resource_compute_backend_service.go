@@ -1024,6 +1024,34 @@ For example: orca_load_report, tls.protocol`,
 Supported values: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM. Possible values: ["INCLUDE_ALL_OPTIONAL", "EXCLUDE_ALL_OPTIONAL", "CUSTOM"]`,
 							AtLeastOneOf: []string{"log_config.0.enable", "log_config.0.optional_mode", "log_config.0.sample_rate"},
 						},
+						"request_headers": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `This field can only be specified if logging is enabled for this backend service and if the BackendService protocol is one of HTTP, HTTPS, HTTP2 and GRPC. Contains a list of request headers to be logged.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"header_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The header name to match on for logging.`,
+									},
+								},
+							},
+						},
+						"response_headers": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `This field can only be specified if logging is enabled for this backend service and if the BackendService protocol is one of HTTP, HTTPS, HTTP2 and GRPC. Contains a list of response headers to be logged.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"header_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The header name to match on for logging.`,
+									},
+								},
+							},
+						},
 						"sample_rate": {
 							Type:             schema.TypeFloat,
 							Optional:         true,
@@ -3961,6 +3989,10 @@ func flattenComputeBackendServiceLogConfig(v interface{}, d *schema.ResourceData
 		flattenComputeBackendServiceLogConfigOptionalMode(original["optionalMode"], d, config)
 	transformed["optional_fields"] =
 		flattenComputeBackendServiceLogConfigOptionalFields(original["optionalFields"], d, config)
+	transformed["request_headers"] =
+		flattenComputeBackendServiceLogConfigRequestHeaders(original["loggingHttpRequestHeaders"], d, config)
+	transformed["response_headers"] =
+		flattenComputeBackendServiceLogConfigResponseHeaders(original["loggingHttpResponseHeaders"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeBackendServiceLogConfigEnable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3976,6 +4008,50 @@ func flattenComputeBackendServiceLogConfigOptionalMode(v interface{}, d *schema.
 }
 
 func flattenComputeBackendServiceLogConfigOptionalFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceLogConfigRequestHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"header_name": flattenComputeBackendServiceLogConfigRequestHeadersHeaderName(original["headerName"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeBackendServiceLogConfigRequestHeadersHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceLogConfigResponseHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"header_name": flattenComputeBackendServiceLogConfigResponseHeadersHeaderName(original["headerName"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeBackendServiceLogConfigResponseHeadersHeaderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5481,6 +5557,20 @@ func expandComputeBackendServiceLogConfig(v interface{}, d tpgresource.Terraform
 		transformed["optionalFields"] = transformedOptionalFields
 	}
 
+	transformedRequestHeaders, err := expandComputeBackendServiceLogConfigRequestHeaders(original["request_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["loggingHttpRequestHeaders"] = transformedRequestHeaders
+	}
+
+	transformedResponseHeaders, err := expandComputeBackendServiceLogConfigResponseHeaders(original["response_headers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResponseHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["loggingHttpResponseHeaders"] = transformedResponseHeaders
+	}
+
 	return transformed, nil
 }
 
@@ -5497,6 +5587,64 @@ func expandComputeBackendServiceLogConfigOptionalMode(v interface{}, d tpgresour
 }
 
 func expandComputeBackendServiceLogConfigOptionalFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceLogConfigRequestHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedHeaderName, err := expandComputeBackendServiceLogConfigRequestHeadersHeaderName(original["header_name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["headerName"] = transformedHeaderName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeBackendServiceLogConfigRequestHeadersHeaderName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceLogConfigResponseHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedHeaderName, err := expandComputeBackendServiceLogConfigResponseHeadersHeaderName(original["header_name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["headerName"] = transformedHeaderName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeBackendServiceLogConfigResponseHeadersHeaderName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

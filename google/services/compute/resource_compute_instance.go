@@ -250,6 +250,26 @@ func ResourceComputeInstance() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"zone": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		// A compute instance is more or less a superset of a compute instance
 		// template. Please attempt to maintain consistency with the
 		// resource_compute_instance_template schema when updating this one.
@@ -2022,6 +2042,14 @@ func resourceComputeInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project": project,
+		"zone":    z,
+		"name":    instance.Name,
+	}); err != nil {
+		return err
+	}
+
 	return resourceComputeInstanceRead(d, meta)
 }
 
@@ -2081,6 +2109,14 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
 
 	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project": project,
+		"zone":    zone,
+		"name":    instance.Name,
+	}); err != nil {
 		return err
 	}
 
@@ -3762,6 +3798,14 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	// We made it, disable partial mode
 	d.Partial(false)
+
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project": project,
+		"zone":    zone,
+		"name":    instance.Name,
+	}); err != nil {
+		return err
+	}
 
 	return resourceComputeInstanceRead(d, meta)
 }

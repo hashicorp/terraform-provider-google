@@ -320,6 +320,207 @@ resource "google_colab_schedule" "schedule" {
   ]
 }
 ```
+## Example Usage - Colab Schedule Notebook Full
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_storage_bucket" "bucket" {
+  name                        = "my_bucket"
+  location                    = "us-central1"
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+
+resource "google_storage_bucket_object" "notebook" {
+  name   = "hello_world.ipynb"
+  bucket = google_storage_bucket.bucket.name
+  content = <<EOF
+    {
+      "cells": [
+        {
+          "cell_type": "code",
+          "execution_count": null,
+          "metadata": {},
+          "outputs": [],
+          "source": [
+            "print(\"Hello, World!\")"
+          ]
+        }
+      ],
+      "metadata": {
+        "kernelspec": {
+          "display_name": "Python 3",
+          "language": "python",
+          "name": "python3"
+        },
+        "language_info": {
+          "codemirror_mode": {
+            "name": "ipython",
+            "version": 3
+          },
+          "file_extension": ".py",
+          "mimetype": "text/x-python",
+          "name": "python",
+          "nbconvert_exporter": "python",
+          "pygments_lexer": "ipython3",
+          "version": "3.8.5"
+        }
+      },
+      "nbformat": 4,
+      "nbformat_minor": 4
+    }
+    EOF
+}
+
+resource "google_compute_network" "my_network" {
+  name                    = "colab-test-default"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "my_subnetwork" {
+  name          = "colab-test-default"
+  network       = google_compute_network.my_network.id
+  region        = "us-central1"
+  ip_cidr_range = "10.0.1.0/24"
+}
+
+resource "google_colab_schedule" "schedule" {
+  display_name             = "full-notebook-schedule"
+  location                 = "us-central1"
+  max_concurrent_run_count = 2
+  cron                     = "*/5 * * * *"
+  start_time               = "2030-01-01T00:00:00Z"
+
+  create_notebook_execution_job_request {
+    parent                    = "projects/${data.google_project.project.project_id}/locations/us-central1"
+    notebook_execution_job {
+      display_name   = "test-notebook-execution-job"
+      gcs_output_uri  = "gs://${google_storage_bucket.bucket.name}"
+      service_account = "my@service-account.com"
+      kernel_name    = "python3"
+
+      gcs_notebook_source {
+        uri = "gs://${google_storage_bucket_object.notebook.bucket}/${google_storage_bucket_object.notebook.name}"
+        generation = google_storage_bucket_object.notebook.generation
+      }
+
+      custom_environment_spec {
+        machine_spec {
+          machine_type             = "n1-standard-4"
+          accelerator_type         = "NVIDIA_TESLA_T4"
+          accelerator_count        = 1
+          gpu_partition_size       = "1g.10gb"
+          tpu_topology             = "2x2"
+        }
+        persistent_disk_spec {
+          disk_size_gb = "100"
+          disk_type    = "pd-standard"
+        }
+        network_spec {
+          enable_internet_access = true
+          network                = google_compute_network.my_network.id
+          subnetwork             = google_compute_subnetwork.my_subnetwork.id
+        }
+      }
+
+      encryption_spec {
+        kms_key_name = "my-key"
+      }
+
+      labels = {
+        test = "value"
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=colab_schedule_pipeline&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Colab Schedule Pipeline
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_storage_bucket" "bucket" {
+  name                        = "pipeline-job"
+  location                    = "us-central1"
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+
+resource "google_compute_network" "my_network" {
+  name                    = "colab-test-default"
+  auto_create_subnetworks = false
+}
+
+resource "google_colab_schedule" "schedule" {
+  display_name                    = "test-schedule"
+  location                        = "us-central1"
+  max_concurrent_run_count        = 2
+  cron                            = "*/5 * * * *"
+  allow_queueing                  = true
+  max_concurrent_active_run_count = 2
+  max_run_count                   = "10"
+  start_time                      = "2030-01-01T00:00:00Z"
+  end_time                        = "2030-01-02T00:00:00Z"
+
+  create_pipeline_job_request {
+    parent          = "projects/${data.google_project.project.project_id}/locations/us-central1"
+    pipeline_job {
+      display_name          = "test-pipeline-job"
+      preflight_validations = true
+      network               = google_compute_network.my_network.id
+      service_account       = "${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+      template_uri          = "https://us-kfp.pkg.dev/proj/repo/template/v1"
+      reserved_ip_ranges    = ["vertex-ai-ip-range"]
+
+      labels = {
+        "key" = "value-one"
+      }
+
+      encryption_spec {
+        kms_key_name = "my-key"
+      }
+
+      psc_interface_config {
+        network_attachment = "projects/${data.google_project.project.project_id}/regions/us-central1/networkAttachments/my-attachment"
+        dns_peering_configs {
+          domain         = "my-internal-domain.corp."
+          target_network = google_compute_network.my_network.id
+          target_project = data.google_project.project.project_id
+        }
+      }
+
+      pipeline_spec = jsonencode({
+        pipelineInfo = {
+          name = "hello-world"
+        }
+        root = {
+          dag = {
+            tasks = {}
+          }
+        }
+        schemaVersion = "2.1.0"
+        sdkVersion    = "kfp-2.0.0"
+      })
+
+      runtime_config {
+        gcs_output_directory = "gs://${google_storage_bucket.bucket.name}/pipeline_root"
+        failure_policy       = "PIPELINE_FAILURE_POLICY_FAIL_FAST"
+        parameter_values     = {
+          param1 = "val1"
+        }
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -337,11 +538,6 @@ The following arguments are supported:
 * `max_concurrent_run_count` -
   (Required)
   Maximum number of runs that can be started concurrently for this Schedule. This is the limit for starting the scheduled requests and not the execution of the notebook execution jobs created by the requests.
-
-* `create_notebook_execution_job_request` -
-  (Required)
-  Request for google_colab_notebook_execution.
-  Structure is [documented below](#nested_create_notebook_execution_job_request).
 
 * `location` -
   (Required)
@@ -364,6 +560,20 @@ The following arguments are supported:
   (Optional)
   Whether new scheduled runs can be queued when max_concurrent_runs limit is reached. If set to true, new runs will be queued instead of skipped. Default to false.
 
+* `create_notebook_execution_job_request` -
+  (Optional)
+  Request for google_colab_notebook_execution.
+  Structure is [documented below](#nested_create_notebook_execution_job_request).
+
+* `create_pipeline_job_request` -
+  (Optional)
+  Request message for PipelineService.CreatePipelineJob.
+  Structure is [documented below](#nested_create_pipeline_job_request).
+
+* `max_concurrent_active_run_count` -
+  (Optional)
+  Specifies the maximum number of active runs that can be executed concurrently for this Schedule. This limits the number of runs that can be in a non-terminal state at the same time. Currently, this field is only supported for requests of type CreatePipelineJobRequest.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -383,6 +593,14 @@ The following arguments are supported:
   (Required)
   The NotebookExecutionJob to create.
   Structure is [documented below](#nested_create_notebook_execution_job_request_notebook_execution_job).
+
+* `notebook_execution_job_id` -
+  (Output)
+  User specified ID for the NotebookExecutionJob.
+
+* `parent` -
+  (Optional)
+  The resource name of the Location to create the NotebookExecutionJob. Format: `projects/{project}/locations/{location}`
 
 
 <a name="nested_create_notebook_execution_job_request_notebook_execution_job"></a>The `notebook_execution_job` block supports:
@@ -406,7 +624,7 @@ The following arguments are supported:
   Max running time of the execution job in seconds (default 86400s / 24 hrs). A duration in seconds with up to nine fractional digits, ending with "s". Example: "3.5s".
 
 * `notebook_runtime_template_resource_name` -
-  (Required)
+  (Optional)
   The NotebookRuntimeTemplate to source compute configuration from.
 
 * `gcs_output_uri` -
@@ -421,12 +639,54 @@ The following arguments are supported:
   (Optional)
   The service account to run the execution as.
 
+* `create_time` -
+  (Output)
+  Timestamp when this NotebookExecutionJob was created.
+
+* `custom_environment_spec` -
+  (Optional)
+  Compute configuration to use for an execution job.
+  Structure is [documented below](#nested_create_notebook_execution_job_request_notebook_execution_job_custom_environment_spec).
+
+* `encryption_spec` -
+  (Optional)
+  Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource.
+  Structure is [documented below](#nested_create_notebook_execution_job_request_notebook_execution_job_encryption_spec).
+
+* `job_state` -
+  (Output)
+  Possible values: JOB_STATE_QUEUED JOB_STATE_PENDING JOB_STATE_RUNNING JOB_STATE_SUCCEEDED JOB_STATE_FAILED JOB_STATE_CANCELLING JOB_STATE_CANCELLED JOB_STATE_PAUSED JOB_STATE_EXPIRED JOB_STATE_UPDATING JOB_STATE_PARTIALLY_SUCCEEDED
+
+* `kernel_name` -
+  (Optional)
+  The name of the kernel to use during notebook execution. If unset, the default kernel is used.
+
+* `labels` -
+  (Optional)
+  The labels with user-defined metadata to organize NotebookExecutionJobs.
+
+* `name` -
+  (Output)
+  The resource name of this NotebookExecutionJob. Format: `projects/{project_id}/locations/{location}/notebookExecutionJobs/{job_id}`
+
+* `schedule_resource_name` -
+  (Output)
+  The Schedule resource name if this job is triggered by one. Format: `projects/{project_id}/locations/{location}/schedules/{schedule_id}`
+
+* `update_time` -
+  (Output)
+  Timestamp when this NotebookExecutionJob was most recently updated.
+
+* `workbench_runtime` -
+  (Optional)
+  Configuration for a Workbench Instances-based environment.
+
 
 <a name="nested_create_notebook_execution_job_request_notebook_execution_job_dataform_repository_source"></a>The `dataform_repository_source` block supports:
 
 * `dataform_repository_resource_name` -
   (Required)
-  The resource name of the Dataform Repository.
+  The resource name of the Dataform Repository. Format: `projects/{project_id}/locations/{location}/repositories/{repository_id}`
 
 * `commit_sha` -
   (Optional)
@@ -442,6 +702,251 @@ The following arguments are supported:
   (Optional)
   The version of the Cloud Storage object to read. If unset, the current version of the object is read. See https://cloud.google.com/storage/docs/metadata#generation-number.
 
+<a name="nested_create_notebook_execution_job_request_notebook_execution_job_custom_environment_spec"></a>The `custom_environment_spec` block supports:
+
+* `machine_spec` -
+  (Optional)
+  Specification of a single machine.
+  Structure is [documented below](#nested_create_notebook_execution_job_request_notebook_execution_job_custom_environment_spec_machine_spec).
+
+* `network_spec` -
+  (Optional)
+  Network spec.
+  Structure is [documented below](#nested_create_notebook_execution_job_request_notebook_execution_job_custom_environment_spec_network_spec).
+
+* `persistent_disk_spec` -
+  (Optional)
+  Represents the spec of persistent disk options.
+  Structure is [documented below](#nested_create_notebook_execution_job_request_notebook_execution_job_custom_environment_spec_persistent_disk_spec).
+
+
+<a name="nested_create_notebook_execution_job_request_notebook_execution_job_custom_environment_spec_machine_spec"></a>The `machine_spec` block supports:
+
+* `accelerator_count` -
+  (Optional)
+  The number of accelerators to attach to the machine. For accelerator optimized machine types (https://cloud.google.com/compute/docs/accelerator-optimized-machines), One may set the accelerator_count from 1 to N for machine with N GPUs. If accelerator_count is less than or equal to N / 2, Vertex will co-schedule the replicas of the model into the same VM to save cost. For example, if the machine type is a3-highgpu-8g, which has 8 H100 GPUs, one can set accelerator_count to 1 to 8. If accelerator_count is 1, 2, 3, or 4, Vertex will co-schedule 8, 4, 2, or 2 replicas of the model into the same VM to save cost. When co-scheduling, CPU, memory and storage on the VM will be distributed to replicas on the VM. For example, one can expect a co-scheduled replica requesting 2 GPUs out of a 8-GPU VM will receive 25% of the CPU, memory and storage of the VM. Note that the feature is not compatible with multihost_gpu_node_count. When multihost_gpu_node_count is set, the co-scheduling will not be enabled.
+
+* `accelerator_type` -
+  (Optional)
+  Possible values: NVIDIA_TESLA_K80 NVIDIA_TESLA_P100 NVIDIA_TESLA_V100 NVIDIA_TESLA_P4 NVIDIA_TESLA_T4 NVIDIA_TESLA_A100 NVIDIA_A100_80GB NVIDIA_L4 NVIDIA_H100_80GB NVIDIA_H100_MEGA_80GB NVIDIA_H200_141GB NVIDIA_B200 NVIDIA_GB200 NVIDIA_RTX_PRO_6000 TPU_V2 TPU_V3 TPU_V4_POD TPU_V5_LITEPOD
+
+* `gpu_partition_size` -
+  (Optional)
+  The Nvidia GPU partition size. When specified, the requested accelerators will be partitioned into smaller GPU partitions. For example, if the request is for 8 units of NVIDIA A100 GPUs, and gpu_partition_size="1g.10gb", the service will create 8 * 7 = 56 partitioned MIG instances. The partition size must be a value supported by the requested accelerator. Refer to [Nvidia GPU Partitioning](https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions) for the available partition sizes. If set, the accelerator_count should be set to 1.
+
+* `machine_type` -
+  (Optional)
+  The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required.
+
+* `reservation_affinity` -
+  (Optional)
+  A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a Shared Reservation, or exclusively from on-demand capacity.
+  Structure is [documented below](#nested_create_notebook_execution_job_request_notebook_execution_job_custom_environment_spec_machine_spec_reservation_affinity).
+
+* `tpu_topology` -
+  (Optional)
+  The topology of the TPUs. Corresponds to the TPU topologies available from GKE. (Example: tpu_topology: "2x2x1").
+
+
+<a name="nested_create_notebook_execution_job_request_notebook_execution_job_custom_environment_spec_machine_spec_reservation_affinity"></a>The `reservation_affinity` block supports:
+
+* `key` -
+  (Optional)
+  Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key and specify the name of your reservation as its value.
+
+* `reservation_affinity_type` -
+  (Required)
+  Specifies the reservation affinity type. Possible values: NO_RESERVATION ANY_RESERVATION SPECIFIC_RESERVATION SPECIFIC_THEN_ANY_RESERVATION SPECIFIC_THEN_NO_RESERVATION
+
+* `use_reservation_pool` -
+  (Optional)
+  When set to true, resources will be drawn from go/cloud-ai-gcp-pool.
+
+* `values` -
+  (Optional)
+  Corresponds to the label values of a reservation resource. This must be the full resource name of the reservation or reservation block.
+
+<a name="nested_create_notebook_execution_job_request_notebook_execution_job_custom_environment_spec_network_spec"></a>The `network_spec` block supports:
+
+* `enable_internet_access` -
+  (Optional)
+  Whether to enable public internet access. Default false.
+
+* `network` -
+  (Optional)
+  The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks)
+
+* `subnetwork` -
+  (Optional)
+  The name of the subnet that this instance is in. Format: `projects/{project_id_or_number}/regions/{region}/subnetworks/{subnetwork_id}`
+
+<a name="nested_create_notebook_execution_job_request_notebook_execution_job_custom_environment_spec_persistent_disk_spec"></a>The `persistent_disk_spec` block supports:
+
+* `disk_size_gb` -
+  (Optional)
+  Size in GB of the disk (default is 100GB).
+
+* `disk_type` -
+  (Optional)
+  Type of the disk (default is "pd-standard"). Valid values: "pd-ssd" (Persistent Disk Solid State Drive) "pd-standard" (Persistent Disk Hard Disk Drive) "pd-balanced" (Balanced Persistent Disk) "pd-extreme" (Extreme Persistent Disk)
+
+<a name="nested_create_notebook_execution_job_request_notebook_execution_job_encryption_spec"></a>The `encryption_spec` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Resource name of the Cloud KMS key used to protect the resource. The Cloud KMS key must be in the same region as the resource. It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.
+
+<a name="nested_create_pipeline_job_request"></a>The `create_pipeline_job_request` block supports:
+
+* `parent` -
+  (Optional)
+  The resource name of the Location to create the PipelineJob in. Format: `projects/{project}/locations/{location}`
+
+* `pipeline_job` -
+  (Required)
+  An instance of a machine learning PipelineJob.
+  Structure is [documented below](#nested_create_pipeline_job_request_pipeline_job).
+
+* `pipeline_job_id` -
+  (Output)
+  The ID to use for the PipelineJob, which will become the final component of the PipelineJob name. If not provided, an ID will be automatically generated. This value should be less than 128 characters, and valid characters are `/a-z-/`.
+
+
+<a name="nested_create_pipeline_job_request_pipeline_job"></a>The `pipeline_job` block supports:
+
+* `create_time` -
+  (Output)
+  Pipeline creation time.
+
+* `display_name` -
+  (Optional)
+  The display name of the Pipeline. The name can be up to 128 characters long and can consist of any UTF-8 characters.
+
+* `encryption_spec` -
+  (Optional)
+  Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource.
+  Structure is [documented below](#nested_create_pipeline_job_request_pipeline_job_encryption_spec).
+
+* `end_time` -
+  (Output)
+  Pipeline end time.
+
+* `labels` -
+  (Optional)
+  The labels with user-defined metadata to organize PipelineJob. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels. Note there is some reserved label key for Vertex AI Pipelines. - `vertex-ai-pipelines-run-billing-id`, user set value will get overrided.
+
+* `name` -
+  (Output)
+  The resource name of the PipelineJob.
+
+* `network` -
+  (Optional)
+  The full name of the Compute Engine [network](/compute/docs/networks-and-firewalls#networks) to which the Pipeline Job's workload should be peered. For example, `projects/12345/global/networks/myVPC`. [Format](/compute/docs/reference/rest/v1/networks/insert) is of the form `projects/{project}/global/networks/{network}`. Where {project} is a project number, as in `12345`, and {network} is a network name. Private services access must already be configured for the network. Pipeline job will apply the network configuration to the Google Cloud resources being launched, if applied, such as Vertex AI Training or Dataflow job. If left unspecified, the workload is not peered with any network.
+
+* `pipeline_spec` -
+  (Optional)
+  A compiled definition of a pipeline, represented as a `JSON` object. Defines the structure of the pipeline, including its components, tasks, and parameters. This specification is generated by compiling a pipeline function defined in `Python` using the `Kubeflow Pipelines SDK`.
+
+* `preflight_validations` -
+  (Optional)
+  Whether to do component level validations before job creation.
+
+* `psc_interface_config` -
+  (Optional)
+  Configuration for PSC-I.
+  Structure is [documented below](#nested_create_pipeline_job_request_pipeline_job_psc_interface_config).
+
+* `reserved_ip_ranges` -
+  (Optional)
+  A list of names for the reserved ip ranges under the VPC network that can be used for this Pipeline Job's workload. If set, we will deploy the Pipeline Job's workload within the provided ip ranges. Otherwise, the job will be deployed to any ip ranges under the provided VPC network. Example: ['vertex-ai-ip-range'].
+
+* `runtime_config` -
+  (Optional)
+  The runtime config of a PipelineJob.
+  Structure is [documented below](#nested_create_pipeline_job_request_pipeline_job_runtime_config).
+
+* `schedule_name` -
+  (Output)
+  The schedule resource name. Only returned if the Pipeline is created by Schedule API.
+
+* `service_account` -
+  (Optional)
+  The service account that the pipeline workload runs as. If not specified, the Compute Engine default service account in the project will be used. See https://cloud.google.com/compute/docs/access/service-accounts#default_service_account Users starting the pipeline must have the `iam.serviceAccounts.actAs` permission on this service account.
+
+* `start_time` -
+  (Output)
+  Pipeline start time.
+
+* `state` -
+  (Output)
+  Possible values: PIPELINE_STATE_QUEUED PIPELINE_STATE_PENDING PIPELINE_STATE_RUNNING PIPELINE_STATE_SUCCEEDED PIPELINE_STATE_FAILED PIPELINE_STATE_CANCELLING PIPELINE_STATE_CANCELLED PIPELINE_STATE_PAUSED
+
+* `template_metadata` -
+  (Output)
+  Pipeline template metadata if PipelineJob.template_uri is from supported template registry. Currently, the only supported registry is Artifact Registry.
+  Structure is [documented below](#nested_create_pipeline_job_request_pipeline_job_template_metadata).
+
+* `template_uri` -
+  (Optional)
+  A template uri from where the PipelineJob.pipeline_spec, if empty, will be downloaded. Currently, only uri from Vertex Template Registry & Gallery is supported. Reference to https://cloud.google.com/vertex-ai/docs/pipelines/create-pipeline-template.
+
+* `update_time` -
+  (Output)
+  Timestamp when this PipelineJob was most recently updated.
+
+
+<a name="nested_create_pipeline_job_request_pipeline_job_encryption_spec"></a>The `encryption_spec` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Resource name of the Cloud KMS key used to protect the resource. The Cloud KMS key must be in the same region as the resource. It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.
+
+<a name="nested_create_pipeline_job_request_pipeline_job_psc_interface_config"></a>The `psc_interface_config` block supports:
+
+* `dns_peering_configs` -
+  (Optional)
+  DNS peering configurations. When specified, Vertex AI will attempt to configure DNS peering zones in the tenant project VPC to resolve the specified domains using the target network's Cloud DNS. The user must grant the dns.peer role to the Vertex AI Service Agent on the target project.
+  Structure is [documented below](#nested_create_pipeline_job_request_pipeline_job_psc_interface_config_dns_peering_configs).
+
+* `network_attachment` -
+  (Optional)
+  The name of the Compute Engine [network attachment](https://cloud.google.com/vpc/docs/about-network-attachments) to attach to the resource within the region and user project. To specify this field, you must have already [created a network attachment] (https://cloud.google.com/vpc/docs/create-manage-network-attachments#create-network-attachments). This field is only used for resources using PSC-I.
+
+
+<a name="nested_create_pipeline_job_request_pipeline_job_psc_interface_config_dns_peering_configs"></a>The `dns_peering_configs` block supports:
+
+* `domain` -
+  (Required)
+  The DNS name suffix of the zone being peered to, e.g., "my-internal-domain.corp.". Must end with a dot.
+
+* `target_network` -
+  (Required)
+  The VPC network name in the target_project where the DNS zone specified by 'domain' is visible.
+
+* `target_project` -
+  (Required)
+  The project ID hosting the Cloud DNS managed zone that contains the 'domain'. The Vertex AI Service Agent requires the dns.peer role on this project.
+
+<a name="nested_create_pipeline_job_request_pipeline_job_runtime_config"></a>The `runtime_config` block supports:
+
+* `failure_policy` -
+  (Optional)
+  Possible values: PIPELINE_FAILURE_POLICY_FAIL_SLOW PIPELINE_FAILURE_POLICY_FAIL_FAST
+
+* `gcs_output_directory` -
+  (Required)
+  A path in a Cloud Storage bucket, which will be treated as the root output directory of the pipeline. It is used by the system to generate the paths of output artifacts. The artifact paths are generated with a sub-path pattern `{job_id}/{task_id}/{output_key}` under the specified output directory. The service account specified in this pipeline must have the `storage.objects.get` and `storage.objects.create` permissions for this bucket.
+
+* `parameter_values` -
+  (Optional)
+  The runtime parameters of the PipelineJob. The parameters will be passed into PipelineJob.pipeline_spec to replace the placeholders at runtime. This field is used by pipelines built using `PipelineJob.pipeline_spec.schema_version` 2.1.0, such as pipelines built using Kubeflow Pipelines SDK 1.9 or higher and the v2 DSL.
+
+<a name="nested_create_pipeline_job_request_pipeline_job_template_metadata"></a>The `template_metadata` block contains:
+
+* `version` -
+  (Output)
+  The version_name in artifact registry. Will always be presented in output if the PipelineJob.template_uri is from supported template registry. Format is "sha256:abcdef123456...".
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -454,6 +959,41 @@ In addition to the arguments listed above, the following computed attributes are
 * `state` -
   Output only. The state of the schedule.
 
+* `catch_up` -
+  Whether to backfill missed runs when the schedule is resumed from PAUSED state. If set to true, all missed runs will be scheduled. New runs will be scheduled after the backfill is complete. Default to false.
+
+* `create_time` -
+  Timestamp when this Schedule was created.
+
+* `last_pause_time` -
+  Timestamp when this Schedule was last paused. Unset if never paused.
+
+* `last_resume_time` -
+  Timestamp when this Schedule was last resumed. Unset if never resumed from pause.
+
+* `last_scheduled_run_response` -
+  Status of a scheduled run.
+  Structure is [documented below](#nested_last_scheduled_run_response).
+
+* `next_run_time` -
+  Timestamp when this Schedule should schedule the next run. Having a next_run_time in the past means the runs are being started behind schedule.
+
+* `started_run_count` -
+  The number of runs started by this schedule.
+
+* `update_time` -
+  Timestamp when this Schedule was updated.
+
+
+<a name="nested_last_scheduled_run_response"></a>The `last_scheduled_run_response` block contains:
+
+* `run_response` -
+  (Output)
+  The response of the scheduled run.
+
+* `scheduled_run_time` -
+  (Output)
+  The scheduled run time based on the user-specified schedule.
 
 ## Timeouts
 

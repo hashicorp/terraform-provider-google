@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -31,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -1138,6 +1140,48 @@ func TestAccComposerEnvironmentComposer3_usesUnsupportedField_expectError(t *tes
 			{
 				Config:      testAccComposerEnvironmentComposer3_usesUnsupportedField(envName),
 				ExpectError: errorRegExp,
+			},
+		},
+	})
+}
+
+func TestAccComposerEnvironmentComposer3_trafficRoutingConfig(t *testing.T) {
+	t.Parallel()
+
+	if !strings.Contains(reflect.TypeOf(transport_tpg.Config{}).PkgPath(), "google-beta") {
+		t.Skip("skipping beta-only test in GA provider")
+	}
+
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
+	subnetwork := network + "-1"
+	serviceAccount := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironmentComposer3_trafficRouting(envName, network, subnetwork, serviceAccount, "DIRECT"),
+			},
+			{
+				Config: testAccComposerEnvironmentComposer3_trafficRouting(envName, network, subnetwork, serviceAccount, "VIA_NETWORK_ATTACHMENT"),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
+
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironmentComposer3_trafficRouting(envName, network, subnetwork, serviceAccount, "VIA_NETWORK_ATTACHMENT"),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
 			},
 		},
 	})
@@ -2961,6 +3005,56 @@ resource "google_compute_subnetwork" "test" {
   network       = google_compute_network.test.self_link
 }
 `, serviceAccount, name, network, subnetwork)
+}
+
+func testAccComposerEnvironmentComposer3_trafficRouting(name, network, subnetwork, serviceAccount, routingMode string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Test Service Account for Composer Environment"
+}
+resource "google_project_iam_member" "composer-worker" {
+  project = data.google_project.project.project_id
+  role    = "roles/composer.worker"
+  member  = "serviceAccount:${google_service_account.test.email}"
+}
+
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-central1"
+  config {
+    node_config {
+      network    = google_compute_network.test.id
+      subnetwork = google_compute_subnetwork.test.id
+      service_account = google_service_account.test.name
+      traffic_routing_config {
+        cloud_run_functions_routing = "%s"
+      }
+    }
+    software_config {
+      image_version = "composer-3-airflow-2"
+    }
+    enable_private_environment = true
+  }
+  depends_on = [google_project_iam_member.composer-worker]
+}
+
+// use a separate network to avoid conflicts with other tests running in parallel
+// that use the default network/subnet
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.test.self_link
+}
+`, serviceAccount, name, routingMode, network, subnetwork)
 }
 
 // WARNING: This is not actually a check and is a terrible clean-up step because Composer Environments
