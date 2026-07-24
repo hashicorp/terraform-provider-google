@@ -1,49 +1,47 @@
 ## 7.42.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* introduce prepare release workflow ([#28443](https://github.com/hashicorp/terraform-provider-google/pull/28443))
 NOTES:
-* compute: Full migration `resource_compute_region_instance_template.go.tmpl` resource to use direct HTTP rather then a client library ([#28431](https://github.com/hashicorp/terraform-provider-google/pull/28431))
+* compute: migrated `google_compute_region_instance_template` resource to use direct HTTP rather than a client library ([#28431](https://github.com/hashicorp/terraform-provider-google/pull/28431))
+
 DEPRECATIONS:
-* vertexai: deprecated `google_vertex_ai_schedule`, an accidentally-added duplicate resource. Use `google_colab_schedule` instead. ([#28406](https://github.com/hashicorp/terraform-provider-google/pull/28406))
+* vertexai: deprecated `google_vertex_ai_schedule`, an accidentally-added duplicate resource; use `google_colab_schedule` instead. ([#28406](https://github.com/hashicorp/terraform-provider-google/pull/28406))
 
 FEATURES:
-* **New Data Source:** `google_cloud_quotas_quota_adjuster_settings` (GA) ([#28383](https://github.com/hashicorp/terraform-provider-google/pull/28383))
+* **New Data Source:** `google_cloud_quotas_quota_adjuster_settings` ([#28383](https://github.com/hashicorp/terraform-provider-google/pull/28383))
 * **New List Resource:** `google_service_account_key` ([#28430](https://github.com/hashicorp/terraform-provider-google/pull/28430))
 * **New Resource:** `google_agent_identity_auth_provider` ([#28447](https://github.com/hashicorp/terraform-provider-google/pull/28447))
-* **New Resource:** `google_compute_global_vm_extension_policy` (ga) ([#28445](https://github.com/hashicorp/terraform-provider-google/pull/28445))
-* **New Resource:** `google_compute_rollout_plan` (ga) ([#28445](https://github.com/hashicorp/terraform-provider-google/pull/28445))
+* **New Resource:** `google_apihub_runtime_project_attachment` ([#28449](https://github.com/hashicorp/terraform-provider-google/pull/28449))
+* **New Resource:** `google_chronicle_big_query_export` ([#28403](https://github.com/hashicorp/terraform-provider-google/pull/28403))
+* **New Resource:** `google_compute_global_vm_extension_policy` ([#28445](https://github.com/hashicorp/terraform-provider-google/pull/28445))
+* **New Resource:** `google_compute_rollout_plan` ([#28445](https://github.com/hashicorp/terraform-provider-google/pull/28445))
 * **New Resource:** `google_vector_search_data_object` ([#28434](https://github.com/hashicorp/terraform-provider-google/pull/28434))
 * **New Resource:** `google_vertex_ai_persistent_resource` ([#28435](https://github.com/hashicorp/terraform-provider-google/pull/28435))
-* **New Resource:** apihub: added `google_apihub_runtime_project_attachment` resource ([#28449](https://github.com/hashicorp/terraform-provider-google/pull/28449))
-* **New Resource:** chronicle: added `google_chronicle_big_query_export` resource ([#28403](https://github.com/hashicorp/terraform-provider-google/pull/28403))
 
 IMPROVEMENTS:
 * bigquery: added `table_type` field to `google_bigquery_routine` resource ([#28446](https://github.com/hashicorp/terraform-provider-google/pull/28446))
-* cloudrunv2: added fields `start_execution_token` and `run_execution_token` to `google_cloud_run_v2_job` (ga) ([#28384](https://github.com/hashicorp/terraform-provider-google/pull/28384))
+* cloudrunv2: added `start_execution_token` and `run_execution_token` fields to `google_cloud_run_v2_job` ([#28384](https://github.com/hashicorp/terraform-provider-google/pull/28384))
 * colab: added `catch_up`, `create_pipeline_job_request`, `create_time`, `last_pause_time`, `last_resume_time`, `last_scheduled_run_response`, `max_concurrent_active_run_count`, `next_run_time`, `started_run_count`, `update_time`, and sub-fields under `create_notebook_execution_job_request.notebook_execution_job` (`create_time`, `custom_environment_spec`, `encryption_spec`, `job_state`, `kernel_name`, `labels`, `name`, `schedule_resource_name`, `workbench_runtime`) and sub-fields under `create_notebook_execution_job_request` (`notebook_execution_job_id`, `parent`) to `google_colab_schedule` ([#28406](https://github.com/hashicorp/terraform-provider-google/pull/28406))
-* composer: added `config.node_config.traffic_routing_config` argument to `google_composer_environment` resource (beta) ([#28399](https://github.com/hashicorp/terraform-provider-google/pull/28399))
-* compute: added `effective-location` field to `google_compute_interconnect` resource ([#28416](https://github.com/hashicorp/terraform-provider-google/pull/28416))
+* compute: added `effective_location` field to `google_compute_interconnect` resource ([#28416](https://github.com/hashicorp/terraform-provider-google/pull/28416))
 * compute: added `request_headers` and `response_headers` fields to `log_config` on `google_compute_backend_service` and `google_compute_region_backend_service` resources ([#28421](https://github.com/hashicorp/terraform-provider-google/pull/28421))
-* compute: added identity support to `google_compute_instance`, allowing resource import using an identity block ([#28433](https://github.com/hashicorp/terraform-provider-google/pull/28433))
+* compute: added identity support to `google_compute_instance`, allowing resource import using an `identity` block ([#28433](https://github.com/hashicorp/terraform-provider-google/pull/28433))
 * compute: changed `location` field to mutable for `google_compute_interconnect` resource ([#28416](https://github.com/hashicorp/terraform-provider-google/pull/28416))
 * container: added `addons_config.node_readiness_config` field to `google_container_cluster` resource ([#28417](https://github.com/hashicorp/terraform-provider-google/pull/28417))
 * container: added `rollback_safe_upgrade`, `desired_emulated_version`, and `emulated_version` fields to `google_container_cluster` ([#28442](https://github.com/hashicorp/terraform-provider-google/pull/28442))
-* container: increase default timeout to 2 hours for `google_container_node_pool` ([#28382](https://github.com/hashicorp/terraform-provider-google/pull/28382))
-* dataproc: added `confidential_instance_type` to `google_dataproc_cluster` resource. ([#28371](https://github.com/hashicorp/terraform-provider-google/pull/28371))
-* gkehub: added `min_control_plane_version`, `min_node_version`, `target_control_plane_version`, `target_node_version` and `operational_state` fields to `google_gke_hub_rollout_sequence` resource ([#28429](https://github.com/hashicorp/terraform-provider-google/pull/28429))
+* container: increased default timeout to 2 hours for `google_container_node_pool` ([#28382](https://github.com/hashicorp/terraform-provider-google/pull/28382))
+* dataproc: added `confidential_instance_type` field to `google_dataproc_cluster` resource ([#28371](https://github.com/hashicorp/terraform-provider-google/pull/28371))
+* gkehub: added `min_control_plane_version`, `min_node_version`, `target_control_plane_version`, `target_node_version`, and `operational_state` fields to `google_gke_hub_rollout_sequence` resource ([#28429](https://github.com/hashicorp/terraform-provider-google/pull/28429))
 * hypercomputecluster: increased default timeouts for `google_hypercomputecluster_cluster` to 120 minutes ([#28448](https://github.com/hashicorp/terraform-provider-google/pull/28448))
 * modelarmor: added `template_metadata.filter_version_selector` to `google_model_armor_template` ([#28402](https://github.com/hashicorp/terraform-provider-google/pull/28402))
 * sql: added identity support to `google_sql_user` for `terraform query` support ([#28428](https://github.com/hashicorp/terraform-provider-google/pull/28428))
 
 BUG FIXES:
-* bigtable: fixed an issue where `bigtable_custom_endpoint` and `universe_domain` were ignored when creating Bigtable resources. ([#28404](https://github.com/hashicorp/terraform-provider-google/pull/28404))
+* bigtable: fixed an issue where `bigtable_custom_endpoint` and `universe_domain` were ignored when creating Bigtable resources ([#28404](https://github.com/hashicorp/terraform-provider-google/pull/28404))
 * compute: fixed an issue where diffs in `google_compute_security_policy` were not detected ([#28420](https://github.com/hashicorp/terraform-provider-google/pull/28420))
-* gkehub: fixed `rolloutCreationScope` and `upgradeTypes` fields in `google_gke_hub_rollout_sequence` resource. Empty values can now be sent to the API. ([#28429](https://github.com/hashicorp/terraform-provider-google/pull/28429))
-* osconfig: added client-side validation to ensure `resource_hierarchy_selector` and `location_selector` are not set at the same time in `google_os_config_v2_policy_orchestrator`, `google_os_config_v2_policy_orchestrator_for_folder` and `google_os_config_v2_policy_orchestrator_for_organization`. ([#28407](https://github.com/hashicorp/terraform-provider-google/pull/28407))
-* secretmanager: fixed an issue where `google_secret_manager_secret_version` would fail at apply time with `Field [payload]` is required if neither `secret_data` or `secret_data_wo` was set. The provider  now returns a validation error at plan time. ([#28419](https://github.com/hashicorp/terraform-provider-google/pull/28419))
+* gkehub: fixed `rollout_creation_scope` and `upgrade_types` fields in `google_gke_hub_rollout_sequence` resource ([#28429](https://github.com/hashicorp/terraform-provider-google/pull/28429))
+* osconfig: added client-side validation to ensure `resource_hierarchy_selector` and `location_selector` are not set at the same time in `google_os_config_v2_policy_orchestrator`, `google_os_config_v2_policy_orchestrator_for_folder`, and `google_os_config_v2_policy_orchestrator_for_organization` ([#28407](https://github.com/hashicorp/terraform-provider-google/pull/28407))
+* secretmanager: fixed an issue where `google_secret_manager_secret_version` would fail at apply time if neither `secret_data` nor `secret_data_wo` was set ([#28419](https://github.com/hashicorp/terraform-provider-google/pull/28419))
 * sql: fixed issue where updates to `settings.ip_configuration.psc_config.allowed_consumer_projects` in `google_sql_database_instance` were silently ignored on in-place updates ([#28444](https://github.com/hashicorp/terraform-provider-google/pull/28444))
-* vertexai: fixed `google_vertex_ai_endpoint_with_model_garden_deployment` destroying and recreating the endpoint when `min_replica_count`, `max_replica_count`, `required_replica_count`, or `autoscaling_metric_specs` changed; these fields are now updated in place via `endpoints:mutateDeployedModel` ([#28401](https://github.com/hashicorp/terraform-provider-google/pull/28401))
+* vertexai: fixed `google_vertex_ai_endpoint_with_model_garden_deployment` destroying and recreating the endpoint when `min_replica_count`, `max_replica_count`, `required_replica_count`, or `autoscaling_metric_specs` changed ([#28401](https://github.com/hashicorp/terraform-provider-google/pull/28401))
 
 
 ## 7.41.0 (Unreleased)
