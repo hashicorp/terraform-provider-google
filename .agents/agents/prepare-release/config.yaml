@@ -28,7 +28,7 @@ custom_agent:
            - By default, the weekly release uses the Thursday night cut. Check if the user explicitly specified a different day of the week to take the cut from (e.g., they mentioned a day like "Wednesday", "Friday", or similar in their prompt).
            - If a specific day is explicitly requested by the user, run `./.agents/scripts/get_nightly_sha.sh <UPSTREAM_REMOTE> --day-of-week <day_of_week>` (substituting `<day_of_week>` with the user's requested day).
            - Otherwise, default to the Thursday night cut by running `./.agents/scripts/get_nightly_sha.sh <UPSTREAM_REMOTE>`.
-           - If it outputs any error `AGENT_INSTRUCTION` (e.g., missing tokens), stop and resolve it with the user.
+           - If it outputs any error `AGENT_INSTRUCTION` (e.g., missing tokens), stop and resolve it with the user. If `TEAMCITY_TOKEN` is missing, present clear step-by-step instructions to the user: 1) Log into https://hashicorp.teamcity.com/, 2) Open Profile -> Access Tokens (https://hashicorp.teamcity.com/profile.html?item=accessTokens), 3) Click 'Create Access Token', name it, and copy it, 4) Export via `export TEAMCITY_TOKEN="<token>"` (remind the user to avoid spaces around '=' in bash).
         3. **Calculate Semver Versions:**
            - Run `./.agents/scripts/get_release_versions.sh <UPSTREAM_REMOTE>` to fetch the latest tags and calculate release versions.
            - Extract the `previous_version` and `next_version` from the JSON output.
@@ -56,8 +56,10 @@ custom_agent:
         ```bash
         ./.agents/scripts/cut_release_branch.sh <COMMIT_SHA> <PREVIOUS_RELEASE_VERSION> <RELEASE_VERSION> <TARGET_REMOTE> <UPSTREAM_REMOTE>
         ```
-        - **Crash Recovery:** If the script crashes midway (e.g. `changelog-gen` fails due to network issues or missing tokens), you must inspect the error, help the user resolve the issue, and manually pick up the missing steps (e.g., manually invoking `changelog-gen` with the correct args) rather than starting from scratch.
-        - If the script outputs an `AGENT_INSTRUCTION` (e.g., missing tokens or parameter validation failures), stop and ask the user to provide or fix them. In this instance you can re-run the script as no actual steps were exectued. Check the script just to be sure.
+        - **Crash Recovery & Unmerged Changelog Handling:** 
+          - The `cut_release_branch.sh` script automatically detects if `CHANGELOG.md` on `main` is missing the previous release notes (e.g. if last week's release PR is still pending merge). If missing, it recovers and prepends the previous release section from the remote changelog branch.
+          - If the script crashes midway (e.g. `changelog-gen` fails due to network issues or missing tokens), inspect the error, help the user resolve the issue, and manually pick up the missing steps rather than starting from scratch.
+        - If the script outputs an `AGENT_INSTRUCTION` (e.g., missing tokens or parameter validation failures), stop and ask the user to provide or fix them.
         - **User Checkpoint:** Once the script succeeds, it will have automatically committed the raw changes, pushed the PR branch, and created the PR. 
           Provide the user with the PR link outputted by the script: "I have pushed the branch and created the PR. You can view the PR with the raw changelog diff here: <PR_LINK>". Then ask: "Shall I proceed to audit the changelog?"
 
@@ -66,26 +68,30 @@ custom_agent:
         After the user tells you to proceed to the audit, rigorously audit the new notes in `CHANGELOG.md` against the following rules:
         
         1. **Cross-Provider Filtering (`changelog-gen` sync artifact removal):**
-           - **If auditing `google-beta`:** Delete any entry ending in `(ga)` or describing a GA-only addition (`resource in GA`). Strip the `(beta)` suffix from valid beta entries (`added foo (beta)` -> `added foo`).
-           - **If auditing `google` (GA):** Delete any entry ending in `(beta)` or describing a Beta-only addition. Strip the `(ga)` suffix from valid GA entries.
-        2. **One Line Per Block:** Ensure no single release note block spans multiple lines.
-        3. **Past Tense Verbs:** Every note must begin with a past-tense verb (`added`, `fixed`, `resolved`, `updated`, `rejected`, `migrated`). Never use present/future (`adds`, `fixing`).
-        4. **User-Focused & Backticked HCL Names:**
+           - Delete any entry ending in `(beta)` or describing a Beta-only addition. Strip the `(ga)` suffix from valid GA entries.
+        2. **Internal Tooling & Infra Exclusion:**
+           - Remove or omit entries for commits/PRs that exclusively touch repository tooling, internal scripts, or CI infrastructure (such as `.agents/`, `.github/`, `.ci/`, unit test helpers, or build scripts). These are non-user-facing (`changelog: no-release-note`).
+        3. **Net-Zero Change Check (Same-Cycle Introduced & Fixed Bugs):**
+           - Check candidate PRs/commits merged during this release window (since `$PREVIOUS_RELEASE_VERSION`). If a PR fixes a bug or panic introduced in an earlier PR within *this same release cycle*, its net effect to released users is zero.
+           - *Mandatory Safeguard*: NEVER silently delete potential net-zero entries without user confirmation. Delegate diff/PR inspection (inline or via subagent) to compile candidate net-zero notes, present your findings with PR links and rationale to the user, and request explicit approval before removing them from `CHANGELOG.md`.
+        4. **One Line Per Block:** Ensure no single release note block spans multiple lines.
+        5. **Past Tense Verbs:** Every note must begin with a past-tense verb (`added`, `fixed`, `resolved`, `updated`, `rejected`, `migrated`). Never use present/future (`adds`, `fixing`).
+        6. **User-Focused & Backticked HCL Names:**
            - Inspect exact git commit diffs (`git show <SHA>`) when in doubt about HCL attribute names.
            - Surround all Terraform resource names, data source names, and attribute/block names in backticks (`google_compute_instance`, `workload_identity_config`).
            - Replace internal PascalCase struct names (`WorkloadIdentityConfig`, `CustomNodeInit`) with exact backticked HCL blocks (`workload_identity_config` block, `custom_node_init` block).
            - Replace informal descriptions (`Compute Instance and InstanceTemplate`, `mongodb connection profile`) with exact backticked resource names (`google_compute_instance`, `google_datastream_connection_profile`).
-        5. **Correct Product Prefixes:**
+        7. **Correct Product Prefixes:**
            - Prefix must be the product/service folder name or API subdomain followed by a colon and a lowercase letter (`compute: added...`, `container: added...`). Do not backtick the prefix.
            - For provider-wide cross-product changes (such as authentication or validators), use `provider:`.
-        6. **Correct Tab Sectioning:**
+        8. **Correct Tab Sectioning:**
            - `new-resource` -> `* **New Resource:** \`RESOURCE_NAME\`` under `FEATURES:`.
            - `new-datasource` -> `* **New Data Source:** \`DATASOURCE_NAME\`` under `FEATURES:`.
            - `new-list-resource` -> `* **New List Resource:** \`LIST_RESOURCE_NAME\`` under `FEATURES:`.
            - `enhancement` -> `IMPROVEMENTS:`.
            - `bug` -> `BUG FIXES:`.
            - `none` / `changelog: no-release-note` / already released patch PRs -> Remove completely or leave empty.
-        7. **Strict Alphabetical Sorting:** Order all notes strictly alphabetically within each section.
+        9. **Strict Alphabetical Sorting:** Order all notes strictly alphabetically within each section.
         
         **User Checkpoint:** Do not present the git diff directly in the chat. Instead, make the audited changes to `CHANGELOG.md` locally and ask the user to review the file and approve pushing the update to the PR.
         

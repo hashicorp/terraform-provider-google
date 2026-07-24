@@ -7,7 +7,7 @@
 # an isolated PR branch (changelog-*) for auditing. Finally, it fetches the authoritative 
 # templates from magic-modules and runs changelog-gen to prepare the workspace for the human audit.
 #
-# Interface: $0 <COMMIT_SHA> <PREVIOUS_RELEASE_VERSION> <RELEASE_VERSION> <TARGET_REMOTE>
+# Interface: $0 <COMMIT_SHA> <PREVIOUS_RELEASE_VERSION> <RELEASE_VERSION> <TARGET_REMOTE> <UPSTREAM_REMOTE>
 # The agent dynamically determines the TARGET_REMOTE based on git remotes and user preference,
 # and passes it explicitly to this script.
 #
@@ -65,10 +65,14 @@ fi
 
 echo "Starting release cut for ${RELEASE_VERSION} from commit ${COMMIT_SHA}..."
 echo "Using remote: ${REMOTE}"
-echo "Using magic-modules at: ${MM_REPO}"
 
 REPO_NAME=$(basename $(git rev-parse --show-toplevel))
 echo "Repository name: ${REPO_NAME}"
+
+MODE_SUFFIX="ga"
+if [[ "$REPO_NAME" == *"-beta" ]]; then
+  MODE_SUFFIX="beta"
+fi
 
 # Fetch tags and commits from upstream
 git fetch $UPSTREAM_REMOTE --tags
@@ -126,6 +130,33 @@ changelog-gen -repo $REPO_NAME -branch main -owner hashicorp \
 
 echo "" >> "$TMP_OUTPUT"
 
+# Check if CHANGELOG.md is missing the previous release notes (e.g. if previous release PR hasn't merged to main yet)
+if ! grep -q "^## ${PREVIOUS_RELEASE_VERSION}" CHANGELOG.md; then
+  echo "[INFO] Previous release v${PREVIOUS_RELEASE_VERSION} notes not found in CHANGELOG.md on main. Checking for unmerged previous release branch..."
+  PREV_REF=""
+  for CANDIDATE in "${UPSTREAM_REMOTE}/changelog-${PREVIOUS_RELEASE_VERSION}" "${UPSTREAM_REMOTE}/${PREVIOUS_RELEASE_VERSION}-changelog" "${REMOTE}/changelog-${PREVIOUS_RELEASE_VERSION}" "${REMOTE}/${PREVIOUS_RELEASE_VERSION}-changelog"; do
+    if git rev-parse --verify "$CANDIDATE" >/dev/null 2>&1; then
+      PREV_REF="$CANDIDATE"
+      break
+    fi
+  done
+
+  if [[ -n "$PREV_REF" ]]; then
+    echo "Recovering v${PREVIOUS_RELEASE_VERSION} release notes from $PREV_REF..."
+    PREV_CHANGELOG=$(git show "$PREV_REF:CHANGELOG.md" 2>/dev/null || true)
+    if [[ -n "$PREV_CHANGELOG" ]]; then
+      PREV_SECTION=$(echo "$PREV_CHANGELOG" | awk "/^## ${PREVIOUS_RELEASE_VERSION}/{flag=1; print; next} /^## /{if(flag && \$0 ~ /^## [0-9]+\\./) exit} flag")
+      if [[ -n "$PREV_SECTION" ]]; then
+        echo "$PREV_SECTION" >> "$TMP_OUTPUT"
+        echo "" >> "$TMP_OUTPUT"
+        echo "[SUCCESS] Recovered v${PREVIOUS_RELEASE_VERSION} release notes and inserted into changelog stream."
+      fi
+    fi
+  else
+    echo "[WARNING] Could not locate remote branch for previous release v${PREVIOUS_RELEASE_VERSION}."
+  fi
+fi
+
 # Prepend the generated notes to the existing CHANGELOG.md, stripping existing empty header if present
 if head -n 1 CHANGELOG.md | grep -q "^## ${RELEASE_VERSION} (Unreleased)"; then
   tail -n +3 CHANGELOG.md >> "$TMP_OUTPUT"
@@ -150,7 +181,7 @@ PR_RESPONSE=$(curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
   https://api.github.com/repos/$REPO_FULL/pulls \
   -d '{
-    "title": "Release Notes for version '"$RELEASE_VERSION"' (ga)",
+    "title": "Release Notes for version '"$RELEASE_VERSION"' ('"$MODE_SUFFIX"')",
     "head": "changelog-'"$RELEASE_VERSION"'",
     "base": "release-'"$RELEASE_VERSION"'",
     "body": ""
