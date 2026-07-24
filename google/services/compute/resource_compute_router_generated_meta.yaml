@@ -20,6 +20,7 @@ fields:
     - api_field: md5AuthenticationKeys.key
     - api_field: md5AuthenticationKeys.name
     - api_field: name
+    - api_field: nccGateway
     - api_field: network
     - api_field: params.resourceManagerTags
     - api_field: region
