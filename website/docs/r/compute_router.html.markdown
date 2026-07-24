@@ -93,13 +93,11 @@ resource "google_compute_network" "network" {
 
 ```hcl
 resource "google_compute_network" "network" {
-  provider = google-beta
   name        = "net-spoke"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  provider = google-beta
   name          = "tf-test-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.0/28"
   region        = "us-central1"
@@ -107,7 +105,6 @@ resource "google_compute_subnetwork" "subnetwork" {
 }
 
 resource "google_network_connectivity_hub" "basic_hub" {
-  provider = google-beta
   name        = "hub"
   description = "A sample hub"
   labels = {
@@ -117,7 +114,6 @@ resource "google_network_connectivity_hub" "basic_hub" {
 }
 
 resource "google_network_connectivity_spoke" "primary" {
-  provider = google-beta
   name        = "my-ncc-gw"
   location = "us-central1"
   description = "A sample spoke of type Gateway"
@@ -136,7 +132,6 @@ resource "google_network_connectivity_spoke" "primary" {
 
 
 resource "google_compute_router" "foobar" {
-  provider = google-beta
   name    = "my-router"
   bgp {
     asn               = 64514
@@ -192,7 +187,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_md5_authentication_keys).
 
 * `ncc_gateway` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   A URI of an NCC Gateway spoke
 
 * `params` -

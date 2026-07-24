@@ -167,6 +167,48 @@ func ResourceNetworkConnectivitySpoke() *schema.Resource {
 				Optional:    true,
 				Description: `An optional description of the spoke.`,
 			},
+			"gateway": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `This is a gateway that can apply specialized processing to traffic going through it.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"capacity": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"CAPACITY_1_GBPS", "CAPACITY_10_GBPS", "CAPACITY_100_GBPS"}),
+							Description:  `the capacity of the gateway spoke, in Gbps. Possible values: ["CAPACITY_1_GBPS", "CAPACITY_10_GBPS", "CAPACITY_100_GBPS"]`,
+						},
+						"ip_range_reservations": {
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							Description: `A list of IP ranges that are reserved for this gateway's internal infrastructure.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"ip_range": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `A block of IP address ranges used to allocate supporting infrastructure for this gateway—for example, 10.1.2.0/23. The IP address block must be a /23 range. This IP address block must not overlap with subnets in any spoke or peer network that the gateway can communicate with.`,
+									},
+								},
+							},
+						},
+						"routers": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Set of Cloud Routers that are attached to this NCC-GW`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+				ConflictsWith: []string{"linked_producer_vpc_network", "linked_interconnect_attachments", "linked_router_appliance_instances", "linked_vpc_network", "linked_vpn_tunnels"},
+			},
 			"group": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -241,7 +283,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ConflictsWith: []string{"linked_producer_vpc_network", "linked_router_appliance_instances", "linked_vpc_network", "linked_vpn_tunnels"},
+				ConflictsWith: []string{"gateway", "linked_producer_vpc_network", "linked_router_appliance_instances", "linked_vpc_network", "linked_vpn_tunnels"},
 			},
 			"linked_producer_vpc_network": {
 				Type:        schema.TypeList,
@@ -287,7 +329,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ConflictsWith: []string{"linked_interconnect_attachments", "linked_router_appliance_instances", "linked_vpc_network", "linked_vpn_tunnels"},
+				ConflictsWith: []string{"gateway", "linked_interconnect_attachments", "linked_router_appliance_instances", "linked_vpc_network", "linked_vpn_tunnels"},
 			},
 			"linked_router_appliance_instances": {
 				Type:        schema.TypeList,
@@ -357,7 +399,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ConflictsWith: []string{"linked_interconnect_attachments", "linked_producer_vpc_network", "linked_vpc_network", "linked_vpn_tunnels"},
+				ConflictsWith: []string{"gateway", "linked_interconnect_attachments", "linked_producer_vpc_network", "linked_vpc_network", "linked_vpn_tunnels"},
 			},
 			"linked_vpc_network": {
 				Type:        schema.TypeList,
@@ -391,7 +433,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ConflictsWith: []string{"linked_interconnect_attachments", "linked_producer_vpc_network", "linked_router_appliance_instances", "linked_vpn_tunnels"},
+				ConflictsWith: []string{"gateway", "linked_interconnect_attachments", "linked_producer_vpc_network", "linked_router_appliance_instances", "linked_vpn_tunnels"},
 			},
 			"linked_vpn_tunnels": {
 				Type:        schema.TypeList,
@@ -450,7 +492,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 						},
 					},
 				},
-				ConflictsWith: []string{"linked_interconnect_attachments", "linked_producer_vpc_network", "linked_router_appliance_instances", "linked_vpc_network"},
+				ConflictsWith: []string{"gateway", "linked_interconnect_attachments", "linked_producer_vpc_network", "linked_router_appliance_instances", "linked_vpc_network"},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -594,6 +636,12 @@ func resourceNetworkConnectivitySpokeCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("linked_producer_vpc_network"); !tpgresource.IsEmptyValue(reflect.ValueOf(linkedProducerVpcNetworkProp)) && (ok || !reflect.DeepEqual(v, linkedProducerVpcNetworkProp)) {
 		obj["linkedProducerVpcNetwork"] = linkedProducerVpcNetworkProp
+	}
+	gatewayProp, err := expandNetworkConnectivitySpokeGateway(d.Get("gateway"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gateway"); !tpgresource.IsEmptyValue(reflect.ValueOf(gatewayProp)) && (ok || !reflect.DeepEqual(v, gatewayProp)) {
+		obj["gateway"] = gatewayProp
 	}
 	effectiveLabelsProp, err := expandNetworkConnectivitySpokeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1299,6 +1347,53 @@ func flattenNetworkConnectivitySpokeLinkedProducerVpcNetworkExcludeExportRanges(
 	return v
 }
 
+func flattenNetworkConnectivitySpokeGateway(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ip_range_reservations"] =
+		flattenNetworkConnectivitySpokeGatewayIpRangeReservations(original["ipRangeReservations"], d, config)
+	transformed["capacity"] =
+		flattenNetworkConnectivitySpokeGatewayCapacity(original["capacity"], d, config)
+	transformed["routers"] =
+		flattenNetworkConnectivitySpokeGatewayRouters(original["routers"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkConnectivitySpokeGatewayIpRangeReservations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"ip_range": flattenNetworkConnectivitySpokeGatewayIpRangeReservationsIpRange(original["ipRange"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkConnectivitySpokeGatewayIpRangeReservationsIpRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivitySpokeGatewayCapacity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivitySpokeGatewayRouters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkConnectivitySpokeUniqueId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1771,6 +1866,79 @@ func expandNetworkConnectivitySpokeLinkedProducerVpcNetworkExcludeExportRanges(v
 	return v, nil
 }
 
+func expandNetworkConnectivitySpokeGateway(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIpRangeReservations, err := expandNetworkConnectivitySpokeGatewayIpRangeReservations(original["ip_range_reservations"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIpRangeReservations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ipRangeReservations"] = transformedIpRangeReservations
+	}
+
+	transformedCapacity, err := expandNetworkConnectivitySpokeGatewayCapacity(original["capacity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCapacity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["capacity"] = transformedCapacity
+	}
+
+	transformedRouters, err := expandNetworkConnectivitySpokeGatewayRouters(original["routers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRouters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["routers"] = transformedRouters
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkConnectivitySpokeGatewayIpRangeReservations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedIpRange, err := expandNetworkConnectivitySpokeGatewayIpRangeReservationsIpRange(original["ip_range"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpRange); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipRange"] = transformedIpRange
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkConnectivitySpokeGatewayIpRangeReservationsIpRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivitySpokeGatewayCapacity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivitySpokeGatewayRouters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkConnectivitySpokeEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1819,6 +1987,9 @@ func ResourceNetworkConnectivitySpokeFlatten(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Spoke: %s", err)
 	}
 	if err = d.Set("linked_producer_vpc_network", flattenNetworkConnectivitySpokeLinkedProducerVpcNetwork(res["linkedProducerVpcNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Spoke: %s", err)
+	}
+	if err = d.Set("gateway", flattenNetworkConnectivitySpokeGateway(res["gateway"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Spoke: %s", err)
 	}
 	if err = d.Set("unique_id", flattenNetworkConnectivitySpokeUniqueId(res["uniqueId"], d, config)); err != nil {

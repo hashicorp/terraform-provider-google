@@ -1,0 +1,9 @@
+```release-note:enhancement
+networkconnectivity: promoted `gateway` field in `google_network_connectivity_spoke` to GA
+```
+```release-note:new-resource
+`google_network_connectivity_gateway_advertised_route` GA promotion
+```
+```release-note:enhancement
+compute: promoted `ncc_gateway` field in `google_compute_router` to GA
+```

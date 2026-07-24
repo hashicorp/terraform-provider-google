@@ -541,13 +541,11 @@ resource "google_network_connectivity_spoke" "primary"  {
 
 ```hcl
 resource "google_compute_network" "network" {
-  provider = google-beta
   name        = "net-spoke"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  provider = google-beta
   name          = "tf-test-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.0/28"
   region        = "us-central1"
@@ -555,7 +553,6 @@ resource "google_compute_subnetwork" "subnetwork" {
 }
 
 resource "google_network_connectivity_hub" "basic_hub" {
-  provider = google-beta
   name        = "hub"
   description = "A sample hub"
   labels = {
@@ -565,7 +562,6 @@ resource "google_network_connectivity_hub" "basic_hub" {
 }
 
 resource "google_network_connectivity_spoke" "primary" {
-  provider = google-beta
   name        = "gateway"
   location = "us-central1"
   description = "A sample spoke of type Gateway"
@@ -641,7 +637,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_linked_producer_vpc_network).
 
 * `gateway` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   This is a gateway that can apply specialized processing to traffic going through it.
   Structure is [documented below](#nested_gateway).
 
@@ -798,7 +794,7 @@ The following arguments are supported:
   Possible values are: `CAPACITY_1_GBPS`, `CAPACITY_10_GBPS`, `CAPACITY_100_GBPS`.
 
 * `routers` -
-  (Output, [Beta](../guides/provider_versions.html.markdown))
+  (Output)
   Set of Cloud Routers that are attached to this NCC-GW
 
 
