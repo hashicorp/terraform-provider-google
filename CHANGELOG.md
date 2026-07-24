@@ -37,7 +37,6 @@ IMPROVEMENTS:
 BUG FIXES:
 * bigtable: fixed an issue where `bigtable_custom_endpoint` and `universe_domain` were ignored when creating Bigtable resources ([#28404](https://github.com/hashicorp/terraform-provider-google/pull/28404))
 * compute: fixed an issue where diffs in `google_compute_security_policy` were not detected ([#28420](https://github.com/hashicorp/terraform-provider-google/pull/28420))
-* compute: fixed panic when setting scheduling attributes in `google_compute_region_instance_template` ([#28467](https://github.com/hashicorp/terraform-provider-google/pull/28467))
 * gkehub: fixed `rollout_creation_scope` and `upgrade_types` fields in `google_gke_hub_rollout_sequence` resource ([#28429](https://github.com/hashicorp/terraform-provider-google/pull/28429))
 * osconfig: added client-side validation to ensure `resource_hierarchy_selector` and `location_selector` are not set at the same time in `google_os_config_v2_policy_orchestrator`, `google_os_config_v2_policy_orchestrator_for_folder`, and `google_os_config_v2_policy_orchestrator_for_organization` ([#28407](https://github.com/hashicorp/terraform-provider-google/pull/28407))
 * secretmanager: fixed an issue where `google_secret_manager_secret_version` would fail at apply time if neither `secret_data` nor `secret_data_wo` was set ([#28419](https://github.com/hashicorp/terraform-provider-google/pull/28419))
