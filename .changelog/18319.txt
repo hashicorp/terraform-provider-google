@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquerydatapolicyv2: added `data_governance_tag` field to `google_bigquery_datapolicyv2_data_policy` resource
+```
