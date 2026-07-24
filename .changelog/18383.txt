@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed panic when setting scheduling attributes in `google_compute_region_instance_template` (ga)
+```
