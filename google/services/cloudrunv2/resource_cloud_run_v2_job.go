@@ -792,6 +792,20 @@ If no value is specified, GA is assumed. Set the launch stage to a preview stage
 
 For example, if ALPHA is provided as input, but only BETA and GA-level features are used, this field will be BETA on output. Possible values: ["UNIMPLEMENTED", "PRELAUNCH", "EARLY_ACCESS", "ALPHA", "BETA", "GA", "DEPRECATED"]`,
 			},
+			"run_execution_token": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `A unique string used as a suffix creating a new execution upon job create or update. The Job will become ready when the execution is successfully completed.
+The sum of job name and token length must be fewer than 63 characters.`,
+				ConflictsWith: []string{"start_execution_token"},
+			},
+			"start_execution_token": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `A unique string used as a suffix creating a new execution upon job create or update. The Job will become ready when the execution is successfully started.
+The sum of job name and token length must be fewer than 63 characters.`,
+				ConflictsWith: []string{"run_execution_token"},
+			},
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -1130,6 +1144,18 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("binary_authorization"); !tpgresource.IsEmptyValue(reflect.ValueOf(binaryAuthorizationProp)) && (ok || !reflect.DeepEqual(v, binaryAuthorizationProp)) {
 		obj["binaryAuthorization"] = binaryAuthorizationProp
 	}
+	startExecutionTokenProp, err := expandCloudRunV2JobStartExecutionToken(d.Get("start_execution_token"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("start_execution_token"); !tpgresource.IsEmptyValue(reflect.ValueOf(startExecutionTokenProp)) && (ok || !reflect.DeepEqual(v, startExecutionTokenProp)) {
+		obj["startExecutionToken"] = startExecutionTokenProp
+	}
+	runExecutionTokenProp, err := expandCloudRunV2JobRunExecutionToken(d.Get("run_execution_token"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("run_execution_token"); !tpgresource.IsEmptyValue(reflect.ValueOf(runExecutionTokenProp)) && (ok || !reflect.DeepEqual(v, runExecutionTokenProp)) {
+		obj["runExecutionToken"] = runExecutionTokenProp
+	}
 	templateProp, err := expandCloudRunV2JobTemplate(d.Get("template"), d, config)
 	if err != nil {
 		return err
@@ -1398,6 +1424,18 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("binary_authorization"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, binaryAuthorizationProp)) {
 		obj["binaryAuthorization"] = binaryAuthorizationProp
 	}
+	startExecutionTokenProp, err := expandCloudRunV2JobStartExecutionToken(d.Get("start_execution_token"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("start_execution_token"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, startExecutionTokenProp)) {
+		obj["startExecutionToken"] = startExecutionTokenProp
+	}
+	runExecutionTokenProp, err := expandCloudRunV2JobRunExecutionToken(d.Get("run_execution_token"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("run_execution_token"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, runExecutionTokenProp)) {
+		obj["runExecutionToken"] = runExecutionTokenProp
+	}
 	templateProp, err := expandCloudRunV2JobTemplate(d.Get("template"), d, config)
 	if err != nil {
 		return err
@@ -1648,6 +1686,14 @@ func flattenCloudRunV2JobBinaryAuthorizationUseDefault(v interface{}, d *schema.
 }
 
 func flattenCloudRunV2JobBinaryAuthorizationPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobStartExecutionToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobRunExecutionToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2738,6 +2784,14 @@ func expandCloudRunV2JobBinaryAuthorizationUseDefault(v interface{}, d tpgresour
 }
 
 func expandCloudRunV2JobBinaryAuthorizationPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobStartExecutionToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobRunExecutionToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -4037,6 +4091,12 @@ func ResourceCloudRunV2JobFlatten(d *schema.ResourceData, meta interface{}, res 
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 	if err = d.Set("binary_authorization", flattenCloudRunV2JobBinaryAuthorization(res["binaryAuthorization"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("start_execution_token", flattenCloudRunV2JobStartExecutionToken(res["startExecutionToken"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("run_execution_token", flattenCloudRunV2JobRunExecutionToken(res["runExecutionToken"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 	if err = d.Set("template", flattenCloudRunV2JobTemplate(res["template"], d, config)); err != nil {

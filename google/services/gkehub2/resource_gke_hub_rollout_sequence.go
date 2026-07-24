@@ -54,6 +54,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	"github.com/hashicorp/go-version"
+)
+
 func parseDurationAsSeconds(v string) (int, bool) {
 	if len(v) == 0 {
 		return 0, false
@@ -87,6 +91,200 @@ func rolloutSequenceDurationDiffSuppress(_, old, new string, _ *schema.ResourceD
 		return false
 	}
 	return oldSeconds == newSeconds
+}
+
+// Compares two GKE versions using the standard go-version package.
+// Returns true if minVer is strictly greater than targetVer.
+// Returns true if targetVer is empty (representing a new rollout sequence).
+// Returns false if minVer is empty (representing an unset min_*_version field).
+func shouldUpgradeRolloutSequence(minVer, targetVer string) (bool, error) {
+	if minVer == "" {
+		return false, nil
+	}
+	minV, err := version.NewVersion(minVer)
+	if err != nil {
+		return false, fmt.Errorf("invalid min version format %q: %w", minVer, err)
+	}
+
+	if targetVer == "" {
+		return true, nil
+	}
+	targetV, err := version.NewVersion(targetVer)
+	if err != nil {
+		return false, fmt.Errorf("invalid target version format %q: %w", targetVer, err)
+	}
+
+	return minV.GreaterThan(targetV), nil
+}
+
+// Polls the state of a RolloutSequence resource, until it enters a state other
+// than INITIALIZING or until the 1h timeout passes.
+func pollSequenceInitialization(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/rolloutSequences/{{rollout_sequence_id}}")
+	if err != nil {
+		return err
+	}
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("failed to fetch project for RolloutSequence: %w", err)
+	}
+	billingProject := project
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	pollRead := func() (map[string]interface{}, error) {
+		return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
+	}
+
+	checkResponse := func(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
+		if respErr != nil {
+			return transport_tpg.ErrorPollResult(respErr)
+		}
+		if resp == nil {
+			return transport_tpg.PendingStatusPollResult("nil response")
+		}
+
+		opStateRaw, ok := resp["operationalState"]
+		if !ok || opStateRaw == nil {
+			return transport_tpg.PendingStatusPollResult("operationalState missing")
+		}
+
+		opState, ok := opStateRaw.(map[string]interface{})
+		if !ok {
+			return transport_tpg.ErrorPollResult(fmt.Errorf("operationalState is not a map"))
+		}
+
+		stateRaw, ok := opState["state"]
+		if !ok || stateRaw == nil {
+			return transport_tpg.PendingStatusPollResult("state missing")
+		}
+		state, ok := stateRaw.(string)
+		if !ok {
+			return transport_tpg.ErrorPollResult(fmt.Errorf("state is not a string"))
+		}
+
+		if state == "INITIALIZING" {
+			return transport_tpg.PendingStatusPollResult("INITIALIZING")
+		}
+
+		return transport_tpg.SuccessPollResult()
+	}
+
+	return transport_tpg.PollingWaitTime(pollRead, checkResponse, "Polling RolloutSequence initialization", 1*time.Hour, 1)
+}
+
+// Fetches the current targetControlPlaneVersion and targetNodeVersion values of the RolloutSequence resource.
+func fetchCurrentTargetVersions(d *schema.ResourceData, meta interface{}) (string, string, error) {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return "", "", err
+	}
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to fetch project for RolloutSequence: %w", err)
+	}
+	billingProject := project
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/rolloutSequences/{{rollout_sequence_id}}")
+	if err != nil {
+		return "", "", err
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return "", "", fmt.Errorf("failed to fetch latest RolloutSequence state: %w", err)
+	}
+
+	targetCPVer := ""
+	if v, ok := res["targetControlPlaneVersion"]; ok && v != nil {
+		if s, ok := v.(string); ok {
+			targetCPVer = s
+		} else {
+			return "", "", fmt.Errorf("expected targetControlPlaneVersion to be a string, got %T", v)
+		}
+	}
+	targetNodeVer := ""
+	if v, ok := res["targetNodeVersion"]; ok && v != nil {
+		if s, ok := v.(string); ok {
+			targetNodeVer = s
+		} else {
+			return "", "", fmt.Errorf("expected targetNodeVersion to be a string, got %T", v)
+		}
+	}
+
+	return targetCPVer, targetNodeVer, nil
+}
+
+// Makes an UpgradeRolloutSequence call for the provided upgradeType and version.
+func triggerUpgradeRolloutSequence(d *schema.ResourceData, meta interface{}, upgradeType string, version string) error {
+	config := meta.(*transport_tpg.Config)
+	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/rolloutSequences/{{rollout_sequence_id}}:upgrade")
+	if err != nil {
+		return err
+	}
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("failed to fetch project for RolloutSequence: %w", err)
+	}
+	billingProject := project
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	body := map[string]interface{}{
+		"upgradeType": upgradeType,
+		"version":     version,
+		"force":       true,
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      body,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to trigger RolloutSequence upgrade (%s): %w", upgradeType, err)
+	}
+
+	err = GKEHub2OperationWaitTime(
+		config, res, project, "Triggering RolloutSequence Upgrade", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("failed to wait for RolloutSequence upgrade (%s): %w", upgradeType, err)
+	}
+
+	return nil
 }
 
 var (
@@ -317,6 +515,30 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Computed:    true,
 				Description: `The full resource name of the RolloutSequence.`,
 			},
+			"operational_state": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The operational state of the rollout sequence.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The state of the rollout sequence.`,
+						},
+					},
+				},
+			},
+			"target_control_plane_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The current target control plane version.`,
+			},
+			"target_node_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The current target node version.`,
+			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -333,6 +555,28 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The timestamp at which the Rollout Sequence was last updated.`,
+			},
+			"min_control_plane_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Minimum control plane version that the clusters in the sequence should be upgraded to.
+Setting this field will cause the creation of a rollout to the specified version.
+Any rollout of the same type already running on the first stage of the sequence will be cancelled to allow for the creation of the new rollout.
+Should be a valid [semantic version](https://semver.org/).
+Version aliases are supported, as described in the [cluster version docs](https://docs.cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version).
+Note that the 'latest' and '-' aliases are not supported for this field.
+Supported formats: '1.X', '1.X.Y', '1.X.Y-gke.N'.`,
+			},
+			"min_node_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Minimum node version that the clusters in the sequence should be upgraded to.
+Setting this field will cause the creation of a rollout to the specified version.
+Any rollout of the same type already running on the first stage of the sequence will be cancelled to allow for the creation of the new rollout.
+Should be a valid [semantic version](https://semver.org/).
+Version aliases are supported, as described in the [cluster version docs](https://docs.cloud.google.com/kubernetes-engine/versioning#specifying_cluster_version).
+Note that the 'latest' and '-' aliases are not supported for this field.
+Supported formats: '1.X', '1.X.Y', '1.X.Y-gke.N'.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -442,9 +686,70 @@ func resourceGKEHub2RolloutSequenceCreate(d *schema.ResourceData, meta interface
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
+		resourceGKEHub2RolloutSequencePostCreateFailure(d, meta)
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create RolloutSequence: %s", err)
+	}
+
+	if err := func() error {
+		var minCPVer string
+		if rawCP, ok := d.GetOk("min_control_plane_version"); ok {
+			minCPVer = rawCP.(string)
+		}
+
+		var minNodeVer string
+		if rawNode, ok := d.GetOk("min_node_version"); ok {
+			minNodeVer = rawNode.(string)
+		}
+
+		if minCPVer == "" && minNodeVer == "" {
+			return nil
+		}
+
+		log.Printf("[DEBUG] Polling RolloutSequence initialization.")
+		if err := pollSequenceInitialization(d, meta); err != nil {
+			return err
+		}
+
+		// There is a delay between the state of a RolloutSequence switching to ACTIVE, and the UpdateRolloutSequence endpoint
+		// releasing the lock on the resource. We sleep here to avoid conflict errors when making the UpgradeRolloutSequence call.
+		time.Sleep(1 * time.Minute)
+
+		log.Printf("[DEBUG] Fetching current RolloutSequence target versions.")
+		targetCPVer, targetNodeVer, err := fetchCurrentTargetVersions(d, meta)
+		if err != nil {
+			return err
+		}
+
+		if minCPVer != "" {
+			shouldUpgrade, err := shouldUpgradeRolloutSequence(minCPVer, targetCPVer)
+			if err != nil {
+				return err
+			}
+			if shouldUpgrade {
+				log.Printf("[DEBUG] min_control_plane_version (%s) specified on RolloutSequence creation. Upgrading RolloutSequence.", minCPVer)
+				if err := triggerUpgradeRolloutSequence(d, meta, "CONTROL_PLANE", minCPVer); err != nil {
+					return err
+				}
+			}
+		}
+		if minNodeVer != "" {
+			shouldUpgrade, err := shouldUpgradeRolloutSequence(minNodeVer, targetNodeVer)
+			if err != nil {
+				return err
+			}
+			if shouldUpgrade {
+				log.Printf("[DEBUG] min_node_version (%s) specified on RolloutSequence creation. Upgrading RolloutSequence.", minNodeVer)
+				if err := triggerUpgradeRolloutSequence(d, meta, "NODE", minNodeVer); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}(); err != nil {
+		resourceGKEHub2RolloutSequencePostCreateFailure(d, meta)
+		return err
 	}
 
 	log.Printf("[DEBUG] Finished creating RolloutSequence %q: %#v", d.Id(), res)
@@ -694,6 +999,59 @@ func resourceGKEHub2RolloutSequenceUpdate(d *schema.ResourceData, meta interface
 		}
 	}
 
+	minCPChanged := d.HasChange("min_control_plane_version")
+	minNodeChanged := d.HasChange("min_node_version")
+
+	if !minCPChanged && !minNodeChanged {
+		return nil
+	}
+
+	log.Printf("[DEBUG] Polling RolloutSequence initialization.")
+	if err := pollSequenceInitialization(d, meta); err != nil {
+		return fmt.Errorf("failed to wait for RolloutSequence to initialize: %w", err)
+	}
+
+	// There is a delay between the state of a RolloutSequence switching to ACTIVE, and the UpdateRolloutSequence endpoint
+	// releasing the lock on the resource. We sleep here to avoid conflict errors when making the UpgradeRolloutSequence call.
+	time.Sleep(1 * time.Minute)
+
+	log.Printf("[DEBUG] Fetching current RolloutSequence target versions.")
+	targetCPVer, targetNodeVer, err := fetchCurrentTargetVersions(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if minCPChanged {
+		minCPVer := d.Get("min_control_plane_version").(string)
+		shouldUpgrade, err := shouldUpgradeRolloutSequence(minCPVer, targetCPVer)
+		if err != nil {
+			return err
+		}
+		if shouldUpgrade {
+			log.Printf("[DEBUG] min_control_plane_version (%s) > target_control_plane_version (%s). Upgrading RolloutSequence.", minCPVer, targetCPVer)
+			if err := triggerUpgradeRolloutSequence(d, meta, "CONTROL_PLANE", minCPVer); err != nil {
+				return err
+			}
+		} else {
+			log.Printf("[DEBUG] min_control_plane_version (%s) <= target_control_plane_version (%s). Skipping RolloutSequence upgrade.", minCPVer, targetCPVer)
+		}
+	}
+
+	if minNodeChanged {
+		minNodeVer := d.Get("min_node_version").(string)
+		shouldUpgrade, err := shouldUpgradeRolloutSequence(minNodeVer, targetNodeVer)
+		if err != nil {
+			return err
+		}
+		if shouldUpgrade {
+			log.Printf("[DEBUG] min_node_version (%s) > target_node_version (%s). Upgrading RolloutSequence.", minNodeVer, targetNodeVer)
+			if err := triggerUpgradeRolloutSequence(d, meta, "NODE", minNodeVer); err != nil {
+				return err
+			}
+		} else {
+			log.Printf("[DEBUG] min_node_version (%s) <= target_node_version (%s). Skipping RolloutSequence upgrade.", minNodeVer, targetNodeVer)
+		}
+	}
 	return resourceGKEHub2RolloutSequenceRead(d, meta)
 }
 
@@ -775,6 +1133,8 @@ func resourceGKEHub2RolloutSequenceImport(d *schema.ResourceData, meta interface
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -902,9 +1262,6 @@ func flattenGKEHub2RolloutSequenceAutoUpgradeConfigRolloutCreationScope(v interf
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["upgrade_types"] =
 		flattenGKEHub2RolloutSequenceAutoUpgradeConfigRolloutCreationScopeUpgradeTypes(original["upgradeTypes"], d, config)
@@ -915,6 +1272,31 @@ func flattenGKEHub2RolloutSequenceAutoUpgradeConfigRolloutCreationScopeUpgradeTy
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenGKEHub2RolloutSequenceTargetControlPlaneVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2RolloutSequenceTargetNodeVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2RolloutSequenceOperationalState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["state"] =
+		flattenGKEHub2RolloutSequenceOperationalStateState(original["state"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2RolloutSequenceOperationalStateState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenGKEHub2RolloutSequenceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1082,7 +1464,7 @@ func expandGKEHub2RolloutSequenceAutoUpgradeConfig(v interface{}, d tpgresource.
 	transformedRolloutCreationScope, err := expandGKEHub2RolloutSequenceAutoUpgradeConfigRolloutCreationScope(original["rollout_creation_scope"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedRolloutCreationScope); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["rolloutCreationScope"] = transformedRolloutCreationScope
 	}
 
@@ -1094,8 +1476,13 @@ func expandGKEHub2RolloutSequenceAutoUpgradeConfigRolloutCreationScope(v interfa
 		return nil, nil
 	}
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})
@@ -1104,7 +1491,7 @@ func expandGKEHub2RolloutSequenceAutoUpgradeConfigRolloutCreationScope(v interfa
 	transformedUpgradeTypes, err := expandGKEHub2RolloutSequenceAutoUpgradeConfigRolloutCreationScopeUpgradeTypes(original["upgrade_types"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedUpgradeTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["upgradeTypes"] = transformedUpgradeTypes
 	}
 
@@ -1125,6 +1512,23 @@ func expandGKEHub2RolloutSequenceEffectiveLabels(v interface{}, d tpgresource.Te
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceGKEHub2RolloutSequencePostCreateFailure(d *schema.ResourceData, meta interface{}) {
+	log.Printf("[WARN] Attempt to clean up RolloutSequence if it still exists")
+	var cleanErr error
+	if cleanErr = resourceGKEHub2RolloutSequenceRead(d, meta); cleanErr == nil {
+		if d.Id() != "" {
+			log.Printf("[WARN] RolloutSequence %q still exists, attempting to delete...", d.Id())
+			if cleanErr = resourceGKEHub2RolloutSequenceDelete(d, meta); cleanErr == nil {
+				log.Printf("[WARN] Invalid RolloutSequence was successfully deleted")
+				d.SetId("")
+			}
+		}
+	}
+	if cleanErr != nil {
+		log.Printf("[WARN] Could not confirm cleanup of RolloutSequence if created in error state: %v", cleanErr)
+	}
 }
 
 func ResourceGKEHub2RolloutSequenceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
@@ -1161,6 +1565,15 @@ func ResourceGKEHub2RolloutSequenceFlatten(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading RolloutSequence: %s", err)
 	}
 	if err = d.Set("auto_upgrade_config", flattenGKEHub2RolloutSequenceAutoUpgradeConfig(res["autoUpgradeConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RolloutSequence: %s", err)
+	}
+	if err = d.Set("target_control_plane_version", flattenGKEHub2RolloutSequenceTargetControlPlaneVersion(res["targetControlPlaneVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RolloutSequence: %s", err)
+	}
+	if err = d.Set("target_node_version", flattenGKEHub2RolloutSequenceTargetNodeVersion(res["targetNodeVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RolloutSequence: %s", err)
+	}
+	if err = d.Set("operational_state", flattenGKEHub2RolloutSequenceOperationalState(res["operationalState"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RolloutSequence: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenGKEHub2RolloutSequenceTerraformLabels(res["labels"], d, config)); err != nil {

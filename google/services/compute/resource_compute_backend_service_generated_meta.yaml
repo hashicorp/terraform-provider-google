@@ -97,6 +97,10 @@ fields:
     - api_field: logConfig.enable
     - api_field: logConfig.optionalFields
     - api_field: logConfig.optionalMode
+    - api_field: logConfig.loggingHttpRequestHeaders.headerName
+      field: log_config.request_headers.header_name
+    - api_field: logConfig.loggingHttpResponseHeaders.headerName
+      field: log_config.response_headers.header_name
     - api_field: logConfig.sampleRate
     - api_field: maxStreamDuration.nanos
     - api_field: maxStreamDuration.seconds

@@ -39,6 +39,18 @@ func ResourceGoogleServiceAccountKey() *schema.Resource {
 		Update: resourceGoogleServiceAccountKeyUpdate,
 		Delete: resourceGoogleServiceAccountKeyDelete,
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
@@ -158,6 +170,11 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 	}
 
 	d.SetId(sak.Name)
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"name": sak.Name,
+	}); err != nil {
+		return err
+	}
 	// Data only available on create.
 	if err := d.Set("valid_after", sak.ValidAfterTime); err != nil {
 		return fmt.Errorf("Error setting valid_after: %s", err)
@@ -208,7 +225,13 @@ func resourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	return flattenServiceAccountKey(d, config, sak)
+	if err := flattenServiceAccountKey(d, config, sak); err != nil {
+		return err
+	}
+
+	return tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"name": sak.Name,
+	})
 }
 
 func flattenServiceAccountKey(d *schema.ResourceData, config *transport_tpg.Config, sak *iam.ServiceAccountKey) error {

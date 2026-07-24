@@ -16,12 +16,19 @@ fields:
     - api_field: etag
     - api_field: ignoredClustersSelector.labelSelector
     - api_field: labels
+    - field: min_control_plane_version
+      provider_only: true
+    - field: min_node_version
+      provider_only: true
     - api_field: name
+    - api_field: operationalState.state
     - field: rollout_sequence_id
       provider_only: true
     - api_field: stages.clusterSelector.labelSelector
     - api_field: stages.fleetProjects
     - api_field: stages.soakDuration
+    - api_field: targetControlPlaneVersion
+    - api_field: targetNodeVersion
     - field: terraform_labels
       provider_only: true
     - api_field: uid

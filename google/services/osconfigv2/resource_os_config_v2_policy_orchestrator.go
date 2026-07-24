@@ -54,6 +54,45 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func policyOrchestratorCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, _ any) error {
+	v, ok := diff.GetOk("orchestration_scope.0.selectors")
+	if !ok {
+		return nil
+	}
+	selectors, ok := v.([]any)
+	if !ok {
+		return nil
+	}
+	for _, rawSelector := range selectors {
+		if rawSelector == nil {
+			continue
+		}
+		selector, ok := rawSelector.(map[string]any)
+		if !ok {
+			continue
+		}
+
+		hasLocation := false
+		if val, ok := selector["location_selector"]; ok && val != nil {
+			if list, ok := val.([]any); ok && len(list) > 0 {
+				hasLocation = true
+			}
+		}
+
+		hasHierarchy := false
+		if val, ok := selector["resource_hierarchy_selector"]; ok && val != nil {
+			if list, ok := val.([]any); ok && len(list) > 0 {
+				hasHierarchy = true
+			}
+		}
+
+		if hasLocation && hasHierarchy {
+			return fmt.Errorf("only one of orchestration_scope.selectors.location_selector or orchestration_scope.selectors.resource_hierarchy_selector can be set")
+		}
+	}
+	return nil
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -113,6 +152,7 @@ func ResourceOSConfigV2PolicyOrchestrator() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			policyOrchestratorCustomizeDiff,
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),

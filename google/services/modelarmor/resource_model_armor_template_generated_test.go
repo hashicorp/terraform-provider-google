@@ -199,6 +199,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateTemplateMetadataExample(t *test
 		"template_metadata_custom_prompt_safety_error_code":                          400,
 		"template_metadata_custom_prompt_safety_error_message":                       "This is a custom error message for prompt",
 		"template_metadata_enforcement_type":                                         "INSPECT_ONLY",
+		"template_metadata_filter_version_selector_alias":                            "FILTER_VERSION_ALIAS_LATEST",
 		"template_metadata_ignore_partial_invocation_failures":                       false,
 		"template_metadata_log_sanitize_operations":                                  false,
 		"template_metadata_log_template_operations":                                  true,
@@ -256,6 +257,70 @@ resource "google_model_armor_template" "template-template-metadata" {
     custom_prompt_safety_error_message       = "%{template_metadata_custom_prompt_safety_error_message}"
     custom_llm_response_safety_error_code    = %{template_metadata_custom_llm_response_safety_error_code}
     enforcement_type                         = "%{template_metadata_enforcement_type}"
+    filter_version_selector {
+      alias = "%{template_metadata_filter_version_selector_alias}"
+    }
+  }
+}
+`, context)
+}
+
+func TestAccModelArmorTemplate_modelarmorTemplateFilterVersionSelectorExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"filter_config_rai_settings_rai_filters_0_confidence_level": "HIGH",
+		"filter_config_rai_settings_rai_filters_0_filter_type":      "HATE_SPEECH",
+		"location":   "us-central1",
+		"templateId": "modelarmor5",
+		"template_metadata_filter_version_selector_version": "v1",
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckModelArmorTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccModelArmorTemplate_modelarmorTemplateFilterVersionSelectorExample(context),
+			},
+			{
+				ResourceName:            "google_model_armor_template.template-filter-version-selector",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "template_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_model_armor_template.template-filter-version-selector",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccModelArmorTemplate_modelarmorTemplateFilterVersionSelectorExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_model_armor_template" "template-filter-version-selector" {
+  location    = "%{location}"
+  template_id = "%{templateId}"
+
+  filter_config {
+    rai_settings {
+      rai_filters {
+        filter_type      = "%{filter_config_rai_settings_rai_filters_0_filter_type}"
+        confidence_level = "%{filter_config_rai_settings_rai_filters_0_confidence_level}"
+      }
+    }
+  }
+  template_metadata {
+    filter_version_selector {
+      version = "%{template_metadata_filter_version_selector_version}"
+    }
   }
 }
 `, context)

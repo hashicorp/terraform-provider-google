@@ -121,6 +121,37 @@ resource "google_model_armor_template" "template-template-metadata" {
     custom_prompt_safety_error_message       = "This is a custom error message for prompt"
     custom_llm_response_safety_error_code    = 401
     enforcement_type                         = "INSPECT_ONLY"
+    filter_version_selector {
+      alias = "FILTER_VERSION_ALIAS_LATEST"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=modelarmor_template_filter_version_selector&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Modelarmor Template Filter Version Selector
+
+
+```hcl
+resource "google_model_armor_template" "template-filter-version-selector" {
+  location    = "us-central1"
+  template_id = "modelarmor5"
+
+  filter_config {
+    rai_settings {
+      rai_filters {
+        filter_type      = "HATE_SPEECH"
+        confidence_level = "HIGH"
+      }
+    }
+  }
+  template_metadata {
+    filter_version_selector {
+      version = "v1"
+    }
   }
 }
 ```
@@ -371,12 +402,33 @@ The following arguments are supported:
   INSPECT_ONLY
   INSPECT_AND_BLOCK
 
+* `filter_version_selector` -
+  (Optional)
+  Selects the filter version to use for this template. Set exactly one of
+  'alias' or 'version'.
+  Structure is [documented below](#nested_template_metadata_filter_version_selector).
+
 
 <a name="nested_template_metadata_multi_language_detection"></a>The `multi_language_detection` block supports:
 
 * `enable_multi_language_detection` -
   (Required)
   If true, multi language detection will be enabled.
+
+<a name="nested_template_metadata_filter_version_selector"></a>The `filter_version_selector` block supports:
+
+* `alias` -
+  (Optional)
+  A predefined filter version alias. The template automatically follows the
+  version this alias points to.
+  Possible values:
+  FILTER_VERSION_ALIAS_STABLE
+  FILTER_VERSION_ALIAS_LATEST
+
+* `version` -
+  (Optional)
+  Pins the template to a specific, immutable filter version. Expected
+  format is a case-sensitive string such as 'v1' or 'v2'.
 
 ## Attributes Reference
 
