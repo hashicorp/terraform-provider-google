@@ -49,7 +49,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineUpdate(t *testing.T) 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckVertexAIEndpointDestroyProducer(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"time": {},
 		},
@@ -82,7 +82,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineSourceUpdate(t *testi
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckVertexAIEndpointDestroyProducer(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"time": {},
 		},
@@ -604,7 +604,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineIdentityTypeUpdate(t 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckVertexAIEndpointDestroyProducer(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIReasoningEngine_identityTypeServiceAccount(context),
@@ -669,7 +669,7 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineImageSpecUpdate(t *te
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckVertexAIEndpointDestroyProducer(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineImageSpecExample(context),
@@ -741,7 +741,7 @@ func TestAccVertexAIReasoningEngine_apiParityExternal(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckVertexAIEndpointDestroyProducer(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIReasoningEngine_apiParityExternal(context),
@@ -777,6 +777,247 @@ resource "google_vertex_ai_reasoning_engine" "primary" {
       targets {
         percent               = 100
         runtime_revision_name = "projects/${data.google_project.project.project_id}/locations/us-central1/reasoningEngines/%{random_suffix}/runtimeRevisions/1"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccVertexAIReasoningEngine_trafficSplitUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_trafficSplitAlwaysLatest(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels", "spec.0.source_code_spec.0.inline_source"},
+			},
+			{
+				Config: testAccVertexAIReasoningEngine_trafficSplitManual(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels", "spec.0.source_code_spec.0.inline_source"},
+			},
+			{
+				Config: testAccVertexAIReasoningEngine_trafficSplitLatest(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels", "spec.0.source_code_spec.0.inline_source"},
+			},
+			{
+				Config: testAccVertexAIReasoningEngine_trafficSplitPrevious(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels", "spec.0.source_code_spec.0.inline_source"},
+			},
+			{
+				Config: testAccVertexAIReasoningEngine_trafficSplitPartial(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels", "spec.0.source_code_spec.0.inline_source"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_trafficSplitAlwaysLatest(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/source.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+        version           = "3.11"
+      }
+    }
+  }
+
+  traffic_config {
+    traffic_split_always_latest {}
+  }
+}
+`, context)
+}
+
+func testAccVertexAIReasoningEngine_trafficSplitManual(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/source.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+        version           = "3.11"
+      }
+    }
+  }
+
+  traffic_config {
+    traffic_split_manual {
+      targets {
+        runtime_revision_name = "1"
+        percent               = 100
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccVertexAIReasoningEngine_trafficSplitLatest(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/source.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+        version           = "3.11"
+      }
+    }
+
+    deployment_spec {
+      env {
+        name  = "REVISION"
+        value = "2"
+      }
+    }
+  }
+
+  traffic_config {
+    traffic_split_manual {
+      targets {
+        runtime_revision_name = "LATEST"
+        percent               = 100
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccVertexAIReasoningEngine_trafficSplitPrevious(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/source.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+        version           = "3.11"
+      }
+    }
+
+    deployment_spec {
+      env {
+        name  = "REVISION"
+        value = "2"
+      }
+    }
+  }
+
+  traffic_config {
+    traffic_split_manual {
+      targets {
+        runtime_revision_name = "PREVIOUS"
+        percent               = 100
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccVertexAIReasoningEngine_trafficSplitPartial(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      inline_source {
+        source_archive = filebase64("./test-fixtures/source.tar.gz")
+      }
+
+      python_spec {
+        entrypoint_module = "simple_agent"
+        entrypoint_object = "fixed_name_generator"
+        version           = "3.11"
+      }
+    }
+
+    deployment_spec {
+      env {
+        name  = "REVISION"
+        value = "2"
+      }
+    }
+  }
+
+  traffic_config {
+    traffic_split_manual {
+      targets {
+        runtime_revision_name = "LATEST"
+        percent               = 80
+      }
+      targets {
+        runtime_revision_name = "PREVIOUS"
+        percent               = 20
       }
     }
   }

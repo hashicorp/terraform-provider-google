@@ -630,6 +630,30 @@ data "google_project" "project" {
   provider = google-beta
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_traffic_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Reasoning Engine Traffic Config
+
+
+```hcl
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "re-traffic-cfg"
+  description  = "Reasoning engine with traffic config"
+  region       = "us-central1"
+  provider     = google-beta
+
+  spec {
+    agent_framework = "langchain"
+  }
+
+  traffic_config {
+    traffic_split_always_latest {}
+  }
+}
+```
 
 ## Argument Reference
 
@@ -673,6 +697,7 @@ The following arguments are supported:
 * `traffic_config` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   Optional. Traffic distribution configuration for the Reasoning Engine.
+  ~> **Note:** Because revision IDs do not exist before the resource is created, the best practice for initial deployment is to set `traffic_split_always_latest {}`. Once the resource is created, you can update the configuration to a manual split using newly generated revision IDs, short names (e.g. `rev-1`), or keywords such as `LATEST` and `PREVIOUS`.
   Structure is [documented below](#nested_traffic_config).
 
 * `region` -
@@ -1569,7 +1594,7 @@ When set to "DELETE", deleting the resource is permitted.
 
 * `runtime_revision_name` -
   (Required)
-  Required. The Runtime Revision name to which to send this portion of traffic.
+  Required. The Runtime Revision name to which to send this portion of traffic. Accepts revision IDs, short names (e.g. `rev-1`), or keywords such as `LATEST` and `PREVIOUS`. Note: Keywords like `LATEST` and `PREVIOUS` resolve at apply time to the concrete underlying revision ID and remain pinned until `traffic_config` is updated in Terraform.
 
 * `percent` -
   (Required)
