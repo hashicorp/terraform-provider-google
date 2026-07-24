@@ -752,7 +752,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 								Schema: map[string]*schema.Schema{
 									"scope_tenancy_pool": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
 										Description: `Pool to be used for Workload Identity. This pool in trust-domain mode is used with Fleet Tenancy, so that sameness can be enforced. ex: projects/example/locations/global/workloadidentitypools/custompool`,
 									},
 								},
