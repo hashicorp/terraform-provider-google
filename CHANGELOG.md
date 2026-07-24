@@ -43,9 +43,6 @@ BUG FIXES:
 * sql: fixed issue where updates to `settings.ip_configuration.psc_config.allowed_consumer_projects` in `google_sql_database_instance` were silently ignored on in-place updates ([#28444](https://github.com/hashicorp/terraform-provider-google/pull/28444))
 * vertexai: fixed `google_vertex_ai_endpoint_with_model_garden_deployment` destroying and recreating the endpoint when `min_replica_count`, `max_replica_count`, `required_replica_count`, or `autoscaling_metric_specs` changed ([#28401](https://github.com/hashicorp/terraform-provider-google/pull/28401))
 
-
-## 7.41.0 (Unreleased)
-
 ## 7.40.0 (July 14, 2026)
 DEPRECATIONS:
 * storage: the `admit-on-second-miss` value for `google_storage_anywhere_cache.admission_policy` is deprecated and will be removed in a future major release. The backend will ignore this attribute and treat it as `admit-on-first-miss`. ([#28210](https://github.com/hashicorp/terraform-provider-google/pull/28210))
