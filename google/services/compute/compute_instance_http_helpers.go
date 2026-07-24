@@ -244,8 +244,6 @@ func FlattenSchedulingHTTP(resp map[string]interface{}) []map[string]interface{}
 	if v, ok := resp["automaticRestart"]; ok {
 		schedulingMap["automatic_restart"] = v
 	}
-	v_sgos, _ := resp["skipGuestOsShutdown"].(bool)
-	schedulingMap["skip_guest_os_shutdown"] = v_sgos
 
 	if maxDurRaw, ok := resp["maxRunDuration"]; ok && maxDurRaw != nil {
 		maxDur := maxDurRaw.(map[string]interface{})
@@ -272,16 +270,6 @@ func FlattenSchedulingHTTP(resp map[string]interface{}) []map[string]interface{}
 			{
 				"seconds": ParseIntHTTP(timeout["seconds"]),
 				"nanos":   ParseIntHTTP(timeout["nanos"]),
-			},
-		}
-	}
-
-	if pndRaw, ok := resp["preemptionNoticeDuration"]; ok && pndRaw != nil {
-		pnd := pndRaw.(map[string]interface{})
-		schedulingMap["preemption_notice_duration"] = []map[string]interface{}{
-			{
-				"seconds": ParseIntHTTP(pnd["seconds"]),
-				"nanos":   ParseIntHTTP(pnd["nanos"]),
 			},
 		}
 	}
