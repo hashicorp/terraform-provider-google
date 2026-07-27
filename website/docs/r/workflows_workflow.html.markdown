@@ -159,6 +159,10 @@ EOF
 The following arguments are supported:
 
 
+* `source_contents` -
+  (Required)
+  Workflow code to be executed. The size limit is 128KB.
+
 
 * `name` -
   (Optional)
@@ -184,10 +188,6 @@ The following arguments are supported:
   The {account} value can be the email address or the unique_id of the service account.
   If not provided, workflow will use the project's default service account.
   Modifying this field for an existing workflow results in a new workflow revision.
-
-* `source_contents` -
-  (Optional)
-  Workflow code to be executed. The size limit is 128KB.
 
 * `crypto_key_name` -
   (Optional)

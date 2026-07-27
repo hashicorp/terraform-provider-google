@@ -126,3 +126,9 @@ upgrading.
 ### `scale_tier` has been removed
 
 The `scale_tier` argument has been removed from this resource. It was previously deprecated in favor of `scale_type`. When upgrading to version 8.0.0, remove any usage of `scale_tier` from your `google_netapp_storage_pool` configurations. You should use the `scale_type` argument instead for specifying the scale type.
+
+## Resource: `google_workflows_workflow`
+
+### `source_contents` is now Required
+
+The `source_contents` argument is now Required. Previously, this field was marked as Optional in Terraform, but omitting it led to runtime errors. When upgrading to version 8.0.0, you must ensure this argument is populated in your `google_workflows_workflow` configurations. 
