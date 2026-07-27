@@ -925,6 +925,11 @@ func canonicalizeNewKeyWebSettingsChallengeSettingsActionSettingsMap(c *Client, 
 			items[k] = d
 		}
 	}
+	for k, n := range nw {
+		if _, ok := items[k]; !ok {
+			items[k] = n
+		}
+	}
 	return items
 }
 
