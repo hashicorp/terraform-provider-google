@@ -147,6 +147,11 @@ func ResourceWorkflowsWorkflow() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"source_contents": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Workflow code to be executed. The size limit is 128KB.`,
+			},
 			"call_log_level": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -211,11 +216,6 @@ Using - as a wildcard for the {project} or not providing one at all will infer t
 The {account} value can be the email address or the unique_id of the service account.
 If not provided, workflow will use the project's default service account.
 Modifying this field for an existing workflow results in a new workflow revision.`,
-			},
-			"source_contents": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Workflow code to be executed. The size limit is 128KB.`,
 			},
 			"tags": {
 				Type:     schema.TypeMap,
