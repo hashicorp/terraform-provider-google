@@ -1,0 +1,3 @@
+```release-note:new-resource
+resource `google_netapp_trial`: added support for Google Cloud NetApp Volumes Trial
+```
