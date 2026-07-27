@@ -3927,13 +3927,15 @@ resource "google_compute_reservation" "gce_reservation" {
   zone = "us-central1-a"
 
   specific_reservation {
-    count = 1
+    count = 3
     instance_properties {
-      machine_type     = "n1-standard-1"
+      machine_type     = "n1-standard-2"
     }
   }
 
   specific_reservation_required = false
+
+  depends_on = [google_container_cluster.cluster] 
 }
 
 resource "google_container_node_pool" "with_reservation_affinity" {
@@ -3942,7 +3944,7 @@ resource "google_container_node_pool" "with_reservation_affinity" {
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 1
   node_config {
-    machine_type    = "n1-standard-1"
+    machine_type    = "n1-standard-2"
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
@@ -3951,6 +3953,7 @@ resource "google_container_node_pool" "with_reservation_affinity" {
       consume_reservation_type = "ANY_RESERVATION_THEN_FAIL"
     }
   }
+  depends_on = [google_compute_reservation.gce_reservation]
 }
 `, cluster, networkName, subnetworkName, reservation, np)
 }
