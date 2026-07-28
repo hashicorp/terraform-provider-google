@@ -99,6 +99,18 @@ import {
 }
 ```
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import Custom Roles using identity values. For example:
+
+```tf
+import {
+  identity = {
+    project = "{{project}}"
+    role_id = "{{role_id}}"
+  }
+  to = google_project_iam_custom_role.default
+}
+```
+
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Custom Roles can be imported using one of the formats above. For example:
 
 ```
