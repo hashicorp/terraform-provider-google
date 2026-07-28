@@ -1,0 +1,29 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_bigquery_analytics_hub_query_template
+generation_type: mmv1
+source_file: products/bigqueryanalyticshub/QueryTemplate.yaml
+api_service_name: analyticshub.googleapis.com
+api_version: v1
+api_resource_type_kind: QueryTemplate
+fields:
+    - api_field: createTime
+    - field: data_exchange_id
+      provider_only: true
+    - api_field: description
+    - api_field: displayName
+    - api_field: documentation
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: primaryContact
+    - field: query_template_id
+      provider_only: true
+    - api_field: routine.definitionBody
+    - api_field: routine.routineType
+    - api_field: state
+    - field: submit
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
