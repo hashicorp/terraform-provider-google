@@ -188,6 +188,7 @@ The following arguments are supported:
 * `source_contents` -
   (Optional)
   Workflow code to be executed. The size limit is 128KB.
+  ~> **Warning:** This field is currently optional but **will become REQUIRED** in version 8.0.0 of the provider to align with API constraints.
 
 * `crypto_key_name` -
   (Optional)
