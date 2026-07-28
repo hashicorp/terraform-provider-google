@@ -40,6 +40,7 @@ fields:
       provider_only: true
     - field: plugin_instance_id
       provider_only: true
+    - api_field: sourceProjectId
     - api_field: state
     - api_field: updateTime
     - field: deletion_policy
