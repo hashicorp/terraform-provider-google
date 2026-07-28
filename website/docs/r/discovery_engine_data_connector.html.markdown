@@ -53,7 +53,6 @@ resource "google_discovery_engine_data_connector" "servicenow-basic" {
     instance_uri               = "https://gcpconnector1.service-now.com/"
     client_id                  = "SECRET_MANAGER_RESOURCE_NAME"
     client_secret              = "SECRET_MANAGER_RESOURCE_NAME"
-    static_ip_enabled          = "false"
     user_account               = "connectorsuserqa@google.com"
     password                   = "SECRET_MANAGER_RESOURCE_NAME"
   }
