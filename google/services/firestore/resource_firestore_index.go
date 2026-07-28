@@ -181,12 +181,13 @@ func ResourceFirestoreIndex() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: firestoreIFieldsDiffSuppress,
-				Description: `The fields supported by this index. The last non-stored field entry is
-always for the field path '__name__'. If, on creation, '__name__' was not
-specified as the last field, it will be added automatically with the same
-direction as that of the last field defined. If the final field in a
-composite index is not directional, the '__name__' will be ordered
-'"ASCENDING"' (unless explicitly specified otherwise).`,
+				Description: `The field(s) supported by this index. Indexes with the 'ANY_API' 'api_scope' in Standard
+edition databases have special behavior with respect to the '__name__' field. In these
+indexes, the last non-stored field entry is always for the field path '__name__'. If, on
+creation, '__name__' was not specified as the last field, it will be added automatically
+with the same direction as that of the last field defined. If the final field in an
+index is not directional, the '__name__' will be ordered '"ASCENDING"' (unless explicitly
+specified otherwise).`,
 				MinItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

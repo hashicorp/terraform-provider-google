@@ -1,0 +1,3 @@
+```release-note:note
+firestore: clarified which resource to use for which kind of index in Standard and Enterprise editions
+```
