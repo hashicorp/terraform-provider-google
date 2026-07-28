@@ -482,6 +482,11 @@ Defaults to 1 second. Must be smaller than period_seconds.`,
 											},
 										},
 									},
+									"sandbox_launcher": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Indicates that this container can act as a sandbox supervisor and launch sandboxes.`,
+									},
 									"startup_probe": {
 										Type:        schema.TypeList,
 										Computed:    true,
@@ -2495,21 +2500,22 @@ func flattenCloudRunV2ServiceTemplateContainers(v interface{}, d *schema.Resourc
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":            flattenCloudRunV2ServiceTemplateContainersName(original["name"], d, config),
-			"image":           flattenCloudRunV2ServiceTemplateContainersImage(original["image"], d, config),
-			"command":         flattenCloudRunV2ServiceTemplateContainersCommand(original["command"], d, config),
-			"args":            flattenCloudRunV2ServiceTemplateContainersArgs(original["args"], d, config),
-			"env":             flattenCloudRunV2ServiceTemplateContainersEnv(original["env"], d, config),
-			"resources":       flattenCloudRunV2ServiceTemplateContainersResources(original["resources"], d, config),
-			"ports":           flattenCloudRunV2ServiceTemplateContainersPorts(original["ports"], d, config),
-			"volume_mounts":   flattenCloudRunV2ServiceTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
-			"working_dir":     flattenCloudRunV2ServiceTemplateContainersWorkingDir(original["workingDir"], d, config),
-			"liveness_probe":  flattenCloudRunV2ServiceTemplateContainersLivenessProbe(original["livenessProbe"], d, config),
-			"startup_probe":   flattenCloudRunV2ServiceTemplateContainersStartupProbe(original["startupProbe"], d, config),
-			"readiness_probe": flattenCloudRunV2ServiceTemplateContainersReadinessProbe(original["readinessProbe"], d, config),
-			"depends_on":      flattenCloudRunV2ServiceTemplateContainersDependsOn(original["dependsOn"], d, config),
-			"base_image_uri":  flattenCloudRunV2ServiceTemplateContainersBaseImageUri(original["baseImageUri"], d, config),
-			"build_info":      flattenCloudRunV2ServiceTemplateContainersBuildInfo(original["buildInfo"], d, config),
+			"name":             flattenCloudRunV2ServiceTemplateContainersName(original["name"], d, config),
+			"image":            flattenCloudRunV2ServiceTemplateContainersImage(original["image"], d, config),
+			"command":          flattenCloudRunV2ServiceTemplateContainersCommand(original["command"], d, config),
+			"args":             flattenCloudRunV2ServiceTemplateContainersArgs(original["args"], d, config),
+			"env":              flattenCloudRunV2ServiceTemplateContainersEnv(original["env"], d, config),
+			"resources":        flattenCloudRunV2ServiceTemplateContainersResources(original["resources"], d, config),
+			"ports":            flattenCloudRunV2ServiceTemplateContainersPorts(original["ports"], d, config),
+			"sandbox_launcher": flattenCloudRunV2ServiceTemplateContainersSandboxLauncher(original["sandboxLauncher"], d, config),
+			"volume_mounts":    flattenCloudRunV2ServiceTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
+			"working_dir":      flattenCloudRunV2ServiceTemplateContainersWorkingDir(original["workingDir"], d, config),
+			"liveness_probe":   flattenCloudRunV2ServiceTemplateContainersLivenessProbe(original["livenessProbe"], d, config),
+			"startup_probe":    flattenCloudRunV2ServiceTemplateContainersStartupProbe(original["startupProbe"], d, config),
+			"readiness_probe":  flattenCloudRunV2ServiceTemplateContainersReadinessProbe(original["readinessProbe"], d, config),
+			"depends_on":       flattenCloudRunV2ServiceTemplateContainersDependsOn(original["dependsOn"], d, config),
+			"base_image_uri":   flattenCloudRunV2ServiceTemplateContainersBaseImageUri(original["baseImageUri"], d, config),
+			"build_info":       flattenCloudRunV2ServiceTemplateContainersBuildInfo(original["buildInfo"], d, config),
 		})
 	}
 	return transformed
@@ -2661,6 +2667,10 @@ func flattenCloudRunV2ServiceTemplateContainersPortsContainerPort(v interface{},
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunV2ServiceTemplateContainersSandboxLauncher(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCloudRunV2ServiceTemplateContainersVolumeMounts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4454,6 +4464,13 @@ func expandCloudRunV2ServiceTemplateContainers(v interface{}, d tpgresource.Terr
 			transformed["ports"] = transformedPorts
 		}
 
+		transformedSandboxLauncher, err := expandCloudRunV2ServiceTemplateContainersSandboxLauncher(original["sandbox_launcher"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSandboxLauncher); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sandboxLauncher"] = transformedSandboxLauncher
+		}
+
 		transformedVolumeMounts, err := expandCloudRunV2ServiceTemplateContainersVolumeMounts(original["volume_mounts"], d, config)
 		if err != nil {
 			return nil, err
@@ -4730,6 +4747,10 @@ func expandCloudRunV2ServiceTemplateContainersPortsName(v interface{}, d tpgreso
 }
 
 func expandCloudRunV2ServiceTemplateContainersPortsContainerPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateContainersSandboxLauncher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

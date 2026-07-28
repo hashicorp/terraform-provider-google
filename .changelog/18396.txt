@@ -1,0 +1,7 @@
+```release-note:enhancement
+cloudrunv: added `sandbox_launcher` field to the containers of  `google_cloud_run_service` resource
+```
+
+```release-note:enhancement
+cloudrunv2: added `sandbox_launcher` field to the containers of  `google_cloud_run_v2_service` resource
+```

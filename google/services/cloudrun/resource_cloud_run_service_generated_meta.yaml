@@ -131,6 +131,8 @@ fields:
       field: template.spec.containers.resources.limits
     - api_field: spec.template.spec.containers.resources.requests
       field: template.spec.containers.resources.requests
+    - api_field: spec.template.spec.containers.sandboxLauncher
+      field: template.spec.containers.sandbox_launcher
     - api_field: spec.template.spec.containers.startupProbe.failureThreshold
       field: template.spec.containers.startup_probe.failure_threshold
     - api_field: spec.template.spec.containers.startupProbe.grpc.port
