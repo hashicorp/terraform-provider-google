@@ -304,6 +304,9 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 	case "policyTags":
 		eq := bigQueryTableNormalizePolicyTags(valA) == nil && bigQueryTableNormalizePolicyTags(valB) == nil
 		return eq
+	case "dataGovernanceTagsInfo":
+		eq := bigQueryTableNormalizeDataGovernanceTagsInfo(valA) == nil && bigQueryTableNormalizeDataGovernanceTagsInfo(valB) == nil
+		return eq
 	case "dataPolicies":
 		if d == nil {
 			return false
@@ -428,6 +431,23 @@ func bigQueryTableNormalizePolicyTags(val interface{}) interface{} {
 		}
 		// policyTags = {names = []} is same as nil.
 		if names, ok := policyTags["names"].([]interface{}); ok && len(names) == 0 {
+			return nil
+		}
+	}
+	return val
+}
+
+func bigQueryTableNormalizeDataGovernanceTagsInfo(val interface{}) interface{} {
+	if val == nil {
+		return nil
+	}
+	if dgTagsInfo, ok := val.(map[string]interface{}); ok {
+		// dgTagsInfo = {} is same as nil.
+		if len(dgTagsInfo) == 0 {
+			return nil
+		}
+		// dgTagsInfo = {dataGovernanceTags = {}} is same as nil.
+		if dgTags, ok := dgTagsInfo["dataGovernanceTags"].(map[string]interface{}); ok && len(dgTags) == 0 {
 			return nil
 		}
 	}

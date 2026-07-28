@@ -385,6 +385,111 @@ func TestBigQueryTableSchemaDiffSuppress(t *testing.T) {
 			]`,
 			ExpectDiffSuppress: true,
 		},
+		"dataGovernanceTagsInfo: nil vs empty map": {
+			Old: `[
+				{
+					"name": "col",
+					"type": "STRING"
+				}
+			]`,
+			New: `[
+				{
+					"name": "col",
+					"type": "STRING",
+					"dataGovernanceTagsInfo": {}
+				}
+			]`,
+			ExpectDiffSuppress: true,
+		},
+		"dataGovernanceTagsInfo: nil vs empty tags": {
+			Old: `[
+				{
+					"name": "col",
+					"type": "STRING"
+				}
+			]`,
+			New: `[
+				{
+					"name": "col",
+					"type": "STRING",
+					"dataGovernanceTagsInfo": {
+						"dataGovernanceTags": {}
+					}
+				}
+			]`,
+			ExpectDiffSuppress: true,
+		},
+		"dataGovernanceTagsInfo: same tags": {
+			Old: `[
+				{
+					"name": "col",
+					"type": "STRING",
+					"dataGovernanceTagsInfo": {
+						"dataGovernanceTags": {
+							"projects/my-project/locations/us/taxonomies/123/policyTags/456": "sensitive"
+						}
+					}
+				}
+			]`,
+			New: `[
+				{
+					"name": "col",
+					"type": "STRING",
+					"dataGovernanceTagsInfo": {
+						"dataGovernanceTags": {
+							"projects/my-project/locations/us/taxonomies/123/policyTags/456": "sensitive"
+						}
+					}
+				}
+			]`,
+			ExpectDiffSuppress: true,
+		},
+		"dataGovernanceTagsInfo: different tag value": {
+			Old: `[
+				{
+					"name": "col",
+					"type": "STRING",
+					"dataGovernanceTagsInfo": {
+						"dataGovernanceTags": {
+							"projects/my-project/locations/us/taxonomies/123/policyTags/456": "sensitive"
+						}
+					}
+				}
+			]`,
+			New: `[
+				{
+					"name": "col",
+					"type": "STRING",
+					"dataGovernanceTagsInfo": {
+						"dataGovernanceTags": {
+							"projects/my-project/locations/us/taxonomies/123/policyTags/456": "public"
+						}
+					}
+				}
+			]`,
+			ExpectDiffSuppress: false,
+		},
+		"dataGovernanceTagsInfo: tags removed": {
+			Old: `[
+				{
+					"name": "col",
+					"type": "STRING",
+					"dataGovernanceTagsInfo": {
+						"dataGovernanceTags": {
+							"projects/my-project/locations/us/taxonomies/123/policyTags/456": "sensitive"
+						}
+					}
+				}
+			]`,
+			New: `[
+				{
+					"name": "col",
+					"type": "STRING",
+					"dataGovernanceTagsInfo": {}
+				}
+			]`,
+			ExpectDiffSuppress: false,
+		},
 	}
 
 	for tn, tc := range cases {
@@ -684,6 +789,24 @@ var testUnitBigQueryDataTableIsChangeableTestCases = []testUnitBigQueryDataTable
 		jsonNew:             "[{\"name\": \"col1\", \"type\" : \"STRING\"}]",
 		ignoreSchemaChanges: []interface{}{"dataPolicies"},
 		changeable:          true, // Should not trigger ForceNew
+	},
+	{
+		name:       "dataGovernanceTagsInfoAdded",
+		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\"}]",
+		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"dataGovernanceTagsInfo\": {\"dataGovernanceTags\": {\"123/env\": \"prod\"}}}]",
+		changeable: true,
+	},
+	{
+		name:       "dataGovernanceTagsInfoChanged",
+		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"dataGovernanceTagsInfo\": {\"dataGovernanceTags\": {\"123/env\": \"prod\"}}}]",
+		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"dataGovernanceTagsInfo\": {\"dataGovernanceTags\": {\"123/env\": \"dev\"}}}]",
+		changeable: true,
+	},
+	{
+		name:       "dataGovernanceTagsInfoCleared",
+		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"dataGovernanceTagsInfo\": {\"dataGovernanceTags\": {\"123/env\": \"prod\"}}}]",
+		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"dataGovernanceTagsInfo\": {}}]",
+		changeable: true,
 	},
 }
 
