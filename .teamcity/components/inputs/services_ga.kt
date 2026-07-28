@@ -251,6 +251,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Cloud Security Compliance",
         "path" to "./google/services/cloudsecuritycompliance"
     ),
+    "cloudsupport" to mapOf(
+        "name" to "cloudsupport",
+        "displayName" to "Cloudsupport",
+        "path" to "./google/services/cloudsupport"
+    ),
     "cloudtasks" to mapOf(
         "name" to "cloudtasks",
         "displayName" to "Cloudtasks",
