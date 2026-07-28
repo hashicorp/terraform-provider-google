@@ -1,0 +1,3 @@
+```release-note:bug
+compute: Fixed spurious update-in-place permadiffs in `google_compute_service_attachment` when adding or removing elements from `consumer_accept_lists`
+```

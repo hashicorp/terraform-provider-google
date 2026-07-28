@@ -417,6 +417,7 @@ create.`,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 				Description: `The endpoint that is allowed to connect to this service attachment.
 Only one of project_id_or_num, network_url and endpoint_url may be set.`,
+				Default: "",
 			},
 			"network_url": {
 				Type:             schema.TypeString,
@@ -424,12 +425,14 @@ Only one of project_id_or_num, network_url and endpoint_url may be set.`,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 				Description: `The network that is allowed to connect to this service attachment.
 Only one of project_id_or_num and network_url may be set.`,
+				Default: "",
 			},
 			"project_id_or_num": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: `A project that is allowed to connect to this service attachment.
 Only one of project_id_or_num and network_url may be set.`,
+				Default: "",
 			},
 		},
 	}
