@@ -23,8 +23,8 @@ description: |-
 
 Cloud Firestore indexes enable simple and complex queries against documents in a database.
  Firestore Native, Firestore with MongoDB compatibility and Datastore Mode indexes are all supported.
- This resource manages composite indexes and not single field indexes.
- To manage single field indexes, use the `google_firestore_field` resource instead.
+ In Enterprise edition databases, this resource manages both single field and composite indexes.
+ In Standard edition databases, single field indexes are managed using the `google_firestore_field` resource instead.
 
 
 To get more information about Index, see:
@@ -457,12 +457,13 @@ The following arguments are supported:
 
 * `fields` -
   (Required)
-  The fields supported by this index. The last non-stored field entry is
-  always for the field path `__name__`. If, on creation, `__name__` was not
-  specified as the last field, it will be added automatically with the same
-  direction as that of the last field defined. If the final field in a
-  composite index is not directional, the `__name__` will be ordered
-  `"ASCENDING"` (unless explicitly specified otherwise).
+  The field(s) supported by this index. Indexes with the `ANY_API` `api_scope` in Standard
+  edition databases have special behavior with respect to the `__name__` field. In these
+  indexes, the last non-stored field entry is always for the field path `__name__`. If, on
+  creation, `__name__` was not specified as the last field, it will be added automatically
+  with the same direction as that of the last field defined. If the final field in an
+  index is not directional, the `__name__` will be ordered `"ASCENDING"` (unless explicitly
+  specified otherwise).
   Structure is [documented below](#nested_fields).
 
 

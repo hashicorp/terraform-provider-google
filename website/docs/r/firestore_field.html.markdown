@@ -25,6 +25,8 @@ Represents a single field in the database.
 Fields are grouped by their "Collection Group", which represent all collections
 in the database with the same id.
 
+In Standard edition databases, single field indexes are managed using the `google_firestore_field` resource. In Enterprise edition databases, they are managed using the `google_firestore_index` resource.
+
 
 To get more information about Field, see:
 
