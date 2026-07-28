@@ -1,0 +1,7 @@
+```release-note:enhancement
+bigqueryanalyticshub: promoted `google_bigquery_analytics_hub_query_template` to GA
+```
+
+```release-note:enhancement
+bigqueryanalyticshub: added `proposer` field to `google_bigquery_analytics_hub_query_template`
+```
