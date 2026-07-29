@@ -3362,7 +3362,8 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjectsMysqlData
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3385,7 +3386,8 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjectsMysqlData
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3408,7 +3410,8 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfigIncludeObjectsMysqlData
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3499,7 +3502,8 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjectsMysqlData
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3522,7 +3526,8 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjectsMysqlData
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3545,7 +3550,8 @@ func flattenDatastreamStreamSourceConfigMysqlSourceConfigExcludeObjectsMysqlData
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3706,7 +3712,8 @@ func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3729,7 +3736,8 @@ func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3752,7 +3760,8 @@ func flattenDatastreamStreamSourceConfigOracleSourceConfigIncludeObjectsOracleSc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3879,7 +3888,8 @@ func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3902,7 +3912,8 @@ func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3925,7 +3936,8 @@ func flattenDatastreamStreamSourceConfigOracleSourceConfigExcludeObjectsOracleSc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4120,7 +4132,8 @@ func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPost
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4143,7 +4156,8 @@ func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPost
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4166,7 +4180,8 @@ func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigIncludeObjectsPost
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4288,7 +4303,8 @@ func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPost
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4311,7 +4327,8 @@ func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPost
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4334,7 +4351,8 @@ func flattenDatastreamStreamSourceConfigPostgresqlSourceConfigExcludeObjectsPost
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4501,7 +4519,8 @@ func flattenDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjectsSchem
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4524,7 +4543,8 @@ func flattenDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjectsSchem
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4547,7 +4567,8 @@ func flattenDatastreamStreamSourceConfigSqlServerSourceConfigIncludeObjectsSchem
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4669,7 +4690,8 @@ func flattenDatastreamStreamSourceConfigSqlServerSourceConfigExcludeObjectsSchem
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4692,7 +4714,8 @@ func flattenDatastreamStreamSourceConfigSqlServerSourceConfigExcludeObjectsSchem
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4715,7 +4738,8 @@ func flattenDatastreamStreamSourceConfigSqlServerSourceConfigExcludeObjectsSchem
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4901,7 +4925,8 @@ func flattenDatastreamStreamSourceConfigSalesforceSourceConfigIncludeObjectsObje
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4924,7 +4949,8 @@ func flattenDatastreamStreamSourceConfigSalesforceSourceConfigIncludeObjectsObje
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4959,7 +4985,8 @@ func flattenDatastreamStreamSourceConfigSalesforceSourceConfigExcludeObjectsObje
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4982,7 +5009,8 @@ func flattenDatastreamStreamSourceConfigSalesforceSourceConfigExcludeObjectsObje
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5091,7 +5119,8 @@ func flattenDatastreamStreamSourceConfigSpannerSourceConfigIncludeObjectsSchemas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5114,7 +5143,8 @@ func flattenDatastreamStreamSourceConfigSpannerSourceConfigIncludeObjectsSchemas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5137,7 +5167,8 @@ func flattenDatastreamStreamSourceConfigSpannerSourceConfigIncludeObjectsSchemas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5200,7 +5231,8 @@ func flattenDatastreamStreamSourceConfigSpannerSourceConfigExcludeObjectsSchemas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5223,7 +5255,8 @@ func flattenDatastreamStreamSourceConfigSpannerSourceConfigExcludeObjectsSchemas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5246,7 +5279,8 @@ func flattenDatastreamStreamSourceConfigSpannerSourceConfigExcludeObjectsSchemas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5327,7 +5361,8 @@ func flattenDatastreamStreamSourceConfigMongodbSourceConfigIncludeObjectsDatabas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5350,7 +5385,8 @@ func flattenDatastreamStreamSourceConfigMongodbSourceConfigIncludeObjectsDatabas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5373,7 +5409,8 @@ func flattenDatastreamStreamSourceConfigMongodbSourceConfigIncludeObjectsDatabas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5408,7 +5445,8 @@ func flattenDatastreamStreamSourceConfigMongodbSourceConfigExcludeObjectsDatabas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5431,7 +5469,8 @@ func flattenDatastreamStreamSourceConfigMongodbSourceConfigExcludeObjectsDatabas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5454,7 +5493,8 @@ func flattenDatastreamStreamSourceConfigMongodbSourceConfigExcludeObjectsDatabas
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5779,7 +5819,8 @@ func flattenDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabases(v inte
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5802,7 +5843,8 @@ func flattenDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabasesMysqlTa
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5825,7 +5867,8 @@ func flattenDatastreamStreamBackfillAllMysqlExcludedObjectsMysqlDatabasesMysqlTa
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5916,7 +5959,8 @@ func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchema
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5939,7 +5983,8 @@ func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchema
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5962,7 +6007,8 @@ func flattenDatastreamStreamBackfillAllPostgresqlExcludedObjectsPostgresqlSchema
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6084,7 +6130,8 @@ func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemas(v inte
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6107,7 +6154,8 @@ func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleT
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6130,7 +6178,8 @@ func flattenDatastreamStreamBackfillAllOracleExcludedObjectsOracleSchemasOracleT
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6257,7 +6306,8 @@ func flattenDatastreamStreamBackfillAllSqlServerExcludedObjectsSchemas(v interfa
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6280,7 +6330,8 @@ func flattenDatastreamStreamBackfillAllSqlServerExcludedObjectsSchemasTables(v i
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6303,7 +6354,8 @@ func flattenDatastreamStreamBackfillAllSqlServerExcludedObjectsSchemasTablesColu
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6425,7 +6477,8 @@ func flattenDatastreamStreamBackfillAllSalesforceExcludedObjectsObjects(v interf
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6448,7 +6501,8 @@ func flattenDatastreamStreamBackfillAllSalesforceExcludedObjectsObjectsFields(v 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6483,7 +6537,8 @@ func flattenDatastreamStreamBackfillAllSpannerExcludedObjectsSchemas(v interface
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6506,7 +6561,8 @@ func flattenDatastreamStreamBackfillAllSpannerExcludedObjectsSchemasTables(v int
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6529,7 +6585,8 @@ func flattenDatastreamStreamBackfillAllSpannerExcludedObjectsSchemasTablesColumn
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6592,7 +6649,8 @@ func flattenDatastreamStreamBackfillAllMongodbExcludedObjectsDatabases(v interfa
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6615,7 +6673,8 @@ func flattenDatastreamStreamBackfillAllMongodbExcludedObjectsDatabasesCollection
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6638,7 +6697,8 @@ func flattenDatastreamStreamBackfillAllMongodbExcludedObjectsDatabasesCollection
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6672,7 +6732,8 @@ func flattenDatastreamStreamRuleSets(v interface{}, d *schema.ResourceData, conf
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6691,7 +6752,8 @@ func flattenDatastreamStreamRuleSetsCustomizationRules(v interface{}, d *schema.
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

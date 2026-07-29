@@ -1769,7 +1769,8 @@ func flattenWorkbenchInstanceGceSetupAcceleratorConfigs(v interface{}, d *schema
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1822,7 +1823,8 @@ func flattenWorkbenchInstanceGceSetupServiceAccounts(v interface{}, d *schema.Re
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1911,7 +1913,8 @@ func flattenWorkbenchInstanceGceSetupDataDisks(v interface{}, d *schema.Resource
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1953,7 +1956,8 @@ func flattenWorkbenchInstanceGceSetupNetworkInterfaces(v interface{}, d *schema.
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1986,7 +1990,8 @@ func flattenWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigs(v interface{
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2086,7 +2091,8 @@ func flattenWorkbenchInstanceUpgradeHistory(v interface{}, d *schema.ResourceDat
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

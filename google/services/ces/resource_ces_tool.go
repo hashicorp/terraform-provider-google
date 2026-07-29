@@ -3389,7 +3389,8 @@ func flattenCESToolDataStoreToolBoostSpecs(v interface{}, d *schema.ResourceData
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3412,7 +3413,8 @@ func flattenCESToolDataStoreToolBoostSpecsSpec(v interface{}, d *schema.Resource
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3430,7 +3432,8 @@ func flattenCESToolDataStoreToolBoostSpecsSpecConditionBoostSpecs(v interface{},
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3477,7 +3480,8 @@ func flattenCESToolDataStoreToolBoostSpecsSpecConditionBoostSpecsBoostControlSpe
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3628,7 +3632,8 @@ func flattenCESToolDataStoreToolEngineSourceDataStoreSources(v interface{}, d *s
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3752,7 +3757,8 @@ func flattenCESToolDataStoreToolModalityConfigs(v interface{}, d *schema.Resourc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4240,7 +4246,8 @@ func flattenCESToolMcpToolTlsConfigCaCerts(v interface{}, d *schema.ResourceData
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4505,7 +4512,8 @@ func flattenCESToolOpenApiToolTlsConfigCaCerts(v interface{}, d *schema.Resource
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4627,7 +4635,8 @@ func flattenCESToolRemoteAgentToolAgentCardSupportedInterfaces(v interface{}, d 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4664,7 +4673,8 @@ func flattenCESToolRemoteAgentToolAgentCardSkills(v interface{}, d *schema.Resou
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

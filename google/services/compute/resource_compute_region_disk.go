@@ -1552,7 +1552,8 @@ func flattenComputeRegionDiskGuestOsFeatures(v interface{}, d *schema.ResourceDa
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(computeRegionDiskGuestOsFeaturesSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

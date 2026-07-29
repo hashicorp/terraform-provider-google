@@ -930,7 +930,8 @@ func flattenNetworkSecuritySecurityProfileThreatPreventionProfileSeverityOverrid
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(networksecuritySecurityProfileThreatPreventionProfileSeverityOverridesSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -957,7 +958,8 @@ func flattenNetworkSecuritySecurityProfileThreatPreventionProfileThreatOverrides
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(networksecuritySecurityProfileThreatPreventionProfileThreatOverridesSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -989,7 +991,8 @@ func flattenNetworkSecuritySecurityProfileThreatPreventionProfileAntivirusOverri
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(networksecuritySecurityProfileThreatPreventionProfileAntivirusOverridesSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

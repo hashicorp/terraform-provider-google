@@ -6177,7 +6177,8 @@ func flattenChronicleFeedDetailsCortexXdrSettingsAuthenticationHeaderKeyValues(v
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6352,7 +6353,8 @@ func flattenChronicleFeedDetailsDummyLogTypeSettingsAuthenticationHeaderKeyValue
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6949,7 +6951,8 @@ func flattenChronicleFeedDetailsImpervaWafSettingsAuthenticationHeaderKeyValues(
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7012,7 +7015,8 @@ func flattenChronicleFeedDetailsMandiantIocSettingsAuthenticationHeaderKeyValues
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7185,7 +7189,8 @@ func flattenChronicleFeedDetailsMimecastMailSettingsAuthenticationHeaderKeyValue
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7284,7 +7289,8 @@ func flattenChronicleFeedDetailsNetskopeAlertSettingsAuthenticationHeaderKeyValu
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7355,7 +7361,8 @@ func flattenChronicleFeedDetailsNetskopeAlertV2SettingsAuthenticationHeaderKeyVa
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7482,7 +7489,8 @@ func flattenChronicleFeedDetailsOktaSettingsAuthenticationHeaderKeyValues(v inte
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7543,7 +7551,8 @@ func flattenChronicleFeedDetailsOktaUserContextSettingsAuthenticationHeaderKeyVa
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7608,7 +7617,8 @@ func flattenChronicleFeedDetailsPanIocSettingsAuthenticationHeaderKeyValues(v in
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7749,7 +7759,8 @@ func flattenChronicleFeedDetailsProofpointOnDemandSettingsAuthenticationHeaderKe
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7917,7 +7928,8 @@ func flattenChronicleFeedDetailsRapid7InsightSettingsAuthenticationHeaderKeyValu
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7978,7 +7990,8 @@ func flattenChronicleFeedDetailsRecordedFutureIocSettingsAuthenticationHeaderKey
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -8208,7 +8221,8 @@ func flattenChronicleFeedDetailsSentineloneAlertSettingsAuthenticationHeaderKeyV
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -8441,7 +8455,8 @@ func flattenChronicleFeedDetailsThinkstCanarySettingsAuthenticationHeaderKeyValu
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
