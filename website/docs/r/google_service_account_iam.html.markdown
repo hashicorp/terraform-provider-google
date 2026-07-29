@@ -214,6 +214,28 @@ The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/c
 $ terraform import google_service_account_iam_member.default "projects/{{project_id}}/serviceAccounts/{{service_account_email}} roles/editor user:foo@example.com"
 ```
 
+#### Import via resource identity
+
+`google_service_account_iam_member` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/block/import#identity) (Terraform 1.12+):
+
+```tf
+import {
+  to = google_service_account_iam_member.default
+  identity = {
+    service_account_id = "projects/your-project-id/serviceAccounts/your-service-account@your-project-id.iam.gserviceaccount.com"
+    role               = "roles/editor"
+    member             = "user:foo@example.com"
+  }
+}
+```
+
+Identity attributes:
+
+* `service_account_id` - (Required) Fully-qualified service account resource name.
+* `role` - (Required) The IAM role being granted.
+* `member` - (Required) The identity that the role is granted to.
+* `condition_title` - (Optional) Title of the IAM condition, when importing a conditional binding.
+
 ### Importing IAM bindings
 
 IAM binding imports use space-delimited identifiers that contains the `service_account_id` and `role`. For example:
