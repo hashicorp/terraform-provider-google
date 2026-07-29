@@ -39,9 +39,10 @@ func TestAccApigeeFlowhook_apigeeFlowhookTestExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"billing_account":   envvar.GetTestBillingAccountFromEnv(t),
+		"random_suffix":     acctest.RandString(t, 10),
+		"continue_on_error": true,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -54,6 +55,42 @@ func TestAccApigeeFlowhook_apigeeFlowhookTestExample(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccApigeeFlowhook_apigeeFlowhookTestExample(context),
+			},
+			{
+				ResourceName:            "google_apigee_flowhook.flowhook_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{},
+			},
+		},
+	})
+}
+
+func TestAccApigeeFlowhook_continueOnErrorFalse(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"billing_account":   envvar.GetTestBillingAccountFromEnv(t),
+		"random_suffix":     acctest.RandString(t, 10),
+		"continue_on_error": false,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckApigeeFlowhookDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApigeeFlowhook_apigeeFlowhookTestExample(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_apigee_flowhook.flowhook_test", "continue_on_error", "false"),
+					testAccCheckApigeeFlowhookContinueOnError(t, "google_apigee_flowhook.flowhook_test", false),
+				),
 			},
 			{
 				ResourceName:            "google_apigee_flowhook.flowhook_test",
@@ -156,9 +193,53 @@ resource "google_apigee_flowhook" "flowhook_test" {
 	flow_hook_point = "PreProxyFlowHook"
 	sharedflow = google_apigee_sharedflow.test_apigee_sharedflow.name
 	description = "test flowhook"
-	continue_on_error = true
+	continue_on_error = %{continue_on_error}
   }
 `, context)
+}
+
+// Verifies continue_on_error is correctly persisted when explicitly set.
+// Verify continueOnError is returned by the API with the expected value.
+func testAccCheckApigeeFlowhookContinueOnError(t *testing.T, resourceName string, expected bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+
+		config := acctest.GoogleProviderConfig(t)
+
+		url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(apigee.Product, config)+"organizations/{{org_id}}/environments/{{environment}}/flowhooks/{{flow_hook_point}}")
+		if err != nil {
+			return err
+		}
+
+		billingProject := ""
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
+		if err != nil {
+			return fmt.Errorf("error reading flowhook at %s: %s", url, err)
+		}
+
+		got, ok := res["continueOnError"].(bool)
+		if !ok {
+			return fmt.Errorf("continueOnError missing or not a bool in API response for %s", url)
+		}
+		if got != expected {
+			return fmt.Errorf("continueOnError = %t, want %t at %s", got, expected, url)
+		}
+
+		return nil
+	}
 }
 
 func testAccCheckApigeeFlowhookDestroyProducer(t *testing.T) func(s *terraform.State) error {

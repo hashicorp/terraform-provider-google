@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: fixed `continue_on_error` arguement being dropped in `google_apigee_flowhook`, aligning provider behavior with the Apigee API
+```
