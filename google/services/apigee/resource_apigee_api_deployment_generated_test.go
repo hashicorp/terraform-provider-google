@@ -58,7 +58,6 @@ var (
 )
 
 func TestAccApigeeApiDeployment_apigeeApiDeploymentBasicTestExample(t *testing.T) {
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -84,7 +83,7 @@ func TestAccApigeeApiDeployment_apigeeApiDeploymentBasicTestExample(t *testing.T
 				ResourceName:            "google_apigee_api_deployment.api_deployment_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"environment", "org_id", "proxy_id", "revision"},
+				ImportStateVerifyIgnore: []string{"environment", "org_id", "proxy_id", "revision", "service_account"},
 			},
 			{
 				ResourceName:       "google_apigee_api_deployment.api_deployment_test",
@@ -179,6 +178,138 @@ resource "google_apigee_api_deployment" "api_deployment_test" {
   org_id = google_apigee_api.test_apigee_api.org_id
   revision = google_apigee_api.test_apigee_api.latest_revision_id
   proxy_id = google_apigee_api.test_apigee_api.name
+}
+`, context)
+}
+
+func TestAccApigeeApiDeployment_apigeeApiDeploymentServiceAccountTestExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckApigeeApiDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApigeeApiDeployment_apigeeApiDeploymentServiceAccountTestExample(context),
+			},
+			{
+				ResourceName:            "google_apigee_api_deployment.api_deployment_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"environment", "org_id", "proxy_id", "revision", "service_account", "service_account"},
+			},
+			{
+				ResourceName:       "google_apigee_api_deployment.api_deployment_test",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccApigeeApiDeployment_apigeeApiDeploymentServiceAccountTestExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "project" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "apigee" {
+  project = google_project.project.project_id
+  service = "apigee.googleapis.com"
+}
+
+resource "google_project_service" "servicenetworking" {
+  project = google_project.project.project_id
+  service = "servicenetworking.googleapis.com"
+  depends_on = [google_project_service.apigee]
+}
+
+resource "google_project_service" "compute" {
+  project = google_project.project.project_id
+  service = "compute.googleapis.com"
+  depends_on = [google_project_service.servicenetworking]
+}
+
+resource "time_sleep" "wait_300_seconds" {
+  create_duration = "300s"
+  depends_on = [google_project_service.compute]
+}
+
+resource "google_compute_network" "apigee_network" {
+  name       = "apigee-network"
+  project    = google_project.project.project_id
+  depends_on = [time_sleep.wait_300_seconds]
+}
+
+resource "google_compute_global_address" "apigee_range" {
+  name          = "tf-test-apigee-range%{random_suffix}"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.apigee_network.id
+  project       = google_project.project.project_id
+}
+
+resource "google_service_networking_connection" "apigee_vpc_connection" {
+  network                 = google_compute_network.apigee_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.apigee_range.name]
+  depends_on              = [google_project_service.servicenetworking]
+}
+
+resource "google_apigee_organization" "apigee_org" {
+  analytics_region   = "us-central1"
+  project_id         = google_project.project.project_id
+  authorized_network = google_compute_network.apigee_network.id
+  depends_on         = [
+    google_service_networking_connection.apigee_vpc_connection,
+    google_project_service.apigee,
+  ]
+}
+
+resource "google_apigee_environment" "apigee_environment" {
+  org_id       = google_apigee_organization.apigee_org.id
+  name         = "test-env"
+  description  = "Apigee Environment"
+  display_name = "environment-1"
+}
+
+resource "google_service_account" "proxy_sa" {
+  account_id   = "proxy-sa-%{random_suffix}"
+  display_name = "TF Proxy Test SA"
+  project      = google_project.project.project_id
+}
+
+resource "google_apigee_api" "test_apigee_api" {
+  name          = "test-proxy"
+  org_id        = google_project.project.project_id
+  config_bundle = "./test-fixtures/apigee_api_bundle.zip"
+  depends_on    = [google_apigee_organization.apigee_org]
+}
+
+resource "google_apigee_api_deployment" "api_deployment_test" {
+  environment     = google_apigee_environment.apigee_environment.name
+  org_id          = google_apigee_api.test_apigee_api.org_id
+  revision        = google_apigee_api.test_apigee_api.latest_revision_id
+  proxy_id        = google_apigee_api.test_apigee_api.name
+  service_account = google_service_account.proxy_sa.email
 }
 `, context)
 }
