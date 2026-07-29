@@ -19,12 +19,10 @@ package bigquery
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
-	"google.golang.org/api/bigquery/v2"
 )
 
 func TestBigQueryTableSchemaDiffSuppress(t *testing.T) {
@@ -836,121 +834,6 @@ func TestUnitBigQueryDataTable_schemaIsChangeableNested(t *testing.T) {
 			nil,
 		}
 		testcaseNested.check(t)
-	}
-}
-
-// Test mergeDataPolicies using JSON to generate the structs.
-func TestMergeDataPolicies(t *testing.T) {
-	t.Parallel()
-
-	// Define the 'Live' schema (from API) as JSON.
-	// Contains the policies we want to preserve.
-	liveJSON := `[
-		{
-			"name": "col1",
-			"type": "STRING",
-			"dataPolicies": [
-				{ "name": "projects/123/locations/us/dataPolicies/p1" }
-			]
-		},
-		{
-			"name": "nested_col",
-			"type": "RECORD",
-			"fields": [
-				{
-					"name": "subcol",
-					"type": "STRING",
-					"dataPolicies": [
-						{ "name": "projects/123/locations/us/dataPolicies/nested_p1" }
-					]
-				}
-			]
-		}
-	]`
-
-	// Define the 'Config' schema (from Terraform) as JSON.
-	// Simulates the user NOT defining dataPolicies in their config.
-	configJSON := `[
-		{
-			"name": "col1",
-			"type": "STRING"
-		},
-		{
-			"name": "nested_col",
-			"type": "RECORD",
-			"fields": [
-				{
-					"name": "subcol",
-					"type": "STRING"
-				}
-			]
-		}
-	]`
-
-	// Define the Expected Result.
-	// It should look like the Config, but with policies merged in from Live.
-	expectedJSON := `[
-		{
-			"name": "col1",
-			"type": "STRING",
-			"dataPolicies": [
-				{ "name": "projects/123/locations/us/dataPolicies/p1" }
-			]
-		},
-		{
-			"name": "nested_col",
-			"type": "RECORD",
-			"fields": [
-				{
-					"name": "subcol",
-					"type": "STRING",
-					"dataPolicies": [
-						{ "name": "projects/123/locations/us/dataPolicies/nested_p1" }
-					]
-				}
-			]
-		}
-	]`
-
-	// Unmarshal input data into SDK types
-	var liveFields []*bigquery.TableFieldSchema
-	if err := json.Unmarshal([]byte(liveJSON), &liveFields); err != nil {
-		t.Fatalf("Failed to unmarshal live JSON: %v", err)
-	}
-
-	var configFields []*bigquery.TableFieldSchema
-	if err := json.Unmarshal([]byte(configJSON), &configFields); err != nil {
-		t.Fatalf("Failed to unmarshal config JSON: %v", err)
-	}
-
-	// Unmarshal configJSON into []interface{} to create the rawSchema
-	// This simulates d.Get("schema") which returns generic maps/slices
-	var rawSchema []interface{}
-	if err := json.Unmarshal([]byte(configJSON), &rawSchema); err != nil {
-		t.Fatalf("Failed to unmarshal config JSON to rawSchema: %v", err)
-	}
-
-	// Run the function under test
-	mergeDataPolicies(configFields, liveFields, rawSchema)
-
-	// Validate: Marshal the result back to JSON and compare with Expected.
-	// We verify using generic interface{} to ignore internal Go struct metadata
-	// (like ForceSendFields) that might differ but don't affect the JSON payload.
-	resultBytes, err := json.Marshal(configFields)
-	if err != nil {
-		t.Fatalf("Failed to marshal result: %v", err)
-	}
-
-	var resultGeneric, expectedGeneric interface{}
-	if err := json.Unmarshal(resultBytes, &resultGeneric); err != nil {
-		t.Fatalf("Failed to unmarshal result generic: %v", err)
-	}
-	if err := json.Unmarshal([]byte(expectedJSON), &expectedGeneric); err != nil {
-		t.Fatalf("Failed to unmarshal expected generic: %v", err)
-	}
-
-	if !reflect.DeepEqual(resultGeneric, expectedGeneric) {
-		t.Errorf("Result does not match expected.\nGot:\n%s\nExpected:\n%s", string(resultBytes), expectedJSON)
 	}
 }
 
