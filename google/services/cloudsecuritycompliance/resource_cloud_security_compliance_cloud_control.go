@@ -1545,7 +1545,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpec(v interface{}, d *s
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1704,7 +1705,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubstitutionRules(v 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1757,7 +1759,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParameters(v inte
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1915,7 +1918,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubstit
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1998,7 +2002,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidat
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2190,7 +2195,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedVal
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2360,7 +2366,8 @@ func flattenCloudSecurityComplianceCloudControlRules(v interface{}, d *schema.Re
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

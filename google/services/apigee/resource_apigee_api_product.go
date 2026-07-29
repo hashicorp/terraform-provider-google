@@ -1133,7 +1133,8 @@ func flattenApigeeApiProductAttributes(v interface{}, d *schema.ResourceData, co
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(apigeeApiProductAttributesSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1243,7 +1244,8 @@ func flattenApigeeApiProductOperationGroupOperationConfigs(v interface{}, d *sch
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(apigeeApiProductOperationGroupOperationConfigsSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1268,7 +1270,8 @@ func flattenApigeeApiProductOperationGroupOperationConfigsOperations(v interface
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1327,7 +1330,8 @@ func flattenApigeeApiProductOperationGroupOperationConfigsAttributes(v interface
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(apigeeApiProductOperationGroupOperationConfigsOperationConfigsAttributesSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1373,7 +1377,8 @@ func flattenApigeeApiProductGraphqlOperationGroupOperationConfigs(v interface{},
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(apigeeApiProductGraphqlOperationGroupOperationConfigsSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1398,7 +1403,8 @@ func flattenApigeeApiProductGraphqlOperationGroupOperationConfigsOperations(v in
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(apigeeApiProductGraphqlOperationGroupOperationConfigsOperationConfigsOperationsSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1457,7 +1463,8 @@ func flattenApigeeApiProductGraphqlOperationGroupOperationConfigsAttributes(v in
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(apigeeApiProductGraphqlOperationGroupOperationConfigsOperationConfigsAttributesSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1501,7 +1508,8 @@ func flattenApigeeApiProductGrpcOperationGroupOperationConfigs(v interface{}, d 
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(apigeeApiProductGrpcOperationGroupOperationConfigsSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1563,7 +1571,8 @@ func flattenApigeeApiProductGrpcOperationGroupOperationConfigsAttributes(v inter
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(apigeeApiProductGrpcOperationGroupOperationConfigsOperationConfigsAttributesSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

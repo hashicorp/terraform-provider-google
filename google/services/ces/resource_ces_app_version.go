@@ -3639,7 +3639,8 @@ func flattenCESAppVersionSnapshotAgents(v interface{}, d *schema.ResourceData, c
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3677,7 +3678,8 @@ func flattenCESAppVersionSnapshotAgentsAfterAgentCallbacks(v interface{}, d *sch
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3709,7 +3711,8 @@ func flattenCESAppVersionSnapshotAgentsAfterModelCallbacks(v interface{}, d *sch
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3741,7 +3744,8 @@ func flattenCESAppVersionSnapshotAgentsAfterToolCallbacks(v interface{}, d *sche
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3773,7 +3777,8 @@ func flattenCESAppVersionSnapshotAgentsBeforeAgentCallbacks(v interface{}, d *sc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3805,7 +3810,8 @@ func flattenCESAppVersionSnapshotAgentsBeforeModelCallbacks(v interface{}, d *sc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3837,7 +3843,8 @@ func flattenCESAppVersionSnapshotAgentsBeforeToolCallbacks(v interface{}, d *sch
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3985,7 +3992,8 @@ func flattenCESAppVersionSnapshotAgentsToolsets(v interface{}, d *schema.Resourc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4179,7 +4187,8 @@ func flattenCESAppVersionSnapshotAppDataStoreSettingsEngines(v interface{}, d *s
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4639,7 +4648,8 @@ func flattenCESAppVersionSnapshotAppVariableDeclarations(v interface{}, d *schem
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4839,7 +4849,8 @@ func flattenCESAppVersionSnapshotExamples(v interface{}, d *schema.ResourceData,
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4889,7 +4900,8 @@ func flattenCESAppVersionSnapshotExamplesMessages(v interface{}, d *schema.Resou
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4908,7 +4920,8 @@ func flattenCESAppVersionSnapshotExamplesMessagesChunks(v interface{}, d *schema
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5144,7 +5157,8 @@ func flattenCESAppVersionSnapshotGuardrails(v interface{}, d *schema.ResourceDat
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5221,7 +5235,8 @@ func flattenCESAppVersionSnapshotGuardrailsActionRespondImmediatelyResponses(v i
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5658,7 +5673,8 @@ func flattenCESAppVersionSnapshotGuardrailsModelSafetySafetySettings(v interface
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5693,7 +5709,8 @@ func flattenCESAppVersionSnapshotTools(v interface{}, d *schema.ResourceData, co
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6063,7 +6080,8 @@ func flattenCESAppVersionSnapshotToolsDataStoreToolBoostSpecs(v interface{}, d *
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6086,7 +6104,8 @@ func flattenCESAppVersionSnapshotToolsDataStoreToolBoostSpecsSpec(v interface{},
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6104,7 +6123,8 @@ func flattenCESAppVersionSnapshotToolsDataStoreToolBoostSpecsSpecConditionBoostS
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6151,7 +6171,8 @@ func flattenCESAppVersionSnapshotToolsDataStoreToolBoostSpecsSpecConditionBoostS
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6211,7 +6232,8 @@ func flattenCESAppVersionSnapshotToolsDataStoreToolEngineSourceDataStoreSources(
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6331,7 +6353,8 @@ func flattenCESAppVersionSnapshotToolsDataStoreToolModalityConfigs(v interface{}
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6718,7 +6741,8 @@ func flattenCESAppVersionSnapshotToolsOpenApiToolTlsConfigCaCerts(v interface{},
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6805,7 +6829,8 @@ func flattenCESAppVersionSnapshotToolsets(v interface{}, d *schema.ResourceData,
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -7052,7 +7077,8 @@ func flattenCESAppVersionSnapshotToolsetsOpenApiToolsetTlsConfigCaCerts(v interf
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

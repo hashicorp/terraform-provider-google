@@ -3452,7 +3452,8 @@ func flattenComputeRegionUrlMapHostRule(v interface{}, d *schema.ResourceData, c
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(computeRegionUrlMapHostRuleSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3512,7 +3513,8 @@ func flattenComputeRegionUrlMapPathMatcher(v interface{}, d *schema.ResourceData
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3560,7 +3562,8 @@ func flattenComputeRegionUrlMapPathMatcherHeaderActionRequestHeadersToAdd(v inte
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3596,7 +3599,8 @@ func flattenComputeRegionUrlMapPathMatcherHeaderActionResponseHeadersToAdd(v int
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3643,7 +3647,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRules(v interface{}, d *schema.Re
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3709,7 +3714,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesHeaderActionRequestHeadersTo
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3745,7 +3751,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesHeaderActionResponseHeadersT
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3781,7 +3788,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3810,7 +3818,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesHeaderMatches(v in
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3916,7 +3925,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesMetadataFilters(v 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3935,7 +3945,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesMetadataFiltersFil
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3970,7 +3981,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4377,7 +4389,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionWeightedBackendSe
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4423,7 +4436,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionWeightedBackendSe
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4459,7 +4473,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionWeightedBackendSe
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4559,7 +4574,8 @@ func flattenComputeRegionUrlMapPathMatcherPathRule(v interface{}, d *schema.Reso
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4950,7 +4966,8 @@ func flattenComputeRegionUrlMapPathMatcherPathRuleRouteActionWeightedBackendServ
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -4996,7 +5013,8 @@ func flattenComputeRegionUrlMapPathMatcherPathRuleRouteActionWeightedBackendServ
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5032,7 +5050,8 @@ func flattenComputeRegionUrlMapPathMatcherPathRuleRouteActionWeightedBackendServ
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5206,7 +5225,8 @@ func flattenComputeRegionUrlMapPathMatcherDefaultRouteActionWeightedBackendServi
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5273,7 +5293,8 @@ func flattenComputeRegionUrlMapPathMatcherDefaultRouteActionWeightedBackendServi
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5309,7 +5330,8 @@ func flattenComputeRegionUrlMapPathMatcherDefaultRouteActionWeightedBackendServi
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5714,7 +5736,8 @@ func flattenComputeRegionUrlMapTest(v interface{}, d *schema.ResourceData, confi
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5826,7 +5849,8 @@ func flattenComputeRegionUrlMapDefaultRouteActionWeightedBackendServices(v inter
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5893,7 +5917,8 @@ func flattenComputeRegionUrlMapDefaultRouteActionWeightedBackendServicesHeaderAc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -5929,7 +5954,8 @@ func flattenComputeRegionUrlMapDefaultRouteActionWeightedBackendServicesHeaderAc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6315,7 +6341,8 @@ func flattenComputeRegionUrlMapHeaderActionRequestHeadersToAdd(v interface{}, d 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -6351,7 +6378,8 @@ func flattenComputeRegionUrlMapHeaderActionResponseHeadersToAdd(v interface{}, d
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
