@@ -1,0 +1,3 @@
+```release-note:bug
+biglakeiceberg: fixed a permadiff in `google_biglake_iceberg_table` by suppressing diffs on `location` when the API-returned path contains a suffix folder.
+```
