@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a permadiff where `ignore_node_count_changes` was not persisted in `google_container_cluster.node_pool`
+```
