@@ -655,6 +655,19 @@ import {
 }
 ```
 
+In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import BigQuery tables using identity values. For example:
+
+```tf
+import {
+  identity = {
+    project    = "{{project}}"
+    dataset_id = "{{dataset_id}}"
+    table_id   = "{{table_id}}"
+  }
+  to = google_bigquery_table.default
+}
+```
+
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), BigQuery tables can be imported using one of the formats above. For example:
 
 ```
