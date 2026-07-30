@@ -673,6 +673,27 @@ func ResourceBigQueryTable() *schema.Resource {
 			resourceBigQueryTableSchemaCustomizeDiff,
 			tpgresource.SetLabelsDiff,
 		),
+
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"dataset_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"table_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+
 		Schema: map[string]*schema.Schema{
 			// TableId: [Required] The ID of the table. The ID must contain only
 			// letters (a-z, A-Z), numbers (0-9), or underscores (_). The maximum
@@ -2214,9 +2235,6 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BigQuery table %q", tableID))
 	}
 
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error setting project: %s", err)
-	}
 	if err := d.Set("description", rawRes["description"]); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
@@ -2241,15 +2259,6 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		for k, v := range labelsRaw {
 			labels[k] = v.(string)
 		}
-	}
-	if err := tpgresource.SetLabels(labels, d, "labels"); err != nil {
-		return fmt.Errorf("Error setting labels: %s", err)
-	}
-	if err := tpgresource.SetLabels(labels, d, "terraform_labels"); err != nil {
-		return fmt.Errorf("Error setting terraform_labels: %s", err)
-	}
-	if err := d.Set("effective_labels", labels); err != nil {
-		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
 	if v, ok := rawRes["creationTime"].(string); ok && v != "" {
 		if i, err := strconv.ParseInt(v, 10, 64); err == nil {
@@ -2278,12 +2287,13 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 	}
+	var datasetID, tableIDFromRef string
 	if tableRef, ok := rawRes["tableReference"].(map[string]interface{}); ok {
-		if err := d.Set("table_id", tableRef["tableId"]); err != nil {
-			return fmt.Errorf("Error setting table_id: %s", err)
+		if v, ok := tableRef["tableId"].(string); ok {
+			tableIDFromRef = v
 		}
-		if err := d.Set("dataset_id", tableRef["datasetId"]); err != nil {
-			return fmt.Errorf("Error setting dataset_id: %s", err)
+		if v, ok := tableRef["datasetId"].(string); ok {
+			datasetID = v
 		}
 	}
 	if v, ok := rawRes["numLongTermBytes"].(string); ok && v != "" {
@@ -2303,8 +2313,9 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("self_link", rawRes["selfLink"]); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
-	if err := d.Set("type", rawRes["type"]); err != nil {
-		return fmt.Errorf("Error setting type: %s", err)
+	tableType, _ := rawRes["type"].(string)
+	if err := populateBigQueryTableCommonResourceData(d, config, project, datasetID, tableIDFromRef, tableType, labels); err != nil {
+		return err
 	}
 
 	// determine whether the deprecated require_partition_filter field is used
@@ -2482,6 +2493,51 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func populateBigQueryTableCommonResourceData(d *schema.ResourceData, config *transport_tpg.Config, project, datasetID, tableID, tableType string, labels map[string]string) error {
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("dataset_id", datasetID); err != nil {
+		return fmt.Errorf("Error setting dataset_id: %s", err)
+	}
+	if err := d.Set("table_id", tableID); err != nil {
+		return fmt.Errorf("Error setting table_id: %s", err)
+	}
+	if err := tpgresource.SetLabels(labels, d, "labels"); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	terraformLabels := make(map[string]string)
+	if config != nil {
+		for key, value := range config.DefaultLabels {
+			terraformLabels[key] = value
+		}
+	}
+	if configuredLabels, ok := d.GetOk("labels"); ok {
+		for key, value := range configuredLabels.(map[string]interface{}) {
+			terraformLabels[key] = value.(string)
+		}
+	}
+	if _, hasAttributionLabel := labels[transport_tpg.AttributionKey]; hasAttributionLabel {
+		terraformLabels[transport_tpg.AttributionKey] = transport_tpg.AttributionValue
+	}
+	if err := d.Set("terraform_labels", terraformLabels); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
+	}
+	if err := d.Set("effective_labels", labels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
+	}
+	if err := d.Set("type", tableType); err != nil {
+		return fmt.Errorf("Error setting type: %s", err)
+	}
+	d.SetId(fmt.Sprintf("projects/%s/datasets/%s/tables/%s", project, datasetID, tableID))
+
+	return tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project":    project,
+		"dataset_id": datasetID,
+		"table_id":   tableID,
+	})
 }
 
 type TableReference struct {
@@ -3985,6 +4041,9 @@ func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Explicitly set virtual fields with default values to their default values on import
+	if err := d.Set("ignore_auto_generated_schema", false); err != nil {
+		return nil, fmt.Errorf("Error setting ignore_auto_generated_schema: %s", err)
+	}
 
 	// Replace import id for the resource id
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}")
