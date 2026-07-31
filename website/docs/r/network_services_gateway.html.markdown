@@ -323,6 +323,12 @@ The following arguments are supported:
   The routing mode of the Gateway. This field is configurable only for gateways of type SECURE_WEB_GATEWAY. This field is required for gateways of type SECURE_WEB_GATEWAY.
   Possible values are: `NEXT_HOP_ROUTING_MODE`, `EXPLICIT_ROUTING_MODE`.
 
+* `allow_global_access` -
+  (Optional)
+  Optional. If true, the gateway will allow traffic from clients outside
+  of the region where the gateway is located.
+  This field is configurable only for gateways of type SECURE_WEB_GATEWAY.
+
 * `location` -
   (Optional)
   The location of the gateway.
