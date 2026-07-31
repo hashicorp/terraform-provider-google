@@ -189,7 +189,9 @@ This value is subject to the following restrictions:
 				ForceNew: true,
 				Description: `Optional. Immutable. Authorization mode of the instance. Possible values:
  AUTH_DISABLED
-IAM_AUTH`,
+IAM_AUTH.
+
+TOKEN_AUTH is also supported, but only available in the google-beta provider.`,
 			},
 			"automated_backup_config": {
 				Type:        schema.TypeList,

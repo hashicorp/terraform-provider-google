@@ -530,7 +530,8 @@ The following arguments are supported:
   (Optional)
   Optional. Immutable. Authorization mode of the instance. Possible values:
    AUTH_DISABLED
-  IAM_AUTH
+  IAM_AUTH.
+  TOKEN_AUTH is also supported, but only available in the google-beta provider.
 
 * `transit_encryption_mode` -
   (Optional)
