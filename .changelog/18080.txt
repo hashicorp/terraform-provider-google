@@ -1,0 +1,3 @@
+```release-note:bug
+backupdr: fixed issue where `google_backup_dr_restore_workload` dropped `resource_manager_tags` during restore requests, causing tags shown in plan to not be applied to restored resources
+```
