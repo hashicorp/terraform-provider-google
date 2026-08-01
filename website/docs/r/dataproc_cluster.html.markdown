@@ -530,6 +530,14 @@ cluster_config {
       instance_selection_list {
         machine_types = ["n2-standard-2","n1-standard-2"]
         rank          = 1
+        disk_config {
+          boot_disk_size_gb = 30
+          boot_disk_type    = "pd-standard"
+          attached_disk_config {
+            disk_size_gb = 30
+            disk_type    = "pd-standard"
+          }
+        }
       }
       instance_selection_list {
         machine_types = ["n2d-standard-2"]
@@ -577,6 +585,12 @@ cluster_config {
 	Valid values: "scsi" (Small Computer System Interface), "nvme" (Non-Volatile
 	Memory Express). See
 	[local SSD performance](https://cloud.google.com/compute/docs/disks/local-ssd#performance).
+
+        * `attached_disk_config` - (Optional) Attached disk configuration.
+            * `disk_size_gb` - (Optional) Size of the attached disk, specified in GB.
+            * `disk_type` - (Optional) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".
+            * `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
+            * `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
 * `instance_flexibility_policy` (Optional) Instance flexibility Policy allowing a mixture of VM shapes.
 
     * `instance_selection_list` - (Optional) List of instance selection options that the group will use when creating new VMs.
@@ -591,6 +605,11 @@ cluster_config {
             * `boot_disk_provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
             * `boot_disk_provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
             * `local_ssd_interface` - (Optional) Interface type of local SSDs (no Local SSDs or NVMe).
+            * `attached_disk_config` - (Optional) Attached disk configuration.
+                * `disk_size_gb` - (Optional) Size of the attached disk, specified in GB.
+                * `disk_type` - (Optional) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".
+                * `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
+                * `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
 
 * `accelerators` (Optional) The Compute Engine accelerator (GPU) configuration for these instances. Can be specified multiple times.
 
@@ -622,6 +641,14 @@ cluster_config {
       instance_selection_list {
         machine_types = ["n2-standard-2","n1-standard-2"]
         rank          = 1
+        disk_config {
+          boot_disk_size_gb = 30
+          boot_disk_type    = "pd-standard"
+          attached_disk_config {
+            disk_size_gb = 30
+            disk_type    = "pd-standard"
+          }
+        }
       }
       instance_selection_list {
         machine_types = ["n2d-standard-2"]
@@ -666,6 +693,12 @@ cluster_config {
     * `num_local_ssds` - (Optional) The amount of local SSD disks that will be
 	attached to each worker cluster node. Defaults to 0.
 
+    * `attached_disk_config` - (Optional) Attached disk configuration.
+        * `disk_size_gb` - (Optional) Size of the attached disk, specified in GB.
+        * `disk_type` - (Optional) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".
+        * `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
+        * `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
+
 * `image_uri` (Optional) The URI for the image to use for this worker.  See [the guide](https://cloud.google.com/dataproc/docs/guides/dataproc-images)
     for more information.
 
@@ -684,6 +717,11 @@ cluster_config {
             * `boot_disk_provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
             * `boot_disk_provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
             * `local_ssd_interface` - (Optional) Interface type of local SSDs (no Local SSDs or NVMe).
+            * `attached_disk_config` - (Optional) Attached disk configuration.
+                * `disk_size_gb` - (Optional) Size of the attached disk, specified in GB.
+                * `disk_type` - (Optional) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".
+                * `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
+                * `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
 
 * `accelerators` (Optional) The Compute Engine accelerator configuration for these instances. Can be specified multiple times.
 
@@ -756,6 +794,12 @@ will be set for you based on whatever was set for the `worker_config.machine_typ
 
 	* `num_local_ssds` - (Optional) The amount of local SSD disks that will be
 	attached to each preemptible worker node. Defaults to 0.
+
+        * `attached_disk_config` - (Optional) Attached disk configuration.
+            * `disk_size_gb` - (Optional) Size of the attached disk, specified in GB.
+            * `disk_type` - (Optional) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".
+            * `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
+            * `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
 
 * `instance_flexibility_policy` (Optional) Instance flexibility Policy allowing a mixture of VM shapes and provisioning models.
 
