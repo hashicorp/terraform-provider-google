@@ -13,6 +13,9 @@ on:
         - cron: '0 19 * * *' # 7PM PST
           timezone: 'America/Los_Angeles'
 
+permissions:
+  contents: write # Required to create, rename, and delete branches 
+
 jobs:
   rename-TC-nightly-branch:
     if: github.repository == 'hashicorp/terraform-provider-google' || github.repository == 'hashicorp/terraform-provider-google-beta'
