@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `password_secret_version` and `user` fields into  `google_sql_provision_script` resource
+```
