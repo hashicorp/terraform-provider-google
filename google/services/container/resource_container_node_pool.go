@@ -169,6 +169,19 @@ func (instanceGroupManagerCache *instanceGroupManagerCache) needsRefresh(fullyQu
 	return time.Since(igm.updateTime) > instanceGroupManagerCache.ttl
 }
 
+// invalidateItem removes a specific Instance Group Manager from the cache by its URL.
+// This is called when a node pool is resized or when ignore_node_count_changes is active,
+// ensuring that stale cached target sizes are not served on subsequent lookups.
+func (instanceGroupManagerCache *instanceGroupManagerCache) invalidateItem(igmUrl string) {
+	instanceGroupManagerCache.mutex.Lock()
+	defer instanceGroupManagerCache.mutex.Unlock()
+
+	matches := instanceGroupManagerURL.FindStringSubmatch(igmUrl)
+	if len(matches) >= 4 {
+		delete(instanceGroupManagerCache.instanceGroupManagers, matches[0])
+	}
+}
+
 // We need to set ttl to 0 to disable caching in VCR testing.
 // This ensure all NP/MIG LIST requests are made consistently,
 // preventing non-deterministic behavior that would break VCR.
@@ -1477,6 +1490,7 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 		// or leave them empty. Passing the API URLs to igmUrls at least populates them for basic usage.
 		for _, url := range np.InstanceGroupUrls {
 			igmUrls = append(igmUrls, url)
+			igmCache.invalidateItem(url)
 		}
 	} else {
 		for _, url := range np.InstanceGroupUrls {
@@ -1516,6 +1530,7 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 		"managed_instance_group_urls": managedIgmUrls,
 		"version":                     np.Version,
 		"network_config":              flattenNodeNetworkConfig(np.NetworkConfig, d, prefix),
+		"ignore_node_count_changes":   d.Get(prefix + "ignore_node_count_changes"),
 	}
 
 	if np.Autoscaling != nil {
@@ -1818,6 +1833,11 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		}
 		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 			return err
+		}
+		if urls, ok := d.GetOk(prefix + "instance_group_urls"); ok {
+			for _, u := range urls.([]interface{}) {
+				igmCache.invalidateItem(u.(string))
+			}
 		}
 		log.Printf("[INFO] GKE node pool %s size has been updated to %d", name, newSize)
 	}

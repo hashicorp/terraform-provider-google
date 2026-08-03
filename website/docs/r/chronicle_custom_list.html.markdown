@@ -26,7 +26,7 @@ The custom list is a list of objects, that can be saved as a shared resource, an
 
 To get more information about CustomList, see:
 
-* [API documentation](https://docs.cloud.google.com/chronicle/docs/reference/rest/v1beta/projects.locations.instances.customLists)
+* [API documentation](https://docs.cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.customLists)
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
@@ -35,7 +35,6 @@ To get more information about CustomList, see:
 
 ```hcl
 resource "google_chronicle_custom_list" "sample" {
-  provider = google-beta
   location = "us"
   instance = "00000000-0000-0000-0000-000000000000"
 

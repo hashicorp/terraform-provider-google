@@ -75,6 +75,10 @@ The following arguments are supported:
   are /a-z[0-9]-_/.
 
 
+* `source_project_id` -
+  (Optional)
+  Optional. The source project id of the plugin instance. This will be the id of runtime project in case of gcp based plugins and org id in case of non gcp based plugins. This field will be a required field for Google provided on-ramp plugins.
+
 * `disable` -
   (Optional)
   The display name for this plugin instance. Max length is 255 characters.

@@ -631,6 +631,11 @@ https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachi
 														},
 													},
 												},
+												"sandbox_launcher": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Indicates that this container can act as a sandbox supervisor and launch sandboxes.`,
+												},
 												"startup_probe": {
 													Type:     schema.TypeList,
 													Computed: true,
@@ -1929,7 +1934,8 @@ func flattenCloudRunServiceSpecTraffic(v interface{}, d *schema.ResourceData, co
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2096,26 +2102,28 @@ func flattenCloudRunServiceSpecTemplateSpecContainers(v interface{}, d *schema.R
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":            flattenCloudRunServiceSpecTemplateSpecContainersName(original["name"], d, config),
-			"working_dir":     flattenCloudRunServiceSpecTemplateSpecContainersWorkingDir(original["workingDir"], d, config),
-			"args":            flattenCloudRunServiceSpecTemplateSpecContainersArgs(original["args"], d, config),
-			"env_from":        flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(original["envFrom"], d, config),
-			"image":           flattenCloudRunServiceSpecTemplateSpecContainersImage(original["image"], d, config),
-			"command":         flattenCloudRunServiceSpecTemplateSpecContainersCommand(original["command"], d, config),
-			"env":             flattenCloudRunServiceSpecTemplateSpecContainersEnv(original["env"], d, config),
-			"ports":           flattenCloudRunServiceSpecTemplateSpecContainersPorts(original["ports"], d, config),
-			"resources":       flattenCloudRunServiceSpecTemplateSpecContainersResources(original["resources"], d, config),
-			"volume_mounts":   flattenCloudRunServiceSpecTemplateSpecContainersVolumeMounts(original["volumeMounts"], d, config),
-			"startup_probe":   flattenCloudRunServiceSpecTemplateSpecContainersStartupProbe(original["startupProbe"], d, config),
-			"readiness_probe": flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbe(original["readinessProbe"], d, config),
-			"liveness_probe":  flattenCloudRunServiceSpecTemplateSpecContainersLivenessProbe(original["livenessProbe"], d, config),
+			"name":             flattenCloudRunServiceSpecTemplateSpecContainersName(original["name"], d, config),
+			"working_dir":      flattenCloudRunServiceSpecTemplateSpecContainersWorkingDir(original["workingDir"], d, config),
+			"args":             flattenCloudRunServiceSpecTemplateSpecContainersArgs(original["args"], d, config),
+			"env_from":         flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(original["envFrom"], d, config),
+			"image":            flattenCloudRunServiceSpecTemplateSpecContainersImage(original["image"], d, config),
+			"command":          flattenCloudRunServiceSpecTemplateSpecContainersCommand(original["command"], d, config),
+			"env":              flattenCloudRunServiceSpecTemplateSpecContainersEnv(original["env"], d, config),
+			"ports":            flattenCloudRunServiceSpecTemplateSpecContainersPorts(original["ports"], d, config),
+			"sandbox_launcher": flattenCloudRunServiceSpecTemplateSpecContainersSandboxLauncher(original["sandboxLauncher"], d, config),
+			"resources":        flattenCloudRunServiceSpecTemplateSpecContainersResources(original["resources"], d, config),
+			"volume_mounts":    flattenCloudRunServiceSpecTemplateSpecContainersVolumeMounts(original["volumeMounts"], d, config),
+			"startup_probe":    flattenCloudRunServiceSpecTemplateSpecContainersStartupProbe(original["startupProbe"], d, config),
+			"readiness_probe":  flattenCloudRunServiceSpecTemplateSpecContainersReadinessProbe(original["readinessProbe"], d, config),
+			"liveness_probe":   flattenCloudRunServiceSpecTemplateSpecContainersLivenessProbe(original["livenessProbe"], d, config),
 		})
 	}
 	return transformed
@@ -2138,7 +2146,8 @@ func flattenCloudRunServiceSpecTemplateSpecContainersEnvFrom(v interface{}, d *s
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2242,7 +2251,8 @@ func flattenCloudRunServiceSpecTemplateSpecContainersEnv(v interface{}, d *schem
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(cloudrunServiceSpecTemplateSpecContainersContainersEnvSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2306,7 +2316,8 @@ func flattenCloudRunServiceSpecTemplateSpecContainersPorts(v interface{}, d *sch
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2345,6 +2356,10 @@ func flattenCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(v interf
 	return v // let terraform core handle it otherwise
 }
 
+func flattenCloudRunServiceSpecTemplateSpecContainersSandboxLauncher(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCloudRunServiceSpecTemplateSpecContainersResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -2374,7 +2389,8 @@ func flattenCloudRunServiceSpecTemplateSpecContainersVolumeMounts(v interface{},
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2561,7 +2577,8 @@ func flattenCloudRunServiceSpecTemplateSpecContainersStartupProbeHttpGetHttpHead
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2904,7 +2921,8 @@ func flattenCloudRunServiceSpecTemplateSpecContainersLivenessProbeHttpGetHttpHea
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3006,7 +3024,8 @@ func flattenCloudRunServiceSpecTemplateSpecVolumes(v interface{}, d *schema.Reso
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3070,7 +3089,8 @@ func flattenCloudRunServiceSpecTemplateSpecVolumesSecretItems(v interface{}, d *
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3223,7 +3243,8 @@ func flattenCloudRunServiceStatusConditions(v interface{}, d *schema.ResourceDat
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3289,7 +3310,8 @@ func flattenCloudRunServiceStatusTraffic(v interface{}, d *schema.ResourceData, 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3836,6 +3858,13 @@ func expandCloudRunServiceSpecTemplateSpecContainers(v interface{}, d tpgresourc
 			transformed["ports"] = transformedPorts
 		}
 
+		transformedSandboxLauncher, err := expandCloudRunServiceSpecTemplateSpecContainersSandboxLauncher(original["sandbox_launcher"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSandboxLauncher); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sandboxLauncher"] = transformedSandboxLauncher
+		}
+
 		transformedResources, err := expandCloudRunServiceSpecTemplateSpecContainersResources(original["resources"], d, config)
 		if err != nil {
 			return nil, err
@@ -4212,6 +4241,10 @@ func expandCloudRunServiceSpecTemplateSpecContainersPortsProtocol(v interface{},
 }
 
 func expandCloudRunServiceSpecTemplateSpecContainersPortsContainerPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunServiceSpecTemplateSpecContainersSandboxLauncher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

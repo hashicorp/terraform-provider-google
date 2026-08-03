@@ -54,6 +54,42 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func vertexAiReasoningEngineRuntimeRevisionNameDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if old == new {
+		return true
+	}
+	if old == "" || new == "" {
+		return false
+	}
+
+	// Short name suffix matching (e.g., "rev-1" or "1" against full URI "projects/.../runtimeRevisions/rev-1")
+	if strings.HasSuffix(old, "/"+new) || strings.HasSuffix(old, "/rev-"+new) {
+		return true
+	}
+
+	// Keyword matching for LATEST or PREVIOUS
+	if new == "LATEST" || new == "PREVIOUS" {
+		if d != nil {
+			if d.HasChange("spec") {
+				return false
+			}
+			oldTargets, newTargets := d.GetChange("traffic_config.0.traffic_split_manual.0.targets")
+			if oldSlice, ok1 := oldTargets.([]interface{}); ok1 {
+				if newSlice, ok2 := newTargets.([]interface{}); ok2 {
+					if len(oldSlice) != len(newSlice) {
+						return false
+					}
+				}
+			}
+		}
+		if len(old) > 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -1522,7 +1558,8 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpecSecretEnv(v interface{}, d 
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(vertexaiReasoningEngineSpecDeploymentSpecSecretEnvSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1587,7 +1624,8 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpecPscInterfaceConfigDnsPeerin
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

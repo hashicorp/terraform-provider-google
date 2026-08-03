@@ -488,6 +488,12 @@ format as: 'projects/*/secrets/*/versions/*'.`,
 				Description: `The display name for this plugin instance. Max length is 255 characters.`,
 				Default:     false,
 			},
+			"source_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Optional. The source project id of the plugin instance. This will be the id of runtime project in case of gcp based plugins and org id in case of non gcp based plugins. This field will be a required field for Google provided on-ramp plugins.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -557,6 +563,12 @@ func resourceApihubPluginInstanceCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	obj := make(map[string]interface{})
+	sourceProjectIdProp, err := expandApihubPluginInstanceSourceProjectId(d.Get("source_project_id"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_project_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceProjectIdProp)) && (ok || !reflect.DeepEqual(v, sourceProjectIdProp)) {
+		obj["sourceProjectId"] = sourceProjectIdProp
+	}
 	disableProp, err := expandApihubPluginInstanceDisable(d.Get("disable"), d, config)
 	if err != nil {
 		return err
@@ -951,6 +963,10 @@ func flattenApihubPluginInstanceName(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
+func flattenApihubPluginInstanceSourceProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenApihubPluginInstanceDisable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1137,7 +1153,8 @@ func flattenApihubPluginInstanceActions(v interface{}, d *schema.ResourceData, c
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1258,6 +1275,10 @@ func flattenApihubPluginInstanceActionsCurationConfigCurationType(v interface{},
 
 func flattenApihubPluginInstanceActionsScheduleTimeZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func expandApihubPluginInstanceSourceProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandApihubPluginInstanceDisable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1767,6 +1788,9 @@ func ResourceApihubPluginInstanceFlatten(d *schema.ResourceData, meta interface{
 	var err error
 
 	if err = d.Set("name", flattenApihubPluginInstanceName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PluginInstance: %s", err)
+	}
+	if err = d.Set("source_project_id", flattenApihubPluginInstanceSourceProjectId(res["sourceProjectId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PluginInstance: %s", err)
 	}
 	if err = d.Set("disable", flattenApihubPluginInstanceDisable(res["disable"], d, config)); err != nil {

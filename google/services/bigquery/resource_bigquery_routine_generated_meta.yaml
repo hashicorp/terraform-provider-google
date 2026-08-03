@@ -12,6 +12,9 @@ fields:
       json: true
     - api_field: arguments.mode
     - api_field: arguments.name
+    - api_field: arguments.tableType.columns.name
+    - api_field: arguments.tableType.columns.type
+      json: true
     - api_field: creationTime
     - api_field: dataGovernanceType
     - api_field: routineReference.datasetId

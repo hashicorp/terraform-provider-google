@@ -1,0 +1,50 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_agent_identity_auth_provider
+generation_type: mmv1
+source_file: products/agentidentity/AuthProvider.yaml
+api_service_name: agentidentity.googleapis.com
+api_version: v1
+api_resource_type_kind: AuthProvider
+fields:
+    - api_field: allowedScopes
+    - field: auth_provider_id
+      provider_only: true
+    - api_field: authProviderTypeParams.apiKey.apiKey
+    - api_field: authProviderTypeParams.geAuthProvider
+    - api_field: authProviderTypeParams.threeLeggedOauth.authorizationUrl
+    - api_field: authProviderTypeParams.threeLeggedOauth.clientId
+    - api_field: authProviderTypeParams.threeLeggedOauth.clientSecret
+    - api_field: authProviderTypeParams.threeLeggedOauth.clientSecret
+      field: auth_provider_type_params.three_legged_oauth.client_secret_wo
+    - field: auth_provider_type_params.three_legged_oauth.client_secret_wo_version
+      provider_only: true
+    - api_field: authProviderTypeParams.threeLeggedOauth.defaultContinueUri
+    - api_field: authProviderTypeParams.threeLeggedOauth.enablePkce
+    - api_field: authProviderTypeParams.threeLeggedOauth.redirectUrl
+    - api_field: authProviderTypeParams.threeLeggedOauth.tokenUrl
+    - api_field: authProviderTypeParams.twoLeggedOauth.clientId
+    - api_field: authProviderTypeParams.twoLeggedOauth.clientSecret
+    - api_field: authProviderTypeParams.twoLeggedOauth.clientSecret
+      field: auth_provider_type_params.two_legged_oauth.client_secret_wo
+    - field: auth_provider_type_params.two_legged_oauth.client_secret_wo_version
+      provider_only: true
+    - api_field: authProviderTypeParams.twoLeggedOauth.tokenUrl
+    - api_field: blockedScopes
+    - api_field: createTime
+    - api_field: deleted
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: expireTime
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: workloadIds
+    - field: deletion_policy
+      provider_only: true

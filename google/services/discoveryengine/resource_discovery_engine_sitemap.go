@@ -327,41 +327,51 @@ func resourceDiscoveryEngineSitemapRead(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Finished reading DiscoveryEngineSitemap %q: %#v", d.Id(), res)
-	// Extract the resource name from the ID to match against the sitemap entries
-	resourceName := d.Get("name").(string)
+	// The sitemaps:fetch API returns a sitemapsMetadata array. This post-read template handles
+	// two contexts:
+	//   1. List context: res is a single sitemapsMetadata entry ({"sitemap": {...}}).
+	//      Unwrap the "sitemap" field directly.
+	//   2. Single-resource read context: res is the full fetch response ({"sitemapsMetadata": [...]}).
+	//      Search for the entry matching the resource's name.
+	if sitemap, ok := res["sitemap"].(map[string]interface{}); ok {
+		// List context: unwrap the nested sitemap object
+		res = sitemap
+	} else {
+		// Single-resource read context: find the matching sitemap by name
+		resourceName := d.Get("name").(string)
 
-	// Find the specific sitemap entry from the response that matches our resource
-	var sitemapData map[string]interface{}
-	if sitemapsMetadata, ok := res["sitemapsMetadata"].([]interface{}); ok {
-		for _, metadata := range sitemapsMetadata {
-			metadataMap, ok := metadata.(map[string]interface{})
-			if !ok {
-				continue
-			}
+		var sitemapData map[string]interface{}
+		if sitemapsMetadata, ok := res["sitemapsMetadata"].([]interface{}); ok {
+			for _, metadata := range sitemapsMetadata {
+				metadataMap, ok := metadata.(map[string]interface{})
+				if !ok {
+					continue
+				}
 
-			sitemap, ok := metadataMap["sitemap"].(map[string]interface{})
-			if !ok {
-				continue
-			}
+				sitemap, ok := metadataMap["sitemap"].(map[string]interface{})
+				if !ok {
+					continue
+				}
 
-			name, ok := sitemap["name"].(string)
-			if !ok {
-				continue
-			}
+				name, ok := sitemap["name"].(string)
+				if !ok {
+					continue
+				}
 
-			if name == resourceName {
-				sitemapData = sitemap
-				break
+				if name == resourceName {
+					sitemapData = sitemap
+					break
+				}
 			}
 		}
-	}
 
-	// If we didn't find a matching sitemap, return a not found error
-	if sitemapData == nil {
-		return transport_tpg.HandleNotFoundError(fmt.Errorf("Sitemap %q not found", resourceName), d, fmt.Sprintf("DiscoveryEngineSitemap %q", d.Id()))
-	}
+		// If we didn't find a matching sitemap, return a not found error
+		if sitemapData == nil {
+			return transport_tpg.HandleNotFoundError(fmt.Errorf("Sitemap %q not found", resourceName), d, fmt.Sprintf("DiscoveryEngineSitemap %q", d.Id()))
+		}
 
-	res = sitemapData
+		res = sitemapData
+	}
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {

@@ -102,6 +102,21 @@ func ResourceGoogleProjectIamCustomRole() *schema.Resource {
 			//UDP schema end
 		},
 		UseJSONNumber: true,
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"role_id": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
 	}
 }
 
@@ -152,6 +167,12 @@ func resourceGoogleProjectIamCustomRoleCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Unable to verify whether custom project role %s already exists and must be undeleted: %v", roleId, err)
 	}
 
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project": project,
+		"role_id": tpgresource.GetResourceNameFromSelfLink(d.Id()),
+	}); err != nil {
+		return err
+	}
 	return resourceGoogleProjectIamCustomRoleRead(d, meta)
 }
 
@@ -214,11 +235,13 @@ func FlattenProjectIamCustomRole(d *schema.ResourceData, role *iam.Role, project
 		return fmt.Errorf("Error setting project: %s", err)
 	}
 
-	return nil
+	return tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project": project,
+		"role_id": tpgresource.GetResourceNameFromSelfLink(role.Name),
+	})
 }
 
 func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta interface{}) error {
-
 	if tpgresource.DeletionPolicyPreUpdate(d, ResourceGoogleProjectIamCustomRole) {
 		return ResourceGoogleProjectIamCustomRole().Read(d, meta)
 	}
@@ -258,6 +281,13 @@ func resourceGoogleProjectIamCustomRoleUpdate(d *schema.ResourceData, meta inter
 	}
 
 	d.Partial(false)
+	project := extractProjectFromProjectIamCustomRoleID(d.Id())
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project": project,
+		"role_id": tpgresource.GetResourceNameFromSelfLink(d.Id()),
+	}); err != nil {
+		return err
+	}
 	return nil
 }
 

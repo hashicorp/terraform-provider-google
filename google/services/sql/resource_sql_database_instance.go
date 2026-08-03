@@ -585,7 +585,6 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Type:             schema.TypeString,
 							Optional:         true,
 							Computed:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: caseDiffDashSuppress,
 							Description:      `The type of supported data disk is tier dependent and can be PD_SSD or PD_HDD or HYPERDISK_BALANCED.`,
 						},
@@ -2144,6 +2143,7 @@ func expandPscConfig(configured []interface{}) *sqladmin.PscConfig {
 			AllowedConsumerProjects:        tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
 			NetworkAttachmentUri:           _entry["network_attachment_uri"].(string),
 			PscAutoConnections:             expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
+			ForceSendFields:                []string{"AllowedConsumerProjects"},
 		}
 	}
 
@@ -2618,7 +2618,6 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	desiredSetting := d.Get("settings")
 	var op *sqladmin.Operation
 	var instance *sqladmin.DatabaseInstance
 
@@ -2893,6 +2892,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
+	desiredSetting := d.Get("settings")
 	instance = &sqladmin.DatabaseInstance{
 		Settings: expandSqlDatabaseInstanceSettings(desiredSetting.([]interface{}), databaseVersion),
 	}

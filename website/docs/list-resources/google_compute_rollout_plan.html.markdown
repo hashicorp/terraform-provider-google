@@ -30,7 +30,7 @@ For how list resources work in this provider, file layout, Terraform version req
 
 ```hcl
 list "google_compute_rollout_plan" "all" {
-  provider = google-beta
+  provider = google
 
   config {
     project = "..." # Optional

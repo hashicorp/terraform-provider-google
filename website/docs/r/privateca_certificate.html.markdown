@@ -523,6 +523,91 @@ resource "google_privateca_certificate" "default" {
   depends_on = [google_privateca_certificate_authority.default]
 }
 ```
+## Example Usage - Privateca Certificate Subject Config Org Optional
+
+
+```hcl
+resource "google_privateca_ca_pool" "default" {
+  location = "us-central1"
+  name = "my-pool"
+  tier = "ENTERPRISE"
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority_id = "my-authority"
+  config {
+    subject_config {
+      subject {
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          digital_signature = true
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  lifetime = "86400s"
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+}
+
+
+resource "google_privateca_certificate" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  name = "my-certificate"
+  lifetime = "860s"
+  config {
+    subject_config  {
+      subject {
+        common_name = "san1.example.com"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = false
+      }
+      key_usage {
+        base_key_usage {
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+    public_key {
+      format = "PEM"
+      key = filebase64("test-fixtures/rsa_public.pem")
+    }
+  }
+  // Certificates require an authority to exist in the pool, though they don't
+  // need to be explicitly connected to it
+  depends_on = [google_privateca_certificate_authority.default]
+}
+```
 
 ## Argument Reference
 
@@ -868,7 +953,7 @@ The following arguments are supported:
   The country code of the subject.
 
 * `organization` -
-  (Required)
+  (Optional)
   The organization of the subject.
 
 * `organizational_unit` -

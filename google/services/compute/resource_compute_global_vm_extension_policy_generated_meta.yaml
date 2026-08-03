@@ -1,0 +1,45 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_compute_global_vm_extension_policy
+generation_type: mmv1
+source_file: products/compute/GlobalVmExtensionPolicy.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: GlobalVmExtensionPolicy
+fields:
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: extensionPolicies.key
+      field: extension_policies.extension_name
+    - api_field: extensionPolicies.value.pinnedVersion
+      field: extension_policies.pinned_version
+    - api_field: extensionPolicies.value.stringConfig
+      field: extension_policies.string_config
+    - api_field: id
+    - api_field: instanceSelectors.labelSelector.inclusionLabels
+    - api_field: kind
+    - api_field: name
+    - api_field: priority
+    - api_field: rolloutOperation.rolloutInput.conflictBehavior
+    - api_field: rolloutOperation.rolloutInput.name
+    - api_field: rolloutOperation.rolloutInput.predefinedRolloutPlan
+    - api_field: rolloutOperation.rolloutInput.retryUuid
+    - api_field: rolloutOperation.rolloutStatus.currentRollouts.locationRolloutStatus.key
+      field: rollout_operation.rollout_status.current_rollouts.location_rollout_status.location_name
+    - api_field: rolloutOperation.rolloutStatus.currentRollouts.locationRolloutStatus.value.state
+      field: rollout_operation.rollout_status.current_rollouts.location_rollout_status.state
+    - api_field: rolloutOperation.rolloutStatus.currentRollouts.rollout
+    - api_field: rolloutOperation.rolloutStatus.currentRollouts.rolloutPlan
+    - api_field: rolloutOperation.rolloutStatus.currentRollouts.state
+    - api_field: rolloutOperation.rolloutStatus.previousRollout.locationRolloutStatus.key
+      field: rollout_operation.rollout_status.previous_rollout.location_rollout_status.location_name
+    - api_field: rolloutOperation.rolloutStatus.previousRollout.locationRolloutStatus.value.state
+      field: rollout_operation.rollout_status.previous_rollout.location_rollout_status.state
+    - api_field: rolloutOperation.rolloutStatus.previousRollout.rollout
+    - api_field: rolloutOperation.rolloutStatus.previousRollout.rolloutPlan
+    - api_field: rolloutOperation.rolloutStatus.previousRollout.state
+    - api_field: scopedResourceStatus
+    - api_field: selfLink
+    - api_field: updateTimestamp
+    - field: deletion_policy
+      provider_only: true

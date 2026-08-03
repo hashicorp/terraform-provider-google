@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
@@ -145,12 +146,50 @@ func pubsubToResourceManagerPolicy(in *pubsub.Policy) (*cloudresourcemanager.Pol
 	return out, nil
 }
 
+// PubsubSubscriptionIamParentResourceIdentityParser resolves the parent topic id from import identity.
+func PubsubSubscriptionIamParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, config *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, config, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "subscription", IdentityKey: "subscription"},
+		},
+		UriFormat: "projects/%s/subscriptions/%s",
+	})
+}
+
+func PubsubSubscriptionIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		IamPubsubSubscriptionSchema,
+		NewPubsubSubscriptionIamUpdater,
+		PubsubSubscriptionIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(PubsubSubscriptionIamParentResourceIdentityParser),
+	)
+}
+
+func NewPubsubSubscriptionIamMemberListResource() list.ListResource {
+	return tpgiamresource.NewIamMemberListResource(
+		"google_pubsub_subscription_iam_member",
+		PubsubSubscriptionIamMemberResource(),
+		NewPubsubSubscriptionIamUpdater,
+		tpgiamresource.IamMemberListCallConfig{
+			ParentResourceField: "subscription",
+			EnableRoleFilter:    true,
+			EnableMemberFilter:  true,
+		},
+	)
+}
+
 func init() {
 	registry.Schema{
 		Name:        "google_pubsub_subscription_iam_member",
 		ProductName: "pubsub",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IamPubsubSubscriptionSchema, NewPubsubSubscriptionIamUpdater, PubsubSubscriptionIdParseFunc),
+		Schema:      PubsubSubscriptionIamMemberResource(),
+	}.Register()
+	registry.FrameworkListResource{
+		Name:        "google_pubsub_subscription_iam_member",
+		ProductName: "pubsub",
+		Func:        NewPubsubSubscriptionIamMemberListResource,
 	}.Register()
 	registry.Schema{
 		Name:        "google_pubsub_subscription_iam_binding",

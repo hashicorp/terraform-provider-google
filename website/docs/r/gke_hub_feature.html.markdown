@@ -508,7 +508,7 @@ The following arguments are supported:
 <a name="nested_spec_workloadidentity"></a>The `workloadidentity` block supports:
 
 * `scope_tenancy_pool` -
-  (Required)
+  (Optional)
   Pool to be used for Workload Identity. This pool in trust-domain mode is used with Fleet Tenancy, so that sameness can be enforced. ex: projects/example/locations/global/workloadidentitypools/custompool
 
 <a name="nested_fleet_default_member_config"></a>The `fleet_default_member_config` block supports:

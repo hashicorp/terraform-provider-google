@@ -736,6 +736,55 @@ resource "google_workstations_workstation_config" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_idle_action&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Workstation Config Idle Action
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.name
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  provider               = google-beta
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-central1"
+}
+
+resource "google_workstations_workstation_config" "default" {
+  provider               = google-beta
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-central1"
+
+  idle_timeout = "600s"
+  idle_action  = "SUSPEND"
+
+  host {
+    gce_instance {
+      machine_type                 = "e2-standard-4"
+      boot_disk_size_gb            = 35
+      disable_public_ip_addresses  = true
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -775,6 +824,13 @@ The following arguments are supported:
   (Optional)
   How long to wait before automatically stopping an instance that hasn't recently received any user traffic. A value of 0 indicates that this instance should never time out from idleness. Defaults to 20 minutes.
   A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
+
+* `idle_action` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  The action to take when the workstation has been idle for the duration specified in idle_timeout.
+  Defaults to STOP.
+  Default value is `STOP`.
+  Possible values are: `STOP`, `SUSPEND`.
 
 * `running_timeout` -
   (Optional)

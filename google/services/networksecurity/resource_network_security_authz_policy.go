@@ -1901,7 +1901,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRules(v interface{}, d *schema.Resourc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1936,7 +1937,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromSources(v interface{}, d *sch
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1956,7 +1958,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesIpBlocks(v interface{}
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1996,7 +1999,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesPrincipals(v interface
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2085,7 +2089,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromSourcesResources(v interface{
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2162,7 +2167,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSources(v interface{}, d *
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2182,7 +2188,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesIpBlocks(v interfac
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2222,7 +2229,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesPrincipals(v interf
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2311,7 +2319,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesFromNotSourcesResources(v interfa
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2403,7 +2412,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToOperations(v interface{}, d *sc
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2438,7 +2448,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsHeaderSetHeaders(v in
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2502,7 +2513,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsHosts(v interface{}, 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2544,7 +2556,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsPaths(v interface{}, 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2609,7 +2622,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethods(v interfac
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2632,7 +2646,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToOperationsMcpMethodsParams(v in
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2674,7 +2689,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToNotOperations(v interface{}, d 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2708,7 +2724,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToNotOperationsHeaderSetHeaders(v
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2772,7 +2789,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToNotOperationsHosts(v interface{
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2814,7 +2832,8 @@ func flattenNetworkSecurityAuthzPolicyHttpRulesToNotOperationsPaths(v interface{
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2864,7 +2883,8 @@ func flattenNetworkSecurityAuthzPolicyNetworkRules(v interface{}, d *schema.Reso
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2898,7 +2918,8 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSources(v interface{}, d *
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2917,7 +2938,8 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocks(v interfac
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2957,7 +2979,8 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipals(v interf
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2997,7 +3020,8 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSources(v interface{}, 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3016,7 +3040,8 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocks(v inter
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3056,7 +3081,8 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipals(v int
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3109,7 +3135,8 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperations(v interface{}, d 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3127,7 +3154,8 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnis(v interface{}
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

@@ -728,7 +728,8 @@ func flattenDNSPolicyAlternativeNameServerConfigTargetNameServers(v interface{},
 		schema.SerializeResourceForHash(&buf, raw, dnsPolicyAlternativeNameServerConfigTargetNameServersSchema())
 		return tpgresource.Hashcode(buf.String())
 	}, []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -809,7 +810,8 @@ func flattenDNSPolicyNetworks(v interface{}, d *schema.ResourceData, config *tra
 		schema.SerializeResourceForHash(&buf, raw, dnsPolicyNetworksSchema())
 		return tpgresource.Hashcode(buf.String())
 	}, []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

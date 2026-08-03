@@ -163,6 +163,12 @@ func ResourceApigeeApiDeployment() *schema.Resource {
 				ForceNew:    true,
 				Description: `The revision of the API proxy to be deployed.`,
 			},
+			"service_account": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The Google Cloud IAM service account to use as the identity for the deployed proxy. The format must be '{ACCOUNT_ID}@{PROJECT}.iam.gserviceaccount.com'.`,
+			},
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -195,7 +201,7 @@ func resourceApigeeApiDeploymentCreate(d *schema.ResourceData, meta interface{})
 
 	obj := make(map[string]interface{})
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/environments/{{environment}}/apis/{{proxy_id}}/revisions/{{revision}}/deployments")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/environments/{{environment}}/apis/{{proxy_id}}/revisions/{{revision}}/deployments?serviceAccount={{service_account}}")
 	if err != nil {
 		return err
 	}

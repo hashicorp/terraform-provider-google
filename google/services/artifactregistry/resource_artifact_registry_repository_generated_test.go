@@ -387,6 +387,93 @@ resource "google_artifact_registry_repository" "my-repo" {
 `, context)
 }
 
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryConnectorExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"desc":               "example remote docker repository with no cache (connector mode)" + randomSuffix,
+		"repository_id":      "tf-test-my-repository" + randomSuffix,
+		"secret_data":        "tf-test-remote-password" + randomSuffix,
+		"secret_id":          "tf-test-example-secret" + randomSuffix,
+		"secret_resource_id": "tf-test-example-remote-secret" + randomSuffix,
+		"username":           "tf-test-remote-username" + randomSuffix,
+		"random_suffix":      randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryConnectorExample(context),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.my-repo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_artifact_registry_repository.my-repo",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryConnectorExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "%{secret_resource_id}" {
+  secret_id = "%{secret_id}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "%{secret_resource_id}_version" {
+  secret = google_secret_manager_secret.%{secret_resource_id}.id
+  secret_data = "%{secret_data}"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.%{secret_resource_id}.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "%{repository_id}"
+  description   = "%{desc}"
+  format        = "DOCKER"
+  mode          = "REMOTE_REPOSITORY"
+
+  remote_repository_config {
+    description                 = "docker hub connector repository (no cache)"
+    disable_upstream_validation = true
+    docker_repository {
+      public_repository = "DOCKER_HUB"
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username                = "%{username}"
+        password_secret_version = google_secret_manager_secret_version.%{secret_resource_id}_version.name
+      }
+    }
+    # Setting no_cache {} configures the repository as a Connector repository.
+    no_cache {}
+  }
+}
+`, context)
+}
+
 func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteAptExample(t *testing.T) {
 	t.Parallel()
 

@@ -189,7 +189,9 @@ This value is subject to the following restrictions:
 				ForceNew: true,
 				Description: `Optional. Immutable. Authorization mode of the instance. Possible values:
  AUTH_DISABLED
-IAM_AUTH`,
+IAM_AUTH.
+
+TOKEN_AUTH is also supported, but only available in the google-beta provider.`,
 			},
 			"automated_backup_config": {
 				Type:        schema.TypeList,
@@ -1969,7 +1971,8 @@ func flattenMemorystoreInstanceDiscoveryEndpoints(v interface{}, d *schema.Resou
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2104,7 +2107,8 @@ func flattenMemorystoreInstanceMaintenancePolicyWeeklyMaintenanceWindow(v interf
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2309,7 +2313,8 @@ func flattenMemorystoreInstanceEndpoints(v interface{}, d *schema.ResourceData, 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2327,7 +2332,8 @@ func flattenMemorystoreInstanceEndpointsConnections(v interface{}, d *schema.Res
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2465,7 +2471,8 @@ func flattenMemorystoreInstanceCrossInstanceReplicationConfigSecondaryInstances(
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2530,7 +2537,8 @@ func flattenMemorystoreInstanceCrossInstanceReplicationConfigMembershipSecondary
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2565,7 +2573,8 @@ func flattenMemorystoreInstancePscAttachmentDetails(v interface{}, d *schema.Res
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2592,7 +2601,8 @@ func flattenMemorystoreInstancePscAutoConnections(v interface{}, d *schema.Resou
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2688,7 +2698,8 @@ func flattenMemorystoreInstanceManagedServerCaCaCerts(v interface{}, d *schema.R
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

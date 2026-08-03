@@ -70,6 +70,18 @@ func icebergTablePropertiesDiffSuppress(k, old, new string, d *schema.ResourceDa
 	return false
 }
 
+func icebergTableLocationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if new == "" {
+		return true
+	}
+	oldClean := strings.TrimSuffix(old, "/")
+	newClean := strings.TrimSuffix(new, "/")
+	if oldClean == newClean {
+		return true
+	}
+	return strings.HasPrefix(oldClean, newClean+"/")
+}
+
 // expandIcebergTableSortOrderForCommit converts the Terraform "sort_order" block
 // into the SortOrder body of an "add-sort-order" commit update. The "order-id" is
 // assigned by the server, so only the fields are sent. Returns nil when no sort
@@ -311,11 +323,12 @@ func ResourceBiglakeIcebergIcebergTable() *schema.Resource {
 				},
 			},
 			"location": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The location of the table.`,
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: icebergTableLocationDiffSuppress,
+				Description:      `The location of the table.`,
 			},
 			"partition_spec": {
 				Type:        schema.TypeList,
@@ -1076,7 +1089,8 @@ func flattenBiglakeIcebergIcebergTableSchemaFields(v interface{}, d *schema.Reso
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1163,7 +1177,8 @@ func flattenBiglakeIcebergIcebergTablePartitionSpecFields(v interface{}, d *sche
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1258,7 +1273,8 @@ func flattenBiglakeIcebergIcebergTableSortOrderFields(v interface{}, d *schema.R
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

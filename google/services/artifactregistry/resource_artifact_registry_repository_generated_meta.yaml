@@ -52,6 +52,7 @@ fields:
     - api_field: remoteRepositoryConfig.dockerRepository.publicRepository
     - api_field: remoteRepositoryConfig.mavenRepository.customRepository.uri
     - api_field: remoteRepositoryConfig.mavenRepository.publicRepository
+    - api_field: remoteRepositoryConfig.noCache
     - api_field: remoteRepositoryConfig.npmRepository.customRepository.uri
     - api_field: remoteRepositoryConfig.npmRepository.publicRepository
     - api_field: remoteRepositoryConfig.pythonRepository.customRepository.uri

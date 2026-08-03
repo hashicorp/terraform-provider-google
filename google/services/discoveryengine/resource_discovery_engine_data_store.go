@@ -167,6 +167,17 @@ string with a length limit of 128 characters.`,
 				Description: `The geographic location where the data store should reside. The value can
 only be one of "global", "us" and "eu".`,
 			},
+			"acl_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Immutable. Whether data in the DataStore has ACL information. If set to 'true',
+the source data must have ACL. ACL will be ingested when data is ingested by
+DocumentService.ImportDocuments methods. When ACL is enabled for the DataStore,
+Document can't be accessed by calling DocumentService.GetDocument or
+DocumentService.ListDocuments. Currently ACL is only supported in the 'GENERIC'
+industry vertical with non-'PUBLIC_WEBSITE' content config.`,
+			},
 			"advanced_site_search_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -563,6 +574,12 @@ func resourceDiscoveryEngineDataStoreCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("content_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(contentConfigProp)) && (ok || !reflect.DeepEqual(v, contentConfigProp)) {
 		obj["contentConfig"] = contentConfigProp
+	}
+	aclEnabledProp, err := expandDiscoveryEngineDataStoreAclEnabled(d.Get("acl_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("acl_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(aclEnabledProp)) && (ok || !reflect.DeepEqual(v, aclEnabledProp)) {
+		obj["aclEnabled"] = aclEnabledProp
 	}
 	advancedSiteSearchConfigProp, err := expandDiscoveryEngineDataStoreAdvancedSiteSearchConfig(d.Get("advanced_site_search_config"), d, config)
 	if err != nil {
@@ -969,6 +986,10 @@ func flattenDiscoveryEngineDataStoreContentConfig(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenDiscoveryEngineDataStoreAclEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDiscoveryEngineDataStoreAdvancedSiteSearchConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1274,6 +1295,10 @@ func expandDiscoveryEngineDataStoreSolutionTypes(v interface{}, d tpgresource.Te
 }
 
 func expandDiscoveryEngineDataStoreContentConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreAclEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1827,6 +1852,9 @@ func ResourceDiscoveryEngineDataStoreFlatten(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading DataStore: %s", err)
 	}
 	if err = d.Set("content_config", flattenDiscoveryEngineDataStoreContentConfig(res["contentConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err = d.Set("acl_enabled", flattenDiscoveryEngineDataStoreAclEnabled(res["aclEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataStore: %s", err)
 	}
 	if err = d.Set("advanced_site_search_config", flattenDiscoveryEngineDataStoreAdvancedSiteSearchConfig(res["advancedSiteSearchConfig"], d, config)); err != nil {

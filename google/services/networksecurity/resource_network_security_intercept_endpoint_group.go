@@ -785,7 +785,8 @@ func flattenNetworkSecurityInterceptEndpointGroupAssociations(v interface{}, d *
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(networksecurityInterceptEndpointGroupAssociationsSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -836,7 +837,8 @@ func flattenNetworkSecurityInterceptEndpointGroupConnectedDeploymentGroupLocatio
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(networksecurityInterceptEndpointGroupConnectedDeploymentGroupLocationsSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
