@@ -426,6 +426,32 @@ Example: us-east4-b-r2.
 During creation, the system will pick the zone assigned to the
 ExascaleDbStorageVault.`,
 			},
+			"identity_connector": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Description: `The identity connector details which will allow OCI to securely access
+the resources in the customer project.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"connection_state": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The connection state of the identity connector.
+Possible values:
+CONNECTION_STATE_UNSPECIFIED
+CONNECTED
+PARTIALLY_CONNECTED
+DISCONNECTED
+UNKNOWN`,
+						},
+						"service_agent_email": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `A google managed service account on which customers can grant roles to access resources in the customer project.`,
+						},
+					},
+				},
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -939,6 +965,29 @@ func flattenOracleDatabaseExadbVmClusterOdbNetwork(v interface{}, d *schema.Reso
 }
 
 func flattenOracleDatabaseExadbVmClusterOdbSubnet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseExadbVmClusterIdentityConnector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_agent_email"] =
+		flattenOracleDatabaseExadbVmClusterIdentityConnectorServiceAgentEmail(original["serviceAgentEmail"], d, config)
+	transformed["connection_state"] =
+		flattenOracleDatabaseExadbVmClusterIdentityConnectorConnectionState(original["connectionState"], d, config)
+	return []interface{}{transformed}
+}
+func flattenOracleDatabaseExadbVmClusterIdentityConnectorServiceAgentEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseExadbVmClusterIdentityConnectorConnectionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1599,6 +1648,9 @@ func ResourceOracleDatabaseExadbVmClusterFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
 	}
 	if err = d.Set("odb_subnet", flattenOracleDatabaseExadbVmClusterOdbSubnet(res["odbSubnet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
+	}
+	if err = d.Set("identity_connector", flattenOracleDatabaseExadbVmClusterIdentityConnector(res["identityConnector"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ExadbVmCluster: %s", err)
 	}
 	if err = d.Set("properties", flattenOracleDatabaseExadbVmClusterProperties(res["properties"], d, config)); err != nil {

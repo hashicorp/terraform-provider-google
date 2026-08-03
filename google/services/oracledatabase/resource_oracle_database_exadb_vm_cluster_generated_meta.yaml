@@ -20,6 +20,8 @@ fields:
     - field: exadb_vm_cluster_id
       provider_only: true
     - api_field: gcpOracleZone
+    - api_field: identityConnector.connectionState
+    - api_field: identityConnector.serviceAgentEmail
     - api_field: labels
     - field: location
       provider_only: true
