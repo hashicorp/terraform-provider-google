@@ -10,4 +10,6 @@ fields:
   - field: 'script'
   - field: 'instance'
   - field: 'database'
+  - field: 'user'
+  - field: 'password_secret_version'
   - field: 'deletion_policy'

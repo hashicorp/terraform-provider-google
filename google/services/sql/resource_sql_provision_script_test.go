@@ -25,10 +25,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/sql"
 )
 
-func TestAccSqlProvisionScriptMySql(t *testing.T) {
+func TestAccSqlProvisionScript_iam_mySql(t *testing.T) {
 	t.Parallel()
 	serviceAcct := envvar.GetTestServiceAccountFromEnv(t)
 	t.Log("Test service account is", serviceAcct)
@@ -42,7 +41,7 @@ func TestAccSqlProvisionScriptMySql(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(
-					testGoogleSqlProvisionScript_mysql, instance, serviceAcct, script),
+					testGoogleSqlProvisionScript_iam_mysql, instance, serviceAcct, script),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr("google_sql_provision_script.script", "database"),
 					resource.TestCheckResourceAttr("google_sql_provision_script.script", "deletion_policy", "ABANDON"),
@@ -50,14 +49,14 @@ func TestAccSqlProvisionScriptMySql(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(
-					testGoogleSqlProvisionScript_mysql, instance, serviceAcct, "CREATE USER"),
+					testGoogleSqlProvisionScript_iam_mysql, instance, serviceAcct, "CREATE USER"),
 				ExpectError: regexp.MustCompile(`.*`), // syntax error
 			},
 		},
 	})
 }
 
-func TestAccSqlProvisionScriptPostgres(t *testing.T) {
+func TestAccSqlProvisionScript_iam_postgres(t *testing.T) {
 	t.Parallel()
 	serviceAcct := envvar.GetTestServiceAccountFromEnv(t)
 	t.Log("Test service account is", serviceAcct)
@@ -73,7 +72,7 @@ func TestAccSqlProvisionScriptPostgres(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(
-					testGoogleSqlProvisionScript_postgres, instance, database, serviceAcct, script),
+					testGoogleSqlProvisionScript_iam_postgres, instance, database, serviceAcct, script),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_sql_provision_script.script", "database", database),
 					resource.TestCheckResourceAttr("google_sql_provision_script.script", "deletion_policy", "ABANDON"),
@@ -81,14 +80,14 @@ func TestAccSqlProvisionScriptPostgres(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(
-					testGoogleSqlProvisionScript_postgres, instance, database, serviceAcct, "CREATE TABLE"),
+					testGoogleSqlProvisionScript_iam_postgres, instance, database, serviceAcct, "CREATE TABLE"),
 				ExpectError: regexp.MustCompile(`.*`), // syntax error
 			},
 		},
 	})
 }
 
-var testGoogleSqlProvisionScript_mysql = `
+var testGoogleSqlProvisionScript_iam_mysql = `
 resource "google_sql_database_instance" "instance" {
   name                = "%s"
   region              = "us-central1"
@@ -102,6 +101,7 @@ resource "google_sql_database_instance" "instance" {
       value = "on"
     }
   }
+  root_password = "changeme"
 }
 
  # The test account that runs this test must have a corresponding google_sql_user.
@@ -123,7 +123,7 @@ resource "google_sql_provision_script" "script" {
 }
 `
 
-var testGoogleSqlProvisionScript_postgres = `
+var testGoogleSqlProvisionScript_iam_postgres = `
 resource "google_sql_database_instance" "instance" {
   name                = "%s"
   region              = "us-central1"
@@ -137,6 +137,7 @@ resource "google_sql_database_instance" "instance" {
       value = "on"
     }
   }
+  root_password = "changeme"
 }
 
 resource "google_sql_database" "database" {
@@ -161,6 +162,163 @@ resource "google_sql_provision_script" "script" {
   instance = google_sql_database_instance.instance.name
   depends_on = [
     google_sql_user.test_account
+  ]
+}
+`
+
+func TestAccSqlProvisionScript_secret_mySql(t *testing.T) {
+	t.Parallel()
+	project := envvar.GetTestProjectFromEnv()
+
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	secret := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	user := "testuser"
+	script := "CREATE USER IF NOT EXISTS 'user'@'%' IDENTIFIED BY RANDOM PASSWORD; GRANT SELECT ON *.* to 'user'@'%';"
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlProvisionScript_secret_mysql, instance, user, secret, project, secret, script),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_sql_provision_script.script", "database"),
+					resource.TestCheckResourceAttr("google_sql_provision_script.script", "user", user),
+					resource.TestCheckResourceAttr("google_sql_provision_script.script", "deletion_policy", "ABANDON"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlProvisionScript_secret_mysql, instance, user, secret, project, secret, "CREATE USER"),
+				ExpectError: regexp.MustCompile(`.*`), // syntax error
+			},
+		},
+	})
+}
+
+func TestAccSqlProvisionScript_secret_postgres(t *testing.T) {
+	t.Parallel()
+	project := envvar.GetTestProjectFromEnv()
+
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	database := "testdb"
+	secret := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	script := "CREATE TABLE IF NOT EXISTS table1 ( col VARCHAR(16) NOT NULL ); DROP TABLE table1;"
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlProvisionScript_secret_postgres, instance, database, secret, project, secret, script),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_provision_script.script", "database", database),
+					resource.TestCheckResourceAttr("google_sql_provision_script.script", "deletion_policy", "ABANDON"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(
+					testGoogleSqlProvisionScript_secret_postgres, instance, database, secret, project, secret, "CREATE TABLE"),
+				ExpectError: regexp.MustCompile(`.*`), // syntax error
+			},
+		},
+	})
+}
+
+var testGoogleSqlProvisionScript_secret_mysql = `
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_8_4"
+  deletion_protection = false
+  settings {
+    tier            = "db-perf-optimized-N-2"
+    data_api_access = "ALLOW_DATA_API"
+    database_flags {
+      name  = "cloudsql_iam_authentication"
+      value = "on"
+    }
+  }
+  root_password = "changeme"
+}
+
+resource "google_sql_user" "built_in_user" {
+  name     = "%s"
+  host     = "%%"
+  instance = google_sql_database_instance.instance.name
+  password = "changeme"
+}
+
+
+resource "google_secret_manager_regional_secret" "secret-basic" {
+  secret_id = "%s"
+  location = "us-central1"
+}
+
+resource "google_secret_manager_regional_secret_version" "regional_secret_version_basic" {
+  secret = google_secret_manager_regional_secret.secret-basic.id
+  secret_data = "changeme"
+}
+
+
+resource "google_sql_provision_script" "script" {
+  description    = "a script"
+  instance = google_sql_database_instance.instance.name
+  user = google_sql_user.built_in_user.name
+  password_secret_version = "projects/%s/locations/us-central1/secrets/%s/versions/latest"
+  script  = "%s"
+  depends_on = [
+    google_sql_user.built_in_user,
+	google_secret_manager_regional_secret_version.regional_secret_version_basic
+  ]
+}
+`
+
+var testGoogleSqlProvisionScript_secret_postgres = `
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_17"
+  deletion_protection = false
+  settings {
+    tier            = "db-perf-optimized-N-2"
+    data_api_access = "ALLOW_DATA_API"
+    database_flags {
+      name  = "cloudsql.iam_authentication"
+      value = "on"
+    }
+  }
+  root_password = "changeme"
+}
+
+resource "google_sql_database" "database" {
+  name     = "%s"
+  instance = google_sql_database_instance.instance.name
+}
+
+
+resource "google_secret_manager_regional_secret" "secret-basic" {
+  secret_id = "%s"
+  location = "us-central1"
+}
+
+resource "google_secret_manager_regional_secret_version" "regional_secret_version_basic" {
+  secret = google_secret_manager_regional_secret.secret-basic.id
+  secret_data = "changeme"
+}
+
+
+resource "google_sql_provision_script" "script" {
+  description    = "a script"
+  database = google_sql_database.database.name
+  instance = google_sql_database_instance.instance.name
+  user = "postgres"
+  password_secret_version = "projects/%s/locations/us-central1/secrets/%s/versions/latest"
+  script  = "%s"
+  depends_on = [
+	google_secret_manager_regional_secret_version.regional_secret_version_basic
   ]
 }
 `
