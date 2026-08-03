@@ -1196,7 +1196,8 @@ func flattenBigQueryDatasetAccess(v interface{}, d *schema.ResourceData, config 
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(resourceBigqueryDatasetAccessHash, []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

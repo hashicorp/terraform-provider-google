@@ -19,6 +19,7 @@ package resourcemanager
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
@@ -60,6 +61,19 @@ func ServiceAccountIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) 
 		return fmt.Errorf("Error setting service_account_id: %s", err)
 	}
 	return nil
+}
+
+// ServiceAccountIamParentResourceIdentityParser returns the parent service account's id.
+func ServiceAccountIamParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, _ *transport_tpg.Config) (string, error) {
+	v, ok := identity.GetOk("service_account_id")
+	if !ok {
+		return "", fmt.Errorf("import identity is missing attribute %q", "service_account_id")
+	}
+	s, ok := v.(string)
+	if !ok || s == "" {
+		return "", fmt.Errorf("import identity attribute %q must be a non-empty string", "service_account_id")
+	}
+	return s, nil
 }
 
 func (u *ServiceAccountIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
@@ -134,12 +148,40 @@ func iamToResourceManagerPolicy(p *iam.Policy) (*cloudresourcemanager.Policy, er
 	return out, nil
 }
 
+func ServiceAccountIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		IamServiceAccountSchema,
+		NewServiceAccountIamUpdater,
+		ServiceAccountIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ServiceAccountIamParentResourceIdentityParser),
+	)
+}
+
+// NewServiceAccountIamMemberListResource returns the list implementation for google_service_account_iam_member.
+func NewServiceAccountIamMemberListResource() list.ListResource {
+	return tpgiamresource.NewIamMemberListResource(
+		"google_service_account_iam_member",
+		ServiceAccountIamMemberResource(),
+		NewServiceAccountIamUpdater,
+		tpgiamresource.IamMemberListCallConfig{
+			ParentResourceField: "service_account_id",
+			EnableRoleFilter:    true,
+			EnableMemberFilter:  true,
+		},
+	)
+}
+
 func init() {
 	registry.Schema{
 		Name:        "google_service_account_iam_member",
 		ProductName: "resourcemanager",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IamServiceAccountSchema, NewServiceAccountIamUpdater, ServiceAccountIdParseFunc),
+		Schema:      ServiceAccountIamMemberResource(),
+	}.Register()
+	registry.FrameworkListResource{
+		Name:        "google_service_account_iam_member",
+		ProductName: "resourcemanager",
+		Func:        NewServiceAccountIamMemberListResource,
 	}.Register()
 	registry.Schema{
 		Name:        "google_service_account_iam_binding",

@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -77,7 +78,7 @@ func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_router.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "params", "region"},
+				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "ncc_gateway", "network", "params", "region"},
 			},
 			{
 				ResourceName:       "google_compute_router.foobar",
@@ -137,7 +138,7 @@ func TestAccComputeRouter_computeRouterEncryptedInterconnectExample(t *testing.T
 				ResourceName:            "google_compute_router.encrypted-interconnect-router",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "params", "region"},
+				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "ncc_gateway", "network", "params", "region"},
 			},
 			{
 				ResourceName:       "google_compute_router.encrypted-interconnect-router",
@@ -190,7 +191,7 @@ func TestAccComputeRouter_computeRouterMd5encryptedExample(t *testing.T) {
 				ResourceName:            "google_compute_router.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "network", "params", "region"},
+				ImportStateVerifyIgnore: []string{"advertisedIpRanges", "md5_authentication_keys", "ncc_gateway", "network", "params", "region"},
 			},
 			{
 				ResourceName:       "google_compute_router.foobar",
@@ -227,6 +228,102 @@ resource "google_compute_router" "foobar" {
 resource "google_compute_network" "foobar" {
   name                    = "%{network_name}"
   auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccComputeRouter_routerNccGwExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"hub_name":      "hub" + randomSuffix,
+		"ncc_gw_name":   "tf-test-my-ncc-gw" + randomSuffix,
+		"network_name":  "tf-test-net-spoke" + randomSuffix,
+		"router_name":   "tf-test-my-router" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouter_routerNccGwExample(context),
+			},
+			{
+				ResourceName:            "google_compute_router.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"md5_authentication_keys", "ncc_gateway", "network", "params", "region"},
+			},
+			{
+				ResourceName:       "google_compute_router.foobar",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeRouter_routerNccGwExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "network" {
+  name        = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "tf-test-subnet%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/28"
+  region        = "us-central1"
+  network       = google_compute_network.network.self_link
+}
+
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "%{hub_name}"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+  preset_topology = "HYBRID_INSPECTION"
+}
+
+resource "google_network_connectivity_spoke" "primary" {
+  name        = "%{ncc_gw_name}"
+  location = "us-central1"
+  description = "A sample spoke of type Gateway"
+  labels = {
+    label-one = "value-one"
+  }
+  hub =  google_network_connectivity_hub.basic_hub.id
+  gateway {
+    ip_range_reservations {
+      ip_range = "10.0.0.0/23"
+    }
+    capacity = "CAPACITY_1_GBPS"
+  }
+  group = "gateways"
+}
+
+
+resource "google_compute_router" "foobar" {
+  name    = "%{router_name}"
+  bgp {
+    asn               = 64514
+    advertise_mode    = "CUSTOM"
+    advertised_groups = ["ALL_SUBNETS"]
+    advertised_ip_ranges {
+      range = "1.2.3.4"
+    }
+    advertised_ip_ranges {
+      range = "6.7.0.0/16"
+    }
+  }
+  ncc_gateway = google_network_connectivity_spoke.primary.id
 }
 `, context)
 }

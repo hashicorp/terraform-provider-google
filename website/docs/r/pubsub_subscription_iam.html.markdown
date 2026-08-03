@@ -171,3 +171,27 @@ The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/c
 ```
 $ terraform import google_pubsub_subscription_iam_policy.default projects/{{project_id}}/subscriptions/{{subscription}}
 ```
+
+#### Import via resource identity
+
+`google_pubsub_subscription_iam_member` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/block/import#identity) (Terraform 1.12+):
+
+```tf
+import {
+  to = google_pubsub_subscription_iam_member.viewer
+  identity = {
+    project       = "my-project"
+    subscription  = "my-subscription"
+    role          = "roles/pubsub.viewer"
+    member        = "user:jane@example.com"
+  }
+}
+```
+
+Identity attributes:
+
+* `project` - (Required) The project ID the Pub/Sub belongs to.
+* `subscription` - (Required) The Pub/Sub subscription name. Both `my-subscription` and `projects/my-project/subscriptions/my-subscription` formats are accepted.
+* `role` - (Required) The IAM role being granted.
+* `member` - (Required) The identity that the role is granted to.
+* `condition_title` - (Optional) Title of the IAM condition, when importing a conditional binding.

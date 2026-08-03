@@ -1761,10 +1761,12 @@ func TestAccContainerCluster_regionalWithNodePool(t *testing.T) {
 				Config: testAccContainerCluster_regionalWithNodePool(clusterName, npName, networkName, subnetworkName),
 			},
 			{
-				ResourceName:            "google_container_cluster.regional",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_node_count_changes", "node_pool.0.ignore_node_count_changes"},
+				ResourceName:      "google_container_cluster.regional",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Virtual fields like ignore_node_count_changes are not loaded on import. When import runs with default
+				// false for ignore_node_count_changes, managed_instance_group_urls is populated from the API, causing an import diff.
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_node_count_changes", "node_pool.0.ignore_node_count_changes", "node_pool.0.managed_instance_group_urls"},
 			},
 		},
 	})

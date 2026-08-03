@@ -11,6 +11,9 @@ fields:
     - api_field: description
     - field: effective_labels
       provider_only: true
+    - api_field: gateway.capacity
+    - api_field: gateway.ipRangeReservations.ipRange
+    - api_field: gateway.routers
     - api_field: group
     - api_field: hub
     - api_field: labels

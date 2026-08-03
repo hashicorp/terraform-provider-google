@@ -1467,7 +1467,8 @@ func flattenNestedComputeRouterNatSubnetwork(v interface{}, d *schema.ResourceDa
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(computeRouterNatSubnetworkHash, []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1512,7 +1513,8 @@ func flattenNestedComputeRouterNatNat64Subnetwork(v interface{}, d *schema.Resou
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(computeRouterNatSubnetworkHash, []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1672,7 +1674,8 @@ func flattenNestedComputeRouterNatRules(v interface{}, d *schema.ResourceData, c
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(computeRouterNatRulesHash, []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

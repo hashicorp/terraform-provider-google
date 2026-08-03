@@ -666,6 +666,16 @@ not be validated.`,
 							},
 							ExactlyOneOf: []string{"remote_repository_config.0.apt_repository", "remote_repository_config.0.common_repository", "remote_repository_config.0.docker_repository", "remote_repository_config.0.maven_repository", "remote_repository_config.0.npm_repository", "remote_repository_config.0.python_repository", "remote_repository_config.0.yum_repository"},
 						},
+						"no_cache": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The repository will act as a non-caching proxy (connector mode).`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+						},
 						"npm_repository": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -1592,7 +1602,8 @@ func flattenArtifactRegistryRepositoryVirtualRepositoryConfigUpstreamPolicies(v 
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -1764,6 +1775,8 @@ func flattenArtifactRegistryRepositoryRemoteRepositoryConfig(v interface{}, d *s
 		flattenArtifactRegistryRepositoryRemoteRepositoryConfigUpstreamCredentials(original["upstreamCredentials"], d, config)
 	transformed["disable_upstream_validation"] =
 		flattenArtifactRegistryRepositoryRemoteRepositoryConfigDisableUpstreamValidation(original["disableUpstreamValidation"], d, config)
+	transformed["no_cache"] =
+		flattenArtifactRegistryRepositoryRemoteRepositoryConfigNoCache(original["noCache"], d, config)
 	return []interface{}{transformed}
 }
 func flattenArtifactRegistryRepositoryRemoteRepositoryConfigDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2041,6 +2054,14 @@ func flattenArtifactRegistryRepositoryRemoteRepositoryConfigUpstreamCredentialsU
 
 func flattenArtifactRegistryRepositoryRemoteRepositoryConfigDisableUpstreamValidation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("remote_repository_config.0.disable_upstream_validation")
+}
+
+func flattenArtifactRegistryRepositoryRemoteRepositoryConfigNoCache(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenArtifactRegistryRepositoryCleanupPolicyDryRun(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2556,6 +2577,13 @@ func expandArtifactRegistryRepositoryRemoteRepositoryConfig(v interface{}, d tpg
 		transformed["disableUpstreamValidation"] = transformedDisableUpstreamValidation
 	}
 
+	transformedNoCache, err := expandArtifactRegistryRepositoryRemoteRepositoryConfigNoCache(original["no_cache"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["noCache"] = transformedNoCache
+	}
+
 	return transformed, nil
 }
 
@@ -3004,6 +3032,24 @@ func expandArtifactRegistryRepositoryRemoteRepositoryConfigUpstreamCredentialsUs
 
 func expandArtifactRegistryRepositoryRemoteRepositoryConfigDisableUpstreamValidation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandArtifactRegistryRepositoryRemoteRepositoryConfigNoCache(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandArtifactRegistryRepositoryCleanupPolicyDryRun(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

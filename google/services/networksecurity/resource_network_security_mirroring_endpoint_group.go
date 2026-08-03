@@ -836,7 +836,8 @@ func flattenNetworkSecurityMirroringEndpointGroupAssociations(v interface{}, d *
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(networksecurityMirroringEndpointGroupAssociationsSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -868,7 +869,8 @@ func flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroups(v int
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(networksecurityMirroringEndpointGroupConnectedDeploymentGroupsSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -891,7 +893,8 @@ func flattenNetworkSecurityMirroringEndpointGroupConnectedDeploymentGroupsLocati
 	}
 	l := v.([]interface{})
 	transformed := schema.NewSet(schema.HashResource(networksecurityMirroringEndpointGroupConnectedDeploymentGroupsConnectedDeploymentGroupsLocationsSchema()), []interface{}{})
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

@@ -119,7 +119,7 @@ func listAndActionDiscoveryEngineChatEngine(action sweeper.ResourceAction) error
 		}
 
 		// Prepare list URL
-		listTemplate := strings.Split("https://{{location}}-discoveryengine.googleapis.com/v1/projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}", "?")[0]
+		listTemplate := strings.Split("https://{{location}}-discoveryengine.googleapis.com/v1/projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines", "?")[0]
 		listUrl, err := tpgresource.ReplaceVars(mockConfig, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)

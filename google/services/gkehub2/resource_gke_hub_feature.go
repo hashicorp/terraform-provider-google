@@ -752,7 +752,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 								Schema: map[string]*schema.Schema{
 									"scope_tenancy_pool": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
 										Description: `Pool to be used for Workload Identity. This pool in trust-domain mode is used with Fleet Tenancy, so that sameness can be enforced. ex: projects/example/locations/global/workloadidentitypools/custompool`,
 									},
 								},
@@ -1532,7 +1532,8 @@ func flattenGKEHub2FeatureSpecClusterupgradeGkeUpgradeOverrides(v interface{}, d
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2050,7 +2051,8 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControll
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

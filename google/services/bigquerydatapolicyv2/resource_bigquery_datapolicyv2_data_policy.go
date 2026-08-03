@@ -163,6 +163,29 @@ COLUMN_LEVEL_SECURITY_POLICY`,
 				ForceNew:    true,
 				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
 			},
+			"data_governance_tag": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Data Governance tag bound to the Data Policy.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Tag keys are globally unique. Tag key is expected to be in the namespaced format, for example "parent-id/pii" where "parent-id" is the ID of the parent organization or project resource for this tag key.`,
+						},
+						"value": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Tag value is expected to be the short name.`,
+						},
+					},
+				},
+			},
 			"data_masking_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -302,6 +325,12 @@ func resourceBigqueryDatapolicyv2DataPolicyCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("data_policy_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataPolicyIdProp)) && (ok || !reflect.DeepEqual(v, dataPolicyIdProp)) {
 		obj["dataPolicyId"] = dataPolicyIdProp
+	}
+	dataGovernanceTagProp, err := expandBigqueryDatapolicyv2DataPolicyDataGovernanceTag(d.Get("data_governance_tag"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_governance_tag"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataGovernanceTagProp)) && (ok || !reflect.DeepEqual(v, dataGovernanceTagProp)) {
+		obj["dataGovernanceTag"] = dataGovernanceTagProp
 	}
 
 	obj, err = resourceBigqueryDatapolicyv2DataPolicyEncoder(d, meta, obj)
@@ -739,6 +768,29 @@ func flattenBigqueryDatapolicyv2DataPolicyDataPolicyId(v interface{}, d *schema.
 	return v
 }
 
+func flattenBigqueryDatapolicyv2DataPolicyDataGovernanceTag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key"] =
+		flattenBigqueryDatapolicyv2DataPolicyDataGovernanceTagKey(original["key"], d, config)
+	transformed["value"] =
+		flattenBigqueryDatapolicyv2DataPolicyDataGovernanceTagValue(original["value"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryDatapolicyv2DataPolicyDataGovernanceTagKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryDatapolicyv2DataPolicyDataGovernanceTagValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBigqueryDatapolicyv2DataPolicyDataMaskingPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -792,6 +844,43 @@ func expandBigqueryDatapolicyv2DataPolicyDataPolicyId(v interface{}, d tpgresour
 	return v, nil
 }
 
+func expandBigqueryDatapolicyv2DataPolicyDataGovernanceTag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKey, err := expandBigqueryDatapolicyv2DataPolicyDataGovernanceTagKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	transformedValue, err := expandBigqueryDatapolicyv2DataPolicyDataGovernanceTagValue(original["value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["value"] = transformedValue
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryDatapolicyv2DataPolicyDataGovernanceTagKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDatapolicyv2DataPolicyDataGovernanceTagValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceBigqueryDatapolicyv2DataPolicyEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// The create request is not in the same format as the resource.
 	// The API request needs resource to be nested inside the "data_policy" field.
@@ -830,6 +919,9 @@ func ResourceBigqueryDatapolicyv2DataPolicyFlatten(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading DataPolicy: %s", err)
 	}
 	if err = d.Set("data_policy_id", flattenBigqueryDatapolicyv2DataPolicyDataPolicyId(res["dataPolicyId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataPolicy: %s", err)
+	}
+	if err = d.Set("data_governance_tag", flattenBigqueryDatapolicyv2DataPolicyDataGovernanceTag(res["dataGovernanceTag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataPolicy: %s", err)
 	}
 

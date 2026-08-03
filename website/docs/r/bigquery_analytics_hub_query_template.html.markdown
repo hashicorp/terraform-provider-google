@@ -25,8 +25,6 @@ Represents a BigQuery Query Template within a Data Exchange.
 This resource defines a reusable SQL routine (e.g., a TVF) that can be
 shared or executed via the Data Exchange.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about QueryTemplate, see:
 
@@ -44,11 +42,9 @@ To get more information about QueryTemplate, see:
 
 ```hcl
 data "google_client_openid_userinfo" "me" {
-  provider = google-beta
 }
 
 resource "google_bigquery_analytics_hub_data_exchange" "querytemplate" {
-  provider = google-beta
   display_name = "My Audience Data Exchange"
   data_exchange_id = "my_data_exchange"
   description = "example of query template"
@@ -59,7 +55,6 @@ resource "google_bigquery_analytics_hub_data_exchange" "querytemplate" {
 }
 
 resource "google_bigquery_analytics_hub_query_template" "querytemplate" {
-  provider = google-beta
   location = "us"
   data_exchange_id = google_bigquery_analytics_hub_data_exchange.querytemplate.data_exchange_id
   query_template_id = "my_query_template"

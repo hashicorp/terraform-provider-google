@@ -171,6 +171,16 @@ func ResourceBigqueryReservationReservationAssignment() *schema.Resource {
 				ForceNew:    true,
 				Description: `The location for the resource`,
 			},
+			"principal": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Optional. Represents the principal for this assignment. If not empty, jobs run by this principal will utilize the associated reservation. Otherwise, jobs will fall back to using the reservation assigned to the project, folder, or organization (in that order). If no reservation is assigned at any of these levels, on-demand capacity will be used. The supported formats are:
+* 'principal://goog/subject/USER_EMAIL_ADDRESS' for users,
+* 'principal://iam.googleapis.com/projects/-/serviceAccounts/SA_EMAIL_ADDRESS' for service accounts,
+* 'principal://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/subject/SUBJECT_ID' for workload identity pool identities.
+* The special value 'unknown_or_deleted_user' represents principals which cannot be read from the user info service, for example deleted users.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -224,6 +234,12 @@ func resourceBigqueryReservationReservationAssignmentCreate(d *schema.ResourceDa
 		return err
 	} else if v, ok := d.GetOkExists("job_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(jobTypeProp)) && (ok || !reflect.DeepEqual(v, jobTypeProp)) {
 		obj["jobType"] = jobTypeProp
+	}
+	principalProp, err := expandNestedBigqueryReservationReservationAssignmentPrincipal(d.Get("principal"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("principal"); !tpgresource.IsEmptyValue(reflect.ValueOf(principalProp)) && (ok || !reflect.DeepEqual(v, principalProp)) {
+		obj["principal"] = principalProp
 	}
 
 	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments")
@@ -527,6 +543,10 @@ func flattenNestedBigqueryReservationReservationAssignmentJobType(v interface{},
 	return v
 }
 
+func flattenNestedBigqueryReservationReservationAssignmentPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNestedBigqueryReservationReservationAssignmentState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -536,6 +556,10 @@ func expandNestedBigqueryReservationReservationAssignmentAssignee(v interface{},
 }
 
 func expandNestedBigqueryReservationReservationAssignmentJobType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedBigqueryReservationReservationAssignmentPrincipal(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -615,6 +639,9 @@ func ResourceBigqueryReservationReservationAssignmentFlatten(d *schema.ResourceD
 		return fmt.Errorf("Error reading ReservationAssignment: %s", err)
 	}
 	if err = d.Set("job_type", flattenNestedBigqueryReservationReservationAssignmentJobType(res["jobType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReservationAssignment: %s", err)
+	}
+	if err = d.Set("principal", flattenNestedBigqueryReservationReservationAssignmentPrincipal(res["principal"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ReservationAssignment: %s", err)
 	}
 	if err = d.Set("state", flattenNestedBigqueryReservationReservationAssignmentState(res["state"], d, config)); err != nil {

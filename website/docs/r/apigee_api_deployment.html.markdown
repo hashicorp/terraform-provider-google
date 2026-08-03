@@ -73,6 +73,55 @@ resource "google_apigee_api_deployment" "test_apigee_api_deployment" {
   proxy_id = google_apigee_api.test_apigee_api.name
 }
 ```
+## Example Usage - Apigee Api Deployment Service Account
+
+
+```hcl
+resource "google_apigee_organization" "apigee_org" {
+  analytics_region   = "us-central1"
+  project_id         = google_project.project.project_id
+  authorized_network = google_compute_network.apigee_network.id
+  depends_on         = [
+    google_service_networking_connection.apigee_vpc_connection,
+    google_project_service.apigee,
+  ]
+}
+
+resource "google_apigee_environment" "apigee_environment" {
+  org_id       = google_apigee_organization.apigee_org.id
+  name         = "apigee-env"
+  description  = "Apigee Environment"
+  display_name = "environment-1"
+}
+
+resource "google_service_account" "proxy_sa" {
+  account_id   = "proxy-sa"
+  display_name = "TF Proxy Test SA"
+  project      = google_project.project.project_id
+}
+
+data "archive_file" "bundle" {
+  type             = "zip"
+  source_dir       = "${path.module}/bundle"
+  output_path      = "${path.module}/bundle.zip"
+  output_file_mode = "0644"
+}
+
+resource "google_apigee_api" "test_apigee_api" {
+  name          = "apigee-proxy"
+  org_id        = google_project.project.project_id
+  config_bundle = data.archive_file.bundle.output_path
+  depends_on    = [google_apigee_organization.apigee_org]
+}
+
+resource "google_apigee_api_deployment" "test_apigee_api_deployment" {
+  environment     = google_apigee_environment.apigee_environment.name
+  org_id          = google_apigee_api.test_apigee_api.org_id
+  revision        = google_apigee_api.test_apigee_api.latest_revision_id
+  proxy_id        = google_apigee_api.test_apigee_api.name
+  service_account = google_service_account.proxy_sa.email
+}
+```
 
 ## Argument Reference
 
@@ -95,6 +144,10 @@ The following arguments are supported:
   (Required)
   The revision of the API proxy to be deployed.
 
+
+* `service_account` -
+  (Optional)
+  The Google Cloud IAM service account to use as the identity for the deployed proxy. The format must be `{ACCOUNT_ID}@{PROJECT}.iam.gserviceaccount.com`.
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,

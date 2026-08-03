@@ -239,12 +239,6 @@ should be set to 'my-ca'.`,
 													ForceNew:    true,
 													Description: `The common name of the distinguished name.`,
 												},
-												"organization": {
-													Type:        schema.TypeString,
-													Required:    true,
-													ForceNew:    true,
-													Description: `The organization of the subject.`,
-												},
 												"country_code": {
 													Type:        schema.TypeString,
 													Optional:    true,
@@ -256,6 +250,12 @@ should be set to 'my-ca'.`,
 													Optional:    true,
 													ForceNew:    true,
 													Description: `The locality or city of the subject.`,
+												},
+												"organization": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													ForceNew:    true,
+													Description: `The organization of the subject.`,
 												},
 												"organizational_unit": {
 													Type:        schema.TypeString,
@@ -1985,7 +1985,8 @@ func flattenPrivatecaCertificateCertificateDescriptionSubjectDescriptionSubjectA
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2069,7 +2070,8 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionAdditionalE
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2114,7 +2116,8 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionPolicyIds(v
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -2305,7 +2308,8 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionKeyUsageUnk
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

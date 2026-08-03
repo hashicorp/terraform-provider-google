@@ -9,6 +9,7 @@ api_resource_type_kind: DataStore
 api_variant_patterns:
     - projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}
 fields:
+    - api_field: aclEnabled
     - api_field: advancedSiteSearchConfig.disableAutomaticRefresh
     - api_field: advancedSiteSearchConfig.disableInitialIndex
     - api_field: contentConfig

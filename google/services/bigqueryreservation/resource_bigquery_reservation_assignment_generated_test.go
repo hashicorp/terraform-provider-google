@@ -161,6 +161,62 @@ resource "google_bigquery_reservation_assignment" "assignment" {
 `, context)
 }
 
+func TestAccBigqueryReservationReservationAssignment_bigqueryReservationAssignmentFullWithPrincipalExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":          envvar.GetTestProjectFromEnv(),
+		"service_account":  envvar.GetTestServiceAccountFromEnv(t),
+		"reservation_name": "tf-test-example-reservation" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryReservationReservationAssignmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryReservationReservationAssignment_bigqueryReservationAssignmentFullWithPrincipalExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_reservation_assignment.assignment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "reservation"},
+			},
+			{
+				ResourceName:       "google_bigquery_reservation_assignment.assignment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBigqueryReservationReservationAssignment_bigqueryReservationAssignmentFullWithPrincipalExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_reservation" "basic" {
+  name  = "%{reservation_name}"
+  project = "%{project}"
+  location = "us-central1"
+  slot_capacity = 0
+  ignore_idle_slots = false
+}
+
+resource "google_bigquery_reservation_assignment" "assignment" {
+  assignee  = "projects/%{project}"
+  job_type = "QUERY"
+  location = "us-central1"
+  principal = "principal://iam.googleapis.com/projects/-/serviceAccounts/%{service_account}"
+  reservation = google_bigquery_reservation.basic.id
+}
+`, context)
+}
+
 func testAccCheckBigqueryReservationReservationAssignmentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

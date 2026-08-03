@@ -1496,17 +1496,41 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 		return nil
 	}
 
-	processLabels := func(val interface{}) map[string]string {
-		labels := make(map[string]string)
-		if labelMap, isMap := val.(map[string]interface{}); isMap {
-			for k, v := range labelMap {
+	processKeyValueEntries := func(val interface{}) map[string]string {
+		entries := make(map[string]string)
+		if val == nil {
+			return nil
+		}
+		// Accept map and repeated key/value block representations.
+		if entryMap, isMap := val.(map[string]interface{}); isMap {
+			for k, v := range entryMap {
 				if vStr, ok := v.(string); ok {
-					labels[k] = vStr
+					entries[k] = vStr
+				}
+			}
+		} else if s, isSet := val.(*schema.Set); isSet {
+			for _, raw := range s.List() {
+				if item, ok := raw.(map[string]interface{}); ok {
+					if k, ok1 := item["key"].(string); ok1 {
+						if v, ok2 := item["value"].(string); ok2 {
+							entries[k] = v
+						}
+					}
+				}
+			}
+		} else if list, isList := val.([]interface{}); isList {
+			for _, raw := range list {
+				if item, ok := raw.(map[string]interface{}); ok {
+					if k, ok1 := item["key"].(string); ok1 {
+						if v, ok2 := item["value"].(string); ok2 {
+							entries[k] = v
+						}
+					}
 				}
 			}
 		}
-		if len(labels) > 0 {
-			return labels
+		if len(entries) > 0 {
+			return entries
 		}
 		return nil
 	}
@@ -1821,7 +1845,7 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 			// --- Metadata & Labels ---
 			// Labels
 			if val, ok := m["labels"]; ok {
-				if labels := processLabels(val); labels != nil {
+				if labels := processKeyValueEntries(val); labels != nil {
 					props["labels"] = labels
 				}
 			}
@@ -2046,16 +2070,8 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 				if pList[0] != nil {
 					p := pList[0].(map[string]interface{})
 					pObj := make(map[string]interface{})
-					if rmt, ok := p["resource_manager_tags"]; ok {
-						rmtMap := make(map[string]string)
-						if rmtMapVal, isMap := rmt.(map[string]interface{}); isMap {
-							for k, v := range rmtMapVal {
-								if vStr, ok := v.(string); ok {
-									rmtMap[k] = vStr
-								}
-							}
-						}
-						if len(rmtMap) > 0 {
+					if rmtVal, ok := p["resource_manager_tags"]; ok {
+						if rmtMap := processKeyValueEntries(rmtVal); rmtMap != nil {
 							pObj["resourceManagerTags"] = rmtMap
 						}
 					}
@@ -2329,14 +2345,14 @@ func resourceBackupDRRestoreWorkloadCreate(d *schema.ResourceData, meta interfac
 
 			// Labels
 			if val, ok := m["labels"]; ok {
-				if labels := processLabels(val); labels != nil {
+				if labels := processKeyValueEntries(val); labels != nil {
 					props["labels"] = labels
 				}
 			}
 
 			// Resource manager tags
 			if val, ok := m["resource_manager_tags"]; ok {
-				if rmtMap := processLabels(val); rmtMap != nil {
+				if rmtMap := processKeyValueEntries(val); rmtMap != nil {
 					props["resourceManagerTags"] = rmtMap
 				}
 			}
@@ -2931,7 +2947,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesDisks(v inter
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3036,7 +3053,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesDisksGuestOsF
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3139,7 +3157,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesGuestAccelera
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3258,7 +3277,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesMetadataItems
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3289,7 +3309,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterf
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3352,7 +3373,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterf
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3422,7 +3444,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterf
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3492,7 +3515,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesNetworkInterf
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3681,7 +3705,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesSchedulingNod
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3840,7 +3865,8 @@ func flattenBackupDRRestoreWorkloadComputeInstanceRestorePropertiesServiceAccoun
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
@@ -3987,7 +4013,8 @@ func flattenBackupDRRestoreWorkloadDiskRestorePropertiesGuestOsFeature(v interfa
 	}
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
+	for i, raw := range l {
+		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api

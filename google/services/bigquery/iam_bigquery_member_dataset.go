@@ -25,6 +25,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework/list"
+
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -225,8 +227,21 @@ func accessToPolicyForIamMember(access interface{}) (*cloudresourcemanager.Polic
 
 		var condition *cloudresourcemanager.Expr
 		if rawCondition, ok := memberRole["condition"]; ok {
-			conditionMap := rawCondition.(map[string]interface{})
-			expr := conditionMap["expression"].(string)
+			conditionMap, ok := rawCondition.(map[string]interface{})
+			if !ok {
+				return nil, errors.New("BigQuery dataset IAM condition must be an object")
+			}
+			rawExpr, ok := conditionMap["expression"]
+			if !ok {
+				return nil, errors.New("BigQuery dataset IAM condition is missing expression")
+			}
+			expr, ok := rawExpr.(string)
+			if !ok {
+				return nil, errors.New("BigQuery dataset IAM condition expression must be a non-empty string")
+			}
+			if expr == "" {
+				return nil, errors.New("BigQuery dataset IAM condition expression must not be empty")
+			}
 			condition = &cloudresourcemanager.Expr{Expression: expr}
 			if title, ok := conditionMap["title"].(string); ok {
 				condition.Title = title
@@ -365,11 +380,51 @@ func (u *BigqueryDatasetIamMemberUpdater) DescribeResource() string {
 	return fmt.Sprintf("Bigquery Dataset %s/%s", u.project, u.datasetId)
 }
 
+// BigqueryDatasetIamParentResourceIdentityParser resolves the parent dataset id from import identity.
+func BigqueryDatasetIamParentResourceIdentityParser(d *schema.ResourceData, identity *schema.IdentityData, config *transport_tpg.Config) (string, error) {
+	return tpgiamresource.ParseIamResourceIdentity(d, identity, config, tpgiamresource.IamResourceIdentityConfig{
+		Params: []tpgiamresource.IamIdentityParam{
+			{Key: "project", IdentityKey: "project"},
+			{Key: "dataset_id", IdentityKey: "dataset_id"},
+		},
+		UriFormat: "projects/%s/datasets/%s",
+	})
+}
+
+// BigqueryDatasetIamMemberResource returns the member resource schema wrapped so it has Identity configured.
+func BigqueryDatasetIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		IamMemberBigqueryDatasetSchema,
+		NewBigqueryDatasetIamMemberUpdater,
+		BigqueryDatasetIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(BigqueryDatasetIamParentResourceIdentityParser),
+	)
+}
+
+// NewBigqueryDatasetIamMemberListResource returns the list resource for google_bigquery_dataset_iam_member
+func NewBigqueryDatasetIamMemberListResource() list.ListResource {
+	return tpgiamresource.NewIamMemberListResource(
+		"google_bigquery_dataset_iam_member",
+		BigqueryDatasetIamMemberResource(),
+		NewBigqueryDatasetIamMemberUpdater,
+		tpgiamresource.IamMemberListCallConfig{
+			ParentResourceField: "dataset_id",
+			EnableRoleFilter:    true,
+			EnableMemberFilter:  true,
+		},
+	)
+}
+
 func init() {
 	registry.Schema{
 		Name:        "google_bigquery_dataset_iam_member",
 		ProductName: "bigquery",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IamMemberBigqueryDatasetSchema, NewBigqueryDatasetIamMemberUpdater, BigqueryDatasetIdParseFunc),
+		Schema:      BigqueryDatasetIamMemberResource(),
+	}.Register()
+	registry.FrameworkListResource{
+		Name:        "google_bigquery_dataset_iam_member",
+		ProductName: "bigquery",
+		Func:        NewBigqueryDatasetIamMemberListResource,
 	}.Register()
 }

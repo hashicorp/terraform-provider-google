@@ -338,6 +338,30 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+## Example Usage - Cloud Run Service Sandbox
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  name     = "cloudrun-srv"
+  location = "us-central1"
+
+  metadata {
+    annotations = {
+      "run.googleapis.com/launch-stage": "BETA"
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        sandbox_launcher = true
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -623,6 +647,10 @@ this field is set to false, the revision name will still autogenerate.)
   (Optional)
   List of open ports in the container.
   Structure is [documented below](#nested_template_spec_containers_ports).
+
+* `sandbox_launcher` -
+  (Optional)
+  Indicates that this container can act as a sandbox supervisor and launch sandboxes.
 
 * `resources` -
   (Optional)

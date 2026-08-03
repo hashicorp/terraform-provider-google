@@ -23,12 +23,10 @@ description: |-
 
 A gateway advertised route is a route that a gateway spoke advertises somewhere.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about GatewayAdvertisedRoute, see:
 
-* [API documentation](https://docs.cloud.google.com/network-connectivity/docs/reference/networkconnectivity/rest/v1beta/projects.locations.spokes.gatewayAdvertisedRoutes)
+* [API documentation](https://docs.cloud.google.com/network-connectivity/docs/reference/networkconnectivity/rest/v1/projects.locations.spokes.gatewayAdvertisedRoutes)
 * How-to Guides
     * [QUICKSTART_TITLE](https://docs.cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/ncc-gateway-overview)
 
@@ -42,13 +40,11 @@ To get more information about GatewayAdvertisedRoute, see:
 
 ```hcl
 resource "google_compute_network" "network" {
-  provider = google-beta
   name        = "net-spoke"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  provider = google-beta
   name          = "tf-test-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.0/28"
   region        = "us-central1"
@@ -56,7 +52,6 @@ resource "google_compute_subnetwork" "subnetwork" {
 }
 
 resource "google_network_connectivity_hub" "basic_hub" {
-  provider = google-beta
   name        = "hub"
   description = "A sample hub"
   labels = {
@@ -66,7 +61,6 @@ resource "google_network_connectivity_hub" "basic_hub" {
 }
 
 resource "google_network_connectivity_spoke" "primary" {
-  provider = google-beta
   name        = "spoke-name"
   location = "us-central1"
   description = "A sample spoke of type Gateway"
@@ -84,7 +78,6 @@ resource "google_network_connectivity_spoke" "primary" {
 }
 
 resource "google_network_connectivity_gateway_advertised_route" "default" {
-  provider      = google-beta
   spoke         = google_network_connectivity_spoke.primary.name
   location      = "us-central1"
   name          = "gateway-advertised-route-name"

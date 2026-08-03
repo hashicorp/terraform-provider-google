@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigquery"
@@ -65,6 +66,41 @@ func TestAccBigQueryTable_Basic(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryTable_importBlockWithResourceIdentity(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_12_0),
+		},
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableBasicSchemaForIdentityImport(datasetID, tableID),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_table.test", "project", project),
+					resource.TestCheckResourceAttr("google_bigquery_table.test", "dataset_id", datasetID),
+					resource.TestCheckResourceAttr("google_bigquery_table.test", "table_id", tableID),
+				),
+			},
+			{
+				ResourceName:    "google_bigquery_table.test",
+				ImportState:     true,
+				ImportStateKind: resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccBigQueryTableBasicSchema(datasetID, tableID),
 			},
 		},
 	})
@@ -2432,6 +2468,29 @@ resource "google_bigquery_table" "test" {
     "name": "id",
     "type": "INTEGER"
   }
+]
+EOH
+
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTableBasicSchemaForIdentityImport(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+	dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+	table_id   = "%s"
+	dataset_id = google_bigquery_dataset.test.dataset_id
+
+	schema = <<EOH
+[
+	{
+		"name": "id",
+		"type": "INTEGER"
+	}
 ]
 EOH
 
@@ -5944,6 +6003,122 @@ resource "google_bigquery_table" "test" {
   }
 }
 `, datasetID, bucketName, tableID)
+}
+
+func TestAccBigQueryTable_DataGovernanceTags(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tagKeyShortName := fmt.Sprintf("tag_key_%s", acctest.RandString(t, 5))
+	tagValueShortName := fmt.Sprintf("tag_val_%s", acctest.RandString(t, 5))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTable_dataGovernanceTags(project, tagKeyShortName, tagValueShortName, datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns"},
+			},
+			{
+				Config: testAccBigQueryTable_dataGovernanceTagsClear(project, tagKeyShortName, tagValueShortName, datasetID, tableID),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "ignore_auto_generated_schema", "generated_schema_columns"},
+			},
+		},
+	})
+}
+
+func testAccBigQueryTable_dataGovernanceTags(project, tagKeyShortName, tagValueShortName, datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_tags_tag_key" "key" {
+  parent     = "projects/%s"
+  short_name = "%s"
+  purpose    = "DATA_GOVERNANCE"
+}
+
+resource "google_tags_tag_value" "value" {
+  parent     = "tagKeys/${google_tags_tag_key.key.name}"
+  short_name = "%s"
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id                  = "%s"
+  location                    = "US"
+}
+
+resource "google_bigquery_table" "test" {
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+
+  schema = <<EOF
+[
+  {
+    "name": "state",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "dataGovernanceTagsInfo": {
+      "dataGovernanceTags": {
+        "${google_tags_tag_key.key.namespaced_name}": "${google_tags_tag_value.value.short_name}"
+      }
+    }
+  }
+]
+EOF
+
+  deletion_protection = false
+}
+`, project, tagKeyShortName, tagValueShortName, datasetID, tableID)
+}
+
+func testAccBigQueryTable_dataGovernanceTagsClear(project, tagKeyShortName, tagValueShortName, datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_tags_tag_key" "key" {
+  parent     = "projects/%s"
+  short_name = "%s"
+  purpose    = "DATA_GOVERNANCE"
+}
+
+resource "google_tags_tag_value" "value" {
+  parent     = "tagKeys/${google_tags_tag_key.key.name}"
+  short_name = "%s"
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id                  = "%s"
+  location                    = "US"
+}
+
+resource "google_bigquery_table" "test" {
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  table_id   = "%s"
+
+  schema = <<EOF
+[
+  {
+    "name": "state",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "dataGovernanceTagsInfo": {}
+  }
+]
+EOF
+
+  deletion_protection = false
+}
+`, project, tagKeyShortName, tagValueShortName, datasetID, tableID)
 }
 
 var TEST_CSV = `lifelock,LifeLock,,web,Tempe,AZ,1-May-07,6850000,USD,b
