@@ -227,8 +227,21 @@ func accessToPolicyForIamMember(access interface{}) (*cloudresourcemanager.Polic
 
 		var condition *cloudresourcemanager.Expr
 		if rawCondition, ok := memberRole["condition"]; ok {
-			conditionMap := rawCondition.(map[string]interface{})
-			expr := conditionMap["expression"].(string)
+			conditionMap, ok := rawCondition.(map[string]interface{})
+			if !ok {
+				return nil, errors.New("BigQuery dataset IAM condition must be an object")
+			}
+			rawExpr, ok := conditionMap["expression"]
+			if !ok {
+				return nil, errors.New("BigQuery dataset IAM condition is missing expression")
+			}
+			expr, ok := rawExpr.(string)
+			if !ok {
+				return nil, errors.New("BigQuery dataset IAM condition expression must be a non-empty string")
+			}
+			if expr == "" {
+				return nil, errors.New("BigQuery dataset IAM condition expression must not be empty")
+			}
 			condition = &cloudresourcemanager.Expr{Expression: expr}
 			if title, ok := conditionMap["title"].(string); ok {
 				condition.Title = title
