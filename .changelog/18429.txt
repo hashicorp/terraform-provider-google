@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed a provider panic when reading incomplete IAM conditions on `google_bigquery_dataset_iam_member`
+```
