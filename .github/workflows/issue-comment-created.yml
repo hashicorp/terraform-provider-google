@@ -3,6 +3,7 @@ name: Remove "waiting-response" label on issue comment
 # user we label the issue waiting-response.
 # When a user comments on the issue the label is removed.
 
+permissions: write-all
 on:
   issue_comment:
     types: [created]
