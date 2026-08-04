@@ -47,7 +47,7 @@ resource "google_logging_project_sink" "my-sink" {
   # Log all WARN or higher severity messages relating to instances
   filter = "resource.type = gce_instance AND severity >= WARNING"
 
-  # Use a unique writer (creates a unique service account used for writing)
+  # Use the Logging service agent shared by sinks in this project
   unique_writer_identity = true
 }
 ```
@@ -204,9 +204,12 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project to create the sink in. If omitted, the project associated with the provider is
     used.
 
-* `unique_writer_identity` - (Optional) Whether or not to create a unique identity associated with this sink. If `false`, then the `writer_identity` used is `serviceAccount:cloud-logs@system.gserviceaccount.com`. If `true` (the default),
-    then a unique service account is created and used for this sink. If you wish to publish logs across projects or utilize
-    `bigquery_options`, you must set `unique_writer_identity` to true.
+* `unique_writer_identity` - (Optional) Whether to use a service agent as the `writer_identity` for this sink. If `false`,
+    `writer_identity` is `serviceAccount:cloud-logs@system.gserviceaccount.com` and the sink's destination must be in the
+    same project as the sink. If `true` (the default), `writer_identity` is a service agent shared by sinks with the same
+    parent. You must set `unique_writer_identity` to `true` to publish logs across projects or use `bigquery_options`.
+    See the [`projects.sinks.create` API documentation](https://cloud.google.com/logging/docs/reference/v2/rest/v2/projects.sinks/create#query-parameters)
+    for more information.
 
 * `custom_writer_identity` - (Optional) A user managed service account that will be used to write
     the log entries. The format must be `serviceAccount:some@email`. This field can only be specified if you are
