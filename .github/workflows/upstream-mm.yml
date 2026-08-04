@@ -2,7 +2,8 @@ name: "Upstream To MM"
 on:
   pull_request_target:
     types: [opened, ready_for_review, reopened]
-
+permissions:
+  issues: write # Required to create comments
 jobs:
   pr-warning:
     if: ${{ github.actor != 'modular-magician' }}
