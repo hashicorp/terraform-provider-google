@@ -1,0 +1,33 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dataform_repository
+generation_type: mmv1
+source_file: products/dataform/Repository.yaml
+api_service_name: dataform.googleapis.com
+api_version: v1
+api_resource_type_kind: Repository
+fields:
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: gitRemoteSettings.authenticationTokenSecretVersion
+    - api_field: gitRemoteSettings.defaultBranch
+    - api_field: gitRemoteSettings.gitRepositoryLink
+    - api_field: gitRemoteSettings.sshAuthenticationConfig.hostPublicKey
+    - api_field: gitRemoteSettings.sshAuthenticationConfig.userPrivateKeySecretVersion
+    - api_field: gitRemoteSettings.tokenStatus
+    - api_field: gitRemoteSettings.url
+    - api_field: kmsKeyName
+    - api_field: labels
+    - api_field: name
+    - api_field: npmrcEnvironmentVariablesSecretVersion
+    - field: region
+      provider_only: true
+    - api_field: serviceAccount
+    - field: terraform_labels
+      provider_only: true
+    - api_field: workspaceCompilationOverrides.defaultDatabase
+    - api_field: workspaceCompilationOverrides.schemaSuffix
+    - api_field: workspaceCompilationOverrides.tablePrefix
+    - field: deletion_policy
+      provider_only: true

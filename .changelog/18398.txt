@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_dataform_repository`
+```
+```release-note:new-resource
+`google_dataform_repository_iam_policy`
+```
+```release-note:new-resource
+`google_dataform_repository_iam_binding`
+```
+```release-note:new-resource
+`google_dataform_repository_iam_member`
+```
