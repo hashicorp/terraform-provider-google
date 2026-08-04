@@ -23,8 +23,6 @@ description: |-
 # google_dataform_repository_iam_policy
 
 Retrieves the current IAM policy data for repository
-~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage
@@ -32,7 +30,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 data "google_dataform_repository_iam_policy" "policy" {
-  provider = google-beta
   project = google_dataform_repository.dataform_repository.project
   region = google_dataform_repository.dataform_repository.region
   repository = google_dataform_repository.dataform_repository.name
