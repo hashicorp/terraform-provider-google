@@ -59,6 +59,7 @@ var icebergTableIgnoredProperties = map[string]bool{
 	"gcp.biglake.bigquery-advanced.enabled": true,
 	"gcp.biglake.bigquery-dml.enabled":      true,
 	"gcp.biglake.table-management.enabled":  true,
+	"write.parquet.compression-codec":       true,
 }
 
 func icebergTablePropertiesDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
