@@ -1,0 +1,3 @@
+```release-note:bug
+servicenetworking: fixed `google_service_networking_connection` ignoring the configured `delete` timeout, which used the `create` timeout instead
+```
