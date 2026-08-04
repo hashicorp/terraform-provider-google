@@ -74,11 +74,18 @@ resource "google_ces_app" "my-app" {
         time_zone = "America/Los_Angeles"
     }
 }
+resource "google_ces_app_version" "my-app-version" {
+    location       = "us"
+    display_name   = "tf-test-my-app-version%{random_suffix}"
+    app            = google_ces_app.my-app.name
+    app_version_id = "tf-test-app-version-id%{random_suffix}"
+    description    = "example-app-version"
+}
 resource "google_ces_deployment" "my-deployment" {
     location     = "us"
     display_name = "tf-test-my-deployment%{random_suffix}"
     app          = google_ces_app.my-app.name
-    app_version  = "projects/example-project/locations/us/apps/example-app/versions/example-version"
+    app_version  = google_ces_app_version.my-app-version.id
     channel_profile {
         channel_type = "API"
         disable_barge_in_control = true
@@ -113,11 +120,18 @@ resource "google_ces_app" "my-app" {
         time_zone = "America/Los_Angeles"
     }
 }
+resource "google_ces_app_version" "my-app-version" {
+    location       = "us"
+    display_name   = "tf-test-my-app-version%{random_suffix}"
+    app            = google_ces_app.my-app.name
+    app_version_id = "tf-test-app-version-id%{random_suffix}"
+    description    = "example-app-version"
+}
 resource "google_ces_deployment" "my-deployment" {
     location     = "us"
     display_name = "tf-test-my-deployment%{random_suffix}"
     app          = google_ces_app.my-app.name
-    app_version  = "projects/example-project/locations/us/apps/example-app/versions/example-version"
+    app_version  = google_ces_app_version.my-app-version.id
     channel_profile {
         channel_type = "WEB_UI"
         disable_barge_in_control = true
