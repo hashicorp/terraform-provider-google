@@ -1,5 +1,55 @@
 ## 7.43.0 (Unreleased)
 
+NOTES:
+* docs(workflows): added warning to `source_contents` field on `google_workflows_workflow` noting that it will become required in version 8.0.0 ([#28524](https://github.com/hashicorp/terraform-provider-google/pull/28524))
+* firestore: clarified which resource to use for which kind of index in Standard and Enterprise editions ([#28529](https://github.com/hashicorp/terraform-provider-google/pull/28529))
+
+FEATURES:
+* **New List Resource:** `google_compute_instance` ([#28548](https://github.com/hashicorp/terraform-provider-google/pull/28548))
+* **New List Resource:** `google_discovery_engine_assistant` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_chat_engine` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_cmek_config` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_control` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_data_store` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_license_config` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_recommendation_engine` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_schema` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_search_engine` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_serving_config` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_sitemap` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_target_site` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_discovery_engine_user_store` ([#28525](https://github.com/hashicorp/terraform-provider-google/pull/28525))
+* **New List Resource:** `google_project_iam_custom_role` ([#28526](https://github.com/hashicorp/terraform-provider-google/pull/28526))
+* **New List Resource:** `google_pubsub_subscription_iam_member` ([#28549](https://github.com/hashicorp/terraform-provider-google/pull/28549))
+* **New List Resource:** `google_service_account_iam_member` ([#28553](https://github.com/hashicorp/terraform-provider-google/pull/28553))
+* **New Resource:** `google_apihub_runtime_project_attachment` ([#28449](https://github.com/hashicorp/terraform-provider-google/pull/28449))
+* **New Resource:** `google_cloud_support_support_event_subscription` ([#28517](https://github.com/hashicorp/terraform-provider-google/pull/28517))
+* **New Resource:** `google_compute_region_network_policy_traffic_classification_rule` ([#28504](https://github.com/hashicorp/terraform-provider-google/pull/28504))
+* **New Resource:** `google_netapp_trial` ([#28503](https://github.com/hashicorp/terraform-provider-google/pull/28503))
+* **New Resource:** `google_network_connectivity_gateway_advertised_route` GA promotion ([#28471](https://github.com/hashicorp/terraform-provider-google/pull/28471))
+
+IMPROVEMENTS:
+* apigee: added `service_account` field to `google_apigee_api_deployment` resource ([#28552](https://github.com/hashicorp/terraform-provider-google/pull/28552))
+* apihub: added `source_project_id` field to `google_apihub_plugin_instance` resource ([#28530](https://github.com/hashicorp/terraform-provider-google/pull/28530))
+* artifactregistry: added `no_cache` field to `google_artifact_registry_repository.remote_repository_config` ([#28506](https://github.com/hashicorp/terraform-provider-google/pull/28506))
+* bigquery: added `data_governance_tags_info` field to `google_bigquery_table` resource ([#28532](https://github.com/hashicorp/terraform-provider-google/pull/28532))
+* bigqueryanalyticshub: added `proposer` field to `google_bigquery_analytics_hub_query_template` ([#28518](https://github.com/hashicorp/terraform-provider-google/pull/28518))
+* bigqueryanalyticshub: promoted `google_bigquery_analytics_hub_query_template` to GA ([#28518](https://github.com/hashicorp/terraform-provider-google/pull/28518))
+* bigquerydatapolicyv2: added `data_governance_tag` field to `google_bigquery_datapolicyv2_data_policy` resource ([#28463](https://github.com/hashicorp/terraform-provider-google/pull/28463))
+* bigqueryreservation: added `principal` field to `google_bigquery_reservation_assignment` resource ([#28508](https://github.com/hashicorp/terraform-provider-google/pull/28508))
+* cloudrunv: added `sandbox_launcher` field to the containers of  `google_cloud_run_service` resource ([#28521](https://github.com/hashicorp/terraform-provider-google/pull/28521))
+* cloudrunv2: added `sandbox_launcher` field to the containers of  `google_cloud_run_v2_service` resource ([#28521](https://github.com/hashicorp/terraform-provider-google/pull/28521))
+* compute: promoted `ncc_gateway` field in `google_compute_router` to GA ([#28471](https://github.com/hashicorp/terraform-provider-google/pull/28471))
+* discoveryengine: added `acl_enabled` field to `google_discovery_engine_data_store` resource ([#28465](https://github.com/hashicorp/terraform-provider-google/pull/28465))
+* networkconnectivity: promoted `gateway` field in `google_network_connectivity_spoke` to GA ([#28471](https://github.com/hashicorp/terraform-provider-google/pull/28471))
+* privateca: made `config.subject_config.subject.organization` optional in `google_privateca_certificate` ([#28464](https://github.com/hashicorp/terraform-provider-google/pull/28464))
+* vertexai: added `traffic_config` field and live traffic split update support to `google_vertex_ai_reasoning_engine` ([#28473](https://github.com/hashicorp/terraform-provider-google/pull/28473))
+
+BUG FIXES:
+* apigee: fixed `continue_on_error` argument being dropped in `google_apigee_flowhook`, aligning provider behavior with the Apigee API ([#28554](https://github.com/hashicorp/terraform-provider-google/pull/28554))
+* compute: fixed panic when setting scheduling attributes in `google_compute_region_instance_template` (ga) ([#28467](https://github.com/hashicorp/terraform-provider-google/pull/28467))
+* gkehub2: made field `spec.workloadidentity.scopeTenancyPool` in resource `google_gke_hub_feature` not required. ([#28472](https://github.com/hashicorp/terraform-provider-google/pull/28472))
+
 ## 7.42.0 (July 28, 2026)
 
 NOTES:
