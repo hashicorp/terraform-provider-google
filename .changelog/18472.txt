@@ -1,0 +1,3 @@
+```release-note:bug
+biglakeiceberg: fixed perma-diff on `write.parquet.compression-codec` in `google_biglake_iceberg_table`
+```
