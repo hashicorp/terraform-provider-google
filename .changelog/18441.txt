@@ -1,0 +1,3 @@
+```release-note:bug
+appengine: fixed acceptance test enum values for `app_engine_bundled_services` in `google_app_engine_standard_app_version`
+```
