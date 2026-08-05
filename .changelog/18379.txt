@@ -1,0 +1,3 @@
+```release-note:bug
+cloudsecuritycompliance: fixed state drift on `supported_enforcement_modes` in `google_cloud_security_compliance_framework` resource
+```

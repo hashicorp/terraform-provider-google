@@ -359,12 +359,13 @@ Format:
 				},
 			},
 			"supported_enforcement_modes": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Computed:    true,
 				Description: `The supported enforcement modes of the framework.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Set: schema.HashString,
 			},
 			"supported_target_resource_types": {
 				Type:        schema.TypeList,
@@ -1015,7 +1016,10 @@ func flattenCloudSecurityComplianceFrameworkSupportedCloudProviders(v interface{
 }
 
 func flattenCloudSecurityComplianceFrameworkSupportedEnforcementModes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenCloudSecurityComplianceFrameworkSupportedTargetResourceTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
