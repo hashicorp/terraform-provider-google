@@ -183,6 +183,8 @@ fields:
     api_field: 'properties.scheduling.automaticRestart'
   - field: 'scheduling.availability_domain'
     api_field: 'properties.scheduling.availabilityDomain'
+  - field: 'scheduling.host_error_timeout_seconds'
+    api_field: 'properties.scheduling.hostErrorTimeoutSeconds'
   - field: 'scheduling.instance_termination_action'
     api_field: 'properties.scheduling.instanceTerminationAction'
   - field: 'scheduling.local_ssd_recovery_timeout.nanos'
