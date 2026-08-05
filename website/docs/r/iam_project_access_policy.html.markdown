@@ -25,19 +25,16 @@ Represents an IAM v3 Access Policy parented by a Project. This policy defines ru
 that allow or deny access to resources within the specified project based on principals and conditions.
 See the Cloud IAM documentation for more details on Access Policies.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about ProjectAccessPolicy, see:
 
-* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3beta/projects.locations.accessPolicies)
+* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3/projects.locations.accessPolicies)
 
 ## Example Usage - Access Policy Project Minimal
 
 
 ```hcl
 resource "google_project" "project" {
-  provider        = google-beta
   project_id      = "ap-project-"
   name            = "ap-project-"
   org_id          = "123456789"
@@ -45,7 +42,6 @@ resource "google_project" "project" {
   deletion_policy = "DELETE"
 }
 resource "google_project_service" "iam_api" {
-  provider = google-beta
   project  = google_project.project.project_id
   service  = "iam.googleapis.com"
   disable_on_destroy = false
@@ -57,7 +53,6 @@ resource "time_sleep" "wait_for_project_propagation" {
   ]
 }
 resource "google_service_account" "test_sa" {
-  provider        = google-beta
   account_id   = "svc-acc-"
   display_name = "Test Service Account for Access Policy"
   project      = google_project.project.project_id
@@ -66,7 +61,6 @@ resource "google_service_account" "test_sa" {
   ]
 }
 resource "google_iam_project_access_policy" "example" {
-  provider          = google-beta
   project           = google_project.project.project_id
   location          = "global"
   access_policy_id  = "my-project-policy-"
