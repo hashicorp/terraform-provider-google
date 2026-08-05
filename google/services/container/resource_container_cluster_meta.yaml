@@ -22,6 +22,7 @@ fields:
   - api_field: 'addonsConfig.gcpFilestoreCsiDriverConfig.enabled'
   - api_field: 'addonsConfig.gcsFuseCsiDriverConfig.enabled'
   - api_field: 'addonsConfig.gkeBackupAgentConfig.enabled'
+  - api_field: 'addonsConfig.highScaleCheckpointingConfig.enabled'
   - api_field: 'addonsConfig.horizontalPodAutoscaling.disabled'
   - api_field: 'addonsConfig.httpLoadBalancing.disabled'
   - api_field: 'addonsConfig.podSnapshotConfig.enabled'

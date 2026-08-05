@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `high_scale_checkpointing_config` block to `addons_config` in `google_container_cluster`
+```
