@@ -206,6 +206,43 @@ Valid values can be viewed at https://cloud.google.com/secure-source-manager/doc
 					},
 				},
 			},
+			"scan_config": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
+				Description:      `Provides configuration for scanning.`,
+				MaxItems:         1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"secret_scan_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration for secret scanning.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Enables secret scanning for the repository.`,
+									},
+									"inspect_template": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Optional:    true,
+										Description: `The DLP inspect template to use for secret scanning.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"service_account": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Repository level service account.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -298,6 +335,18 @@ func resourceSecureSourceManagerRepositoryCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("initial_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(initialConfigProp)) && (ok || !reflect.DeepEqual(v, initialConfigProp)) {
 		obj["initialConfig"] = initialConfigProp
+	}
+	serviceAccountProp, err := expandSecureSourceManagerRepositoryServiceAccount(d.Get("service_account"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_account"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceAccountProp)) && (ok || !reflect.DeepEqual(v, serviceAccountProp)) {
+		obj["serviceAccount"] = serviceAccountProp
+	}
+	scanConfigProp, err := expandSecureSourceManagerRepositoryScanConfig(d.Get("scan_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scan_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(scanConfigProp)) && (ok || !reflect.DeepEqual(v, scanConfigProp)) {
+		obj["scanConfig"] = scanConfigProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories?repository_id={{repository_id}}")
@@ -521,6 +570,18 @@ func resourceSecureSourceManagerRepositoryUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	serviceAccountProp, err := expandSecureSourceManagerRepositoryServiceAccount(d.Get("service_account"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_account"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceAccountProp)) {
+		obj["serviceAccount"] = serviceAccountProp
+	}
+	scanConfigProp, err := expandSecureSourceManagerRepositoryScanConfig(d.Get("scan_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scan_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scanConfigProp)) {
+		obj["scanConfig"] = scanConfigProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}")
 	if err != nil {
@@ -533,6 +594,14 @@ func resourceSecureSourceManagerRepositoryUpdate(d *schema.ResourceData, meta in
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("service_account") {
+		updateMask = append(updateMask, "serviceAccount")
+	}
+
+	if d.HasChange("scan_config") {
+		updateMask = append(updateMask, "scanConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -713,6 +782,46 @@ func flattenSecureSourceManagerRepositoryUrisApi(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenSecureSourceManagerRepositoryServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerRepositoryScanConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["secret_scan_config"] =
+		flattenSecureSourceManagerRepositoryScanConfigSecretScanConfig(original["secretScanConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSecureSourceManagerRepositoryScanConfigSecretScanConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenSecureSourceManagerRepositoryScanConfigSecretScanConfigEnabled(original["enabled"], d, config)
+	transformed["inspect_template"] =
+		flattenSecureSourceManagerRepositoryScanConfigSecretScanConfigInspectTemplate(original["inspectTemplate"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSecureSourceManagerRepositoryScanConfigSecretScanConfigEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerRepositoryScanConfigSecretScanConfigInspectTemplate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandSecureSourceManagerRepositoryDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -780,6 +889,69 @@ func expandSecureSourceManagerRepositoryInitialConfigReadme(v interface{}, d tpg
 	return v, nil
 }
 
+func expandSecureSourceManagerRepositoryServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecureSourceManagerRepositoryScanConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSecretScanConfig, err := expandSecureSourceManagerRepositoryScanConfigSecretScanConfig(original["secret_scan_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretScanConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["secretScanConfig"] = transformedSecretScanConfig
+	}
+
+	return transformed, nil
+}
+
+func expandSecureSourceManagerRepositoryScanConfigSecretScanConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandSecureSourceManagerRepositoryScanConfigSecretScanConfigEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	transformedInspectTemplate, err := expandSecureSourceManagerRepositoryScanConfigSecretScanConfigInspectTemplate(original["inspect_template"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInspectTemplate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["inspectTemplate"] = transformedInspectTemplate
+	}
+
+	return transformed, nil
+}
+
+func expandSecureSourceManagerRepositoryScanConfigSecretScanConfigEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecureSourceManagerRepositoryScanConfigSecretScanConfigInspectTemplate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceSecureSourceManagerRepositoryFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -802,6 +974,12 @@ func ResourceSecureSourceManagerRepositoryFlatten(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 	if err = d.Set("uris", flattenSecureSourceManagerRepositoryUris(res["uris"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("service_account", flattenSecureSourceManagerRepositoryServiceAccount(res["serviceAccount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+	if err = d.Set("scan_config", flattenSecureSourceManagerRepositoryScanConfig(res["scanConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
