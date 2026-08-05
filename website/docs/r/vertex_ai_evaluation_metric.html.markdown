@@ -71,6 +71,10 @@ resource "google_vertex_ai_evaluation_metric" "example" {
     team = "evaluation"
   }
 
+  encryption_spec {
+    kms_key_name = "kms-key"
+  }
+
   gcs_uri = "gs://eval-metric-test-bucket/metric-spec.json"
 }
 
