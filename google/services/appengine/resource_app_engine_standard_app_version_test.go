@@ -496,7 +496,7 @@ resource "google_app_engine_standard_app_version" "foo" {
   service    = "default"
   runtime    = "python310"
 
-  app_engine_bundled_services = ["mail", "user"]
+  app_engine_bundled_services = ["BUNDLED_SERVICE_TYPE_MAIL", "BUNDLED_SERVICE_TYPE_USERS"]
 
   entrypoint {
     shell = "gunicorn -b :$PORT main:app"
