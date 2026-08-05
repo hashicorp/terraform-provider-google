@@ -19,6 +19,9 @@ fields:
     - api_field: name
     - field: repository_id
       provider_only: true
+    - api_field: scanConfig.secretScanConfig.enabled
+    - api_field: scanConfig.secretScanConfig.inspectTemplate
+    - api_field: serviceAccount
     - api_field: uid
     - api_field: updateTime
     - api_field: uris.api

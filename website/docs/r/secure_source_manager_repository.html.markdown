@@ -90,6 +90,111 @@ resource "google_secure_source_manager_repository" "default" {
     deletion_policy = "PREVENT"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_repository_service_account&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Secure Source Manager Repository Service Account
+
+
+```hcl
+resource "google_secure_source_manager_instance" "instance" {
+  location = "us-central1"
+  instance_id = "my-instance"
+  deletion_policy = "PREVENT"
+}
+
+resource "google_service_account" "sa" {
+  account_id   = "my-sa"
+  display_name = "Test Service Account"
+}
+
+resource "google_secure_source_manager_repository" "default" {
+  location = "us-central1"
+  repository_id = "my-repository"
+  instance = google_secure_source_manager_instance.instance.name
+  deletion_policy = "PREVENT"
+
+  service_account = google_service_account.sa.email
+}
+```
+## Example Usage - Secure Source Manager Repository Secret Scanning
+
+
+```hcl
+resource "google_secure_source_manager_instance" "instance" {
+  location = "us-central1"
+  instance_id = "my-instance"
+  deletion_policy = "PREVENT"
+}
+
+resource "google_data_loss_prevention_inspect_template" "template" {
+  parent       = "projects/my-project-name/locations/us-central1"
+  display_name = "Test Inspect Template"
+
+  inspect_config {
+    info_types {
+      name = "EMAIL_ADDRESS"
+    }
+  }
+}
+
+data "google_project" "project" {
+}
+
+resource "google_project_iam_member" "ssm_p4sa_dlp_reader" {
+  project = data.google_project.project.project_id
+  role    = "roles/dlp.inspectTemplatesReader"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
+}
+
+resource "google_secure_source_manager_repository" "default" {
+  location = "us-central1"
+  repository_id = "my-repository"
+  instance = google_secure_source_manager_instance.instance.name
+  deletion_policy = "PREVENT"
+
+  scan_config {
+    secret_scan_config {
+      enabled          = true
+      inspect_template = google_data_loss_prevention_inspect_template.template.id
+    }
+  }
+
+  depends_on = [
+    google_project_iam_member.ssm_p4sa_dlp_reader,
+  ]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_repository_secret_scanning_default&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Secure Source Manager Repository Secret Scanning Default
+
+
+```hcl
+resource "google_secure_source_manager_instance" "instance" {
+  location = "us-central1"
+  instance_id = "my-instance"
+  deletion_policy = "PREVENT"
+}
+
+resource "google_secure_source_manager_repository" "default" {
+  location = "us-central1"
+  repository_id = "my-repository"
+  instance = google_secure_source_manager_instance.instance.name
+  deletion_policy = "PREVENT"
+
+  scan_config {
+    secret_scan_config {
+      enabled = true
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -117,6 +222,15 @@ The following arguments are supported:
   (Optional)
   Initial configurations for the repository.
   Structure is [documented below](#nested_initial_config).
+
+* `service_account` -
+  (Optional)
+  Repository level service account.
+
+* `scan_config` -
+  (Optional)
+  Provides configuration for scanning.
+  Structure is [documented below](#nested_scan_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -149,6 +263,24 @@ The following arguments are supported:
   (Optional)
   README template name.
   Valid values can be viewed at https://cloud.google.com/secure-source-manager/docs/reference/rest/v1/projects.locations.repositories#initialconfig.
+
+<a name="nested_scan_config"></a>The `scan_config` block supports:
+
+* `secret_scan_config` -
+  (Optional)
+  Configuration for secret scanning.
+  Structure is [documented below](#nested_scan_config_secret_scan_config).
+
+
+<a name="nested_scan_config_secret_scan_config"></a>The `secret_scan_config` block supports:
+
+* `enabled` -
+  (Optional)
+  Enables secret scanning for the repository.
+
+* `inspect_template` -
+  (Optional)
+  The DLP inspect template to use for secret scanning.
 
 ## Attributes Reference
 
