@@ -31,6 +31,8 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/kms"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -109,6 +111,12 @@ resource "google_vertex_ai_evaluation_metric" "example" {
 
 func TestAccVertexAIEvaluationMetric_vertexAiEvaluationMetricFullExample(t *testing.T) {
 	t.Parallel()
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-aiplatform.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	randomSuffix := acctest.RandString(t, 10)
 
@@ -116,6 +124,7 @@ func TestAccVertexAIEvaluationMetric_vertexAiEvaluationMetricFullExample(t *test
 		"project":              envvar.GetTestProjectFromEnv(),
 		"bucket_name":          "tf-test-eval-metric-test-bucket" + randomSuffix,
 		"evaluation_metric_id": "tf-test-example-metric-full" + randomSuffix,
+		"kms_key_name":         kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix":        randomSuffix,
 	}
 
@@ -160,6 +169,10 @@ resource "google_vertex_ai_evaluation_metric" "example" {
   labels = {
     env  = "test"
     team = "evaluation"
+  }
+
+  encryption_spec {
+    kms_key_name = "%{kms_key_name}"
   }
 
   gcs_uri = "gs://%{bucket_name}/metric-spec.json"
