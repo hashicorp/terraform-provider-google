@@ -108,6 +108,7 @@ func ResourceDiscoveryEngineSchema() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
@@ -166,7 +167,6 @@ only be one of "global", "us" and "eu".`,
 			"json_schema": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringIsJSON,
 				StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 				Description:  `The JSON representation of the schema.`,
@@ -396,7 +396,77 @@ func resourceDiscoveryEngineSchemaRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceDiscoveryEngineSchemaUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceDiscoveryEngineSchema().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceDiscoveryEngineSchemaRead(d, meta)
+	}
+
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Schema: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	jsonSchemaProp, err := expandDiscoveryEngineSchemaJsonSchema(d.Get("json_schema"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("json_schema"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, jsonSchemaProp)) {
+		obj["jsonSchema"] = jsonSchemaProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores/{{data_store_id}}/schemas/{{schema_id}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Schema %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+	if err != nil {
+		return fmt.Errorf("Error updating Schema %q: %s", d.Id(), err)
+	}
+
+	err = DiscoveryEngineOperationWaitTime(
+		config, res, project, "Updating Schema", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("Error waiting to update Schema: %s", err)
+	}
+
+	log.Printf("[DEBUG] Finished updating Schema %q: %#v", d.Id(), res)
+
 	return resourceDiscoveryEngineSchemaRead(d, meta)
 }
 
