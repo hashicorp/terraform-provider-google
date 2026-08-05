@@ -197,6 +197,15 @@ func expandScheduling(v interface{}) (map[string]interface{}, error) {
 			result["onInstanceStopAction"] = transformedOnInstanceStopAction
 		}
 	}
+	if v, ok := original["host_error_timeout_seconds"]; ok {
+		//host_error_timeout_seconds doesn't get removed correctly due to an API bug on instances.SetScheduling.
+		//We need to send null as a workaround because nil is rounded to 0
+		if v == 0 || v == nil {
+			result["hostErrorTimeoutSeconds"] = nil
+		} else {
+			result["hostErrorTimeoutSeconds"] = int64(v.(int))
+		}
+	}
 	if v, ok := original["local_ssd_recovery_timeout"]; ok {
 		transformedLocalSsdRecoveryTimeout, err := expandComputeLocalSsdRecoveryTimeout(v)
 		if err != nil {
@@ -316,6 +325,10 @@ func flattenScheduling(resp map[string]interface{}) []map[string]interface{} {
 
 	if ois, ok := resp["onInstanceStopAction"].(map[string]interface{}); ok {
 		schedulingMap["on_instance_stop_action"] = flattenOnInstanceStopAction(ois)
+	}
+
+	if h := getInt(resp["hostErrorTimeoutSeconds"]); h != 0 {
+		schedulingMap["host_error_timeout_seconds"] = h
 	}
 
 	if lsrt, ok := resp["localSsdRecoveryTimeout"].(map[string]interface{}); ok {
@@ -963,6 +976,9 @@ func schedulingHasChangeWithoutReboot(d *schema.ResourceData) bool {
 		return true
 	}
 	if oScheduling["availability_domain"] != newScheduling["availability_domain"] {
+		return true
+	}
+	if oScheduling["host_error_timeout_seconds"] != newScheduling["host_error_timeout_seconds"] {
 		return true
 	}
 

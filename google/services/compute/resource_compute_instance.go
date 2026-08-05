@@ -131,6 +131,7 @@ var (
 		"scheduling.0.availability_domain",
 		"scheduling.0.max_run_duration",
 		"scheduling.0.on_instance_stop_action",
+		"scheduling.0.host_error_timeout_seconds",
 		"scheduling.0.local_ssd_recovery_timeout",
 	}
 
@@ -1204,6 +1205,11 @@ be from 0 to 999,999,999 inclusive.`,
 									},
 								},
 							},
+						},
+						"host_error_timeout_seconds": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Specify the time in seconds for host error detection, the value must be within the range of [90, 330] with the increment of 30, if unset, the default behavior of host error recovery will be used.`,
 						},
 						"local_ssd_recovery_timeout": {
 							Type:     schema.TypeList,

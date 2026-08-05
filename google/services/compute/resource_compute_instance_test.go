@@ -2355,6 +2355,83 @@ func TestAccComputeInstance_reservationAffinities(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_hostErrorTimeoutSecconds(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	context_1 := map[string]interface{}{
+		"instance_name":          fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"zone":                   "us-central1-a",
+		"host_error_timeout_sec": "host_error_timeout_seconds = 90",
+	}
+
+	context_2 := map[string]interface{}{
+		"instance_name":          context_1["instance_name"],
+		"zone":                   context_1["zone"],
+		"host_error_timeout_sec": "host_error_timeout_seconds = 120",
+	}
+
+	context_3 := map[string]interface{}{
+		"instance_name":          context_1["instance_name"],
+		"zone":                   context_1["zone"],
+		"host_error_timeout_sec": "host_error_timeout_seconds = null",
+	}
+
+	context_4 := map[string]interface{}{
+		"instance_name":          context_1["instance_name"],
+		"zone":                   context_1["zone"],
+		"host_error_timeout_sec": "host_error_timeout_seconds = 0",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_hostErrorTimeoutSeconds(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.host_error_timeout_seconds", "90"),
+				),
+			},
+			computeInstanceImportStep(context_1["zone"].(string), context_1["instance_name"].(string), []string{}),
+			{
+				Config: testAccComputeInstance_hostErrorTimeoutSeconds(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.host_error_timeout_seconds", "120"),
+				),
+			},
+			computeInstanceImportStep(context_2["zone"].(string), context_2["instance_name"].(string), []string{}),
+			{
+				Config: testAccComputeInstance_hostErrorTimeoutSeconds(context_3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.host_error_timeout_seconds", "0"),
+				),
+			},
+			computeInstanceImportStep(context_3["zone"].(string), context_3["instance_name"].(string), []string{}),
+			{
+				Config: testAccComputeInstance_hostErrorTimeoutSeconds(context_4),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.host_error_timeout_seconds", "0"),
+				),
+			},
+			computeInstanceImportStep(context_4["zone"].(string), context_4["instance_name"].(string), []string{}),
+			{
+				Config: testAccComputeInstance_hostErrorTimeoutSeconds(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.host_error_timeout_seconds", "90"),
+				),
+			},
+			computeInstanceImportStep(context_1["zone"].(string), context_1["instance_name"].(string), []string{}),
+		},
+	})
+}
+
 func TestAccComputeInstance_subnet_auto(t *testing.T) {
 	t.Parallel()
 
@@ -9639,6 +9716,35 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, instanceName)
+}
+
+func testAccComputeInstance_hostErrorTimeoutSeconds(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-12"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%{instance_name}"
+  zone         = "%{zone}"
+  machine_type = "n2-standard-2"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+  scheduling {
+    %{host_error_timeout_sec}
+	automatic_restart = true
+  }
+}
+`, context)
 }
 
 func testAccComputeInstance_shieldedVmConfig(instance string, enableSecureBoot bool, enableVtpm bool, enableIntegrityMonitoring bool) string {
