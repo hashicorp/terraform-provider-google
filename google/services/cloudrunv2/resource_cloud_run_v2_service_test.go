@@ -1974,3 +1974,60 @@ resource "google_cloud_run_v2_service" "default" {
 }
 `, context)
 }
+
+// TestAccCloudRunV2Service_noPermadiffWithMemoryLimitOnly verifies that setting
+// only the memory key in template.containers.resources.limits does not produce a
+// perpetual diff. The API automatically adds a default cpu limit which should be
+// silently accepted. Regression test for:
+// https://github.com/hashicorp/terraform-provider-google/issues/20399
+func TestAccCloudRunV2Service_noPermadiffWithMemoryLimitOnly(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_memoryLimitOnly(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "deletion_protection"},
+			},
+			// Second plan must produce no diff (no permadiff on cpu limit key).
+			{
+				Config:   testAccCloudRunV2Service_memoryLimitOnly(context),
+				PlanOnly: true,
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_memoryLimitOnly(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name                = "tf-test-cloudrun-service%{random_suffix}"
+  location            = "us-central1"
+  deletion_protection = false
+  ingress             = "INGRESS_TRAFFIC_ALL"
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      resources {
+        limits = {
+          memory = "1Gi"
+        }
+      }
+    }
+  }
+}
+`, context)
+}
