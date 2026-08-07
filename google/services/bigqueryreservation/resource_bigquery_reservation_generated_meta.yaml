@@ -11,7 +11,10 @@ fields:
     - api_field: autoscale.maxSlots
     - api_field: concurrency
     - api_field: edition
+    - field: effective_labels
+      provider_only: true
     - api_field: ignoreIdleSlots
+    - api_field: labels
     - field: location
       provider_only: true
     - field: name
@@ -25,5 +28,7 @@ fields:
     - api_field: reservationGroup
     - api_field: secondaryLocation
     - api_field: slotCapacity
+    - field: terraform_labels
+      provider_only: true
     - field: deletion_policy
       provider_only: true

@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigqueryreservation: added `labels` field to `google_bigquery_reservation` resource
+```
