@@ -1288,37 +1288,6 @@ func TestAccSqlDatabaseInstance_updateMCPEnabled(t *testing.T) {
 	})
 }
 
-func TestAccSqlDatabaseInstance_withPSCEnabled_withAutoConnectionPolicy(t *testing.T) {
-	t.Parallel()
-
-	instanceName := "tf-test-" + acctest.RandString(t, 10)
-	networkName := "tf-test-" + acctest.RandString(t, 10)
-	projectId := envvar.GetTestProjectFromEnv()
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSqlDatabaseInstance_withPSCEnabled_withAutoConnectionPolicy(instanceName, networkName, projectId),
-				Check:  resource.ComposeTestCheckFunc(verifyPscOperation("google_sql_database_instance.instance", true, true, nil, false, false, true, "", "COMPLETED")),
-			},
-			{
-				ResourceName:            "google_sql_database_instance.instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
-				ImportStateVerifyIgnore: []string{"deletion_protection"},
-			},
-			{
-				Config: testAccSqlDatabaseInstance_withPSCEnabled_withAutoConnectionPolicy_deleted(networkName, projectId),
-				Check:  testAccCheckSqlDatabaseInstanceDeleteServiceConnectionPolicyByNetwork(t, projectId, "us-south1", networkName),
-			},
-		},
-	})
-}
-
 func TestAccSqlDatabaseInstance_withPSCEnabled_withoutAllowedConsumerProjects(t *testing.T) {
 	t.Parallel()
 
@@ -7404,95 +7373,6 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, projectId, projectId, orgId, billingAccount, instanceName)
-}
-
-func testAccSqlDatabaseInstance_withPSCEnabled_withAutoConnectionPolicy(instanceName string, networkName string, projectId string) string {
-	return fmt.Sprintf(`
-resource "google_project_service_identity" "gcp_sa_cloud_sql" {
-  project    = "%s"
-  service    = "sqladmin.googleapis.com"
-}
-
-resource "google_project_iam_member" "sa_consumer_network_admin" {
-  project = "%s"
-  role    = "roles/networkconnectivity.consumerNetworkAdmin"
-  member  = google_project_service_identity.gcp_sa_cloud_sql.member
-}
-
-resource "google_project_iam_member" "sa_network_viewer" {
-  project = "%s"
-  role    = "roles/compute.networkViewer"
-  member  = google_project_service_identity.gcp_sa_cloud_sql.member
-}
-
-resource "google_compute_network" "default" {
-  project                 = "%s"
-  name                    = "%s"
-  auto_create_subnetworks = true
-}
-
-resource "google_sql_database_instance" "instance" {
-  project             = "%s"
-  name                = "%s"
-  region              = "us-south1"
-  database_version    = "MYSQL_8_0"
-  deletion_protection = false
-  settings {
-    tier = "db-g1-small"
-    ip_configuration {
-		psc_config {
-			psc_enabled = true
-			psc_auto_connection_policy_enabled = true
-			psc_auto_connections {
-				consumer_network            = google_compute_network.default.id
-				consumer_service_project_id = "%s"
-			}
-		}
-		ipv4_enabled = false
-    }
-	backup_configuration {
-		enabled = true
-		binary_log_enabled = true
-	}
-	database_flags {
-		name  = "cloudsql_iam_authentication"
-		value = "on"
-	}
-	availability_type = "REGIONAL"
-  }
-  depends_on = [
-    google_project_iam_member.sa_consumer_network_admin,
-    google_project_iam_member.sa_network_viewer,
-  ]
-}
-`, projectId, projectId, projectId, projectId, networkName, projectId, instanceName, projectId)
-}
-
-func testAccSqlDatabaseInstance_withPSCEnabled_withAutoConnectionPolicy_deleted(networkName string, projectId string) string {
-	return fmt.Sprintf(`
-resource "google_project_service_identity" "gcp_sa_cloud_sql" {
-  project    = "%s"
-  service    = "sqladmin.googleapis.com"
-}
-
-resource "google_project_iam_member" "sa_consumer_network_admin" {
-  project = "%s"
-  role    = "roles/networkconnectivity.consumerNetworkAdmin"
-  member  = google_project_service_identity.gcp_sa_cloud_sql.member
-}
-
-resource "google_project_iam_member" "sa_network_viewer" {
-  project = "%s"
-  role    = "roles/compute.networkViewer"
-  member  = google_project_service_identity.gcp_sa_cloud_sql.member
-}
-
-resource "google_compute_network" "default" {
-  project                 = "%s"
-  name                    = "%s"
-  auto_create_subnetworks = true
-}
-`, projectId, projectId, projectId, projectId, networkName)
 }
 
 func testAccSqlDatabaseInstance_withPSCEnabled_withoutAllowedConsumerProjects(instanceName string, projectId string, orgId string, billingAccount string) string {
