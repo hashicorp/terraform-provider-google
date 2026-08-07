@@ -25,3 +25,5 @@ fields:
     - field: rule
       provider_only: true
     - api_field: runFrequency
+    - api_field: scheduleCustomizations.ensureEnrichmentCompleteness
+    - api_field: scheduleCustomizations.lateArrivingDataAdjustment

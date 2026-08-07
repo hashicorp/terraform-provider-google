@@ -77,7 +77,7 @@ resource "google_chronicle_rule_deployment" "example" {
  enabled = true
  alerting = true
  archived = false
- run_frequency = "DAILY"
+ run_frequency = "LIVE"
 }
 `, context)
 }
@@ -99,7 +99,7 @@ resource "google_chronicle_rule_deployment" "example" {
  enabled = false
  alerting = false
  archived = false
- run_frequency = "HOURLY"
+ run_frequency = "LIVE"
 }
 `, context)
 }
