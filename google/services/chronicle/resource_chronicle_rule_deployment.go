@@ -55,7 +55,26 @@ import (
 )
 
 func chronicleRuleDeploymentNilRunFrequencyDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
+	// Ignore run frequency when it is not specified. This is a fix for
+	// https://github.com/hashicorp/terraform-provider-google/issues/21347.
 	if new == "" {
+		return true
+	}
+	// Suppress diffs for coerced run frequencies. With the release of customizable
+	// schedules, setting a multi-event rule to LIVE or HOURLY will set the backend
+	// state to LIVE_CUSTOMIZABLE or HOURLY_CUSTOMIZABLE, respectively. Non-large match
+	// window rules requesting DAILY are also coerced to HOURLY_CUSTOMIZABLE. So by
+	// suppressing this diff we avoid a permadiff.
+	if (old == "LIVE_CUSTOMIZABLE" && new == "LIVE") || (old == "HOURLY_CUSTOMIZABLE" && (new == "HOURLY" || new == "DAILY")) {
+		return true
+	}
+	// For single-event rules, we coerce HOURLY and DAILY to LIVE. Note that this
+	// creates an edge case when a legacy multi-event rule is set to LIVE and the
+	// new requested state is HOURLY - in this case, nothing will happen. There is
+	// no good way to differentiate this, so the only solution is for the user to
+	// update their terraform config to begin using the new CUSTOMIZABLE run
+	// frequencies.
+	if old == "LIVE" && (new == "HOURLY" || new == "DAILY") {
 		return true
 	}
 	return false
@@ -199,7 +218,36 @@ updated.`,
 Possible values:
 LIVE
 HOURLY
-DAILY`,
+DAILY
+LIVE_CUSTOMIZABLE
+HOURLY_CUSTOMIZABLE
+
+Note: Certain legacy run frequencies are deprecated. For multi-event rules, use LIVE_CUSTOMIZABLE or HOURLY_CUSTOMIZABLE (for match windows <=2d), or DAILY (for match windows >2d).
+Legacy values LIVE and HOURLY are mapped to their customizable counterparts on the backend. DAILY for <=2d match window multi-event rules will be happed to HOURLY_CUSTOMIZABLE.
+For single-event rules, HOURLY and DAILY are deprecated and mapped to LIVE. If you continue to use deprecated values in your Terraform configuration, Terraform will silently
+suppress the diff and ignore the changes to prevent infinite update loops.`,
+			},
+			"schedule_customizations": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The schedule customizations of the rule deployment. Only valid for
+customizable run frequencies.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ensure_enrichment_completeness": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Indicates whether to add additional delays and runs to rules to ensure
+enrichment completeness, with the trade-off of more late-arriving detections.`,
+						},
+						"late_arriving_data_adjustment": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Delay the first rule execution run to account for late-arriving data.`,
+						},
+					},
+				},
 			},
 			"archive_time": {
 				Type:        schema.TypeString,
@@ -265,6 +313,11 @@ projects/{project}/locations/{location}/instances/{instance}/rules/{rule}`,
 
 func resourceChronicleRuleDeploymentCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
+	// Custom create logic for Chronicle RuleDeployment.
+	//
+	// RuleDeployment instances are auto-created when a Rule is created. Therefore, creation in Terraform
+	// performs a GET to retrieve the existing deployment, expands the desired deployment configuration
+	// (enabled, alerting, archived, runFrequency, scheduleCustomizations), and sends a PATCH request to initialize settings.
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
@@ -317,6 +370,10 @@ func resourceChronicleRuleDeploymentCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 	runFrequencyProp, err := expandChronicleRuleDeploymentRunFrequency(d.Get("run_frequency"), d, config)
+	if err != nil {
+		return err
+	}
+	scheduleCustomizationsProp, err := expandChronicleRuleDeploymentScheduleCustomizations(d.Get("schedule_customizations"), d, config)
 	if err != nil {
 		return err
 	}
@@ -382,6 +439,21 @@ func resourceChronicleRuleDeploymentCreate(d *schema.ResourceData, meta interfac
 				updateMask = append(updateMask, "runFrequency")
 			}
 		}
+
+		scheduleCustomizationsValue, scheduleCustomizationsExists := res["scheduleCustomizations"]
+		if scheduleCustomizationsExists {
+			// Flatten existing scheduleCustomizations from GET response to compare against expanded config
+			scheduleCustomizations := flattenChronicleRuleDeploymentScheduleCustomizations(scheduleCustomizationsValue, d, config)
+			_, ok := d.GetOkExists("schedule_customizations")
+			if !reflect.DeepEqual(scheduleCustomizationsProp, scheduleCustomizations) && ok {
+				obj["scheduleCustomizations"] = scheduleCustomizationsProp
+			}
+		} else {
+			// Handle the case where "schedule_customizations" is missing from the API response
+			if v, ok := d.GetOkExists("schedule_customizations"); ok && !tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
+				obj["scheduleCustomizations"] = scheduleCustomizationsProp
+			}
+		}
 	} else {
 		if v, ok := d.GetOkExists("enabled"); ok && !tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 			obj["enabled"] = enabledProp
@@ -397,6 +469,41 @@ func resourceChronicleRuleDeploymentCreate(d *schema.ResourceData, meta interfac
 		}
 		if v, ok := d.GetOkExists("run_frequency"); ok && !tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
 			obj["runFrequency"] = runFrequencyProp
+			updateMask = append(updateMask, "runFrequency")
+		}
+		if v, ok := d.GetOkExists("schedule_customizations"); ok && !tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
+			obj["scheduleCustomizations"] = scheduleCustomizationsProp
+		}
+	}
+
+	// We solve two problems here:
+	//  1. The scheduleCustomizations field does not have its own update mask field. Instead, it uses
+	//     the runFrequency update mask field. So, if we want to update scheduleCustomizations, we
+	//     have to add the runFrequency update mask if it's not already there.
+	//  2. Because scheduleCustomizations and runFrequency share the same update mask field, they are
+	//     always updated together. By default terraform won't add runFrequency or scheduleCustomizations
+	//     if either did not change. But because they will be updated together, we still need to include
+	//     the field that did not change into the request, or it will revert back to the default,
+	//     unspecified value.
+	hasScheduleCustomizationsUpdate := obj["scheduleCustomizations"] != nil
+	hasRunFrequencyUpdate := obj["runFrequency"] != nil
+	if hasScheduleCustomizationsUpdate || hasRunFrequencyUpdate {
+		if hasScheduleCustomizationsUpdate && !hasRunFrequencyUpdate {
+			obj["runFrequency"] = runFrequencyProp
+		}
+		if hasRunFrequencyUpdate && !hasScheduleCustomizationsUpdate {
+			if scheduleCustomizationsProp != nil {
+				obj["scheduleCustomizations"] = scheduleCustomizationsProp
+			}
+		}
+		hasRunFreqMask := false
+		for _, m := range updateMask {
+			if m == "runFrequency" {
+				hasRunFreqMask = true
+				break
+			}
+		}
+		if !hasRunFreqMask {
 			updateMask = append(updateMask, "runFrequency")
 		}
 	}
@@ -589,6 +696,12 @@ func resourceChronicleRuleDeploymentUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("run_frequency"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, runFrequencyProp)) {
 		obj["runFrequency"] = runFrequencyProp
 	}
+	scheduleCustomizationsProp, err := expandChronicleRuleDeploymentScheduleCustomizations(d.Get("schedule_customizations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("schedule_customizations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scheduleCustomizationsProp)) {
+		obj["scheduleCustomizations"] = scheduleCustomizationsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule}}/deployment")
 	if err != nil {
@@ -614,31 +727,48 @@ func resourceChronicleRuleDeploymentUpdate(d *schema.ResourceData, meta interfac
 	if d.HasChange("run_frequency") {
 		updateMask = append(updateMask, "runFrequency")
 	}
+
+	if d.HasChange("schedule_customizations") {
+		updateMask = append(updateMask, "scheduleCustomizations")
+	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
-	// removeRunFrequencyFromUpdateMask removes 'runFrequency' from the updateMask in a URL.
-	removeRunFrequencyFromUpdateMask := func(url string) string {
-		// Remove "runFrequency" and handle commas.
-		url = strings.ReplaceAll(url, "%2CrunFrequency", "")
-		url = strings.ReplaceAll(url, "runFrequency%2C", "")
-		url = strings.ReplaceAll(url, "runFrequency", "")
-
-		// Remove extra commas.
-		url = strings.ReplaceAll(url, "%2C%2C", "%2C")
-
-		//Remove trailing commas.
-		url = strings.TrimSuffix(url, "%2C")
-
-		return url
+	// scheduleCustomizations uses the "runFrequency" field mask path for updates,
+	// rather than "scheduleCustomizations". So if there's an update, remove the
+	// "scheduleCustomizations" field mask path and add "runFrequency".
+	hasScheduleCustomizationsUpdate := obj["scheduleCustomizations"] != nil
+	if hasScheduleCustomizationsUpdate {
+		updateMask = slices.DeleteFunc(updateMask, func(s string) bool {
+			return s == "scheduleCustomizations"
+		})
+		if !slices.Contains(updateMask, "runFrequency") {
+			updateMask = append(updateMask, "runFrequency")
+		}
 	}
 
-	// Remove "runFrequency" and handle commas if run_frequency not configured by user
-	if _, ok := d.GetOk("run_frequency"); !ok {
-		url = removeRunFrequencyFromUpdateMask(url)
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// Because runFrequency and scheduleCustomizations share an update mask, they
+	// are always updated together. That means if only one is being updated, we
+	// must pass in the existing value for the other field to ensure it does not
+	// revert back to the default value.
+	hasRunFrequencyUpdate := obj["runFrequency"] != nil
+	if hasScheduleCustomizationsUpdate && !hasRunFrequencyUpdate {
+		if rfProp, err := expandChronicleRuleDeploymentRunFrequency(d.Get("run_frequency"), d, config); err == nil && rfProp != nil {
+			obj["runFrequency"] = rfProp
+		}
+	}
+	if hasRunFrequencyUpdate && !hasScheduleCustomizationsUpdate {
+		if scProp, err := expandChronicleRuleDeploymentScheduleCustomizations(d.Get("schedule_customizations"), d, config); err == nil && scProp != nil {
+			obj["scheduleCustomizations"] = scProp
+		}
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -723,6 +853,48 @@ func flattenChronicleRuleDeploymentRunFrequency(v interface{}, d *schema.Resourc
 	return v
 }
 
+// Custom flattener for scheduleCustomizations.
+//
+// In Proto3 / Google API JSON responses, boolean fields with value `false` (such as ensureEnrichmentCompleteness)
+// are omitted from the JSON response body (or returned as an empty map `{}`).
+//
+// If the default flattener receives a nil/empty map, it passes nil to Terraform state. When HCL specifies
+// ensure_enrichment_completeness = false, comparing state (nil) against HCL (false) produces false plan diffs
+// ("+ ensure_enrichment_completeness = false") and causes import verification failures.
+//
+// This flattener checks if schedule_customizations is active in Terraform configuration (d.GetOk).
+// If active and ensureEnrichmentCompleteness is omitted by the API, it explicitly sets ensure_enrichment_completeness = false
+// in Terraform state to preserve state parity with HCL.
+func flattenChronicleRuleDeploymentScheduleCustomizations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		if _, ok := d.GetOk("schedule_customizations"); ok {
+			transformed := make(map[string]interface{})
+			transformed["ensure_enrichment_completeness"] = false
+			return []interface{}{transformed}
+		}
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		if _, ok := d.GetOk("schedule_customizations"); ok {
+			transformed := make(map[string]interface{})
+			transformed["ensure_enrichment_completeness"] = false
+			return []interface{}{transformed}
+		}
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	if val, ok := original["ensureEnrichmentCompleteness"]; ok && val != nil {
+		transformed["ensure_enrichment_completeness"] = val
+	} else if _, ok := d.GetOk("schedule_customizations"); ok {
+		transformed["ensure_enrichment_completeness"] = false
+	}
+	if val, ok := original["lateArrivingDataAdjustment"]; ok && val != nil {
+		transformed["late_arriving_data_adjustment"] = val
+	}
+	return []interface{}{transformed}
+}
+
 func flattenChronicleRuleDeploymentExecutionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -755,6 +927,43 @@ func expandChronicleRuleDeploymentRunFrequency(v interface{}, d tpgresource.Terr
 	return v, nil
 }
 
+func expandChronicleRuleDeploymentScheduleCustomizations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnsureEnrichmentCompleteness, err := expandChronicleRuleDeploymentScheduleCustomizationsEnsureEnrichmentCompleteness(original["ensure_enrichment_completeness"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["ensureEnrichmentCompleteness"] = transformedEnsureEnrichmentCompleteness
+	}
+
+	transformedLateArrivingDataAdjustment, err := expandChronicleRuleDeploymentScheduleCustomizationsLateArrivingDataAdjustment(original["late_arriving_data_adjustment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLateArrivingDataAdjustment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["lateArrivingDataAdjustment"] = transformedLateArrivingDataAdjustment
+	}
+
+	return transformed, nil
+}
+
+func expandChronicleRuleDeploymentScheduleCustomizationsEnsureEnrichmentCompleteness(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandChronicleRuleDeploymentScheduleCustomizationsLateArrivingDataAdjustment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceChronicleRuleDeploymentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -774,6 +983,9 @@ func ResourceChronicleRuleDeploymentFlatten(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading RuleDeployment: %s", err)
 	}
 	if err = d.Set("run_frequency", flattenChronicleRuleDeploymentRunFrequency(res["runFrequency"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RuleDeployment: %s", err)
+	}
+	if err = d.Set("schedule_customizations", flattenChronicleRuleDeploymentScheduleCustomizations(res["scheduleCustomizations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RuleDeployment: %s", err)
 	}
 	if err = d.Set("execution_state", flattenChronicleRuleDeploymentExecutionState(res["executionState"], d, config)); err != nil {

@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -104,7 +105,7 @@ resource "google_chronicle_rule_deployment" "example" {
  enabled = true
  alerting = true
  archived = false
- run_frequency = "DAILY"
+ run_frequency = "LIVE"
 }
 `, context)
 }
@@ -212,6 +213,399 @@ resource "google_chronicle_rule_deployment" "example" {
  enabled = true
  alerting = true
  archived = false
+}
+`, context)
+}
+
+func TestAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomizationsExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"random_suffix": randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"random_suffix": randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"random_suffix": randomSuffix,
+	}
+
+	context_3 := map[string]interface{}{
+		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomizationsExample(context),
+			},
+			{
+				ResourceName:            "google_chronicle_rule_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance", "location", "rule"},
+			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomizationsUpdateCustomizationsExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_chronicle_rule_deployment.example", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_chronicle_rule_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance", "location", "rule", "schedule_customizations"},
+			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomizationsUpdateRunFrequencyExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_chronicle_rule_deployment.example", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_chronicle_rule_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance", "location", "rule", "schedule_customizations"},
+			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomizationsUpdateBothExample(context_3),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_chronicle_rule_deployment.example", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_chronicle_rule_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance", "location", "rule"},
+			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomizationsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_chronicle_rule" "my-rule" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ text = <<-EOT
+             rule test_rule {
+               meta:
+                 description = "test multi-event rule"
+               events:
+                 $e1.metadata.event_type = "USER_LOGIN"
+                 $e1.principal.user.userid = $user
+                 $e2.metadata.event_type = "USER_LOGOUT"
+                 $e2.principal.user.userid = $user
+               match:
+                 $user over 10m
+               condition:
+                 $e1 and $e2
+             }
+         EOT
+}
+
+resource "google_chronicle_rule_deployment" "example" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ rule = element(split("/", resource.google_chronicle_rule.my-rule.name), length(split("/", resource.google_chronicle_rule.my-rule.name)) - 1)
+ enabled = true
+ alerting = true
+ archived = false
+ # Make sure to use the default run_frequency for the configured rule along with
+ # a non-default schedule_customizations. This ensures we test the fallback logic
+ # to always populate run_frequency alongside schedule_customizations in the
+ # custom_create PATCH step even when the run_frequency value does not change.
+ run_frequency = "LIVE_CUSTOMIZABLE"
+ schedule_customizations {
+   ensure_enrichment_completeness = true
+   late_arriving_data_adjustment  = "60s"
+ }
+}
+`, context)
+}
+
+func testAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomizationsUpdateCustomizationsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_chronicle_rule" "my-rule" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ text = <<-EOT
+             rule test_rule {
+               meta:
+                 description = "test multi-event rule"
+               events:
+                 $e1.metadata.event_type = "USER_LOGIN"
+                 $e1.principal.user.userid = $user
+                 $e2.metadata.event_type = "USER_LOGOUT"
+                 $e2.principal.user.userid = $user
+               match:
+                 $user over 10m
+               condition:
+                 $e1 and $e2
+             }
+         EOT
+}
+
+resource "google_chronicle_rule_deployment" "example" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ rule = element(split("/", resource.google_chronicle_rule.my-rule.name), length(split("/", resource.google_chronicle_rule.my-rule.name)) - 1)
+ enabled = true
+ alerting = true
+ archived = false
+ run_frequency = "LIVE_CUSTOMIZABLE"
+ schedule_customizations {
+   ensure_enrichment_completeness = false
+   late_arriving_data_adjustment  = "300s"
+ }
+}
+`, context)
+}
+
+func testAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomizationsUpdateRunFrequencyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_chronicle_rule" "my-rule" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ text = <<-EOT
+             rule test_rule {
+               meta:
+                 description = "test multi-event rule"
+               events:
+                 $e1.metadata.event_type = "USER_LOGIN"
+                 $e1.principal.user.userid = $user
+                 $e2.metadata.event_type = "USER_LOGOUT"
+                 $e2.principal.user.userid = $user
+               match:
+                 $user over 10m
+               condition:
+                 $e1 and $e2
+             }
+         EOT
+}
+
+resource "google_chronicle_rule_deployment" "example" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ rule = element(split("/", resource.google_chronicle_rule.my-rule.name), length(split("/", resource.google_chronicle_rule.my-rule.name)) - 1)
+ enabled = true
+ alerting = true
+ archived = false
+ run_frequency = "HOURLY_CUSTOMIZABLE"
+ schedule_customizations {
+   ensure_enrichment_completeness = false
+   late_arriving_data_adjustment  = "300s"
+ }
+}
+`, context)
+}
+
+func testAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomizationsUpdateBothExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_chronicle_rule" "my-rule" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ text = <<-EOT
+             rule test_rule {
+               meta:
+                 description = "test multi-event rule"
+               events:
+                 $e1.metadata.event_type = "USER_LOGIN"
+                 $e1.principal.user.userid = $user
+                 $e2.metadata.event_type = "USER_LOGOUT"
+                 $e2.principal.user.userid = $user
+               match:
+                 $user over 10m
+               condition:
+                 $e1 and $e2
+             }
+         EOT
+}
+
+resource "google_chronicle_rule_deployment" "example" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ rule = element(split("/", resource.google_chronicle_rule.my-rule.name), length(split("/", resource.google_chronicle_rule.my-rule.name)) - 1)
+ enabled = true
+ alerting = true
+ archived = false
+ run_frequency = "LIVE_CUSTOMIZABLE"
+ schedule_customizations {
+   ensure_enrichment_completeness = true
+   late_arriving_data_adjustment  = "120s"
+ }
+}
+`, context)
+}
+
+func TestAccChronicleRuleDeployment_chronicleRuledeploymentLegacyRunFrequencyDiffSuppressedExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccChronicleRuleDeployment_chronicleRuledeploymentLegacyRunFrequencyDiffSuppressedExample(context),
+			},
+			{
+				ResourceName:            "google_chronicle_rule_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance", "location", "rule"},
+			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccChronicleRuleDeployment_chronicleRuledeploymentLegacyRunFrequencyDiffSuppressedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_chronicle_rule" "my-rule" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ text = <<-EOT
+             rule test_rule {
+               meta:
+                 description = "test multi-event rule for diff suppression"
+               events:
+                 $e1.metadata.event_type = "USER_LOGIN"
+                 $e1.principal.user.userid = $user
+                 $e2.metadata.event_type = "USER_LOGOUT"
+                 $e2.principal.user.userid = $user
+               match:
+                 $user over 10m
+               condition:
+                 $e1 and $e2
+             }
+         EOT
+}
+
+resource "google_chronicle_rule_deployment" "example" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ rule = element(split("/", resource.google_chronicle_rule.my-rule.name), length(split("/", resource.google_chronicle_rule.my-rule.name)) - 1)
+ enabled = true
+ alerting = true
+ archived = false
+ run_frequency = "LIVE"
+}
+`, context)
+}
+
+func TestAccChronicleRuleDeployment_chronicleRuledeploymentSingleEventDiffSuppressedExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccChronicleRuleDeployment_chronicleRuledeploymentSingleEventDiffSuppressedExample(context),
+			},
+			{
+				ResourceName:            "google_chronicle_rule_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance", "location", "rule"},
+			},
+			{
+				ResourceName:       "google_chronicle_rule_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccChronicleRuleDeployment_chronicleRuledeploymentSingleEventDiffSuppressedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_chronicle_rule" "my-single-event-rule" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ text = <<-EOT
+             rule test_single_event_rule {
+               meta:
+                 description = "test single event rule for diff suppression"
+               events:
+                 $e.metadata.event_type = "USER_LOGIN"
+               condition:
+                 $e
+             }
+         EOT
+}
+
+resource "google_chronicle_rule_deployment" "example" {
+ location = "us"
+ instance = "%{chronicle_id}"
+ rule = element(split("/", resource.google_chronicle_rule.my-single-event-rule.name), length(split("/", resource.google_chronicle_rule.my-single-event-rule.name)) - 1)
+ enabled = true
+ alerting = true
+ archived = false
+ run_frequency = "HOURLY"
 }
 `, context)
 }
