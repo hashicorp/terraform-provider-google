@@ -40,7 +40,7 @@ BUG FIXES:
 * recaptchaenterprise: fixed updates to `google_recaptcha_enterprise_key` so existing `challenge_settings.action_settings` entries are preserved when the action map changes ([#28673](https://github.com/hashicorp/terraform-provider-google/pull/28673))
 * servicenetworking: fixed `google_service_networking_connection` ignoring the configured `delete` timeout, which used the `create` timeout instead ([#28641](https://github.com/hashicorp/terraform-provider-google/pull/28641))
 
-## 7.43.0 (Unreleased)
+## 7.43.0 (August 4, 2026)
 
 NOTES:
 * docs(workflows): added warning to `source_contents` field on `google_workflows_workflow` noting that it will become required in version 8.0.0 ([#28524](https://github.com/hashicorp/terraform-provider-google/pull/28524))
