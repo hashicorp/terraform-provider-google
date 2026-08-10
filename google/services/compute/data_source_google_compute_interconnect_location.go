@@ -140,42 +140,50 @@ func dataSourceGoogleComputeInterconnectLocationRead(d *schema.ResourceData, met
 	}
 	name := d.Get("name").(string)
 	id := fmt.Sprintf("projects/%s/global/interconnectlocations/%s", project, name)
-	location, err := NewClient(config, userAgent).InterconnectLocations.Get(project, name).Do()
+	// The REST URL uses camelCase interconnectLocations; the Terraform ID keeps
+	// the historical lowercase interconnectlocations form.
+	url := fmt.Sprintf("%sprojects/%s/global/interconnectLocations/%s", transport_tpg.BaseUrl(Product, config), project, name)
+	location, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("InterconnectLocation Not Found : %s", name), id)
 	}
-	d.SetId(location.Name)
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("self_link", location.SelfLink); err != nil {
+	if err := d.Set("self_link", location["selfLink"]); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
-	if err := d.Set("description", location.Description); err != nil {
+	if err := d.Set("description", location["description"]); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
-	if err := d.Set("peeringdb_facility_id", location.PeeringdbFacilityId); err != nil {
+	if err := d.Set("peeringdb_facility_id", location["peeringdbFacilityId"]); err != nil {
 		return fmt.Errorf("Error setting peeringdb_facility_id: %s", err)
 	}
-	if err := d.Set("address", location.Address); err != nil {
+	if err := d.Set("address", location["address"]); err != nil {
 		return fmt.Errorf("Error setting address: %s", err)
 	}
-	if err := d.Set("facility_provider", location.FacilityProvider); err != nil {
+	if err := d.Set("facility_provider", location["facilityProvider"]); err != nil {
 		return fmt.Errorf("Error setting facility_provider: %s", err)
 	}
-	if err := d.Set("facility_provider_facility_id", location.FacilityProviderFacilityId); err != nil {
+	if err := d.Set("facility_provider_facility_id", location["facilityProviderFacilityId"]); err != nil {
 		return fmt.Errorf("Error setting facility_provider_facility_id: %s", err)
 	}
-	if err := d.Set("continent", location.Continent); err != nil {
+	if err := d.Set("continent", location["continent"]); err != nil {
 		return fmt.Errorf("Error setting continent: %s", err)
 	}
-	if err := d.Set("city", location.City); err != nil {
+	if err := d.Set("city", location["city"]); err != nil {
 		return fmt.Errorf("Error setting city: %s", err)
 	}
-	if err := d.Set("availability_zone", location.AvailabilityZone); err != nil {
+	if err := d.Set("availability_zone", location["availabilityZone"]); err != nil {
 		return fmt.Errorf("Error setting availability_zone: %s", err)
 	}
-	if err := d.Set("status", location.Status); err != nil {
+	if err := d.Set("status", location["status"]); err != nil {
 		return fmt.Errorf("Error setting status: %s", err)
 	}
 	d.SetId(id)
