@@ -1,0 +1,3 @@
+```release-note:note
+datasource: migrated google_compute_networks data source to use direct HTTP rather than a client library
+```
