@@ -246,6 +246,7 @@ Cannot specify both 'app_engine_apis' and 'app_engine_bundled_services' together
 			},
 			"automatic_scaling": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Automatic scaling is based on request rate, response latencies, and other application metrics.`,
 				MaxItems:    1,
