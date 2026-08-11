@@ -5,7 +5,7 @@ generation_type: mmv1
 source_file: products/compute/RegionDisk.yaml
 api_service_name: compute.googleapis.com
 api_version: v1
-api_resource_type_kind: Disk
+api_resource_type_kind: RegionDisk
 fields:
     - api_field: accessMode
     - api_field: asyncPrimaryDisk.disk
