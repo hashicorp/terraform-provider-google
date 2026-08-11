@@ -143,8 +143,9 @@ func resourceComputeSharedVpcServiceProjectRead(d *schema.ResourceData, meta int
 		return nil
 	}
 
-	if hostProject != associatedHostProject["name"].(string) {
-		log.Printf("[WARN] Removing shared VPC service. Expected associated host project to be '%s', got '%s'", hostProject, associatedHostProject["name"].(string))
+	associatedHostProjectName, _ := associatedHostProject["name"].(string)
+	if hostProject != associatedHostProjectName {
+		log.Printf("[WARN] Removing shared VPC service. Expected associated host project to be '%s', got '%s'", hostProject, associatedHostProjectName)
 		d.SetId("")
 		return nil
 	}
