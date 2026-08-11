@@ -244,6 +244,9 @@ func FlattenSchedulingHTTP(resp map[string]interface{}) []map[string]interface{}
 	if v, ok := resp["automaticRestart"]; ok {
 		schedulingMap["automatic_restart"] = v
 	}
+	if v, ok := resp["hostErrorTimeoutSeconds"]; ok {
+		schedulingMap["host_error_timeout_seconds"] = ParseIntHTTP(v)
+	}
 
 	if maxDurRaw, ok := resp["maxRunDuration"]; ok && maxDurRaw != nil {
 		maxDur := maxDurRaw.(map[string]interface{})

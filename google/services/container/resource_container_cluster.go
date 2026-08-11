@@ -126,6 +126,7 @@ var (
 		"addons_config.0.slurm_operator_config",
 		"addons_config.0.node_readiness_config",
 		"addons_config.0.agent_sandbox_config",
+		"addons_config.0.high_scale_checkpointing_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -447,6 +448,22 @@ func ResourceContainerCluster() *schema.Resource {
 							MaxItems:      1,
 							Description:   `The status of the NodeLocal DNSCache addon. It is disabled by default. Set enabled = true to enable.`,
 							ConflictsWith: []string{"enable_autopilot"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+						"high_scale_checkpointing_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `The status of the High Scale Checkpointing addon. Defaults to disabled; set enabled = true to enable.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -5680,6 +5697,14 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
+	if v, ok := config["high_scale_checkpointing_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.HighScaleCheckpointingConfig = &container.HighScaleCheckpointingConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+	}
+
 	if v, ok := config["gce_persistent_disk_csi_driver_config"]; ok && len(v.([]interface{})) > 0 {
 		addon := v.([]interface{})[0].(map[string]interface{})
 		ac.GcePersistentDiskCsiDriverConfig = &container.GcePersistentDiskCsiDriverConfig{
@@ -7316,6 +7341,14 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 		result["dns_cache_config"] = []map[string]interface{}{
 			{
 				"enabled": c.DnsCacheConfig.Enabled,
+			},
+		}
+	}
+
+	if c.HighScaleCheckpointingConfig != nil {
+		result["high_scale_checkpointing_config"] = []map[string]interface{}{
+			{
+				"enabled": c.HighScaleCheckpointingConfig.Enabled,
 			},
 		}
 	}

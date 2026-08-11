@@ -49,7 +49,7 @@ resource "google_chronicle_rule_deployment" "example" {
  enabled = true
  alerting = true
  archived = false
- run_frequency = "DAILY"
+ run_frequency = "LIVE"
 }
 ```
 ## Example Usage - Chronicle Ruledeployment Disabled
@@ -138,6 +138,18 @@ The following arguments are supported:
   LIVE
   HOURLY
   DAILY
+  LIVE_CUSTOMIZABLE
+  HOURLY_CUSTOMIZABLE
+  Note: Certain legacy run frequencies are deprecated. For multi-event rules, use LIVE_CUSTOMIZABLE or HOURLY_CUSTOMIZABLE (for match windows <=2d), or DAILY (for match windows >2d).
+  Legacy values LIVE and HOURLY are mapped to their customizable counterparts on the backend. DAILY for <=2d match window multi-event rules will be happed to HOURLY_CUSTOMIZABLE.
+  For single-event rules, HOURLY and DAILY are deprecated and mapped to LIVE. If you continue to use deprecated values in your Terraform configuration, Terraform will silently
+  suppress the diff and ignore the changes to prevent infinite update loops.
+
+* `schedule_customizations` -
+  (Optional)
+  The schedule customizations of the rule deployment. Only valid for
+  customizable run frequencies.
+  Structure is [documented below](#nested_schedule_customizations).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -149,6 +161,17 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
+
+<a name="nested_schedule_customizations"></a>The `schedule_customizations` block supports:
+
+* `ensure_enrichment_completeness` -
+  (Optional)
+  Indicates whether to add additional delays and runs to rules to ensure
+  enrichment completeness, with the trade-off of more late-arriving detections.
+
+* `late_arriving_data_adjustment` -
+  (Optional)
+  Delay the first rule execution run to account for late-arriving data.
 
 ## Attributes Reference
 

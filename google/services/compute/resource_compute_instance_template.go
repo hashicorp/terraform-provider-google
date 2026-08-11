@@ -51,6 +51,7 @@ var (
 		"scheduling.0.max_run_duration",
 		"scheduling.0.on_instance_stop_action",
 		"scheduling.0.termination_time",
+		"scheduling.0.host_error_timeout_seconds",
 		"scheduling.0.local_ssd_recovery_timeout",
 	}
 
@@ -861,6 +862,12 @@ be from 0 to 999,999,999 inclusive.`,
 							Description: `Specifies the timestamp, when the instance will be terminated,
 in RFC3339 text format. If specified, the instance termination action
 will be performed at the termination time.`,
+						},
+						"host_error_timeout_seconds": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specify the time in seconds for host error detection, the value must be within the range of [90, 330] with the increment of 30, if unset, the default behavior of host error recovery will be used.`,
 						},
 						"local_ssd_recovery_timeout": {
 							Type:     schema.TypeList,
@@ -2149,6 +2156,13 @@ func expandResourceComputeInstanceTemplateScheduling(d *schema.ResourceData, met
 	} {
 		if _, ok := expanded[pair[0]]; ok {
 			schedulingTyped.ForceSendFields = append(schedulingTyped.ForceSendFields, pair[1])
+		}
+	}
+	if v, ok := expanded["hostErrorTimeoutSeconds"]; ok {
+		if v == nil {
+			schedulingTyped.NullFields = append(schedulingTyped.NullFields, "HostErrorTimeoutSeconds")
+		} else {
+			schedulingTyped.ForceSendFields = append(schedulingTyped.ForceSendFields, "HostErrorTimeoutSeconds")
 		}
 	}
 	return schedulingTyped, nil

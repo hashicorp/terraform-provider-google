@@ -755,30 +755,20 @@ func canonicalizeKeyWebSettingsChallengeSettingsActionSettingsMap(des, initial m
 		return initial
 	}
 
-	if len(des) != len(initial) {
-		items := make(map[string]KeyWebSettingsChallengeSettingsActionSettings)
-		for k, d := range des {
-			cd := canonicalizeKeyWebSettingsChallengeSettingsActionSettings(&d, nil, opts...)
-			if cd != nil {
-				items[k] = *cd
-			}
-		}
-		return items
-	}
-
 	items := make(map[string]KeyWebSettingsChallengeSettingsActionSettings)
 	for k, d := range des {
-		i, ok := initial[k]
-		if ok {
-			cd := canonicalizeKeyWebSettingsChallengeSettingsActionSettings(&d, &i, opts...)
-			if cd != nil {
-				items[k] = *cd
+		if initial != nil {
+			if i, ok := initial[k]; ok {
+				cd := canonicalizeKeyWebSettingsChallengeSettingsActionSettings(&d, &i, opts...)
+				if cd != nil {
+					items[k] = *cd
+				}
+				continue
 			}
-		} else {
-			cd := canonicalizeKeyWebSettingsChallengeSettingsActionSettings(&d, nil, opts...)
-			if cd != nil {
-				items[k] = *cd
-			}
+		}
+		cd := canonicalizeKeyWebSettingsChallengeSettingsActionSettings(&d, nil, opts...)
+		if cd != nil {
+			items[k] = *cd
 		}
 	}
 	return items

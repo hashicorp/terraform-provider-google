@@ -25,25 +25,21 @@ Represents an IAM v3 Access Policy parented by a Folder. This policy defines rul
 that allow or deny access to resources within the specified folder based on principals and conditions.
 See the Cloud IAM documentation for more details on Access Policies.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about FolderAccessPolicy, see:
 
-* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3beta/folders.locations.accessPolicies)
+* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v3/folders.locations.accessPolicies)
 
 ## Example Usage - Access Policy Folder Minimal
 
 
 ```hcl
 resource "google_folder" "folder" {
-  provider     = google-beta
   display_name = "ap-folder-"
   parent       = "organizations/123456789"
   deletion_protection = false
 }
 resource "google_project" "project" {
-  provider        = google-beta
   project_id      = "ap-project-"
   name            = "ap-project-"
   folder_id       = google_folder.folder.folder_id
@@ -52,7 +48,6 @@ resource "google_project" "project" {
   depends_on = [google_folder.folder]
 }
 resource "google_project_service" "iam_api" {
-  provider = google-beta
   project  = google_project.project.project_id
   service  = "iam.googleapis.com"
   disable_on_destroy = false
@@ -66,7 +61,6 @@ resource "time_sleep" "wait_for_propagation" {
   ]
 }
 resource "google_service_account" "test_sa" {
-  provider        = google-beta
   account_id   = "svc-acc-"
   display_name = "Test Service Account for Access Policy"
   project      = google_project.project.project_id
@@ -75,7 +69,6 @@ resource "google_service_account" "test_sa" {
   ]
 }
 resource "google_iam_folder_access_policy" "example" {
-  provider          = google-beta
   folder            = google_folder.folder.folder_id
   location          = "global"
   access_policy_id  = "my-folder-policy-"

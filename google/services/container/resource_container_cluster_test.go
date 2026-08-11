@@ -18366,3 +18366,65 @@ resource "google_container_cluster" "with_nrc_config" {
 }
 `, clusterName, networkName, subnetworkName, enabled)
 }
+
+func TestAccContainerCluster_withHighScaleCheckpointingConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-hsc-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_switchHighScaleCheckpointingConfig(clusterName, networkName, subnetworkName, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_hsc_config", "addons_config.0.high_scale_checkpointing_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_hsc_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_switchHighScaleCheckpointingConfig(clusterName, networkName, subnetworkName, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_hsc_config", "addons_config.0.high_scale_checkpointing_config.0.enabled", "false"),
+				),
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_switchHighScaleCheckpointingConfig(clusterName, networkName, subnetworkName string, enabled bool) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_container_cluster" "with_hsc_config" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+
+  addons_config {
+    high_scale_checkpointing_config {
+      enabled = %t
+    }
+    gcs_fuse_csi_driver_config {
+      enabled = true
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName, enabled)
+}

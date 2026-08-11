@@ -833,6 +833,12 @@ be from 0 to 999,999,999 inclusive.`,
 								},
 							},
 						},
+						"host_error_timeout_seconds": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specify the time in seconds for host error detection, the value must be within the range of [90, 330] with the increment of 30, if unset, the default behavior of host error recovery will be used.`,
+						},
 						"local_ssd_recovery_timeout": {
 							Type:     schema.TypeList,
 							Optional: true,

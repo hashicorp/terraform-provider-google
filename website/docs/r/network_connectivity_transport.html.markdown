@@ -74,10 +74,6 @@ The following arguments are supported:
   Resource URL of the remoteTransportProfile that this Transport is
   connecting to.
 
-* `network` -
-  (Required)
-  Resource URL of the Network that will be peered with this Transport. This field must be provided during resource creation and cannot be changed.
-
 * `region` -
   (Required)
   The region of this resource. This is required to construct the resource name, but is not sent to the API since the region is already contained in the parent field.
@@ -113,6 +109,10 @@ The following arguments are supported:
 * `admin_enabled` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   Administrative state of the underlying connectivity. If set to true (default), connectivity should be available between your environments. If set to false, the connectivity over these links is disabled. Disabling your Transport does not affect billing, and retains the underlying network bandwidth associated with the connectivity.
+
+* `network` -
+  (Optional)
+  Resource URL of the Network that will be peered with this Transport. This field must be provided during resource creation and cannot be changed.
 
 * `advertised_routes` -
   (Optional)

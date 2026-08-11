@@ -78,6 +78,31 @@ func ResourceSqlProvisionScript() *schema.Resource {
 				google_sql_database.`,
 			},
 
+			"user": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"password_secret_version"},
+				Description: `The name of the built-in database user to authenticate as. For MySQL user,
+				omit '@' and the hostname. The user should exist as a built-in user in the database.
+				When user and password_secret_version are provided, the script is run using this user. Otherwise,
+				the script is run using the identity account used to apply your Terraform config.
+				Changing this forces the script to be run using the new user.`,
+			},
+
+			"password_secret_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"user"},
+				Description: `The resource name of the Secret Manager secret storing the password. The secret
+				should be a regional secret and stored in the exact same region as the Cloud SQL instance.
+				Follow https://docs.cloud.google.com/secret-manager/regional-secrets/create-regional-secret.
+				When user and password_secret_version are provided, the script is run using this user.
+				Otherwise, the script is run using the identity account used to apply your Terraform config.
+				Changing this field forces the script to be run again.`,
+			},
+
 			"project": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -116,12 +141,25 @@ func resourceSqlProvisionScriptCreate(d *schema.ResourceData, meta interface{}) 
 	instance := d.Get("instance").(string)
 	database := d.Get("database").(string)
 	script := d.Get("script").(string)
+	user := d.Get("user").(string)
+	secret := d.Get("password_secret_version").(string)
 
-	executeSqlPayload := &sqladmin.ExecuteSqlPayload{
-		SqlStatement: script,
-		Database:     database,
-		AutoIamAuthn: true,
-		Application:  "Hashicorp_Terraform",
+	var executeSqlPayload *sqladmin.ExecuteSqlPayload
+	if user == "" || secret == "" {
+		executeSqlPayload = &sqladmin.ExecuteSqlPayload{
+			SqlStatement: script,
+			Database:     database,
+			AutoIamAuthn: true,
+			Application:  "Hashicorp_Terraform",
+		}
+	} else {
+		executeSqlPayload = &sqladmin.ExecuteSqlPayload{
+			SqlStatement:          script,
+			Database:              database,
+			User:                  user,
+			PasswordSecretVersion: secret,
+			Application:           "Hashicorp_Terraform",
+		}
 	}
 
 	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))

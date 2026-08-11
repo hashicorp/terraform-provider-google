@@ -468,11 +468,12 @@ Defaults to 1 second. Must be smaller than period_seconds.`,
 'resources' is set, this field must be explicitly set to true to preserve the default behavior.`,
 												},
 												"limits": {
-													Type:        schema.TypeMap,
-													Computed:    true,
-													Optional:    true,
-													Description: `Only memory, CPU, and nvidia.com/gpu are supported. Use key 'cpu' for CPU limit, 'memory' for memory limit, 'nvidia.com/gpu' for gpu limit. Note: The only supported values for CPU are '1', '2', '4', '6' and '8'. Setting 4 CPU requires at least 2Gi of memory, setting 6 or more CPU requires at least 4Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go`,
-													Elem:        &schema.Schema{Type: schema.TypeString},
+													Type:             schema.TypeMap,
+													Computed:         true,
+													Optional:         true,
+													DiffSuppressFunc: cloudRunV2ServiceResourceLimitsDiffSuppress,
+													Description:      `Only memory, CPU, and nvidia.com/gpu are supported. Use key 'cpu' for CPU limit, 'memory' for memory limit, 'nvidia.com/gpu' for gpu limit. Note: The only supported values for CPU are '1', '2', '4', '6' and '8'. Setting 4 CPU requires at least 2Gi of memory, setting 6 or more CPU requires at least 4Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go`,
+													Elem:             &schema.Schema{Type: schema.TypeString},
 												},
 												"startup_cpu_boost": {
 													Type:        schema.TypeBool,
@@ -725,6 +726,7 @@ If not specified or 0, defaults to 80 when requested CPU >= 1 and defaults to 1 
 								Schema: map[string]*schema.Schema{
 									"max_instance_count": {
 										Type:     schema.TypeInt,
+										Computed: true,
 										Optional: true,
 										Description: `Maximum number of serving instances that this resource should have. Must not be less than minimum instance count. If absent, Cloud Run will calculate
 a default value based on the project's available container instances quota in the region and specified instance size.`,

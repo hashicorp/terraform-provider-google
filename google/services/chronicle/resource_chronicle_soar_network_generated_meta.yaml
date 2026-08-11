@@ -1,0 +1,23 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_chronicle_soar_network
+generation_type: mmv1
+source_file: products/chronicle/SoarNetwork.yaml
+api_service_name: chronicle.googleapis.com
+api_version: v1
+api_resource_type_kind: SoarNetwork
+autogen_status: true
+autogen_version: 1
+fields:
+    - api_field: address
+    - api_field: displayName
+    - api_field: environmentsJson
+    - field: instance
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: priority
+    - api_field: soarNetworkId
+    - field: deletion_policy
+      provider_only: true

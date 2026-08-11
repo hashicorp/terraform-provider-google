@@ -113,6 +113,7 @@ func ResourceBigqueryReservationReservation() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
@@ -194,6 +195,17 @@ the same admin project. If true, a query using this reservation will execute wit
 capacity specified above at most.`,
 				Default: false,
 			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `The labels associated with this reservation. You can use these to
+organize and group your reservations.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -215,6 +227,12 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 reservations using the managed disaster recovery feature. Users can set this in create
 reservation calls to create a failover reservation or in update reservation calls to convert
 a non-failover reservation to a failover reservation(or vice versa).`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"original_primary_location": {
 				Type:     schema.TypeString,
@@ -275,6 +293,13 @@ replicated to the secondary.`,
 						},
 					},
 				},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -348,6 +373,12 @@ func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("reservation_group"); !tpgresource.IsEmptyValue(reflect.ValueOf(reservationGroupProp)) && (ok || !reflect.DeepEqual(v, reservationGroupProp)) {
 		obj["reservationGroup"] = reservationGroupProp
+	}
+	effectiveLabelsProp, err := expandBigqueryReservationReservationEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/reservations?reservationId={{name}}")
@@ -591,6 +622,12 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("reservation_group"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, reservationGroupProp)) {
 		obj["reservationGroup"] = reservationGroupProp
 	}
+	effectiveLabelsProp, err := expandBigqueryReservationReservationEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/reservations/{{name}}")
 	if err != nil {
@@ -623,6 +660,10 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("reservation_group") {
 		updateMask = append(updateMask, "reservationGroup")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -905,6 +946,40 @@ func flattenBigqueryReservationReservationReservationGroup(v interface{}, d *sch
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenBigqueryReservationReservationLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenBigqueryReservationReservationTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenBigqueryReservationReservationEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBigqueryReservationReservationSlotCapacity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -966,6 +1041,17 @@ func expandBigqueryReservationReservationReservationGroup(v interface{}, d tpgre
 	return v, nil
 }
 
+func expandBigqueryReservationReservationEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func ResourceBigqueryReservationReservationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -997,6 +1083,15 @@ func ResourceBigqueryReservationReservationFlatten(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 	if err = d.Set("reservation_group", flattenBigqueryReservationReservationReservationGroup(res["reservationGroup"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+	if err = d.Set("labels", flattenBigqueryReservationReservationLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenBigqueryReservationReservationTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenBigqueryReservationReservationEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 

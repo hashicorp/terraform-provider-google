@@ -245,7 +245,7 @@ The following arguments are supported:
 * `app_engine_apis` -
   (Optional)
   Allows App Engine second generation runtimes to access the legacy bundled services.
-  Cannot specify both `app_engine_apis` and 'app_engine_bundled_services` together.
+  Cannot specify both `app_engine_apis` and `app_engine_bundled_services` together.
 
 * `runtime_api_version` -
   (Optional)

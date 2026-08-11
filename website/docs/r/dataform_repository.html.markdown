@@ -23,12 +23,10 @@ description: |-
 
 A resource represents a Dataform Git repository
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about Repository, see:
 
-* [API documentation](https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.repositories)
+* [API documentation](https://cloud.google.com/dataform/reference/rest/v1/projects.locations.repositories)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dataform/docs/)
 
@@ -37,7 +35,6 @@ To get more information about Repository, see:
 
 ```hcl
 resource "google_secret_manager_secret" "secret" {
-  provider = google-beta
   secret_id = "my-secret"
 
   replication {
@@ -46,28 +43,24 @@ resource "google_secret_manager_secret" "secret" {
 }
 
 resource "google_secret_manager_secret_version" "secret_version" {
-  provider = google-beta
   secret = google_secret_manager_secret.secret.id
 
   secret_data = "secret-data"
 }
 
 resource "google_kms_key_ring" "keyring" {
-  provider = google-beta
   
   name     = "example-key-ring"
   location = "us-central1"
 }
 
 resource "google_kms_crypto_key" "example_key" {
-  provider = google-beta
   
   name            = "example-crypto-key-name"
   key_ring        = google_kms_key_ring.keyring.id
 }
 
 resource "google_kms_crypto_key_iam_binding" "crypto_key_binding" {
-  provider = google-beta
 
   crypto_key_id = google_kms_crypto_key.example_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
@@ -78,7 +71,6 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key_binding" {
 }
 
 resource "google_dataform_repository" "dataform_repository" {
-  provider = google-beta
   name = "dataform_repository"
   display_name = "dataform_repository"
   npmrc_environment_variables_secret_version = google_secret_manager_secret_version.secret_version.id
@@ -196,7 +188,7 @@ Possible values: `DELETE`, `FORCE`, 'PREVENT', 'ABANDON'. Defaults to `DELETE`.
 
 * `token_status` -
   (Output)
-  Indicates the status of the Git access token. https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.repositories#TokenStatus
+  Indicates the status of the Git access token. https://cloud.google.com/dataform/reference/rest/v1/projects.locations.repositories#TokenStatus
 
 
 <a name="nested_git_remote_settings_ssh_authentication_config"></a>The `ssh_authentication_config` block supports:
