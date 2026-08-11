@@ -1441,6 +1441,7 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+
 	// Build custom mask since the notebooks API does not support gce_setup as a valid mask
 	restartRequiredKeys := []string{
 		"disable-mixer",

@@ -623,6 +623,7 @@ func resourceSpannerBackupScheduleUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+
 	// The generated code sets the wrong masks for the following fields.
 	newUpdateMask := []string{}
 	if d.HasChange("spec.0.cron_spec.0.text") {

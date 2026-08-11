@@ -762,6 +762,7 @@ func resourcePrivilegedAccessManagerEntitlementUpdate(d *schema.ResourceData, me
 	if err != nil {
 		return err
 	}
+
 	approvalWorkflowProp, err := expandPrivilegedAccessManagerEntitlementApprovalWorkflow(d.Get("approval_workflow"), d, config)
 	if err != nil {
 		return err

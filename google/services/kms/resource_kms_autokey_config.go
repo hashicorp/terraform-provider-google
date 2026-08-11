@@ -377,6 +377,7 @@ func resourceKMSAutokeyConfigUpdate(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Updating AutokeyConfig %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
 	url = strings.Replace(url, "folders/folders/", "folders/", 1)
 
 	// err == nil indicates that the billing_project value was found

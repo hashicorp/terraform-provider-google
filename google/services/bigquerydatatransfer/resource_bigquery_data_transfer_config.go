@@ -791,6 +791,7 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Updating Config %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
 	updateMask := []string{}
 	if v, ok := d.GetOk("service_account_name"); ok {
 		if v != nil && d.HasChange("service_account_name") {

@@ -626,6 +626,7 @@ func resourceComputeNetworkEndpointsUpdate(d *schema.ResourceData, meta interfac
 
 	log.Printf("[DEBUG] Updating NetworkEndpoints %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
 	detachUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}/detachNetworkEndpoints")
 	o, n := d.GetChange("network_endpoints")
 

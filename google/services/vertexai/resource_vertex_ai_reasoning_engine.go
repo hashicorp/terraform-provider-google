@@ -1251,6 +1251,7 @@ func resourceVertexAIReasoningEngineUpdate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+
 	// Remove unchanged fields from the request body to avoid API validation errors on defaulted fields.
 	if !d.HasChange("context_spec") {
 		delete(obj, "contextSpec")

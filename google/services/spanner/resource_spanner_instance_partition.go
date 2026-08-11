@@ -623,6 +623,7 @@ func resourceSpannerInstancePartitionUpdate(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Updating InstancePartition %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
 	delete(obj, "instancePartitionId")
 	fieldMask := []string{}
 

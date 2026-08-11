@@ -573,6 +573,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Updating TagTemplate %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
 	updateMask := []string{}
 
 	if d.HasChange("display_name") {
