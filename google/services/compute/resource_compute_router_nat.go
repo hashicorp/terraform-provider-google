@@ -1275,6 +1275,11 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Updating RouterNat %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
+	obj, err = resourceComputeRouterNatPatchUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
 	natType := d.Get("type").(string)
 	if natType == "PRIVATE" {
 		rules := d.Get("rules").(*schema.Set)
@@ -1300,11 +1305,6 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 				return fmt.Errorf("The rule for PRIVATE nat type must contain an action with source_nat_active_ranges set")
 			}
 		}
-	}
-
-	obj, err = resourceComputeRouterNatPatchUpdateEncoder(d, meta, obj)
-	if err != nil {
-		return err
 	}
 
 	// err == nil indicates that the billing_project value was found

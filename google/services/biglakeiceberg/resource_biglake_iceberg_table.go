@@ -919,10 +919,10 @@ func resourceBiglakeIcebergIcebergTableUpdate(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Updating IcebergTable %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
 	if err := addIcebergTableAccessDelegationHeader(d, config, billingProject, userAgent, headers); err != nil {
 		return err
 	}
-
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
 		billingProject = parts[1]
 	}

@@ -1,0 +1,3 @@
+```release-note:enhancement
+accesscontextmanager: supported in-place updates for `google_access_context_manager_service_perimeter_dry_run_ingress_policy` and `google_access_context_manager_service_perimeter_dry_run_egress_policy`
+```

@@ -2335,6 +2335,7 @@ func resourceDialogflowCXPageUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+
 	// extract location from the parent
 	location := ""
 

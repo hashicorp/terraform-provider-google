@@ -900,6 +900,7 @@ func resourceIntegrationsAuthConfigUpdate(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Updating AuthConfig %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
 	params := map[string]string{}
 
 	// Move client certificate to url param from request body

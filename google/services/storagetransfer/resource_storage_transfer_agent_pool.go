@@ -470,6 +470,7 @@ func resourceStorageTransferAgentPoolUpdate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+
 	if err := waitForAgentPoolReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
 		return fmt.Errorf("Error waiting for AgentPool %q to be CREATED before updating: %q", d.Get("name").(string), err)
 	}

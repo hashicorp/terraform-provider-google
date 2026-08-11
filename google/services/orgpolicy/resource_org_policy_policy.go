@@ -704,6 +704,7 @@ func resourceOrgPolicyPolicyUpdate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Updating Policy %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
 	updateMask := []string{}
 
 	if d.HasChange("spec") {
