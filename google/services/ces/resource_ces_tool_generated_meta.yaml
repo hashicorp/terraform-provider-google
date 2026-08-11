@@ -115,6 +115,7 @@ fields:
     - api_field: dataStoreTool.modalityConfigs.rewriterConfig.modelSettings.model
     - api_field: dataStoreTool.modalityConfigs.rewriterConfig.modelSettings.temperature
     - api_field: dataStoreTool.modalityConfigs.rewriterConfig.prompt
+    - api_field: dataStoreTool.modalityConfigs.snippetsConfig.enableSnippets
     - api_field: dataStoreTool.modalityConfigs.summarizationConfig.disabled
     - api_field: dataStoreTool.modalityConfigs.summarizationConfig.modelSettings.model
     - api_field: dataStoreTool.modalityConfigs.summarizationConfig.modelSettings.temperature
@@ -184,6 +185,7 @@ fields:
     - api_field: pythonFunction.description
     - api_field: pythonFunction.name
     - api_field: pythonFunction.pythonCode
+    - api_field: pythonFunction.serviceDirectoryConfig.service
     - api_field: remoteAgentTool.agentCard.description
     - api_field: remoteAgentTool.agentCard.name
     - api_field: remoteAgentTool.agentCard.skills.description

@@ -1110,6 +1110,11 @@ The following arguments are supported:
   Rewriter configuration.
   Structure is [documented below](#nested_data_store_tool_modality_configs_rewriter_config).
 
+* `snippets_config` -
+  (Optional)
+  Snippets configuration.
+  Structure is [documented below](#nested_data_store_tool_modality_configs_snippets_config).
+
 * `summarization_config` -
   (Optional)
   Summarization configuration.
@@ -1161,6 +1166,12 @@ The following arguments are supported:
   controls the randomness of the model's responses. Lower temperatures
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
+
+<a name="nested_data_store_tool_modality_configs_snippets_config"></a>The `snippets_config` block supports:
+
+* `enable_snippets` -
+  (Optional)
+  Whether snippets are enabled.
 
 <a name="nested_data_store_tool_modality_configs_summarization_config"></a>The `summarization_config` block supports:
 
@@ -1283,6 +1294,19 @@ The following arguments are supported:
 * `python_code` -
   (Optional)
   The Python code to execute for the tool.
+
+* `service_directory_config` -
+  (Optional)
+  Service Directory configuration for the tool.
+  Structure is [documented below](#nested_python_function_service_directory_config).
+
+
+<a name="nested_python_function_service_directory_config"></a>The `service_directory_config` block supports:
+
+* `service` -
+  (Required)
+  The name of Service Directory service.
+  Format: projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}
 
 <a name="nested_tool_fake_config"></a>The `tool_fake_config` block supports:
 
