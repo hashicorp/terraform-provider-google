@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed permadiff on `adaptive_protection_config.layer_7_ddos_defense_config.enable` in `google_compute_security_policy` when field is not set in config
+```
