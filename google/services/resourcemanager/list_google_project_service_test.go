@@ -36,7 +36,7 @@ func TestAccProjectServiceListResource_queryIdentity(t *testing.T) {
 	t.Parallel()
 
 	service := "iam.googleapis.com"
-	project := resourcemanager.BootstrapProject(t, "tf-boot-proj-svc-list-", envvar.GetTestBillingAccountFromEnv(t), []string{service}).ProjectId
+	project := resourcemanager.BootstrapProject(t, "tf-boot-rms-list-", envvar.GetTestBillingAccountFromEnv(t), []string{service}).ProjectId
 
 	acctest.VcrTest(t, resource.TestCase{
 		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
