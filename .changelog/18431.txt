@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a panic in `google_compute_shared_vpc_service_project` during `terraform plan/refresh` when the shared VPC link had been removed outside of Terraform
+```
