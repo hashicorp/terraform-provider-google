@@ -90,10 +90,11 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "login" {
-  name        = "login"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
+  name                  = "login"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL"
 
   health_checks = [google_compute_http_health_check.default.id]
 }
@@ -523,28 +524,31 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "default"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
+  name                  = "default"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL"
 
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_backend_service" "service-a" {
-  name        = "service-a"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
+  name                  = "service-a"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL"
 
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_backend_service" "service-b" {
-  name        = "service-b"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
+  name                  = "service-b"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL"
 
   health_checks = [google_compute_http_health_check.default.id]
 }
@@ -607,28 +611,31 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "default"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
+  name                  = "default"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL"
 
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_backend_service" "service-a" {
-  name        = "service-a"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
+  name                  = "service-a"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL"
 
   health_checks = [google_compute_http_health_check.default.id]
 }
 
 resource "google_compute_backend_service" "service-b" {
-  name        = "service-b"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
+  name                  = "service-b"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL"
 
   health_checks = [google_compute_http_health_check.default.id]
 }
@@ -1195,10 +1202,11 @@ resource "google_compute_health_check" "health-check" {
 }
 
 resource "google_compute_backend_service" "backend" {
-  name        = "backend"
-  port_name   = "http"
-  protocol    = "HTTP"
-  timeout_sec = 10
+  name                  = "backend"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL"
 
   health_checks = [google_compute_health_check.health-check.id]
 }

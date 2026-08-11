@@ -121,6 +121,22 @@ The `http_get.http_headers.port` field of container startup probe and liveness p
 The `http_get.http_headers.name` field of container startup probe and liveness probe are now required in this resource. If `http_get.http_headers` field is used, add the sub field `http_get.http_headers.name` to your configuration after
 upgrading.
 
+## Resource: `google_compute_backend_service`
+
+### `load_balancing_scheme` default value changed to `EXTERNAL_MANAGED`
+
+The default value of `load_balancing_scheme` for `google_compute_backend_service` has been changed from `EXTERNAL` to `EXTERNAL_MANAGED`.
+Configurations that do not set `load_balancing_scheme` will now default to `EXTERNAL_MANAGED` instead of `EXTERNAL`.
+To maintain the previous behavior (Classic Application Load Balancer), set `load_balancing_scheme = "EXTERNAL"` explicitly.
+
+## Resource: `google_compute_global_forwarding_rule`
+
+### `load_balancing_scheme` default value changed to `EXTERNAL_MANAGED`
+
+The default value of `load_balancing_scheme` for `google_compute_global_forwarding_rule` has been changed from `EXTERNAL` to `EXTERNAL_MANAGED`.
+Configurations that do not set `load_balancing_scheme` will now default to `EXTERNAL_MANAGED` instead of `EXTERNAL`.
+To maintain the previous behavior (Classic Application Load Balancer), set `load_balancing_scheme = "EXTERNAL"` explicitly.
+
 ## Resource: `google_netapp_storage_pool`
 
 ### `scale_tier` has been removed

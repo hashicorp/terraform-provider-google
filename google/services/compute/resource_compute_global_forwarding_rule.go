@@ -296,8 +296,8 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `Specifies the forwarding rule type.
 
 For more information about forwarding rules, refer to
-[Forwarding rule concepts](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts). Default value: "EXTERNAL" Possible values: ["EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL_MANAGED", "INTERNAL_SELF_MANAGED"]`,
-				Default: "EXTERNAL",
+[Forwarding rule concepts](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts). Default value: "EXTERNAL_MANAGED" Possible values: ["EXTERNAL", "EXTERNAL_MANAGED", "INTERNAL_MANAGED", "INTERNAL_SELF_MANAGED"]`,
+				Default: "EXTERNAL_MANAGED",
 			},
 			"metadata_filters": {
 				Type:     schema.TypeList,
