@@ -59,7 +59,7 @@ func ResourceLoggingProjectSink() *schema.Resource {
 		Type:        schema.TypeBool,
 		Optional:    true,
 		Default:     true,
-		Description: `Whether or not to create a unique identity associated with this sink. If false (the legacy behavior), then the writer_identity used is serviceAccount:cloud-logs@system.gserviceaccount.com. If true (default), then a unique service account is created and used for this sink. If you wish to publish logs across projects, you must set unique_writer_identity to true.`,
+		Description: `Whether to use a service agent as the writer_identity for this sink. If false (the legacy behavior), writer_identity is serviceAccount:cloud-logs@system.gserviceaccount.com and the sink's destination must be in the same project as the sink. If true (the default), writer_identity is a service agent shared by sinks with the same parent. You must set unique_writer_identity to true to publish logs across projects or use bigquery_options.`,
 	}
 	schm.Schema["custom_writer_identity"] = &schema.Schema{
 		Type:        schema.TypeString,

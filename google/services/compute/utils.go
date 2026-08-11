@@ -25,12 +25,22 @@ import (
 
 func GetInterconnectAttachmentLink(config *transport_tpg.Config, project, region, ic, userAgent string) (string, error) {
 	if !strings.Contains(ic, "/") {
-		icData, err := NewClient(config, userAgent).InterconnectAttachments.Get(
-			project, region, ic).Do()
+		url := fmt.Sprintf("%sprojects/%s/regions/%s/interconnectAttachments/%s", transport_tpg.BaseUrl(Product, config), project, region, ic)
+		icData, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
 		if err != nil {
 			return "", fmt.Errorf("Error reading interconnect attachment: %s", err)
 		}
-		ic = icData.SelfLink
+		selfLink, ok := icData["selfLink"].(string)
+		if !ok {
+			return "", fmt.Errorf("Error reading interconnect attachment: selfLink not found in response")
+		}
+		ic = selfLink
 	}
 
 	return ic, nil

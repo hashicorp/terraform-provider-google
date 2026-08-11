@@ -155,6 +155,11 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "cos-85-lts",
 			ExpectDiffSuppress: true,
 		},
+		"matching unconventional image family - fedora coreos dev": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/fedora-coreos-cloud/global/images/fedora-coreos-43-20260411-20-dev0-gcp-aarch64",
+			New:                "family/fedora-coreos-testing-devel-arm64",
+			ExpectDiffSuppress: true,
+		},
 		"different image family": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-8-jessie-v20171213",
 			New:                "family/debian-7",

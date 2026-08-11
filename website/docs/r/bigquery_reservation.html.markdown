@@ -51,6 +51,9 @@ resource "google_bigquery_reservation" "reservation" {
 	autoscale {
    	  max_slots = 100
     }
+	labels = {
+	  "environment" = "production"
+	}
 }
 ```
 
@@ -170,6 +173,14 @@ The following arguments are supported:
   (Optional)
   The reservation group that this reservation belongs to.
 
+* `labels` -
+  (Optional)
+  The labels associated with this reservation. You can use these to
+  organize and group your reservations.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `location` -
   (Optional)
   The geographic location where the transfer config should reside.
@@ -219,6 +230,13 @@ In addition to the arguments listed above, the following computed attributes are
   either not a DR reservation or the reservation is a DR secondary or that any replication
   operations on the reservation have succeeded.
   Structure is [documented below](#nested_replication_status).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_replication_status"></a>The `replication_status` block contains:

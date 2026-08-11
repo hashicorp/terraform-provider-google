@@ -1925,3 +1925,109 @@ resource "google_cloud_run_v2_service" "default" {
 }
 `, context)
 }
+
+// TestAccCloudRunV2Service_cloudrunv2ServiceMaxInstanceCountNoPermadiff is a regression test for
+// https://github.com/GoogleCloudPlatform/magic-modules/pull/18394.
+// When template.scaling.max_instance_count is not set, the API returns a computed default value.
+// Prior to the fix, the provider read that value as 0 on the next plan, producing a perpetual diff.
+func TestAccCloudRunV2Service_cloudrunv2ServiceMaxInstanceCountNoPermadiff(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create the service without an explicit max_instance_count so the API
+				// fills in its own default value.
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWithoutMaxInstanceCount(context),
+			},
+			{
+				// Plan-only step against the same config. After the first apply the API has
+				// populated max_instance_count with a computed default. Without
+				// default_from_api: true the provider would produce a diff (0 → <api-value>),
+				// causing this step to fail via ExpectNonEmptyPlan defaulting to false.
+				Config:   testAccCloudRunV2Service_cloudrunv2ServiceWithoutMaxInstanceCount(context),
+				PlanOnly: true,
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWithoutMaxInstanceCount(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name                = "tf-test-cloudrun-service%{random_suffix}"
+  location            = "us-central1"
+  deletion_protection = false
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+`, context)
+}
+
+// TestAccCloudRunV2Service_noPermadiffWithMemoryLimitOnly verifies that setting
+// only the memory key in template.containers.resources.limits does not produce a
+// perpetual diff. The API automatically adds a default cpu limit which should be
+// silently accepted. Regression test for:
+// https://github.com/hashicorp/terraform-provider-google/issues/20399
+func TestAccCloudRunV2Service_noPermadiffWithMemoryLimitOnly(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_memoryLimitOnly(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "deletion_protection"},
+			},
+			// Second plan must produce no diff (no permadiff on cpu limit key).
+			{
+				Config:   testAccCloudRunV2Service_memoryLimitOnly(context),
+				PlanOnly: true,
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_memoryLimitOnly(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name                = "tf-test-cloudrun-service%{random_suffix}"
+  location            = "us-central1"
+  deletion_protection = false
+  ingress             = "INGRESS_TRAFFIC_ALL"
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      resources {
+        limits = {
+          memory = "1Gi"
+        }
+      }
+    }
+  }
+}
+`, context)
+}

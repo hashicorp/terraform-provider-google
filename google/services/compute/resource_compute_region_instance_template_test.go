@@ -69,6 +69,42 @@ func TestAccComputeRegionInstanceTemplate_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionInstanceTemplate_hostErrorTimeoutSeconds(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate map[string]interface{}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_hostErrorTimeoutSeconds(acctest.RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "scheduling.0.host_error_timeout_seconds", "120"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccComputeRegionInstanceTemplate_basic(acctest.RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "scheduling.0.host_error_timeout_seconds", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionInstanceTemplate_imageShorthand(t *testing.T) {
 	t.Parallel()
 
@@ -2493,6 +2529,49 @@ resource "google_compute_region_instance_template" "foobar" {
   scheduling {
     preemptible       = false
     automatic_restart = true
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+
+  labels = {
+    my_label = "foobar"
+  }
+}
+`, suffix)
+}
+
+func testAccComputeRegionInstanceTemplate_hostErrorTimeoutSeconds(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  region         = "us-central1"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    host_error_timeout_seconds = 120
   }
 
   metadata = {

@@ -13,7 +13,7 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Cloud Pub/Sun"
+subcategory: "Cloud Pub/Sub"
 description: |-
   List IAM member bindings for a Pub/Sub subscription for use with terraform query
   and .tfquery.hcl files.

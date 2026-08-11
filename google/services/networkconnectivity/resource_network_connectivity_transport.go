@@ -148,13 +148,6 @@ func ResourceNetworkConnectivityTransport() *schema.Resource {
 				ForceNew:    true,
 				Description: `Name of the resource, see google.aip.dev/122 for resource naming.`,
 			},
-			"network": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      `Resource URL of the Network that will be peered with this Transport. This field must be provided during resource creation and cannot be changed.`,
-			},
 			"region": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -199,6 +192,13 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: `[Output only] The maximum transmission unit (MTU) of a packet that can be sent over this transport.`,
+			},
+			"network": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `Resource URL of the Network that will be peered with this Transport. This field must be provided during resource creation and cannot be changed.`,
 			},
 			"provided_activation_key": {
 				Type:        schema.TypeString,

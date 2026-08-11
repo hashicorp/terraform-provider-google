@@ -613,6 +613,8 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
    It is enabled by default for Autopilot clusters with version 1.29 or later; set `enabled = true` to enable it explicitly.
    See [Enable the Parallelstore CSI driver](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/parallelstore-csi-new-volume#enable) for more information.
 
+*  `high_scale_checkpointing_config` - (Optional) The status of the High Scale Checkpointing addon, which enables Multi-Tier Checkpointing for Machine Learning workloads. Structure is [documented below](#nested_high_scale_checkpointing_config).
+
 *  `lustre_csi_driver_config` - (Optional) The status of the Lustre CSI driver addon,
    which allows the usage of a Lustre instances as volumes.
    It is disabled by default for Standard clusters; set `enabled = true` to enable.
@@ -674,6 +676,10 @@ addons_config {
 <a name="nested_enable_k8s_beta_apis"></a>The `enable_k8s_beta_apis` block supports:
 
 * `enabled_apis` - (Required) Enabled Kubernetes Beta APIs. To list a Beta API resource, use the representation {group}/{version}/{resource}. The version must be a Beta version. Note that you cannot disable beta APIs that are already enabled on a cluster without recreating it. See the [Configure beta APIs](https://cloud.google.com/kubernetes-engine/docs/how-to/use-beta-apis#configure-beta-apis) for more information.
+
+<a name="nested_high_scale_checkpointing_config"></a>The `high_scale_checkpointing_config` block supports:
+
+* `enabled` - (Required) Whether the High Scale Checkpointing addon is enabled.
 
 <a name="nested_cloudrun_config"></a>The `cloudrun_config` block supports:
 

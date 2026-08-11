@@ -202,6 +202,7 @@ fields:
   - api_field: 'resourcePolicies'
   - api_field: 'scheduling.automaticRestart'
   - api_field: 'scheduling.availabilityDomain'
+  - api_field: 'scheduling.hostErrorTimeoutSeconds'
   - api_field: 'scheduling.instanceTerminationAction'
   - api_field: 'scheduling.localSsdRecoveryTimeout.nanos'
   - api_field: 'scheduling.localSsdRecoveryTimeout.seconds'

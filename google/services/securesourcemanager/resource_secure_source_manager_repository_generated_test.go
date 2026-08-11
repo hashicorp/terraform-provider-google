@@ -31,6 +31,8 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/datalossprevention"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -172,6 +174,211 @@ resource "google_secure_source_manager_repository" "default" {
 
     # Prevent accidental deletions.
     deletion_policy = "%{deletion_policy}"
+}
+`, context)
+}
+
+func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryServiceAccountExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"deletion_policy": "DELETE",
+		"instance_id":     "tf-test-my-instance" + randomSuffix,
+		"repository_id":   "tf-test-my-repository" + randomSuffix,
+		"sa_id":           "tf-test-my-sa" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecureSourceManagerRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecureSourceManagerRepository_secureSourceManagerRepositoryServiceAccountExample(context),
+			},
+			{
+				ResourceName:            "google_secure_source_manager_repository.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "initial_config", "location", "repository_id"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_repository.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccSecureSourceManagerRepository_secureSourceManagerRepositoryServiceAccountExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secure_source_manager_instance" "instance" {
+  location = "us-central1"
+  instance_id = "%{instance_id}"
+  deletion_policy = "%{deletion_policy}"
+}
+
+resource "google_service_account" "sa" {
+  account_id   = "%{sa_id}"
+  display_name = "Test Service Account"
+}
+
+resource "google_secure_source_manager_repository" "default" {
+  location = "us-central1"
+  repository_id = "%{repository_id}"
+  instance = google_secure_source_manager_instance.instance.name
+  deletion_policy = "%{deletion_policy}"
+
+  service_account = google_service_account.sa.email
+}
+`, context)
+}
+
+func TestAccSecureSourceManagerRepository_secureSourceManagerRepositorySecretScanningExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":         envvar.GetTestProjectFromEnv(),
+		"deletion_policy": "DELETE",
+		"instance_id":     "tf-test-my-instance" + randomSuffix,
+		"repository_id":   "tf-test-my-repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecureSourceManagerRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecureSourceManagerRepository_secureSourceManagerRepositorySecretScanningExample(context),
+			},
+			{
+				ResourceName:            "google_secure_source_manager_repository.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "initial_config", "location", "repository_id"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_repository.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccSecureSourceManagerRepository_secureSourceManagerRepositorySecretScanningExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secure_source_manager_instance" "instance" {
+  location = "us-central1"
+  instance_id = "%{instance_id}"
+  deletion_policy = "%{deletion_policy}"
+}
+
+resource "google_data_loss_prevention_inspect_template" "template" {
+  parent       = "projects/%{project}/locations/us-central1"
+  display_name = "Test Inspect Template"
+
+  inspect_config {
+    info_types {
+      name = "EMAIL_ADDRESS"
+    }
+  }
+}
+
+data "google_project" "project" {
+}
+
+resource "google_project_iam_member" "ssm_p4sa_dlp_reader" {
+  project = data.google_project.project.project_id
+  role    = "roles/dlp.inspectTemplatesReader"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
+}
+
+resource "google_secure_source_manager_repository" "default" {
+  location = "us-central1"
+  repository_id = "%{repository_id}"
+  instance = google_secure_source_manager_instance.instance.name
+  deletion_policy = "%{deletion_policy}"
+
+  scan_config {
+    secret_scan_config {
+      enabled          = true
+      inspect_template = google_data_loss_prevention_inspect_template.template.id
+    }
+  }
+
+  depends_on = [
+    google_project_iam_member.ssm_p4sa_dlp_reader,
+  ]
+}
+`, context)
+}
+
+func TestAccSecureSourceManagerRepository_secureSourceManagerRepositorySecretScanningDefaultExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"deletion_policy": "DELETE",
+		"instance_id":     "tf-test-my-instance" + randomSuffix,
+		"repository_id":   "tf-test-my-repository" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecureSourceManagerRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecureSourceManagerRepository_secureSourceManagerRepositorySecretScanningDefaultExample(context),
+			},
+			{
+				ResourceName:            "google_secure_source_manager_repository.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "initial_config", "location", "repository_id"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_repository.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccSecureSourceManagerRepository_secureSourceManagerRepositorySecretScanningDefaultExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secure_source_manager_instance" "instance" {
+  location = "us-central1"
+  instance_id = "%{instance_id}"
+  deletion_policy = "%{deletion_policy}"
+}
+
+resource "google_secure_source_manager_repository" "default" {
+  location = "us-central1"
+  repository_id = "%{repository_id}"
+  instance = google_secure_source_manager_instance.instance.name
+  deletion_policy = "%{deletion_policy}"
+
+  scan_config {
+    secret_scan_config {
+      enabled = true
+    }
+  }
 }
 `, context)
 }
