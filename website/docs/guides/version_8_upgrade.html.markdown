@@ -148,3 +148,15 @@ The `scale_tier` argument has been removed from this resource. It was previously
 ### `source_contents` is now Required
 
 The `source_contents` argument is now Required. Previously, this field was marked as Optional in Terraform, but omitting it led to runtime errors. When upgrading to version 8.0.0, you must ensure this argument is populated in your `google_workflows_workflow` configurations. 
+
+## Resource: `google_notebooks_instance` is now removed
+
+`google_notebooks_instance` and its IAM resources (`google_notebooks_instance_iam_policy`, `google_notebooks_instance_iam_binding`, and `google_notebooks_instance_iam_member`) have been removed. The underlying Vertex AI Workbench User-Managed Notebooks product has reached End of Life. Migrate to [`google_workbench_instance`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/workbench_instance) and remove these resources from your configuration.
+
+## Resource: `google_notebooks_runtime` is now removed
+
+`google_notebooks_runtime` and its IAM resources (`google_notebooks_runtime_iam_policy`, `google_notebooks_runtime_iam_binding`, and `google_notebooks_runtime_iam_member`) have been removed. The underlying Vertex AI Workbench Google-Managed Notebooks product has reached End of Life. Migrate to [`google_workbench_instance`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/workbench_instance) and remove these resources from your configuration.
+
+## Resource: `google_notebooks_environment` is now removed
+
+`google_notebooks_environment` has been removed along with the User-Managed and Google-Managed Notebooks products, which have reached End of Life. Remove it from your configuration; environment settings such as the VM/container image and post-startup script are now specified directly on `google_workbench_instance`.
