@@ -236,6 +236,33 @@ func TestAccContainerNodePool_namePrefix(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_namePrefix_long(t *testing.T) {
+	// Randomness
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_namePrefix(cluster, "tf-np-long-prefix-", networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name_prefix"},
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_noName(t *testing.T) {
 	// Randomness
 	acctest.SkipIfVcr(t)
