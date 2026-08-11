@@ -106,6 +106,12 @@ terraform {
 
 ## Resources
 
+## Resource: `google_bigquery_dataset`
+
+### `default_collation` is no longer computed
+
+`default_collation` is no longer treated as having any default value from the API when unspecified. Setting `default_collation = ""` in your configuration will now explicitly clear the current collation.
+
 ## Resource: `google_container_node_pool` and `google_container_cluster`
 
 ### `name_prefix` max length has been extended from 14 to 31 characters
