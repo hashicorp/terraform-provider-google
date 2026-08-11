@@ -60,7 +60,7 @@ resource "google_compute_backend_service" "example_backend" {
     group = google_compute_instance_group_manager.webservers.instance_group
   }
 
-  health_checks = [google_compute_http_health_check.default.id]
+  health_checks = [google_compute_health_check.default.id]
 }
 
 resource "google_compute_instance_group_manager" "webservers" {
@@ -91,11 +91,14 @@ resource "google_compute_instance_template" "webserver" {
   }
 }
 
-resource "google_compute_http_health_check" "default" {
+resource "google_compute_health_check" "default" {
   name               = "test"
-  request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
+  http_health_check {
+    port         = 80
+    request_path = "/"
+  }
 }
 ```
 

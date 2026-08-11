@@ -586,14 +586,17 @@ resource "google_compute_backend_service" "default" {
   protocol    = "HTTP"
   timeout_sec = 10
 
-  health_checks = [google_compute_http_health_check.default.id]
+  health_checks = [google_compute_health_check.default.id]
 }
 
-resource "google_compute_http_health_check" "default" {
+resource "google_compute_health_check" "default" {
   name               = "check-backend"
-  request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
+  http_health_check {
+    port         = 80
+    request_path = "/"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -1287,7 +1290,7 @@ The following arguments are supported:
   Specifies the forwarding rule type.
   For more information about forwarding rules, refer to
   [Forwarding rule concepts](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts).
-  Default value is `EXTERNAL`.
+  Default value is `EXTERNAL_MANAGED`.
   Possible values are: `EXTERNAL`, `EXTERNAL_MANAGED`, `INTERNAL_MANAGED`, `INTERNAL_SELF_MANAGED`.
 
 * `metadata_filters` -
