@@ -1,0 +1,3 @@
+```release-note:breaking-change
+notebooks: removed the deprecated `google_notebooks_instance`, `google_notebooks_runtime`, and `google_notebooks_environment` resources, along with the `google_notebooks_instance_iam_*` and `google_notebooks_runtime_iam_*` resources. Migrate to `google_workbench_instance`.
+```
