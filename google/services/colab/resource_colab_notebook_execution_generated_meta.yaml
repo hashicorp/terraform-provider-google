@@ -15,6 +15,9 @@ fields:
     - api_field: customEnvironmentSpec.networkSpec.subnetwork
     - api_field: customEnvironmentSpec.persistentDiskSpec.diskSizeGb
     - api_field: customEnvironmentSpec.persistentDiskSpec.diskType
+    - api_field: customEnvironmentSpec.shieldedInstanceConfig.enableIntegrityMonitoring
+    - api_field: customEnvironmentSpec.shieldedInstanceConfig.enableSecureBoot
+    - api_field: customEnvironmentSpec.shieldedInstanceConfig.enableVtpm
     - api_field: dataformRepositorySource.commitSha
     - api_field: dataformRepositorySource.dataformRepositoryResourceName
     - api_field: directNotebookSource.content
@@ -30,5 +33,8 @@ fields:
       provider_only: true
     - api_field: notebookRuntimeTemplateResourceName
     - api_field: serviceAccount
+    - api_field: workbenchRuntime.vmImage.family
+    - api_field: workbenchRuntime.vmImage.name
+    - api_field: workbenchRuntime.vmImage.project
     - field: deletion_policy
       provider_only: true

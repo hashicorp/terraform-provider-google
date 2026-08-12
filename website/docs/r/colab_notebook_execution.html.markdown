@@ -196,6 +196,12 @@ resource "google_colab_notebook_execution" "notebook-execution" {
       network = google_compute_network.my_network.id
       subnetwork = google_compute_subnetwork.my_subnetwork.id
     }
+
+    shielded_instance_config {
+      enable_integrity_monitoring = true
+      enable_secure_boot          = true
+      enable_vtpm                 = true
+    }
   }
   
   gcs_output_uri = "gs://${google_storage_bucket.output_bucket.name}"
@@ -206,6 +212,170 @@ resource "google_colab_notebook_execution" "notebook-execution" {
     google_storage_bucket.output_bucket,
   ]
   
+}
+```
+## Example Usage - Colab Notebook Execution Workbench Runtime Vm
+
+
+```hcl
+resource "google_storage_bucket" "output_bucket" {
+  name          = "my_bucket"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_colab_notebook_execution" "notebook-execution" {
+  display_name = "Notebook execution workbench runtime vm"
+  location = "us-central1"
+
+  direct_notebook_source {
+    content = base64encode(<<EOT
+    {
+      "cells": [
+        {
+          "cell_type": "code",
+          "execution_count": null,
+          "metadata": {},
+          "outputs": [],
+          "source": [
+            "print(\"Hello, World!\")"
+          ]
+        }
+      ],
+      "metadata": {
+        "kernelspec": {
+          "display_name": "Python 3",
+          "language": "python",
+          "name": "python3"
+        },
+        "language_info": {
+          "codemirror_mode": {
+            "name": "ipython",
+            "version": 3
+          },
+          "file_extension": ".py",
+          "mimetype": "text/x-python",
+          "name": "python",
+          "nbconvert_exporter": "python",
+          "pygments_lexer": "ipython3",
+          "version": "3.8.5"
+        }
+      },
+      "nbformat": 4,
+      "nbformat_minor": 4
+    }
+    EOT
+    )
+  }
+
+  custom_environment_spec {
+    machine_spec {
+      machine_type = "n1-standard-2"
+    }
+
+    persistent_disk_spec {
+      disk_type    = "pd-standard"
+      disk_size_gb = 200
+    }
+  }
+
+  workbench_runtime {
+    vm_image {
+      project = "cloud-notebooks-managed"
+      family  = "workbench-instances"
+    }
+  }
+
+  gcs_output_uri = "gs://${google_storage_bucket.output_bucket.name}"
+
+  service_account = "my@service-account.com"
+
+  depends_on = [
+    google_storage_bucket.output_bucket,
+  ]
+}
+```
+## Example Usage - Colab Notebook Execution Workbench Runtime Vm Name
+
+
+```hcl
+resource "google_storage_bucket" "output_bucket" {
+  name          = "my_bucket"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_colab_notebook_execution" "notebook-execution" {
+  display_name = "Notebook execution workbench runtime vm name"
+  location = "us-central1"
+
+  direct_notebook_source {
+    content = base64encode(<<EOT
+    {
+      "cells": [
+        {
+          "cell_type": "code",
+          "execution_count": null,
+          "metadata": {},
+          "outputs": [],
+          "source": [
+            "print(\"Hello, World!\")"
+          ]
+        }
+      ],
+      "metadata": {
+        "kernelspec": {
+          "display_name": "Python 3",
+          "language": "python",
+          "name": "python3"
+        },
+        "language_info": {
+          "codemirror_mode": {
+            "name": "ipython",
+            "version": 3
+          },
+          "file_extension": ".py",
+          "mimetype": "text/x-python",
+          "name": "python",
+          "nbconvert_exporter": "python",
+          "pygments_lexer": "ipython3",
+          "version": "3.8.5"
+        }
+      },
+      "nbformat": 4,
+      "nbformat_minor": 4
+    }
+    EOT
+    )
+  }
+
+  custom_environment_spec {
+    machine_spec {
+      machine_type = "n1-standard-2"
+    }
+
+    persistent_disk_spec {
+      disk_type    = "pd-standard"
+      disk_size_gb = 200
+    }
+  }
+
+  workbench_runtime {
+    vm_image {
+      project = "cloud-notebooks-managed"
+      name    = "workbench-instances-v20260713"
+    }
+  }
+
+  gcs_output_uri = "gs://${google_storage_bucket.output_bucket.name}"
+
+  service_account = "my@service-account.com"
+
+  depends_on = [
+    google_storage_bucket.output_bucket,
+  ]
 }
 ```
 ## Example Usage - Colab Notebook Execution Full
@@ -443,6 +613,11 @@ The following arguments are supported:
   Compute configuration to use for an execution job
   Structure is [documented below](#nested_custom_environment_spec).
 
+* `workbench_runtime` -
+  (Optional)
+  Configuration for a Workbench Instances-based environment.
+  Structure is [documented below](#nested_workbench_runtime).
+
 * `execution_user` -
   (Optional)
   The user email to run the execution as.
@@ -509,6 +684,11 @@ The following arguments are supported:
   The network configuration for the runtime.
   Structure is [documented below](#nested_custom_environment_spec_network_spec).
 
+* `shielded_instance_config` -
+  (Optional)
+  Shielded VM configuration.
+  Structure is [documented below](#nested_custom_environment_spec_shielded_instance_config).
+
 
 <a name="nested_custom_environment_spec_machine_spec"></a>The `machine_spec` block supports:
 
@@ -547,6 +727,42 @@ The following arguments are supported:
 * `subnetwork` -
   (Optional)
   The name of the subnetwork that this runtime is in.
+
+<a name="nested_custom_environment_spec_shielded_instance_config"></a>The `shielded_instance_config` block supports:
+
+* `enable_integrity_monitoring` -
+  (Optional)
+  Defines whether the instance has integrity monitoring enabled. Enables monitoring and attestation of the boot integrity of the instance. The attestation is performed against the integrity policy baseline. This baseline is initially derived from the implicitly trusted boot image when the instance is created. Enabled by default.
+
+* `enable_secure_boot` -
+  (Optional)
+  Defines whether the instance has Secure Boot enabled. Secure Boot helps ensure that the system only runs authentic software by verifying the digital signature of all boot components, and halting the boot process if signature verification fails. Disabled by default.
+
+* `enable_vtpm` -
+  (Optional)
+  Defines whether the instance has the vTPM enabled. Enabled by default.
+
+<a name="nested_workbench_runtime"></a>The `workbench_runtime` block supports:
+
+* `vm_image` -
+  (Required)
+  Custom Compute Engine VM image for the Workbench instance.
+  Structure is [documented below](#nested_workbench_runtime_vm_image).
+
+
+<a name="nested_workbench_runtime_vm_image"></a>The `vm_image` block supports:
+
+* `family` -
+  (Optional)
+  Use this VM image family to find the image; the newest image in this family will be used.
+
+* `name` -
+  (Optional)
+  Use VM image name to find the image.
+
+* `project` -
+  (Optional)
+  The name of the Google Cloud project that this VM image belongs to. Format: {project_id}
 
 ## Attributes Reference
 

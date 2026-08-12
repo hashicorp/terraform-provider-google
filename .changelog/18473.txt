@@ -1,0 +1,7 @@
+```release-note:enhancement
+colab: added `custom_environment_spec.shielded_instance_config` and `workbench_runtime.vm_image` fields to `google_colab_notebook_execution`
+```
+
+```release-note:bug
+colab: made `google_colab_notebook_execution` catch drift on the `directNotebookSource.content` field.
+```
