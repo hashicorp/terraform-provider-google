@@ -441,6 +441,10 @@ The following arguments are supported:
 
 <a name="nested_gce_setup"></a>The `gce_setup` block supports:
 
+* `compute_instance_id` -
+  (Output)
+  Output only. The unique numeric identifier of the underlying Compute Engine VM instance.
+
 * `machine_type` -
   (Optional)
   Optional. The machine type of the VM instance. https://cloud.google.com/compute/docs/machine-resource
