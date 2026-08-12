@@ -120,6 +120,12 @@ Previously, the max length of `name_prefix` for `google_container_node_pool` and
 
 In 8.0.0, providing a `name_prefix` larger than 14 characters will prompt the provider to use a shortened suffix of only 9 characters, leading to a new max of 31 characters for `name_prefix`. This shortened suffix is inevitably more prone to collisions, so use the longer max `name_prefix` length with caution.
 
+## Resource: `google_cloud_security_compliance_framework`
+
+### `cloud_control_details` is now a set
+
+`cloud_control_details` has been converted from a `list` to a `set` to resolve perpetual diffs caused by non-deterministic API ordering. References that use list indexing (for example, `google_cloud_security_compliance_framework.<name>.cloud_control_details[0]`) should be updated to use `tolist(google_cloud_security_compliance_framework.<name>.cloud_control_details)[0]` or `for` expressions.
+
 ## Resource: `google_cloud_run_v2_worker_pool`
 
 ### `custom_audiences` is now removed

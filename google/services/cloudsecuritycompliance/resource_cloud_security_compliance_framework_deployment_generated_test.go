@@ -283,7 +283,7 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+				ImportStateVerifyIgnore: []string{"cloud_control_metadata", "framework_deployment_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
@@ -488,7 +488,7 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+				ImportStateVerifyIgnore: []string{"cloud_control_metadata", "framework_deployment_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
@@ -547,7 +547,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
     enforcement_mode = "DETECTIVE"
     
     cloud_control_details {
-      name              = google_cloud_security_compliance_framework.example.cloud_control_details[0].name
+      name              = tolist(google_cloud_security_compliance_framework.example.cloud_control_details)[0].name
       major_revision_id = "2"
       
       parameters {
@@ -588,7 +588,7 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+				ImportStateVerifyIgnore: []string{"cloud_control_metadata", "framework_deployment_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
@@ -687,7 +687,7 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+				ImportStateVerifyIgnore: []string{"cloud_control_metadata", "framework_deployment_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
@@ -889,7 +889,7 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+				ImportStateVerifyIgnore: []string{"cloud_control_metadata", "framework_deployment_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
