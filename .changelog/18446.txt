@@ -1,0 +1,7 @@
+```release-note:enhancement
+accesscontextmanager: added `dry_run_access_levels` and `principal` fields to `google_access_context_manager_gcp_user_access_binding` resource
+```
+
+```release-note:enhancement
+accesscontextmanager: updated `group_key` to be optional and conflict with `principal` on `google_access_context_manager_gcp_user_access_binding` resource
+```
