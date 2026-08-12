@@ -23,6 +23,8 @@ fields:
     - api_field: gceSetup.bootDisk.diskSizeGb
     - api_field: gceSetup.bootDisk.diskType
     - api_field: gceSetup.bootDisk.kmsKey
+    - api_field: gceSetup.instanceId
+      field: gce_setup.compute_instance_id
     - api_field: gceSetup.confidentialInstanceConfig.confidentialInstanceType
     - api_field: gceSetup.containerImage.repository
     - api_field: gceSetup.containerImage.tag

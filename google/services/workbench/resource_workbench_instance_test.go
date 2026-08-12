@@ -43,6 +43,8 @@ func TestAccWorkbenchInstance_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_workbench_instance.instance", "state", "ACTIVE"),
+					resource.TestCheckResourceAttrSet(
+						"google_workbench_instance.instance", "gce_setup.0.compute_instance_id"),
 				),
 			},
 			{
