@@ -168,6 +168,61 @@ func TestAccBigqueryDatasetIamMember_iamMemberWithIAMCondition(t *testing.T) {
 	})
 }
 
+func TestAccBigqueryDatasetIamMember_datasetUpdatedDuringMemberDeletion(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	saID := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	expected := map[string]interface{}{
+		"role":        "roles/viewer",
+		"userByEmail": fmt.Sprintf("%s@%s.iam.gserviceaccount.com", saID, envvar.GetTestProjectFromEnv()),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDatasetIamMember_datasetWithDescription(datasetID, saID, "Initial description"),
+				Check:  testAccCheckBigQueryDatasetIamMemberPresent(t, "google_bigquery_dataset.dataset", expected),
+			},
+			{
+				Config: testAccBigqueryDatasetIamMember_datasetUpdated(datasetID, "Updated description"),
+				Check:  testAccCheckBigQueryDatasetIamMemberAbsent(t, "google_bigquery_dataset.dataset", expected),
+			},
+		},
+	})
+}
+
+func TestAccBigqueryDatasetIamMember_withDatasetAccessBlockAndIgnoreChanges(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	saID := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	ownerSaID := fmt.Sprintf("tf-owner-%s", acctest.RandString(t, 10))
+
+	expected := map[string]interface{}{
+		"role":        "roles/viewer",
+		"userByEmail": fmt.Sprintf("%s@%s.iam.gserviceaccount.com", saID, envvar.GetTestProjectFromEnv()),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDatasetIamMember_datasetWithAccessAndIgnoreChanges(datasetID, saID, ownerSaID, "Initial description"),
+				Check:  testAccCheckBigQueryDatasetIamMemberPresent(t, "google_bigquery_dataset.dataset", expected),
+			},
+			{
+				Config: testAccBigqueryDatasetIamMember_datasetWithAccessAndIgnoreChangesUpdated(datasetID, ownerSaID, "Updated description"),
+				Check:  testAccCheckBigQueryDatasetIamMemberAbsent(t, "google_bigquery_dataset.dataset", expected),
+			},
+		},
+	})
+}
+
 func TestAccBigqueryDatasetIamMember_iamMember(t *testing.T) {
 	t.Parallel()
 
@@ -509,4 +564,90 @@ resource "google_bigquery_dataset_iam_member" "access" {
   }
 }
 `, datasetID, serviceAccountID, condTitle2040, condExpr2040)
+}
+
+func testAccBigqueryDatasetIamMember_datasetWithDescription(datasetID, saID, description string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id  = "%s"
+  description = "%s"
+}
+
+resource "google_service_account" "bqviewer" {
+  account_id = "%s"
+}
+
+resource "google_bigquery_dataset_iam_member" "access" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/viewer"
+  member     = "serviceAccount:${google_service_account.bqviewer.email}"
+}
+`, datasetID, description, saID)
+}
+
+func testAccBigqueryDatasetIamMember_datasetUpdated(datasetID, description string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id  = "%s"
+  description = "%s"
+}
+`, datasetID, description)
+}
+
+func testAccBigqueryDatasetIamMember_datasetWithAccessAndIgnoreChanges(datasetID, saID, ownerSaID, description string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "bqowner" {
+  account_id = "%s"
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id  = "%s"
+  description = "%s"
+
+  access {
+    role          = "OWNER"
+    user_by_email = google_service_account.bqowner.email
+  }
+
+  lifecycle {
+    ignore_changes = [
+      access
+    ]
+  }
+}
+
+resource "google_service_account" "bqviewer" {
+  account_id = "%s"
+}
+
+resource "google_bigquery_dataset_iam_member" "access" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/viewer"
+  member     = "serviceAccount:${google_service_account.bqviewer.email}"
+}
+`, ownerSaID, datasetID, description, saID)
+}
+
+func testAccBigqueryDatasetIamMember_datasetWithAccessAndIgnoreChangesUpdated(datasetID, ownerSaID, description string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "bqowner" {
+  account_id = "%s"
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id  = "%s"
+  description = "%s"
+
+  access {
+    role          = "OWNER"
+    user_by_email = google_service_account.bqowner.email
+  }
+
+  lifecycle {
+    ignore_changes = [
+      access
+    ]
+  }
+}
+`, ownerSaID, datasetID, description)
 }

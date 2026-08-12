@@ -1074,6 +1074,11 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["labels"] = effectiveLabelsProp
 	}
 
+	obj, err = resourceBigQueryDatasetUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/datasets/{{dataset_id}}?accessPolicyVersion=3")
 	if err != nil {
 		return err
@@ -2136,6 +2141,13 @@ func expandBigQueryDatasetEffectiveLabels(v interface{}, d tpgresource.Terraform
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceBigQueryDatasetUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	if !d.HasChange("access") {
+		delete(obj, "access")
+	}
+	return obj, nil
 }
 
 func ResourceBigQueryDatasetFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
