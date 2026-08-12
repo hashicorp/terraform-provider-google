@@ -1,1 +1,1 @@
-google-cloud-aiplatform[agent_engines]
+google-cloud-aiplatform[agent_engines]>=1.75.0
