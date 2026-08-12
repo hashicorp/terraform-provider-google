@@ -508,6 +508,12 @@ class_methods = jsonencode([
 'us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag') of the
 container image that is to be run on each worker replica.`,
 									},
+									"port": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Optional:    true,
+										Description: `Optional. The port that the container listens on for incoming requests. If not specified, defaults to 8080.`,
+									},
 								},
 							},
 							ConflictsWith: []string{"spec.0.source_code_spec"},
@@ -1753,10 +1759,29 @@ func flattenVertexAIReasoningEngineSpecContainerSpec(v interface{}, d *schema.Re
 	transformed := make(map[string]interface{})
 	transformed["image_uri"] =
 		flattenVertexAIReasoningEngineSpecContainerSpecImageUri(original["imageUri"], d, config)
+	transformed["port"] =
+		flattenVertexAIReasoningEngineSpecContainerSpecPort(original["port"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIReasoningEngineSpecContainerSpecImageUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenVertexAIReasoningEngineSpecContainerSpecPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2399,10 +2424,21 @@ func expandVertexAIReasoningEngineSpecContainerSpec(v interface{}, d tpgresource
 		transformed["imageUri"] = transformedImageUri
 	}
 
+	transformedPort, err := expandVertexAIReasoningEngineSpecContainerSpecPort(original["port"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["port"] = transformedPort
+	}
+
 	return transformed, nil
 }
 
 func expandVertexAIReasoningEngineSpecContainerSpecImageUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecContainerSpecPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
