@@ -637,6 +637,10 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
 
   spec {
     identity_type = "SERVICE_ACCOUNT"
+    container_spec {
+      image_uri = "us-docker.pkg.dev/cloudrun/container/hello"
+      port      = 8000
+    }
   }
 }
 `, context)
@@ -651,6 +655,10 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
 
   spec {
     identity_type = "AGENT_IDENTITY"
+    container_spec {
+      image_uri = "us-docker.pkg.dev/cloudrun/container/hello"
+      port      = 9000
+    }
   }
 }
 `, context)
