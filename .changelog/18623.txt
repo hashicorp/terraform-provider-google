@@ -1,0 +1,3 @@
+```release-note:bug
+networksecurity: fixed `google_network_security_gateway_security_policy` to force replacement (`ForceNew`) when `name` or `location` is modified
+```
