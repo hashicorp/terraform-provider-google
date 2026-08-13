@@ -268,6 +268,7 @@ func ResourceNetworkServicesGateway() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `Name of the Gateway resource.`,
 			},
 			"type": {
@@ -357,6 +358,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Description: `The location of the gateway.
 The default value is 'global'.`,
 				Default: "global",
