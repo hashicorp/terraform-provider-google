@@ -29,7 +29,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
-	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
@@ -2500,13 +2499,22 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	// from the projectNumber which is included in the bucket API response
 	if d.Get("project") == "" {
 		projectName, _ := tpgresource.GetProject(d, config)
-		proj, err := compute_tpg.NewClient(config, userAgent).Projects.Get(strconv.FormatUint(res.ProjectNumber, 10)).Do()
+		// Resolve the Compute base URL through the registry so that storage does not
+		// depend on the compute service package. BaseUrl(Product, ...) would resolve
+		// the storage base URL here.
+		projectUrl := fmt.Sprintf("%sprojects/%d", transport_tpg.BaseUrl(registry.GetProduct("compute"), config), res.ProjectNumber)
+		proj, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			RawURL:    projectUrl,
+			UserAgent: userAgent,
+		})
 		if err != nil {
 			log.Printf("[ERROR] Missing Compute API permissions, fallback to provider/resource default")
 		}
 
-		if proj != nil && projectName != "" && projectName != proj.Name {
-			projectName = proj.Name
+		if projectID, ok := proj["name"].(string); ok && projectName != "" && projectName != projectID {
+			projectName = projectID
 		}
 		if err := d.Set("project", projectName); err != nil {
 			return fmt.Errorf("Error setting project: %s", err)
