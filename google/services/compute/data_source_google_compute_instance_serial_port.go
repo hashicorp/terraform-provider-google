@@ -18,6 +18,7 @@ package compute
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
@@ -77,16 +78,29 @@ func computeInstanceSerialPortRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error setting zone: %s", err)
 	}
 
-	port := int64(d.Get("port").(int))
-	output, err := NewClient(config, userAgent).Instances.GetSerialPortOutput(project, zone, d.Get("instance").(string)).Port(port).Do()
+	port := d.Get("port").(int)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s/serialPort",
+		transport_tpg.BaseUrl(Product, config), project, zone, d.Get("instance").(string))
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"port": strconv.Itoa(port)})
+	if err != nil {
+		return err
+	}
+	output, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return err
 	}
 
-	if err := d.Set("contents", output.Contents); err != nil {
+	if err := d.Set("contents", output["contents"]); err != nil {
 		return fmt.Errorf("Error setting contents: %s", err)
 	}
-	d.SetId(output.SelfLink)
+	selfLink, _ := output["selfLink"].(string)
+	d.SetId(selfLink)
 	return nil
 }
 
