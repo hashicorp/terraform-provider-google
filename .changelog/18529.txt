@@ -1,0 +1,3 @@
+```release-note:note
+storage: migrated the Compute API lookup in the `google_storage_bucket` resource to use direct HTTP rather than a client library
+```
