@@ -1,0 +1,7 @@
+```release-note:note
+compute: migrated `google_compute_images` data source to use direct HTTP rather than a client library (revert)
+```
+
+```release-note:bug
+compute: fixed truncation of results at 500 images in `google_compute_images` data source (revert)
+```
