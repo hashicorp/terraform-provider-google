@@ -25,8 +25,8 @@ description: |-
 Three different resources help you manage your IAM policy for Cloud AI Notebooks Instance. Each of these resources serves a different use case:
 
 * `google_notebooks_instance_iam_policy`: Authoritative. Sets the IAM policy for the instance and replaces any existing policy already attached.
-* `google_notebooks_instance_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the instance are preserved.
-* `google_notebooks_instance_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the instance are preserved.
+* `google_notebooks_instance_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the instance are preserved. Members added outside of Terraform for the same role will be detected as drift and removed on the next `terraform apply`.
+* `google_notebooks_instance_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the instance are preserved. Members added outside of Terraform will **not** be detected as drift.
 
 A data source can be used to retrieve policy data in advent you do not need creation
 
@@ -35,7 +35,6 @@ A data source can be used to retrieve policy data in advent you do not need crea
 ~> **Note:** `google_notebooks_instance_iam_policy` **cannot** be used in conjunction with `google_notebooks_instance_iam_binding` and `google_notebooks_instance_iam_member` or they will fight over what your policy should be.
 
 ~> **Note:** `google_notebooks_instance_iam_binding` resources **can be** used in conjunction with `google_notebooks_instance_iam_member` resources **only if** they do not grant privilege to the same role.
-
 
 
 ## google_notebooks_instance_iam_policy
