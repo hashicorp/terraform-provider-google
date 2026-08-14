@@ -34,6 +34,9 @@ To get more information about Certificate, see:
 values will be stored in the raw state as plain text: `self_managed.certificate_pem`, `self_managed.private_key_pem`, `self_managed.pem_private_key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+~> **Note:**  All arguments marked as write-only values will not be stored in the state: `self_managed.pem_private_key_wo`.
+[Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=certificate_manager_google_managed_certificate_dns&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -174,6 +177,26 @@ resource "google_certificate_manager_certificate" "default" {
   self_managed {
     pem_certificate = file("test-fixtures/cert.pem")
     pem_private_key = file("test-fixtures/private-key.pem")
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=certificate_manager_self_managed_certificate_write_only&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Certificate Manager Self Managed Certificate Write Only
+
+
+```hcl
+resource "google_certificate_manager_certificate" "default" {
+  name        = "self-managed-cert"
+  description = "Global cert"
+  scope       = "ALL_REGIONS"
+  self_managed {
+    pem_certificate            = file("test-fixtures/cert.pem")
+    pem_private_key_wo         = file("test-fixtures/private-key.pem")
+    pem_private_key_wo_version = parseint(filesha256("test-fixtures/private-key.pem"), 16) % pow(2, 32)
   }
 }
 ```
@@ -458,6 +481,17 @@ The following arguments are supported:
   (Optional)
   The private key of the leaf certificate in PEM-encoded form.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `pem_private_key_wo` -
+  (Optional, Write-Only)
+  The private key of the leaf certificate in PEM-encoded form.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `pem_private_key` or `pem_private_key_wo` can only be set.
+
+* `pem_private_key_wo_version` -
+  (Optional)
+  Triggers update of `pem_private_key_wo` write-only. Increment this value when an update to `pem_private_key_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 <a name="nested_managed"></a>The `managed` block supports:
 
