@@ -1544,7 +1544,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMask = updateMask[:index]
 
 		// Update url with the new updateMask
-		url := strings.Split(url, "?updateMask=")[0]
+		url = strings.Split(url, "?updateMask=")[0]
 		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 		if err != nil {
 			return err
@@ -1595,7 +1595,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMask = updateMask[:index]
 
 		// Update url with the new updateMask
-		url := strings.Split(url, "?updateMask=")[0]
+		url = strings.Split(url, "?updateMask=")[0]
 		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 		if err != nil {
 			return err
