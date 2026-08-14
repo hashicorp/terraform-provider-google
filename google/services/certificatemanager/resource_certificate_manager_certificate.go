@@ -344,7 +344,21 @@ Leaf certificate comes first, followed by intermediate ones if any.`,
 							Optional:     true,
 							Description:  `The private key of the leaf certificate in PEM-encoded form.`,
 							Sensitive:    true,
-							ExactlyOneOf: []string{"self_managed.0.pem_private_key", "self_managed.0.private_key_pem"},
+							ExactlyOneOf: []string{"self_managed.0.pem_private_key", "self_managed.0.private_key_pem", "self_managed.0.pem_private_key_wo"},
+						},
+						"pem_private_key_wo": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The private key of the leaf certificate in PEM-encoded form.`,
+							WriteOnly:    true,
+							ExactlyOneOf: []string{"self_managed.0.pem_private_key", "self_managed.0.private_key_pem", "self_managed.0.pem_private_key_wo"},
+							RequiredWith: []string{"self_managed.0.pem_private_key_wo_version"},
+						},
+						"pem_private_key_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Triggers update of 'pem_private_key_wo' write-only. Increment this value when an update to 'pem_private_key_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"self_managed.0.pem_private_key_wo"},
 						},
 						"private_key_pem": {
 							Type:         schema.TypeString,
@@ -352,7 +366,7 @@ Leaf certificate comes first, followed by intermediate ones if any.`,
 							Deprecated:   "`private_key_pem` is deprecated and will be removed in a future major release. Use `pem_private_key` instead.",
 							Description:  `The private key of the leaf certificate in PEM-encoded form.`,
 							Sensitive:    true,
-							ExactlyOneOf: []string{"self_managed.0.pem_private_key", "self_managed.0.private_key_pem"},
+							ExactlyOneOf: []string{"self_managed.0.pem_private_key", "self_managed.0.private_key_pem", "self_managed.0.pem_private_key_wo"},
 						},
 					},
 				},
@@ -1014,6 +1028,13 @@ func expandCertificateManagerCertificateSelfManaged(v interface{}, d tpgresource
 		transformed["pemPrivateKey"] = transformedPemPrivateKey
 	}
 
+	transformedPemPrivateKeyWo, err := expandCertificateManagerCertificateSelfManagedPemPrivateKeyWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "self_managed.0.pem_private_key_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPemPrivateKeyWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pemPrivateKey"] = transformedPemPrivateKeyWo
+	}
+
 	return transformed, nil
 }
 
@@ -1030,6 +1051,14 @@ func expandCertificateManagerCertificateSelfManagedPemCertificate(v interface{},
 }
 
 func expandCertificateManagerCertificateSelfManagedPemPrivateKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCertificateManagerCertificateSelfManagedPemPrivateKeyWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCertificateManagerCertificateSelfManagedPemPrivateKeyWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
