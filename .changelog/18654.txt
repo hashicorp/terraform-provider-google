@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: fixed an issue where `updateMask` URL parameter was dropped during cluster updates (e.g. database_version upgrade) due to variable shadowing
+```
