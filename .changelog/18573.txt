@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: added `cpu_utilization_threshold_percent`, `memory_usage_threshold_percent`, `history_list_length_threshold_count`, `semaphore_wait_threshold_count`, `transaction_lock_wait_threshold_count`, `transaction_kill_threshold_seconds`, `transaction_kill_type`, and `transaction_kill_excluded_user_hosts` to `settings.performance_capture_config` in `google_sql_database_instance` (beta)
+```

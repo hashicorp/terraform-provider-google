@@ -739,6 +739,22 @@ The optional `settings.performance_capture_config` (Beta) subblock for instances
 
 * `transaction_duration_threshold` - (Beta) The amount of time in seconds that a transaction needs to have been open before the watcher starts recording it.
 
+* `cpu_utilization_threshold_percent` - (Beta) The minimum percentage of CPU utilization that triggers the performance capture. Valid range is 10 to 99. `0` disables the check.
+
+* `memory_usage_threshold_percent` - (Beta) The minimum percentage of memory usage that triggers the performance capture. Valid range is 10 to 99. `0` disables the check.
+
+* `history_list_length_threshold_count` - (Beta) The minimum number of undo log entries in the history list length that triggers the performance capture. Valid range is 10000 to 10000000. `0` disables the check.
+
+* `semaphore_wait_threshold_count` - (Beta) The minimum number of semaphore waits that triggers the performance capture. Valid range is 10 to 10000. `0` disables the check.
+
+* `transaction_lock_wait_threshold_count` - (Beta) The minimum number of transactions in lock wait state that triggers the performance capture. Valid range is 10 to 10000. `0` disables the check.
+
+* `transaction_kill_threshold_seconds` - (Beta) The amount of time in seconds that a transaction needs to have been open before the watcher starts terminating it. Valid range is 60 to 604800. `0` disables termination.
+
+* `transaction_kill_type` - (Beta) Determines which transactions are allowed to be terminated when they exceed `transaction_kill_threshold_seconds`. Possible values are: `TRANSACTION_KILL_TYPE_UNSPECIFIED`, `READ_ONLY_TRANSACTIONS`, `ALL_TRANSACTIONS`.
+
+* `transaction_kill_excluded_user_hosts` - (Beta) A list of users to exclude from transaction termination. Entries can be in the format `user@host` or just `user`.
+
 The optional `replica_configuration` block must have `master_instance_name` set
 to work, cannot be updated and supports:
 
