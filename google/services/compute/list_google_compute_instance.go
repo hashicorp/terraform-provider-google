@@ -27,8 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"google.golang.org/api/compute/v1"
-
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -104,18 +102,16 @@ func (listR *GoogleComputeInstanceListResource) List(ctx context.Context, listRe
 }
 
 func flattenComputeInstanceListItem(res map[string]interface{}, d *schema.ResourceData, config *transport_tpg.Config, project string) error {
-	var instance compute.Instance
-	if err := tpgresource.Convert(res, &instance); err != nil {
-		return fmt.Errorf("error converting compute instance list response: %w", err)
-	}
-	if instance.Name == "" {
+	instanceName, _ := res["name"].(string)
+	if instanceName == "" {
 		return fmt.Errorf("missing name in compute instance list response")
 	}
 
-	zone := tpgresource.GetResourceNameFromSelfLink(instance.Zone)
+	instanceZone, _ := res["zone"].(string)
+	zone := tpgresource.GetResourceNameFromSelfLink(instanceZone)
 
-	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instance.Name))
-	return populateComputeInstanceResourceData(d, &instance, project, zone, config)
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instanceName))
+	return populateComputeInstanceResourceData(d, res, project, zone, config)
 }
 
 func ListComputeInstances(config *transport_tpg.Config, project, zone string, callback func(rd *schema.ResourceData) error) error {
