@@ -85,6 +85,28 @@ resource "google_security_scanner_scan_config" "scan-config" {
   depends_on                = [time_sleep.wait_15_seconds]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=scan_config_static_ip&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Scan Config Static Ip
+
+
+```hcl
+resource "google_compute_address" "scanner_static_ip" {
+  provider = google-beta
+  name     = "scan-static-ip"
+}
+
+resource "google_security_scanner_scan_config" "scan-config" {
+  provider         = google-beta
+  display_name     = "terraform-scan-config"
+  starting_urls    = ["http://${google_compute_address.scanner_static_ip.address}"]
+  target_platforms = ["COMPUTE"]
+  static_ip_scan   = true
+}
+```
 
 ## Argument Reference
 
@@ -141,6 +163,11 @@ The following arguments are supported:
 * `ignore_http_status_errors` -
   (Optional)
   Whether to keep scanning even if most requests return HTTP error codes.
+
+* `static_ip_scan` -
+  (Optional)
+  Whether the scan configuration has enabled static IP address scan feature.
+  If enabled, the scanner will access applications from static IP addresses.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

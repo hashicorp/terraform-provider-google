@@ -1019,6 +1019,7 @@ func resourceVmwareenginePrivateCloudUpdate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+
 	// managementCluster is updated via its own separate endpoint.
 	// We remove it from the update mask of the PrivateCloud resource update.
 	var filteredUpdateMask []string

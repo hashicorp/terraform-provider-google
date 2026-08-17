@@ -775,7 +775,6 @@ For internal load balancing, a URL to a HealthCheck resource must be specified i
 			},
 			"iap": {
 				Type:     schema.TypeList,
-				Computed: true,
 				Optional: true,
 				Description: `Settings for enabling Cloud Identity Aware Proxy.
 If OAuth client is not set, the Google-managed OAuth client is used.`,
@@ -792,12 +791,43 @@ If OAuth client is not set, the Google-managed OAuth client is used.`,
 							Optional:         true,
 							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress(" "),
 							Description:      `OAuth2 Client ID for IAP`,
+							Sensitive:        true,
+							ConflictsWith:    []string{"iap.0.oauth2_client_id_wo"},
+						},
+						"oauth2_client_id_wo": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							Description:   `OAuth2 Client ID for IAP`,
+							WriteOnly:     true,
+							ConflictsWith: []string{"iap.0.oauth2_client_id"},
+							RequiredWith:  []string{"iap.0.oauth2_client_id_wo_version"},
+						},
+						"oauth2_client_id_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Triggers update of 'oauth2_client_id_wo' write-only. Increment this value when an update to 'oauth2_client_id_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"iap.0.oauth2_client_id_wo"},
 						},
 						"oauth2_client_secret": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `OAuth2 Client Secret for IAP`,
-							Sensitive:   true,
+							Type:          schema.TypeString,
+							Optional:      true,
+							Description:   `OAuth2 Client Secret for IAP`,
+							Sensitive:     true,
+							ConflictsWith: []string{"iap.0.oauth2_client_secret_wo"},
+						},
+						"oauth2_client_secret_wo": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							Description:   `OAuth2 Client Secret for IAP`,
+							WriteOnly:     true,
+							ConflictsWith: []string{"iap.0.oauth2_client_secret"},
+							RequiredWith:  []string{"iap.0.oauth2_client_secret_wo_version"},
+						},
+						"oauth2_client_secret_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Triggers update of 'oauth2_client_secret_wo' write-only. Increment this value when an update to 'oauth2_client_secret_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"iap.0.oauth2_client_secret_wo"},
 						},
 						"oauth2_client_secret_sha256": {
 							Type:        schema.TypeString,
@@ -3390,6 +3420,10 @@ func flattenComputeBackendServiceIap(v interface{}, d *schema.ResourceData, conf
 		flattenComputeBackendServiceIapOauth2ClientSecret(original["oauth2ClientSecret"], d, config)
 	transformed["oauth2_client_secret_sha256"] =
 		flattenComputeBackendServiceIapOauth2ClientSecretSha256(original["oauth2ClientSecretSha256"], d, config)
+	transformed["oauth2_client_id_wo_version"] =
+		flattenComputeBackendServiceIapOauth2ClientIdWoVersion(original["oauth2ClientIdWoVersion"], d, config)
+	transformed["oauth2_client_secret_wo_version"] =
+		flattenComputeBackendServiceIapOauth2ClientSecretWoVersion(original["oauth2ClientSecretWoVersion"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeBackendServiceIapEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3397,7 +3431,7 @@ func flattenComputeBackendServiceIapEnabled(v interface{}, d *schema.ResourceDat
 }
 
 func flattenComputeBackendServiceIapOauth2ClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	return d.Get("iap.0.oauth2_client_id")
 }
 
 func flattenComputeBackendServiceIapOauth2ClientSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3406,6 +3440,14 @@ func flattenComputeBackendServiceIapOauth2ClientSecret(v interface{}, d *schema.
 
 func flattenComputeBackendServiceIapOauth2ClientSecretSha256(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeBackendServiceIapOauth2ClientIdWoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("iap.0.oauth2_client_id_wo_version")
+}
+
+func flattenComputeBackendServiceIapOauth2ClientSecretWoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("iap.0.oauth2_client_secret_wo_version")
 }
 
 func flattenComputeBackendServiceIpAddressSelectionPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4938,6 +4980,20 @@ func expandComputeBackendServiceIap(v interface{}, d tpgresource.TerraformResour
 		transformed["oauth2ClientSecretSha256"] = transformedOauth2ClientSecretSha256
 	}
 
+	transformedOauth2ClientIdWo, err := expandComputeBackendServiceIapOauth2ClientIdWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "iap.0.oauth2_client_id_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOauth2ClientIdWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oauth2ClientId"] = transformedOauth2ClientIdWo
+	}
+
+	transformedOauth2ClientSecretWo, err := expandComputeBackendServiceIapOauth2ClientSecretWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "iap.0.oauth2_client_secret_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOauth2ClientSecretWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oauth2ClientSecret"] = transformedOauth2ClientSecretWo
+	}
+
 	return transformed, nil
 }
 
@@ -4954,6 +5010,22 @@ func expandComputeBackendServiceIapOauth2ClientSecret(v interface{}, d tpgresour
 }
 
 func expandComputeBackendServiceIapOauth2ClientSecretSha256(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceIapOauth2ClientIdWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceIapOauth2ClientIdWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceIapOauth2ClientSecretWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceIapOauth2ClientSecretWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -576,6 +576,7 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 									"enable": {
 										Type:        schema.TypeBool,
 										Optional:    true,
+										Computed:    true,
 										Description: `If set to true, enables CAAP for L7 DDoS detection.`,
 									},
 									"rule_visibility": {

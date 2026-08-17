@@ -30,6 +30,10 @@ fields:
     - api_field: selfManaged.certificatePem
     - api_field: selfManaged.pemCertificate
     - api_field: selfManaged.pemPrivateKey
+    - api_field: selfManaged.pemPrivateKey
+      field: self_managed.pem_private_key_wo
+    - field: self_managed.pem_private_key_wo_version
+      provider_only: true
     - api_field: selfManaged.privateKeyPem
     - field: terraform_labels
       provider_only: true

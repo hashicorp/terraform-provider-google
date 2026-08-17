@@ -142,9 +142,9 @@ func listAndActionComputeRegionCompositeHealthCheck(action sweeper.ResourceActio
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["regionCompositeHealthChecks"]
+		resourceList, ok := res["compositeHealthChecks"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'regionCompositeHealthChecks'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'compositeHealthChecks'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]

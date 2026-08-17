@@ -127,36 +127,47 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 
 	id := fmt.Sprintf("projects/%s/regions/%s/addresses/%s", project, region, name)
 
-	address, err := NewClient(config, userAgent).Addresses.Get(project, region, name).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	address, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Address Not Found : %s", name), id)
 	}
 
-	if err := d.Set("address", address.Address); err != nil {
+	if err := d.Set("address", address["address"]); err != nil {
 		return fmt.Errorf("Error setting address: %s", err)
 	}
-	if err := d.Set("address_type", address.AddressType); err != nil {
+	if err := d.Set("address_type", address["addressType"]); err != nil {
 		return fmt.Errorf("Error setting address_type: %s", err)
 	}
-	if err := d.Set("network", address.Network); err != nil {
+	if err := d.Set("network", address["network"]); err != nil {
 		return fmt.Errorf("Error setting network: %s", err)
 	}
-	if err := d.Set("network_tier", address.NetworkTier); err != nil {
+	if err := d.Set("network_tier", address["networkTier"]); err != nil {
 		return fmt.Errorf("Error setting network_tier: %s", err)
 	}
-	if err := d.Set("prefix_length", address.PrefixLength); err != nil {
+	if err := d.Set("prefix_length", address["prefixLength"]); err != nil {
 		return fmt.Errorf("Error setting prefix_length: %s", err)
 	}
-	if err := d.Set("purpose", address.Purpose); err != nil {
+	if err := d.Set("purpose", address["purpose"]); err != nil {
 		return fmt.Errorf("Error setting purpose: %s", err)
 	}
-	if err := d.Set("subnetwork", address.Subnetwork); err != nil {
+	if err := d.Set("subnetwork", address["subnetwork"]); err != nil {
 		return fmt.Errorf("Error setting subnetwork: %s", err)
 	}
-	if err := d.Set("status", address.Status); err != nil {
+	if err := d.Set("status", address["status"]); err != nil {
 		return fmt.Errorf("Error setting status: %s", err)
 	}
-	if err := d.Set("self_link", address.SelfLink); err != nil {
+	if err := d.Set("self_link", address["selfLink"]); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {

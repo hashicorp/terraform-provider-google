@@ -4,7 +4,7 @@ resource: 'google_compute_region_instance_template'
 generation_type: 'handwritten'
 api_service_name: 'compute.googleapis.com'
 api_version: 'v1'
-api_resource_type_kind: 'InstanceTemplate'
+api_resource_type_kind: 'RegionInstanceTemplate'
 fields:
   - field: 'advanced_machine_features.enable_nested_virtualization'
     api_field: 'properties.advancedMachineFeatures.enableNestedVirtualization'

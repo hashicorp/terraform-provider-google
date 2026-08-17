@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -198,4 +199,147 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
   }
 }
 `, org, policyTitle, perimeterTitleName, perimeterTitleName)
+}
+
+func testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_updateTest(t *testing.T) {
+	org := envvar.GetTestOrgFromEnv(t)
+
+	policyTitle := acctest.RandString(t, 10)
+	perimeterTitle := "perimeter"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step1(org, policyTitle, perimeterTitle),
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step2(org, policyTitle, perimeterTitle),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_access_context_manager_service_perimeter_dry_run_ingress_policy.test-access1",
+							plancheck.ResourceActionUpdate,
+						),
+					},
+				},
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step3(org, policyTitle, perimeterTitle),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_access_context_manager_service_perimeter_dry_run_ingress_policy.test-access1",
+							plancheck.ResourceActionUpdate,
+						),
+					},
+				},
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_destroy(org, policyTitle, perimeterTitle),
+				Check:  testAccCheckAccessContextManagerServicePerimeterDryRunIngressPolicyDestroyProducer(t),
+			},
+		},
+	})
+}
+
+// step 1: create
+func testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step1(org, policyTitle, perimeterTitleName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy" "test-access1" {
+  perimeter = google_access_context_manager_service_perimeter.test-access.name
+  title     = "dry run ingress policy update test"
+  ingress_from {
+    identity_type = "ANY_IDENTITY"
+  }
+  ingress_to {
+    resources = ["*"]
+    operations {
+      service_name = "storage.googleapis.com"
+      method_selectors {
+        method = "*"
+      }
+    }
+  }
+}
+`, testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_destroy(org, policyTitle, perimeterTitleName))
+}
+
+// step 2: change identity_type, swap to access_level source and roles
+func testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step2(org, policyTitle, perimeterTitleName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_access_context_manager_access_level" "update-test" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/updatetestlevel"
+  title       = "updatetestlevel"
+  description = "Access level for dry run ingress update test"
+  basic {
+    conditions {
+      ip_subnetworks = ["192.0.4.0/24"]
+    }
+  }
+}
+
+resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy" "test-access1" {
+  perimeter = google_access_context_manager_service_perimeter.test-access.name
+  title     = "dry run ingress policy update test"
+  ingress_from {
+    identity_type = "ANY_USER_ACCOUNT"
+    sources {
+      access_level = google_access_context_manager_access_level.update-test.name
+    }
+  }
+  ingress_to {
+    resources = ["*"]
+    roles     = ["roles/bigquery.admin"]
+  }
+}
+`, testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_destroy(org, policyTitle, perimeterTitleName))
+}
+
+// step 3: switch identity_type and operations
+func testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step3(org, policyTitle, perimeterTitleName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_access_context_manager_access_level" "update-test" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/updatetestlevel"
+  title       = "updatetestlevel"
+  description = "Access level for dry run ingress update test"
+  basic {
+    conditions {
+      ip_subnetworks = ["192.0.4.0/24"]
+    }
+  }
+}
+
+resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy" "test-access1" {
+  perimeter = google_access_context_manager_service_perimeter.test-access.name
+  title     = "dry run ingress policy update test"
+  ingress_from {
+    identity_type = "ANY_IDENTITY"
+    sources {
+      access_level = google_access_context_manager_access_level.update-test.name
+    }
+  }
+  ingress_to {
+    resources = ["*"]
+    operations {
+      service_name = "bigquery.googleapis.com"
+      method_selectors {
+        method = "BigQueryStorage.ReadRows"
+      }
+      method_selectors {
+        permission = "bigquery.jobs.get"
+      }
+    }
+  }
+}
+`, testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_destroy(org, policyTitle, perimeterTitleName))
 }

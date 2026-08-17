@@ -128,12 +128,6 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"group_key": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Required. Immutable. Google Group id whose members are subject to this binding's restrictions. See "id" in the G Suite Directory API's Groups resource. If a group's email address/alias is changed, this resource will continue to point at the changed group. This field does not accept group email addresses or aliases. Example: "01d520gv4vjcrht"`,
-			},
 			"organization_id": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -150,6 +144,57 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"dry_run_access_levels": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Optional. Dry run access level that will be evaluated but will not be enforced. The
+access denial based on dry run policy will be logged. Only one access
+level is supported, not multiple. This list must have exactly one element.
+Example: "accessPolicies/9522/accessLevels/device_trusted"`,
+				MinItems: 1,
+				MaxItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"group_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Immutable. Google Group id whose members are subject to this binding's restrictions.
+See "id" in the Google Workspace Directory API's Group Resource (https://developers.google.com/admin-sdk/directory/v1/reference/groups#resource).
+If a group's email address/alias is changed, this resource will continue to point at the changed group.
+This field does not accept group email addresses or aliases.
+Example: "01d520gv4vjcrht"`,
+				ConflictsWith: []string{"principal"},
+			},
+			"principal": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Optional. Immutable. The principal that is subject to the access policies in this policy binding.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"service_account": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Immutable. Service account email used to assign policies to a single service account.
+If a service account is subject to multiple policies (e.g., if there is a policy for all
+service accounts in a project and a policy for the service account), the closest (i.e.
+the most specific) dry-run policy will be used for the dry-run functionality and the
+closest policy will be used for the enforcement.`,
+						},
+						"service_account_project_number": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Immutable. Cloud project number used to assign policies to all service accounts owned by the project.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"group_key"},
+			},
 			"scoped_access_settings": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -159,7 +204,7 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 						"active_settings": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Optional. Access settings for this scoped access settings. This field may be empty if dryRunSettings is set.`,
+							Description: `Optional. Access settings for this scoped access settings. This field may be empty if 'dry_run_settings' is set.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -184,14 +229,16 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 													Description: `Optional. How long a user is allowed to take between actions before a new access token must be issued. Only set for Google Cloud apps.`,
 												},
 												"session_length": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: `Optional. The session length. Setting this field to zero is equal to disabling session. Also can set infinite session by flipping the enabled bit to false below. If useOidcMaxAge is true, for OIDC apps, the session length will be the minimum of this field and OIDC max_age param.`,
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Optional. The session length. Setting this field to zero is equal to disabling session. Also can set infinite session by flipping the enabled bit to false below. If useOidcMaxAge is true, for OIDC apps, the session length will be the minimum of this field and OIDC max_age param.
+If this field is set to zero, 'session_length_enabled' must be set to false or left unset.`,
 												},
 												"session_length_enabled": {
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Description: `Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.`,
+													Type:     schema.TypeBool,
+													Optional: true,
+													Description: `Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.
+If 'session_length' is set to zero, this field must be false.`,
 												},
 												"session_reauth_method": {
 													Type:         schema.TypeString,
@@ -213,7 +260,7 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 						"dry_run_settings": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `Optional. Dry-run access settings for this scoped access settings. This field may be empty if activeSettings is set. Cannot contain session settings.`,
+							Description: `Optional. Dry-run access settings for this scoped access settings. This field may be empty if 'active_settings' is set. Cannot contain session settings.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -286,14 +333,16 @@ func ResourceAccessContextManagerGcpUserAccessBinding() *schema.Resource {
 							Description: `Optional. How long a user is allowed to take between actions before a new access token must be issued. Only set for Google Cloud apps.`,
 						},
 						"session_length": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Optional. The session length. Setting this field to zero is equal to disabling session. Also can set infinite session by flipping the enabled bit to false below. If useOidcMaxAge is true, for OIDC apps, the session length will be the minimum of this field and OIDC max_age param.`,
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Optional. The session length. Setting this field to zero is equal to disabling session. Also can set infinite session by flipping the enabled bit to false below. If useOidcMaxAge is true, for OIDC apps, the session length will be the minimum of this field and OIDC max_age param.
+If this field is set to zero, 'session_length_enabled' must be set to false or left unset.`,
 						},
 						"session_length_enabled": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.`,
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.
+If 'session_length' is set to zero, this field must be false.`,
 						},
 						"session_reauth_method": {
 							Type:         schema.TypeString,
@@ -363,6 +412,18 @@ func resourceAccessContextManagerGcpUserAccessBindingCreate(d *schema.ResourceDa
 		return err
 	} else if v, ok := d.GetOkExists("scoped_access_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(scopedAccessSettingsProp)) && (ok || !reflect.DeepEqual(v, scopedAccessSettingsProp)) {
 		obj["scopedAccessSettings"] = scopedAccessSettingsProp
+	}
+	dryRunAccessLevelsProp, err := expandAccessContextManagerGcpUserAccessBindingDryRunAccessLevels(d.Get("dry_run_access_levels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dry_run_access_levels"); !tpgresource.IsEmptyValue(reflect.ValueOf(dryRunAccessLevelsProp)) && (ok || !reflect.DeepEqual(v, dryRunAccessLevelsProp)) {
+		obj["dryRunAccessLevels"] = dryRunAccessLevelsProp
+	}
+	principalProp, err := expandAccessContextManagerGcpUserAccessBindingPrincipal(d.Get("principal"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("principal"); !tpgresource.IsEmptyValue(reflect.ValueOf(principalProp)) && (ok || !reflect.DeepEqual(v, principalProp)) {
+		obj["principal"] = principalProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization_id}}/gcpUserAccessBindings")
@@ -559,6 +620,18 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 	} else if v, ok := d.GetOkExists("scoped_access_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopedAccessSettingsProp)) {
 		obj["scopedAccessSettings"] = scopedAccessSettingsProp
 	}
+	dryRunAccessLevelsProp, err := expandAccessContextManagerGcpUserAccessBindingDryRunAccessLevels(d.Get("dry_run_access_levels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dry_run_access_levels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dryRunAccessLevelsProp)) {
+		obj["dryRunAccessLevels"] = dryRunAccessLevelsProp
+	}
+	principalProp, err := expandAccessContextManagerGcpUserAccessBindingPrincipal(d.Get("principal"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("principal"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, principalProp)) {
+		obj["principal"] = principalProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
@@ -579,6 +652,14 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 
 	if d.HasChange("scoped_access_settings") {
 		updateMask = append(updateMask, "scopedAccessSettings")
+	}
+
+	if d.HasChange("dry_run_access_levels") {
+		updateMask = append(updateMask, "dryRunAccessLevels")
+	}
+
+	if d.HasChange("principal") {
+		updateMask = append(updateMask, "principal")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -894,6 +975,33 @@ func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSe
 	return []interface{}{transformed}
 }
 func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSettingsAccessLevels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingDryRunAccessLevels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_account_project_number"] =
+		flattenAccessContextManagerGcpUserAccessBindingPrincipalServiceAccountProjectNumber(original["serviceAccountProjectNumber"], d, config)
+	transformed["service_account"] =
+		flattenAccessContextManagerGcpUserAccessBindingPrincipalServiceAccount(original["serviceAccount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerGcpUserAccessBindingPrincipalServiceAccountProjectNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingPrincipalServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1224,6 +1332,47 @@ func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsDryRunSet
 	return v, nil
 }
 
+func expandAccessContextManagerGcpUserAccessBindingDryRunAccessLevels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingPrincipal(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServiceAccountProjectNumber, err := expandAccessContextManagerGcpUserAccessBindingPrincipalServiceAccountProjectNumber(original["service_account_project_number"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountProjectNumber); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccountProjectNumber"] = transformedServiceAccountProjectNumber
+	}
+
+	transformedServiceAccount, err := expandAccessContextManagerGcpUserAccessBindingPrincipalServiceAccount(original["service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccount"] = transformedServiceAccount
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingPrincipalServiceAccountProjectNumber(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingPrincipalServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceAccessContextManagerGcpUserAccessBindingFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -1240,6 +1389,12 @@ func ResourceAccessContextManagerGcpUserAccessBindingFlatten(d *schema.ResourceD
 		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
 	}
 	if err = d.Set("scoped_access_settings", flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettings(res["scopedAccessSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
+	}
+	if err = d.Set("dry_run_access_levels", flattenAccessContextManagerGcpUserAccessBindingDryRunAccessLevels(res["dryRunAccessLevels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
+	}
+	if err = d.Set("principal", flattenAccessContextManagerGcpUserAccessBindingPrincipal(res["principal"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GcpUserAccessBinding: %s", err)
 	}
 

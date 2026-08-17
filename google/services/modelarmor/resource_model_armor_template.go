@@ -748,6 +748,7 @@ func resourceModelArmorTemplateUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+
 	// Ensure templateMetadata is in the request body when it's in the update mask.
 	// When template_metadata is not in the user's config, the expand function
 	// returns nil so templateMetadata is absent from obj. But if the API previously

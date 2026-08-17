@@ -153,7 +153,7 @@ func ListComputeRegionHealthAggregationPolicys(config *transport_tpg.Config,
 		ListURL:        url,
 		BillingProject: billingProject,
 		UserAgent:      userAgent,
-		ItemName:       "regionHealthAggregationPolicies",
+		ItemName:       "healthAggregationPolicies",
 		Flattener: func(res map[string]interface{}, d *schema.ResourceData, config *transport_tpg.Config) error {
 			headers := make(http.Header)
 			var err error

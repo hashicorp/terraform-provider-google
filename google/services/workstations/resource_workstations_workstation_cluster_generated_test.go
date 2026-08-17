@@ -392,7 +392,7 @@ resource "google_workstations_workstation_cluster" "default" {
   subnetwork             = google_compute_subnetwork.default.id
   location               = "us-central1"
 
-  workstation_authorization_url = "https://workstations.cloud.google.com/ui/auth"
+  workstation_authorization_url = "https://console.cloud.google.com/workstations/auth"
   workstation_launch_url        = "https://console.cloud.google.com/workstations/launch"
 }
 

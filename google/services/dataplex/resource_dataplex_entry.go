@@ -892,6 +892,7 @@ func resourceDataplexEntryUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+
 	if d.HasChange("aspects") {
 		url, err = transport_tpg.AddQueryParams(url, map[string]string{"deleteMissingAspects": "true"})
 		if err != nil {

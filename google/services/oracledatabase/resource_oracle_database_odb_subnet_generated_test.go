@@ -61,6 +61,7 @@ func TestAccOracleDatabaseOdbSubnet_oracledatabaseOdbsubnetExample(t *testing.T)
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"cidr_range":          fmt.Sprintf("10.1.%d.0/24", acctest.RandInt(t)%200+10),
 		"deletion_protection": false,
 		"odb_network_id":      "tf-test-permanent-odbnetwork",
 		"odb_subnet_id":       fmt.Sprintf("tf-test-odbsubnet-%s", acctest.RandString(t, 10)),
@@ -99,7 +100,7 @@ resource "google_oracle_database_odb_subnet" "my-odbsubnet"{
   location = "europe-west2"
   project = "%{project}"
   odbnetwork = "%{odb_network_id}"
-  cidr_range = "10.1.1.0/24"
+  cidr_range = "%{cidr_range}"
   purpose = "CLIENT_SUBNET"
   labels = {
     terraform_created = "true"

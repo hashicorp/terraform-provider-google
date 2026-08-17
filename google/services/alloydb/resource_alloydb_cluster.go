@@ -1507,6 +1507,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
+
 	// Implementation for cluster upgrade
 	if d.HasChange("database_version") && !tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("database_version"))) {
 		upgradeUrl := strings.Split(url, "?updateMask")[0] + ":upgrade"
@@ -1543,7 +1544,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMask = updateMask[:index]
 
 		// Update url with the new updateMask
-		url := strings.Split(url, "?updateMask=")[0]
+		url = strings.Split(url, "?updateMask=")[0]
 		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 		if err != nil {
 			return err
@@ -1594,7 +1595,7 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMask = updateMask[:index]
 
 		// Update url with the new updateMask
-		url := strings.Split(url, "?updateMask=")[0]
+		url = strings.Split(url, "?updateMask=")[0]
 		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 		if err != nil {
 			return err

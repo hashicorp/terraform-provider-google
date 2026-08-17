@@ -1,0 +1,129 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_agentic_applications_analyst_agent_persona
+generation_type: mmv1
+source_file: products/agenticapplications/AnalystAgentPersona.yaml
+api_service_name: agenticapplications.googleapis.com
+api_version: v1
+api_resource_type_kind: AnalystAgentPersona
+autogen_status: true
+autogen_version: 2
+fields:
+    - field: analyst_agent_persona_id
+      provider_only: true
+    - api_field: artifactExamples.resource.bigqueryResource.bigqueryDataset
+    - api_field: artifactExamples.resource.bigqueryResource.bigqueryTable
+    - api_field: artifactExamples.resource.bigqueryResource.columnDescriptions
+    - api_field: artifactExamples.resource.displayLabel
+    - api_field: artifactExamples.resource.f1Resource.f1Table
+    - api_field: artifactExamples.resource.googleCloudStorageResource.fileExtensionRestrictions
+    - api_field: artifactExamples.resource.googleCloudStorageResource.googleCloudStorageObject
+    - api_field: artifactExamples.resource.googleDriveResource.fileExtensionRestrictions
+    - api_field: artifactExamples.resource.googleDriveResource.fileReference
+    - api_field: artifactExamples.resource.modelDescription
+    - api_field: artifactExamples.resource.rawFileResource.fileContent
+    - api_field: artifactExamples.resource.rawFileResource.fileTitle
+    - api_field: artifactExamples.resource.rawFileResource.mimeType
+    - api_field: artifactExamples.resource.useRag
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.bigqueryResource.bigqueryDataset
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.bigqueryResource.bigqueryTable
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.bigqueryResource.columnDescriptions
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.displayLabel
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.f1Resource.f1Table
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.googleCloudStorageResource.fileExtensionRestrictions
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.googleCloudStorageResource.googleCloudStorageObject
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.googleDriveResource.fileExtensionRestrictions
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.googleDriveResource.fileReference
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.modelDescription
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.rawFileResource.fileContent
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.rawFileResource.fileTitle
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.rawFileResource.mimeType
+    - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.useRag
+    - api_field: artifactsConfig.documentGenerationOptions.exportFormat
+    - api_field: artifactsConfig.slideGenerationOptions.exportFormat
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.bigqueryResource.bigqueryDataset
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.bigqueryResource.bigqueryTable
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.bigqueryResource.columnDescriptions
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.displayLabel
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.f1Resource.f1Table
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.googleCloudStorageResource.fileExtensionRestrictions
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.googleCloudStorageResource.googleCloudStorageObject
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.googleDriveResource.fileExtensionRestrictions
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.googleDriveResource.fileReference
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.modelDescription
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.rawFileResource.fileContent
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.rawFileResource.fileTitle
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.rawFileResource.mimeType
+    - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.useRag
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.bigqueryResource.bigqueryDataset
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.bigqueryResource.bigqueryTable
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.bigqueryResource.columnDescriptions
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.displayLabel
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.f1Resource.f1Table
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.googleCloudStorageResource.fileExtensionRestrictions
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.googleCloudStorageResource.googleCloudStorageObject
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.googleDriveResource.fileExtensionRestrictions
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.googleDriveResource.fileReference
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.modelDescription
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.rawFileResource.fileContent
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.rawFileResource.fileTitle
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.rawFileResource.mimeType
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.useRag
+    - api_field: artifactsConfig.visualizationOptions.visualizationExamples.visualizationType
+    - api_field: createTime
+    - api_field: customerContext
+    - api_field: displayDescription
+    - api_field: displayName
+    - api_field: externalDataSources.airQuality
+    - api_field: externalDataSources.bureauLaborStatistics
+    - api_field: externalDataSources.coindesk
+    - api_field: externalDataSources.enabled
+    - api_field: externalDataSources.finnhub
+    - api_field: externalDataSources.fred
+    - api_field: externalDataSources.secEdgar
+    - api_field: externalDataSources.selectionName
+    - api_field: externalDataSources.treasurySecuritiesAuctions
+    - api_field: externalDataSources.usda
+    - api_field: geminiEnterpriseEngine
+    - field: location
+      provider_only: true
+    - api_field: mcpDataSources.apiKey
+    - api_field: mcpDataSources.apiKeyName
+    - api_field: mcpDataSources.clientId
+    - api_field: mcpDataSources.clientSecret
+    - api_field: mcpDataSources.description
+    - api_field: mcpDataSources.displayName
+    - api_field: mcpDataSources.enabled
+    - api_field: mcpDataSources.oauthTokenUrl
+    - api_field: mcpDataSources.prompt
+    - api_field: mcpDataSources.serverUrl
+    - api_field: modelDescription
+    - api_field: name
+    - api_field: resources.bigqueryResource.bigqueryDataset
+    - api_field: resources.bigqueryResource.bigqueryTable
+    - api_field: resources.bigqueryResource.columnDescriptions
+    - api_field: resources.displayLabel
+    - api_field: resources.f1Resource.f1Table
+    - api_field: resources.googleCloudStorageResource.fileExtensionRestrictions
+    - api_field: resources.googleCloudStorageResource.googleCloudStorageObject
+    - api_field: resources.googleDriveResource.fileExtensionRestrictions
+    - api_field: resources.googleDriveResource.fileReference
+    - api_field: resources.modelDescription
+    - api_field: resources.rawFileResource.fileContent
+    - api_field: resources.rawFileResource.fileTitle
+    - api_field: resources.rawFileResource.mimeType
+    - api_field: resources.useRag
+    - api_field: role
+    - api_field: skills.content
+    - api_field: skills.description
+    - api_field: skills.references.content
+    - api_field: skills.references.referenceId
+    - api_field: skills.skillId
+    - api_field: tables.columns.dataType
+    - api_field: tables.columns.description
+    - api_field: tables.columns.name
+    - api_field: tables.description
+    - api_field: tables.name
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

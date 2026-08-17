@@ -329,7 +329,6 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
 }
 
 func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineByocExample(t *testing.T) {
-	acctest.SkipTestUntil(t, "2026-05-15")
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
@@ -374,6 +373,7 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   spec {
     container_spec {
       image_uri = "us-central1-docker.pkg.dev/${data.google_project.project.project_id}/vertex-byoc/byoc-agent:latest" # image path
+      port      = 8080
     }
   }
 

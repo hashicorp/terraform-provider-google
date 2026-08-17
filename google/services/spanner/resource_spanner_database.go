@@ -790,6 +790,7 @@ func resourceSpannerDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
+
 	if obj["statements"] != nil {
 		if len(obj["statements"].([]string)) == 0 {
 			// Return early to avoid making an API call that errors,

@@ -8,10 +8,13 @@ api_version: v1
 api_resource_type_kind: GcpUserAccessBinding
 fields:
     - api_field: accessLevels
+    - api_field: dryRunAccessLevels
     - api_field: groupKey
     - api_field: name
     - field: organization_id
       provider_only: true
+    - api_field: principal.serviceAccount
+    - api_field: principal.serviceAccountProjectNumber
     - api_field: scopedAccessSettings.activeSettings.accessLevels
     - api_field: scopedAccessSettings.activeSettings.sessionSettings.maxInactivity
     - api_field: scopedAccessSettings.activeSettings.sessionSettings.sessionLength

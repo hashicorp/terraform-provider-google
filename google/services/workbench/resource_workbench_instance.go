@@ -917,6 +917,11 @@ Format: {project_id}`,
 							},
 							ConflictsWith: []string{"gce_setup.0.container_image"},
 						},
+						"compute_instance_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Output only. The unique numeric identifier of the underlying Compute Engine VM instance.`,
+						},
 					},
 				},
 			},
@@ -1441,6 +1446,7 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+
 	// Build custom mask since the notebooks API does not support gce_setup as a valid mask
 	restartRequiredKeys := []string{
 		"disable-mixer",
@@ -1722,6 +1728,8 @@ func flattenWorkbenchInstanceGceSetup(v interface{}, d *schema.ResourceData, con
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["compute_instance_id"] =
+		flattenWorkbenchInstanceGceSetupComputeInstanceId(original["instanceId"], d, config)
 	transformed["machine_type"] =
 		flattenWorkbenchInstanceGceSetupMachineType(original["machineType"], d, config)
 	transformed["accelerator_configs"] =
@@ -1756,6 +1764,10 @@ func flattenWorkbenchInstanceGceSetup(v interface{}, d *schema.ResourceData, con
 		flattenWorkbenchInstanceGceSetupMinCpuPlatform(original["minCpuPlatform"], d, config)
 	return []interface{}{transformed}
 }
+func flattenWorkbenchInstanceGceSetupComputeInstanceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenWorkbenchInstanceGceSetupMachineType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2234,6 +2246,13 @@ func expandWorkbenchInstanceGceSetup(v interface{}, d tpgresource.TerraformResou
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedComputeInstanceId, err := expandWorkbenchInstanceGceSetupComputeInstanceId(original["compute_instance_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedComputeInstanceId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["instanceId"] = transformedComputeInstanceId
+	}
+
 	transformedMachineType, err := expandWorkbenchInstanceGceSetupMachineType(original["machine_type"], d, config)
 	if err != nil {
 		return nil, err
@@ -2347,6 +2366,10 @@ func expandWorkbenchInstanceGceSetup(v interface{}, d tpgresource.TerraformResou
 	}
 
 	return transformed, nil
+}
+
+func expandWorkbenchInstanceGceSetupComputeInstanceId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandWorkbenchInstanceGceSetupMachineType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

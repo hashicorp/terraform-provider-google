@@ -332,6 +332,56 @@ resource "google_certificate_manager_certificate" "default" {
 `, context)
 }
 
+func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateWriteOnlyExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"cert_name":     "tf-test-self-managed-cert" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCertificateManagerCertificateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateWriteOnlyExample(context),
+			},
+			{
+				ResourceName:            "google_certificate_manager_certificate.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "self_managed", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_certificate_manager_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateWriteOnlyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_certificate_manager_certificate" "default" {
+  name        = "%{cert_name}"
+  description = "Global cert"
+  scope       = "ALL_REGIONS"
+  self_managed {
+    pem_certificate            = file("test-fixtures/cert.pem")
+    pem_private_key_wo         = file("test-fixtures/private-key.pem")
+    pem_private_key_wo_version = parseint(filesha256("test-fixtures/private-key.pem"), 16) % pow(2, 32)
+  }
+}
+`, context)
+}
+
 func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateRegionalExample(t *testing.T) {
 	t.Parallel()
 

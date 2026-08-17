@@ -891,6 +891,7 @@ func resourceVmwareengineClusterUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+
 	// RemoveDatastoreMountConfigFieldFromUpdateMask removes 'datastoreMountConfig' from the updateMask in a URL.
 	url = RemoveDatastoreMountConfigFieldFromUpdateMask(url)
 	log.Printf("[DEBUG] After removal of datastoreMountConfig from updateMask %q cluster patch url: %#v", d.Id(), url)

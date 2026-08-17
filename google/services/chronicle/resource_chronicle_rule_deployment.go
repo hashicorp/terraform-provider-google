@@ -737,6 +737,7 @@ func resourceChronicleRuleDeploymentUpdate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+
 	// scheduleCustomizations uses the "runFrequency" field mask path for updates,
 	// rather than "scheduleCustomizations". So if there's an update, remove the
 	// "scheduleCustomizations" field mask path and add "runFrequency".
