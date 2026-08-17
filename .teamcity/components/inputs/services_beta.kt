@@ -931,6 +931,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Vertexai",
         "path" to "./google-beta/services/vertexai"
     ),
+    "vertexaiaad" to mapOf(
+        "name" to "vertexaiaad",
+        "displayName" to "Vertexaiaad",
+        "path" to "./google-beta/services/vertexaiaad"
+    ),
     "vmwareengine" to mapOf(
         "name" to "vmwareengine",
         "displayName" to "Vmwareengine",
