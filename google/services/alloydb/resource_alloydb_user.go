@@ -383,6 +383,7 @@ func resourceAlloydbUserUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+
 	// If password_wo_version changed, the user wants to update the password.
 	// Write-only fields aren't in state, so d.HasChange("password_wo") is always
 	// false and the value is never added to obj by the generated code. Handle

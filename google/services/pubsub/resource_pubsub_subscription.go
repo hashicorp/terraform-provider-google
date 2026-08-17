@@ -1275,6 +1275,7 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+
 	if _, ok := d.GetOkExists("bigquery_config"); ok {
 		// if bigqueryConfig is set, we need to always add it to the update mask
 		// so that the bigquery service account email can be updated properly

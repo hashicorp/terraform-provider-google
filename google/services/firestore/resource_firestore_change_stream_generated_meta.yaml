@@ -1,0 +1,21 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_firestore_change_stream
+generation_type: mmv1
+source_file: products/firestore/ChangeStream.yaml
+api_service_name: firestore.googleapis.com
+api_version: v1
+api_resource_type_kind: ChangeStream
+fields:
+    - api_field: collectionGroupScope.collectionGroupId
+    - api_field: createTime
+    - field: database
+      provider_only: true
+    - api_field: databaseScope
+    - api_field: etag
+    - api_field: name
+    - api_field: retentionPeriod
+    - api_field: startTime
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

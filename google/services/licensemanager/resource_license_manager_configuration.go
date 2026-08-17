@@ -570,6 +570,7 @@ func resourceLicenseManagerConfigurationUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
+
 	// Reference design doc: go/lima-terraform
 	// Filter out "active" from updateMask because state transitions are handled via POST in post_update.
 	var filteredMask []string

@@ -385,6 +385,7 @@ func resourceServiceDirectoryEndpointUpdate(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Updating Endpoint %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
 	updateMask := []string{}
 
 	if d.HasChange("address") {

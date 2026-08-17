@@ -720,6 +720,7 @@ func resourceCloudSecurityComplianceFrameworkUpdate(d *schema.ResourceData, meta
 	if err != nil {
 		return err
 	}
+
 	if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
 		if err := d.Set("parent", "organizations/"+d.Get("organization").(string)); err != nil {
 			return err

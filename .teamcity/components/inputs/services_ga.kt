@@ -36,6 +36,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Agent Identity",
         "path" to "./google/services/agentidentity"
     ),
+    "agenticapplications" to mapOf(
+        "name" to "agenticapplications",
+        "displayName" to "Agentic Applications",
+        "path" to "./google/services/agenticapplications"
+    ),
     "agentregistry" to mapOf(
         "name" to "agentregistry",
         "displayName" to "Agent Registry",
@@ -45,11 +50,6 @@ var ServicesListGa = mapOf(
         "name" to "alloydb",
         "displayName" to "Alloydb",
         "path" to "./google/services/alloydb"
-    ),
-    "apigateway" to mapOf(
-        "name" to "apigateway",
-        "displayName" to "Apigateway",
-        "path" to "./google/services/apigateway"
     ),
     "apigee" to mapOf(
         "name" to "apigee",
@@ -446,16 +446,6 @@ var ServicesListGa = mapOf(
         "displayName" to "Filestore",
         "path" to "./google/services/filestore"
     ),
-    "firebase" to mapOf(
-        "name" to "firebase",
-        "displayName" to "Firebase",
-        "path" to "./google/services/firebase"
-    ),
-    "firebaseailogic" to mapOf(
-        "name" to "firebaseailogic",
-        "displayName" to "Firebase AI Logic",
-        "path" to "./google/services/firebaseailogic"
-    ),
     "firebaseappcheck" to mapOf(
         "name" to "firebaseappcheck",
         "displayName" to "Firebaseappcheck",
@@ -466,25 +456,10 @@ var ServicesListGa = mapOf(
         "displayName" to "Firebase App Hosting",
         "path" to "./google/services/firebaseapphosting"
     ),
-    "firebasedatabase" to mapOf(
-        "name" to "firebasedatabase",
-        "displayName" to "Firebasedatabase",
-        "path" to "./google/services/firebasedatabase"
-    ),
     "firebasedataconnect" to mapOf(
         "name" to "firebasedataconnect",
         "displayName" to "Firebasedataconnect",
         "path" to "./google/services/firebasedataconnect"
-    ),
-    "firebaseextensions" to mapOf(
-        "name" to "firebaseextensions",
-        "displayName" to "Firebaseextensions",
-        "path" to "./google/services/firebaseextensions"
-    ),
-    "firebasehosting" to mapOf(
-        "name" to "firebasehosting",
-        "displayName" to "Firebasehosting",
-        "path" to "./google/services/firebasehosting"
     ),
     "firebaseremoteconfig" to mapOf(
         "name" to "firebaseremoteconfig",
@@ -771,16 +746,6 @@ var ServicesListGa = mapOf(
         "displayName" to "Resourcemanagerv3",
         "path" to "./google/services/resourcemanagerv3"
     ),
-    "runtimeconfig" to mapOf(
-        "name" to "runtimeconfig",
-        "displayName" to "Runtimeconfig",
-        "path" to "./google/services/runtimeconfig"
-    ),
-    "saasruntime" to mapOf(
-        "name" to "saasruntime",
-        "displayName" to "SaaS Runtime",
-        "path" to "./google/services/saasruntime"
-    ),
     "secretmanager" to mapOf(
         "name" to "secretmanager",
         "displayName" to "Secretmanager",
@@ -820,11 +785,6 @@ var ServicesListGa = mapOf(
         "name" to "securityposture",
         "displayName" to "Securityposture",
         "path" to "./google/services/securityposture"
-    ),
-    "securityscanner" to mapOf(
-        "name" to "securityscanner",
-        "displayName" to "Securityscanner",
-        "path" to "./google/services/securityscanner"
     ),
     "servicedirectory" to mapOf(
         "name" to "servicedirectory",
@@ -900,11 +860,6 @@ var ServicesListGa = mapOf(
         "name" to "tagslocation",
         "displayName" to "Tagslocation",
         "path" to "./google/services/tagslocation"
-    ),
-    "tpuv2" to mapOf(
-        "name" to "tpuv2",
-        "displayName" to "Tpuv2",
-        "path" to "./google/services/tpuv2"
     ),
     "transcoder" to mapOf(
         "name" to "transcoder",

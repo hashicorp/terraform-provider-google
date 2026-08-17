@@ -249,6 +249,35 @@ func ResourceColabNotebookExecution() *schema.Resource {
 								},
 							},
 						},
+						"shielded_instance_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Shielded VM configuration.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable_integrity_monitoring": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Defines whether the instance has integrity monitoring enabled. Enables monitoring and attestation of the boot integrity of the instance. The attestation is performed against the integrity policy baseline. This baseline is initially derived from the implicitly trusted boot image when the instance is created. Enabled by default.`,
+									},
+									"enable_secure_boot": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Defines whether the instance has Secure Boot enabled. Secure Boot helps ensure that the system only runs authentic software by verifying the digital signature of all boot components, and halting the boot process if signature verification fails. Disabled by default.`,
+									},
+									"enable_vtpm": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Defines whether the instance has the vTPM enabled. Enabled by default.`,
+									},
+								},
+							},
+						},
 					},
 				},
 				ExactlyOneOf: []string{"custom_environment_spec", "notebook_runtime_template_resource_name"},
@@ -354,6 +383,48 @@ func ResourceColabNotebookExecution() *schema.Resource {
 				Description:  `The service account to run the execution as.`,
 				ExactlyOneOf: []string{"execution_user", "service_account"},
 			},
+			"workbench_runtime": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Configuration for a Workbench Instances-based environment.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"vm_image": {
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Custom Compute Engine VM image for the Workbench instance.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"family": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										Description:  `Use this VM image family to find the image; the newest image in this family will be used.`,
+										ExactlyOneOf: []string{"workbench_runtime.0.vm_image.0.family", "workbench_runtime.0.vm_image.0.name"},
+									},
+									"name": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										Description:  `Use VM image name to find the image.`,
+										ExactlyOneOf: []string{"workbench_runtime.0.vm_image.0.family", "workbench_runtime.0.vm_image.0.name"},
+									},
+									"project": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The name of the Google Cloud project that this VM image belongs to. Format: {project_id}`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -426,6 +497,12 @@ func resourceColabNotebookExecutionCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("custom_environment_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(customEnvironmentSpecProp)) && (ok || !reflect.DeepEqual(v, customEnvironmentSpecProp)) {
 		obj["customEnvironmentSpec"] = customEnvironmentSpecProp
+	}
+	workbenchRuntimeProp, err := expandColabNotebookExecutionWorkbenchRuntime(d.Get("workbench_runtime"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("workbench_runtime"); !tpgresource.IsEmptyValue(reflect.ValueOf(workbenchRuntimeProp)) && (ok || !reflect.DeepEqual(v, workbenchRuntimeProp)) {
+		obj["workbenchRuntime"] = workbenchRuntimeProp
 	}
 	gcsOutputUriProp, err := expandColabNotebookExecutionGcsOutputUri(d.Get("gcs_output_uri"), d, config)
 	if err != nil {
@@ -547,7 +624,7 @@ func resourceColabNotebookExecutionRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notebookExecutionJobs/{{notebook_execution_job_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notebookExecutionJobs/{{notebook_execution_job_id}}?view=NOTEBOOK_EXECUTION_JOB_VIEW_FULL")
 	if err != nil {
 		return err
 	}
@@ -766,6 +843,23 @@ func flattenColabNotebookExecutionGcsNotebookSourceGeneration(v interface{}, d *
 	return v
 }
 
+func flattenColabNotebookExecutionDirectNotebookSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["content"] =
+		flattenColabNotebookExecutionDirectNotebookSourceContent(original["content"], d, config)
+	return []interface{}{transformed}
+}
+func flattenColabNotebookExecutionDirectNotebookSourceContent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenColabNotebookExecutionExecutionTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -789,6 +883,8 @@ func flattenColabNotebookExecutionCustomEnvironmentSpec(v interface{}, d *schema
 		flattenColabNotebookExecutionCustomEnvironmentSpecPersistentDiskSpec(original["persistentDiskSpec"], d, config)
 	transformed["network_spec"] =
 		flattenColabNotebookExecutionCustomEnvironmentSpecNetworkSpec(original["networkSpec"], d, config)
+	transformed["shielded_instance_config"] =
+		flattenColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfig(original["shieldedInstanceConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenColabNotebookExecutionCustomEnvironmentSpecMachineSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -882,6 +978,21 @@ func flattenColabNotebookExecutionCustomEnvironmentSpecNetworkSpecNetwork(v inte
 }
 
 func flattenColabNotebookExecutionCustomEnvironmentSpecNetworkSpecSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("custom_environment_spec.0.shielded_instance_config")
+}
+func flattenColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfigEnableIntegrityMonitoring(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfigEnableSecureBoot(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfigEnableVtpm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1042,6 +1153,13 @@ func expandColabNotebookExecutionCustomEnvironmentSpec(v interface{}, d tpgresou
 		transformed["networkSpec"] = transformedNetworkSpec
 	}
 
+	transformedShieldedInstanceConfig, err := expandColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfig(original["shielded_instance_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedShieldedInstanceConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["shieldedInstanceConfig"] = transformedShieldedInstanceConfig
+	}
+
 	return transformed, nil
 }
 
@@ -1178,6 +1296,124 @@ func expandColabNotebookExecutionCustomEnvironmentSpecNetworkSpecSubnetwork(v in
 	return v, nil
 }
 
+func expandColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableIntegrityMonitoring, err := expandColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfigEnableIntegrityMonitoring(original["enable_integrity_monitoring"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableIntegrityMonitoring); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableIntegrityMonitoring"] = transformedEnableIntegrityMonitoring
+	}
+
+	transformedEnableSecureBoot, err := expandColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfigEnableSecureBoot(original["enable_secure_boot"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableSecureBoot); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableSecureBoot"] = transformedEnableSecureBoot
+	}
+
+	transformedEnableVtpm, err := expandColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfigEnableVtpm(original["enable_vtpm"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableVtpm); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableVtpm"] = transformedEnableVtpm
+	}
+
+	return transformed, nil
+}
+
+func expandColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfigEnableIntegrityMonitoring(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfigEnableSecureBoot(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfigEnableVtpm(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabNotebookExecutionWorkbenchRuntime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedVmImage, err := expandColabNotebookExecutionWorkbenchRuntimeVmImage(original["vm_image"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVmImage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["vmImage"] = transformedVmImage
+	}
+
+	return transformed, nil
+}
+
+func expandColabNotebookExecutionWorkbenchRuntimeVmImage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFamily, err := expandColabNotebookExecutionWorkbenchRuntimeVmImageFamily(original["family"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFamily); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["family"] = transformedFamily
+	}
+
+	transformedName, err := expandColabNotebookExecutionWorkbenchRuntimeVmImageName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedProject, err := expandColabNotebookExecutionWorkbenchRuntimeVmImageProject(original["project"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProject); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["project"] = transformedProject
+	}
+
+	return transformed, nil
+}
+
+func expandColabNotebookExecutionWorkbenchRuntimeVmImageFamily(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabNotebookExecutionWorkbenchRuntimeVmImageName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabNotebookExecutionWorkbenchRuntimeVmImageProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandColabNotebookExecutionGcsOutputUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1200,6 +1436,9 @@ func ResourceColabNotebookExecutionFlatten(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading NotebookExecution: %s", err)
 	}
 	if err = d.Set("gcs_notebook_source", flattenColabNotebookExecutionGcsNotebookSource(res["gcsNotebookSource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotebookExecution: %s", err)
+	}
+	if err = d.Set("direct_notebook_source", flattenColabNotebookExecutionDirectNotebookSource(res["directNotebookSource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotebookExecution: %s", err)
 	}
 	if err = d.Set("execution_timeout", flattenColabNotebookExecutionExecutionTimeout(res["executionTimeout"], d, config)); err != nil {

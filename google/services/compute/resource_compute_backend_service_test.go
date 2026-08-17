@@ -163,7 +163,7 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 				ResourceName:            "google_compute_backend_service.lipsum",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_id", "iap.0.oauth2_client_secret"},
 			},
 		},
 	})
@@ -285,7 +285,7 @@ func TestAccComputeBackendService_updateIAPEnabled(t *testing.T) {
 				ResourceName:            "google_compute_backend_service.lipsum",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_id", "iap.0.oauth2_client_secret"},
 			},
 		},
 	})
@@ -1097,7 +1097,7 @@ func TestAccComputeBackendService_backendServiceMaxDuration(t *testing.T) {
 				ResourceName:            "google_compute_backend_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_id", "iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
 			{
 				Config: testAccComputeBackendService_backendServiceMaxDuration(context2),
@@ -1106,7 +1106,7 @@ func TestAccComputeBackendService_backendServiceMaxDuration(t *testing.T) {
 				ResourceName:            "google_compute_backend_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_id", "iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
 		},
 	})
@@ -1965,6 +1965,86 @@ resource "google_compute_health_check" "default" {
 `, service, maxConnections, instance, neg, network, network, check)
 }
 
+func testAccComputeBackendService_withWriteOnlyValues(randSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "default" {
+  name                  = "tf-test-backend-service-%s"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL"
+  iap {
+    enabled                         = true
+    oauth2_client_id_wo             = "abc"
+    oauth2_client_id_wo_version     = "1"
+    oauth2_client_secret_wo         = "xyz"
+    oauth2_client_secret_wo_version = "1"
+  }
+}
+`, randSuffix)
+}
+
+func testAccComputeBackendService_withWriteOnlyValuesUpdate(randSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "default" {
+  name                  = "tf-test-backend-service-%s"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL"
+  iap {
+    enabled                         = true
+    oauth2_client_id_wo             = "xyz"
+    oauth2_client_id_wo_version     = "2"
+    oauth2_client_secret_wo         = "abc"
+    oauth2_client_secret_wo_version = "2"
+  }
+}
+`, randSuffix)
+}
+
+func TestAccComputeBackendService_withWriteOnlyValues(t *testing.T) {
+	t.Parallel()
+
+	randSuffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withWriteOnlyValues(randSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					// check that write-only values are not stored in state
+					resource.TestCheckNoResourceAttr("google_compute_backend_service.default", "iap.0.oauth2_client_id_wo"),
+					resource.TestCheckNoResourceAttr("google_compute_backend_service.default", "iap.0.oauth2_client_secret_wo"),
+					resource.TestCheckResourceAttr("google_compute_backend_service.default", "iap.0.oauth2_client_id_wo_version", "1"),
+					resource.TestCheckResourceAttr("google_compute_backend_service.default", "iap.0.oauth2_client_secret_wo_version", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_id_wo_version", "iap.0.oauth2_client_secret_wo_version"},
+			},
+			{
+				Config: testAccComputeBackendService_withWriteOnlyValuesUpdate(randSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					// check that write-only values are not stored in state
+					resource.TestCheckNoResourceAttr("google_compute_backend_service.default", "iap.0.oauth2_client_id_wo"),
+					resource.TestCheckNoResourceAttr("google_compute_backend_service.default", "iap.0.oauth2_client_secret_wo"),
+					resource.TestCheckResourceAttr("google_compute_backend_service.default", "iap.0.oauth2_client_id_wo_version", "2"),
+					resource.TestCheckResourceAttr("google_compute_backend_service.default", "iap.0.oauth2_client_secret_wo_version", "2"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_id_wo_version", "iap.0.oauth2_client_secret_wo_version"},
+			},
+		},
+	})
+}
+
 func testAccComputeBackendService_withMaxRatePerEndpoint(
 	service, instance, neg, network, check string, maxRate float64) string {
 	return fmt.Sprintf(`
@@ -2443,7 +2523,7 @@ func TestAccComputeBackendService_backendServiceCustomMetrics_update(t *testing.
 				ResourceName:            "google_compute_backend_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_id", "iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
 			{
 				Config: testAccComputeBackendService_backendServiceCustomMetrics_update(context),
@@ -2452,7 +2532,7 @@ func TestAccComputeBackendService_backendServiceCustomMetrics_update(t *testing.
 				ResourceName:            "google_compute_backend_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_id", "iap.0.oauth2_client_secret", "security_settings.0.aws_v4_authentication.0.access_key"},
 			},
 		},
 	})

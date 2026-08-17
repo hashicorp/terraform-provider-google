@@ -752,6 +752,7 @@ func resourceSecretManagerRegionalRegionalSecretUpdate(d *schema.ResourceData, m
 	if err != nil {
 		return err
 	}
+
 	// As the API expects only one of ttl or expireTime
 	if d.HasChange("ttl") && !d.HasChange("expire_time") {
 		delete(obj, "expireTime")

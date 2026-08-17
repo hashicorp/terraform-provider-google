@@ -24,8 +24,8 @@ description: |-
 Three different resources help you manage your IAM policy for BigQuery Analytics Hub DataExchange. Each of these resources serves a different use case:
 
 * `google_bigquery_analytics_hub_data_exchange_iam_policy`: Authoritative. Sets the IAM policy for the dataexchange and replaces any existing policy already attached.
-* `google_bigquery_analytics_hub_data_exchange_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the dataexchange are preserved.
-* `google_bigquery_analytics_hub_data_exchange_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the dataexchange are preserved.
+* `google_bigquery_analytics_hub_data_exchange_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the dataexchange are preserved. Members added outside of Terraform for the same role will be detected as drift and removed on the next `terraform apply`.
+* `google_bigquery_analytics_hub_data_exchange_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the dataexchange are preserved. Members added outside of Terraform will **not** be detected as drift.
 
 A data source can be used to retrieve policy data in advent you do not need creation
 
@@ -34,7 +34,6 @@ A data source can be used to retrieve policy data in advent you do not need crea
 ~> **Note:** `google_bigquery_analytics_hub_data_exchange_iam_policy` **cannot** be used in conjunction with `google_bigquery_analytics_hub_data_exchange_iam_binding` and `google_bigquery_analytics_hub_data_exchange_iam_member` or they will fight over what your policy should be.
 
 ~> **Note:** `google_bigquery_analytics_hub_data_exchange_iam_binding` resources **can be** used in conjunction with `google_bigquery_analytics_hub_data_exchange_iam_member` resources **only if** they do not grant privilege to the same role.
-
 
 
 ## google_bigquery_analytics_hub_data_exchange_iam_policy

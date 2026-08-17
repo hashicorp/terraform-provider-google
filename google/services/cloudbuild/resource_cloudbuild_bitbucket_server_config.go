@@ -670,6 +670,7 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 	if err != nil {
 		return err
 	}
+
 	// remove connectedRepositories from updateMask
 	for i, field := range updateMask {
 		if field == "connectedRepositories" {

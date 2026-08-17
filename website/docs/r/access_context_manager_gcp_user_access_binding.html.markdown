@@ -86,14 +86,18 @@ resource "google_access_context_manager_gcp_user_access_binding" "gcp_user_acces
 The following arguments are supported:
 
 
-* `group_key` -
-  (Required)
-  Required. Immutable. Google Group id whose members are subject to this binding's restrictions. See "id" in the G Suite Directory API's Groups resource. If a group's email address/alias is changed, this resource will continue to point at the changed group. This field does not accept group email addresses or aliases. Example: "01d520gv4vjcrht"
-
 * `organization_id` -
   (Required)
   Required. ID of the parent organization.
 
+
+* `group_key` -
+  (Optional)
+  Immutable. Google Group id whose members are subject to this binding's restrictions.
+  See "id" in the Google Workspace Directory API's Group Resource (https://developers.google.com/admin-sdk/directory/v1/reference/groups#resource).
+  If a group's email address/alias is changed, this resource will continue to point at the changed group.
+  This field does not accept group email addresses or aliases.
+  Example: "01d520gv4vjcrht"
 
 * `access_levels` -
   (Optional)
@@ -108,6 +112,18 @@ The following arguments are supported:
   (Optional)
   Optional. A list of scoped access settings that set this binding's restrictions on a subset of applications.
   Structure is [documented below](#nested_scoped_access_settings).
+
+* `dry_run_access_levels` -
+  (Optional)
+  Optional. Dry run access level that will be evaluated but will not be enforced. The
+  access denial based on dry run policy will be logged. Only one access
+  level is supported, not multiple. This list must have exactly one element.
+  Example: "accessPolicies/9522/accessLevels/device_trusted"
+
+* `principal` -
+  (Optional)
+  Optional. Immutable. The principal that is subject to the access policies in this policy binding.
+  Structure is [documented below](#nested_principal).
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
@@ -127,6 +143,7 @@ The following arguments are supported:
 * `session_length` -
   (Optional)
   Optional. The session length. Setting this field to zero is equal to disabling session. Also can set infinite session by flipping the enabled bit to false below. If useOidcMaxAge is true, for OIDC apps, the session length will be the minimum of this field and OIDC max_age param.
+  If this field is set to zero, `session_length_enabled` must be set to false or left unset.
 
 * `max_inactivity` -
   (Optional)
@@ -139,6 +156,7 @@ The following arguments are supported:
 * `session_length_enabled` -
   (Optional)
   Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.
+  If `session_length` is set to zero, this field must be false.
 
 <a name="nested_scoped_access_settings"></a>The `scoped_access_settings` block supports:
 
@@ -149,12 +167,12 @@ The following arguments are supported:
 
 * `active_settings` -
   (Optional)
-  Optional. Access settings for this scoped access settings. This field may be empty if dryRunSettings is set.
+  Optional. Access settings for this scoped access settings. This field may be empty if `dry_run_settings` is set.
   Structure is [documented below](#nested_scoped_access_settings_active_settings).
 
 * `dry_run_settings` -
   (Optional)
-  Optional. Dry-run access settings for this scoped access settings. This field may be empty if activeSettings is set. Cannot contain session settings.
+  Optional. Dry-run access settings for this scoped access settings. This field may be empty if `active_settings` is set. Cannot contain session settings.
   Structure is [documented below](#nested_scoped_access_settings_dry_run_settings).
 
 
@@ -206,6 +224,7 @@ The following arguments are supported:
 * `session_length` -
   (Optional)
   Optional. The session length. Setting this field to zero is equal to disabling session. Also can set infinite session by flipping the enabled bit to false below. If useOidcMaxAge is true, for OIDC apps, the session length will be the minimum of this field and OIDC max_age param.
+  If this field is set to zero, `session_length_enabled` must be set to false or left unset.
 
 * `max_inactivity` -
   (Optional)
@@ -218,12 +237,27 @@ The following arguments are supported:
 * `session_length_enabled` -
   (Optional)
   Optional. This field enables or disables Google Cloud session length. When false, all fields set above will be disregarded and the session length is basically infinite.
+  If `session_length` is set to zero, this field must be false.
 
 <a name="nested_scoped_access_settings_dry_run_settings"></a>The `dry_run_settings` block supports:
 
 * `access_levels` -
   (Optional)
   Optional. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"
+
+<a name="nested_principal"></a>The `principal` block supports:
+
+* `service_account_project_number` -
+  (Optional)
+  Immutable. Cloud project number used to assign policies to all service accounts owned by the project.
+
+* `service_account` -
+  (Optional)
+  Immutable. Service account email used to assign policies to a single service account.
+  If a service account is subject to multiple policies (e.g., if there is a policy for all
+  service accounts in a project and a policy for the service account), the closest (i.e.
+  the most specific) dry-run policy will be used for the dry-run functionality and the
+  closest policy will be used for the enforcement.
 
 ## Attributes Reference
 

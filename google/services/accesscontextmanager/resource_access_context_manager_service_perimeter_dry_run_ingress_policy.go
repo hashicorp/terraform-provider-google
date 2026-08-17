@@ -216,6 +216,7 @@ func ResourceAccessContextManagerServicePerimeterDryRunIngressPolicy() *schema.R
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -245,7 +246,6 @@ func ResourceAccessContextManagerServicePerimeterDryRunIngressPolicy() *schema.R
 			"ingress_from": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `Defines the conditions on the source of a request causing this 'IngressPolicy'
 to apply.`,
 				MaxItems: 1,
@@ -254,7 +254,6 @@ to apply.`,
 						"identities": {
 							Type:             schema.TypeList,
 							Optional:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: AccessContextManagerServicePerimeterDryRunIngressPolicyIngressFromIdentitiesDiffSuppressFunc,
 							Description: `Identities can be an individual user, service account, Google group,
 or third-party identity. For third-party identity, only single identities
@@ -268,7 +267,6 @@ https://cloud.google.com/iam/docs/principal-identifiers#v1 are supported.`,
 						"identity_type": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ForceNew:         true,
 							ValidateFunc:     verify.ValidateEnum([]string{"ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
 							DiffSuppressFunc: AccessContextManagerServicePerimeterIdentityTypeDiffSuppressFunc,
 							Description: `Specifies the type of identities that are allowed access from outside the
@@ -278,14 +276,12 @@ allowed access. Possible values: ["ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVI
 						"sources": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Sources that this 'IngressPolicy' authorizes access from.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"access_level": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `An 'AccessLevel' resource name that allow resources within the
 'ServicePerimeters' to be accessed from the internet. 'AccessLevels' listed
 must be in the same policy as this 'ServicePerimeter'. Referencing a nonexistent
@@ -298,7 +294,6 @@ If * is specified, then all IngressSources will be allowed.`,
 									"psc_endpoint": {
 										Type:     schema.TypeList,
 										Optional: true,
-										ForceNew: true,
 										Description: `A Private Service Connect endpoint that is allowed to access the perimeter.
 The Private Service Connect endpoint may be in any organization, not just the organization that the perimeter is defined in.`,
 										MaxItems: 1,
@@ -307,7 +302,6 @@ The Private Service Connect endpoint may be in any organization, not just the or
 												"forwarding_rule": {
 													Type:     schema.TypeString,
 													Optional: true,
-													ForceNew: true,
 													Description: `The full resource name of the global forwarding rule that identifies a Private Service Connect endpoint.
 Forwarding rule format: '//compute.googleapis.com/projects/{PROJECT_ID}/global/forwardingRules/{FORWARDING_RULE_ID}'.`,
 												},
@@ -317,7 +311,6 @@ Forwarding rule format: '//compute.googleapis.com/projects/{PROJECT_ID}/global/f
 									"resource": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `A Google Cloud resource that is allowed to ingress the perimeter.
 Requests from these resources will be allowed to access perimeter data.
 Currently only projects are allowed. Format 'projects/{project_number}'
@@ -334,7 +327,6 @@ of allowing all Google Cloud resources only is not supported.`,
 			"ingress_to": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `Defines the conditions on the 'ApiOperation' and request destination that cause
 this 'IngressPolicy' to apply.`,
 				MaxItems: 1,
@@ -343,7 +335,6 @@ this 'IngressPolicy' to apply.`,
 						"operations": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Description: `A list of 'ApiOperations' the sources specified in corresponding 'IngressFrom'
 are allowed to perform in this 'ServicePerimeter'.`,
 							Elem: &schema.Resource{
@@ -351,7 +342,6 @@ are allowed to perform in this 'ServicePerimeter'.`,
 									"method_selectors": {
 										Type:     schema.TypeList,
 										Optional: true,
-										ForceNew: true,
 										Description: `API methods or permissions to allow. Method or permission must belong to
 the service specified by serviceName field. A single 'MethodSelector' entry
 with '*' specified for the method field will allow all methods AND
@@ -361,7 +351,6 @@ permissions for the service specified in 'serviceName'.`,
 												"method": {
 													Type:     schema.TypeString,
 													Optional: true,
-													ForceNew: true,
 													Description: `Value for method should be a valid method name for the corresponding
 serviceName in 'ApiOperation'. If '*' used as value for 'method', then
 ALL methods and permissions are allowed.`,
@@ -369,7 +358,6 @@ ALL methods and permissions are allowed.`,
 												"permission": {
 													Type:     schema.TypeString,
 													Optional: true,
-													ForceNew: true,
 													Description: `Value for permission should be a valid Cloud IAM permission for the
 corresponding 'serviceName' in 'ApiOperation'.`,
 												},
@@ -379,7 +367,6 @@ corresponding 'serviceName' in 'ApiOperation'.`,
 									"service_name": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `The name of the API whose methods or permissions the 'IngressPolicy' or
 'EgressPolicy' want to allow. A single 'ApiOperation' with 'serviceName'
 field set to '*' will allow all methods AND permissions for all services.`,
@@ -390,7 +377,6 @@ field set to '*' will allow all methods AND permissions for all services.`,
 						"resources": {
 							Type:             schema.TypeList,
 							Optional:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: AccessContextManagerServicePerimeterDryRunIngressPolicyIngressToResourcesDiffSuppressFunc,
 							Description: `A list of resources, currently only projects in the form
 'projects/<projectnumber>', protected by this 'ServicePerimeter'
@@ -407,7 +393,6 @@ also matches the 'operations' field.`,
 						"roles": {
 							Type:     schema.TypeList,
 							Optional: true,
-							ForceNew: true,
 							Description: `A list of IAM roles that represent the set of operations that the sources
 specified in the corresponding 'IngressFrom'
 are allowed to perform.`,
@@ -499,10 +484,6 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyCreate(d *sc
 	log.Printf("[DEBUG] Creating new ServicePerimeterDryRunIngressPolicy: %#v", obj)
 
 	obj, err = resourceAccessContextManagerServicePerimeterDryRunIngressPolicyPatchCreateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "spec.ingressPolicies"})
 	if err != nil {
 		return err
 	}
@@ -662,7 +643,123 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyRead(d *sche
 }
 
 func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceAccessContextManagerServicePerimeterDryRunIngressPolicy().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceAccessContextManagerServicePerimeterDryRunIngressPolicyRead(d, meta)
+	}
+
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if perimeterValue, ok := d.GetOk("perimeter"); ok && perimeterValue.(string) != "" {
+			if err = identity.Set("perimeter", perimeterValue.(string)); err != nil {
+				return fmt.Errorf("Error setting perimeter: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
+	}
+
+	billingProject := ""
+
+	obj := make(map[string]interface{})
+	ingressFromProp, err := expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressFrom(d.Get("ingress_from"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ingress_from"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ingressFromProp)) {
+		obj["ingressFrom"] = ingressFromProp
+	}
+	ingressToProp, err := expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressTo(d.Get("ingress_to"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ingress_to"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ingressToProp)) {
+		obj["ingressTo"] = ingressToProp
+	}
+
+	obj, err = resourceAccessContextManagerServicePerimeterDryRunIngressPolicyEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{access_policy_id}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating ServicePerimeterDryRunIngressPolicy %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+
+	obj, err = resourceAccessContextManagerServicePerimeterDryRunIngressPolicyPatchUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+	obj["use_explicit_dry_run_spec"] = true
+
+	etag := d.Get("etag").(string)
+
+	if etag == "" {
+		log.Printf("[ERROR] Unable to get etag: %s", err)
+		return nil
+	}
+	obj["etag"] = etag
+
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	updateMask := []string{"spec.ingressPolicies", "etag"}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error updating ServicePerimeterDryRunIngressPolicy %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating ServicePerimeterDryRunIngressPolicy %q: %#v", d.Id(), res)
+	}
+
+	err = AccessContextManagerOperationWaitTime(
+		config, res, "Updating ServicePerimeterDryRunIngressPolicy", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return err
+	}
+
 	return resourceAccessContextManagerServicePerimeterDryRunIngressPolicyRead(d, meta)
 }
 
@@ -698,11 +795,6 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyDelete(d *sc
 	obj, err = resourceAccessContextManagerServicePerimeterDryRunIngressPolicyPatchDeleteEncoder(d, meta, obj)
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "ServicePerimeterDryRunIngressPolicy")
-	}
-
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "spec.ingressPolicies"})
-	if err != nil {
-		return err
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -1324,6 +1416,105 @@ func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyPatchCreateE
 	res := map[string]interface{}{
 		"ingressPolicies": append(currItems, obj),
 	}
+	wrapped := map[string]interface{}{
+		"spec": res,
+	}
+	res = wrapped
+
+	return res, nil
+}
+
+// PatchUpdateEncoder handles creating request data to PATCH parent resource
+// with list including updated object.
+func resourceAccessContextManagerServicePerimeterDryRunIngressPolicyPatchUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	items, err := resourceAccessContextManagerServicePerimeterDryRunIngressPolicyListForPatch(d, meta)
+	if err != nil {
+		return nil, err
+	}
+
+	// Use the old values of identity fields to find the existing object in the
+	// API response. During an update, d.Get() returns the new desired values,
+	// but the API still has the old values. Using d.GetChange() ensures we
+	// search for the object as it currently exists in the API.
+	oldIngressFromRaw, _ := d.GetChange("ingress_from")
+	expectedOldIngressFrom, err := expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressFrom(oldIngressFromRaw, d, meta.(*transport_tpg.Config))
+	if err != nil {
+		return nil, err
+	}
+	expectedOldFlattenedIngressFrom := flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressFrom(expectedOldIngressFrom, d, meta.(*transport_tpg.Config))
+	oldIngressToRaw, _ := d.GetChange("ingress_to")
+	expectedOldIngressTo, err := expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressTo(oldIngressToRaw, d, meta.(*transport_tpg.Config))
+	if err != nil {
+		return nil, err
+	}
+	expectedOldFlattenedIngressTo := flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressTo(expectedOldIngressTo, d, meta.(*transport_tpg.Config))
+	oldTitleRaw, _ := d.GetChange("title")
+	expectedOldTitle, err := expandNestedAccessContextManagerServicePerimeterDryRunIngressPolicyTitle(oldTitleRaw, d, meta.(*transport_tpg.Config))
+	if err != nil {
+		return nil, err
+	}
+	expectedOldFlattenedTitle := flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyTitle(expectedOldTitle, d, meta.(*transport_tpg.Config))
+
+	// Search list for this resource using old identity values.
+	var idx int = -1
+	var item map[string]interface{}
+	for i, itemRaw := range items {
+		if itemRaw == nil {
+			continue
+		}
+		currItem := itemRaw.(map[string]interface{})
+
+		itemIngressFrom := flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressFrom(currItem["ingressFrom"], d, meta.(*transport_tpg.Config))
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemIngressFrom)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedOldFlattenedIngressFrom))) && !reflect.DeepEqual(itemIngressFrom, expectedOldFlattenedIngressFrom) {
+			log.Printf("[DEBUG] Skipping item with ingressFrom= %#v, looking for %#v)", itemIngressFrom, expectedOldFlattenedIngressFrom)
+			continue
+		}
+		itemIngressTo := flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyIngressTo(currItem["ingressTo"], d, meta.(*transport_tpg.Config))
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemIngressTo)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedOldFlattenedIngressTo))) && !reflect.DeepEqual(itemIngressTo, expectedOldFlattenedIngressTo) {
+			log.Printf("[DEBUG] Skipping item with ingressTo= %#v, looking for %#v)", itemIngressTo, expectedOldFlattenedIngressTo)
+			continue
+		}
+		itemTitle := flattenNestedAccessContextManagerServicePerimeterDryRunIngressPolicyTitle(currItem["title"], d, meta.(*transport_tpg.Config))
+		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
+		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemTitle)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedOldFlattenedTitle))) && !reflect.DeepEqual(itemTitle, expectedOldFlattenedTitle) {
+			log.Printf("[DEBUG] Skipping item with title= %#v, looking for %#v)", itemTitle, expectedOldFlattenedTitle)
+			continue
+		}
+		log.Printf("[DEBUG] Found item for resource %q: %#v)", d.Id(), currItem)
+		idx = i
+		item = currItem
+		break
+	}
+
+	// Return error if item to update does not exist.
+	if item == nil {
+		return nil, fmt.Errorf("Unable to update ServicePerimeterDryRunIngressPolicy %q - not found in list", d.Id())
+	}
+
+	// Copy over values for immutable fields
+	obj["title"] = item["title"]
+	// Merge any fields in item that aren't managed by this resource into obj
+	// This is necessary because item might be managed by multiple resources.
+	settableFields := map[string]struct{}{
+		"ingressFrom": struct{}{},
+		"ingressTo":   struct{}{},
+	}
+	for k, v := range item {
+		if _, ok := settableFields[k]; !ok {
+			obj[k] = v
+		}
+	}
+
+	// Override old object with new
+	items[idx] = obj
+
+	// Return list with new item added
+	res := map[string]interface{}{
+		"ingressPolicies": items,
+	}
+
 	wrapped := map[string]interface{}{
 		"spec": res,
 	}

@@ -144,6 +144,7 @@ func ResourceNetworkSecurityGatewaySecurityPolicy() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 				Description: `Name of the resource. Name is of the form projects/{project}/locations/{location}/gatewaySecurityPolicies/{gatewaySecurityPolicy}
 gatewaySecurityPolicy should match the pattern:(^a-z?$).`,
 			},
@@ -155,6 +156,7 @@ gatewaySecurityPolicy should match the pattern:(^a-z?$).`,
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Description: `The location of the gateway security policy.
 The default value is 'global'.`,
 				Default: "global",

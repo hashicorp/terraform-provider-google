@@ -533,6 +533,7 @@ func resourceDialogflowCXGenerativeSettingsUpdate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
+
 	// extract location from the parent
 	location := ""
 

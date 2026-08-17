@@ -138,6 +138,7 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   spec {
     container_spec {
       image_uri = "us-central1-docker.pkg.dev/${data.google_project.project.project_id}/vertex-byoc/byoc-agent:latest" # image path
+      port      = 8080
     }
   }
 
@@ -1271,6 +1272,10 @@ When set to "DELETE", deleting the resource is permitted.
   The Artifact Registry Docker image URI (e.g.,
   `us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag`) of the
   container image that is to be run on each worker replica.
+
+* `port` -
+  (Optional)
+  Optional. The port that the container listens on for incoming requests. If not specified, defaults to 8080.
 
 <a name="nested_spec_source_code_spec"></a>The `source_code_spec` block supports:
 

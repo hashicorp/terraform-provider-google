@@ -97,6 +97,11 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
+// TestAccAlloydbCluster_upgrade verifies the basic major version upgrade path (database_version only).
+// Note: this test does not exercise the url-shadowing regression because no other cluster-level
+// fields change simultaneously — updateMask becomes empty after databaseVersion is removed, so the
+// regular UpdateCluster call is skipped entirely. See TestAccAlloydbCluster_upgradeWithSimultaneousUpdate
+// for the regression test that covers the scenario where multiple cluster properties are updated simultaneously.
 func TestAccAlloydbCluster_upgrade(t *testing.T) {
 	t.Parallel()
 
@@ -121,6 +126,9 @@ func TestAccAlloydbCluster_upgrade(t *testing.T) {
 			},
 			{
 				Config: testAccAlloydbCluster_afterUpgrade(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "database_version", "POSTGRES_15"),
+				),
 			},
 			{
 				ResourceName:            "google_alloydb_cluster.default",
@@ -176,6 +184,95 @@ resource "google_alloydb_cluster" "default" {
     network = data.google_compute_network.default.id
   }
   database_version = "POSTGRES_15"
+
+  initial_user {
+    password = "tf_test_cluster_secret%{random_suffix}"
+  }
+
+  deletion_protection = false
+}
+
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+
+  machine_config {
+    cpu_count = 8
+  }
+}
+
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+`, context)
+}
+
+// TestAccAlloydbCluster_upgradeWithSimultaneousUpdate is a regression test for a bug where
+// upgrading database_version simultaneously with other cluster-level field changes caused a 400 error.
+// The upgrade block used := instead of = when rebuilding the url, creating a local variable that
+// shadowed the outer url. The outer url (still containing databaseVersion in updateMask) was then
+// passed to the regular UpdateCluster call whose body had databaseVersion removed, causing GCP to
+// attempt a reset to the default version and return:
+//
+//	400: "updating field database_version is not supported (current value: POSTGRES_15, specified value: POSTGRES_14)"
+func TestAccAlloydbCluster_upgradeWithSimultaneousUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_beforeUpgrade(context),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "initial_user", "cluster_id", "location", "labels", "terraform_labels", "skip_await_major_version_upgrade"},
+			},
+			{
+				// Simultaneously upgrade database_version and change labels.
+				// This triggers the bug: after the upgrade block removes databaseVersion from
+				// updateMask, the remaining [labels] is non-empty, so regular UpdateCluster runs.
+				// With the bug, the outer url still carries databaseVersion in updateMask → 400.
+				Config: testAccAlloydbCluster_afterUpgradeWithLabel(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "database_version", "POSTGRES_15"),
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "labels.env", "test"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "initial_user", "cluster_id", "location", "labels", "terraform_labels", "skip_await_major_version_upgrade"},
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_afterUpgradeWithLabel(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  skip_await_major_version_upgrade = false
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = data.google_compute_network.default.id
+  }
+  database_version = "POSTGRES_15"
+
+  labels = {
+    env = "test"
+  }
 
   initial_user {
     password = "tf_test_cluster_secret%{random_suffix}"

@@ -71,12 +71,28 @@ func dataSourceGoogleComputeDefaultServiceAccountRead(d *schema.ResourceData, me
 		return err
 	}
 
-	projectCompResource, err := NewClient(config, userAgent).Projects.Get(project).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}")
+	if err != nil {
+		return err
+	}
+
+	projectCompResource, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, "GCE default service account", fmt.Sprintf("%q GCE default service account", project))
 	}
 
-	serviceAccountName, err := tpgresource.ServiceAccountFQN(projectCompResource.DefaultServiceAccount, d, config)
+	defaultServiceAccount, ok := projectCompResource["defaultServiceAccount"].(string)
+	if !ok {
+		return fmt.Errorf("Error reading GCE default service account for project %s: expected string, got %T(%v)", project, projectCompResource["defaultServiceAccount"], projectCompResource["defaultServiceAccount"])
+	}
+
+	serviceAccountName, err := tpgresource.ServiceAccountFQN(defaultServiceAccount, d, config)
 	if err != nil {
 		return err
 	}

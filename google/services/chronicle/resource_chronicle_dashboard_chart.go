@@ -1761,6 +1761,7 @@ func resourceChronicleDashboardChartUpdate(d *schema.ResourceData, meta interfac
 
 	log.Printf("[DEBUG] Updating DashboardChart %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
 	// 1. Extraction of the query name
 	rawQuery := d.Get("dashboard_query").([]interface{})
 	if len(rawQuery) == 0 || rawQuery[0] == nil {

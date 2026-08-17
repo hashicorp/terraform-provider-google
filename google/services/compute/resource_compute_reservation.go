@@ -946,6 +946,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+
 	if d.HasChange("share_settings") {
 		url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 		if err != nil {
