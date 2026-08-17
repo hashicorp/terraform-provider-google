@@ -102,12 +102,6 @@ The following arguments are supported:
   (Optional)
   Indicates if sample integrations should be created along with provisioning.
 
-* `run_as_service_account` -
-  (Optional, Deprecated)
-  User input run-as service account, if empty, will bring up a new default service account.
-
-  ~> **Warning:** `run_as_service_account` is deprecated and will be removed in a future major release.
-
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

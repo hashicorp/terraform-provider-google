@@ -163,6 +163,12 @@ To maintain the previous behavior (Classic Application Load Balancer), set `load
 
 The `actions.publish_findings_to_cloud_data_catalog` field has been removed from this resource. It was previously deprecated in favor of `actions.publish_findings_to_dataplex_catalog`. When upgrading to version 8.0.0, remove any usage of `actions.publish_findings_to_cloud_data_catalog` from your `google_data_loss_prevention_job_trigger` configurations. You should use the `publish_findings_to_dataplex_catalog` field instead for specifying the action to publish findings to Dataplex.
 
+## Resource: `google_integrations_client`
+
+### `run_as_service_account` has been removed
+
+The `run_as_service_account` argument has been removed from `google_integrations_client`. When upgrading to version 8.0.0, remove any usage of `run_as_service_account` from your `google_integrations_client` configurations.
+
 ## Resource: `google_netapp_storage_pool`
 
 ### `scale_tier` has been removed

@@ -77,7 +77,7 @@ func TestAccIntegrationsClient_integrationsClientBasicExample(t *testing.T) {
 				ResourceName:            "google_integrations_client.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "location", "run_as_service_account"},
+				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "location"},
 			},
 			{
 				ResourceName:       "google_integrations_client.example",
@@ -128,7 +128,7 @@ func TestAccIntegrationsClient_integrationsClientFullExample(t *testing.T) {
 				ResourceName:            "google_integrations_client.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "location", "run_as_service_account"},
+				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "location"},
 			},
 			{
 				ResourceName:       "google_integrations_client.example",
@@ -169,57 +169,6 @@ resource "google_integrations_client" "example" {
     key_version = basename(data.google_kms_crypto_key_version.test_key.id)
     kms_project_id = data.google_project.default.project_id
   }
-}
-`, context)
-}
-
-func TestAccIntegrationsClient_integrationsClientServiceAccountExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"service_account_id": "tf-test-service-acc" + randomSuffix,
-		"random_suffix":      randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckIntegrationsClientDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccIntegrationsClient_integrationsClientServiceAccountExample(context),
-			},
-			{
-				ResourceName:            "google_integrations_client.example",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "location", "run_as_service_account"},
-			},
-			{
-				ResourceName:       "google_integrations_client.example",
-				RefreshState:       true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccIntegrationsClient_integrationsClientServiceAccountExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-data "google_project" "default" {
-}
-
-resource "google_service_account" "service_account" {
-  account_id   = "%{service_account_id}"
-  display_name = "Service Account"
-}
-
-resource "google_integrations_client" "example" {
-  location = "asia-east1"
-  run_as_service_account = google_service_account.service_account.email
 }
 `, context)
 }
