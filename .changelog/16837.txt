@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added write-only arguments for IAP `oauth2_client_id` and `oauth2_client_secret`
+```

@@ -40,8 +40,11 @@ To get more information about BackendService, see:
     * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-service)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `iap.oauth2_client_secret`, `iap.oauth2_client_secret_sha256`, `security_settings.aws_v4_authentication.access_key`.
+values will be stored in the raw state as plain text: `iap.oauth2_client_id`, `iap.oauth2_client_secret`, `iap.oauth2_client_secret_sha256`, `security_settings.aws_v4_authentication.access_key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
+
+~> **Note:**  All arguments marked as write-only values will not be stored in the state: `iap.oauth2_client_id_wo`, `iap.oauth2_client_secret_wo`.
+[Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_basic&open_in_editor=main.tf" target="_blank">
@@ -1455,6 +1458,7 @@ The following arguments are supported:
 * `oauth2_client_id` -
   (Optional)
   OAuth2 Client ID for IAP
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `oauth2_client_secret` -
   (Optional)
@@ -1465,6 +1469,28 @@ The following arguments are supported:
   (Output)
   OAuth2 Client Secret SHA-256 for IAP
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `oauth2_client_id_wo` -
+  (Optional, Write-Only)
+  OAuth2 Client ID for IAP
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `oauth2_client_id` or `oauth2_client_id_wo` can only be set.
+
+* `oauth2_client_id_wo_version` -
+  (Optional)
+  Triggers update of `oauth2_client_id_wo` write-only. Increment this value when an update to `oauth2_client_id_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+
+* `oauth2_client_secret_wo` -
+  (Optional, Write-Only)
+  OAuth2 Client Secret for IAP
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `oauth2_client_secret` or `oauth2_client_secret_wo` can only be set.
+
+* `oauth2_client_secret_wo_version` -
+  (Optional)
+  Triggers update of `oauth2_client_secret_wo` write-only. Increment this value when an update to `oauth2_client_secret_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 <a name="nested_locality_lb_policies"></a>The `locality_lb_policies` block supports:
 
