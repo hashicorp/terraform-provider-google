@@ -18,6 +18,7 @@ package compute
 
 import (
 	"fmt"
+	neturl "net/url"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
@@ -81,30 +82,73 @@ func dataSourceComputeNetworkEndpointGroupsRead(d *schema.ResourceData, meta int
 
 	networkEndpointGroups := make([]map[string]interface{}, 0)
 
-	networkEndpointGroupsList, err := NewClient(config, userAgent).NetworkEndpointGroups.List(project, zone).Filter(filter).Do()
-	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkEndpointGroups : %s %s", project, zone))
-	}
+	baseURL := fmt.Sprintf("%sprojects/%s/zones/%s/networkEndpointGroups", transport_tpg.BaseUrl(Product, config), project, zone)
+	pageToken := ""
 
-	for _, neg := range networkEndpointGroupsList.Items {
-		network, err := tpgresource.GetRelativePath(neg.Network)
-		if err != nil {
-			return err
+	for {
+		params := neturl.Values{}
+		if filter != "" {
+			params.Set("filter", filter)
 		}
-		subnetwork, err := tpgresource.GetRelativePath(neg.Subnetwork)
-		if err != nil {
-			return err
+		if pageToken != "" {
+			params.Set("pageToken", pageToken)
 		}
-		networkEndpointGroups = append(networkEndpointGroups, map[string]interface{}{
-			"self_link":             neg.SelfLink,
-			"name":                  neg.Name,
-			"description":           neg.Description,
-			"network_endpoint_type": neg.NetworkEndpointType,
-			"network":               network,
-			"subnetwork":            subnetwork,
-			"default_port":          neg.DefaultPort,
-			"size":                  neg.Size,
+		url := baseURL
+		if len(params) > 0 {
+			url = fmt.Sprintf("%s?%s", url, params.Encode())
+		}
+		networkEndpointGroupsList, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
 		})
+		if err != nil {
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkEndpointGroups : %s %s", project, zone))
+		}
+
+		if rawItems, ok := networkEndpointGroupsList["items"].([]interface{}); ok {
+			for _, raw := range rawItems {
+				neg, ok := raw.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				negNetwork, _ := neg["network"].(string)
+				network, err := tpgresource.GetRelativePath(negNetwork)
+				if err != nil {
+					return err
+				}
+				negSubnetwork, _ := neg["subnetwork"].(string)
+				subnetwork, err := tpgresource.GetRelativePath(negSubnetwork)
+				if err != nil {
+					return err
+				}
+				defaultPort := 0
+				if v, ok := neg["defaultPort"].(float64); ok {
+					defaultPort = int(v)
+				}
+				size := 0
+				if v, ok := neg["size"].(float64); ok {
+					size = int(v)
+				}
+				networkEndpointGroups = append(networkEndpointGroups, map[string]interface{}{
+					"self_link":             neg["selfLink"],
+					"name":                  neg["name"],
+					"description":           neg["description"],
+					"network_endpoint_type": neg["networkEndpointType"],
+					"network":               network,
+					"subnetwork":            subnetwork,
+					"default_port":          defaultPort,
+					"size":                  size,
+				})
+			}
+		}
+
+		pageToken, _ = networkEndpointGroupsList["nextPageToken"].(string)
+		if pageToken == "" {
+			break
+		}
 	}
 
 	if err := d.Set("network_endpoint_groups", networkEndpointGroups); err != nil {

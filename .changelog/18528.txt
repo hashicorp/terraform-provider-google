@@ -1,0 +1,3 @@
+```release-note:note
+datasource: Migrate data_source_compute_network_endpoint_groups.go to use direct HTTP rather than a client library
+```
