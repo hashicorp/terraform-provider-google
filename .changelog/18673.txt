@@ -1,0 +1,3 @@
+```release-note:breaking-change
+vertexai: removed deprecated `google_vertex_ai_schedule` resource
+```
