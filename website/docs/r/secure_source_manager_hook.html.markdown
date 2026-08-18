@@ -103,7 +103,7 @@ resource "google_secure_source_manager_hook" "default" {
     push_option {
         branch_filter = "main"
     }
-    events = ["PUSH", "PULL_REQUEST"]
+    events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
 }
 ```
 
@@ -137,7 +137,7 @@ The following arguments are supported:
 * `events` -
   (Optional)
   The events that trigger hook on.
-  Each value may be one of: `PUSH`, `PULL_REQUEST`.
+  Each value may be one of: `PUSH`, `PULL_REQUEST`, `PULL_REQUEST_COMMENT`.
 
 * `sensitive_query_string` -
   (Optional)
