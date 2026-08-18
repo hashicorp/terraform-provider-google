@@ -117,26 +117,79 @@ func dataSourceGoogleComputeImagesRead(d *schema.ResourceData, meta interface{})
 
 	images := make([]map[string]interface{}, 0)
 
-	imageList, err := NewClient(config, userAgent).Images.List(project).Filter(filter).Do()
-	if err != nil {
-		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Images : %s", project), fmt.Sprintf("Images : %s", project))
-	}
+	baseURL := fmt.Sprintf("%sprojects/%s/global/images", transport_tpg.BaseUrl(Product, config), project)
+	pageToken := ""
+	for {
+		// Always send filter, even when empty, to match the request shape of the
+		// previous typed-client call (and its recorded VCR cassettes).
+		params := map[string]string{"filter": filter}
+		if pageToken != "" {
+			params["pageToken"] = pageToken
+		}
+		url, err := transport_tpg.AddQueryParams(baseURL, params)
+		if err != nil {
+			return err
+		}
 
-	for _, image := range imageList.Items {
-		images = append(images, map[string]interface{}{
-			"name":               image.Name,
-			"family":             image.Family,
-			"self_link":          image.SelfLink,
-			"archive_size_bytes": image.ArchiveSizeBytes,
-			"creation_timestamp": image.CreationTimestamp,
-			"description":        image.Description,
-			"disk_size_gb":       image.DiskSizeGb,
-			"image_id":           image.Id,
-			"labels":             image.Labels,
-			"source_disk":        image.SourceDisk,
-			"source_disk_id":     image.SourceDiskId,
-			"source_image_id":    image.SourceImageId,
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
 		})
+		if err != nil {
+			return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Images : %s", project), fmt.Sprintf("Images : %s", project))
+		}
+
+		if items, ok := res["items"].([]interface{}); ok {
+			for _, raw := range items {
+				image, ok := raw.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				m := map[string]interface{}{
+					"name":               image["name"],
+					"family":             image["family"],
+					"self_link":          image["selfLink"],
+					"creation_timestamp": image["creationTimestamp"],
+					"description":        image["description"],
+					"labels":             image["labels"],
+					"source_disk":        image["sourceDisk"],
+					"source_disk_id":     image["sourceDiskId"],
+					"source_image_id":    image["sourceImageId"],
+				}
+				// The REST API returns int64/uint64 fields as JSON strings to
+				// avoid float64 precision loss.
+				if v, ok := image["archiveSizeBytes"].(string); ok {
+					n, err := tpgresource.StringToFixed64(v)
+					if err != nil {
+						return fmt.Errorf("Error parsing archive_size_bytes: %s", err)
+					}
+					m["archive_size_bytes"] = n
+				}
+				if v, ok := image["diskSizeGb"].(string); ok {
+					n, err := tpgresource.StringToFixed64(v)
+					if err != nil {
+						return fmt.Errorf("Error parsing disk_size_gb: %s", err)
+					}
+					m["disk_size_gb"] = n
+				}
+				if v, ok := image["id"].(string); ok {
+					n, err := tpgresource.StringToFixed64(v)
+					if err != nil {
+						return fmt.Errorf("Error parsing image_id: %s", err)
+					}
+					m["image_id"] = n
+				}
+				images = append(images, m)
+			}
+		}
+
+		pageToken, _ = res["nextPageToken"].(string)
+		if pageToken == "" {
+			break
+		}
 	}
 
 	if err := d.Set("images", images); err != nil {
