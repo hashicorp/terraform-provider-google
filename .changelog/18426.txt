@@ -1,0 +1,3 @@
+```release-note:breaking-change
+compute: `google_compute_instance` now correctly plans and applies removal of `guest_accelerator` when the block is removed from config or `count` is set to `0`. Previously this was silently ignored.
+```

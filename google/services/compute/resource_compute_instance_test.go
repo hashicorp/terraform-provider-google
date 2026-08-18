@@ -2708,6 +2708,13 @@ func TestAccComputeInstance_guestAccelerator(t *testing.T) {
 					testAccCheckComputeInstanceHasGuestAccelerator(&instance, "nvidia-tesla-t4", 1),
 				),
 			},
+			{
+				Config: testAccComputeInstance_guestAccelerator(instanceName, 0),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceLacksGuestAccelerator(&instance),
+				),
+			},
 			computeInstanceImportStep("us-east1-d", instanceName, []string{"metadata.baz", "metadata.foo"}),
 		},
 	})
