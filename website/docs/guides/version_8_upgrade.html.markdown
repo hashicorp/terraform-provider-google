@@ -217,3 +217,7 @@ The `source_contents` argument is now Required. Previously, this field was marke
 ## Resource: `google_notebooks_environment` is now removed
 
 `google_notebooks_environment` has been removed along with the User-Managed and Google-Managed Notebooks products, which have reached End of Life. Remove it from your configuration; environment settings such as the VM/container image and post-startup script are now specified directly on `google_workbench_instance`.
+
+## Resource: `google_vertex_ai_schedule` is now removed
+
+`google_vertex_ai_schedule` has been removed. Use `google_colab_schedule` instead.
