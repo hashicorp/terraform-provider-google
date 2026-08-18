@@ -35,9 +35,6 @@ data "google_backup_dr_backup_plan_associations" "all_associations" {
 The following arguments are supported:
 
 * `location` - (Required)The location where the Backup Plan Association resources reside.
-* `resource_type` - (Optional, Deprecated) The resource type of the workload. For example, sqladmin.googleapis.com/Instance or compute.googleapis.com/Instance. `resource_type` is deprecated and will be removed in a future major release.
-- - -
-
 * `project` - (Optional) The project in which the resource belongs. If it
     is not provided, the provider project is used.
 

@@ -104,6 +104,18 @@ terraform {
 
 ## Datasources
 
+## Datasource: `google_backup_dr_backup_plan_associations`
+
+### `resource_type` has been removed
+
+The `resource_type` argument has been removed from `google_backup_dr_backup_plan_associations`. The data source now lists all backup plan associations in the specified `location`.
+
+## Datasource: `google_backup_dr_data_source_references`
+
+### `resource_type` has been removed
+
+The `resource_type` argument has been removed from `google_backup_dr_data_source_references`. The data source now lists all data source references in the specified `location`. Note that the computed attribute `data_source_references.*.resource_type` remains available in the returned results.
+
 ## Resources
 
 ## Resource: `google_bigquery_dataset`

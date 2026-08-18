@@ -42,12 +42,6 @@ func DataSourceGoogleCloudBackupDRDataSourceReferences() *schema.Resource {
 				Computed:    true,
 				Description: "The ID of the project in which the resource belongs.",
 			},
-			"resource_type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The resource type of workload on which backup plan is applied. Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk".`,
-				Deprecated:  "`resource_type` is deprecated and will be removed in a future major release.",
-			},
 			// Output: a computed list of the data source references found
 			"data_source_references": {
 				Type:        schema.TypeList,
