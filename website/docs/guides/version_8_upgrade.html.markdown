@@ -141,6 +141,27 @@ The `http_get.http_headers.port` field of container startup probe and liveness p
 The `http_get.http_headers.name` field of container startup probe and liveness probe are now required in this resource. If `http_get.http_headers` field is used, add the sub field `http_get.http_headers.name` to your configuration after
 upgrading.
 
+## Resource: `google_compute_instance`
+
+### `guest_accelerator` can now be updated to a count of `0`
+
+Previously, changing an existing `guest_accelerator` block's `count` to `0`
+was silently ignored: no diff was produced and the accelerator(s) remained
+attached. `terraform apply` will now correctly plan (and apply, replacing
+the instance) the removal of guest accelerators when `count` is explicitly
+set to `0`.
+
+Note that removing the `guest_accelerator` block entirely will **not** detach
+accelerators, because `guest_accelerator` is `Computed: true` and Terraform
+preserves the existing state when the field is omitted from config.
+Explicitly setting `count = 0` (or `guest_accelerator = []`) is what triggers
+the diff/replacement.
+
+If your configuration relies on the old behavior — for example a
+variable-driven `count = 0` block that was never intended to detach existing
+accelerators — review your configuration before upgrading, as `terraform
+plan` may now show a forced replacement for affected instances.
+
 ## Resource: `google_compute_backend_service`
 
 ### `load_balancing_scheme` default value changed to `EXTERNAL_MANAGED`
