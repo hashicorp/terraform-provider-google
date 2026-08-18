@@ -1200,6 +1200,8 @@ gvnic {
 
 * `flex_start` - (Optional) Enables Flex Start provisioning model for the node pool.
 
+* `host_maintenance_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The maintenance policy for the hosts on which the GKE VMs run on. Structure is [documented below](#nested_host_maintenance_policy).
+
 * `local_ssd_count` - (Optional) The amount of local SSD disks that will be
     attached to each cluster node. Defaults to 0.
 
@@ -1392,6 +1394,20 @@ sole_tenant_config {
 <a name="nested_gvnic"></a>The `gvnic` block supports:
 
 * `enabled` (Required) - Whether or not the Google Virtual NIC (gVNIC) is enabled
+
+<a name="nested_host_maintenance_policy"></a>The `host_maintenance_policy` block supports:
+
+* `maintenance_interval` (Required) - Specifies the frequency of planned maintenance events. Possible values are `MAINTENANCE_INTERVAL_UNSPECIFIED`, `AS_NEEDED`, and `PERIODIC`.
+
+* `opportunistic_maintenance_strategy` (Optional) - Strategy that will trigger maintenance on behalf of the customer. Structure is [documented below](#nested_opportunistic_maintenance_strategy).
+
+<a name="nested_opportunistic_maintenance_strategy"></a>The `opportunistic_maintenance_strategy` block supports:
+
+* `node_idle_time_window` (Required) - The amount of time that a node can remain idle (no customer owned workloads running), before triggering maintenance. Format is a duration terminated by `s`, e.g. `"600s"`.
+
+* `maintenance_availability_window` (Required) - The window of time that opportunistic maintenance can run. Example: A setting of 14 days (`"1209600s"`) implies that opportunistic maintenance can only be ran in the 2 weeks leading up to the scheduled maintenance date. Setting 28 days (`"2419200s"`) allows opportunistic maintenance to run at any time in the scheduled maintenance window (all `PERIODIC` maintenance is set 28 days in advance).
+
+* `min_nodes_per_pool` (Required) - The minimum nodes required to be available in a pool. Blocks maintenance if it would cause the number of running nodes to dip below this value.
 
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
