@@ -1,0 +1,3 @@
+```release-note:breaking-change
+beyondcorp: removed deprecated `google_beyondcorp_app_connection`, `google_beyondcorp_app_connector`, and `google_beyondcorp_app_gateway` resources and data sources
+```

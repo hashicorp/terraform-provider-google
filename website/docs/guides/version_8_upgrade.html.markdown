@@ -116,6 +116,18 @@ The `resource_type` argument has been removed from `google_backup_dr_backup_plan
 
 The `resource_type` argument has been removed from `google_backup_dr_data_source_references`. The data source now lists all data source references in the specified `location`. Note that the computed attribute `data_source_references.*.resource_type` remains available in the returned results.
 
+## Datasource: `google_beyondcorp_app_connection` is now removed
+
+The `google_beyondcorp_app_connection` datasource has been removed.
+
+## Datasource: `google_beyondcorp_app_connector` is now removed
+
+The `google_beyondcorp_app_connector` datasource has been removed.
+
+## Datasource: `google_beyondcorp_app_gateway` is now removed
+
+The `google_beyondcorp_app_gateway` datasource has been removed.
+
 ## Resources
 
 ## Resource: `google_bigquery_dataset`
@@ -233,3 +245,15 @@ The `source_contents` argument is now Required. Previously, this field was marke
 ## Resource: `google_vertex_ai_schedule` is now removed
 
 `google_vertex_ai_schedule` has been removed. Use `google_colab_schedule` instead.
+
+## Resource: `google_beyondcorp_app_connection` is now removed
+
+The `google_beyondcorp_app_connection` resource has been removed. Use `google_beyondcorp_security_gateway` and `google_beyondcorp_security_gateway_application` for modern BeyondCorp Zero Trust application deployments.
+
+## Resource: `google_beyondcorp_app_connector` is now removed
+
+The `google_beyondcorp_app_connector` resource has been removed.
+
+## Resource: `google_beyondcorp_app_gateway` is now removed
+
+The `google_beyondcorp_app_gateway` resource has been removed. Use `google_beyondcorp_security_gateway` instead.
