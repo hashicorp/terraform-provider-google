@@ -190,6 +190,10 @@ The `actions.publish_findings_to_cloud_data_catalog` field has been removed from
 
 The `run_as_service_account` argument has been removed from `google_integrations_client`. When upgrading to version 8.0.0, remove any usage of `run_as_service_account` from your `google_integrations_client` configurations.
 
+## Resource: `google_ml_engine_model` is now removed
+
+`google_ml_engine_model` has been removed as the underlying Cloud ML Engine (AI Platform Prediction) API has been deprecated. Migrate your machine learning deployments to Vertex AI resources (such as [`google_vertex_ai_endpoint`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/vertex_ai_endpoint) and Vertex AI Model Garden resources) and remove `google_ml_engine_model` from your configuration.
+
 ## Resource: `google_netapp_storage_pool`
 
 ### `scale_tier` has been removed
