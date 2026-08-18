@@ -173,7 +173,6 @@ type ProviderModel struct {
 	MemcacheCustomEndpoint                 types.String `tfsdk:"memcache_custom_endpoint"`
 	MemorystoreCustomEndpoint              types.String `tfsdk:"memorystore_custom_endpoint"`
 	MigrationCenterCustomEndpoint          types.String `tfsdk:"migration_center_custom_endpoint"`
-	MLEngineCustomEndpoint                 types.String `tfsdk:"ml_engine_custom_endpoint"`
 	ModelArmorCustomEndpoint               types.String `tfsdk:"model_armor_custom_endpoint"`
 	ModelArmorGlobalCustomEndpoint         types.String `tfsdk:"model_armor_global_custom_endpoint"`
 	MonitoringCustomEndpoint               types.String `tfsdk:"monitoring_custom_endpoint"`
