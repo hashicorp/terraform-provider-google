@@ -1,0 +1,3 @@
+```release-note:breaking-change
+compute: `nat_subnets` and `consumer_reject_lists` on `google_compute_service_attachment` have been changed from lists to sets to resolve non-deterministic API ordering diffs.
+```

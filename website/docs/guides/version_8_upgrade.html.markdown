@@ -202,6 +202,16 @@ The default value of `load_balancing_scheme` for `google_compute_global_forwardi
 Configurations that do not set `load_balancing_scheme` will now default to `EXTERNAL_MANAGED` instead of `EXTERNAL`.
 To maintain the previous behavior (Classic Application Load Balancer), set `load_balancing_scheme = "EXTERNAL"` explicitly.
 
+## Resource: `google_compute_service_attachment`
+
+### `nat_subnets` is now a set
+
+`nat_subnets` has been converted from a `list` to a `set` to resolve perpetual diffs caused by non-deterministic API ordering. References that use list indexing (for example, `google_compute_service_attachment.<name>.nat_subnets[0]`) should be updated to use `tolist(google_compute_service_attachment.<name>.nat_subnets)[0]` or `for` expressions.
+
+### `consumer_reject_lists` is now a set
+
+`consumer_reject_lists` has been converted from a `list` to a `set` to resolve perpetual diffs caused by non-deterministic API ordering. References that use list indexing (for example, `google_compute_service_attachment.<name>.consumer_reject_lists[0]`) should be updated to use `tolist(google_compute_service_attachment.<name>.consumer_reject_lists)[0]` or `for` expressions.
+
 ## Resource: `google_data_loss_prevention_job_trigger`
 
 ### `actions.publish_findings_to_cloud_data_catalog` is now removed
