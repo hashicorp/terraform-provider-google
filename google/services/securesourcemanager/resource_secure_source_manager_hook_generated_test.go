@@ -189,7 +189,7 @@ resource "google_secure_source_manager_hook" "default" {
     push_option {
         branch_filter = "main"
     }
-    events = ["PUSH", "PULL_REQUEST"]
+    events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
 }
 `, context)
 }
