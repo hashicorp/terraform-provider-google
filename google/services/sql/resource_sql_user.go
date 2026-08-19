@@ -469,6 +469,15 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project":  project,
+		"instance": instance,
+		"host":     host,
+		"name":     name,
+	}); err != nil {
+		return err
+	}
+
 	if databaseInstance.Settings.ActivationPolicy != "ALWAYS" {
 		return nil
 	}
