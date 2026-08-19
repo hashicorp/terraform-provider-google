@@ -1,0 +1,15 @@
+```release-note:breaking-change
+bigquerydatatransfer: changed `sensitive_params.0.secret_access_key_wo_version` from `Integer` to `String` in `google_bigquery_data_transfer_config`; update integer literals to quoted strings (e.g. `secret_access_key_wo_version = "1"`)
+```
+
+```release-note:breaking-change
+monitoring: made `http_check.auth_info.password_wo` and `http_check.auth_info.password` have an exactly_one_of constraint in `google_monitoring_uptime_check_config `; configurations setting both fields must be updated to set only one
+```
+
+```release-note:breaking-change
+secretmanager: changed `secret_data_wo_version` from `Integer` to `String` in `google_secret_manager_secret_version`; update integer literals to quoted strings (e.g. `secret_data_wo_version = "1"`)
+```
+
+```release-note:breaking-change
+secretmanager: `secret_data_wo` and `secret_data_wo_version` must now be specified together on `google_secret_manager_secret_version`. Update configurations that specify one to specify both.
+```

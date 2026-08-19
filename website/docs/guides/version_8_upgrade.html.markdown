@@ -256,6 +256,31 @@ The `scale_tier` argument has been removed from this resource. It was previously
 
 The `source_contents` argument is now Required. Previously, this field was marked as Optional in Terraform, but omitting it led to runtime errors. When upgrading to version 8.0.0, you must ensure this argument is populated in your `google_workflows_workflow` configurations. 
 
+## Resource: `google_bigquery_data_transfer_config`
+
+### `sensitive_params.0.secret_access_key` and `sensitive_params.0.secret_access_key_wo` now require exactly one to be set
+
+The constraint between `sensitive_params.0.secret_access_key` and `sensitive_params.0.secret_access_key_wo` has changed from `AtLeastOneOf` (either or both) to `ExactlyOneOf` (exactly one). Configurations that set both fields simultaneously must be updated to set only one.
+
+### `sensitive_params.0.secret_access_key_wo_version` type changed from `Integer` to `String`
+
+The `sensitive_params.0.secret_access_key_wo_version` field has changed type from `Integer` to `String`. The integer-to-string conversion is handled automatically for existing state.
+
+When upgrading to version 8.0.0:
+- If your configuration sets both `sensitive_params.0.secret_access_key` and `sensitive_params.0.secret_access_key_wo`, remove one of them.
+- Update any `sensitive_params.0.secret_access_key_wo_version = <integer>` in your configuration to a string value (e.g. `secret_access_key_wo_version = "1"`). Existing integer values in state are converted automatically.
+
+## Resource: `google_secret_manager_secret_version`
+
+### `secret_data_wo_version` type changed from `Integer` to `String`
+
+The `secret_data_wo_version` field has changed type from `Integer` to `String`. The `ExactlyOneOf` constraint between `secret_data` and `secret_data_wo` remains unchanged. Existing state is automatically migrated on the first `terraform apply` after upgrading: the old default value of `0` is converted to `""` (unset), and non-zero values are converted to their string equivalents.
+
+When upgrading to version 8.0.0:
+- If you were using `secret_data`: no configuration change needed.
+- If you were using `secret_data_wo` + `secret_data_wo_version = 0`: change this to a non-zero string value (e.g. `secret_data_wo_version = "1"`) before upgrading. The value `0` is now treated as unset, so leaving `= 0` in your configuration will cause a forced replacement on the next apply.
+- If you were using `secret_data_wo` + `secret_data_wo_version = <non-zero integer>`: update the value to a quoted string (e.g. change `secret_data_wo_version = 1` to `secret_data_wo_version = "1"`).
+
 ## Resource: `google_notebooks_instance` is now removed
 
 `google_notebooks_instance` and its IAM resources (`google_notebooks_instance_iam_policy`, `google_notebooks_instance_iam_binding`, and `google_notebooks_instance_iam_member`) have been removed. The underlying Vertex AI Workbench User-Managed Notebooks product has reached End of Life. Migrate to [`google_workbench_instance`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/workbench_instance) and remove these resources from your configuration.
