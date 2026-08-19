@@ -15694,6 +15694,20 @@ func TestAccContainerCluster_disableControlPlaneIP(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
+			{
+				// With IP endpoints disabled, the API dictates private_cluster_config:
+				// enable_private_endpoint is forced to true and master_global_access is
+				// forced to disabled. The config deliberately sets the opposite values,
+				// so this step fails with a non-empty plan unless diffs on those
+				// API-dictated fields are suppressed.
+				Config: testAccContainerCluster_ControlPlaneIPdisabledWithPrivateClusterConfig(clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
 		},
 	})
 }
@@ -15715,6 +15729,36 @@ resource "google_container_cluster" "primary" {
     }
     dns_endpoint_config {
       allow_external_traffic = true
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_ControlPlaneIPdisabledWithPrivateClusterConfig(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  network            = "%s"
+  subnetwork         = "%s"
+
+  deletion_protection = false
+
+  control_plane_endpoints_config {
+    ip_endpoints_config {
+      enabled = false
+    }
+    dns_endpoint_config {
+      allow_external_traffic = true
+    }
+  }
+
+  private_cluster_config {
+    enable_private_endpoint = false
+    master_global_access_config {
+      enabled = true
     }
   }
 }
