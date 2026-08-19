@@ -104,4 +104,212 @@ terraform {
 
 ## Datasources
 
+## Datasource: `google_backup_dr_backup_plan_associations`
+
+### `resource_type` has been removed
+
+The `resource_type` argument has been removed from `google_backup_dr_backup_plan_associations`. The data source now lists all backup plan associations in the specified `location`.
+
+## Datasource: `google_backup_dr_data_source_references`
+
+### `resource_type` has been removed
+
+The `resource_type` argument has been removed from `google_backup_dr_data_source_references`. The data source now lists all data source references in the specified `location`. Note that the computed attribute `data_source_references.*.resource_type` remains available in the returned results.
+
+## Datasource: `google_beyondcorp_app_connection` is now removed
+
+The `google_beyondcorp_app_connection` datasource has been removed.
+
+## Datasource: `google_beyondcorp_app_connector` is now removed
+
+The `google_beyondcorp_app_connector` datasource has been removed.
+
+## Datasource: `google_beyondcorp_app_gateway` is now removed
+
+The `google_beyondcorp_app_gateway` datasource has been removed.
+
+## Datasource: `google_iap_client` is now removed
+
+The `google_iap_client` data source has been removed following the permanent shutdown of the Google Cloud IAP OAuth Admin APIs.
+
 ## Resources
+
+## Resource: `google_beyondcorp_app_connection` is now removed
+
+The `google_beyondcorp_app_connection` resource has been removed. Use `google_beyondcorp_security_gateway` and `google_beyondcorp_security_gateway_application` for modern BeyondCorp Zero Trust application deployments.
+
+## Resource: `google_beyondcorp_app_connector` is now removed
+
+The `google_beyondcorp_app_connector` resource has been removed.
+
+## Resource: `google_beyondcorp_app_gateway` is now removed
+
+The `google_beyondcorp_app_gateway` resource has been removed. Use `google_beyondcorp_security_gateway` instead.
+
+## Resource: `google_bigquery_data_transfer_config`
+
+### `sensitive_params.0.secret_access_key` and `sensitive_params.0.secret_access_key_wo` now require exactly one to be set
+
+The constraint between `sensitive_params.0.secret_access_key` and `sensitive_params.0.secret_access_key_wo` has changed from `AtLeastOneOf` (either or both) to `ExactlyOneOf` (exactly one). Configurations that set both fields simultaneously must be updated to set only one.
+
+### `sensitive_params.0.secret_access_key_wo_version` type changed from `Integer` to `String`
+
+The `sensitive_params.0.secret_access_key_wo_version` field has changed type from `Integer` to `String`. The integer-to-string conversion is handled automatically for existing state.
+
+When upgrading to version 8.0.0:
+- If your configuration sets both `sensitive_params.0.secret_access_key` and `sensitive_params.0.secret_access_key_wo`, remove one of them.
+- Update any `sensitive_params.0.secret_access_key_wo_version = <integer>` in your configuration to a string value (e.g. `secret_access_key_wo_version = "1"`). Existing integer values in state are converted automatically.
+
+## Resource: `google_bigquery_dataset`
+
+### `default_collation` is no longer computed
+
+`default_collation` is no longer treated as having any default value from the API when unspecified. Setting `default_collation = ""` in your configuration will now explicitly clear the current collation.
+
+## Resource: `google_cloud_run_v2_worker_pool`
+
+### `custom_audiences` is now removed
+
+The `custom_audiences` field has been removed from this resource because it is not supported for Cloud Run v2 Worker Pools. Remove it from your configuration after upgrading.
+
+### `http_get.http_headers.port` is now removed
+
+The `http_get.http_headers.port` field of container startup and liveness probes has been removed from this resource because it is not supported for Cloud Run v2 Worker Pools. Remove it from your configuration after upgrading.
+
+### `http_get.http_headers.name` is now required
+
+The `http_get.http_headers.name` field of container startup and liveness probes is now required in this resource. If `http_get.http_headers` field is used, add the sub field `http_get.http_headers.name` to your configuration after upgrading.
+
+## Resource: `google_cloud_security_compliance_framework`
+
+### `cloud_control_details` is now a set
+
+`cloud_control_details` has been converted from a `list` to a `set` to resolve perpetual diffs caused by non-deterministic API ordering. References that use list indexing (for example, `google_cloud_security_compliance_framework.<name>.cloud_control_details[0]`) should be updated to use `tolist(google_cloud_security_compliance_framework.<name>.cloud_control_details)[0]` or `for` expressions.
+
+## Resource: `google_compute_backend_service`
+
+### `load_balancing_scheme` default value changed to `EXTERNAL_MANAGED`
+
+The default value of `load_balancing_scheme` for `google_compute_backend_service` has been changed from `EXTERNAL` to `EXTERNAL_MANAGED`.
+Configurations that do not set `load_balancing_scheme` will now default to `EXTERNAL_MANAGED` instead of `EXTERNAL`.
+To maintain the previous behavior (Classic Application Load Balancer), set `load_balancing_scheme = "EXTERNAL"` explicitly.
+
+## Resource: `google_compute_global_forwarding_rule`
+
+### `load_balancing_scheme` default value changed to `EXTERNAL_MANAGED`
+
+The default value of `load_balancing_scheme` for `google_compute_global_forwarding_rule` has been changed from `EXTERNAL` to `EXTERNAL_MANAGED`.
+Configurations that do not set `load_balancing_scheme` will now default to `EXTERNAL_MANAGED` instead of `EXTERNAL`.
+To maintain the previous behavior (Classic Application Load Balancer), set `load_balancing_scheme = "EXTERNAL"` explicitly.
+
+## Resource: `google_compute_instance`
+
+### `guest_accelerator` can now be updated to a count of `0`
+
+Previously, changing an existing `guest_accelerator` block's `count` to `0`
+was silently ignored: no diff was produced and the accelerator(s) remained
+attached. `terraform apply` will now correctly plan (and apply, replacing
+the instance) the removal of guest accelerators when `count` is explicitly
+set to `0`.
+
+Note that removing the `guest_accelerator` block entirely will **not** detach
+accelerators, because `guest_accelerator` is `Computed: true` and Terraform
+preserves the existing state when the field is omitted from config.
+Explicitly setting `count = 0` (or `guest_accelerator = []`) is what triggers
+the diff/replacement.
+
+If your configuration relies on the old behavior — for example a
+variable-driven `count = 0` block that was never intended to detach existing
+accelerators — review your configuration before upgrading, as `terraform
+plan` may now show a forced replacement for affected instances.
+
+## Resource: `google_compute_interconnect_attachment_group`
+
+### `logical_structure.*.zones.attachment` is now removed
+
+The deprecated `attachment` attribute within `logical_structure.regions.metros.facilities.zones` has been removed. Use `attachments` instead.
+
+## Resource: `google_compute_reservation`
+
+### `reservation_block_count` is now removed
+
+The deprecated top-level `reservation_block_count` attribute has been removed. Use `resource_status[0].reservation_block_count` instead.
+
+## Resource: `google_compute_service_attachment`
+
+### `nat_subnets` is now a set
+
+`nat_subnets` has been converted from a `list` to a `set` to resolve perpetual diffs caused by non-deterministic API ordering. References that use list indexing (for example, `google_compute_service_attachment.<name>.nat_subnets[0]`) should be updated to use `tolist(google_compute_service_attachment.<name>.nat_subnets)[0]` or `for` expressions.
+
+### `consumer_reject_lists` is now a set
+
+`consumer_reject_lists` has been converted from a `list` to a `set` to resolve perpetual diffs caused by non-deterministic API ordering. References that use list indexing (for example, `google_compute_service_attachment.<name>.consumer_reject_lists[0]`) should be updated to use `tolist(google_compute_service_attachment.<name>.consumer_reject_lists)[0]` or `for` expressions.
+
+## Resource: `google_container_node_pool` and `google_container_cluster`
+
+### `name_prefix` max length has been extended from 14 to 31 characters
+
+Previously, the max length of `name_prefix` for `google_container_node_pool` and `google_container_cluster.node_pool` was 14 characters since the autogenerated UUID suffix was 26 characters which combined to 40 characters (the max limit for GKE node pool names).
+
+In 8.0.0, providing a `name_prefix` larger than 14 characters will prompt the provider to use a shortened suffix of only 9 characters, leading to a new max of 31 characters for `name_prefix`. This shortened suffix is inevitably more prone to collisions, so use the longer max `name_prefix` length with caution.
+
+## Resource: `google_data_loss_prevention_job_trigger`
+
+### `actions.publish_findings_to_cloud_data_catalog` is now removed
+
+The `actions.publish_findings_to_cloud_data_catalog` field has been removed from this resource. It was previously deprecated in favor of `actions.publish_findings_to_dataplex_catalog`. When upgrading to version 8.0.0, remove any usage of `actions.publish_findings_to_cloud_data_catalog` from your `google_data_loss_prevention_job_trigger` configurations. You should use the `publish_findings_to_dataplex_catalog` field instead for specifying the action to publish findings to Dataplex.
+
+## Resource: `google_iap_brand` and `google_iap_client` are now removed
+
+`google_iap_brand` and `google_iap_client` have been removed following the permanent shutdown of the Google Cloud IAP OAuth Admin APIs. OAuth consent screens (brands) and OAuth clients can no longer be managed programmatically via the API and must be configured directly in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+
+Remove all `google_iap_brand` and `google_iap_client` resource blocks from your configuration and state prior to upgrading.
+
+## Resource: `google_integrations_client`
+
+### `run_as_service_account` has been removed
+
+The `run_as_service_account` argument has been removed from `google_integrations_client`. When upgrading to version 8.0.0, remove any usage of `run_as_service_account` from your `google_integrations_client` configurations.
+
+## Resource: `google_ml_engine_model` is now removed
+
+`google_ml_engine_model` has been removed as the underlying Cloud ML Engine (AI Platform Prediction) API has been deprecated. Migrate your machine learning deployments to Vertex AI resources (such as [`google_vertex_ai_endpoint`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/vertex_ai_endpoint) and Vertex AI Model Garden resources) and remove `google_ml_engine_model` from your configuration.
+
+## Resource: `google_netapp_storage_pool`
+
+### `scale_tier` has been removed
+
+The `scale_tier` argument has been removed from this resource. It was previously deprecated in favor of `scale_type`. When upgrading to version 8.0.0, remove any usage of `scale_tier` from your `google_netapp_storage_pool` configurations. You should use the `scale_type` argument instead for specifying the scale type.
+
+## Resource: `google_notebooks_environment` is now removed
+
+`google_notebooks_environment` has been removed along with the User-Managed and Google-Managed Notebooks products, which have reached End of Life. Remove it from your configuration; environment settings such as the VM/container image and post-startup script are now specified directly on `google_workbench_instance`.
+
+## Resource: `google_notebooks_instance` is now removed
+
+`google_notebooks_instance` and its IAM resources (`google_notebooks_instance_iam_policy`, `google_notebooks_instance_iam_binding`, and `google_notebooks_instance_iam_member`) have been removed. The underlying Vertex AI Workbench User-Managed Notebooks product has reached End of Life. Migrate to [`google_workbench_instance`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/workbench_instance) and remove these resources from your configuration.
+
+## Resource: `google_notebooks_runtime` is now removed
+
+`google_notebooks_runtime` and its IAM resources (`google_notebooks_runtime_iam_policy`, `google_notebooks_runtime_iam_binding`, and `google_notebooks_runtime_iam_member`) have been removed. The underlying Vertex AI Workbench Google-Managed Notebooks product has reached End of Life. Migrate to [`google_workbench_instance`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/workbench_instance) and remove these resources from your configuration.
+
+## Resource: `google_secret_manager_secret_version`
+
+### `secret_data_wo_version` type changed from `Integer` to `String`
+
+The `secret_data_wo_version` field has changed type from `Integer` to `String`. The `ExactlyOneOf` constraint between `secret_data` and `secret_data_wo` remains unchanged. Existing state is automatically migrated on the first `terraform apply` after upgrading: the old default value of `0` is converted to `""` (unset), and non-zero values are converted to their string equivalents.
+
+When upgrading to version 8.0.0:
+- If you were using `secret_data`: no configuration change needed.
+- If you were using `secret_data_wo` + `secret_data_wo_version = 0`: change this to a non-zero string value (e.g. `secret_data_wo_version = "1"`) before upgrading. The value `0` is now treated as unset, so leaving `= 0` in your configuration will cause a forced replacement on the next apply.
+- If you were using `secret_data_wo` + `secret_data_wo_version = <non-zero integer>`: update the value to a quoted string (e.g. change `secret_data_wo_version = 1` to `secret_data_wo_version = "1"`).
+
+## Resource: `google_vertex_ai_schedule` is now removed
+
+`google_vertex_ai_schedule` has been removed. Use `google_colab_schedule` instead.
+
+## Resource: `google_workflows_workflow`
+
+### `source_contents` is now required
+
+The `source_contents` argument is now Required. Previously, this field was marked as Optional in Terraform, but omitting it led to runtime errors. When upgrading to version 8.0.0, you must ensure this argument is populated in your `google_workflows_workflow` configurations.
