@@ -16,8 +16,10 @@ fields:
     - api_field: httpCheck.acceptedResponseStatusCodes.statusClass
     - api_field: httpCheck.acceptedResponseStatusCodes.statusValue
     - api_field: httpCheck.authInfo.password
-    - api_field: httpCheck.authInfo.passwordWo
-    - api_field: httpCheck.authInfo.passwordWoVersion
+    - api_field: httpCheck.authInfo.password
+      field: http_check.auth_info.password_wo
+    - field: http_check.auth_info.password_wo_version
+      provider_only: true
     - api_field: httpCheck.authInfo.username
     - api_field: httpCheck.body
     - api_field: httpCheck.contentType
