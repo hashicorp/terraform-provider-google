@@ -9,6 +9,7 @@ api_resource_type_kind: Instance
 autogen_status: true
 autogen_version: 1
 fields:
+    - api_field: aclPolicy
     - api_field: authorizationMode
     - api_field: automatedBackupConfig.fixedFrequencySchedule.startTime.hours
     - api_field: automatedBackupConfig.retention
@@ -53,6 +54,7 @@ fields:
     - api_field: gcsSource.uris
     - field: instance_id
       provider_only: true
+    - api_field: isAclPolicyInSync
     - api_field: kmsKey
     - api_field: labels
     - field: location
