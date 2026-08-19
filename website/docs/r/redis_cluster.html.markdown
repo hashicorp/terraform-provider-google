@@ -800,6 +800,10 @@ The following arguments are supported:
   Default value is `AUTH_MODE_DISABLED`.
   Possible values are: `AUTH_MODE_UNSPECIFIED`, `AUTH_MODE_IAM_AUTH`, `AUTH_MODE_DISABLED`.
 
+* `acl_policy` -
+  (Optional)
+  Optional. The name of the ACL policy to attach to the cluster.
+
 * `transit_encryption_mode` -
   (Optional)
   Optional. The in-transit encryption for the Redis cluster.
@@ -1176,6 +1180,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `backup_collection` -
   The backup collection full resource name.
   Example: projects/{project}/locations/{location}/backupCollections/{collection}
+
+* `is_acl_policy_in_sync` -
+  Optional. Whether the ACL policy is in sync with the cluster.
 
 * `discovery_endpoints` -
   Output only. Endpoints created on each given network,

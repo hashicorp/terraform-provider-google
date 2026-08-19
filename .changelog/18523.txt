@@ -1,0 +1,7 @@
+```release-note:new-datasource
+`google_redis_acl_policy`
+```
+
+```release-note:new-resource
+`google_redis_acl_policy`
+```
