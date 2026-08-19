@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed `google_sql_user` returning `Missing Resource Identity After Read` when the parent Cloud SQL instance is stopped
+```
