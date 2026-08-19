@@ -1,0 +1,3 @@
+```release-note:enhancement
+discoveryengine: made `google_discovery_engine_search_engine search_engine_config.required_subscription_tier` updatable
+```

@@ -99,6 +99,7 @@ resource "google_discovery_engine_search_engine" "basic" {
   features = {
     "agent-sharing-without-admin-approval" = "FEATURE_STATE_ON"
     "disable-agent-sharing" = "FEATURE_STATE_OFF"
+    "enable-end-user-sharing-with-groups" = "FEATURE_STATE_OFF"
   }
   knowledge_graph_config {
     enable_cloud_knowledge_graph = false
@@ -142,13 +143,14 @@ resource "google_discovery_engine_search_engine" "basic" {
   app_type = "APP_TYPE_INTRANET"
   search_engine_config {
     search_tier = "SEARCH_TIER_STANDARD"
-    required_subscription_tier = "SUBSCRIPTION_TIER_ENTERPRISE"
+    required_subscription_tier = "SUBSCRIPTION_TIER_SEARCH"
     search_add_ons = ["SEARCH_ADD_ON_LLM"]
   }
   features = {
     feedback = "FEATURE_STATE_OFF"
     "agent-sharing-without-admin-approval" = "FEATURE_STATE_ON"
     "disable-agent-sharing" = "FEATURE_STATE_OFF"
+    "enable-end-user-sharing-with-groups" = "FEATURE_STATE_OFF"
   }
   knowledge_graph_config {
     enable_cloud_knowledge_graph = false
