@@ -20,6 +20,8 @@ description: |-
 
 # google_beyondcorp_app_connection
 
+!> **Warning:** `google_beyondcorp_app_connection` is deprecated. App Connector is being deprecated and creation of new App Connectors is no longer permitted. Use `google_beyondcorp_security_gateway` and `google_beyondcorp_security_gateway_application` instead.
+
 Get information about a Google BeyondCorp App Connection.
 
 ## Example Usage
