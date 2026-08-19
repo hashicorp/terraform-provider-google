@@ -285,99 +285,165 @@ func dataSourceGoogleComputeRoutersRead(d *schema.ResourceData, meta interface{}
 
 	d.SetId(fmt.Sprintf("projects/%s/regions/%s", project, region))
 
-	list, err := NewClient(config, userAgent).Routers.List(project, region).Do()
+	baseURL, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/routers")
 	if err != nil {
-		return fmt.Errorf("Error retrieving list of routers: %s", err)
+		return err
 	}
 
 	var routers []map[string]interface{}
-	for _, router := range list.Items {
-		var bgpList []interface{}
-		if router.Bgp != nil {
-			var advertisedIpRanges []interface{}
-			for _, ipRange := range router.Bgp.AdvertisedIpRanges {
-				advertisedIpRanges = append(advertisedIpRanges, map[string]interface{}{
-					"range":       ipRange.Range,
-					"description": ipRange.Description,
+	pageToken := ""
+	for {
+		params := map[string]string{}
+		if pageToken != "" {
+			params["pageToken"] = pageToken
+		}
+
+		url, err := transport_tpg.AddQueryParams(baseURL, params)
+		if err != nil {
+			return err
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return fmt.Errorf("Error retrieving list of routers: %s", err)
+		}
+
+		if items, ok := res["items"].([]interface{}); ok {
+			for _, item := range items {
+				router, ok := item.(map[string]interface{})
+				if !ok {
+					continue
+				}
+
+				var bgpList []interface{}
+				if bgp, ok := router["bgp"].(map[string]interface{}); ok {
+					var advertisedIpRanges []interface{}
+					if ranges, ok := bgp["advertisedIpRanges"].([]interface{}); ok {
+						for _, r := range ranges {
+							ipRange, ok := r.(map[string]interface{})
+							if !ok {
+								continue
+							}
+							advertisedIpRanges = append(advertisedIpRanges, map[string]interface{}{
+								"range":       ipRange["range"],
+								"description": ipRange["description"],
+							})
+						}
+					}
+					bgpList = []interface{}{
+						map[string]interface{}{
+							"asn":                  bgp["asn"],
+							"advertise_mode":       bgp["advertiseMode"],
+							"advertised_groups":    bgp["advertisedGroups"],
+							"advertised_ip_ranges": advertisedIpRanges,
+							"keepalive_interval":   bgp["keepaliveInterval"],
+						},
+					}
+				}
+
+				var interfaces []map[string]interface{}
+				if ifaceList, ok := router["interfaces"].([]interface{}); ok {
+					for _, i := range ifaceList {
+						iface, ok := i.(map[string]interface{})
+						if !ok {
+							continue
+						}
+						interfaces = append(interfaces, map[string]interface{}{
+							"name":                           iface["name"],
+							"linked_vpn_tunnel":              iface["linkedVpnTunnel"],
+							"linked_interconnect_attachment": iface["linkedInterconnectAttachment"],
+							"ip_range":                       iface["ipRange"],
+							"private_ip_address":             iface["privateIpAddress"],
+							"redundant_interface":            iface["redundantInterface"],
+							"subnetwork":                     iface["subnetwork"],
+						})
+					}
+				}
+
+				var bgpPeers []map[string]interface{}
+				if peerList, ok := router["bgpPeers"].([]interface{}); ok {
+					for _, p := range peerList {
+						peer, ok := p.(map[string]interface{})
+						if !ok {
+							continue
+						}
+						bgpPeers = append(bgpPeers, map[string]interface{}{
+							"name":                      peer["name"],
+							"interface_name":            peer["interfaceName"],
+							"ip_address":                peer["ipAddress"],
+							"peer_ip_address":           peer["peerIpAddress"],
+							"peer_asn":                  peer["peerAsn"],
+							"advertised_route_priority": peer["advertisedRoutePriority"],
+							"advertise_mode":            peer["advertiseMode"],
+							"management_type":           peer["managementType"],
+							"enable":                    peer["enable"],
+							"enable_ipv6":               peer["enableIpv6"],
+						})
+					}
+				}
+
+				var nats []map[string]interface{}
+				if natList, ok := router["nats"].([]interface{}); ok {
+					for _, n := range natList {
+						nat, ok := n.(map[string]interface{})
+						if !ok {
+							continue
+						}
+						nats = append(nats, map[string]interface{}{
+							"name":                                nat["name"],
+							"source_subnetwork_ip_ranges_to_nat":  nat["sourceSubnetworkIpRangesToNat"],
+							"nat_ip_allocate_option":              nat["natIpAllocateOption"],
+							"nat_ips":                             nat["natIps"],
+							"min_ports_per_vm":                    nat["minPortsPerVm"],
+							"udp_idle_timeout_sec":                nat["udpIdleTimeoutSec"],
+							"icmp_idle_timeout_sec":               nat["icmpIdleTimeoutSec"],
+							"tcp_established_idle_timeout_sec":    nat["tcpEstablishedIdleTimeoutSec"],
+							"tcp_transitory_idle_timeout_sec":     nat["tcpTransitoryIdleTimeoutSec"],
+							"enable_endpoint_independent_mapping": nat["enableEndpointIndependentMapping"],
+						})
+					}
+				}
+
+				var md5AuthKeys []map[string]interface{}
+				if keyList, ok := router["md5AuthenticationKeys"].([]interface{}); ok {
+					for _, k := range keyList {
+						key, ok := k.(map[string]interface{})
+						if !ok {
+							continue
+						}
+						md5AuthKeys = append(md5AuthKeys, map[string]interface{}{
+							"name": key["name"],
+							"key":  key["key"],
+						})
+					}
+				}
+
+				routers = append(routers, map[string]interface{}{
+					"name":                          router["name"],
+					"network":                       router["network"],
+					"description":                   router["description"],
+					"creation_timestamp":            router["creationTimestamp"],
+					"self_link":                     router["selfLink"],
+					"bgp":                           bgpList,
+					"interfaces":                    interfaces,
+					"bgp_peers":                     bgpPeers,
+					"nats":                          nats,
+					"encrypted_interconnect_router": router["encryptedInterconnectRouter"],
+					"md5_authentication_keys":       md5AuthKeys,
 				})
 			}
-			bgpList = []interface{}{
-				map[string]interface{}{
-					"asn":                  router.Bgp.Asn,
-					"advertise_mode":       router.Bgp.AdvertiseMode,
-					"advertised_groups":    router.Bgp.AdvertisedGroups,
-					"advertised_ip_ranges": advertisedIpRanges,
-					"keepalive_interval":   router.Bgp.KeepaliveInterval,
-				},
-			}
 		}
 
-		var interfaces []map[string]interface{}
-		for _, iface := range router.Interfaces {
-			interfaces = append(interfaces, map[string]interface{}{
-				"name":                           iface.Name,
-				"linked_vpn_tunnel":              iface.LinkedVpnTunnel,
-				"linked_interconnect_attachment": iface.LinkedInterconnectAttachment,
-				"ip_range":                       iface.IpRange,
-				"private_ip_address":             iface.PrivateIpAddress,
-				"redundant_interface":            iface.RedundantInterface,
-				"subnetwork":                     iface.Subnetwork,
-			})
+		pageToken, _ = res["nextPageToken"].(string)
+		if pageToken == "" {
+			break
 		}
-
-		var bgpPeers []map[string]interface{}
-		for _, peer := range router.BgpPeers {
-			bgpPeers = append(bgpPeers, map[string]interface{}{
-				"name":                      peer.Name,
-				"interface_name":            peer.InterfaceName,
-				"ip_address":                peer.IpAddress,
-				"peer_ip_address":           peer.PeerIpAddress,
-				"peer_asn":                  peer.PeerAsn,
-				"advertised_route_priority": peer.AdvertisedRoutePriority,
-				"advertise_mode":            peer.AdvertiseMode,
-				"management_type":           peer.ManagementType,
-				"enable":                    peer.Enable,
-				"enable_ipv6":               peer.EnableIpv6,
-			})
-		}
-
-		var nats []map[string]interface{}
-		for _, nat := range router.Nats {
-			nats = append(nats, map[string]interface{}{
-				"name":                                nat.Name,
-				"source_subnetwork_ip_ranges_to_nat":  nat.SourceSubnetworkIpRangesToNat,
-				"nat_ip_allocate_option":              nat.NatIpAllocateOption,
-				"nat_ips":                             nat.NatIps,
-				"min_ports_per_vm":                    nat.MinPortsPerVm,
-				"udp_idle_timeout_sec":                nat.UdpIdleTimeoutSec,
-				"icmp_idle_timeout_sec":               nat.IcmpIdleTimeoutSec,
-				"tcp_established_idle_timeout_sec":    nat.TcpEstablishedIdleTimeoutSec,
-				"tcp_transitory_idle_timeout_sec":     nat.TcpTransitoryIdleTimeoutSec,
-				"enable_endpoint_independent_mapping": nat.EnableEndpointIndependentMapping,
-			})
-		}
-
-		var md5AuthKeys []map[string]interface{}
-		for _, key := range router.Md5AuthenticationKeys {
-			md5AuthKeys = append(md5AuthKeys, map[string]interface{}{
-				"name": key.Name,
-				"key":  key.Key,
-			})
-		}
-
-		routers = append(routers, map[string]interface{}{
-			"name":                          router.Name,
-			"network":                       router.Network,
-			"description":                   router.Description,
-			"creation_timestamp":            router.CreationTimestamp,
-			"self_link":                     router.SelfLink,
-			"bgp":                           bgpList,
-			"interfaces":                    interfaces,
-			"bgp_peers":                     bgpPeers,
-			"nats":                          nats,
-			"encrypted_interconnect_router": router.EncryptedInterconnectRouter,
-			"md5_authentication_keys":       md5AuthKeys,
-		})
 	}
 
 	if err := d.Set("routers", routers); err != nil {
