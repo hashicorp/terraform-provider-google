@@ -71,8 +71,9 @@ func ModifyFilestoreInstanceReplica(config *transport_tpg.Config, d *schema.Reso
 		return fmt.Errorf("Unable to %q google_filestore_instance %q: %s", method, d.Id(), err)
 	}
 
+	location := tpgresource.LocationFromId(d.Id())
 	err = FilestoreOperationWaitTime(
-		config, res, project, "Modifying Filestore Instance Replica", userAgent,
+		config, res, project, location, "Modifying Filestore Instance Replica", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -766,6 +767,9 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Instance: %#v", obj)
 	billingProject := ""
@@ -821,8 +825,10 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	location := tpgresource.LocationFromId(d.Id())
 	err = FilestoreOperationWaitTime(
-		config, res, project, "Creating Instance", userAgent,
+		config, res, project, location, "Creating Instance", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -877,6 +883,9 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -1058,6 +1067,9 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -1122,8 +1134,10 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
 		}
 
+		// Derive location for use in REP endpoints
+		location := tpgresource.LocationFromId(d.Id())
 		err = FilestoreOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
+			config, res, project, location, "Updating Instance", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -1200,6 +1214,9 @@ func resourceFilestoreInstanceDelete(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -1226,8 +1243,10 @@ func resourceFilestoreInstanceDelete(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, "Instance")
 	}
 
+	// Derive location for use in REP endpoints
+	location := tpgresource.LocationFromId(d.Id())
 	err = FilestoreOperationWaitTime(
-		config, res, project, "Deleting Instance", userAgent,
+		config, res, project, location, "Deleting Instance", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
