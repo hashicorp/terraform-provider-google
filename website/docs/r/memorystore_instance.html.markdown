@@ -533,6 +533,11 @@ The following arguments are supported:
   IAM_AUTH.
   TOKEN_AUTH is also supported, but only available in the google-beta provider.
 
+* `acl_policy` -
+  (Optional)
+  The name of the ACL policy to attach to the instance.
+  Format: projects/{project}/locations/{location}/aclPolicies/{acl_policy}
+
 * `transit_encryption_mode` -
   (Optional)
   Optional. Immutable. In-transit encryption mode of the instance. 
@@ -930,6 +935,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `uid` -
   Output only. System assigned, unique identifier for the instance.
+
+* `is_acl_policy_in_sync` -
+  Whether the ACL policy is in sync with the cluster.
 
 * `discovery_endpoints` -
   (Deprecated)

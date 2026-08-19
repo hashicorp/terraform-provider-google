@@ -182,6 +182,12 @@ This value is subject to the following restrictions:
 				Required:    true,
 				Description: `Required. Number of shards for the instance.`,
 			},
+			"acl_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The name of the ACL policy to attach to the instance.
+Format: projects/{project}/locations/{location}/aclPolicies/{acl_policy}`,
+			},
 			"authorization_mode": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -819,6 +825,11 @@ service attachment.`,
 					},
 				},
 			},
+			"is_acl_policy_in_sync": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether the ACL policy is in sync with the cluster.`,
+			},
 			"maintenance_schedule": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -1140,6 +1151,12 @@ func resourceMemorystoreInstanceCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("authorization_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(authorizationModeProp)) && (ok || !reflect.DeepEqual(v, authorizationModeProp)) {
 		obj["authorizationMode"] = authorizationModeProp
+	}
+	aclPolicyProp, err := expandMemorystoreInstanceAclPolicy(d.Get("acl_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("acl_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(aclPolicyProp)) && (ok || !reflect.DeepEqual(v, aclPolicyProp)) {
+		obj["aclPolicy"] = aclPolicyProp
 	}
 	transitEncryptionModeProp, err := expandMemorystoreInstanceTransitEncryptionMode(d.Get("transit_encryption_mode"), d, config)
 	if err != nil {
@@ -1494,6 +1511,12 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("replica_count"); ok || !reflect.DeepEqual(v, replicaCountProp) {
 		obj["replicaCount"] = replicaCountProp
 	}
+	aclPolicyProp, err := expandMemorystoreInstanceAclPolicy(d.Get("acl_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("acl_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, aclPolicyProp)) {
+		obj["aclPolicy"] = aclPolicyProp
+	}
 	shardCountProp, err := expandMemorystoreInstanceShardCount(d.Get("shard_count"), d, config)
 	if err != nil {
 		return err
@@ -1575,6 +1598,10 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("replica_count") {
 		updateMask = append(updateMask, "replicaCount")
+	}
+
+	if d.HasChange("acl_policy") {
+		updateMask = append(updateMask, "aclPolicy")
 	}
 
 	if d.HasChange("shard_count") {
@@ -1941,6 +1968,10 @@ func flattenMemorystoreInstanceReplicaCount(v interface{}, d *schema.ResourceDat
 }
 
 func flattenMemorystoreInstanceAuthorizationMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMemorystoreInstanceIsAclPolicyInSync(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2827,6 +2858,10 @@ func expandMemorystoreInstanceReplicaCount(v interface{}, d tpgresource.Terrafor
 }
 
 func expandMemorystoreInstanceAuthorizationMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMemorystoreInstanceAclPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3758,6 +3793,9 @@ func ResourceMemorystoreInstanceFlatten(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err = d.Set("authorization_mode", flattenMemorystoreInstanceAuthorizationMode(res["authorizationMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("is_acl_policy_in_sync", flattenMemorystoreInstanceIsAclPolicyInSync(res["isAclPolicyInSync"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err = d.Set("transit_encryption_mode", flattenMemorystoreInstanceTransitEncryptionMode(res["transitEncryptionMode"], d, config)); err != nil {
