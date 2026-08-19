@@ -222,6 +222,12 @@ The deprecated `attachment` attribute within `logical_structure.regions.metros.f
 
 `consumer_reject_lists` has been converted from a `list` to a `set` to resolve perpetual diffs caused by non-deterministic API ordering. References that use list indexing (for example, `google_compute_service_attachment.<name>.consumer_reject_lists[0]`) should be updated to use `tolist(google_compute_service_attachment.<name>.consumer_reject_lists)[0]` or `for` expressions.
 
+## Resource: `google_compute_reservation`
+
+### `reservation_block_count` is now removed
+
+The deprecated top-level `reservation_block_count` attribute has been removed. Use `resource_status[0].reservation_block_count` instead.
+
 ## Resource: `google_data_loss_prevention_job_trigger`
 
 ### `actions.publish_findings_to_cloud_data_catalog` is now removed

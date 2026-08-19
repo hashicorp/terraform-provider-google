@@ -20,7 +20,6 @@ fields:
     - api_field: linkedCommitments
     - api_field: name
     - api_field: params.resourceManagerTags
-    - api_field: reservationBlockCount
     - api_field: reservationSharingPolicy.serviceShareType
     - api_field: resourceStatus.healthInfo.degradedBlockCount
     - api_field: resourceStatus.healthInfo.healthStatus
