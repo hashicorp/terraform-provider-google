@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added `disable_natural_language_memories` and `generate_memories_examples` fields to `google_vertex_ai_reasoning_engine` (beta)
+```
