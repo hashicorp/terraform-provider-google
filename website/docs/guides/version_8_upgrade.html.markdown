@@ -128,6 +128,10 @@ The `google_beyondcorp_app_connector` datasource has been removed.
 
 The `google_beyondcorp_app_gateway` datasource has been removed.
 
+## Datasource: `google_iap_client` is now removed
+
+The `google_iap_client` data source has been removed following the permanent shutdown of the Google Cloud IAP OAuth Admin APIs.
+
 ## Resources
 
 ## Resource: `google_bigquery_dataset`
@@ -267,3 +271,9 @@ The `google_beyondcorp_app_connector` resource has been removed.
 ## Resource: `google_beyondcorp_app_gateway` is now removed
 
 The `google_beyondcorp_app_gateway` resource has been removed. Use `google_beyondcorp_security_gateway` instead.
+
+## Resource: `google_iap_brand` and `google_iap_client` are now removed
+
+`google_iap_brand` and `google_iap_client` have been removed following the permanent shutdown of the Google Cloud IAP OAuth Admin APIs. OAuth consent screens (brands) and OAuth clients can no longer be managed programmatically via the API and must be configured directly in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+
+Remove all `google_iap_brand` and `google_iap_client` resource blocks from your configuration and state prior to upgrading.
