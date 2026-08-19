@@ -1,0 +1,6 @@
+```release-note:breaking-change
+iap: removed deprecated `google_iap_brand` and `google_iap_client` resources
+```
+```release-note:breaking-change
+iap: removed deprecated `google_iap_client` data source
+```
