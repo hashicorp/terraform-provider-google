@@ -109,6 +109,9 @@ resource "google_biglake_table" "table" {
 		  location_uri = "gs://${google_storage_bucket.bucket.name}/${google_storage_bucket_object.data_folder.name}/data"
 		  input_format = "org.apache.hadoop.mapred.SequenceFileInputFormat2"
 		  output_format =  "org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat2"
+		  serde_info {
+		    serialization_lib = "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe2"
+		  }
 		}
 		# Some Example Parameters.
 		parameters = {
