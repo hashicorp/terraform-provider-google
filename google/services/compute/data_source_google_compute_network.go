@@ -18,7 +18,6 @@ package compute
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -139,38 +138,56 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 
 	id := fmt.Sprintf("projects/%s/global/networks/%s", project, name)
 
-	network, err := NewClient(config, userAgent).Networks.Get(project, name).Do()
+	url := fmt.Sprintf("%sprojects/%s/global/networks/%s", transport_tpg.BaseUrl(Product, config), project, name)
+	network, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Network Not Found : %s", name), id)
 	}
-	if err := d.Set("name", network.Name); err != nil {
+	if err := d.Set("name", network["name"]); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("gateway_ipv4", network.GatewayIPv4); err != nil {
+	// Note the API casing: gatewayIPv4 but internalIpv6Range.
+	if err := d.Set("gateway_ipv4", network["gatewayIPv4"]); err != nil {
 		return fmt.Errorf("Error setting gateway_ipv4: %s", err)
 	}
-	if err := d.Set("internal_ipv6_range", network.InternalIpv6Range); err != nil {
+	if err := d.Set("internal_ipv6_range", network["internalIpv6Range"]); err != nil {
 		return fmt.Errorf("Error setting internal_ipv6_range: %s", err)
 	}
-	if err := d.Set("network_profile", network.NetworkProfile); err != nil {
+	if err := d.Set("network_profile", network["networkProfile"]); err != nil {
 		return fmt.Errorf("Error setting network_profile: %s", err)
 	}
-	if err := d.Set("self_link", network.SelfLink); err != nil {
+	if err := d.Set("self_link", network["selfLink"]); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
-	if err := d.Set("description", network.Description); err != nil {
+	if err := d.Set("description", network["description"]); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
-	if err := d.Set("network_id", network.Id); err != nil {
+	// The API returns the uint64 id as a JSON string.
+	idStr, _ := network["id"].(string)
+	if idStr == "" {
+		idStr = "0"
+	}
+	networkId, err := tpgresource.StringToFixed64(idStr)
+	if err != nil {
+		return fmt.Errorf("Error parsing network_id %q: %s", idStr, err)
+	}
+	if err := d.Set("network_id", networkId); err != nil {
 		return fmt.Errorf("Error setting network_id: %s", err)
 	}
-	if err := d.Set("numeric_id", strconv.Itoa(int(network.Id))); err != nil {
+	// numeric_id keeps the raw API value, matching the google_compute_network resource.
+	if err := d.Set("numeric_id", idStr); err != nil {
 		return fmt.Errorf("Error setting numeric_id: %s", err)
 	}
-	if err := d.Set("subnetworks_self_links", network.Subnetworks); err != nil {
+	if err := d.Set("subnetworks_self_links", network["subnetworks"]); err != nil {
 		return fmt.Errorf("Error setting subnetworks_self_links: %s", err)
 	}
 	d.SetId(id)
