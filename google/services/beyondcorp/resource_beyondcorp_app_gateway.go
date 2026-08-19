@@ -127,6 +127,8 @@ func ResourceBeyondcorpAppGateway() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		DeprecationMessage: "`google_beyondcorp_app_gateway` is deprecated. App Connector is being deprecated and creation of new App Connectors is no longer permitted. Use `google_beyondcorp_security_gateway` instead.",
+
 		Identity: &schema.ResourceIdentity{
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {

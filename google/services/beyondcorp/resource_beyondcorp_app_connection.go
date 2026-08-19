@@ -118,6 +118,8 @@ func ResourceBeyondcorpAppConnection() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		DeprecationMessage: "`google_beyondcorp_app_connection` is deprecated. App Connector is being deprecated and creation of new App Connectors is no longer permitted. Use `google_beyondcorp_security_gateway` and `google_beyondcorp_security_gateway_application` instead.",
+
 		Identity: &schema.ResourceIdentity{
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {

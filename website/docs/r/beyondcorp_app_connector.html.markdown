@@ -21,6 +21,7 @@ description: |-
 ---
 
 # google_beyondcorp_app_connector
+~> **Warning:** `google_beyondcorp_app_connector` is deprecated. App Connector is being deprecated and creation of new App Connectors is no longer permitted. Use `google_beyondcorp_security_gateway` and `google_beyondcorp_security_gateway_application` instead.
 
 A BeyondCorp AppConnector resource represents an application facing component deployed proximal to 
 and with direct access to the application instances. It is used to establish connectivity between the 

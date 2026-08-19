@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_beyondcorp_app_gateway
+~> **Warning:** `google_beyondcorp_app_gateway` is deprecated. App Connector is being deprecated and creation of new App Connectors is no longer permitted. Use `google_beyondcorp_security_gateway` instead.
 
 A BeyondCorp AppGateway resource represents a BeyondCorp protected AppGateway to a remote application. It creates 
 all the necessary GCP components needed for creating a BeyondCorp protected AppGateway. Multiple connectors can be 

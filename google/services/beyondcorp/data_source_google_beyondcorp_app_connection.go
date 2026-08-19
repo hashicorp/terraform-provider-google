@@ -35,8 +35,9 @@ func DataSourceGoogleBeyondcorpAppConnection() *schema.Resource {
 	tpgresource.AddOptionalFieldsToSchema(dsSchema, "region")
 
 	return &schema.Resource{
-		Read:   dataSourceGoogleBeyondcorpAppConnectionRead,
-		Schema: dsSchema,
+		Read:               dataSourceGoogleBeyondcorpAppConnectionRead,
+		Schema:             dsSchema,
+		DeprecationMessage: "`google_beyondcorp_app_connection` is deprecated. App Connector is being deprecated and creation of new App Connectors is no longer permitted. Use `google_beyondcorp_security_gateway` and `google_beyondcorp_security_gateway_application` instead.",
 	}
 }
 
