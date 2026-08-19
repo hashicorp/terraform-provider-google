@@ -7,6 +7,7 @@ api_service_name: redis.googleapis.com
 api_version: v1
 api_resource_type_kind: Cluster
 fields:
+    - api_field: aclPolicy
     - api_field: authorizationMode
     - api_field: automatedBackupConfig.fixedFrequencySchedule.startTime.hours
     - api_field: automatedBackupConfig.retention
@@ -31,6 +32,7 @@ fields:
       provider_only: true
     - api_field: effectiveMaintenanceVersion
     - api_field: gcsSource.uris
+    - api_field: isAclPolicyInSync
     - api_field: kmsKey
     - api_field: labels
     - api_field: maintenancePolicy.createTime
