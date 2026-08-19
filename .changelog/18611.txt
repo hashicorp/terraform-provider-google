@@ -1,0 +1,3 @@
+```release-note:breaking-change
+compute: removed deprecated top-level `reservation_block_count` from `google_compute_reservation` resource and datasource. Use `resource_status.0.reservation_block_count` instead.
+```
