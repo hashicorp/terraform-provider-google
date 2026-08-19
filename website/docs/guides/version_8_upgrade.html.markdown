@@ -206,6 +206,12 @@ The default value of `load_balancing_scheme` for `google_compute_global_forwardi
 Configurations that do not set `load_balancing_scheme` will now default to `EXTERNAL_MANAGED` instead of `EXTERNAL`.
 To maintain the previous behavior (Classic Application Load Balancer), set `load_balancing_scheme = "EXTERNAL"` explicitly.
 
+## Resource: `google_compute_interconnect_attachment_group`
+
+### `logical_structure.*.zones.attachment` is now removed
+
+The deprecated `attachment` attribute within `logical_structure.regions.metros.facilities.zones` has been removed. Use `attachments` instead.
+
 ## Resource: `google_compute_service_attachment`
 
 ### `nat_subnets` is now a set
