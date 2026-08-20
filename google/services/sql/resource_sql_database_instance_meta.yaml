@@ -144,6 +144,7 @@ fields:
   - api_field: 'settings.dataDiskProvisionedThroughput'
   - api_field: 'settings.dataDiskType'
     field: 'settings.disk_type'
+  - api_field: 'settings.replicationLagMaxSeconds'
   - api_field: 'settings.edition'
   - api_field: 'settings.enableDataplexIntegration'
   - api_field: 'settings.enableGoogleMlIntegration'

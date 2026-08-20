@@ -85,7 +85,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_memorystore_instance.instance-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"acl_policy", "gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_memorystore_instance.instance-basic",
@@ -189,7 +189,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 				ResourceName:            "google_memorystore_instance.instance-full",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"acl_policy", "gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_memorystore_instance.instance-full",
@@ -310,7 +310,7 @@ func TestAccMemorystoreInstance_memorystoreInstancePersistenceAofExample(t *test
 				ResourceName:            "google_memorystore_instance.instance-persistence-aof",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"acl_policy", "gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_memorystore_instance.instance-persistence-aof",
@@ -408,7 +408,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(t *t
 				ResourceName:            "google_memorystore_instance.secondary_instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"acl_policy", "gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_memorystore_instance.secondary_instance",
@@ -590,7 +590,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceFlexibleCaExample(t *testing.
 				ResourceName:            "google_memorystore_instance.test-instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"acl_policy", "gcs_source", "instance_id", "labels", "location", "managed_backup_source", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_memorystore_instance.test-instance",

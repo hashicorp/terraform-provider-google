@@ -1608,3 +1608,50 @@ resource "google_redis_cluster" "cluster_cas" {
 }
 `, context)
 }
+
+func TestAccRedisCluster_withAclPolicy(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRedisClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisCluster_withAclPolicy(context),
+			},
+			{
+				ResourceName:            "google_redis_cluster.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"psc_configs"},
+			},
+		},
+	})
+}
+
+func testAccRedisCluster_withAclPolicy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_redis_cluster" "test" {
+  name                        = "tf-test-redis-%{random_suffix}"
+  shard_count                 = 1
+  region                      = "europe-west4"
+  deletion_protection_enabled = false
+  
+  acl_policy                  = google_redis_cluster_acl_policy.acl_policy.id
+}
+
+resource "google_redis_cluster_acl_policy" "acl_policy" {
+  acl_policy_id               = "tf-test-policy-%{random_suffix}"
+  location                    = "europe-west4"
+  rules {
+    rule                      = "on allkeys +get"
+    username                  = "default"
+  }
+}
+`, context)
+}

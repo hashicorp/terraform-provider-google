@@ -81,7 +81,7 @@ resource "google_secure_source_manager_hook" "default" {
     hook_id = "tf-test-my-initial-hook%{random_suffix}"
     location = google_secure_source_manager_repository.repository.location
     repository_id = google_secure_source_manager_repository.repository.repository_id
-    events = ["PUSH", "PULL_REQUEST"]
+    events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
     push_option {
         branch_filter = "main"
     }

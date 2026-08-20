@@ -272,7 +272,13 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "7"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.default_expiration_ms", "3600000"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.default_key1", "default_value1"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-name"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-type"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-version"),
 				),
 			},
 			{
@@ -294,7 +300,13 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "7"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.default_expiration_ms", "3600000"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.default_key1", "value1"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-name"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-type"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-version"),
 				),
 			},
 			{
@@ -317,7 +329,13 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "7"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.default_expiration_ms", "3600000"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.default_key1", "value1"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-name"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-type"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-version"),
 				),
 			},
 			{
@@ -339,7 +357,13 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "7"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.default_expiration_ms", "3600000"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.default_key1", "value1"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-name"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-type"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-version"),
 				),
 			},
 			{
@@ -353,7 +377,10 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr("google_dataflow_job.big_data", "labels.%"),
 					// goog-terraform-provisioned: true is added
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "4"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-name"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-type"),
+					resource.TestCheckResourceAttrSet("google_dataflow_job.big_data", "effective_labels.goog-dataflow-provided-template-version"),
 				),
 			},
 			{

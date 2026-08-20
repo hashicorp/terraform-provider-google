@@ -92,6 +92,7 @@ resource "google_discovery_engine_search_engine" "agentspace_basic" {
   features = {
     "agent-sharing-without-admin-approval" = "FEATURE_STATE_ON"
     "disable-agent-sharing"                = "FEATURE_STATE_OFF"
+    "enable-end-user-sharing-with-groups"  = "FEATURE_STATE_OFF"
   }
   knowledge_graph_config {
   }
@@ -188,7 +189,7 @@ The following arguments are supported:
 * `required_subscription_tier` -
   (Optional)
   The required subscription tier of this engine.
-  They cannot be modified after engine creation. If the required subscription tier is search, user with higher license tier like assist can still access the standalone app associated with this engine.
+  If the required subscription tier is search, user with higher license tier like assist can still access the standalone app associated with this engine.
   Possible values are: `SUBSCRIPTION_TIER_UNSPECIFIED`, `SUBSCRIPTION_TIER_SEARCH`, `SUBSCRIPTION_TIER_SEARCH_AND_ASSISTANT`, `SUBSCRIPTION_TIER_FRONTLINE_WORKER`, `SUBSCRIPTION_TIER_AGENTSPACE_STARTER`, `SUBSCRIPTION_TIER_AGENTSPACE_BUSINESS`, `SUBSCRIPTION_TIER_ENTERPRISE`, `SUBSCRIPTION_TIER_ENTERPRISE_EMERGING`, `SUBSCRIPTION_TIER_EDU`, `SUBSCRIPTION_TIER_EDU_PRO`, `SUBSCRIPTION_TIER_EDU_EMERGING`, `SUBSCRIPTION_TIER_EDU_PRO_EMERGING`, `SUBSCRIPTION_TIER_FRONTLINE_STARTER`.
 
 * `search_add_ons` -

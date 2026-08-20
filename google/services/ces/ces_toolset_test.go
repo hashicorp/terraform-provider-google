@@ -93,6 +93,7 @@ resource "google_ces_toolset" "ces_toolset_openapi_service_account_auth_config" 
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Basic toolset display name"
+  timeout      = "30s"
 
   open_api_toolset {
     open_api_schema = <<-EOT
@@ -154,6 +155,7 @@ resource "google_ces_toolset" "ces_toolset_openapi_service_account_auth_config" 
   location = "us"
   app      = google_ces_app.ces_app_for_toolset.app_id
   display_name = "Updated toolset display name"
+  timeout      = "60s"
 
   open_api_toolset {
     open_api_schema = <<-EOT

@@ -1,0 +1,20 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_memorystore_acl_policy
+generation_type: mmv1
+source_file: products/memorystore/AclPolicy.yaml
+api_service_name: memorystore.googleapis.com
+api_version: v1
+api_resource_type_kind: AclPolicy
+fields:
+    - field: acl_policy_id
+      provider_only: true
+    - api_field: etag
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: rules.rule
+    - api_field: rules.username
+    - api_field: state
+    - field: deletion_policy
+      provider_only: true

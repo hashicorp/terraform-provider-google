@@ -87,8 +87,9 @@ data "google_project" "project" {}
 
 
 resource "google_sql_database_instance" "instance" {
- name             = "default-%{random_suffix}"
+ name             = "tf-test-instance-%{random_suffix}"
  database_version = "MYSQL_8_0"
+ root_password    = "tf-test-password-%{random_suffix}"
  region          = "us-central1"
  deletion_protection = false
  settings {
@@ -203,8 +204,9 @@ resource "google_service_account" "default" {
 }
 
 resource "google_sql_database_instance" "instance" {
- name             = "default-%{random_suffix}"
+ name             = "tf-test-instance-%{random_suffix}"
  database_version = "MYSQL_8_0"
+ root_password    = "tf-test-password-%{random_suffix}"
  region          = "us-central1"
  deletion_protection = false
  settings {
@@ -328,8 +330,9 @@ resource "google_service_account" "default" {
 }
 
 resource "google_sql_database_instance" "instance" {
- name             = "default-%{random_suffix}"
+ name             = "tf-test-instance-%{random_suffix}"
  database_version = "MYSQL_8_0"
+ root_password    = "tf-test-password-%{random_suffix}"
  region          = "us-central1"
  deletion_protection = false
  settings {

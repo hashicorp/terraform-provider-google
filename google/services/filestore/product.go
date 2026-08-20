@@ -25,6 +25,8 @@ import (
 var Product = registry.Product{
 	Name:                 "filestore",
 	BaseUrl:              "https://file.googleapis.com/v1/",
+	RepUrl:               "https://file.{{location}}.rep.googleapis.com/v1/",
+	RepByDefault:         false,
 	CustomEndpointField:  "filestore_custom_endpoint",
 	CustomEndpointEnvVar: "GOOGLE_FILESTORE_CUSTOM_ENDPOINT",
 }

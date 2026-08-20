@@ -182,6 +182,21 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 										Optional:    true,
 										Description: `The fully qualified Java class name of the output format.`,
 									},
+									"serde_info": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Serializer and deserializer information.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"serialization_lib": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The fully qualified Java class name of the serialization library.`,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -642,6 +657,8 @@ func flattenBiglakeTableHiveOptionsStorageDescriptor(v interface{}, d *schema.Re
 		flattenBiglakeTableHiveOptionsStorageDescriptorInputFormat(original["inputFormat"], d, config)
 	transformed["output_format"] =
 		flattenBiglakeTableHiveOptionsStorageDescriptorOutputFormat(original["outputFormat"], d, config)
+	transformed["serde_info"] =
+		flattenBiglakeTableHiveOptionsStorageDescriptorSerdeInfo(original["serdeInfo"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBiglakeTableHiveOptionsStorageDescriptorLocationUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -653,6 +670,23 @@ func flattenBiglakeTableHiveOptionsStorageDescriptorInputFormat(v interface{}, d
 }
 
 func flattenBiglakeTableHiveOptionsStorageDescriptorOutputFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBiglakeTableHiveOptionsStorageDescriptorSerdeInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["serialization_lib"] =
+		flattenBiglakeTableHiveOptionsStorageDescriptorSerdeInfoSerializationLib(original["serializationLib"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBiglakeTableHiveOptionsStorageDescriptorSerdeInfoSerializationLib(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -744,6 +778,13 @@ func expandBiglakeTableHiveOptionsStorageDescriptor(v interface{}, d tpgresource
 		transformed["outputFormat"] = transformedOutputFormat
 	}
 
+	transformedSerdeInfo, err := expandBiglakeTableHiveOptionsStorageDescriptorSerdeInfo(original["serde_info"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSerdeInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serdeInfo"] = transformedSerdeInfo
+	}
+
 	return transformed, nil
 }
 
@@ -756,6 +797,32 @@ func expandBiglakeTableHiveOptionsStorageDescriptorInputFormat(v interface{}, d 
 }
 
 func expandBiglakeTableHiveOptionsStorageDescriptorOutputFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBiglakeTableHiveOptionsStorageDescriptorSerdeInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSerializationLib, err := expandBiglakeTableHiveOptionsStorageDescriptorSerdeInfoSerializationLib(original["serialization_lib"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSerializationLib); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serializationLib"] = transformedSerializationLib
+	}
+
+	return transformed, nil
+}
+
+func expandBiglakeTableHiveOptionsStorageDescriptorSerdeInfoSerializationLib(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -47,6 +47,7 @@ type FilestoreOperationWaiter struct {
 	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
+	Location  string
 	tpgresource.CommonOperationWaiter
 }
 
@@ -57,6 +58,10 @@ func (w *FilestoreOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := transport_tpg.BaseUrl(Product, w.Config)
 	url += fmt.Sprintf("%s", w.CommonOperationWaiter.Op.Name)
+	if strings.Contains(url, "{{location}}") && w.Location == "" {
+		return nil, fmt.Errorf("failed to find location for a resource with a regionalized endpoint %s", url)
+	}
+	url = strings.ReplaceAll(url, "{{location}}", w.Location)
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:               w.Config,
 		Method:               "GET",
@@ -67,11 +72,12 @@ func (w *FilestoreOperationWaiter) QueryOp() (interface{}, error) {
 	})
 }
 
-func createFilestoreWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*FilestoreOperationWaiter, error) {
+func createFilestoreWaiter(config *transport_tpg.Config, op map[string]interface{}, project, location, activity, userAgent string) (*FilestoreOperationWaiter, error) {
 	w := &FilestoreOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
 		Project:   project,
+		Location:  location,
 	}
 	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
 		return nil, err
@@ -80,8 +86,8 @@ func createFilestoreWaiter(config *transport_tpg.Config, op map[string]interface
 }
 
 // nolint: deadcode,unused
-func FilestoreOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
-	w, err := createFilestoreWaiter(config, op, project, activity, userAgent)
+func FilestoreOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, location, activity, userAgent string, timeout time.Duration) error {
+	w, err := createFilestoreWaiter(config, op, project, location, activity, userAgent)
 	if err != nil {
 		return err
 	}
@@ -95,12 +101,12 @@ func FilestoreOperationWaitTimeWithResponse(config *transport_tpg.Config, op map
 	return json.Unmarshal(rawResponse, response)
 }
 
-func FilestoreOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func FilestoreOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, location, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil
 	}
-	w, err := createFilestoreWaiter(config, op, project, activity, userAgent)
+	w, err := createFilestoreWaiter(config, op, project, location, activity, userAgent)
 	if err != nil {
 		// If w is nil, the op was synchronous.
 		return err

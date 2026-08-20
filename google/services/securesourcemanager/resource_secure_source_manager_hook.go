@@ -175,10 +175,10 @@ Set to true to stop sending traffic.`,
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
-				Description: `The events that trigger hook on. Possible values: ["PUSH", "PULL_REQUEST"]`,
+				Description: `The events that trigger hook on. Possible values: ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]`,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: verify.ValidateEnum([]string{"PUSH", "PULL_REQUEST"}),
+					ValidateFunc: verify.ValidateEnum([]string{"PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"}),
 				},
 			},
 			"push_option": {

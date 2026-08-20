@@ -18,7 +18,6 @@ package compute
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
@@ -178,84 +177,108 @@ func dataSourceGoogleComputeStoragePoolTypesRead(d *schema.ResourceData, meta in
 	if err != nil {
 		return err
 	}
-	zone := d.Get("zone").(string)
-	storagePoolType := d.Get("storage_pool_type").(string)
 
-	spt, err := NewClient(config, userAgent).StoragePoolTypes.Get(project, zone, storagePoolType).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/storagePoolTypes/{{storage_pool_type}}")
+	if err != nil {
+		return err
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, "GCE storage pool types", fmt.Sprintf("GCE storage pool types in project %s", project))
 	}
 
-	if err := d.Set("kind", spt.Kind); err != nil {
+	if err := d.Set("kind", res["kind"]); err != nil {
 		return fmt.Errorf("Error setting kind: %s", err)
 	}
-	if err := d.Set("id", spt.Id); err != nil {
+	if err := d.Set("id", flattenComputeStoragePoolTypesInt64(res["id"])); err != nil {
 		return fmt.Errorf("Error setting id: %s", err)
 	}
-	if err := d.Set("creation_timestamp", spt.CreationTimestamp); err != nil {
+	if err := d.Set("creation_timestamp", res["creationTimestamp"]); err != nil {
 		return fmt.Errorf("Error setting creation_timestamp: %s", err)
 	}
-	if err := d.Set("name", spt.Name); err != nil {
+	if err := d.Set("name", res["name"]); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("description", spt.Description); err != nil {
+	if err := d.Set("description", res["description"]); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
 	}
 
-	if spt.Deprecated != nil {
-		if err := d.Set("state", spt.Deprecated.State); err != nil {
+	if deprecated, ok := res["deprecated"].(map[string]interface{}); ok {
+		if err := d.Set("state", deprecated["state"]); err != nil {
 			return fmt.Errorf("Error setting deprecated.state: %s", err)
 		}
-		if err := d.Set("replacement", spt.Deprecated.Replacement); err != nil {
+		if err := d.Set("replacement", deprecated["replacement"]); err != nil {
 			return fmt.Errorf("Error setting deprecated.replacement: %s", err)
 		}
-		if err := d.Set("deprecated", spt.Deprecated.Deprecated); err != nil {
+		if err := d.Set("deprecated", deprecated["deprecated"]); err != nil {
 			return fmt.Errorf("Error setting deprecated.deprecated: %s", err)
 		}
-		if err := d.Set("obsolete", spt.Deprecated.Obsolete); err != nil {
+		if err := d.Set("obsolete", deprecated["obsolete"]); err != nil {
 			return fmt.Errorf("Error setting deprecated.obsolete: %s", err)
 		}
-		if err := d.Set("deleted", spt.Deprecated.Deleted); err != nil {
+		if err := d.Set("deleted", deprecated["deleted"]); err != nil {
 			return fmt.Errorf("Error setting deprecated.deleted: %s", err)
 		}
 	}
 
-	if err := d.Set("zone", spt.Zone); err != nil {
+	if err := d.Set("zone", res["zone"]); err != nil {
 		return fmt.Errorf("Error setting zone: %s", err)
 	}
-	if err := d.Set("self_link", spt.SelfLink); err != nil {
+	if err := d.Set("self_link", res["selfLink"]); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
-	if err := d.Set("self_link_with_id", spt.SelfLinkWithId); err != nil {
+	if err := d.Set("self_link_with_id", res["selfLinkWithId"]); err != nil {
 		return fmt.Errorf("Error setting self_link_with_id: %s", err)
 	}
 
-	if err := d.Set("min_pool_provisioned_capacity_gb", spt.MinPoolProvisionedCapacityGb); err != nil {
+	if err := d.Set("min_pool_provisioned_capacity_gb", flattenComputeStoragePoolTypesInt64(res["minPoolProvisionedCapacityGb"])); err != nil {
 		return fmt.Errorf("Error setting min_pool_provisioned_capacity_gb: %s", err)
 	}
-	if err := d.Set("max_pool_provisioned_capacity_gb", spt.MaxPoolProvisionedCapacityGb); err != nil {
+	if err := d.Set("max_pool_provisioned_capacity_gb", flattenComputeStoragePoolTypesInt64(res["maxPoolProvisionedCapacityGb"])); err != nil {
 		return fmt.Errorf("Error setting max_pool_provisioned_capacity_gb: %s", err)
 	}
-	if err := d.Set("min_pool_provisioned_iops", spt.MinPoolProvisionedIops); err != nil {
+	if err := d.Set("min_pool_provisioned_iops", flattenComputeStoragePoolTypesInt64(res["minPoolProvisionedIops"])); err != nil {
 		return fmt.Errorf("Error setting min_pool_provisioned_iops: %s", err)
 	}
-	if err := d.Set("max_pool_provisioned_iops", spt.MaxPoolProvisionedIops); err != nil {
+	if err := d.Set("max_pool_provisioned_iops", flattenComputeStoragePoolTypesInt64(res["maxPoolProvisionedIops"])); err != nil {
 		return fmt.Errorf("Error setting max_pool_provisioned_iops: %s", err)
 	}
-	if err := d.Set("min_pool_provisioned_throughput", spt.MinPoolProvisionedThroughput); err != nil {
+	if err := d.Set("min_pool_provisioned_throughput", flattenComputeStoragePoolTypesInt64(res["minPoolProvisionedThroughput"])); err != nil {
 		return fmt.Errorf("Error setting min_pool_provisioned_throughput: %s", err)
 	}
-	if err := d.Set("max_pool_provisioned_throughput", spt.MaxPoolProvisionedThroughput); err != nil {
+	if err := d.Set("max_pool_provisioned_throughput", flattenComputeStoragePoolTypesInt64(res["maxPoolProvisionedThroughput"])); err != nil {
 		return fmt.Errorf("Error setting max_pool_provisioned_throughput: %s", err)
 	}
 
-	if err := d.Set("supported_disk_types", spt.SupportedDiskTypes); err != nil {
+	if err := d.Set("supported_disk_types", res["supportedDiskTypes"]); err != nil {
 		return fmt.Errorf("Error setting supported_disk_types: %s", err)
 	}
 
-	d.SetId(strconv.FormatUint(spt.Id, 10))
+	id, ok := res["id"].(string)
+	if !ok {
+		return fmt.Errorf("Error setting id: expected string, got %T(%v)", res["id"], res["id"])
+	}
+	d.SetId(id)
 
 	return nil
+}
+
+// The Compute API encodes fixed64 fields (e.g. id, provisioned capacity/iops/throughput) as
+// JSON strings rather than numbers, so they must be parsed explicitly.
+func flattenComputeStoragePoolTypesInt64(v interface{}) interface{} {
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+	return v
 }
 
 func init() {

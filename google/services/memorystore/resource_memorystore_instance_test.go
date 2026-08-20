@@ -1990,3 +1990,51 @@ resource "google_memorystore_instance" "instance_cas" {
 }
 `, context)
 }
+func TestAccMemorystoreInstance_withAclPolicy(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"location":      "us-central1",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMemorystoreInstance_withAclPolicy(context),
+			},
+			{
+				ResourceName:            "google_memorystore_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "location", "acl_policy"},
+			},
+		},
+	})
+}
+
+func testAccMemorystoreInstance_withAclPolicy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_memorystore_instance" "test" {
+  instance_id                  = "tf-test-instance-%{random_suffix}"
+  shard_count                  = 1
+  location                     = "%{location}"
+  deletion_protection_enabled  = false
+  node_type                    = "SHARED_CORE_NANO"
+  
+  acl_policy                  = google_memorystore_acl_policy.acl_policy.id
+}
+
+resource "google_memorystore_acl_policy" "acl_policy" {
+  acl_policy_id = "tf-test-policy-%{random_suffix}"
+  location      = "%{location}"
+  rules {
+    rule     = "on allkeys +get"
+    username = "default"
+  }
+}
+`, context)
+}

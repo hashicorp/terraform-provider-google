@@ -477,9 +477,21 @@ func TestAccSqlUser_instanceWithActivationPolicy(t *testing.T) {
 			{
 				Config: testGoogleSqlUser_instanceWithActivationPolicy(instance, "NEVER"),
 			},
-			// Step 3: Refresh to verify no errors
+			// Step 3: Refresh with instance stopped — identity attributes must still be set
 			{
 				Config: testGoogleSqlUser_instanceWithActivationPolicy(instance, "NEVER"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_sql_user.user", "project"),
+					resource.TestCheckResourceAttr("google_sql_user.user", "instance", instance),
+					resource.TestCheckResourceAttr("google_sql_user.user", "name", "admin"),
+				),
+			},
+			// Step 3a: ImportState with instance stopped — verifies identity survives a round-trip
+			{
+				ResourceName:            "google_sql_user.user",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password", "deletion_policy"},
 			},
 			// Step 4: Update activation_policy to ALWAYS so that post-test destroy code is able to delete the google_sql_user resource
 			{

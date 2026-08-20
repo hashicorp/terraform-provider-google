@@ -86,6 +86,9 @@ resource "google_biglake_table" "table" {
         location_uri = "gs://${google_storage_bucket.bucket.name}/${google_storage_bucket_object.data_folder.name}"
         input_format  = "org.apache.hadoop.mapred.SequenceFileInputFormat"
         output_format = "org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat"
+        serde_info {
+          serialization_lib = "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe"
+        }
       }
       # Some Example Parameters.
       parameters = {
@@ -166,6 +169,18 @@ The following arguments are supported:
 * `output_format` -
   (Optional)
   The fully qualified Java class name of the output format.
+
+* `serde_info` -
+  (Optional)
+  Serializer and deserializer information.
+  Structure is [documented below](#nested_hive_options_storage_descriptor_serde_info).
+
+
+<a name="nested_hive_options_storage_descriptor_serde_info"></a>The `serde_info` block supports:
+
+* `serialization_lib` -
+  (Optional)
+  The fully qualified Java class name of the serialization library.
 
 ## Attributes Reference
 
