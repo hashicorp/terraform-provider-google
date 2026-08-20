@@ -2211,9 +2211,10 @@ func ResourceContainerCluster() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
-										Type:        schema.TypeBool,
-										Required:    true,
-										Description: `Whether the cluster master is accessible globally or not.`,
+										Type:             schema.TypeBool,
+										Required:         true,
+										DiffSuppressFunc: containerClusterPrivateClusterConfigSuppress,
+										Description:      `Whether the cluster master is accessible globally or not.`,
 									},
 								},
 							},
@@ -8492,8 +8493,20 @@ func containerClusterAddedScopesSuppress(k, old, new string, d *schema.ResourceD
 	return true
 }
 
+// privateClusterConfigDiffSuppressData is the subset of *schema.ResourceData read by
+// containerClusterApiDictatedPrivateEndpointField. Accepting an interface lets the logic
+// be unit tested with tpgresource.ResourceDiffMock.
+type privateClusterConfigDiffSuppressData interface {
+	GetChange(string) (interface{}, interface{})
+	GetOk(string) (interface{}, bool)
+}
+
 // We want to suppress diffs for empty/disabled private cluster config.
 func containerClusterPrivateClusterConfigSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if containerClusterApiDictatedPrivateEndpointField(k, d) {
+		return true
+	}
+
 	o, n := d.GetChange("private_cluster_config.0.enable_private_endpoint")
 	suppressEndpoint := !o.(bool) && !n.(bool)
 
@@ -8522,6 +8535,33 @@ func containerClusterPrivateClusterConfigSuppress(k, old, new string, d *schema.
 		return (hasMasterCidr && new == "" && old != "") || tpgresource.CompareSelfLinkOrResourceName(k, old, new, d)
 	}
 	return false
+}
+
+// containerClusterApiDictatedPrivateEndpointField reports whether k is a
+// private_cluster_config field whose value the GKE API dictates rather than accepting from
+// the user. With control plane IP endpoints disabled (DNS-only access),
+// expandControlPlaneEndpointsConfig returns early without sending
+// enable_private_endpoint or master_global_access_config.enabled, while
+// flattenPrivateClusterConfig still reads both back unconditionally, so any configured
+// value permanently diffs against the fixed value the API returns.
+func containerClusterApiDictatedPrivateEndpointField(k string, d privateClusterConfigDiffSuppressData) bool {
+	if k != "private_cluster_config.0.enable_private_endpoint" &&
+		k != "private_cluster_config.0.master_global_access_config.0.enabled" {
+		return false
+	}
+	return containerClusterIpEndpointsDisabled(d)
+}
+
+// containerClusterIpEndpointsDisabled reports whether control_plane_endpoints_config
+// turns off IP access (ip_endpoints_config.enabled = false). IP endpoints are enabled by
+// default, so this is only true when the block is present and explicitly disabled.
+func containerClusterIpEndpointsDisabled(d privateClusterConfigDiffSuppressData) bool {
+	if v, ok := d.GetOk("control_plane_endpoints_config.0.ip_endpoints_config.#"); !ok || v.(int) == 0 {
+		return false
+	}
+	_, n := d.GetChange("control_plane_endpoints_config.0.ip_endpoints_config.0.enabled")
+	enabled, ok := n.(bool)
+	return ok && !enabled
 }
 
 // Autopilot clusters have preconfigured defaults: https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#comparison.

@@ -269,6 +269,9 @@ func resourceFilestoreSnapshotCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Snapshot: %#v", obj)
 	billingProject := ""
@@ -307,8 +310,10 @@ func resourceFilestoreSnapshotCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	location := tpgresource.LocationFromId(d.Id())
 	err = FilestoreOperationWaitTime(
-		config, res, project, "Creating Snapshot", userAgent,
+		config, res, project, location, "Creating Snapshot", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -358,6 +363,9 @@ func resourceFilestoreSnapshotRead(d *schema.ResourceData, meta interface{}) err
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/snapshots/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -522,6 +530,9 @@ func resourceFilestoreSnapshotUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Snapshot %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -566,8 +577,10 @@ func resourceFilestoreSnapshotUpdate(d *schema.ResourceData, meta interface{}) e
 			log.Printf("[DEBUG] Finished updating Snapshot %q: %#v", d.Id(), res)
 		}
 
+		// Derive location for use in REP endpoints
+		location := tpgresource.LocationFromId(d.Id())
 		err = FilestoreOperationWaitTime(
-			config, res, project, "Updating Snapshot", userAgent,
+			config, res, project, location, "Updating Snapshot", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -610,6 +623,9 @@ func resourceFilestoreSnapshotDelete(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -636,8 +652,10 @@ func resourceFilestoreSnapshotDelete(d *schema.ResourceData, meta interface{}) e
 		return transport_tpg.HandleNotFoundError(err, d, "Snapshot")
 	}
 
+	// Derive location for use in REP endpoints
+	location := tpgresource.LocationFromId(d.Id())
 	err = FilestoreOperationWaitTime(
-		config, res, project, "Deleting Snapshot", userAgent,
+		config, res, project, location, "Deleting Snapshot", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

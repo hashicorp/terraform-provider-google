@@ -17,6 +17,7 @@ fields:
     - api_field: hiveOptions.storageDescriptor.inputFormat
     - api_field: hiveOptions.storageDescriptor.locationUri
     - api_field: hiveOptions.storageDescriptor.outputFormat
+    - api_field: hiveOptions.storageDescriptor.serdeInfo.serializationLib
     - api_field: hiveOptions.tableType
     - field: name
       provider_only: true

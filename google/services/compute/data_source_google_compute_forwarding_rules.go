@@ -73,33 +73,48 @@ func dataSourceGoogleComputeForwardingRulesRead(d *schema.ResourceData, meta int
 	id := fmt.Sprintf("projects/%s/regions/%s/forwardingRules", project, region)
 	d.SetId(id)
 
-	forwardingRulesAggregatedList, err := NewClient(config, userAgent).ForwardingRules.List(project, region).Do()
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules")
+	if err != nil {
+		return err
+	}
+
+	forwardingRulesAggregatedList, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Forwarding Rules Not Found : %s", project))
 	}
 
-	forwardingRules := make([]map[string]interface{}, 0, len(forwardingRulesAggregatedList.Items))
+	items, _ := forwardingRulesAggregatedList["items"].([]interface{})
+	forwardingRules := make([]map[string]interface{}, 0, len(items))
 
-	for i := 0; i < len(forwardingRulesAggregatedList.Items); i++ {
-		rule := forwardingRulesAggregatedList.Items[i]
+	for _, raw := range items {
+		rule, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
 		mappedData := map[string]interface{}{
-			"name":                 rule.Name,
-			"network":              rule.Network,
-			"subnetwork":           rule.Subnetwork,
-			"backend_service":      rule.BackendService,
-			"ip_address":           rule.IPAddress,
-			"service_name":         rule.ServiceName,
-			"service_label":        rule.ServiceLabel,
-			"description":          rule.Description,
-			"self_link":            rule.SelfLink,
-			"labels":               rule.Labels,
-			"ports":                rule.Ports,
-			"region":               rule.Region,
-			"target":               rule.Target,
-			"ip_version":           rule.IpVersion,
-			"network_tier":         rule.NetworkTier,
-			"base_forwarding_rule": rule.BaseForwardingRule,
-			"port_range":           rule.PortRange,
+			"name":                 rule["name"],
+			"network":              rule["network"],
+			"subnetwork":           rule["subnetwork"],
+			"backend_service":      rule["backendService"],
+			"ip_address":           rule["IPAddress"],
+			"service_name":         rule["serviceName"],
+			"service_label":        rule["serviceLabel"],
+			"description":          rule["description"],
+			"self_link":            rule["selfLink"],
+			"labels":               rule["labels"],
+			"ports":                rule["ports"],
+			"region":               rule["region"],
+			"target":               rule["target"],
+			"ip_version":           rule["ipVersion"],
+			"network_tier":         rule["networkTier"],
+			"base_forwarding_rule": rule["baseForwardingRule"],
+			"port_range":           rule["portRange"],
 		}
 		forwardingRules = append(forwardingRules, mappedData)
 	}

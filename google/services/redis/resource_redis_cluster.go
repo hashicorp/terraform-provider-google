@@ -156,6 +156,11 @@ projects/{projectId}/locations/{locationId}/clusters/{clusterId}`,
 				Required:    true,
 				Description: `Required. Number of shards for the Redis cluster.`,
 			},
+			"acl_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Optional. The name of the ACL policy to attach to the cluster.`,
+			},
 			"authorization_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -727,6 +732,11 @@ projects/{network_project_id}/global/networks/{network_id}.`,
 				Computed:    true,
 				Description: `This field represents the actual maintenance version of the cluster.`,
 			},
+			"is_acl_policy_in_sync": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Optional. Whether the ACL policy is in sync with the cluster.`,
+			},
 			"maintenance_schedule": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -947,6 +957,12 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("authorization_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(authorizationModeProp)) && (ok || !reflect.DeepEqual(v, authorizationModeProp)) {
 		obj["authorizationMode"] = authorizationModeProp
+	}
+	aclPolicyProp, err := expandRedisClusterAclPolicy(d.Get("acl_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("acl_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(aclPolicyProp)) && (ok || !reflect.DeepEqual(v, aclPolicyProp)) {
+		obj["aclPolicy"] = aclPolicyProp
 	}
 	transitEncryptionModeProp, err := expandRedisClusterTransitEncryptionMode(d.Get("transit_encryption_mode"), d, config)
 	if err != nil {
@@ -1291,6 +1307,12 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("automated_backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, automatedBackupConfigProp)) {
 		obj["automatedBackupConfig"] = automatedBackupConfigProp
 	}
+	aclPolicyProp, err := expandRedisClusterAclPolicy(d.Get("acl_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("acl_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, aclPolicyProp)) {
+		obj["aclPolicy"] = aclPolicyProp
+	}
 	nodeTypeProp, err := expandRedisClusterNodeType(d.Get("node_type"), d, config)
 	if err != nil {
 		return err
@@ -1392,6 +1414,10 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("automated_backup_config") {
 		updateMask = append(updateMask, "automatedBackupConfig")
+	}
+
+	if d.HasChange("acl_policy") {
+		updateMask = append(updateMask, "aclPolicy")
 	}
 
 	if d.HasChange("node_type") {
@@ -1673,6 +1699,14 @@ func flattenRedisClusterAutomatedBackupConfigRetention(v interface{}, d *schema.
 }
 
 func flattenRedisClusterAuthorizationMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterAclPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenRedisClusterIsAclPolicyInSync(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2551,6 +2585,10 @@ func expandRedisClusterAuthorizationMode(v interface{}, d tpgresource.TerraformR
 	return v, nil
 }
 
+func expandRedisClusterAclPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandRedisClusterTransitEncryptionMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -3265,6 +3303,12 @@ func ResourceRedisClusterFlatten(d *schema.ResourceData, meta interface{}, res m
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err = d.Set("authorization_mode", flattenRedisClusterAuthorizationMode(res["authorizationMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("acl_policy", flattenRedisClusterAclPolicy(res["aclPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("is_acl_policy_in_sync", flattenRedisClusterIsAclPolicyInSync(res["isAclPolicyInSync"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err = d.Set("transit_encryption_mode", flattenRedisClusterTransitEncryptionMode(res["transitEncryptionMode"], d, config)); err != nil {

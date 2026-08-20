@@ -600,6 +600,12 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Computed:    true,
 							Description: `Provisioned throughput measured in MiB per second for the data disk. This field is only used for HYPERDISK_BALANCED disk types.`,
 						},
+						"replication_lag_max_seconds": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: `The acceptable replication lag, in seconds, after which a read replica recreates itself. The lag must persist for at least five minutes before recreation is triggered. This is a replica level field, and must be between 300 seconds (five minutes) and 31536000 seconds (one year).`,
+						},
 						"connection_pool_config": {
 							Type:        schema.TypeSet,
 							Optional:    true,
@@ -1971,6 +1977,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		DataDiskType:                  _settings["disk_type"].(string),
 		DataDiskProvisionedIops:       int64(_settings["data_disk_provisioned_iops"].(int)),
 		DataDiskProvisionedThroughput: int64(_settings["data_disk_provisioned_throughput"].(int)),
+		ReplicationLagMaxSeconds:      int64(_settings["replication_lag_max_seconds"].(int)),
 		PricingPlan:                   _settings["pricing_plan"].(string),
 		DeletionProtectionEnabled:     _settings["deletion_protection_enabled"].(bool),
 		EnableGoogleMlIntegration:     _settings["enable_google_ml_integration"].(bool),
@@ -3212,6 +3219,7 @@ func flattenSettings(settings *sqladmin.Settings, iType string, d *schema.Resour
 		"disk_size":                        settings.DataDiskSizeGb,
 		"data_disk_provisioned_iops":       settings.DataDiskProvisionedIops,
 		"data_disk_provisioned_throughput": settings.DataDiskProvisionedThroughput,
+		"replication_lag_max_seconds":      settings.ReplicationLagMaxSeconds,
 		"pricing_plan":                     settings.PricingPlan,
 		"user_labels":                      settings.UserLabels,
 		"password_validation_policy":       settings.PasswordValidationPolicy,

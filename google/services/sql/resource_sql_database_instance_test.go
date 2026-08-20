@@ -626,6 +626,39 @@ func TestAccSqlDatabaseInstance_settings_basic(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_replicationLagMaxSeconds(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-" + acctest.RandString(t, 10)
+	replicaName := "tf-test-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_replicationLagMaxSeconds(instanceName, replicaName, 600),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.replica", "settings.0.replication_lag_max_seconds", "600"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstanceConfig_replicationLagMaxSeconds(instanceName, replicaName, 1200),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.replica", "settings.0.replication_lag_max_seconds", "1200"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_settings_secondary(t *testing.T) {
 	t.Parallel()
 
@@ -6036,6 +6069,40 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, instanceName)
+}
+
+func testGoogleSqlDatabaseInstanceConfig_replicationLagMaxSeconds(instanceName, replicaName string, lagMaxSeconds int) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+
+  settings {
+    tier = "db-n1-standard-1"
+
+    backup_configuration {
+      binary_log_enabled = "true"
+      enabled            = "true"
+      start_time         = "18:00"
+    }
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  name                 = "%s"
+  region               = "us-central1"
+  database_version     = "MYSQL_5_7"
+  master_instance_name = google_sql_database_instance.instance.name
+  deletion_protection  = false
+
+  settings {
+    tier                        = "db-n1-standard-1"
+    replication_lag_max_seconds = %d
+  }
+}
+`, instanceName, replicaName, lagMaxSeconds)
 }
 
 func testGoogleSqlDatabaseInstanceConfig_withReplica(instanceName, failoverName string) string {

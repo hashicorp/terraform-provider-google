@@ -819,75 +819,6 @@ func resourceInstanceTags(d tpgresource.TerraformResourceData) map[string]interf
 	}
 }
 
-func resourceInstanceTagsOmitEmpty(d tpgresource.TerraformResourceData) map[string]interface{} {
-	tags := map[string]interface{}{}
-	v := d.Get("tags")
-	if v == nil {
-		return tags
-	}
-	vs := v.(*schema.Set)
-	if vs.Len() > 0 {
-		items := make([]string, vs.Len())
-		for i, v := range vs.List() {
-			items[i] = v.(string)
-		}
-		tags["items"] = items
-	}
-	if fingerprint := d.Get("tags_fingerprint").(string); fingerprint != "" {
-		tags["fingerprint"] = fingerprint
-	}
-	return tags
-}
-
-func schedulingOmitEmpty(scheduling map[string]interface{}) map[string]interface{} {
-	if scheduling == nil {
-		return nil
-	}
-	result := map[string]interface{}{}
-	for k, v := range scheduling {
-		if k == "automaticRestart" {
-			result[k] = v
-			continue
-		}
-		if v == nil {
-			continue
-		}
-		switch val := v.(type) {
-		case bool:
-			if val {
-				result[k] = v
-			}
-		case string:
-			if val != "" {
-				result[k] = v
-			}
-		case int:
-			if val != 0 {
-				result[k] = v
-			}
-		case int64:
-			if val != 0 {
-				result[k] = v
-			}
-		case float64:
-			if val != 0 {
-				result[k] = v
-			}
-		case map[string]interface{}:
-			if val != nil {
-				result[k] = v
-			}
-		case []interface{}:
-			if len(val) > 0 {
-				result[k] = v
-			}
-		default:
-			result[k] = v
-		}
-	}
-	return result
-}
-
 func expandShieldedVmConfigs(d tpgresource.TerraformResourceData) map[string]interface{} {
 	if _, ok := d.GetOk("shielded_instance_config"); !ok {
 		return nil
@@ -1274,23 +1205,13 @@ func expandComputeInstanceSourceEncryptionKey(d tpgresource.TerraformResourceDat
 	}
 
 	cekRes := cek.([]interface{})[0].(map[string]interface{})
-	result := map[string]interface{}{}
-	if v, _ := cekRes["rsa_encrypted_key"].(string); v != "" {
-		result["rsaEncryptedKey"] = v
+	return map[string]interface{}{
+		"rsaEncryptedKey":      cekRes["rsa_encrypted_key"].(string),
+		"rawKey":               cekRes["raw_key"].(string),
+		"kmsKeyName":           cekRes["kms_key_self_link"].(string),
+		"sha256":               cekRes["sha256"].(string),
+		"kmsKeyServiceAccount": cekRes["kms_key_service_account"].(string),
 	}
-	if v, _ := cekRes["raw_key"].(string); v != "" {
-		result["rawKey"] = v
-	}
-	if v, _ := cekRes["kms_key_self_link"].(string); v != "" {
-		result["kmsKeyName"] = v
-	}
-	if v, _ := cekRes["sha256"].(string); v != "" {
-		result["sha256"] = v
-	}
-	if v, _ := cekRes["kms_key_service_account"].(string); v != "" {
-		result["kmsKeyServiceAccount"] = v
-	}
-	return result
 }
 
 func flattenComputeInstanceSourceEncryptionKey(v map[string]interface{}) []map[string]interface{} {

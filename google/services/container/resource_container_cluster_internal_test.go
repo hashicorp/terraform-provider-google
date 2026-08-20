@@ -557,3 +557,85 @@ func TestUnitFlattenClusterNodePools(t *testing.T) {
 		})
 	}
 }
+
+func TestContainerClusterApiDictatedPrivateEndpointField(t *testing.T) {
+	t.Parallel()
+
+	const (
+		enablePrivateEndpointKey = "private_cluster_config.0.enable_private_endpoint"
+		enablePrivateNodesKey    = "private_cluster_config.0.enable_private_nodes"
+		masterGlobalAccessKey    = "private_cluster_config.0.master_global_access_config.0.enabled"
+		ipEndpointsCountKey      = "control_plane_endpoints_config.0.ip_endpoints_config.#"
+		ipEndpointsEnabledKey    = "control_plane_endpoints_config.0.ip_endpoints_config.0.enabled"
+	)
+
+	cases := map[string]struct {
+		key string
+		// planned holds the new side of the diff; only new values are read.
+		planned  map[string]interface{}
+		expected bool
+	}{
+		// Reproduces hashicorp/terraform-provider-google#27901: with IP endpoints
+		// disabled the API forces enable_private_endpoint to true, so a configured
+		// value of false would permanently diff.
+		"enable_private_endpoint with ip endpoints disabled": {
+			key: enablePrivateEndpointKey,
+			planned: map[string]interface{}{
+				enablePrivateEndpointKey: false,
+				ipEndpointsCountKey:      1,
+				ipEndpointsEnabledKey:    false,
+			},
+			expected: true,
+		},
+		// The second permadiff from #27901: with IP endpoints disabled the API forces
+		// master_global_access_config.enabled to false.
+		"master_global_access_config with ip endpoints disabled": {
+			key: masterGlobalAccessKey,
+			planned: map[string]interface{}{
+				masterGlobalAccessKey: true,
+				ipEndpointsCountKey:   1,
+				ipEndpointsEnabledKey: false,
+			},
+			expected: true,
+		},
+		// With IP endpoints enabled the API honors both fields, so their diffs must
+		// reach the regular suppression logic.
+		"enable_private_endpoint with ip endpoints enabled": {
+			key: enablePrivateEndpointKey,
+			planned: map[string]interface{}{
+				enablePrivateEndpointKey: false,
+				ipEndpointsCountKey:      1,
+				ipEndpointsEnabledKey:    true,
+			},
+			expected: false,
+		},
+		// IP endpoints are enabled by default, so an absent block dictates nothing.
+		"master_global_access_config without control_plane_endpoints_config": {
+			key: masterGlobalAccessKey,
+			planned: map[string]interface{}{
+				masterGlobalAccessKey: true,
+			},
+			expected: false,
+		},
+		// Only the two fields the API overrides are affected; the rest of
+		// private_cluster_config stays user-controlled.
+		"unaffected private_cluster_config field with ip endpoints disabled": {
+			key: enablePrivateNodesKey,
+			planned: map[string]interface{}{
+				enablePrivateNodesKey: false,
+				ipEndpointsCountKey:   1,
+				ipEndpointsEnabledKey: false,
+			},
+			expected: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			d := &tpgresource.ResourceDiffMock{After: tc.planned}
+			if got := containerClusterApiDictatedPrivateEndpointField(tc.key, d); got != tc.expected {
+				t.Errorf("%s: expected %v, but was %v", tn, tc.expected, got)
+			}
+		})
+	}
+}
