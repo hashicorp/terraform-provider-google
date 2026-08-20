@@ -211,13 +211,14 @@ following characters must be a dash, lowercase letter, or digit,
 except the last character, which cannot be a dash.`,
 			},
 			"nat_subnets": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Required:    true,
 				Description: `An array of subnets that is provided for NAT in this service attachment.`,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				},
+				Set: tpgresource.SelfLinkNameHash,
 			},
 			"target_service": {
 				Type:             schema.TypeString,
@@ -234,13 +235,14 @@ attachment.`,
 				Set:  computeServiceAttachmentConsumerAcceptListsHash,
 			},
 			"consumer_reject_lists": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Description: `An array of projects that are not allowed to connect to this service
 attachment.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Set: schema.HashString,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -417,6 +419,7 @@ create.`,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 				Description: `The endpoint that is allowed to connect to this service attachment.
 Only one of project_id_or_num, network_url and endpoint_url may be set.`,
+				Default: "",
 			},
 			"network_url": {
 				Type:             schema.TypeString,
@@ -424,12 +427,14 @@ Only one of project_id_or_num, network_url and endpoint_url may be set.`,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 				Description: `The network that is allowed to connect to this service attachment.
 Only one of project_id_or_num and network_url may be set.`,
+				Default: "",
 			},
 			"project_id_or_num": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: `A project that is allowed to connect to this service attachment.
 Only one of project_id_or_num and network_url may be set.`,
+				Default: "",
 			},
 		},
 	}
@@ -1070,7 +1075,10 @@ func flattenComputeServiceAttachmentDomainNames(v interface{}, d *schema.Resourc
 }
 
 func flattenComputeServiceAttachmentConsumerRejectLists(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenComputeServiceAttachmentConsumerAcceptLists(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1171,6 +1179,7 @@ func expandComputeServiceAttachmentTargetService(v interface{}, d tpgresource.Te
 }
 
 func expandComputeServiceAttachmentNatSubnets(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -1195,6 +1204,7 @@ func expandComputeServiceAttachmentDomainNames(v interface{}, d tpgresource.Terr
 }
 
 func expandComputeServiceAttachmentConsumerRejectLists(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 

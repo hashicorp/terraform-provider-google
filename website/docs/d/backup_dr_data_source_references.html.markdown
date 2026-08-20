@@ -39,7 +39,6 @@ output "all_data_source_references" {
 The following arguments are supported:
 
 *   `location `- (Required) The location of the data source references.
-*   `resource_type` - (Optional, Deprecated) The resource type to get the data source references for. Examples include, "sqladmin.googleapis.com/Instance" , "compute.googleapis.com/Instance". `resource_type` is deprecated and will be removed in a future major release.
     
 *   `project` - (Optional) The ID of the project in which the resource belongs. If it is not provided, the provider project is used.
     

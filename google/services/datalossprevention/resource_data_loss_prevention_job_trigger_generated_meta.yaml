@@ -20,7 +20,6 @@ fields:
     - api_field: inspectJob.actions.deidentify.transformationDetailsStorageConfig.table.tableId
     - api_field: inspectJob.actions.jobNotificationEmails
     - api_field: inspectJob.actions.pubSub.topic
-    - api_field: inspectJob.actions.publishFindingsToCloudDataCatalog
     - api_field: inspectJob.actions.publishFindingsToDataplexCatalog
     - api_field: inspectJob.actions.publishSummaryToCscc
     - api_field: inspectJob.actions.publishToStackdriver

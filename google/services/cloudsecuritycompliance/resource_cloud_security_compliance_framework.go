@@ -55,6 +55,19 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func cloudsecuritycomplianceFrameworkCloudControlDetailsHash(v interface{}) int {
+	if v == nil {
+		return 0
+	}
+
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+
+	buf.WriteString(fmt.Sprintf("%s-", m["name"].(string)))
+
+	return tpgresource.Hashcode(buf.String())
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -163,142 +176,12 @@ This is the last part of the full name of the framework.`,
 				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
 			},
 			"cloud_control_details": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Description: `The details of the cloud controls directly added without any grouping in
 the framework.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"major_revision_id": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `Major revision of cloudcontrol`,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							Description: `The name of the CloudControl in the format:
-"{parent}/locations/{location}/cloudControls/{cloud-control}"`,
-						},
-						"parameters": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `Parameters is a key-value pair that is required by the CloudControl. The
-specification of these parameters will be present in cloudcontrol.Eg: {
-"name": "location","value": "us-west-1"}.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `The name of the parameter.`,
-									},
-									"parameter_value": {
-										Type:        schema.TypeList,
-										Required:    true,
-										Description: `Possible parameter value types.`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"bool_value": {
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Description: `Represents a boolean value.`,
-												},
-												"number_value": {
-													Type:        schema.TypeFloat,
-													Optional:    true,
-													Description: `Represents a double value.`,
-												},
-												"oneof_value": {
-													Type:        schema.TypeList,
-													Optional:    true,
-													Description: `Sub-parameter values.`,
-													MaxItems:    1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"name": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: `The name of the parameter.`,
-															},
-															"parameter_value": {
-																Type:        schema.TypeList,
-																Optional:    true,
-																Description: `The value of the parameter.`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"bool_value": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: `Represents a boolean value.`,
-																		},
-																		"number_value": {
-																			Type:        schema.TypeFloat,
-																			Optional:    true,
-																			Description: `Represents a double value.`,
-																		},
-																		"string_list_value": {
-																			Type:        schema.TypeList,
-																			Optional:    true,
-																			Description: `A list of strings.`,
-																			MaxItems:    1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"values": {
-																						Type:        schema.TypeList,
-																						Required:    true,
-																						Description: `The strings in the list.`,
-																						Elem: &schema.Schema{
-																							Type: schema.TypeString,
-																						},
-																					},
-																				},
-																			},
-																		},
-																		"string_value": {
-																			Type:        schema.TypeString,
-																			Optional:    true,
-																			Description: `Represents a string value.`,
-																		},
-																	},
-																},
-															},
-														},
-													},
-												},
-												"string_list_value": {
-													Type:        schema.TypeList,
-													Optional:    true,
-													Description: `A list of strings.`,
-													MaxItems:    1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"values": {
-																Type:        schema.TypeList,
-																Required:    true,
-																Description: `The strings in the list.`,
-																Elem: &schema.Schema{
-																	Type: schema.TypeString,
-																},
-															},
-														},
-													},
-												},
-												"string_value": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: `Represents a string value.`,
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
+				Elem: cloudsecuritycomplianceFrameworkCloudControlDetailsSchema(),
+				Set:  cloudsecuritycomplianceFrameworkCloudControlDetailsHash,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -398,6 +281,142 @@ When set to "DELETE", deleting the resource is allowed.
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func cloudsecuritycomplianceFrameworkCloudControlDetailsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"major_revision_id": {
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: tpgresource.SuppressMajorRevisionId,
+				Description:      `Major revision of cloudcontrol`,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				Description: `The name of the CloudControl in the format:
+"{parent}/locations/{location}/cloudControls/{cloud-control}"`,
+			},
+			"parameters": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Parameters is a key-value pair that is required by the CloudControl. The
+specification of these parameters will be present in cloudcontrol.Eg: {
+"name": "location","value": "us-west-1"}.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the parameter.`,
+						},
+						"parameter_value": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `Possible parameter value types.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bool_value": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Represents a boolean value.`,
+									},
+									"number_value": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Represents a double value.`,
+									},
+									"oneof_value": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Sub-parameter values.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The name of the parameter.`,
+												},
+												"parameter_value": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The value of the parameter.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"bool_value": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: `Represents a boolean value.`,
+															},
+															"number_value": {
+																Type:        schema.TypeFloat,
+																Optional:    true,
+																Description: `Represents a double value.`,
+															},
+															"string_list_value": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `A list of strings.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"values": {
+																			Type:        schema.TypeList,
+																			Required:    true,
+																			Description: `The strings in the list.`,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																		},
+																	},
+																},
+															},
+															"string_value": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Represents a string value.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"string_list_value": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `A list of strings.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"values": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `The strings in the list.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+									"string_value": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Represents a string value.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -831,7 +850,7 @@ func flattenCloudSecurityComplianceFrameworkCloudControlDetails(v interface{}, d
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(cloudsecuritycomplianceFrameworkCloudControlDetailsHash, []interface{}{})
 	for i, raw := range l {
 		_ = i
 		original := raw.(map[string]interface{})
@@ -839,7 +858,7 @@ func flattenCloudSecurityComplianceFrameworkCloudControlDetails(v interface{}, d
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"major_revision_id": flattenCloudSecurityComplianceFrameworkCloudControlDetailsMajorRevisionId(original["majorRevisionId"], d, config),
 			"name":              flattenCloudSecurityComplianceFrameworkCloudControlDetailsName(original["name"], d, config),
 			"parameters":        flattenCloudSecurityComplianceFrameworkCloudControlDetailsParameters(original["parameters"], d, config),
@@ -1032,6 +1051,7 @@ func flattenCloudSecurityComplianceFrameworkType(v interface{}, d *schema.Resour
 }
 
 func expandCloudSecurityComplianceFrameworkCloudControlDetails(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	if v == nil {
 		return nil, nil
 	}

@@ -293,14 +293,25 @@ The `scale_tier` argument has been removed from this resource. It was previously
 
 `google_notebooks_runtime` and its IAM resources (`google_notebooks_runtime_iam_policy`, `google_notebooks_runtime_iam_binding`, and `google_notebooks_runtime_iam_member`) have been removed. The underlying Vertex AI Workbench Google-Managed Notebooks product has reached End of Life. Migrate to [`google_workbench_instance`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/workbench_instance) and remove these resources from your configuration.
 
+## Resource: `google_monitoring_uptime_check_config`
+
+### `http_check.0.auth_info.0.password` and `http_check.0.auth_info.0.password_wo` now require exactly one to be set
+
+The constraint between `http_check.0.auth_info.0.password` and `http_check.0.auth_info.0.password_wo` is now `ExactlyOneOf`. Configurations that set both fields must be updated to set only one.
+
 ## Resource: `google_secret_manager_secret_version`
 
 ### `secret_data_wo_version` type changed from `Integer` to `String`
 
 The `secret_data_wo_version` field has changed type from `Integer` to `String`. The `ExactlyOneOf` constraint between `secret_data` and `secret_data_wo` remains unchanged. Existing state is automatically migrated on the first `terraform apply` after upgrading: the old default value of `0` is converted to `""` (unset), and non-zero values are converted to their string equivalents.
 
+### `secret_data_wo` now requires `secret_data_wo_version`
+
+`secret_data_wo` and `secret_data_wo_version` are now linked with `RequiredWith`. Previously, `secret_data_wo_version` defaulted to `0` and could be omitted. Configurations that set `secret_data_wo` must now also set `secret_data_wo_version` to a non-empty string.
+
 When upgrading to version 8.0.0:
 - If you were using `secret_data`: no configuration change needed.
+- If you were using `secret_data_wo` without `secret_data_wo_version`: add an explicit non-zero string value (e.g. `secret_data_wo_version = "1"`). The previous default of `0` has been removed.
 - If you were using `secret_data_wo` + `secret_data_wo_version = 0`: change this to a non-zero string value (e.g. `secret_data_wo_version = "1"`) before upgrading. The value `0` is now treated as unset, so leaving `= 0` in your configuration will cause a forced replacement on the next apply.
 - If you were using `secret_data_wo` + `secret_data_wo_version = <non-zero integer>`: update the value to a quoted string (e.g. change `secret_data_wo_version = 1` to `secret_data_wo_version = "1"`).
 

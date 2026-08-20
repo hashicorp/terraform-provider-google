@@ -158,7 +158,14 @@ cluster.
     auto-generate a unique name.
 
 * `name_prefix` - (Optional) Creates a unique name for the node pool beginning
-    with the specified prefix. Conflicts with `name`.
+    with the specified prefix. Conflicts with `name`. Max length is 31 characters.
+    Prefixes with lengths longer than 14 characters will use a shortened
+    UUID that will be more prone to collisions.
+
+    Resulting name for a `name_prefix` <= 14 characters:
+    `name_prefix` + YYYYmmddHHSSssss + 8 digit incremental counter
+    Resulting name for a `name_prefix` 15 - 31 characters:
+    `name_prefix` + YYmmdd + 3 digit incremental counter
 
 * `node_config` - (Optional) Parameters used in creating the node pool. Structure is [documented below](#nested_node_config). See [google_container_cluster](container_cluster.html#nested_node_config) for exact schema.
 

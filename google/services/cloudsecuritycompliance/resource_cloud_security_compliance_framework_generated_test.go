@@ -78,7 +78,7 @@ func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkOrg
 				ResourceName:            "google_cloud_security_compliance_framework.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_id", "location", "organization", "parent"},
+				ImportStateVerifyIgnore: []string{"cloud_control_details", "framework_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework.example",
@@ -178,7 +178,7 @@ func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkPro
 				ResourceName:            "google_cloud_security_compliance_framework.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_id", "location", "organization", "parent"},
+				ImportStateVerifyIgnore: []string{"cloud_control_details", "framework_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework.example",
@@ -279,7 +279,7 @@ func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkOrg
 				ResourceName:            "google_cloud_security_compliance_framework.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"framework_id", "location", "organization", "parent"},
+				ImportStateVerifyIgnore: []string{"cloud_control_details", "framework_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework.example",

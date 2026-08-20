@@ -709,16 +709,6 @@ is 1,024 characters.`,
 											},
 										},
 									},
-									"publish_findings_to_cloud_data_catalog": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Deprecated:  "`publish_findings_to_cloud_data_catalog` is deprecated and will be removed in a future major release. To publish findings to Dataplex Catalog, use `publish_findings_to_dataplex_catalog` instead.",
-										Description: `Publish findings of a DlpJob to Data Catalog.`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{},
-										},
-									},
 									"publish_findings_to_dataplex_catalog": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -3409,14 +3399,13 @@ func flattenDataLossPreventionJobTriggerInspectJobActions(v interface{}, d *sche
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"save_findings":                          flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindings(original["saveFindings"], d, config),
-			"pub_sub":                                flattenDataLossPreventionJobTriggerInspectJobActionsPubSub(original["pubSub"], d, config),
-			"publish_summary_to_cscc":                flattenDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(original["publishSummaryToCscc"], d, config),
-			"publish_findings_to_dataplex_catalog":   flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToDataplexCatalog(original["publishFindingsToDataplexCatalog"], d, config),
-			"publish_findings_to_cloud_data_catalog": flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(original["publishFindingsToCloudDataCatalog"], d, config),
-			"job_notification_emails":                flattenDataLossPreventionJobTriggerInspectJobActionsJobNotificationEmails(original["jobNotificationEmails"], d, config),
-			"deidentify":                             flattenDataLossPreventionJobTriggerInspectJobActionsDeidentify(original["deidentify"], d, config),
-			"publish_to_stackdriver":                 flattenDataLossPreventionJobTriggerInspectJobActionsPublishToStackdriver(original["publishToStackdriver"], d, config),
+			"save_findings":                        flattenDataLossPreventionJobTriggerInspectJobActionsSaveFindings(original["saveFindings"], d, config),
+			"pub_sub":                              flattenDataLossPreventionJobTriggerInspectJobActionsPubSub(original["pubSub"], d, config),
+			"publish_summary_to_cscc":              flattenDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(original["publishSummaryToCscc"], d, config),
+			"publish_findings_to_dataplex_catalog": flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToDataplexCatalog(original["publishFindingsToDataplexCatalog"], d, config),
+			"job_notification_emails":              flattenDataLossPreventionJobTriggerInspectJobActionsJobNotificationEmails(original["jobNotificationEmails"], d, config),
+			"deidentify":                           flattenDataLossPreventionJobTriggerInspectJobActionsDeidentify(original["deidentify"], d, config),
+			"publish_to_stackdriver":               flattenDataLossPreventionJobTriggerInspectJobActionsPublishToStackdriver(original["publishToStackdriver"], d, config),
 		})
 	}
 	return transformed
@@ -3527,14 +3516,6 @@ func flattenDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(v 
 }
 
 func flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToDataplexCatalog(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	return []interface{}{transformed}
-}
-
-func flattenDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -5846,13 +5827,6 @@ func expandDataLossPreventionJobTriggerInspectJobActions(v interface{}, d tpgres
 			transformed["publishFindingsToDataplexCatalog"] = transformedPublishFindingsToDataplexCatalog
 		}
 
-		transformedPublishFindingsToCloudDataCatalog, err := expandDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(original["publish_findings_to_cloud_data_catalog"], d, config)
-		if err != nil {
-			return nil, err
-		} else {
-			transformed["publishFindingsToCloudDataCatalog"] = transformedPublishFindingsToCloudDataCatalog
-		}
-
 		transformedJobNotificationEmails, err := expandDataLossPreventionJobTriggerInspectJobActionsJobNotificationEmails(original["job_notification_emails"], d, config)
 		if err != nil {
 			return nil, err
@@ -6060,24 +6034,6 @@ func expandDataLossPreventionJobTriggerInspectJobActionsPublishSummaryToCscc(v i
 }
 
 func expandDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToDataplexCatalog(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	l := v.([]interface{})
-	if len(l) == 0 {
-		return nil, nil
-	}
-
-	if l[0] == nil {
-		transformed := make(map[string]interface{})
-		return transformed, nil
-	}
-	transformed := make(map[string]interface{})
-
-	return transformed, nil
-}
-
-func expandDataLossPreventionJobTriggerInspectJobActionsPublishFindingsToCloudDataCatalog(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}

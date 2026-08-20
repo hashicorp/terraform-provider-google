@@ -146,14 +146,17 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		Schema: map[string]*schema.Schema{
-			"secret_data_wo_version": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Triggers update of secret data write-only. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
-				Default:     0,
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceSecretManagerSecretVersionResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceSecretManagerSecretVersionUpgradeV0,
+				Version: 0,
 			},
+		},
+
+		Schema: map[string]*schema.Schema{
 			"secret_data": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -165,9 +168,17 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 			"secret_data_wo": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Description:  `The secret data. Must be no larger than 64KiB. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+				Description:  `The secret data. Must be no larger than 64KiB.`,
 				WriteOnly:    true,
 				ExactlyOneOf: []string{"secret_data", "secret_data_wo"},
+				RequiredWith: []string{"secret_data_wo_version"},
+			},
+			"secret_data_wo_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `Triggers update of 'secret_data_wo' write-only. Increment this value when an update to 'secret_data_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+				RequiredWith: []string{"secret_data_wo"},
 			},
 
 			"secret": {
@@ -700,6 +711,97 @@ func resourceSecretManagerSecretVersionDecoder(d *schema.ResourceData, meta inte
 	}
 
 	return res, nil
+}
+
+func resourceSecretManagerSecretVersionResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"secret_data": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  true,
+				Sensitive: true,
+			},
+			"secret": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+			"create_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"destroy_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_secret_data_base64": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"secret_data_wo": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"secret_data_wo_version": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Default:  0,
+			},
+		},
+	}
+}
+
+func ResourceSecretManagerSecretVersionUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+	// secret_data_wo_version was originally TypeInt (default 0). The field was
+	// changed to TypeString with no default. The old default of 0 maps to ""
+	// (unset) so that resources that never explicitly set secret_data_wo_version
+	// in their config see no diff or forced replacement after upgrading.
+	// Non-zero values are preserved as their decimal string equivalent.
+	// UseJSONNumber is set on this resource, so numbers arrive as json.Number.
+	intVal := int64(0)
+	switch v := rawState["secret_data_wo_version"].(type) {
+	case json.Number:
+		intVal, _ = v.Int64()
+	case float64:
+		intVal = int64(v)
+	case int:
+		intVal = int64(v)
+	}
+	if intVal == 0 {
+		rawState["secret_data_wo_version"] = ""
+	} else {
+		rawState["secret_data_wo_version"] = fmt.Sprintf("%d", intVal)
+	}
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
 }
 func resourceSecretManagerSecretVersionPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
 	config := meta.(*transport_tpg.Config)

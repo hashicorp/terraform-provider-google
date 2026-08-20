@@ -338,17 +338,6 @@ Interconnects.`,
 present in.`,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
-																		"attachment": {
-																			Type:       schema.TypeList,
-																			Computed:   true,
-																			Deprecated: "`attachment` is deprecated and will be removed in a future major release. Use `attachments` instead.",
-																			Description: `URLs of Attachments in the given zone, to the given
-region, on Interconnects in the given facility and metro. Every
-Attachment in the AG has such an entry.`,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeString,
-																			},
-																		},
 																		"attachments": {
 																			Type:     schema.TypeList,
 																			Computed: true,
@@ -954,17 +943,12 @@ func flattenComputeInterconnectAttachmentGroupLogicalStructureRegionsMetrosFacil
 		}
 		transformed = append(transformed, map[string]interface{}{
 			"zone":        flattenComputeInterconnectAttachmentGroupLogicalStructureRegionsMetrosFacilitiesZonesZone(original["zone"], d, config),
-			"attachment":  flattenComputeInterconnectAttachmentGroupLogicalStructureRegionsMetrosFacilitiesZonesAttachment(original["attachment"], d, config),
 			"attachments": flattenComputeInterconnectAttachmentGroupLogicalStructureRegionsMetrosFacilitiesZonesAttachments(original["attachments"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenComputeInterconnectAttachmentGroupLogicalStructureRegionsMetrosFacilitiesZonesZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenComputeInterconnectAttachmentGroupLogicalStructureRegionsMetrosFacilitiesZonesAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

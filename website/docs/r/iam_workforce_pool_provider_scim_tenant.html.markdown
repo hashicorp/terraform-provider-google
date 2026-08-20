@@ -91,6 +91,10 @@ resource "google_iam_workforce_pool_provider_scim_tenant" "example" {
 The following arguments are supported:
 
 
+* `claim_mapping` -
+  (Required)
+  Maps BYOID claims to SCIM claims. This is a required field for new SCIM Tenants being created.
+
 * `location` -
   (Required)
   The location for the resource.
@@ -115,10 +119,6 @@ The following arguments are supported:
 * `description` -
   (Optional)
   A user-specified description of the provider. Cannot exceed 256 characters.
-
-* `claim_mapping` -
-  (Optional)
-  Maps BYOID claims to SCIM claims. This is a required field for new SCIM Tenants being created.
 
 * `hard_delete` -
   (Optional)

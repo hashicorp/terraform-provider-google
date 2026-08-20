@@ -851,8 +851,8 @@ If OAuth client is not set, the Google-managed OAuth client is used.`,
 				Description: `Indicates whether the backend service will be used with internal or
 external load balancing. A backend service created for one type of
 load balancing cannot be used with the other. For more information, refer to
-[Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service). Default value: "EXTERNAL" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED", "INTERNAL_MANAGED", "EXTERNAL_MANAGED"]`,
-				Default: "EXTERNAL",
+[Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service). Default value: "EXTERNAL_MANAGED" Possible values: ["EXTERNAL", "INTERNAL_SELF_MANAGED", "INTERNAL_MANAGED", "EXTERNAL_MANAGED"]`,
+				Default: "EXTERNAL_MANAGED",
 			},
 			"locality_lb_policies": {
 				Type:     schema.TypeList,

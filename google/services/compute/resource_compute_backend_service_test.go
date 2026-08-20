@@ -2743,7 +2743,7 @@ func TestAccComputeBackendService_updateCanaryMigration(t *testing.T) {
 		CheckDestroy: testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendService_basic(serviceName, checkName),
+				Config: testAccComputeBackendService_withCanaryMigrationInitial(serviceName, checkName),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -2796,12 +2796,30 @@ func TestAccComputeBackendService_updateCanaryMigration(t *testing.T) {
 	})
 }
 
+func testAccComputeBackendService_withCanaryMigrationInitial(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name                  = "%s"
+  load_balancing_scheme = "EXTERNAL"
+  health_checks         = [google_compute_http_health_check.zero.self_link]
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, checkName)
+}
+
 func testAccComputeBackendService_withCanaryMigration(serviceName, checkName, description, migrationState string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-  name             = "%s"
-  description      = "%s"
-  health_checks    = [google_compute_http_health_check.zero.self_link]
+  name                             = "%s"
+  description                      = "%s"
+  load_balancing_scheme            = "EXTERNAL"
+  health_checks                    = [google_compute_http_health_check.zero.self_link]
   external_managed_migration_state = "%s"
 }
 
@@ -2821,9 +2839,10 @@ resource "time_sleep" "six_minutes_delay" {
 }
 
 resource "google_compute_backend_service" "foobar" {
-  name             = "%s"
-  description      = "%s"
-  health_checks    = [google_compute_http_health_check.zero.self_link]
+  name                             = "%s"
+  description                      = "%s"
+  load_balancing_scheme            = "EXTERNAL"
+  health_checks                    = [google_compute_http_health_check.zero.self_link]
   external_managed_migration_state = "%s"
 	depends_on = [
 		time_sleep.six_minutes_delay
@@ -2846,9 +2865,10 @@ resource "time_sleep" "six_minutes_delay" {
 }
 
 resource "google_compute_backend_service" "foobar" {
-  name             = "%s"
-  description      = "%s"
-  health_checks    = [google_compute_http_health_check.zero.self_link]
+  name                             = "%s"
+  description                      = "%s"
+  load_balancing_scheme            = "EXTERNAL"
+  health_checks                    = [google_compute_http_health_check.zero.self_link]
   external_managed_migration_state = "TEST_BY_PERCENTAGE"
 	external_managed_migration_testing_percentage = %d
 	depends_on = [

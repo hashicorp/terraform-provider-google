@@ -29,7 +29,6 @@ This example shows how to get the details of a specific data source reference by
 ```hcl
 data "google_backup_dr_data_source_references" "all_csql_references" {
   location      = "us-central1"
-  resource_type = "sqladmin.googleapis.com/Instance"
 }
 
 data "google_backup_dr_data_source_reference" "my_reference" {
