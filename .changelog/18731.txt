@@ -1,0 +1,3 @@
+```release-note:breaking-change
+bigquerydatatransfer:  add state upgrader for `Int -> String` type conversion of `secret_access_key_wo_version` field in `google_bigquery_data_transfer_config` resource
+```
