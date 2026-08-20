@@ -424,11 +424,6 @@ reservations that are tied to a commitment.`,
 					Type: schema.TypeString,
 				},
 			},
-			"reservation_block_count": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The number of reservation blocks associated with this reservation.`,
-			},
 			"resource_status": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -1419,23 +1414,6 @@ func flattenComputeReservationReservationSharingPolicyServiceShareType(v interfa
 	return v
 }
 
-func flattenComputeReservationReservationBlockCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
 func flattenComputeReservationKind(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2399,9 +2377,6 @@ func ResourceComputeReservationFlatten(d *schema.ResourceData, meta interface{},
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 	if err = d.Set("reservation_sharing_policy", flattenComputeReservationReservationSharingPolicy(res["reservationSharingPolicy"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Reservation: %s", err)
-	}
-	if err = d.Set("reservation_block_count", flattenComputeReservationReservationBlockCount(res["reservationBlockCount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 	if err = d.Set("kind", flattenComputeReservationKind(res["kind"], d, config)); err != nil {

@@ -432,9 +432,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` -
   The status of the reservation.
 
-* `reservation_block_count` -
-  The number of reservation blocks associated with this reservation.
-
 * `kind` -
   Type of the resource. Always compute#reservations for reservations.
 

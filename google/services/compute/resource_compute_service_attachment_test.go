@@ -17,7 +17,9 @@
 package compute_test
 
 import (
+	"context"
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -769,7 +771,7 @@ resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
   name                  = "tf-test-consumer-fr-%{random_suffix}"
   region                = "us-west2"
   target                = google_compute_service_attachment.psc_ilb_service_attachment.id
-  load_balancing_scheme = "" 
+  load_balancing_scheme = ""
   network               = "default"
   ip_address            = google_compute_address.psc_ilb_consumer_address.id
 }
@@ -921,4 +923,272 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
   ip_cidr_range = "10.1.0.0/16"
 }
 `, context)
+}
+
+func TestAccComputeServiceAttachment_consumerAcceptListsPermadiff(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeServiceAttachmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Create the resource with TWO projects in the accept list
+				Config: testAccComputeServiceAttachment_consumerAcceptListsConfig(context, 2),
+			},
+			{
+				// Step 2: Update the resource by adding a THIRD project
+				Config: testAccComputeServiceAttachment_consumerAcceptListsConfig(context, 3),
+
+				// EXPLICIT ASSERTION: Intercept the plan before applying to prove
+				// that only 1 item was added, and 0 items were deleted!
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						expectNoSetDeletions{},
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccComputeServiceAttachment_consumerAcceptListsConfig(context map[string]interface{}, listCount int) string {
+	acceptLists := `
+  consumer_accept_lists {
+    project_id_or_num = "658859330310"
+    connection_limit  = 1
+  }
+  consumer_accept_lists {
+    project_id_or_num = "673497134629"
+    connection_limit  = 1
+  }
+`
+	if listCount == 3 {
+		acceptLists += `
+  consumer_accept_lists {
+    project_id_or_num = "482878270665"
+    connection_limit  = 1
+  }
+`
+	}
+	context["accept_lists"] = acceptLists
+
+	return acctest.Nprintf(`
+resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
+  name                  = "tf-test-sa-%{random_suffix}"
+  region                = "us-west2"
+  enable_proxy_protocol = false
+  connection_preference = "ACCEPT_MANUAL"
+  nat_subnets           = [google_compute_subnetwork.psc_ilb_nat.id]
+  target_service        = google_compute_forwarding_rule.psc_ilb_target_service.id
+
+  %{accept_lists}
+}
+
+resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
+  name                  = "tf-test-fr-%{random_suffix}"
+  region                = "us-west2"
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.psc_ilb_network.name
+  subnetwork            = google_compute_subnetwork.psc_ilb_producer_subnetwork.name
+}
+
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  name                            = "tf-test-bes-%{random_suffix}"
+  region                          = "us-west2"
+  health_checks                   = [google_compute_health_check.producer_service_health_check.id]
+  connection_draining_timeout_sec = 0
+}
+
+resource "google_compute_health_check" "producer_service_health_check" {
+  name               = "tf-test-hc-%{random_suffix}"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_network" "psc_ilb_network" {
+  name                    = "tf-test-net-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
+  name          = "tf-test-prod-sub-%{random_suffix}"
+  region        = "us-west2"
+  network       = google_compute_network.psc_ilb_network.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_subnetwork" "psc_ilb_nat" {
+  name          = "tf-test-nat-sub-%{random_suffix}"
+  region        = "us-west2"
+  network       = google_compute_network.psc_ilb_network.id
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.1.0.0/16"
+}
+`, context)
+}
+
+func TestAccComputeServiceAttachment_serviceAttachmentMultipleSubnets(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeServiceAttachmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeServiceAttachment_serviceAttachmentMultipleSubnets(context),
+			},
+			{
+				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region", "show_nat_ips"},
+			},
+		},
+	})
+}
+
+func testAccComputeServiceAttachment_serviceAttachmentMultipleSubnets(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
+  name        = "tf-test-my-psc-ilb%{random_suffix}"
+  region      = "us-west2"
+  description = "A service attachment configured with Terraform"
+  enable_proxy_protocol    = true
+  connection_preference    = "ACCEPT_AUTOMATIC"
+  nat_subnets              = [for subnet in google_compute_subnetwork.psc_ilb_nat : subnet.id]
+  target_service           = google_compute_forwarding_rule.psc_ilb_target_service.id
+}
+resource "google_compute_address" "psc_ilb_consumer_address" {
+  name   = "tf-test-psc-ilb-consumer-address%{random_suffix}"
+  region = "us-west2"
+  subnetwork   = "default"
+  address_type = "INTERNAL"
+}
+resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
+  name   = "tf-test-psc-ilb-consumer-forwarding-rule%{random_suffix}"
+  region = "us-west2"
+  target                = google_compute_service_attachment.psc_ilb_service_attachment.id
+  load_balancing_scheme = "" # need to override EXTERNAL default when target is a service attachment
+  network               = "default"
+  ip_address            = google_compute_address.psc_ilb_consumer_address.id
+}
+resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
+  name   = "tf-test-producer-forwarding-rule%{random_suffix}"
+  region = "us-west2"
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.psc_ilb_network.name
+  subnetwork            = google_compute_subnetwork.psc_ilb_producer_subnetwork.name
+}
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  name   = "tf-test-producer-service%{random_suffix}"
+  region = "us-west2"
+  health_checks = [google_compute_health_check.producer_service_health_check.id]
+}
+resource "google_compute_health_check" "producer_service_health_check" {
+  name = "tf-test-producer-service-health-check%{random_suffix}"
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+resource "google_compute_network" "psc_ilb_network" {
+  name = "tf-test-psc-ilb-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
+  name   = "tf-test-psc-ilb-producer-subnetwork%{random_suffix}"
+  region = "us-west2"
+  network       = google_compute_network.psc_ilb_network.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+resource "google_compute_subnetwork" "psc_ilb_nat" {
+  count = 8
+  name   = "tf-test-psc-ilb-nat%{random_suffix}-${count.index}"
+  region = "us-west2"
+  network       = google_compute_network.psc_ilb_network.id
+  purpose       =  "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = cidrsubnet("10.0.0.0/8", 8, count.index + 1)
+}
+`, context)
+}
+
+// expectNoSetDeletions is a custom plan checker that explicitly looks inside
+// the raw terraform plan JSON to ensure that no existing set elements were deleted or replaced.
+type expectNoSetDeletions struct{}
+
+func (e expectNoSetDeletions) CheckPlan(ctx context.Context, req plancheck.CheckPlanRequest, resp *plancheck.CheckPlanResponse) {
+	for _, rc := range req.Plan.ResourceChanges {
+		// Only inspect our specific service attachment resource
+		if rc.Address == "google_compute_service_attachment.psc_ilb_service_attachment" {
+
+			beforeMap, okBefore := rc.Change.Before.(map[string]interface{})
+			afterMap, okAfter := rc.Change.After.(map[string]interface{})
+
+			if !okBefore || !okAfter {
+				return
+			}
+
+			beforeLists, ok1 := beforeMap["consumer_accept_lists"].([]interface{})
+			afterLists, ok2 := afterMap["consumer_accept_lists"].([]interface{})
+
+			if !ok1 || !ok2 {
+				return
+			}
+
+			// 1. Assert exactly 1 item was added (2 -> 3)
+			if len(beforeLists) != 2 {
+				resp.Error = fmt.Errorf("Expected 2 items in before state, got %d", len(beforeLists))
+				return
+			}
+			if len(afterLists) != 3 {
+				resp.Error = fmt.Errorf("Expected 3 items in after state, got %d", len(afterLists))
+				return
+			}
+
+			// 2. Assert NO DELETIONS or RECREATIONS happened
+			// Verify every single object from the 'Before' state still exists IDENTICALLY in the 'After' state.
+			// This proves we didn't do a "delete and recreate" permadiff!
+			for _, bItem := range beforeLists {
+				bMap := bItem.(map[string]interface{})
+
+				foundIdenticalObject := false
+				for _, aItem := range afterLists {
+					aMap := aItem.(map[string]interface{})
+
+					// DeepEqual compares every single key (network_url, endpoint_url, etc.)
+					// and every single value in both objects!
+					if reflect.DeepEqual(bMap, aMap) {
+						foundIdenticalObject = true
+						break
+					}
+				}
+
+				// If the exact object does not appear verbatim in the After array,
+				// Terraform has failed to match it, meaning it will plan to DELETE it!
+				if !foundIdenticalObject {
+					resp.Error = fmt.Errorf("Permadiff Detected! Object %v is being replaced or deleted because of a hash mismatch!", bMap)
+					return
+				}
+			}
+		}
+	}
 }

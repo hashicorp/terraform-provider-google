@@ -78,12 +78,6 @@ func DataSourceGoogleCloudBackupDRBackupPlanAssociations() *schema.Resource {
 				Computed:    true,
 				Description: "The ID of the project in which the resource belongs.",
 			},
-			"resource_type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The resource type of workload on which backup plan is applied. Examples include, "compute.googleapis.com/Instance", "compute.googleapis.com/Disk".`,
-				Deprecated:  "`resource_type` is deprecated and will be removed in a future major release.",
-			},
 			"associations": {
 				Type:        schema.TypeList,
 				Computed:    true,

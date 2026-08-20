@@ -412,7 +412,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
     enforcement_mode = "DETECTIVE"
     
     cloud_control_details {
-      name              = google_cloud_security_compliance_framework.example.cloud_control_details[0].name
+      name              = tolist(google_cloud_security_compliance_framework.example.cloud_control_details)[0].name
       major_revision_id = "2"
       
       parameters {

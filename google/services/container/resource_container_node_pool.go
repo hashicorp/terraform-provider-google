@@ -520,7 +520,15 @@ var schemaNodePool = map[string]*schema.Schema{
 		Optional:    true,
 		Computed:    true,
 		ForceNew:    true,
-		Description: `Creates a unique name for the node pool beginning with the specified prefix. Conflicts with name.`,
+		Description: `Creates a unique name for the node pool beginning with the specified prefix. Conflicts with name. Max length is 31 characters. Prefixes with lengths longer than 14 characters will use a shortened UUID that will be more prone to collisions.`,
+		ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+			value := v.(string)
+			if len(value) > 31 {
+				errors = append(errors, fmt.Errorf(
+					"%q cannot be longer than 31 characters, name is limited to 40", k))
+			}
+			return
+		},
 	},
 
 	"node_config": schemaNodeConfig(),
@@ -1210,7 +1218,12 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		}
 		name = v.(string)
 	} else if v, ok := d.GetOk(prefix + "name_prefix"); ok {
-		name = id.PrefixedUniqueId(v.(string))
+		p := v.(string)
+		if len(p) > 14 {
+			name = tpgresource.ReducedPrefixedUniqueId(p)
+		} else {
+			name = id.PrefixedUniqueId(p)
+		}
 	} else {
 		name = id.UniqueId()
 	}

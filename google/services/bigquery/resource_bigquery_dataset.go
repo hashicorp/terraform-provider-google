@@ -86,26 +86,6 @@ func validateDefaultTableExpirationMs(v interface{}, k string) (ws []string, err
 	return
 }
 
-func customCollationDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
-	// 1. Check if the configuration is explicitly set to an empty string.
-	// We use GetRawConfig to see what the user actually wrote,
-	// before the SDK "fills in" computed values.
-	conf := d.GetRawConfig()
-	if !conf.IsNull() && conf.GetAttr("default_collation").IsKnown() && !conf.GetAttr("default_collation").IsNull() {
-		val := conf.GetAttr("default_collation").AsString()
-
-		// 2. If config is "", but the state (old value) is NOT "", force an update.
-		old, _ := d.GetChange("default_collation")
-		if old != "" && val == "" {
-			// THIS is what goes inside the block:
-			if err := d.SetNew("default_collation", ""); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
 // bigqueryDatasetAccessHash is a custom hash function for the access block.
 // It normalizes
 // 1) the 'role' field before hashing, treating legacy roles
@@ -200,7 +180,6 @@ func ResourceBigQueryDataset() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			customCollationDiff,
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
@@ -246,7 +225,6 @@ underscores (_). The maximum length is 1,024 characters.`,
 			},
 			"default_collation": {
 				Type:     schema.TypeString,
-				Computed: true,
 				Optional: true,
 				Description: `Defines the default collation specification of future tables created
 in the dataset. If a table is created in this dataset without table-level

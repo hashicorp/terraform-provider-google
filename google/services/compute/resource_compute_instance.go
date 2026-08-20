@@ -4053,16 +4053,20 @@ func suppressEmptyGuestAcceleratorDiff(_ context.Context, d *schema.ResourceDiff
 		return fmt.Errorf("Expected new guest accelerator diff to be a slice")
 	}
 
-	if len(old) != 0 && len(new) != 1 {
+	// Only suppress if there are no prior accelerators (len(old) == 0)
+	// and the new configuration has exactly one block (len(new) == 1).
+	// If prior accelerators exist, setting count = 0 is an intentional removal
+	// that must produce a diff (triggering instance replacement).
+	if len(old) != 0 || len(new) != 1 {
 		return nil
 	}
 
-	firstAccel, ok := new[0].(map[string]interface{})
+	configAccel, ok := new[0].(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("Unable to type assert guest accelerator")
 	}
 
-	if firstAccel["count"].(int) == 0 {
+	if count, ok := configAccel["count"].(int); ok && count == 0 {
 		if err := d.Clear("guest_accelerator"); err != nil {
 			return err
 		}

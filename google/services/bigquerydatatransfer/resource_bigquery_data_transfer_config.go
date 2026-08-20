@@ -187,6 +187,15 @@ func ResourceBigqueryDataTransferConfig() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceBigqueryDataTransferConfigResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceBigqueryDataTransferConfigUpgradeV0,
+				Version: 0,
+			},
+		},
 		CustomizeDiff: customdiff.All(
 			sensitiveParamCustomizeDiff,
 			paramsCustomizeDiff,
@@ -365,25 +374,24 @@ to a different credential configuration in the config will require an apply to u
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"secret_access_key": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							Description:   `The Secret Access Key of the AWS account transferring data from.`,
-							Sensitive:     true,
-							ConflictsWith: []string{"sensitive_params.0.secret_access_key_wo"},
-							AtLeastOneOf:  []string{"sensitive_params.0.secret_access_key", "sensitive_params.0.secret_access_key_wo"},
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The Secret Access Key of the AWS account transferring data from.`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"sensitive_params.0.secret_access_key", "sensitive_params.0.secret_access_key_wo"},
 						},
 						"secret_access_key_wo": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							Description:   `The Secret Access Key of the AWS account transferring data from.`,
-							WriteOnly:     true,
-							ConflictsWith: []string{"sensitive_params.0.secret_access_key"},
-							AtLeastOneOf:  []string{"sensitive_params.0.secret_access_key", "sensitive_params.0.secret_access_key_wo"},
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The Secret Access Key of the AWS account transferring data from.`,
+							WriteOnly:    true,
+							ExactlyOneOf: []string{"sensitive_params.0.secret_access_key", "sensitive_params.0.secret_access_key_wo"},
+							RequiredWith: []string{"sensitive_params.0.secret_access_key_wo_version"},
 						},
 						"secret_access_key_wo_version": {
-							Type:         schema.TypeInt,
+							Type:         schema.TypeString,
 							Optional:     true,
-							Description:  `The version of the sensitive params - used to trigger updates of the write-only params. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							Description:  `Triggers update of 'secret_access_key_wo' write-only. Increment this value when an update to 'secret_access_key_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
 							RequiredWith: []string{"sensitive_params.0.secret_access_key_wo"},
 						},
 					},
@@ -1279,6 +1287,173 @@ func resourceBigqueryDataTransferConfigDecoder(d *schema.ResourceData, meta inte
 	}
 
 	return res, nil
+}
+
+func resourceBigqueryDataTransferConfigResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"data_source_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"display_name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"params": {
+				Type:     schema.TypeMap,
+				Required: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"data_refresh_window_days": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"destination_dataset_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"disabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"email_preferences": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_failure_email": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+					},
+				},
+			},
+			"encryption_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"location": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "US",
+			},
+			"notification_pubsub_topic": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"schedule": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"schedule_options": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disable_auto_scheduling": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"end_time": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"start_time": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"sensitive_params": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"secret_access_key": {
+							Type:      schema.TypeString,
+							Optional:  true,
+							Sensitive: true,
+						},
+						"secret_access_key_wo": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"secret_access_key_wo_version": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"service_account_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+		UseJSONNumber: true,
+	}
+}
+
+func ResourceBigqueryDataTransferConfigUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+	// sensitive_params.secret_access_key_wo_version was originally TypeInt.
+	// The field was changed to TypeString with no default. The old zero value of
+	// 0 maps to "" (unset) so that resources that never explicitly set the
+	// version see no update-in-place after upgrading. Non-zero values are
+	// preserved as their decimal string equivalent.
+	// UseJSONNumber is set on this resource, so numbers arrive as json.Number.
+	if params, ok := rawState["sensitive_params"].([]interface{}); ok && len(params) > 0 {
+		if m, ok := params[0].(map[string]interface{}); ok {
+			intVal := int64(0)
+			switch v := m["secret_access_key_wo_version"].(type) {
+			case json.Number:
+				intVal, _ = v.Int64()
+			case float64:
+				intVal = int64(v)
+			case int:
+				intVal = int64(v)
+			}
+			if intVal == 0 {
+				m["secret_access_key_wo_version"] = ""
+			} else {
+				m["secret_access_key_wo_version"] = fmt.Sprintf("%d", intVal)
+			}
+		}
+	}
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
 }
 func resourceBigqueryDataTransferConfigPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
 	config := meta.(*transport_tpg.Config)

@@ -21,6 +21,7 @@ package tpgresource
 import (
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -176,4 +177,18 @@ func Base64DiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 
 func CaseInsensitiveHash(v interface{}) int {
 	return Hashcode(strings.ToLower(v.(string)))
+}
+
+// Suppress diffs where the API returns a larger or equal major revision ID than configured.
+// This handles cases where the server automatically upgrades the major revision of a control.
+func SuppressMajorRevisionId(_, old, new string, _ *schema.ResourceData) bool {
+	if old == new {
+		return true
+	}
+	oldVal, err1 := strconv.Atoi(old)
+	newVal, err2 := strconv.Atoi(new)
+	if err1 == nil && err2 == nil {
+		return oldVal >= newVal
+	}
+	return false
 }

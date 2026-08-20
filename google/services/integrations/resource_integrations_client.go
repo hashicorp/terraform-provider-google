@@ -199,13 +199,6 @@ encrypted with GMEK.`,
 				ForceNew:    true,
 				Description: `Indicates if sample integrations should be created along with provisioning.`,
 			},
-			"run_as_service_account": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Deprecated:  "`run_as_service_account` is deprecated and will be removed in a future major release.",
-				ForceNew:    true,
-				Description: `User input run-as service account, if empty, will bring up a new default service account.`,
-			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -248,12 +241,6 @@ func resourceIntegrationsClientCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("create_sample_integrations"); !tpgresource.IsEmptyValue(reflect.ValueOf(createSampleIntegrationsProp)) && (ok || !reflect.DeepEqual(v, createSampleIntegrationsProp)) {
 		obj["createSampleIntegrations"] = createSampleIntegrationsProp
-	}
-	runAsServiceAccountProp, err := expandIntegrationsClientRunAsServiceAccount(d.Get("run_as_service_account"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("run_as_service_account"); !tpgresource.IsEmptyValue(reflect.ValueOf(runAsServiceAccountProp)) && (ok || !reflect.DeepEqual(v, runAsServiceAccountProp)) {
-		obj["runAsServiceAccount"] = runAsServiceAccountProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "Client/{{location}}")
@@ -582,10 +569,6 @@ func expandIntegrationsClientCloudKmsConfigKmsProjectId(v interface{}, d tpgreso
 }
 
 func expandIntegrationsClientCreateSampleIntegrations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandIntegrationsClientRunAsServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

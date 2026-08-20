@@ -57,14 +57,17 @@ values will be stored in the raw state as plain text: `iap.oauth2_client_id`, `i
 ```hcl
 resource "google_compute_backend_service" "default" {
   name          = "backend-service"
-  health_checks = [google_compute_http_health_check.default.id]
+  health_checks = [google_compute_health_check.default.id]
 }
 
-resource "google_compute_http_health_check" "default" {
+resource "google_compute_health_check" "default" {
   name               = "health-check"
-  request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
+  http_health_check {
+    port         = 80
+    request_path = "/"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -98,18 +101,21 @@ resource "google_compute_backend_service" "default" {
 ```hcl
 resource "google_compute_backend_service" "default" {
   name          = "backend-service"
-  health_checks = [google_compute_http_health_check.default.id]
+  health_checks = [google_compute_health_check.default.id]
   enable_cdn  = true
   cdn_policy {
     signed_url_cache_max_age_sec = 7200
   }
 }
 
-resource "google_compute_http_health_check" "default" {
+resource "google_compute_health_check" "default" {
   name               = "health-check"
-  request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
+  http_health_check {
+    port         = 80
+    request_path = "/"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -172,7 +178,7 @@ resource "google_compute_backend_service" "default" {
 ```hcl
 resource "google_compute_backend_service" "default" {
   name          = "backend-service"
-  health_checks = [google_compute_http_health_check.default.id]
+  health_checks = [google_compute_health_check.default.id]
   enable_cdn  = true
   cdn_policy {
     cache_mode = "CACHE_ALL_STATIC"
@@ -184,11 +190,14 @@ resource "google_compute_backend_service" "default" {
   }
 }
 
-resource "google_compute_http_health_check" "default" {
+resource "google_compute_health_check" "default" {
   name               = "health-check"
-  request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
+  http_health_check {
+    port         = 80
+    request_path = "/"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -202,7 +211,7 @@ resource "google_compute_http_health_check" "default" {
 ```hcl
 resource "google_compute_backend_service" "default" {
   name          = "backend-service"
-  health_checks = [google_compute_http_health_check.default.id]
+  health_checks = [google_compute_health_check.default.id]
   enable_cdn  = true
   cdn_policy {
     cache_mode = "CACHE_ALL_STATIC"
@@ -222,11 +231,14 @@ resource "google_compute_backend_service" "default" {
   }
 }
 
-resource "google_compute_http_health_check" "default" {
+resource "google_compute_health_check" "default" {
   name               = "health-check"
-  request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
+  http_health_check {
+    port         = 80
+    request_path = "/"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -687,16 +699,19 @@ resource "google_compute_backend_service" "default" {
     group = google_compute_instance_group.default[each.key].self_link
   }
 
-  health_checks = [google_compute_http_health_check.default[each.key].self_link]
+  health_checks = [google_compute_health_check.default[each.key].self_link]
   port_name     = "http"
 }
 
-resource "google_compute_http_health_check" "default" {
+resource "google_compute_health_check" "default" {
   for_each           = local.instances
   name               = "${each.key}-hc"
-  request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
+  http_health_check {
+    port         = 80
+    request_path = "/"
+  }
 }
 
 
@@ -852,7 +867,7 @@ The following arguments are supported:
   external load balancing. A backend service created for one type of
   load balancing cannot be used with the other. For more information, refer to
   [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service).
-  Default value is `EXTERNAL`.
+  Default value is `EXTERNAL_MANAGED`.
   Possible values are: `EXTERNAL`, `INTERNAL_SELF_MANAGED`, `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
 
 * `external_managed_migration_state` -

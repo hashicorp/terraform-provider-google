@@ -15,6 +15,5 @@ fields:
     - api_field: createSampleIntegrations
     - field: location
       provider_only: true
-    - api_field: runAsServiceAccount
     - field: deletion_policy
       provider_only: true

@@ -108,9 +108,10 @@ resource "google_compute_ssl_certificate" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name          = "%{backend_service_name}"
-  protocol      = "SSL"
-  health_checks = [google_compute_health_check.default.id]
+  name                  = "%{backend_service_name}"
+  protocol              = "SSL"
+  load_balancing_scheme = "EXTERNAL"
+  health_checks         = [google_compute_health_check.default.id]
 }
 
 resource "google_compute_health_check" "default" {

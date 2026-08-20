@@ -140,6 +140,12 @@ func ResourceIAMWorkforcePoolWorkforcePoolProviderScimTenant() *schema.Resource 
 		},
 
 		Schema: map[string]*schema.Schema{
+			"claim_mapping": {
+				Type:        schema.TypeMap,
+				Required:    true,
+				Description: `Maps BYOID claims to SCIM claims. This is a required field for new SCIM Tenants being created.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -163,12 +169,6 @@ func ResourceIAMWorkforcePoolWorkforcePoolProviderScimTenant() *schema.Resource 
 				Required:    true,
 				ForceNew:    true,
 				Description: `The ID of the workforce pool.`,
-			},
-			"claim_mapping": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Maps BYOID claims to SCIM claims. This is a required field for new SCIM Tenants being created.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"description": {
 				Type:        schema.TypeString,
