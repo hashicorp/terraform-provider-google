@@ -39,7 +39,7 @@ OTHER BREAKING CHANGES:
 * container: converted `enable_components` in `logging_config` and `monitoring_config` from `list` to `set` in `google_container_cluster` resource. ([#18262](https://github.com/GoogleCloudPlatform/magic-modules/pull/18262))
 * secretmanager: converted `secret_data_wo_version` from `Integer` to `String` data type with state migration in `google_secret_manager_secret_version` resource. ([#18325](https://github.com/GoogleCloudPlatform/magic-modules/pull/18325))
 
-## 7.46.0 (August 21, 2026)
+## 7.46.0 (August 25, 2026)
 
 DEPRECATIONS:
 * beyondcorp: deprecated `google_beyondcorp_app_connection`, `google_beyondcorp_app_connector`, and `google_beyondcorp_app_gateway` resources and data sources. Use `google_beyondcorp_security_gateway` and `google_beyondcorp_security_gateway_application` instead. ([#28976](https://github.com/hashicorp/terraform-provider-google/pull/28976))
