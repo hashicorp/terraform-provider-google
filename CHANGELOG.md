@@ -75,8 +75,6 @@ BUG FIXES:
 * compute: fixed permadiffs for `google_compute_disk` on Fedora CoreOS images ([#28712](https://github.com/hashicorp/terraform-provider-google/pull/28712))
 * networksecurity: fixed `google_network_security_gateway_security_policy` to force replacement when `name` or `location` is modified ([#28776](https://github.com/hashicorp/terraform-provider-google/pull/28776))
 
-## 7.46.0 (Unreleased)
-
 ## 7.45.0 (August 18, 2026)
 
 FEATURES:
