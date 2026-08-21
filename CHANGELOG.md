@@ -1,3 +1,43 @@
+## 8.0.0 (Unreleased)
+
+[Terraform Google Provider 8.0.0 Upgrade Guide](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/version_8_upgrade)
+
+BREAKING RESOURCE REMOVALS:
+* beyondcorp: removed `google_beyondcorp_app_connection`, `google_beyondcorp_app_connector`, and `google_beyondcorp_app_gateway` resources, and the `google_beyondcorp_app_connection`, `google_beyondcorp_app_connector`, and `google_beyondcorp_app_gateway` data sources. Use `google_beyondcorp_security_gateway` and `google_beyondcorp_security_gateway_application` instead. ([#18675](https://github.com/GoogleCloudPlatform/magic-modules/pull/18675))
+* iap: removed `google_iap_brand` and `google_iap_client` resources, and the `google_iap_client` data source, following the shutdown of the Google Cloud IAP OAuth Admin APIs. ([#18679](https://github.com/GoogleCloudPlatform/magic-modules/pull/18679))
+* mlengine: removed `google_ml_engine_model` resource. Migrate machine learning deployments to `google_vertex_ai_endpoint` or Vertex AI Model Garden resources. ([#18681](https://github.com/GoogleCloudPlatform/magic-modules/pull/18681))
+* notebooks: removed `google_notebooks_environment`, `google_notebooks_instance` (and associated IAM resources), and `google_notebooks_runtime` (and associated IAM resources). Migrate to `google_workbench_instance`. ([#18583](https://github.com/GoogleCloudPlatform/magic-modules/pull/18583))
+* vertexai: removed `google_vertex_ai_schedule` resource. Use `google_colab_schedule` instead. ([#18673](https://github.com/GoogleCloudPlatform/magic-modules/pull/18673))
+
+BREAKING FIELD REMOVALS:
+* backupdr: removed `resource_type` argument from `google_backup_dr_backup_plan_associations` and `google_backup_dr_data_source_references` data sources. ([#18688](https://github.com/GoogleCloudPlatform/magic-modules/pull/18688))
+* cloudrunv2: removed `custom_audiences` field from `google_cloud_run_v2_worker_pool` resource. ([#18193](https://github.com/GoogleCloudPlatform/magic-modules/pull/18193))
+* cloudrunv2: removed `http_get.http_headers.port` probe field from `google_cloud_run_v2_worker_pool` resource. ([#18290](https://github.com/GoogleCloudPlatform/magic-modules/pull/18290))
+* compute: removed `attachment` attribute within `logical_structure.*.zones` from `google_compute_interconnect_attachment_group` resource in favor of `attachments`. ([#18676](https://github.com/GoogleCloudPlatform/magic-modules/pull/18676))
+* compute: removed `reservation_block_count` field from `google_compute_reservation` resource in favor of `resource_status[0].reservation_block_count`. ([#18611](https://github.com/GoogleCloudPlatform/magic-modules/pull/18611))
+* datalossprevention: removed `actions.publish_findings_to_cloud_data_catalog` field from `google_data_loss_prevention_job_trigger` resource in favor of `actions.publish_findings_to_dataplex_catalog`. ([#18530](https://github.com/GoogleCloudPlatform/magic-modules/pull/18530))
+* integrations: removed `run_as_service_account` argument from `google_integrations_client` resource. ([#18680](https://github.com/GoogleCloudPlatform/magic-modules/pull/18680))
+* netapp: removed `scale_tier` argument from `google_netapp_storage_pool` resource in favor of `scale_type`. ([#18286](https://github.com/GoogleCloudPlatform/magic-modules/pull/18286))
+
+BREAKING INCREASED VALIDATION:
+* bigquerydatatransfer: changed constraint between `sensitive_params.0.secret_access_key` and `sensitive_params.0.secret_access_key_wo` from `AtLeastOneOf` to `ExactlyOneOf` in `google_bigquery_data_transfer_config` resource. ([#18325](https://github.com/GoogleCloudPlatform/magic-modules/pull/18325))
+* cloudrunv2: made `http_get.http_headers.name` required when `http_get.http_headers` is set in `google_cloud_run_v2_worker_pool` resource. ([#18290](https://github.com/GoogleCloudPlatform/magic-modules/pull/18290))
+* iam: made `claim_mapping` a required field on create in `google_iam_workforce_pool_provider_scim_tenant` resource. ([#18348](https://github.com/GoogleCloudPlatform/magic-modules/pull/18348))
+* monitoring: changed constraint between `http_check.0.auth_info.0.password` and `http_check.0.auth_info.0.password_wo` to `ExactlyOneOf` in `google_monitoring_uptime_check_config` resource. ([#18325](https://github.com/GoogleCloudPlatform/magic-modules/pull/18325))
+* secretmanager: made `secret_data_wo_version` required when `secret_data_wo` is set (`RequiredWith`) in `google_secret_manager_secret_version` resource. ([#18325](https://github.com/GoogleCloudPlatform/magic-modules/pull/18325))
+* workflows: made `source_contents` a required argument in `google_workflows_workflow` resource. ([#18411](https://github.com/GoogleCloudPlatform/magic-modules/pull/18411))
+
+OTHER BREAKING CHANGES:
+* bigquerydatatransfer: converted `sensitive_params.0.secret_access_key_wo_version` from `Integer` to `String` data type with state migration in `google_bigquery_data_transfer_config` resource. ([#18731](https://github.com/GoogleCloudPlatform/magic-modules/pull/18731))
+* bigquery: removed `default_from_api` for `default_collation` in `google_bigquery_dataset` resource; setting `default_collation = ""` now explicitly clears collation. ([#18585](https://github.com/GoogleCloudPlatform/magic-modules/pull/18585))
+* cloudsecuritycompliance: converted `cloud_control_details` from `list` to `set` in `google_cloud_security_compliance_framework` resource. ([#18596](https://github.com/GoogleCloudPlatform/magic-modules/pull/18596))
+* compute: changed default value of `load_balancing_scheme` from `EXTERNAL` to `EXTERNAL_MANAGED` in `google_compute_backend_service` and `google_compute_global_forwarding_rule` resources. ([#18557](https://github.com/GoogleCloudPlatform/magic-modules/pull/18557))
+* compute: updated `guest_accelerator` in `google_compute_instance` to plan and apply removal/replacement when `count` is explicitly set to `0` (or `guest_accelerator = []`). ([#18426](https://github.com/GoogleCloudPlatform/magic-modules/pull/18426))
+* compute: converted `nat_subnets` and `consumer_reject_lists` from `list` to `set` in `google_compute_service_attachment` resource. ([#18694](https://github.com/GoogleCloudPlatform/magic-modules/pull/18694))
+* container: extended `name_prefix` max length from 14 to 31 characters in `google_container_node_pool` and `google_container_cluster` resources. ([#18477](https://github.com/GoogleCloudPlatform/magic-modules/pull/18477))
+* container: converted `enable_components` in `logging_config` and `monitoring_config` from `list` to `set` in `google_container_cluster` resource. ([#18262](https://github.com/GoogleCloudPlatform/magic-modules/pull/18262))
+* secretmanager: converted `secret_data_wo_version` from `Integer` to `String` data type with state migration in `google_secret_manager_secret_version` resource. ([#18325](https://github.com/GoogleCloudPlatform/magic-modules/pull/18325))
+
 ## 7.46.0 (August 21, 2026)
 
 DEPRECATIONS:
