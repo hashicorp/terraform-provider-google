@@ -245,6 +245,16 @@ The deprecated top-level `reservation_block_count` attribute has been removed. U
 
 `consumer_reject_lists` has been converted from a `list` to a `set` to resolve perpetual diffs caused by non-deterministic API ordering. References that use list indexing (for example, `google_compute_service_attachment.<name>.consumer_reject_lists[0]`) should be updated to use `tolist(google_compute_service_attachment.<name>.consumer_reject_lists)[0]` or `for` expressions.
 
+### `consumer_accept_lists` fields now default to empty strings
+
+`project_id_or_num`, `network_url`, and `endpoint_url` within `consumer_accept_lists` now default to an empty string `""` instead of `null` to prevent perpetual diffs caused by API responses omitting unpopulated attributes.
+
+## Resource: `google_container_cluster`
+
+### `logging_config.enable_components` and `monitoring_config.enable_components` are now sets
+
+`enable_components` within `logging_config` and `monitoring_config` have been converted from `list` to `set` to resolve perpetual diffs caused by non-deterministic API ordering. References using list indexing (for example, `google_container_cluster.<name>.logging_config[0].enable_components[0]`) should be updated to use `tolist()` or `for` expressions.
+
 ## Resource: `google_container_node_pool` and `google_container_cluster`
 
 ### `name_prefix` max length has been extended from 14 to 31 characters
@@ -258,6 +268,12 @@ In 8.0.0, providing a `name_prefix` larger than 14 characters will prompt the pr
 ### `actions.publish_findings_to_cloud_data_catalog` is now removed
 
 The `actions.publish_findings_to_cloud_data_catalog` field has been removed from this resource. It was previously deprecated in favor of `actions.publish_findings_to_dataplex_catalog`. When upgrading to version 8.0.0, remove any usage of `actions.publish_findings_to_cloud_data_catalog` from your `google_data_loss_prevention_job_trigger` configurations. You should use the `publish_findings_to_dataplex_catalog` field instead for specifying the action to publish findings to Dataplex.
+
+## Resource: `google_iam_workforce_pool_provider_scim_tenant`
+
+### `claim_mapping` is now required on create
+
+`claim_mapping` is now marked as `Required` when creating new Workforce Pool Provider SCIM Tenants, matching backend API requirements. Configurations creating this resource must provide a `claim_mapping` block.
 
 ## Resource: `google_iap_brand` and `google_iap_client` are now removed
 
@@ -274,6 +290,12 @@ The `run_as_service_account` argument has been removed from `google_integrations
 ## Resource: `google_ml_engine_model` is now removed
 
 `google_ml_engine_model` has been removed as the underlying Cloud ML Engine (AI Platform Prediction) API has been deprecated. Migrate your machine learning deployments to Vertex AI resources (such as [`google_vertex_ai_endpoint`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/vertex_ai_endpoint) and Vertex AI Model Garden resources) and remove `google_ml_engine_model` from your configuration.
+
+## Resource: `google_monitoring_uptime_check_config`
+
+### `http_check.0.auth_info.0.password` and `http_check.0.auth_info.0.password_wo` now require exactly one to be set
+
+Updated `http_check.0.auth_info.0.password` and `http_check.0.auth_info.0.password_wo` to be `ExactlyOneOf`. Configurations that set both fields prior to this version must be updated to set only one of them.
 
 ## Resource: `google_netapp_storage_pool`
 
@@ -299,8 +321,13 @@ The `scale_tier` argument has been removed from this resource. It was previously
 
 The `secret_data_wo_version` field has changed type from `Integer` to `String`. The `ExactlyOneOf` constraint between `secret_data` and `secret_data_wo` remains unchanged. Existing state is automatically migrated on the first `terraform apply` after upgrading: the old default value of `0` is converted to `""` (unset), and non-zero values are converted to their string equivalents.
 
+### `secret_data_wo` now requires `secret_data_wo_version`
+
+`secret_data_wo` and `secret_data_wo_version` are now linked with `RequiredWith`. Previously, `secret_data_wo_version` defaulted to `0` and could be omitted. Configurations that set `secret_data_wo` must now also set `secret_data_wo_version` to a non-empty string.
+
 When upgrading to version 8.0.0:
 - If you were using `secret_data`: no configuration change needed.
+- If you were using `secret_data_wo` without `secret_data_wo_version`: add an explicit non-zero string value (e.g. `secret_data_wo_version = "1"`). The previous default of `0` has been removed.
 - If you were using `secret_data_wo` + `secret_data_wo_version = 0`: change this to a non-zero string value (e.g. `secret_data_wo_version = "1"`) before upgrading. The value `0` is now treated as unset, so leaving `= 0` in your configuration will cause a forced replacement on the next apply.
 - If you were using `secret_data_wo` + `secret_data_wo_version = <non-zero integer>`: update the value to a quoted string (e.g. change `secret_data_wo_version = 1` to `secret_data_wo_version = "1"`).
 
