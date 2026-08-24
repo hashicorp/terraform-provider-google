@@ -17,7 +17,6 @@ BREAKING FIELD REMOVALS:
 * compute: removed `reservation_block_count` field from `google_compute_reservation` resource in favor of `resource_status[0].reservation_block_count`. ([#18611](https://github.com/GoogleCloudPlatform/magic-modules/pull/18611))
 * datalossprevention: removed `actions.publish_findings_to_cloud_data_catalog` field from `google_data_loss_prevention_job_trigger` resource in favor of `actions.publish_findings_to_dataplex_catalog`. ([#18530](https://github.com/GoogleCloudPlatform/magic-modules/pull/18530))
 * integrations: removed `run_as_service_account` argument from `google_integrations_client` resource. ([#18680](https://github.com/GoogleCloudPlatform/magic-modules/pull/18680))
-* netapp: removed `scale_tier` argument from `google_netapp_storage_pool` resource in favor of `scale_type`. ([#18286](https://github.com/GoogleCloudPlatform/magic-modules/pull/18286))
 
 BREAKING INCREASED VALIDATION:
 * bigquerydatatransfer: changed constraint between `sensitive_params.0.secret_access_key` and `sensitive_params.0.secret_access_key_wo` from `AtLeastOneOf` to `ExactlyOneOf` in `google_bigquery_data_transfer_config` resource. ([#18325](https://github.com/GoogleCloudPlatform/magic-modules/pull/18325))
