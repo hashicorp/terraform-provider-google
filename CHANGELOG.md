@@ -31,7 +31,6 @@ IMPROVEMENTS:
 * ces: added `connector_toolset` and `timeout` fields to `google_ces_toolset` resource ([#28903](https://github.com/hashicorp/terraform-provider-google/pull/28903))
 * compute: added write-only arguments for IAP `oauth2_client_id` and `oauth2_client_secret` to `google_compute_backend_service` resource ([#28809](https://github.com/hashicorp/terraform-provider-google/pull/28809))
 * discoveryengine: made `google_discovery_engine_search_engine` `search_engine_config.required_subscription_tier` updatable ([#28991](https://github.com/hashicorp/terraform-provider-google/pull/28991))
-* filestore: added regional endpoint (REP) support for `google_filestore_instance`, `google_filestore_backup`, and `google_filestore_snapshot` ([#28987](https://github.com/hashicorp/terraform-provider-google/pull/28987))
 * securesourcemanager: added `PULL_REQUEST_COMMENT` enum to `events` field in `google_secure_source_manager_hook` ([#28907](https://github.com/hashicorp/terraform-provider-google/pull/28907))
 * sql: added `replication_lag_max_seconds` to `google_sql_database_instance` ([#28813](https://github.com/hashicorp/terraform-provider-google/pull/28813))
 
