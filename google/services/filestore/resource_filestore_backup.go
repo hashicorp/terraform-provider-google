@@ -318,9 +318,6 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	if strings.Contains(url, "{{location}}") {
-		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
-	}
 
 	log.Printf("[DEBUG] Creating new Backup: %#v", obj)
 	billingProject := ""
@@ -359,10 +356,8 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	// Derive location for use in REP endpoints
-	location := tpgresource.LocationFromId(d.Id())
 	err = FilestoreOperationWaitTime(
-		config, res, project, location, "Creating Backup", userAgent,
+		config, res, project, "Creating Backup", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -407,9 +402,6 @@ func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backups/{{name}}")
 	if err != nil {
 		return err
-	}
-	if strings.Contains(url, "{{location}}") {
-		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -569,9 +561,6 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	if strings.Contains(url, "{{location}}") {
-		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
-	}
 
 	log.Printf("[DEBUG] Updating Backup %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -620,10 +609,8 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 			log.Printf("[DEBUG] Finished updating Backup %q: %#v", d.Id(), res)
 		}
 
-		// Derive location for use in REP endpoints
-		location := tpgresource.LocationFromId(d.Id())
 		err = FilestoreOperationWaitTime(
-			config, res, project, location, "Updating Backup", userAgent,
+			config, res, project, "Updating Backup", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -666,9 +653,6 @@ func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	if strings.Contains(url, "{{location}}") {
-		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
-	}
 
 	var obj map[string]interface{}
 
@@ -695,10 +679,8 @@ func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, "Backup")
 	}
 
-	// Derive location for use in REP endpoints
-	location := tpgresource.LocationFromId(d.Id())
 	err = FilestoreOperationWaitTime(
-		config, res, project, location, "Deleting Backup", userAgent,
+		config, res, project, "Deleting Backup", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
