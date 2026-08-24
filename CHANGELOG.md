@@ -4,7 +4,7 @@
 
 BREAKING RESOURCE REMOVALS:
 * beyondcorp: removed `google_beyondcorp_app_connection`, `google_beyondcorp_app_connector`, and `google_beyondcorp_app_gateway` resources, and the `google_beyondcorp_app_connection`, `google_beyondcorp_app_connector`, and `google_beyondcorp_app_gateway` data sources. Use `google_beyondcorp_security_gateway` and `google_beyondcorp_security_gateway_application` instead. ([#18675](https://github.com/GoogleCloudPlatform/magic-modules/pull/18675))
-* iap: removed `google_iap_brand` and `google_iap_client` resources, and the `google_iap_client` data source, following the shutdown of the Google Cloud IAP OAuth Admin APIs. ([#18679](https://github.com/GoogleCloudPlatform/magic-modules/pull/18679))
+* iap: removed `google_iap_brand` and `google_iap_client` resources, and the `google_iap_client` data source. ([#18679](https://github.com/GoogleCloudPlatform/magic-modules/pull/18679))
 * mlengine: removed `google_ml_engine_model` resource. Migrate machine learning deployments to `google_vertex_ai_endpoint` or Vertex AI Model Garden resources. ([#18681](https://github.com/GoogleCloudPlatform/magic-modules/pull/18681))
 * notebooks: removed `google_notebooks_environment`, `google_notebooks_instance` (and associated IAM resources), and `google_notebooks_runtime` (and associated IAM resources). Migrate to `google_workbench_instance`. ([#18583](https://github.com/GoogleCloudPlatform/magic-modules/pull/18583))
 * vertexai: removed `google_vertex_ai_schedule` resource. Use `google_colab_schedule` instead. ([#18673](https://github.com/GoogleCloudPlatform/magic-modules/pull/18673))
