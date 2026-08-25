@@ -1059,6 +1059,12 @@ NUMBER>@gcp-sa-ces.iam.gserviceaccount.com.`,
 																Computed:    true,
 																Description: `Whether to disable conversation logging for the sessions.`,
 															},
+															"retention_window": {
+																Type:     schema.TypeString,
+																Computed: true,
+																Description: `Controls the retention window for the conversation.
+If not set, the conversation will be retained for 365 days.`,
+															},
 														},
 													},
 												},
@@ -4571,9 +4577,15 @@ func flattenCESAppVersionSnapshotAppLoggingSettingsConversationLoggingSettings(v
 	transformed := make(map[string]interface{})
 	transformed["disable_conversation_logging"] =
 		flattenCESAppVersionSnapshotAppLoggingSettingsConversationLoggingSettingsDisableConversationLogging(original["disableConversationLogging"], d, config)
+	transformed["retention_window"] =
+		flattenCESAppVersionSnapshotAppLoggingSettingsConversationLoggingSettingsRetentionWindow(original["retentionWindow"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAppVersionSnapshotAppLoggingSettingsConversationLoggingSettingsDisableConversationLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppLoggingSettingsConversationLoggingSettingsRetentionWindow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

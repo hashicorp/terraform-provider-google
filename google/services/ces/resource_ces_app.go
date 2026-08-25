@@ -645,6 +645,13 @@ NUMBER>@gcp-sa-ces.iam.gserviceaccount.com.`,
 										Optional:    true,
 										Description: `Whether to disable conversation logging for the sessions.`,
 									},
+									"retention_window": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Optional: true,
+										Description: `Controls the retention window for the conversation.
+If not set, the conversation will be retained for 365 days.`,
+									},
 								},
 							},
 						},
@@ -2149,9 +2156,15 @@ func flattenCESAppLoggingSettingsConversationLoggingSettings(v interface{}, d *s
 	transformed := make(map[string]interface{})
 	transformed["disable_conversation_logging"] =
 		flattenCESAppLoggingSettingsConversationLoggingSettingsDisableConversationLogging(original["disableConversationLogging"], d, config)
+	transformed["retention_window"] =
+		flattenCESAppLoggingSettingsConversationLoggingSettingsRetentionWindow(original["retentionWindow"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAppLoggingSettingsConversationLoggingSettingsDisableConversationLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppLoggingSettingsConversationLoggingSettingsRetentionWindow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3222,10 +3235,21 @@ func expandCESAppLoggingSettingsConversationLoggingSettings(v interface{}, d tpg
 		transformed["disableConversationLogging"] = transformedDisableConversationLogging
 	}
 
+	transformedRetentionWindow, err := expandCESAppLoggingSettingsConversationLoggingSettingsRetentionWindow(original["retention_window"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRetentionWindow); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["retentionWindow"] = transformedRetentionWindow
+	}
+
 	return transformed, nil
 }
 
 func expandCESAppLoggingSettingsConversationLoggingSettingsDisableConversationLogging(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppLoggingSettingsConversationLoggingSettingsRetentionWindow(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
