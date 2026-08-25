@@ -175,6 +175,75 @@ func ResourceVertexAISemanticGovernancePolicyEngine() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"gateway_configs": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Description: `Configurations for gateways. The keys are user-defined names for each gateway.
+At most 5 gateway configurations are allowed.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"allowed_projects": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Additional consumer projects permitted to attach their own PSC endpoint
+to this gateway's ServiceAttachment. This is the "decoupled" mode, where
+the customer creates the PSC endpoint in a project other than this
+gateway's network project. Each listed project is VPC-SC enforced: it
+must be within the caller's service perimeter. The owning
+SemanticGovernancePolicyEngine's own project is always permitted
+implicitly and need not be listed. Format: projects/{project} (ID or number).`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"dns_zone_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `FQDN of the private DNS zone to create DNS record set for PSC endpoint.`,
+						},
+						"network": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The URI of the network resource where PSC-E will be provisioned. If not
+provided 'default' network will be used. Format:
+projects/{project}/global/networks/{network}`,
+						},
+						"subnetwork": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The URI of the subnetwork resource where PSC-E will be provisioned. If
+not provided 'default' subnet will be used from the same {location}
+Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}`,
+						},
+						"dns_record": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The fully qualified record name of the created A-record in Cloud DNS.`,
+						},
+						"ip_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The private IP address of the PSC endpoint.`,
+						},
+						"psc_endpoint": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The self-link or name of the Private Service Connect endpoint forwarding
+rule.`,
+						},
+						"state": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The state of the Gateway configuration. One of: STATE_UNSPECIFIED,
+PROVISIONING, ACTIVE, DEPROVISIONING, INACTIVE, FAILED.`,
+						},
+					},
+				},
+			},
 			"region": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -256,6 +325,12 @@ func resourceVertexAISemanticGovernancePolicyEngineCreate(d *schema.ResourceData
 	}
 
 	obj := make(map[string]interface{})
+	gatewayConfigsProp, err := expandVertexAISemanticGovernancePolicyEngineGatewayConfigs(d.Get("gateway_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gateway_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(gatewayConfigsProp)) && (ok || !reflect.DeepEqual(v, gatewayConfigsProp)) {
+		obj["gatewayConfigs"] = gatewayConfigsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/semanticGovernancePolicyEngine")
 	if err != nil {
@@ -462,6 +537,12 @@ func resourceVertexAISemanticGovernancePolicyEngineUpdate(d *schema.ResourceData
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	gatewayConfigsProp, err := expandVertexAISemanticGovernancePolicyEngineGatewayConfigs(d.Get("gateway_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gateway_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gatewayConfigsProp)) {
+		obj["gatewayConfigs"] = gatewayConfigsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/semanticGovernancePolicyEngine")
 	if err != nil {
@@ -614,6 +695,166 @@ func flattenVertexAISemanticGovernancePolicyEngineState(v interface{}, d *schema
 	return v
 }
 
+func flattenVertexAISemanticGovernancePolicyEngineGatewayConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.(map[string]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for k, raw := range l {
+		original := raw.(map[string]interface{})
+		transformed = append(transformed, map[string]interface{}{
+			"name":             k,
+			"network":          flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsNetwork(original["network"], d, config),
+			"subnetwork":       flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsSubnetwork(original["subnetwork"], d, config),
+			"dns_zone_name":    flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsDnsZoneName(original["dnsZoneName"], d, config),
+			"allowed_projects": flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsAllowedProjects(original["allowedProjects"], d, config),
+			"state":            flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsState(original["state"], d, config),
+			"ip_address":       flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsIpAddress(original["ipAddress"], d, config),
+			"psc_endpoint":     flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsPscEndpoint(original["pscEndpoint"], d, config),
+			"dns_record":       flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsDnsRecord(original["dnsRecord"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsDnsZoneName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsAllowedProjects(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsPscEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAISemanticGovernancePolicyEngineGatewayConfigsDnsRecord(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandVertexAISemanticGovernancePolicyEngineGatewayConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
+	if v == nil {
+		return map[string]interface{}{}, nil
+	}
+	m := make(map[string]interface{})
+	for _, raw := range v.(*schema.Set).List() {
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedNetwork, err := expandVertexAISemanticGovernancePolicyEngineGatewayConfigsNetwork(original["network"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["network"] = transformedNetwork
+		}
+
+		transformedSubnetwork, err := expandVertexAISemanticGovernancePolicyEngineGatewayConfigsSubnetwork(original["subnetwork"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubnetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subnetwork"] = transformedSubnetwork
+		}
+
+		transformedDnsZoneName, err := expandVertexAISemanticGovernancePolicyEngineGatewayConfigsDnsZoneName(original["dns_zone_name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDnsZoneName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dnsZoneName"] = transformedDnsZoneName
+		}
+
+		transformedAllowedProjects, err := expandVertexAISemanticGovernancePolicyEngineGatewayConfigsAllowedProjects(original["allowed_projects"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAllowedProjects); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["allowedProjects"] = transformedAllowedProjects
+		}
+
+		transformedState, err := expandVertexAISemanticGovernancePolicyEngineGatewayConfigsState(original["state"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["state"] = transformedState
+		}
+
+		transformedIpAddress, err := expandVertexAISemanticGovernancePolicyEngineGatewayConfigsIpAddress(original["ip_address"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipAddress"] = transformedIpAddress
+		}
+
+		transformedPscEndpoint, err := expandVertexAISemanticGovernancePolicyEngineGatewayConfigsPscEndpoint(original["psc_endpoint"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPscEndpoint); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["pscEndpoint"] = transformedPscEndpoint
+		}
+
+		transformedDnsRecord, err := expandVertexAISemanticGovernancePolicyEngineGatewayConfigsDnsRecord(original["dns_record"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDnsRecord); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dnsRecord"] = transformedDnsRecord
+		}
+
+		transformedName, err := tpgresource.ExpandString(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedName] = transformed
+	}
+	return m, nil
+}
+
+func expandVertexAISemanticGovernancePolicyEngineGatewayConfigsNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAISemanticGovernancePolicyEngineGatewayConfigsSubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAISemanticGovernancePolicyEngineGatewayConfigsDnsZoneName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAISemanticGovernancePolicyEngineGatewayConfigsAllowedProjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAISemanticGovernancePolicyEngineGatewayConfigsState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAISemanticGovernancePolicyEngineGatewayConfigsIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAISemanticGovernancePolicyEngineGatewayConfigsPscEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAISemanticGovernancePolicyEngineGatewayConfigsDnsRecord(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceVertexAISemanticGovernancePolicyEngineFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -636,6 +877,9 @@ func ResourceVertexAISemanticGovernancePolicyEngineFlatten(d *schema.ResourceDat
 		return fmt.Errorf("Error reading SemanticGovernancePolicyEngine: %s", err)
 	}
 	if err = d.Set("state", flattenVertexAISemanticGovernancePolicyEngineState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SemanticGovernancePolicyEngine: %s", err)
+	}
+	if err = d.Set("gateway_configs", flattenVertexAISemanticGovernancePolicyEngineGatewayConfigs(res["gatewayConfigs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SemanticGovernancePolicyEngine: %s", err)
 	}
 

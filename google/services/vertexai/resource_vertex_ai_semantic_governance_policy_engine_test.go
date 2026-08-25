@@ -33,7 +33,7 @@ import (
 // Handwritten lifecycle test (Create + Import; deprovision via CheckDestroy).
 // The generated example is exclude_test — see the singleton-aware
 // CheckDestroy below for why.
-func TestAccVertexAISemanticGovernancePolicyEngine_lifecycle(t *testing.T) {
+func TestAccVertexAISemanticGovernancePolicyEngine_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{}
@@ -58,9 +58,6 @@ func TestAccVertexAISemanticGovernancePolicyEngine_lifecycle(t *testing.T) {
 					resource.TestCheckResourceAttrSet(
 						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
 						"psc_service_attachment"),
-					// ip_address and psc_forwarding_rule are not asserted: they
-					// populate only after a consumer creates a PSC forwarding
-					// rule, which the basic fixture has none of.
 				),
 			},
 			{
@@ -75,7 +72,294 @@ func TestAccVertexAISemanticGovernancePolicyEngine_lifecycle(t *testing.T) {
 func testAccVertexAISemanticGovernancePolicyEngine_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_semantic_governance_policy_engine" "sgpe" {
-  region = "us-central1"
+  region = "us-east1"
+}
+`, context)
+}
+
+func TestAccVertexAISemanticGovernancePolicyEngine_gatewayConfigs(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAISemanticGovernancePolicyEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAISemanticGovernancePolicyEngine_gatewayConfigs(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"state", "ACTIVE"),
+					resource.TestCheckResourceAttrSet(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"name"),
+					resource.TestCheckResourceAttrSet(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"create_time"),
+					resource.TestCheckResourceAttrSet(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"psc_service_attachment"),
+					resource.TestCheckResourceAttr(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"gateway_configs.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"gateway_configs.*", map[string]string{
+							"name":               "gw1",
+							"dns_zone_name":      fmt.Sprintf("tf-test-zone1-%s", context["random_suffix"]),
+							"allowed_projects.#": "1",
+							"state":              "ACTIVE",
+						}),
+				),
+			},
+			{
+				ResourceName:      "google_vertex_ai_semantic_governance_policy_engine.sgpe",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccVertexAISemanticGovernancePolicyEngine_gatewayConfigsUpdate(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"state", "ACTIVE"),
+					resource.TestCheckResourceAttr(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"gateway_configs.#", "2"),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"gateway_configs.*", map[string]string{
+							"name":               "gw1",
+							"dns_zone_name":      fmt.Sprintf("tf-test-zone1-%s", context["random_suffix"]),
+							"allowed_projects.#": "2",
+							"state":              "ACTIVE",
+						}),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"gateway_configs.*", map[string]string{
+							"name":               "gw2",
+							"dns_zone_name":      fmt.Sprintf("tf-test-zone2-%s", context["random_suffix"]),
+							"allowed_projects.#": "1",
+							"state":              "ACTIVE",
+						}),
+				),
+			},
+			{
+				ResourceName:      "google_vertex_ai_semantic_governance_policy_engine.sgpe",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccVertexAISemanticGovernancePolicyEngine_gatewayConfigsCleanup(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"state", "ACTIVE"),
+					resource.TestCheckResourceAttr(
+						"google_vertex_ai_semantic_governance_policy_engine.sgpe",
+						"gateway_configs.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func testAccVertexAISemanticGovernancePolicyEngine_gatewayConfigs(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_compute_network" "custom" {
+  name                    = "tf-test-network-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet1" {
+  name          = "tf-test-subnetwork1-%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-east1"
+  network       = google_compute_network.custom.id
+}
+
+resource "google_compute_subnetwork" "subnet2" {
+  name          = "tf-test-subnetwork2-%{random_suffix}"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-east1"
+  network       = google_compute_network.custom.id
+}
+
+resource "google_dns_managed_zone" "zone1" {
+  name          = "tf-test-zone1-%{random_suffix}"
+  dns_name      = "tf-test-zone1-%{random_suffix}.example.com."
+  description   = "SGPE private DNS zone 1"
+  visibility    = "private"
+  force_destroy = true
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.custom.id
+    }
+  }
+}
+
+resource "google_dns_managed_zone" "zone2" {
+  name          = "tf-test-zone2-%{random_suffix}"
+  dns_name      = "tf-test-zone2-%{random_suffix}.example.com."
+  description   = "SGPE private DNS zone 2"
+  visibility    = "private"
+  force_destroy = true
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.custom.id
+    }
+  }
+}
+
+resource "google_vertex_ai_semantic_governance_policy_engine" "sgpe" {
+  region = "us-east1"
+
+  gateway_configs {
+    name             = "gw1"
+    network          = google_compute_network.custom.id
+    subnetwork       = google_compute_subnetwork.subnet1.id
+    dns_zone_name    = google_dns_managed_zone.zone1.name
+    allowed_projects = ["projects/${data.google_project.project.project_id}"]
+  }
+}
+`, context)
+}
+
+func testAccVertexAISemanticGovernancePolicyEngine_gatewayConfigsUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_compute_network" "custom" {
+  name                    = "tf-test-network-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet1" {
+  name          = "tf-test-subnetwork1-%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-east1"
+  network       = google_compute_network.custom.id
+}
+
+resource "google_compute_subnetwork" "subnet2" {
+  name          = "tf-test-subnetwork2-%{random_suffix}"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-east1"
+  network       = google_compute_network.custom.id
+}
+
+resource "google_dns_managed_zone" "zone1" {
+  name          = "tf-test-zone1-%{random_suffix}"
+  dns_name      = "tf-test-zone1-%{random_suffix}.example.com."
+  description   = "SGPE private DNS zone 1"
+  visibility    = "private"
+  force_destroy = true
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.custom.id
+    }
+  }
+}
+
+resource "google_dns_managed_zone" "zone2" {
+  name          = "tf-test-zone2-%{random_suffix}"
+  dns_name      = "tf-test-zone2-%{random_suffix}.example.com."
+  description   = "SGPE private DNS zone 2"
+  visibility    = "private"
+  force_destroy = true
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.custom.id
+    }
+  }
+}
+
+resource "google_vertex_ai_semantic_governance_policy_engine" "sgpe" {
+  region = "us-east1"
+
+  gateway_configs {
+    name             = "gw1"
+    network          = google_compute_network.custom.id
+    subnetwork       = google_compute_subnetwork.subnet1.id
+    dns_zone_name    = google_dns_managed_zone.zone1.name
+    allowed_projects = ["projects/${data.google_project.project.project_id}", "projects/${data.google_project.project.number}"]
+  }
+
+  gateway_configs {
+    name             = "gw2"
+    network          = google_compute_network.custom.id
+    subnetwork       = google_compute_subnetwork.subnet2.id
+    dns_zone_name    = google_dns_managed_zone.zone2.name
+    allowed_projects = ["projects/${data.google_project.project.project_id}"]
+  }
+}
+`, context)
+}
+
+func testAccVertexAISemanticGovernancePolicyEngine_gatewayConfigsCleanup(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_compute_network" "custom" {
+  name                    = "tf-test-network-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet1" {
+  name          = "tf-test-subnetwork1-%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-east1"
+  network       = google_compute_network.custom.id
+}
+
+resource "google_compute_subnetwork" "subnet2" {
+  name          = "tf-test-subnetwork2-%{random_suffix}"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-east1"
+  network       = google_compute_network.custom.id
+}
+
+resource "google_dns_managed_zone" "zone1" {
+  name          = "tf-test-zone1-%{random_suffix}"
+  dns_name      = "tf-test-zone1-%{random_suffix}.example.com."
+  description   = "SGPE private DNS zone 1"
+  visibility    = "private"
+  force_destroy = true
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.custom.id
+    }
+  }
+}
+
+resource "google_dns_managed_zone" "zone2" {
+  name          = "tf-test-zone2-%{random_suffix}"
+  dns_name      = "tf-test-zone2-%{random_suffix}.example.com."
+  description   = "SGPE private DNS zone 2"
+  visibility    = "private"
+  force_destroy = true
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.custom.id
+    }
+  }
+}
+
+resource "google_vertex_ai_semantic_governance_policy_engine" "sgpe" {
+  region = "us-east1"
 }
 `, context)
 }
