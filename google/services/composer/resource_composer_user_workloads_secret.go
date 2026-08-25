@@ -114,7 +114,7 @@ func resourceComposerUserWorkloadsSecretCreate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Creating new UserWorkloadsSecret %q", secretName.ParentName())
-	resp, err := NewClient(config, userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Create(secretName.ParentName(), secret).Do()
+	_, err = NewClient(config, userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Create(secretName.ParentName(), secret).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating UserWorkloadsSecret: %s", err)
 	}
@@ -125,8 +125,8 @@ func resourceComposerUserWorkloadsSecretCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	respJson, _ := resp.MarshalJSON()
-	log.Printf("[DEBUG] Finished creating UserWorkloadsSecret %q: %#v", d.Id(), string(respJson))
+	// The response body echoes the secret's "data" values, so only the id is logged.
+	log.Printf("[DEBUG] Finished creating UserWorkloadsSecret %q", d.Id())
 
 	return resourceComposerUserWorkloadsSecretRead(d, meta)
 }
@@ -191,16 +191,15 @@ func resourceComposerUserWorkloadsSecretUpdate(d *schema.ResourceData, meta inte
 			Data: tpgresource.ConvertStringMap(d.Get("data").(map[string]interface{})),
 		}
 
-		secretJson, _ := secret.MarshalJSON()
-		log.Printf("[DEBUG] Updating UserWorkloadsSecret %q: %s", d.Id(), string(secretJson))
+		// secret.Data holds the Sensitive secret values, so the body is not logged.
+		log.Printf("[DEBUG] Updating UserWorkloadsSecret %q", d.Id())
 
-		resp, err := NewClient(config, userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Update(secretName.ResourceName(), secret).Do()
+		_, err = NewClient(config, userAgent).Projects.Locations.Environments.UserWorkloadsSecrets.Update(secretName.ResourceName(), secret).Do()
 		if err != nil {
 			return err
 		}
 
-		respJson, _ := resp.MarshalJSON()
-		log.Printf("[DEBUG] Finished updating UserWorkloadsSecret %q: %s", d.Id(), string(respJson))
+		log.Printf("[DEBUG] Finished updating UserWorkloadsSecret %q", d.Id())
 	}
 
 	return nil
