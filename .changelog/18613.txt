@@ -1,0 +1,3 @@
+```release-note:new-resource
+securitycenter: added `google_scc_notification_service_account` resource
+```
