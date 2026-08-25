@@ -917,6 +917,7 @@ func flattenDataplexEntryLinkAspects(v interface{}, d *schema.ResourceData, conf
 
 	return sorted
 }
+
 func flattenDataplexEntryLinkAspectsAspectKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -942,6 +943,7 @@ func flattenDataplexEntryLinkAspectsAspect(v interface{}, d *schema.ResourceData
 		flattenDataplexEntryLinkAspectsAspectData(original["data"], d, config)
 	return []interface{}{transformed}
 }
+
 func flattenDataplexEntryLinkAspectsAspectAspectType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
