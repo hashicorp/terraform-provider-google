@@ -310,11 +310,12 @@ func testAccCheckNetworkServicesAgentGatewayDestroyProducer(t *testing.T) func(s
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
+				Config:               config,
+				Method:               "GET",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            config.UserAgent,
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsAgentGatewayInUseError},
 			})
 			if err == nil {
 				return fmt.Errorf("NetworkServicesAgentGateway still exists at %s", url)

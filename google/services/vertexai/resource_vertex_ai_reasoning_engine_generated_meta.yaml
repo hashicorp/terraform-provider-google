@@ -22,6 +22,8 @@ fields:
       json: true
     - api_field: spec.containerSpec.imageUri
     - api_field: spec.containerSpec.port
+    - api_field: spec.deploymentSpec.agentGatewayConfig.agentToAnywhereConfig.agentGateway
+    - api_field: spec.deploymentSpec.agentGatewayConfig.clientToAgentConfig.agentGateway
     - api_field: spec.deploymentSpec.containerConcurrency
     - api_field: spec.deploymentSpec.env.name
     - api_field: spec.deploymentSpec.env.value
