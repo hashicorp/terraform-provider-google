@@ -299,6 +299,114 @@ DARK`,
 				ForceNew:    true,
 				Description: `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
 			},
+			"instagram_credentials": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Ephemeral Meta credentials required when configuring an Instagram channel profile.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auth_code": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The Meta auth code provided by the embedded signup flow.`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"instagram_credentials.0.auth_code", "instagram_credentials.0.auth_code_wo"},
+						},
+						"auth_code_wo": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The Meta auth code provided by the embedded signup flow.`,
+							WriteOnly:    true,
+							ExactlyOneOf: []string{"instagram_credentials.0.auth_code", "instagram_credentials.0.auth_code_wo"},
+							RequiredWith: []string{"instagram_credentials.0.auth_code_wo_version"},
+						},
+						"auth_code_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Triggers update of 'auth_code_wo' write-only. Increment this value when an update to 'auth_code_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"instagram_credentials.0.auth_code_wo"},
+						},
+						"conversation_profile_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Conversation Profile ID to use for the deployment.`,
+						},
+					},
+				},
+			},
+			"whatsapp_credentials": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Ephemeral Meta credentials required when configuring a WhatsApp channel profile.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"business_account_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The Business Account ID to use for the phone number.`,
+						},
+						"phone_number": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The phone number to register with WhatsApp.`,
+						},
+						"waba_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The WhatsApp Business Account ID.`,
+						},
+						"auth_code": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The Meta auth code provided by the embedded signup flow.`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"whatsapp_credentials.0.auth_code", "whatsapp_credentials.0.auth_code_wo"},
+						},
+						"auth_code_wo": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The Meta auth code provided by the embedded signup flow.`,
+							WriteOnly:    true,
+							ExactlyOneOf: []string{"whatsapp_credentials.0.auth_code", "whatsapp_credentials.0.auth_code_wo"},
+							RequiredWith: []string{"whatsapp_credentials.0.auth_code_wo_version"},
+						},
+						"auth_code_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Triggers update of 'auth_code_wo' write-only. Increment this value when an update to 'auth_code_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"whatsapp_credentials.0.auth_code_wo"},
+						},
+						"conversation_profile_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Conversation Profile ID to use for the deployment.`,
+						},
+						"pin": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The 6-digit PIN created by the user for two-step verification.`,
+							Sensitive:    true,
+							ExactlyOneOf: []string{"whatsapp_credentials.0.pin", "whatsapp_credentials.0.pin_wo"},
+						},
+						"pin_wo": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `The 6-digit PIN created by the user for two-step verification.`,
+							WriteOnly:    true,
+							ExactlyOneOf: []string{"whatsapp_credentials.0.pin", "whatsapp_credentials.0.pin_wo"},
+							RequiredWith: []string{"whatsapp_credentials.0.pin_wo_version"},
+						},
+						"pin_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Triggers update of 'pin_wo' write-only. Increment this value when an update to 'pin_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"whatsapp_credentials.0.pin_wo"},
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -371,6 +479,18 @@ func resourceCESDeploymentCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
+	}
+	instagramCredentialsProp, err := expandCESDeploymentInstagramCredentials(d.Get("instagram_credentials"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instagram_credentials"); !tpgresource.IsEmptyValue(reflect.ValueOf(instagramCredentialsProp)) && (ok || !reflect.DeepEqual(v, instagramCredentialsProp)) {
+		obj["instagramCredentials"] = instagramCredentialsProp
+	}
+	whatsappCredentialsProp, err := expandCESDeploymentWhatsappCredentials(d.Get("whatsapp_credentials"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("whatsapp_credentials"); !tpgresource.IsEmptyValue(reflect.ValueOf(whatsappCredentialsProp)) && (ok || !reflect.DeepEqual(v, whatsappCredentialsProp)) {
+		obj["whatsappCredentials"] = whatsappCredentialsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/deployments")
@@ -618,6 +738,18 @@ func resourceCESDeploymentUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	instagramCredentialsProp, err := expandCESDeploymentInstagramCredentials(d.Get("instagram_credentials"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instagram_credentials"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instagramCredentialsProp)) {
+		obj["instagramCredentials"] = instagramCredentialsProp
+	}
+	whatsappCredentialsProp, err := expandCESDeploymentWhatsappCredentials(d.Get("whatsapp_credentials"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("whatsapp_credentials"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, whatsappCredentialsProp)) {
+		obj["whatsappCredentials"] = whatsappCredentialsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/apps/{{app}}/deployments/{{name}}")
 	if err != nil {
@@ -638,6 +770,14 @@ func resourceCESDeploymentUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("instagram_credentials") {
+		updateMask = append(updateMask, "instagramCredentials")
+	}
+
+	if d.HasChange("whatsapp_credentials") {
+		updateMask = append(updateMask, "whatsappCredentials")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1112,6 +1252,169 @@ func expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableRecap
 }
 
 func expandCESDeploymentDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentInstagramCredentials(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAuthCode, err := expandCESDeploymentInstagramCredentialsAuthCode(original["auth_code"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuthCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["authCode"] = transformedAuthCode
+	}
+
+	transformedConversationProfileId, err := expandCESDeploymentInstagramCredentialsConversationProfileId(original["conversation_profile_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConversationProfileId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["conversationProfileId"] = transformedConversationProfileId
+	}
+
+	transformedAuthCodeWo, err := expandCESDeploymentInstagramCredentialsAuthCodeWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "instagram_credentials.0.auth_code_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuthCodeWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["authCode"] = transformedAuthCodeWo
+	}
+
+	return transformed, nil
+}
+
+func expandCESDeploymentInstagramCredentialsAuthCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentInstagramCredentialsConversationProfileId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentInstagramCredentialsAuthCodeWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentInstagramCredentialsAuthCodeWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentWhatsappCredentials(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAuthCode, err := expandCESDeploymentWhatsappCredentialsAuthCode(original["auth_code"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuthCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["authCode"] = transformedAuthCode
+	}
+
+	transformedBusinessAccountId, err := expandCESDeploymentWhatsappCredentialsBusinessAccountId(original["business_account_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBusinessAccountId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["businessAccountId"] = transformedBusinessAccountId
+	}
+
+	transformedConversationProfileId, err := expandCESDeploymentWhatsappCredentialsConversationProfileId(original["conversation_profile_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConversationProfileId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["conversationProfileId"] = transformedConversationProfileId
+	}
+
+	transformedPhoneNumber, err := expandCESDeploymentWhatsappCredentialsPhoneNumber(original["phone_number"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPhoneNumber); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["phoneNumber"] = transformedPhoneNumber
+	}
+
+	transformedPin, err := expandCESDeploymentWhatsappCredentialsPin(original["pin"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPin); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pin"] = transformedPin
+	}
+
+	transformedWabaId, err := expandCESDeploymentWhatsappCredentialsWabaId(original["waba_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWabaId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["wabaId"] = transformedWabaId
+	}
+
+	transformedAuthCodeWo, err := expandCESDeploymentWhatsappCredentialsAuthCodeWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "whatsapp_credentials.0.auth_code_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuthCodeWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["authCode"] = transformedAuthCodeWo
+	}
+
+	transformedPinWo, err := expandCESDeploymentWhatsappCredentialsPinWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "whatsapp_credentials.0.pin_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPinWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pin"] = transformedPinWo
+	}
+
+	return transformed, nil
+}
+
+func expandCESDeploymentWhatsappCredentialsAuthCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentWhatsappCredentialsBusinessAccountId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentWhatsappCredentialsConversationProfileId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentWhatsappCredentialsPhoneNumber(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentWhatsappCredentialsPin(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentWhatsappCredentialsWabaId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentWhatsappCredentialsAuthCodeWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentWhatsappCredentialsAuthCodeWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentWhatsappCredentialsPinWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentWhatsappCredentialsPinWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

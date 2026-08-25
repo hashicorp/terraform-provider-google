@@ -80,7 +80,7 @@ func TestAccCESDeployment_cesDeploymentBasicExample(t *testing.T) {
 				ResourceName:            "google_ces_deployment.my-deployment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"app", "app_version", "location"},
+				ImportStateVerifyIgnore: []string{"app", "app_version", "instagram_credentials", "location", "whatsapp_credentials"},
 			},
 			{
 				ResourceName:       "google_ces_deployment.my-deployment",
@@ -158,7 +158,7 @@ func TestAccCESDeployment_cesDeploymentFullExample(t *testing.T) {
 				ResourceName:            "google_ces_deployment.my-deployment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"app", "app_version", "location"},
+				ImportStateVerifyIgnore: []string{"app", "app_version", "instagram_credentials", "location", "whatsapp_credentials"},
 			},
 			{
 				ResourceName:       "google_ces_deployment.my-deployment",

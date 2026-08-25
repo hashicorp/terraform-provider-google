@@ -27,9 +27,29 @@ fields:
     - api_field: createTime
     - api_field: displayName
     - api_field: etag
+    - api_field: instagramCredentials.authCode
+    - api_field: instagramCredentials.authCode
+      field: instagram_credentials.auth_code_wo
+    - field: instagram_credentials.auth_code_wo_version
+      provider_only: true
+    - api_field: instagramCredentials.conversationProfileId
     - field: location
       provider_only: true
     - api_field: name
     - api_field: updateTime
+    - api_field: whatsappCredentials.authCode
+    - api_field: whatsappCredentials.authCode
+      field: whatsapp_credentials.auth_code_wo
+    - field: whatsapp_credentials.auth_code_wo_version
+      provider_only: true
+    - api_field: whatsappCredentials.businessAccountId
+    - api_field: whatsappCredentials.conversationProfileId
+    - api_field: whatsappCredentials.phoneNumber
+    - api_field: whatsappCredentials.pin
+    - api_field: whatsappCredentials.pin
+      field: whatsapp_credentials.pin_wo
+    - field: whatsapp_credentials.pin_wo_version
+      provider_only: true
+    - api_field: whatsappCredentials.wabaId
     - field: deletion_policy
       provider_only: true
