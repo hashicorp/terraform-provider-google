@@ -152,6 +152,7 @@ resource "google_ces_app" "ces_app_basic" {
 
     conversation_logging_settings {
       disable_conversation_logging = true
+      retention_window = "86400s"
     }
   }
 
@@ -347,6 +348,7 @@ resource "google_ces_app" "ces_app_basic" {
 
     conversation_logging_settings {
       disable_conversation_logging = true
+      retention_window = "172800s"
     }
   }
 

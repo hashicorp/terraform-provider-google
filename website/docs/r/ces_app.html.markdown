@@ -841,6 +841,11 @@ The following arguments are supported:
   (Optional)
   Whether to disable conversation logging for the sessions.
 
+* `retention_window` -
+  (Optional)
+  Controls the retention window for the conversation.
+  If not set, the conversation will be retained for 365 days.
+
 <a name="nested_logging_settings_redaction_config"></a>The `redaction_config` block supports:
 
 * `deidentify_template` -

@@ -58,6 +58,7 @@ fields:
     - api_field: loggingSettings.bigqueryExportSettings.project
     - api_field: loggingSettings.cloudLoggingSettings.enableCloudLogging
     - api_field: loggingSettings.conversationLoggingSettings.disableConversationLogging
+    - api_field: loggingSettings.conversationLoggingSettings.retentionWindow
     - api_field: loggingSettings.redactionConfig.deidentifyTemplate
     - api_field: loggingSettings.redactionConfig.enableRedaction
     - api_field: loggingSettings.redactionConfig.inspectTemplate

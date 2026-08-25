@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `retention_window` field to `google_ces_app` resource
+```

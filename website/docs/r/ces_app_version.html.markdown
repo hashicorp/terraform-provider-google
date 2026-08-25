@@ -869,6 +869,11 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Whether to disable conversation logging for the sessions.
 
+* `retention_window` -
+  (Output)
+  Controls the retention window for the conversation.
+  If not set, the conversation will be retained for 365 days.
+
 <a name="nested_snapshot_app_logging_settings_redaction_config"></a>The `redaction_config` block contains:
 
 * `deidentify_template` -
