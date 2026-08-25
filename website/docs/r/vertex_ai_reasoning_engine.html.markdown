@@ -1449,6 +1449,10 @@ When set to "DELETE", deleting the resource is permitted.
   (Optional)
   Optional. The resource name of the Cloud Build WorkerPool to use for the build.
 
+* `service_account` -
+  (Optional)
+  Optional. The service account that the Cloud Build builder runs as.
+
 <a name="nested_context_spec"></a>The `context_spec` block supports:
 
 * `memory_bank_config` -
