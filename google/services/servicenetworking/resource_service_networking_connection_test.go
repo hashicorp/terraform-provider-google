@@ -331,6 +331,75 @@ resource "google_service_networking_connection" "foobar" {
 `, addressRangeName, addressRangeName, org_id, billing_account, networkName, addressRangeName, serviceName)
 }
 
+// TestAccServiceNetworkingConnection_removePeering covers the case where no service
+// producer holds the connection, so the connection is deleted normally and the
+// peering removal is never reached. The fallback itself needs a service producer
+// that still retains resources, which cannot be set up from a test.
+func TestAccServiceNetworkingConnection_removePeering(t *testing.T) {
+	t.Parallel()
+
+	network := fmt.Sprintf("tf-test-service-networking-connection-remove-peering-%s", acctest.RandString(t, 10))
+	addr := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	service := "servicenetworking.googleapis.com"
+	org_id := envvar.GetTestOrgFromEnv(t)
+	billing_account := envvar.GetTestBillingAccountFromEnv(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testServiceNetworkingConnectionDestroy(t, service, network),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccServiceNetworkingConnectionRemovePeering(network, addr, service, org_id, billing_account),
+			},
+			{
+				ResourceName:      "google_service_networking_connection.foobar",
+				ImportState:       true,
+				ImportStateVerify: false,
+			},
+		},
+	})
+}
+
+func testAccServiceNetworkingConnectionRemovePeering(networkName, addressRangeName, serviceName, org_id, billing_account string) string {
+	return fmt.Sprintf(`
+resource "google_project" "project" {
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "servicenetworking" {
+  project = google_project.project.project_id
+  service = "servicenetworking.googleapis.com"
+}
+
+resource "google_compute_network" "servicenet" {
+  name = "%s"
+  depends_on = [google_project_service.servicenetworking]
+}
+
+resource "google_compute_global_address" "foobar" {
+  name          = "%s"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.servicenet.self_link
+  depends_on = [google_project_service.servicenetworking]
+}
+
+resource "google_service_networking_connection" "foobar" {
+  network                 = google_compute_network.servicenet.self_link
+  service                 = "%s"
+  reserved_peering_ranges = [google_compute_global_address.foobar.name]
+  depends_on = [google_project_service.servicenetworking]
+  deletion_policy = "REMOVE_PEERING"
+}
+`, addressRangeName, addressRangeName, org_id, billing_account, networkName, addressRangeName, serviceName)
+}
+
 func TestAccServiceNetworkingConnection_reorder(t *testing.T) {
 	t.Parallel()
 

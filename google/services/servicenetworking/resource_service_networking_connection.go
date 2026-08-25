@@ -17,6 +17,7 @@
 package servicenetworking
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -27,6 +28,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -34,7 +36,9 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/servicenetworking/v1"
+	"google.golang.org/grpc/codes"
 )
 
 func isInvalidAuthError(err error) (bool, string) {
@@ -42,6 +46,48 @@ func isInvalidAuthError(err error) (bool, string) {
 		return true, "Waiting for service account propagation"
 	}
 	return false, ""
+}
+
+// isProducerServicesInUseError reports whether err is the API refusing to delete a
+// connection that service producers still hold. Producers such as Cloud SQL retain
+// their resources for a period after the instance itself is deleted.
+func isProducerServicesInUseError(err error) bool {
+	opErr, ok := errors.AsType[*tpgresource.CommonOpError](err)
+	if !ok {
+		return false
+	}
+	if opErr.Code != int64(codes.FailedPrecondition) {
+		return false
+	}
+	return strings.Contains(opErr.Message, "still using this connection")
+}
+
+// removeServiceNetworkingPeering removes the VPC peering the connection created on
+// the consumer network. A network cannot be deleted while a peering references it.
+func removeServiceNetworkingPeering(d *schema.ResourceData, config *transport_tpg.Config, userAgent, peering string, network *tpgresource.GlobalFieldValue) error {
+	// Only one peering operation at a time can be performed for a given network.
+	mutexKey := fmt.Sprintf("%s/peerings", network.RelativeLink())
+	transport_tpg.MutexStore.Lock(mutexKey)
+	defer transport_tpg.MutexStore.Unlock(mutexKey)
+
+	url := fmt.Sprintf("%sprojects/%s/global/networks/%s/removePeering", transport_tpg.BaseUrl(tpgcompute.Product, config), network.Project, network.Name)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   network.Project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      map[string]interface{}{"name": peering},
+	})
+	if err != nil {
+		if gerr, ok := errors.AsType[*googleapi.Error](err); ok && gerr.Code == 404 {
+			log.Printf("[WARN] Peering %q already removed from network %q", peering, network.Name)
+			return nil
+		}
+		return fmt.Errorf("Error removing peering %q from network %q: %s", peering, network.Name, err)
+	}
+
+	return tpgcompute.ComputeOperationWaitTime(config, res, network.Project, "Removing Service Networking VPC Peering", userAgent, d.Timeout(schema.TimeoutDelete))
 }
 
 func ResourceServiceNetworkingConnection() *schema.Resource {
@@ -91,7 +137,7 @@ func ResourceServiceNetworkingConnection() *schema.Resource {
 				Description:      `Named IP address range(s) of PEERING type reserved for this service provider. Note that invoking this method with a different range when connection is already established will not reallocate already provisioned service producer subnetworks.`,
 			},
 			//UDP schema start
-			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			"deletion_policy": deletionPolicySchema(),
 			//UDP schema end
 			"peering": {
 				Type:     schema.TypeString,
@@ -105,6 +151,23 @@ func ResourceServiceNetworkingConnection() *schema.Resource {
 		},
 		UseJSONNumber: true,
 	}
+}
+
+// deletionPolicySchema returns the universal deletion_policy field with a
+// description covering REMOVE_PEERING, which is specific to this resource.
+func deletionPolicySchema() *schema.Schema {
+	s := tpgresource.DeletionPolicySchemaEntry("DELETE")
+	s.Description = `Whether Terraform will be prevented from destroying the connection. Defaults to "DELETE".
+When set to "PREVENT", destroying the resource will fail.
+When set to "ABANDON", the resource is removed from Terraform state without
+deleting the connection in the API. The VPC peering created by this connection
+is left in place, which will block deletion of the network.
+When set to "DELETE", the connection is deleted.
+When set to "REMOVE_PEERING", the connection is deleted, and if the API refuses
+because service producer resources still use it, the VPC peering is removed from
+the network instead so that the network can be deleted. Only use this once the
+service instances using the connection (such as Cloud SQL) are already deleted.`
+	return s
 }
 
 func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta interface{}) error {
@@ -368,7 +431,22 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	if err := ServiceNetworkingOperationWaitTimeHW(config, op, "Delete Service Networking Connection", userAgent, project, d.Timeout(schema.TimeoutDelete)); err != nil {
-		return errwrap.Wrapf("Unable to remove Service Networking Connection, err: {{err}}", err)
+		if d.Get("deletion_policy").(string) != "REMOVE_PEERING" || !isProducerServicesInUseError(err) {
+			return errwrap.Wrapf("Unable to remove Service Networking Connection, err: {{err}}", err)
+		}
+
+		peering := d.Get("peering").(string)
+		if peering == "" {
+			return fmt.Errorf("cannot remove peering for %q: peering name is missing from state; refresh the resource and try again", d.Id())
+		}
+
+		log.Printf("[WARN] Connection %q still held by service producers; removing peering %q from network %q so the network can be deleted. The connection may remain on the service producer side.", d.Id(), peering, networkFieldValue.Name)
+		if rmErr := removeServiceNetworkingPeering(d, config, userAgent, peering, networkFieldValue); rmErr != nil {
+			return errors.Join(
+				errwrap.Wrapf("Unable to remove Service Networking Connection, err: {{err}}", err),
+				fmt.Errorf("REMOVE_PEERING fallback also failed: %w", rmErr),
+			)
+		}
 	}
 
 	d.SetId("")
