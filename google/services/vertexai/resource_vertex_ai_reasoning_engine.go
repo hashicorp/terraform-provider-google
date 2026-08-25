@@ -526,6 +526,46 @@ container image that is to be run on each worker replica.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"agent_gateway_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Agent Gateway configuration for a Reasoning Engine deployment.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"agent_to_anywhere_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. Configuration for traffic originating from the Reasoning Engine.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"agent_gateway": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. The resource name of the Agent Gateway for outbound traffic.`,
+															},
+														},
+													},
+												},
+												"client_to_agent_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. Configuration for traffic targeting the Reasoning Engine.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"agent_gateway": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. The resource name of the Agent Gateway to use for inbound traffic.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"container_concurrency": {
 										Type:     schema.TypeInt,
 										Computed: true,
@@ -1535,6 +1575,8 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpec(v interface{}, d *schema.R
 		flattenVertexAIReasoningEngineSpecDeploymentSpecMaxInstances(original["maxInstances"], d, config)
 	transformed["container_concurrency"] =
 		flattenVertexAIReasoningEngineSpecDeploymentSpecContainerConcurrency(original["containerConcurrency"], d, config)
+	transformed["agent_gateway_config"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfig(original["agentGatewayConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIReasoningEngineSpecDeploymentSpecEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1711,6 +1753,55 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpecContainerConcurrency(v inte
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["client_to_agent_config"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig(original["clientToAgentConfig"], d, config)
+	transformed["agent_to_anywhere_config"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig(original["agentToAnywhereConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["agent_gateway"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigAgentGateway(original["agentGateway"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigAgentGateway(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["agent_gateway"] =
+		flattenVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigAgentGateway(original["agentGateway"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigAgentGateway(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenVertexAIReasoningEngineSpecPackageSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2121,6 +2212,13 @@ func expandVertexAIReasoningEngineSpecDeploymentSpec(v interface{}, d tpgresourc
 		transformed["containerConcurrency"] = transformedContainerConcurrency
 	}
 
+	transformedAgentGatewayConfig, err := expandVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfig(original["agent_gateway_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAgentGatewayConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["agentGatewayConfig"] = transformedAgentGatewayConfig
+	}
+
 	return transformed, nil
 }
 
@@ -2343,6 +2441,87 @@ func expandVertexAIReasoningEngineSpecDeploymentSpecMaxInstances(v interface{}, 
 }
 
 func expandVertexAIReasoningEngineSpecDeploymentSpecContainerConcurrency(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedClientToAgentConfig, err := expandVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig(original["client_to_agent_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientToAgentConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientToAgentConfig"] = transformedClientToAgentConfig
+	}
+
+	transformedAgentToAnywhereConfig, err := expandVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig(original["agent_to_anywhere_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAgentToAnywhereConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["agentToAnywhereConfig"] = transformedAgentToAnywhereConfig
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAgentGateway, err := expandVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigAgentGateway(original["agent_gateway"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAgentGateway); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["agentGateway"] = transformedAgentGateway
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigAgentGateway(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAgentGateway, err := expandVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigAgentGateway(original["agent_gateway"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAgentGateway); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["agentGateway"] = transformedAgentGateway
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigAgentGateway(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

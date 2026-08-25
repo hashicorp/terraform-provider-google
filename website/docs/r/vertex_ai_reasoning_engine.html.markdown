@@ -1149,7 +1149,7 @@ When set to "DELETE", deleting the resource is permitted.
   Possible values are: `STABLE`, `EXPERIMENTAL`.
 
 * `agent_gateway_config` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Optional. Agent Gateway configuration for a Reasoning Engine deployment.
   Structure is [documented below](#nested_spec_deployment_spec_agent_gateway_config).
 

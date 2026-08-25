@@ -738,6 +738,203 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
 `, context)
 }
 
+func TestAccVertexAIReasoningEngine_agentGatewayConfig(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_agentGatewayConfig(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels", "spec.0.effective_identity"},
+			},
+			{
+				Config: testAccVertexAIReasoningEngine_agentGatewayConfigUpdate(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels", "spec.0.effective_identity"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_agentGatewayConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_compute_network" "default" {
+  name                    = "tf-test-net-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "tf-test-subnet-%{random_suffix}"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_network_attachment" "default" {
+  name                  = "tf-test-na-%{random_suffix}"
+  region                = "us-central1"
+  connection_preference = "ACCEPT_AUTOMATIC"
+  subnetworks           = [google_compute_subnetwork.default.self_link]
+}
+
+resource "google_network_services_agent_gateway" "agent_to_anywhere" {
+  name     = "tf-test-ag-a2a-%{random_suffix}"
+  location = "us-central1"
+  protocols = ["MCP"]
+  google_managed {
+    governed_access_path = "AGENT_TO_ANYWHERE"
+  }
+  registries = [
+    "//agentregistry.googleapis.com/projects/${data.google_project.project.project_id}/locations/us-central1"
+  ]
+  network_config {
+    egress {
+      network_attachment = google_compute_network_attachment.default.id
+    }
+  }
+}
+
+resource "google_network_services_agent_gateway" "client_to_agent" {
+  name     = "tf-test-ag-c2a-%{random_suffix}"
+  location = "us-central1"
+  protocols = ["MCP"]
+  google_managed {
+    governed_access_path = "CLIENT_TO_AGENT"
+  }
+  registries = [
+    "//agentregistry.googleapis.com/projects/${data.google_project.project.project_id}/locations/us-central1"
+  ]
+  network_config {
+    egress {
+      network_attachment = google_compute_network_attachment.default.id
+    }
+  }
+}
+
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-agent-gw-%{random_suffix}"
+  description  = "Reasoning engine testing agent gateway config"
+  region       = "us-central1"
+
+  spec {
+    identity_type = "AGENT_IDENTITY"
+    container_spec {
+      image_uri = "us-docker.pkg.dev/cloudrun/container/hello"
+      port      = 8000
+    }
+    deployment_spec {
+      agent_gateway_config {
+        client_to_agent_config {
+          agent_gateway = google_network_services_agent_gateway.client_to_agent.id
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccVertexAIReasoningEngine_agentGatewayConfigUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_compute_network" "default" {
+  name                    = "tf-test-net-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "tf-test-subnet-%{random_suffix}"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_network_attachment" "default" {
+  name                  = "tf-test-na-%{random_suffix}"
+  region                = "us-central1"
+  connection_preference = "ACCEPT_AUTOMATIC"
+  subnetworks           = [google_compute_subnetwork.default.self_link]
+}
+
+resource "google_network_services_agent_gateway" "agent_to_anywhere" {
+  name     = "tf-test-ag-a2a-%{random_suffix}"
+  location = "us-central1"
+  protocols = ["MCP"]
+  google_managed {
+    governed_access_path = "AGENT_TO_ANYWHERE"
+  }
+  registries = [
+    "//agentregistry.googleapis.com/projects/${data.google_project.project.project_id}/locations/us-central1"
+  ]
+  network_config {
+    egress {
+      network_attachment = google_compute_network_attachment.default.id
+    }
+  }
+}
+
+resource "google_network_services_agent_gateway" "client_to_agent" {
+  name     = "tf-test-ag-c2a-%{random_suffix}"
+  location = "us-central1"
+  protocols = ["MCP"]
+  google_managed {
+    governed_access_path = "CLIENT_TO_AGENT"
+  }
+  registries = [
+    "//agentregistry.googleapis.com/projects/${data.google_project.project.project_id}/locations/us-central1"
+  ]
+  network_config {
+    egress {
+      network_attachment = google_compute_network_attachment.default.id
+    }
+  }
+}
+
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-agent-gw-updated-%{random_suffix}"
+  description  = "Updated reasoning engine testing agent gateway config"
+  region       = "us-central1"
+
+  spec {
+    identity_type = "AGENT_IDENTITY"
+    container_spec {
+      image_uri = "us-docker.pkg.dev/cloudrun/container/hello"
+      port      = 8000
+    }
+    deployment_spec {
+      agent_gateway_config {
+        client_to_agent_config {
+          agent_gateway = google_network_services_agent_gateway.client_to_agent.id
+        }
+        agent_to_anywhere_config {
+          agent_gateway = google_network_services_agent_gateway.agent_to_anywhere.id
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
 func TestAccVertexAIReasoningEngine_apiParityExternal(t *testing.T) {
 	t.Skip("Skipping agent_gateway and runtime_revision_name due to external infrastructure dependencies")
 	t.Parallel()
