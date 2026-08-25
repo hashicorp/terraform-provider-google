@@ -1296,6 +1296,27 @@ ARRAY`,
 											},
 										},
 									},
+									"vpc_sc_settings": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `VPC-SC settings for the app.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"allowed_origins": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Description: `The allowed HTTP(s) origins that OpenAPI tools in the App are
+able to directly call when VPC Service Controls are enabled. These strings
+must match the origin exactly, including the port if specified. For
+example, "https://example.com" or "https://example.com:443". This list does
+not yet apply to Python tools that may make direct HTTP calls.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -4069,6 +4090,8 @@ func flattenCESAppVersionSnapshotApp(v interface{}, d *schema.ResourceData, conf
 		flattenCESAppVersionSnapshotAppVariableDeclarations(original["variableDeclarations"], d, config)
 	transformed["client_certificate_settings"] =
 		flattenCESAppVersionSnapshotAppClientCertificateSettings(original["clientCertificateSettings"], d, config)
+	transformed["vpc_sc_settings"] =
+		flattenCESAppVersionSnapshotAppVpcScSettings(original["vpcScSettings"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAppVersionSnapshotAppAudioProcessingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4840,6 +4863,23 @@ func flattenCESAppVersionSnapshotAppClientCertificateSettingsPrivateKey(v interf
 }
 
 func flattenCESAppVersionSnapshotAppClientCertificateSettingsPassphrase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppVpcScSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["allowed_origins"] =
+		flattenCESAppVersionSnapshotAppVpcScSettingsAllowedOrigins(original["allowedOrigins"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAppVpcScSettingsAllowedOrigins(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

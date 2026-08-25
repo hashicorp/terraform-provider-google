@@ -251,6 +251,9 @@ resource "google_ces_app" "ces_app_basic" {
     private_key = google_secret_manager_secret_version.fake_secret_version.name
   }
 
+  vpc_sc_settings {
+    allowed_origins = ["https://example.com"]
+  }
 
   # Root agent should not be specified when creating an app
 }
@@ -440,6 +443,10 @@ resource "google_ces_app" "ces_app_basic" {
   client_certificate_settings {
     tls_certificate = file("test-fixtures/cert.pem")
     private_key = google_secret_manager_secret_version.fake_secret_version.name
+  }
+
+  vpc_sc_settings {
+    allowed_origins = ["https://example.com", "https://example.org:443"]
   }
 
   # Root agent should not be specified when creating an app

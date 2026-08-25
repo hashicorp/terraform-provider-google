@@ -137,6 +137,7 @@ fields:
     - api_field: snapshot.app.variableDeclarations.schema.required
     - api_field: snapshot.app.variableDeclarations.schema.type
     - api_field: snapshot.app.variableDeclarations.schema.uniqueItems
+    - api_field: snapshot.app.vpcScSettings.allowedOrigins
     - api_field: snapshot.examples.createTime
     - api_field: snapshot.examples.description
     - api_field: snapshot.examples.displayName

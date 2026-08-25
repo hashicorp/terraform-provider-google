@@ -94,5 +94,6 @@ fields:
     - api_field: variableDeclarations.schema.title
     - api_field: variableDeclarations.schema.type
     - api_field: variableDeclarations.schema.uniqueItems
+    - api_field: vpcScSettings.allowedOrigins
     - field: deletion_policy
       provider_only: true

@@ -274,6 +274,10 @@ variable_declarations {
     private_key = google_secret_manager_secret_version.fake_secret_version.name
   }
 
+  vpc_sc_settings {
+    allowed_origins = ["https://example.com"]
+  }
+
   # Root agent should not be specified when creating an app
 }
 `, context)
