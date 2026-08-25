@@ -1,0 +1,3 @@
+```release-note:bug
+clouddeploy: fixed `tasks` field being silently dropped from `predeploy` and `postdeploy` blocks across all strategy variants
+```
