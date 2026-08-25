@@ -173,6 +173,15 @@ The following arguments are supported:
   (Optional)
   List of the HTTP headers to forward to the extension (from the client). If omitted, all headers are sent. Each element is a string indicating the header name.
 
+* `forward_attributes` -
+  (Optional)
+  List of the Envoy attributes to forward to the extension server. The attributes
+  provided here are included as part of the `ProcessingRequest.attributes` field
+  (of type `map`), where the keys are the attribute names. Refer to the
+  [documentation](https://cloud.google.com/service-extensions/docs/attributes)
+  for the names of attributes that can be forwarded. If omitted, no attributes
+  are sent. Each element is a string indicating the attribute name.
+
 * `wire_format` -
   (Optional)
   The format of communication supported by the callout extension. Applicable only when the policyProfile is REQUEST_AUTHZ.

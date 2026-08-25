@@ -13,6 +13,7 @@ fields:
     - field: effective_labels
       provider_only: true
     - api_field: failOpen
+    - api_field: forwardAttributes
     - api_field: forwardHeaders
     - api_field: labels
     - api_field: loadBalancingScheme

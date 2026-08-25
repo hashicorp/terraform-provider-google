@@ -188,6 +188,19 @@ When set to TRUE, request or response processing continues without error. Any su
 * If response headers have not been delivered to the downstream client, a generic 500 error is returned to the client. The error response can be tailored by configuring a custom error response in the load balancer.
 * If response headers have been delivered, then the HTTP stream to the downstream client is reset.`,
 			},
+			"forward_attributes": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `List of the Envoy attributes to forward to the extension server. The attributes
+provided here are included as part of the 'ProcessingRequest.attributes' field
+(of type 'map'), where the keys are the attribute names. Refer to the
+[documentation](https://cloud.google.com/service-extensions/docs/attributes)
+for the names of attributes that can be forwarded. If omitted, no attributes
+are sent. Each element is a string indicating the attribute name.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"forward_headers": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -346,6 +359,12 @@ func resourceNetworkServicesAuthzExtensionCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("forward_headers"); !tpgresource.IsEmptyValue(reflect.ValueOf(forwardHeadersProp)) && (ok || !reflect.DeepEqual(v, forwardHeadersProp)) {
 		obj["forwardHeaders"] = forwardHeadersProp
+	}
+	forwardAttributesProp, err := expandNetworkServicesAuthzExtensionForwardAttributes(d.Get("forward_attributes"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("forward_attributes"); !tpgresource.IsEmptyValue(reflect.ValueOf(forwardAttributesProp)) && (ok || !reflect.DeepEqual(v, forwardAttributesProp)) {
+		obj["forwardAttributes"] = forwardAttributesProp
 	}
 	wireFormatProp, err := expandNetworkServicesAuthzExtensionWireFormat(d.Get("wire_format"), d, config)
 	if err != nil {
@@ -629,6 +648,12 @@ func resourceNetworkServicesAuthzExtensionUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("forward_headers"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, forwardHeadersProp)) {
 		obj["forwardHeaders"] = forwardHeadersProp
 	}
+	forwardAttributesProp, err := expandNetworkServicesAuthzExtensionForwardAttributes(d.Get("forward_attributes"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("forward_attributes"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, forwardAttributesProp)) {
+		obj["forwardAttributes"] = forwardAttributesProp
+	}
 	wireFormatProp, err := expandNetworkServicesAuthzExtensionWireFormat(d.Get("wire_format"), d, config)
 	if err != nil {
 		return err
@@ -687,6 +712,10 @@ func resourceNetworkServicesAuthzExtensionUpdate(d *schema.ResourceData, meta in
 
 	if d.HasChange("forward_headers") {
 		updateMask = append(updateMask, "forwardHeaders")
+	}
+
+	if d.HasChange("forward_attributes") {
+		updateMask = append(updateMask, "forwardAttributes")
 	}
 
 	if d.HasChange("wire_format") {
@@ -884,6 +913,10 @@ func flattenNetworkServicesAuthzExtensionForwardHeaders(v interface{}, d *schema
 	return v
 }
 
+func flattenNetworkServicesAuthzExtensionForwardAttributes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkServicesAuthzExtensionWireFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -953,6 +986,10 @@ func expandNetworkServicesAuthzExtensionForwardHeaders(v interface{}, d tpgresou
 	return v, nil
 }
 
+func expandNetworkServicesAuthzExtensionForwardAttributes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkServicesAuthzExtensionWireFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1006,6 +1043,9 @@ func ResourceNetworkServicesAuthzExtensionFlatten(d *schema.ResourceData, meta i
 		return fmt.Errorf("Error reading AuthzExtension: %s", err)
 	}
 	if err = d.Set("forward_headers", flattenNetworkServicesAuthzExtensionForwardHeaders(res["forwardHeaders"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AuthzExtension: %s", err)
+	}
+	if err = d.Set("forward_attributes", flattenNetworkServicesAuthzExtensionForwardAttributes(res["forwardAttributes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AuthzExtension: %s", err)
 	}
 	if err = d.Set("wire_format", flattenNetworkServicesAuthzExtensionWireFormat(res["wireFormat"], d, config)); err != nil {
