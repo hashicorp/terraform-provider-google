@@ -1,0 +1,3 @@
+```release-note:enhancement
+servicenetworking: added `REMOVE_PEERING` value to `deletion_policy` on `google_service_networking_connection`, which removes the VPC peering when the connection cannot be deleted because service producer resources still use it
+```

@@ -78,10 +78,60 @@ The following arguments are supported:
     When a 'terraform destroy' or 'terraform apply' would delete the resource,
     the command will fail if this field is set to "PREVENT" in Terraform state.
     When set to "ABANDON", the command will remove the resource from Terraform
-    management without updating or deleting the resource in the API.
+    management without updating or deleting the resource in the API. The VPC
+    peering created by the connection is left in place, which will block deletion
+    of the network.
+    When set to "REMOVE_PEERING", the connection is deleted, and if the API
+    refuses because service producer resources still use it, the VPC peering is
+    removed from the network so that the network can be deleted. See
+    [Deleting a connection](#deleting-a-connection) below.
     When set to "DELETE" or any other value, deleting the resource is allowed.
 
 * `update_on_creation_fail` - (Optional) When set to true, enforce an update of the reserved peering ranges on the existing service networking connection in case of a new connection creation failure.
+
+## Deleting a connection
+
+Creating this resource also creates a VPC network peering on the network, named
+after the service. That peering is not a separate Terraform resource, so its
+lifecycle is tied to this one.
+
+Before a connection can be deleted, every service instance reachable through it
+must be deleted first, and the service producer must have released the resources
+backing those instances. Producers may hold those resources for a period after
+the instance itself is deleted. Cloud SQL, for example, retains them so that a
+deleted instance can still be restored. Until they are released, deleting the
+connection fails with:
+
+```
+Failed to delete connection; Producer services (e.g. CloudSQL, Cloud Memstore, etc.)
+are still using this connection.
+```
+
+This also blocks `google_compute_network`, because a network cannot be deleted
+while a peering references it. Setting `deletion_policy` to `"ABANDON"` drops the
+connection from state but leaves the peering in place, so the network still
+cannot be deleted.
+
+Setting `deletion_policy` to `"REMOVE_PEERING"` restores Terraform lifecycle
+completeness when a transitively created peering blocks deletion of the managed
+network. It is an escape hatch, not equivalent to a fully successful
+`deleteConnection`. Aim it at teardown of ephemeral networks or projects, not
+routine operations.
+
+Concretely:
+
+* Use it only once every service instance reachable through the connection has
+  already been deleted. Removing the peering while an instance is still running
+  will break that instance's connectivity.
+* The peering is removed rather than the connection, so the connection may
+  continue to exist on the service producer side. Google discourages removing
+  the peering as a routine deletion path for the same reason.
+* Recreating the connection later may require the original allocated range
+  names, since a service producer that still tracks the previous connection can
+  reject a new one that uses different range identifiers.
+
+For more detail, see
+[Deleting a private connection](https://cloud.google.com/vpc/docs/configure-private-services-access#removing-connection).
 
 ## Attributes Reference
 
