@@ -1350,7 +1350,7 @@ When set to "DELETE", deleting the resource is permitted.
   Structure is [documented below](#nested_spec_source_code_spec_developer_connect_source).
 
 * `agent_config_source` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Optional. Specification for the deploying from agent config.
   Structure is [documented below](#nested_spec_source_code_spec_agent_config_source).
 
