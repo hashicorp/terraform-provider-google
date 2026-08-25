@@ -45,6 +45,10 @@ fields:
     - api_field: deploymentCount
     - api_field: description
     - api_field: displayName
+    - api_field: errorHandlingSettings.endSessionConfig.escalateSession
+    - api_field: errorHandlingSettings.errorHandlingStrategy
+    - api_field: errorHandlingSettings.fallbackResponseConfig.customFallbackMessages
+    - api_field: errorHandlingSettings.fallbackResponseConfig.maxFallbackAttempts
     - api_field: etag
     - api_field: evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.expectationLevelMetricsThresholds.toolInvocationParameterCorrectnessThreshold
     - api_field: evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.overallToolInvocationCorrectnessThreshold

@@ -94,6 +94,10 @@ fields:
     - api_field: snapshot.app.deploymentCount
     - api_field: snapshot.app.description
     - api_field: snapshot.app.displayName
+    - api_field: snapshot.app.errorHandlingSettings.endSessionConfig.escalateSession
+    - api_field: snapshot.app.errorHandlingSettings.errorHandlingStrategy
+    - api_field: snapshot.app.errorHandlingSettings.fallbackResponseConfig.customFallbackMessages
+    - api_field: snapshot.app.errorHandlingSettings.fallbackResponseConfig.maxFallbackAttempts
     - api_field: snapshot.app.etag
     - api_field: snapshot.app.evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.expectationLevelMetricsThresholds.toolInvocationParameterCorrectnessThreshold
     - api_field: snapshot.app.evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.overallToolInvocationCorrectnessThreshold

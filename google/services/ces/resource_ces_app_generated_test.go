@@ -278,6 +278,19 @@ variable_declarations {
     allowed_origins = ["https://example.com"]
   }
 
+  error_handling_settings {
+    error_handling_strategy = "FALLBACK_RESPONSE"
+    fallback_response_config {
+      custom_fallback_messages = {
+        "en-US" = "An error occurred, please try again."
+      }
+      max_fallback_attempts = 3
+    }
+    end_session_config {
+      escalate_session = true
+    }
+  }
+
   # Root agent should not be specified when creating an app
 }
 `, context)
