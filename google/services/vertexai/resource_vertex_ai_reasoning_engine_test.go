@@ -1237,3 +1237,101 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
 }
 `, context)
 }
+
+func TestAccVertexAIReasoningEngine_agentConfigSourceUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_agentConfigSourceBasic(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccVertexAIReasoningEngine_agentConfigSourceUpdate(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_agentConfigSourceBasic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  description  = "A basic reasoning engine with agent config source"
+  labels       = {
+    "key" = "value"
+  }
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      agent_config_source {
+        adk_config {
+          json_config = jsonencode({
+            name        = "finance_analyst_agent"
+            model       = "gemini-2.5-flash"
+            description = "A financial analyst that can look up stock values and return them as tables."
+            instruction = "You are a financial analyst. Output data in tables."
+          })
+        }
+      }
+
+      python_spec {
+        version = "3.11"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccVertexAIReasoningEngine_agentConfigSourceUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  description  = "A basic reasoning engine with agent config source updated"
+  labels       = {
+    "key" = "updated"
+  }
+  region       = "us-central1"
+
+  spec {
+    source_code_spec {
+      agent_config_source {
+        adk_config {
+          json_config = jsonencode({
+            name        = "finance_analyst_agent_updated"
+            model       = "gemini-2.5-flash"
+            description = "An updated financial analyst agent."
+            instruction = "You are an updated financial analyst."
+          })
+        }
+      }
+
+      python_spec {
+        version = "3.11"
+      }
+    }
+  }
+}
+`, context)
+}

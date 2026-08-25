@@ -743,6 +743,48 @@ Agent in the project will be used.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"agent_config_source": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Specification for the deploying from agent config.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"adk_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Required. Configuration for the Agent Development Kit (ADK).`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"json_config": {
+																Type:         schema.TypeString,
+																Required:     true,
+																ValidateFunc: validation.StringIsJSON,
+																StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																Description:  `Required. The value of the ADK config in JSON format.`,
+															},
+														},
+													},
+												},
+												"inline_source": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. Any additional files needed to interpret the config.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"source_archive": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. Input only. The application source code archive, provided as a compressed tarball (.tar.gz) file.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"developer_connect_source": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -1892,6 +1934,8 @@ func flattenVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d *schema.R
 		flattenVertexAIReasoningEngineSpecSourceCodeSpecPythonSpec(original["pythonSpec"], d, config)
 	transformed["developer_connect_source"] =
 		flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSource(original["developerConnectSource"], d, config)
+	transformed["agent_config_source"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSource(original["agentConfigSource"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIReasoningEngineSpecSourceCodeSpecInlineSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1989,6 +2033,63 @@ func flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfi
 }
 
 func flattenVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigRevision(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["adk_config"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig(original["adkConfig"], d, config)
+	transformed["inline_source"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceInlineSource(original["inlineSource"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["json_config"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigJsonConfig(original["jsonConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigJsonConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceInlineSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["source_archive"] =
+		flattenVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceInlineSourceSourceArchive(original["sourceArchive"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceInlineSourceSourceArchive(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2661,6 +2762,13 @@ func expandVertexAIReasoningEngineSpecSourceCodeSpec(v interface{}, d tpgresourc
 		transformed["developerConnectSource"] = transformedDeveloperConnectSource
 	}
 
+	transformedAgentConfigSource, err := expandVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSource(original["agent_config_source"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAgentConfigSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["agentConfigSource"] = transformedAgentConfigSource
+	}
+
 	return transformed, nil
 }
 
@@ -2854,6 +2962,95 @@ func expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfig
 }
 
 func expandVertexAIReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceConfigRevision(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAdkConfig, err := expandVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig(original["adk_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAdkConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["adkConfig"] = transformedAdkConfig
+	}
+
+	transformedInlineSource, err := expandVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceInlineSource(original["inline_source"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInlineSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["inlineSource"] = transformedInlineSource
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedJsonConfig, err := expandVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigJsonConfig(original["json_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jsonConfig"] = transformedJsonConfig
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigJsonConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceInlineSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSourceArchive, err := expandVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceInlineSourceSourceArchive(original["source_archive"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceArchive); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceArchive"] = transformedSourceArchive
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineSpecSourceCodeSpecAgentConfigSourceInlineSourceSourceArchive(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
