@@ -1,0 +1,15 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_monitoring_snooze
+generation_type: mmv1
+source_file: products/monitoring/Snooze.yaml
+api_service_name: monitoring.googleapis.com
+api_version: v3
+api_resource_type_kind: Snooze
+fields:
+    - api_field: criteria.filter
+    - api_field: criteria.policies
+    - api_field: displayName
+    - api_field: interval.endTime
+    - api_field: interval.startTime
+    - api_field: name
