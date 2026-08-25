@@ -155,3 +155,290 @@ resource "google_ces_deployment" "my-deployment" {
 }
 `, context)
 }
+
+func TestAccCESDeployment_instagramCredentials(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESDeployment_instagramCredentials(context),
+			},
+			{
+				ResourceName:            "google_ces_deployment.my-deployment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "app_version", "location", "instagram_credentials", "whatsapp_credentials"},
+			},
+		},
+	})
+}
+
+func TestAccCESDeployment_whatsappCredentials(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESDeployment_whatsappCredentials(context),
+			},
+			{
+				ResourceName:            "google_ces_deployment.my-deployment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "app_version", "location", "instagram_credentials", "whatsapp_credentials"},
+			},
+		},
+	})
+}
+
+func testAccCESDeployment_instagramCredentials(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "tf-test-my-app%{random_suffix}"
+    app_id       = "tf-test-app-id%{random_suffix}"
+    time_zone_settings {
+        time_zone = "America/Los_Angeles"
+    }
+}
+resource "google_ces_app_version" "my-app-version" {
+    location       = "us"
+    display_name   = "tf-test-my-app-version%{random_suffix}"
+    app            = google_ces_app.my-app.name
+    app_version_id = "tf-test-app-version-id%{random_suffix}"
+    description    = "example-app-version"
+}
+resource "google_ces_deployment" "my-deployment" {
+    location     = "us"
+    display_name = "tf-test-my-deployment%{random_suffix}"
+    app          = google_ces_app.my-app.name
+    app_version  = google_ces_app_version.my-app-version.id
+    channel_profile {
+        channel_type = "API"
+        disable_barge_in_control = true
+        disable_dtmf = true
+        persona_property {
+            persona = "CHATTY"
+        }
+        profile_id = "temp_profile_id"
+        web_widget_config {
+            modality = "CHAT_AND_VOICE"
+            theme = "DARK"
+            web_widget_title = "temp_webwidget_title"
+        }
+    }
+    instagram_credentials {
+        auth_code = "test-auth-code"
+        conversation_profile_id = "test-conversation-profile-id"
+    }
+}
+`, context)
+}
+
+func testAccCESDeployment_whatsappCredentials(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "tf-test-my-app%{random_suffix}"
+    app_id       = "tf-test-app-id%{random_suffix}"
+    time_zone_settings {
+        time_zone = "America/Los_Angeles"
+    }
+}
+resource "google_ces_app_version" "my-app-version" {
+    location       = "us"
+    display_name   = "tf-test-my-app-version%{random_suffix}"
+    app            = google_ces_app.my-app.name
+    app_version_id = "tf-test-app-version-id%{random_suffix}"
+    description    = "example-app-version"
+}
+resource "google_ces_deployment" "my-deployment" {
+    location     = "us"
+    display_name = "tf-test-my-deployment%{random_suffix}"
+    app          = google_ces_app.my-app.name
+    app_version  = google_ces_app_version.my-app-version.id
+    channel_profile {
+        channel_type = "API"
+        disable_barge_in_control = true
+        disable_dtmf = true
+        persona_property {
+            persona = "CHATTY"
+        }
+        profile_id = "temp_profile_id"
+        web_widget_config {
+            modality = "CHAT_AND_VOICE"
+            theme = "DARK"
+            web_widget_title = "temp_webwidget_title"
+        }
+    }
+    whatsapp_credentials {
+        auth_code = "test-auth-code"
+        business_account_id = "test-business-id"
+        conversation_profile_id = "test-conversation-profile-id"
+        phone_number = "+15551234567"
+        pin = "123456"
+        waba_id = "test-waba-id"
+    }
+}
+`, context)
+}
+
+func TestAccCESDeployment_instagramCredentialsWriteOnly(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESDeployment_instagramCredentialsWriteOnly(context),
+			},
+			{
+				ResourceName:            "google_ces_deployment.my-deployment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "app_version", "location", "instagram_credentials", "whatsapp_credentials"},
+			},
+		},
+	})
+}
+
+func TestAccCESDeployment_whatsappCredentialsWriteOnly(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESDeployment_whatsappCredentialsWriteOnly(context),
+			},
+			{
+				ResourceName:            "google_ces_deployment.my-deployment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "app_version", "location", "instagram_credentials", "whatsapp_credentials"},
+			},
+		},
+	})
+}
+
+func testAccCESDeployment_instagramCredentialsWriteOnly(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "tf-test-my-app%{random_suffix}"
+    app_id       = "tf-test-app-id%{random_suffix}"
+    time_zone_settings {
+        time_zone = "America/Los_Angeles"
+    }
+}
+resource "google_ces_app_version" "my-app-version" {
+    location       = "us"
+    display_name   = "tf-test-my-app-version%{random_suffix}"
+    app            = google_ces_app.my-app.name
+    app_version_id = "tf-test-app-version-id%{random_suffix}"
+    description    = "example-app-version"
+}
+resource "google_ces_deployment" "my-deployment" {
+    location     = "us"
+    display_name = "tf-test-my-deployment%{random_suffix}"
+    app          = google_ces_app.my-app.name
+    app_version  = google_ces_app_version.my-app-version.id
+    channel_profile {
+        channel_type = "API"
+        disable_barge_in_control = true
+        disable_dtmf = true
+        persona_property {
+            persona = "CHATTY"
+        }
+        profile_id = "temp_profile_id"
+        web_widget_config {
+            modality = "CHAT_AND_VOICE"
+            theme = "DARK"
+            web_widget_title = "temp_webwidget_title"
+        }
+    }
+    instagram_credentials {
+        auth_code_wo = "test-auth-code"
+        auth_code_wo_version = "1"
+        conversation_profile_id = "test-conversation-profile-id"
+    }
+}
+`, context)
+}
+
+func testAccCESDeployment_whatsappCredentialsWriteOnly(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "tf-test-my-app%{random_suffix}"
+    app_id       = "tf-test-app-id%{random_suffix}"
+    time_zone_settings {
+        time_zone = "America/Los_Angeles"
+    }
+}
+resource "google_ces_app_version" "my-app-version" {
+    location       = "us"
+    display_name   = "tf-test-my-app-version%{random_suffix}"
+    app            = google_ces_app.my-app.name
+    app_version_id = "tf-test-app-version-id%{random_suffix}"
+    description    = "example-app-version"
+}
+resource "google_ces_deployment" "my-deployment" {
+    location     = "us"
+    display_name = "tf-test-my-deployment%{random_suffix}"
+    app          = google_ces_app.my-app.name
+    app_version  = google_ces_app_version.my-app-version.id
+    channel_profile {
+        channel_type = "API"
+        disable_barge_in_control = true
+        disable_dtmf = true
+        persona_property {
+            persona = "CHATTY"
+        }
+        profile_id = "temp_profile_id"
+        web_widget_config {
+            modality = "CHAT_AND_VOICE"
+            theme = "DARK"
+            web_widget_title = "temp_webwidget_title"
+        }
+    }
+    whatsapp_credentials {
+        auth_code_wo = "test-auth-code"
+        auth_code_wo_version = "1"
+        business_account_id = "test-business-id"
+        conversation_profile_id = "test-conversation-profile-id"
+        phone_number = "+15551234567"
+        pin_wo = "123456"
+        pin_wo_version = "1"
+        waba_id = "test-waba-id"
+    }
+}
+`, context)
+}

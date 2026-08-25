@@ -25,6 +25,13 @@ Description
 
 
 
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `instagram_credentials.auth_code`, `whatsapp_credentials.auth_code`, `whatsapp_credentials.pin`.
+[Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
+
+~> **Note:**  All arguments marked as write-only values will not be stored in the state: `instagram_credentials.auth_code_wo`, `whatsapp_credentials.auth_code_wo`, `whatsapp_credentials.pin_wo`.
+[Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_deployment_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -152,6 +159,16 @@ The following arguments are supported:
   Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
 
 
+* `instagram_credentials` -
+  (Optional)
+  Ephemeral Meta credentials required when configuring an Instagram channel profile.
+  Structure is [documented below](#nested_instagram_credentials).
+
+* `whatsapp_credentials` -
+  (Optional)
+  Ephemeral Meta credentials required when configuring a WhatsApp channel profile.
+  Structure is [documented below](#nested_whatsapp_credentials).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -261,6 +278,78 @@ The following arguments are supported:
 * `enable_recaptcha` -
   (Optional)
   Indicates whether reCAPTCHA verification for the web widget is enabled.
+
+<a name="nested_instagram_credentials"></a>The `instagram_credentials` block supports:
+
+* `auth_code` -
+  (Optional)
+  The Meta auth code provided by the embedded signup flow.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `conversation_profile_id` -
+  (Optional)
+  The Conversation Profile ID to use for the deployment.
+
+* `auth_code_wo` -
+  (Optional, Write-Only)
+  The Meta auth code provided by the embedded signup flow.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `auth_code` or `auth_code_wo` can only be set.
+
+* `auth_code_wo_version` -
+  (Optional)
+  Triggers update of `auth_code_wo` write-only. Increment this value when an update to `auth_code_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+
+<a name="nested_whatsapp_credentials"></a>The `whatsapp_credentials` block supports:
+
+* `auth_code` -
+  (Optional)
+  The Meta auth code provided by the embedded signup flow.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `business_account_id` -
+  (Required)
+  The Business Account ID to use for the phone number.
+
+* `conversation_profile_id` -
+  (Optional)
+  The Conversation Profile ID to use for the deployment.
+
+* `phone_number` -
+  (Required)
+  The phone number to register with WhatsApp.
+
+* `pin` -
+  (Optional)
+  The 6-digit PIN created by the user for two-step verification.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `waba_id` -
+  (Required)
+  The WhatsApp Business Account ID.
+
+* `auth_code_wo` -
+  (Optional, Write-Only)
+  The Meta auth code provided by the embedded signup flow.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `auth_code` or `auth_code_wo` can only be set.
+
+* `auth_code_wo_version` -
+  (Optional)
+  Triggers update of `auth_code_wo` write-only. Increment this value when an update to `auth_code_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+
+* `pin_wo` -
+  (Optional, Write-Only)
+  The 6-digit PIN created by the user for two-step verification.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `pin` or `pin_wo` can only be set.
+
+* `pin_wo_version` -
+  (Optional)
+  Triggers update of `pin_wo` write-only. Increment this value when an update to `pin_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 ## Attributes Reference
 
