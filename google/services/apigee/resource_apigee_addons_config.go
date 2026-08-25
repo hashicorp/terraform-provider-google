@@ -357,6 +357,18 @@ func resourceApigeeAddonsConfigRead(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Finished reading ApigeeAddonsConfig %q: %#v", d.Id(), res)
 
+	res, err = resourceApigeeAddonsConfigDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing ApigeeAddonsConfig because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
@@ -886,6 +898,18 @@ func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigEnabled(v inter
 
 func expandApigeeAddonsConfigAddonsConfigConnectorsPlatformConfigExpiresAt(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceApigeeAddonsConfigDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// The list response returns organization objects where the org name is in "organization".
+	// Extract the org name and set it on the resource data so the
+	// identity and id can be constructed correctly.
+	if orgName, ok := res["organization"].(string); ok && orgName != "" {
+		if err := d.Set("org", orgName); err != nil {
+			return nil, fmt.Errorf("error setting org from list response: %w", err)
+		}
+	}
+	return res, nil
 }
 
 func ResourceApigeeAddonsConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
