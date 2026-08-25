@@ -58,6 +58,12 @@ The following arguments are supported:
 
 
 
+* `gateway_configs` -
+  (Optional)
+  Configurations for gateways. The keys are user-defined names for each gateway.
+  At most 5 gateway configurations are allowed.
+  Structure is [documented below](#nested_gateway_configs).
+
 * `region` -
   (Optional)
   The region of the SemanticGovernancePolicyEngine, e.g. 'us-central1'.
@@ -72,6 +78,54 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
+
+<a name="nested_gateway_configs"></a>The `gateway_configs` block supports:
+
+* `name` - (Required) The identifier for this object. Format specified above.
+
+* `network` -
+  (Optional)
+  The URI of the network resource where PSC-E will be provisioned. If not
+  provided 'default' network will be used. Format:
+  projects/{project}/global/networks/{network}
+
+* `subnetwork` -
+  (Optional)
+  The URI of the subnetwork resource where PSC-E will be provisioned. If
+  not provided 'default' subnet will be used from the same {location}
+  Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}
+
+* `dns_zone_name` -
+  (Optional)
+  FQDN of the private DNS zone to create DNS record set for PSC endpoint.
+
+* `allowed_projects` -
+  (Optional)
+  Additional consumer projects permitted to attach their own PSC endpoint
+  to this gateway's ServiceAttachment. This is the "decoupled" mode, where
+  the customer creates the PSC endpoint in a project other than this
+  gateway's network project. Each listed project is VPC-SC enforced: it
+  must be within the caller's service perimeter. The owning
+  SemanticGovernancePolicyEngine's own project is always permitted
+  implicitly and need not be listed. Format: projects/{project} (ID or number).
+
+* `state` -
+  (Output)
+  The state of the Gateway configuration. One of: STATE_UNSPECIFIED,
+  PROVISIONING, ACTIVE, DEPROVISIONING, INACTIVE, FAILED.
+
+* `ip_address` -
+  (Output)
+  The private IP address of the PSC endpoint.
+
+* `psc_endpoint` -
+  (Output)
+  The self-link or name of the Private Service Connect endpoint forwarding
+  rule.
+
+* `dns_record` -
+  (Output)
+  The fully qualified record name of the created A-record in Cloud DNS.
 
 ## Attributes Reference
 
