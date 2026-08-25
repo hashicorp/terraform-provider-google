@@ -85,6 +85,12 @@ fields:
     - api_field: snapshot.app.defaultChannelProfile.webWidgetConfig.modality
     - api_field: snapshot.app.defaultChannelProfile.webWidgetConfig.theme
     - api_field: snapshot.app.defaultChannelProfile.webWidgetConfig.webWidgetTitle
+    - api_field: snapshot.app.defaultChannelProfile.whatsappConfig.description
+    - api_field: snapshot.app.defaultChannelProfile.whatsappConfig.displayName
+    - api_field: snapshot.app.defaultChannelProfile.whatsappConfig.phoneNumber
+    - api_field: snapshot.app.defaultChannelProfile.whatsappConfig.phoneNumberId
+    - api_field: snapshot.app.defaultChannelProfile.whatsappConfig.thumbnailUrl
+    - api_field: snapshot.app.defaultChannelProfile.whatsappConfig.wabaId
     - api_field: snapshot.app.deploymentCount
     - api_field: snapshot.app.description
     - api_field: snapshot.app.displayName

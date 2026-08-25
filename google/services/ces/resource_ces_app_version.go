@@ -832,6 +832,45 @@ DARK`,
 														},
 													},
 												},
+												"whatsapp_config": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `Configuration specific to WhatsApp deployments.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"description": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The description of the Meta business page or profile.`,
+															},
+															"display_name": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The fetched Meta business page name.`,
+															},
+															"phone_number": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The phone number in E.164 format.`,
+															},
+															"phone_number_id": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The Meta phone number ID.`,
+															},
+															"thumbnail_url": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The fetched Meta business profile thumbnail URL.`,
+															},
+															"waba_id": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: `The WhatsApp Business Account ID.`,
+															},
+														},
+													},
+												},
 											},
 										},
 									},
@@ -4259,6 +4298,8 @@ func flattenCESAppVersionSnapshotAppDefaultChannelProfile(v interface{}, d *sche
 		flattenCESAppVersionSnapshotAppDefaultChannelProfileProfileId(original["profileId"], d, config)
 	transformed["web_widget_config"] =
 		flattenCESAppVersionSnapshotAppDefaultChannelProfileWebWidgetConfig(original["webWidgetConfig"], d, config)
+	transformed["whatsapp_config"] =
+		flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfig(original["whatsappConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAppVersionSnapshotAppDefaultChannelProfileChannelType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4320,6 +4361,53 @@ func flattenCESAppVersionSnapshotAppDefaultChannelProfileWebWidgetConfigTheme(v 
 }
 
 func flattenCESAppVersionSnapshotAppDefaultChannelProfileWebWidgetConfigWebWidgetTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["waba_id"] =
+		flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigWabaId(original["wabaId"], d, config)
+	transformed["phone_number_id"] =
+		flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigPhoneNumberId(original["phoneNumberId"], d, config)
+	transformed["phone_number"] =
+		flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigPhoneNumber(original["phoneNumber"], d, config)
+	transformed["display_name"] =
+		flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigDisplayName(original["displayName"], d, config)
+	transformed["thumbnail_url"] =
+		flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigThumbnailUrl(original["thumbnailUrl"], d, config)
+	transformed["description"] =
+		flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigDescription(original["description"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigWabaId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigPhoneNumberId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigPhoneNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigThumbnailUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppDefaultChannelProfileWhatsappConfigDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

@@ -660,6 +660,11 @@ The following arguments are supported:
   Message for configuration for the web widget.
   Structure is [documented below](#nested_default_channel_profile_web_widget_config).
 
+* `whatsapp_config` -
+  (Optional)
+  Configuration specific to WhatsApp deployments.
+  Structure is [documented below](#nested_default_channel_profile_whatsapp_config).
+
 
 <a name="nested_default_channel_profile_persona_property"></a>The `persona_property` block supports:
 
@@ -693,6 +698,32 @@ The following arguments are supported:
 * `web_widget_title` -
   (Optional)
   The title of the web widget.
+
+<a name="nested_default_channel_profile_whatsapp_config"></a>The `whatsapp_config` block supports:
+
+* `waba_id` -
+  (Required)
+  The WhatsApp Business Account ID.
+
+* `phone_number_id` -
+  (Required)
+  The Meta phone number ID.
+
+* `phone_number` -
+  (Optional)
+  The phone number in E.164 format.
+
+* `display_name` -
+  (Output)
+  The fetched Meta business page name.
+
+* `thumbnail_url` -
+  (Output)
+  The fetched Meta business profile thumbnail URL.
+
+* `description` -
+  (Output)
+  The description of the Meta business page or profile.
 
 <a name="nested_evaluation_metrics_thresholds"></a>The `evaluation_metrics_thresholds` block supports:
 

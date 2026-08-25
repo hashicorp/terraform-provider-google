@@ -36,6 +36,12 @@ fields:
     - api_field: defaultChannelProfile.webWidgetConfig.modality
     - api_field: defaultChannelProfile.webWidgetConfig.theme
     - api_field: defaultChannelProfile.webWidgetConfig.webWidgetTitle
+    - api_field: defaultChannelProfile.whatsappConfig.description
+    - api_field: defaultChannelProfile.whatsappConfig.displayName
+    - api_field: defaultChannelProfile.whatsappConfig.phoneNumber
+    - api_field: defaultChannelProfile.whatsappConfig.phoneNumberId
+    - api_field: defaultChannelProfile.whatsappConfig.thumbnailUrl
+    - api_field: defaultChannelProfile.whatsappConfig.wabaId
     - api_field: deploymentCount
     - api_field: description
     - api_field: displayName
