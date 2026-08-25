@@ -541,6 +541,11 @@ In addition to the arguments listed above, the following computed attributes are
   VPC-SC settings for the app.
   Structure is [documented below](#nested_snapshot_app_vpc_sc_settings).
 
+* `error_handling_settings` -
+  (Output)
+  Settings to describe how errors should be handled in the app.
+  Structure is [documented below](#nested_snapshot_app_error_handling_settings).
+
 
 <a name="nested_snapshot_app_audio_processing_config"></a>The `audio_processing_config` block contains:
 
@@ -1082,6 +1087,48 @@ In addition to the arguments listed above, the following computed attributes are
   must match the origin exactly, including the port if specified. For
   example, "https://example.com" or "https://example.com:443". This list does
   not yet apply to Python tools that may make direct HTTP calls.
+
+<a name="nested_snapshot_app_error_handling_settings"></a>The `error_handling_settings` block contains:
+
+* `error_handling_strategy` -
+  (Output)
+  The strategy to use for error handling.
+  Possible values:
+  NONE
+  FALLBACK_RESPONSE
+  END_SESSION
+
+* `fallback_response_config` -
+  (Output)
+  Configuration for handling fallback responses.
+  Structure is [documented below](#nested_snapshot_app_error_handling_settings_fallback_response_config).
+
+* `end_session_config` -
+  (Output)
+  Configuration for ending the session in case of system errors (e.g. LLM
+  errors).
+  Structure is [documented below](#nested_snapshot_app_error_handling_settings_end_session_config).
+
+
+<a name="nested_snapshot_app_error_handling_settings_fallback_response_config"></a>The `fallback_response_config` block contains:
+
+* `custom_fallback_messages` -
+  (Output)
+  The fallback messages in case of system errors (e.g. LLM errors),
+  mapped by supported language code
+  (https://docs.cloud.google.com/customer-engagement-ai/conversational-agents/ps/reference/language).
+
+* `max_fallback_attempts` -
+  (Output)
+  The maximum number of fallback attempts to make before the agent
+  emitting EndSession Signal.
+
+<a name="nested_snapshot_app_error_handling_settings_end_session_config"></a>The `end_session_config` block contains:
+
+* `escalate_session` -
+  (Output)
+  Whether to escalate the session in EndSession. If session is escalated,
+  metadata in EndSession will contain session_escalated = true.
 
 <a name="nested_snapshot_examples"></a>The `examples` block contains:
 

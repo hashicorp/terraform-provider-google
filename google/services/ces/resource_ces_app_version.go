@@ -889,6 +889,63 @@ DARK`,
 										Computed:    true,
 										Description: `Display name of the app.`,
 									},
+									"error_handling_settings": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Settings to describe how errors should be handled in the app.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"end_session_config": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Description: `Configuration for ending the session in case of system errors (e.g. LLM
+errors).`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"escalate_session": {
+																Type:     schema.TypeBool,
+																Computed: true,
+																Description: `Whether to escalate the session in EndSession. If session is escalated,
+metadata in EndSession will contain session_escalated = true.`,
+															},
+														},
+													},
+												},
+												"error_handling_strategy": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The strategy to use for error handling.
+Possible values:
+NONE
+FALLBACK_RESPONSE
+END_SESSION`,
+												},
+												"fallback_response_config": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `Configuration for handling fallback responses.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"custom_fallback_messages": {
+																Type:     schema.TypeMap,
+																Computed: true,
+																Description: `The fallback messages in case of system errors (e.g. LLM errors),
+mapped by supported language code
+(https://docs.cloud.google.com/customer-engagement-ai/conversational-agents/ps/reference/language).`,
+																Elem: &schema.Schema{Type: schema.TypeString},
+															},
+															"max_fallback_attempts": {
+																Type:     schema.TypeInt,
+																Computed: true,
+																Description: `The maximum number of fallback attempts to make before the agent
+emitting EndSession Signal.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"etag": {
 										Type:     schema.TypeString,
 										Computed: true,
@@ -4137,6 +4194,8 @@ func flattenCESAppVersionSnapshotApp(v interface{}, d *schema.ResourceData, conf
 		flattenCESAppVersionSnapshotAppClientCertificateSettings(original["clientCertificateSettings"], d, config)
 	transformed["vpc_sc_settings"] =
 		flattenCESAppVersionSnapshotAppVpcScSettings(original["vpcScSettings"], d, config)
+	transformed["error_handling_settings"] =
+		flattenCESAppVersionSnapshotAppErrorHandlingSettings(original["errorHandlingSettings"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAppVersionSnapshotAppAudioProcessingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4980,6 +5039,77 @@ func flattenCESAppVersionSnapshotAppVpcScSettings(v interface{}, d *schema.Resou
 	return []interface{}{transformed}
 }
 func flattenCESAppVersionSnapshotAppVpcScSettingsAllowedOrigins(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppErrorHandlingSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["error_handling_strategy"] =
+		flattenCESAppVersionSnapshotAppErrorHandlingSettingsErrorHandlingStrategy(original["errorHandlingStrategy"], d, config)
+	transformed["fallback_response_config"] =
+		flattenCESAppVersionSnapshotAppErrorHandlingSettingsFallbackResponseConfig(original["fallbackResponseConfig"], d, config)
+	transformed["end_session_config"] =
+		flattenCESAppVersionSnapshotAppErrorHandlingSettingsEndSessionConfig(original["endSessionConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAppErrorHandlingSettingsErrorHandlingStrategy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppErrorHandlingSettingsFallbackResponseConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["custom_fallback_messages"] =
+		flattenCESAppVersionSnapshotAppErrorHandlingSettingsFallbackResponseConfigCustomFallbackMessages(original["customFallbackMessages"], d, config)
+	transformed["max_fallback_attempts"] =
+		flattenCESAppVersionSnapshotAppErrorHandlingSettingsFallbackResponseConfigMaxFallbackAttempts(original["maxFallbackAttempts"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAppErrorHandlingSettingsFallbackResponseConfigCustomFallbackMessages(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppErrorHandlingSettingsFallbackResponseConfigMaxFallbackAttempts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenCESAppVersionSnapshotAppErrorHandlingSettingsEndSessionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["escalate_session"] =
+		flattenCESAppVersionSnapshotAppErrorHandlingSettingsEndSessionConfigEscalateSession(original["escalateSession"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAppErrorHandlingSettingsEndSessionConfigEscalateSession(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

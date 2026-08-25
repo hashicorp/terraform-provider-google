@@ -256,6 +256,19 @@ resource "google_ces_app" "ces_app_basic" {
     allowed_origins = ["https://example.com"]
   }
 
+  error_handling_settings {
+    error_handling_strategy = "FALLBACK_RESPONSE"
+    fallback_response_config {
+      custom_fallback_messages = {
+        "en-US" = "An error occurred, please try again."
+      }
+      max_fallback_attempts = 3
+    }
+    end_session_config {
+      escalate_session = true
+    }
+  }
+
   # Root agent should not be specified when creating an app
 }
 `, context)
@@ -454,6 +467,20 @@ resource "google_ces_app" "ces_app_basic" {
 
   vpc_sc_settings {
     allowed_origins = ["https://example.com", "https://example.org:443"]
+  }
+
+  error_handling_settings {
+    error_handling_strategy = "END_SESSION"
+    fallback_response_config {
+      custom_fallback_messages = {
+        "en-US" = "Sorry, something went wrong."
+        "es-ES" = "Lo siento, algo salió mal."
+      }
+      max_fallback_attempts = 5
+    }
+    end_session_config {
+      escalate_session = false
+    }
   }
 
   # Root agent should not be specified when creating an app
