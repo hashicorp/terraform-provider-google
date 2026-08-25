@@ -536,6 +536,11 @@ In addition to the arguments listed above, the following computed attributes are
   The default client certificate settings for the app.
   Structure is [documented below](#nested_snapshot_app_client_certificate_settings).
 
+* `vpc_sc_settings` -
+  (Output)
+  VPC-SC settings for the app.
+  Structure is [documented below](#nested_snapshot_app_vpc_sc_settings).
+
 
 <a name="nested_snapshot_app_audio_processing_config"></a>The `audio_processing_config` block contains:
 
@@ -1031,6 +1036,16 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The passphrase to decrypt the private key.
   Should be left unset if the private key is not encrypted.
+
+<a name="nested_snapshot_app_vpc_sc_settings"></a>The `vpc_sc_settings` block contains:
+
+* `allowed_origins` -
+  (Output)
+  The allowed HTTP(s) origins that OpenAPI tools in the App are
+  able to directly call when VPC Service Controls are enabled. These strings
+  must match the origin exactly, including the port if specified. For
+  example, "https://example.com" or "https://example.com:443". This list does
+  not yet apply to Python tools that may make direct HTTP calls.
 
 <a name="nested_snapshot_examples"></a>The `examples` block contains:
 

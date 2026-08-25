@@ -218,6 +218,10 @@ variable_declarations {
     private_key = google_secret_manager_secret_version.fake_secret_version.name
   }
 
+  vpc_sc_settings {
+    allowed_origins = ["https://example.com"]
+  }
+
   # Root agent should not be specified when creating an app
 }
 ```
@@ -493,6 +497,11 @@ The following arguments are supported:
   (Optional)
   The default client certificate settings for the app.
   Structure is [documented below](#nested_client_certificate_settings).
+
+* `vpc_sc_settings` -
+  (Optional)
+  VPC-SC settings for the app.
+  Structure is [documented below](#nested_vpc_sc_settings).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -1003,6 +1012,16 @@ The following arguments are supported:
   (Optional)
   The passphrase to decrypt the private key.
   Should be left unset if the private key is not encrypted.
+
+<a name="nested_vpc_sc_settings"></a>The `vpc_sc_settings` block supports:
+
+* `allowed_origins` -
+  (Optional)
+  The allowed HTTP(s) origins that OpenAPI tools in the App are
+  able to directly call when VPC Service Controls are enabled. These strings
+  must match the origin exactly, including the port if specified. For
+  example, "https://example.com" or "https://example.com:443". This list does
+  not yet apply to Python tools that may make direct HTTP calls.
 
 ## Attributes Reference
 

@@ -905,6 +905,28 @@ https://json-schema.org/understanding-json-schema/structuring.`,
 					},
 				},
 			},
+			"vpc_sc_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `VPC-SC settings for the app.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allowed_origins": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The allowed HTTP(s) origins that OpenAPI tools in the App are
+able to directly call when VPC Service Controls are enabled. These strings
+must match the origin exactly, including the port if specified. For
+example, "https://example.com" or "https://example.com:443". This list does
+not yet apply to Python tools that may make direct HTTP calls.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1071,6 +1093,12 @@ func resourceCESAppCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("client_certificate_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(clientCertificateSettingsProp)) && (ok || !reflect.DeepEqual(v, clientCertificateSettingsProp)) {
 		obj["clientCertificateSettings"] = clientCertificateSettingsProp
+	}
+	vpcScSettingsProp, err := expandCESAppVpcScSettings(d.Get("vpc_sc_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("vpc_sc_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(vpcScSettingsProp)) && (ok || !reflect.DeepEqual(v, vpcScSettingsProp)) {
+		obj["vpcScSettings"] = vpcScSettingsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/apps/{{app_id}}")
@@ -1417,6 +1445,12 @@ func resourceCESAppUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("client_certificate_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clientCertificateSettingsProp)) {
 		obj["clientCertificateSettings"] = clientCertificateSettingsProp
 	}
+	vpcScSettingsProp, err := expandCESAppVpcScSettings(d.Get("vpc_sc_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("vpc_sc_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, vpcScSettingsProp)) {
+		obj["vpcScSettings"] = vpcScSettingsProp
+	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/apps/{{app_id}}")
 	if err != nil {
@@ -1504,6 +1538,10 @@ func resourceCESAppUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("client_certificate_settings") {
 		updateMask = append(updateMask, "clientCertificateSettings")
+	}
+
+	if d.HasChange("vpc_sc_settings") {
+		updateMask = append(updateMask, "vpcScSettings")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -2421,6 +2459,23 @@ func flattenCESAppClientCertificateSettingsPrivateKey(v interface{}, d *schema.R
 }
 
 func flattenCESAppClientCertificateSettingsPassphrase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVpcScSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["allowed_origins"] =
+		flattenCESAppVpcScSettingsAllowedOrigins(original["allowedOrigins"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVpcScSettingsAllowedOrigins(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3635,6 +3690,32 @@ func expandCESAppClientCertificateSettingsPassphrase(v interface{}, d tpgresourc
 	return v, nil
 }
 
+func expandCESAppVpcScSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAllowedOrigins, err := expandCESAppVpcScSettingsAllowedOrigins(original["allowed_origins"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedOrigins); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowedOrigins"] = transformedAllowedOrigins
+	}
+
+	return transformed, nil
+}
+
+func expandCESAppVpcScSettingsAllowedOrigins(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceCESAppFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -3705,6 +3786,9 @@ func ResourceCESAppFlatten(d *schema.ResourceData, meta interface{}, res map[str
 		return fmt.Errorf("Error reading App: %s", err)
 	}
 	if err = d.Set("client_certificate_settings", flattenCESAppClientCertificateSettings(res["clientCertificateSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading App: %s", err)
+	}
+	if err = d.Set("vpc_sc_settings", flattenCESAppVpcScSettings(res["vpcScSettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading App: %s", err)
 	}
 

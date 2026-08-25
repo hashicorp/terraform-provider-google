@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `vpc_sc_settings` field to `google_ces_app` resource
+```
