@@ -5,7 +5,7 @@ generation_type: mmv1
 source_file: products/biglakeiceberg/IcebergTable.yaml
 api_service_name: biglake.googleapis.com
 api_version: v1
-api_resource_type_kind: IcebergTable
+api_resource_type_kind: Table
 fields:
     - field: catalog
       provider_only: true
