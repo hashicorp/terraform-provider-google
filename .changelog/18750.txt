@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `whatsapp_config` field to `google_ces_app` resource
+```
