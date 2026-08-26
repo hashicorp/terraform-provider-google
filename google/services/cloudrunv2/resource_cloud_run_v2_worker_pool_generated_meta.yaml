@@ -78,6 +78,7 @@ fields:
     - api_field: template.containers.livenessProbe.timeoutSeconds
     - api_field: template.containers.name
     - api_field: template.containers.resources.limits
+    - api_field: template.containers.sandboxLauncher
     - api_field: template.containers.startupProbe.failureThreshold
     - api_field: template.containers.startupProbe.grpc.port
     - api_field: template.containers.startupProbe.grpc.service

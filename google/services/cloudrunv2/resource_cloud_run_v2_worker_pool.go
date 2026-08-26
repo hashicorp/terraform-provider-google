@@ -358,6 +358,11 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 											},
 										},
 									},
+									"sandbox_launcher": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Indicates that this container can act as a sandbox supervisor and launch sandboxes.`,
+									},
 									"startup_probe": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -2014,17 +2019,18 @@ func flattenCloudRunV2WorkerPoolTemplateContainers(v interface{}, d *schema.Reso
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":           flattenCloudRunV2WorkerPoolTemplateContainersName(original["name"], d, config),
-			"image":          flattenCloudRunV2WorkerPoolTemplateContainersImage(original["image"], d, config),
-			"command":        flattenCloudRunV2WorkerPoolTemplateContainersCommand(original["command"], d, config),
-			"args":           flattenCloudRunV2WorkerPoolTemplateContainersArgs(original["args"], d, config),
-			"depends_on":     flattenCloudRunV2WorkerPoolTemplateContainersDependsOn(original["dependsOn"], d, config),
-			"env":            flattenCloudRunV2WorkerPoolTemplateContainersEnv(original["env"], d, config),
-			"resources":      flattenCloudRunV2WorkerPoolTemplateContainersResources(original["resources"], d, config),
-			"volume_mounts":  flattenCloudRunV2WorkerPoolTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
-			"working_dir":    flattenCloudRunV2WorkerPoolTemplateContainersWorkingDir(original["workingDir"], d, config),
-			"liveness_probe": flattenCloudRunV2WorkerPoolTemplateContainersLivenessProbe(original["livenessProbe"], d, config),
-			"startup_probe":  flattenCloudRunV2WorkerPoolTemplateContainersStartupProbe(original["startupProbe"], d, config),
+			"name":             flattenCloudRunV2WorkerPoolTemplateContainersName(original["name"], d, config),
+			"image":            flattenCloudRunV2WorkerPoolTemplateContainersImage(original["image"], d, config),
+			"command":          flattenCloudRunV2WorkerPoolTemplateContainersCommand(original["command"], d, config),
+			"args":             flattenCloudRunV2WorkerPoolTemplateContainersArgs(original["args"], d, config),
+			"depends_on":       flattenCloudRunV2WorkerPoolTemplateContainersDependsOn(original["dependsOn"], d, config),
+			"env":              flattenCloudRunV2WorkerPoolTemplateContainersEnv(original["env"], d, config),
+			"resources":        flattenCloudRunV2WorkerPoolTemplateContainersResources(original["resources"], d, config),
+			"sandbox_launcher": flattenCloudRunV2WorkerPoolTemplateContainersSandboxLauncher(original["sandboxLauncher"], d, config),
+			"volume_mounts":    flattenCloudRunV2WorkerPoolTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
+			"working_dir":      flattenCloudRunV2WorkerPoolTemplateContainersWorkingDir(original["workingDir"], d, config),
+			"liveness_probe":   flattenCloudRunV2WorkerPoolTemplateContainersLivenessProbe(original["livenessProbe"], d, config),
+			"startup_probe":    flattenCloudRunV2WorkerPoolTemplateContainersStartupProbe(original["startupProbe"], d, config),
 		})
 	}
 	return transformed
@@ -2128,6 +2134,10 @@ func flattenCloudRunV2WorkerPoolTemplateContainersResources(v interface{}, d *sc
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2WorkerPoolTemplateContainersResourcesLimits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2WorkerPoolTemplateContainersSandboxLauncher(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3551,6 +3561,13 @@ func expandCloudRunV2WorkerPoolTemplateContainers(v interface{}, d tpgresource.T
 			transformed["resources"] = transformedResources
 		}
 
+		transformedSandboxLauncher, err := expandCloudRunV2WorkerPoolTemplateContainersSandboxLauncher(original["sandbox_launcher"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSandboxLauncher); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sandboxLauncher"] = transformedSandboxLauncher
+		}
+
 		transformedVolumeMounts, err := expandCloudRunV2WorkerPoolTemplateContainersVolumeMounts(original["volume_mounts"], d, config)
 		if err != nil {
 			return nil, err
@@ -3742,6 +3759,10 @@ func expandCloudRunV2WorkerPoolTemplateContainersResourcesLimits(v interface{}, 
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandCloudRunV2WorkerPoolTemplateContainersSandboxLauncher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCloudRunV2WorkerPoolTemplateContainersVolumeMounts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

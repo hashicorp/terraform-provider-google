@@ -794,6 +794,10 @@ When the field is set to false, deleting the WorkerPool is allowed.
   Compute Resource requirements by this container. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
   Structure is [documented below](#nested_template_containers_resources).
 
+* `sandbox_launcher` -
+  (Optional)
+  Indicates that this container can act as a sandbox supervisor and launch sandboxes.
+
 * `volume_mounts` -
   (Optional)
   Volume to mount into the container's filesystem.
