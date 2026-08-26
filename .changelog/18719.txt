@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `api_authentication` field to `google_ces_tool.remote_agent_tool`
+```
