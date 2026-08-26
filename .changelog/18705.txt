@@ -1,0 +1,3 @@
+```release-note:new-resource
+networkmanagement: added `google_network_management_network_monitoring_provider` resource
+```

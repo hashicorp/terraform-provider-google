@@ -141,6 +141,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkconnectivityv1"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkmanagement"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networkmanagementv1"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkservices"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/observability"

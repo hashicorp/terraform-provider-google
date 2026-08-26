@@ -641,6 +641,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Networkmanagement",
         "path" to "./google/services/networkmanagement"
     ),
+    "networkmanagementv1" to mapOf(
+        "name" to "networkmanagementv1",
+        "displayName" to "Networkmanagementv1",
+        "path" to "./google/services/networkmanagementv1"
+    ),
     "networksecurity" to mapOf(
         "name" to "networksecurity",
         "displayName" to "Networksecurity",
