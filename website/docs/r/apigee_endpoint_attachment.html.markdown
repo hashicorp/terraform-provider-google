@@ -142,9 +142,9 @@ resource "google_apigee_organization" "apigee_org" {
   ]
 }
 
-resource "google_apigee_endpoint_attachment" "apigee_endpoint_attachment"" {
+resource "google_apigee_endpoint_attachment" "apigee_endpoint_attachment" {
   org_id                 = google_apigee_organization.apigee_org.id
-  endpoint_attachment_id = "tf-test%{random_suffix}
+  endpoint_attachment_id = "tf-test%{random_suffix}"
   location               = "us-central1"
   service_attachment     = google_compute_service_attachment.psc_ilb_service_attachment.id
 }
