@@ -149,11 +149,12 @@ func testAccCheckBigtableSchemaBundleDestroyProducer(t *testing.T) func(s *terra
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
+				Config:               config,
+				Method:               "GET",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            config.UserAgent,
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsBigtableTableCreatingOrDeletingError},
 			})
 			if err == nil {
 				return fmt.Errorf("BigtableSchemaBundle still exists at %s", url)

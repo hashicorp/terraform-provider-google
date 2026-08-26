@@ -732,6 +732,14 @@ func Is409SyncMutateCannotBeQueuedError(err error) (bool, string) {
 	return false, ""
 }
 
+// Retry when the Bigtable API instructs us to.
+func IsBigtableTableCreatingOrDeletingError(err error) (bool, string) {
+	if err != nil && strings.Contains(err.Error(), "is either creating or deleting, please try again") {
+		return true, "Parent table is either creating or deleting, retrying"
+	}
+	return false, ""
+}
+
 // Retry on Agent Gateway 400 error when the gateway is still in use by a dependent resource being deleted.
 func IsAgentGatewayInUseError(err error) (bool, string) {
 	if gerr, ok := err.(*googleapi.Error); ok {
