@@ -122,16 +122,55 @@ resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_listing_subscription_pubsub&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Listing Subscription Pubsub
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
+  location         = "US"
+  data_exchange_id = "my_data_exchange"
+  display_name     = "my_data_exchange"
+  description      = "example pubsub listing subscription"
+}
+
+resource "google_pubsub_topic" "subscription" {
+  name = "my_pubsub_topic"
+}
+
+resource "google_bigquery_analytics_hub_listing" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = "my_listing"
+  display_name     = "my_listing"
+  description      = "example pubsub listing subscription"
+
+  pubsub_topic {
+    topic = google_pubsub_topic.subscription.id
+  }
+}
+
+resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = google_bigquery_analytics_hub_listing.subscription.listing_id
+
+  destination_pubsub_subscription {
+    pubsub_subscription {
+      name = "projects/${google_pubsub_topic.subscription.project}/subscriptions/my_pubsub_subscription"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-
-* `destination_dataset` -
-  (Required)
-  The destination dataset for this subscription.
-  Structure is [documented below](#nested_destination_dataset).
 
 * `data_exchange_id` -
   (Required)
@@ -145,6 +184,16 @@ The following arguments are supported:
   (Required)
   The name of the location of the data exchange. Distinct from the location of the destination data set.
 
+
+* `destination_dataset` -
+  (Optional)
+  The destination dataset for this subscription.
+  Structure is [documented below](#nested_destination_dataset).
+
+* `destination_pubsub_subscription` -
+  (Optional)
+  Destination Pub/Sub subscription to create for the subscriber.
+  Structure is [documented below](#nested_destination_pubsub_subscription).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -196,6 +245,325 @@ The following arguments are supported:
 * `project_id` -
   (Required)
   The ID of the project containing this dataset.
+
+<a name="nested_destination_pubsub_subscription"></a>The `destination_pubsub_subscription` block supports:
+
+* `pubsub_subscription` -
+  (Required)
+  Destination Pub/Sub subscription resource.
+  Structure is [documented below](#nested_destination_pubsub_subscription_pubsub_subscription).
+
+
+<a name="nested_destination_pubsub_subscription_pubsub_subscription"></a>The `pubsub_subscription` block supports:
+
+* `name` -
+  (Required)
+  Name of the subscription. Format is `projects/{project}/subscriptions/{sub}`.
+
+* `push_config` -
+  (Optional)
+  If push delivery is used with this subscription, this field is used to configure it.
+  Structure is [documented below](#nested_destination_pubsub_subscription_pubsub_subscription_push_config).
+
+* `bigquery_config` -
+  (Optional)
+  If delivery to BigQuery is used with this subscription, this field is used to configure it.
+  Structure is [documented below](#nested_destination_pubsub_subscription_pubsub_subscription_bigquery_config).
+
+* `cloud_storage_config` -
+  (Optional)
+  If delivery to Google Cloud Storage is used with this subscription, this field is used to configure it.
+  Structure is [documented below](#nested_destination_pubsub_subscription_pubsub_subscription_cloud_storage_config).
+
+* `ack_deadline_seconds` -
+  (Optional)
+  The approximate amount of time (on a best-effort basis) Pub/Sub waits for the subscriber to
+  acknowledge receipt before resending the message. In the interval after the message is delivered
+  and before it is acknowledged, it is considered to be outstanding. During that time period, the
+  message will not be redelivered (on a best-effort basis). For pull subscriptions, this value is
+  used as the initial value for the ack deadline. To override this value for a given message, call
+  `ModifyAckDeadline` with the corresponding `ack_id` if using non-streaming pull or send the
+  `ack_id` in a `StreamingModifyAckDeadlineRequest` if using streaming pull. The minimum custom
+  deadline you can specify is 10 seconds. The maximum custom deadline you can specify is 600
+  seconds (10 minutes). If this parameter is 0, a default value of 10 seconds is used. For push
+  delivery, this value is also used to set the request timeout for the call to the push endpoint.
+  If the subscriber never acknowledges the message, the Pub/Sub system will eventually redeliver
+  the message.
+
+* `retain_acked_messages` -
+  (Optional)
+  Indicates whether to retain acknowledged messages. If true, then messages are not expunged from
+  the subscription's backlog, even if they are acknowledged, until they fall out of the
+  `messageRetentionDuration` window. This must be true if you would like to Seek to a timestamp
+  in the past to replay previously-acknowledged messages.
+
+* `message_retention_duration` -
+  (Optional)
+  How long to retain unacknowledged messages in the subscription's backlog, from the moment a
+  message is published. If `retainAckedMessages` is true, then this also configures the retention
+  of acknowledged messages, and thus configures how far back in time a Seek can be done. Defaults
+  to 7 days. Cannot be more than 31 days or less than 10 minutes.
+
+* `labels` -
+  (Optional)
+  See [Creating and managing labels](https://cloud.google.com/pubsub/docs/labels).
+
+* `enable_message_ordering` -
+  (Optional)
+  If true, messages published with the same `ordering_key` in `PubsubMessage`
+  will be delivered to the subscribers in the order in which they are received
+  by the Pub/Sub system. Otherwise, they may be delivered in any order.
+
+* `expiration_policy` -
+  (Optional)
+  A policy that specifies the conditions for this subscription's expiration. A subscription is
+  considered active as long as any connected subscriber is successfully consuming messages from
+  the subscription or is issuing operations on the subscription. If `expirationPolicy` is not
+  set, a default policy with `ttl` of 31 days will be used. The minimum allowed value for
+  `expirationPolicy.ttl` is 1 day. If `expirationPolicy` is set, but `expirationPolicy.ttl`
+  is not set, the subscription never expires.
+  Structure is [documented below](#nested_destination_pubsub_subscription_pubsub_subscription_expiration_policy).
+
+* `dead_letter_policy` -
+  (Optional)
+  A policy that specifies the conditions for dead lettering messages in this subscription. If
+  `deadLetterPolicy` is not set, dead lettering is disabled. The Pub/Sub service account associated
+  with this subscriptions's parent project (i.e.,
+  service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have permission to
+  Acknowledge() messages on this subscription.
+  Structure is [documented below](#nested_destination_pubsub_subscription_pubsub_subscription_dead_letter_policy).
+
+* `retry_policy` -
+  (Optional)
+  A policy that specifies how Pub/Sub retries message delivery for this subscription. If not set,
+  the default retry policy is applied. This generally implies that messages will be retried as soon
+  as possible for healthy subscribers. RetryPolicy will be triggered on NACKs or acknowledgement
+  deadline exceeded events for a given message.
+  Structure is [documented below](#nested_destination_pubsub_subscription_pubsub_subscription_retry_policy).
+
+* `filter` -
+  (Optional)
+  An expression written in the Pub/Sub filter language. If non-empty, then only `PubsubMessage`s
+  whose `attributes` field matches the filter are delivered on this subscription. If empty, then
+  no messages are filtered out.
+
+* `enable_exactly_once_delivery` -
+  (Optional)
+  If true, Pub/Sub provides the following guarantees for the delivery of a message with a given
+  value of `message_id` on this subscription: The message sent to a subscriber is guaranteed not
+  to be resent before the message's acknowledgement deadline expires. An acknowledged message will
+  not be resent to a subscriber. Note that subscribers may still receive multiple copies of a
+  message when `enableExactlyOnceDelivery` is true if the message was published multiple times by
+  a publisher client. These copies are considered distinct by Pub/Sub and have distinct `message_id`
+  values.
+
+* `detached` -
+  (Optional)
+  Indicates whether the subscription is detached from its topic. Detached subscriptions don't
+  receive messages from their topic and don't retain any backlog. `Pull` and `StreamingPull`
+  requests will return FAILED_PRECONDITION. If the subscription is a push subscription, pushes
+  to the endpoint will not be made.
+
+
+<a name="nested_destination_pubsub_subscription_pubsub_subscription_push_config"></a>The `push_config` block supports:
+
+* `push_endpoint` -
+  (Optional)
+  A URL locating the endpoint to which messages should be pushed.
+  For example, a Webhook endpoint might use `https://example.com/push`.
+
+* `attributes` -
+  (Optional)
+  Endpoint configuration attributes that can be used to control different aspects of the message delivery.
+  The only currently supported attribute is `x-goog-version`, which you can use to change the format of the
+  pushed message. This attribute indicates the version of the data expected by the endpoint. This controls
+  the shape of the pushed message (i.e., its fields and metadata). If not present during the
+  `CreateSubscription` call, it will default to the version of the Pub/Sub API used to make such call.
+  If not present in a `ModifyPushConfig` call, its value will not be changed. `GetSubscription` calls
+  will always return a valid version, even if the subscription was created without this attribute.
+  The only supported values for the `x-goog-version` attribute are: `v1beta1`: uses the push format
+  defined in the v1beta1 Pub/Sub API. `v1` or `v1beta2`: uses the push format defined in the v1 Pub/Sub API.
+
+* `oidc_token` -
+  (Optional)
+  If specified, Pub/Sub will generate and attach an OIDC JWT token as an
+  Authorization header in the HTTP request for every pushed message.
+  Structure is [documented below](#nested_destination_pubsub_subscription_pubsub_subscription_push_config_oidc_token).
+
+* `no_wrapper` -
+  (Optional)
+  When set, the payload to the push endpoint is not wrapped.
+  Structure is [documented below](#nested_destination_pubsub_subscription_pubsub_subscription_push_config_no_wrapper).
+
+
+<a name="nested_destination_pubsub_subscription_pubsub_subscription_push_config_oidc_token"></a>The `oidc_token` block supports:
+
+* `service_account_email` -
+  (Optional)
+  Service account email used for generating the OIDC token. For more information
+  on setting up authentication, see Push subscriptions.
+
+* `audience` -
+  (Optional)
+  Audience to be used when generating OIDC token. The audience claim identifies the recipients
+  that the JWT is intended for. The audience value is a single case-sensitive string. Having
+  multiple values (array) for the audience field is not supported. More info about the OIDC JWT
+  token audience here: https://tools.ietf.org/html/rfc7519#section-4.1.3 Note: if not specified,
+  the Push endpoint URL will be used.
+
+<a name="nested_destination_pubsub_subscription_pubsub_subscription_push_config_no_wrapper"></a>The `no_wrapper` block supports:
+
+* `write_metadata` -
+  (Optional)
+  When true, writes the Pub/Sub message metadata to `x-goog-pubsub-<KEY>:<VAL>` headers of the
+  HTTP request. Writes the Pub/Sub message attributes to `<KEY>:<VAL>` headers of the HTTP request.
+
+<a name="nested_destination_pubsub_subscription_pubsub_subscription_bigquery_config"></a>The `bigquery_config` block supports:
+
+* `table` -
+  (Optional)
+  The name of the table to which to write data, of the form
+  {projectId}.{datasetId}.{tableId}
+
+* `use_topic_schema` -
+  (Optional)
+  When true, use the topic's schema as the columns to write to in BigQuery,
+  if it exists. `useTopicSchema` and `useTableSchema` cannot be enabled at the same time.
+
+* `write_metadata` -
+  (Optional)
+  When true, write the subscription name, message_id, publish_time, attributes, and ordering_key
+  to additional columns in the table. The subscription name, message_id, and publish_time fields
+  are put in their own columns while all other message properties (other than data) are written
+  to a JSON object in the attributes column.
+
+* `drop_unknown_fields` -
+  (Optional)
+  When true and `useTopicSchema` is true, any fields that are a part of the topic schema that are
+  not part of the BigQuery table schema are dropped when writing to BigQuery. Otherwise, the schemas
+  must be kept in sync and any messages with extra fields are not written and remain in the
+  subscription's backlog.
+
+* `use_table_schema` -
+  (Optional)
+  When true, use the BigQuery table's schema as the columns to write to in BigQuery.
+  `useTableSchema` and `useTopicSchema` cannot be enabled at the same time.
+
+* `service_account_email` -
+  (Optional)
+  The service account to use to write to BigQuery. The subscription creator or updater that
+  specifies this field must have `iam.serviceAccounts.actAs` permission on the service account.
+  If not specified, the Pub/Sub service agent,
+  service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.
+
+<a name="nested_destination_pubsub_subscription_pubsub_subscription_cloud_storage_config"></a>The `cloud_storage_config` block supports:
+
+* `bucket` -
+  (Optional)
+  User-provided name for the Cloud Storage bucket. The bucket must be created by the user.
+  The bucket name must be without any prefix like "gs://". See the
+  [bucket naming requirements](https://cloud.google.com/storage/docs/buckets#naming).
+
+* `filename_prefix` -
+  (Optional)
+  User-provided prefix for Cloud Storage filename. See the
+  [object naming requirements](https://cloud.google.com/storage/docs/objects#naming).
+
+* `filename_suffix` -
+  (Optional)
+  User-provided suffix for Cloud Storage filename. See the
+  [object naming requirements](https://cloud.google.com/storage/docs/objects#naming).
+  Must not end in "/".
+
+* `filename_datetime_format` -
+  (Optional)
+  User-provided format string specifying how to represent datetimes in Cloud Storage filenames.
+  See the [datetime format guidance](https://cloud.google.com/pubsub/docs/create-cloudstorage-subscription#file_names).
+
+* `max_duration` -
+  (Optional)
+  The maximum duration that can elapse before a new Cloud Storage file is created.
+  Min 1 minute, max 10 minutes, default 5 minutes. May not exceed the subscription's
+  acknowledgement deadline.
+
+* `max_bytes` -
+  (Optional)
+  The maximum bytes that can be written to a Cloud Storage file before a new file is created.
+  Min 1 KB, max 10 GiB. The maxBytes limit may be exceeded in cases where messages are larger
+  than the limit.
+
+* `max_messages` -
+  (Optional)
+  The maximum number of messages that can be written to a Cloud Storage file before a new file
+  is created. Min 1000 messages.
+
+* `service_account_email` -
+  (Optional)
+  The service account to use to write to Cloud Storage. The subscription creator or updater that
+  specifies this field must have `iam.serviceAccounts.actAs` permission on the service account.
+  If not specified, the Pub/Sub service agent,
+  service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.
+
+* `avro_config` -
+  (Optional)
+  If set, message data will be written to Cloud Storage in Avro format.
+  Structure is [documented below](#nested_destination_pubsub_subscription_pubsub_subscription_cloud_storage_config_avro_config).
+
+
+<a name="nested_destination_pubsub_subscription_pubsub_subscription_cloud_storage_config_avro_config"></a>The `avro_config` block supports:
+
+* `write_metadata` -
+  (Optional)
+  When true, write the subscription name, message_id, publish_time, attributes, and ordering_key
+  as additional fields in the output. The subscription name, message_id, and publish_time fields
+  are put in their own fields while all other message properties other than data (for example,
+  an ordering_key, if present) are added as entries in the attributes map.
+
+* `use_topic_schema` -
+  (Optional)
+  When true, the output Cloud Storage file will be serialized using
+  the topic schema, if it exists.
+
+<a name="nested_destination_pubsub_subscription_pubsub_subscription_expiration_policy"></a>The `expiration_policy` block supports:
+
+* `ttl` -
+  (Optional)
+  Specifies the "time-to-live" duration for an associated resource. The resource expires if it
+  is not active for a period of `ttl`. The definition of "activity" depends on the type of the
+  associated resource. The minimum and maximum allowed values for `ttl` depend on the type of
+  the associated resource, as well. If `ttl` is not set, the associated resource never expires.
+
+<a name="nested_destination_pubsub_subscription_pubsub_subscription_dead_letter_policy"></a>The `dead_letter_policy` block supports:
+
+* `dead_letter_topic` -
+  (Optional)
+  The name of the topic to which dead letter messages should be published. Format is
+  `projects/{project}/topics/{topic}`. The Pub/Sub service account associated with the enclosing
+  subscription's parent project (i.e., service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com)
+  must have permission to Publish() to this topic. The operation will fail if the topic does not exist.
+  Users should ensure that there is a subscription attached to this topic since messages published to
+  a topic with no subscriptions are lost.
+
+* `max_delivery_attempts` -
+  (Optional)
+  The maximum number of delivery attempts for any message. The value must be between 5 and 100.
+  The number of delivery attempts is defined as 1 + (the sum of number of NACKs and number of times
+  the acknowledgement deadline has been exceeded for the message). A NACK is any call to
+  ModifyAckDeadline with a 0 deadline. Note that client libraries may automatically extend
+  ack_deadlines. This field will be honored on a best effort basis. If this parameter is 0, a
+  default value of 5 is used.
+
+<a name="nested_destination_pubsub_subscription_pubsub_subscription_retry_policy"></a>The `retry_policy` block supports:
+
+* `minimum_backoff` -
+  (Optional)
+  The minimum delay between consecutive deliveries of a given message.
+  Value should be between 0 and 600 seconds. Defaults to 10 seconds.
+
+* `maximum_backoff` -
+  (Optional)
+  The maximum delay between consecutive deliveries of a given message.
+  Value should be between 0 and 600 seconds. Defaults to 600 seconds.
 
 ## Attributes Reference
 
@@ -259,6 +627,10 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Output only. Name of the linked dataset, e.g. projects/subscriberproject/datasets/linkedDataset
 
+* `linked_pubsub_subscription` -
+  (Output)
+  Output only. Name of the Pub/Sub subscription, e.g. projects/subscriberproject/subscriptions/sub_id
+
 <a name="nested_linked_resources"></a>The `linked_resources` block contains:
 
 * `listing` -
@@ -268,6 +640,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `linked_dataset` -
   (Output)
   Output only. Name of the linked dataset, e.g. projects/subscriberproject/datasets/linkedDataset
+
+* `linked_pubsub_subscription` -
+  (Output)
+  Output only. Name of the Pub/Sub subscription, e.g. projects/subscriberproject/subscriptions/sub_id
 
 <a name="nested_commercial_info"></a>The `commercial_info` block contains:
 

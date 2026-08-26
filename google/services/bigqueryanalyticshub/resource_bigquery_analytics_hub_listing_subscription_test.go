@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -235,6 +236,83 @@ func TestAccBigqueryAnalyticsHubListingSubscription_multiregion(t *testing.T) {
 	})
 }
 
+func TestAccBigqueryAnalyticsHubListingSubscription_pubsub_linked_resources(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	context := map[string]interface{}{
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryAnalyticsHubListingSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryAnalyticsHubListingSubscription_pubsub_linked_resources(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "state", "STATE_ACTIVE"),
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "resource_type", "PUBSUB_TOPIC"),
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "linked_resources.#", "1"),
+					resource.TestMatchResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "linked_resources.0.linked_pubsub_subscription",
+						regexp.MustCompile(fmt.Sprintf(`projects/\d+/subscriptions/tf_test_sub_%s`, randomSuffix))),
+					resource.TestMatchResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "linked_resources.0.listing",
+						regexp.MustCompile(fmt.Sprintf(`projects/\d+/locations/us/dataExchanges/tf_test_de_%s/listings/tf_test_listing_%s`, randomSuffix, randomSuffix))),
+				),
+			},
+		},
+	})
+}
+
+func TestAccBigqueryAnalyticsHubListingSubscription_pubsub_allFields(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryAnalyticsHubListingSubscriptionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryAnalyticsHubListingSubscription_pubsubAllFieldsPull(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "destination_pubsub_subscription.0.pubsub_subscription.0.ack_deadline_seconds", "20"),
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "destination_pubsub_subscription.0.pubsub_subscription.0.enable_exactly_once_delivery", "true"),
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "destination_pubsub_subscription.0.pubsub_subscription.0.retain_acked_messages", "true"),
+				),
+			},
+			{
+				Config: testAccBigqueryAnalyticsHubListingSubscription_pubsubAllFieldsPush(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "destination_pubsub_subscription.0.pubsub_subscription.0.push_config.0.no_wrapper.0.write_metadata", "true"),
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "destination_pubsub_subscription.0.pubsub_subscription.0.push_config.0.attributes.x-goog-version", "v1"),
+				),
+			},
+			{
+				Config: testAccBigqueryAnalyticsHubListingSubscription_pubsubAllFieldsBigQuery(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "destination_pubsub_subscription.0.pubsub_subscription.0.bigquery_config.0.use_table_schema", "true"),
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "destination_pubsub_subscription.0.pubsub_subscription.0.bigquery_config.0.drop_unknown_fields", "false"),
+				),
+			},
+			{
+				Config: testAccBigqueryAnalyticsHubListingSubscription_pubsubAllFieldsCloudStorage(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "destination_pubsub_subscription.0.pubsub_subscription.0.cloud_storage_config.0.filename_prefix", "pre-"),
+					resource.TestCheckResourceAttr("google_bigquery_analytics_hub_listing_subscription.subscription", "destination_pubsub_subscription.0.pubsub_subscription.0.cloud_storage_config.0.avro_config.0.write_metadata", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccBigqueryAnalyticsHubListingSubscription_stateId(state *terraform.State) (string, error) {
 	resourceName := "google_bigquery_analytics_hub_listing_subscription.subscription"
 	var rawState map[string]string
@@ -284,6 +362,363 @@ resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
       project_id = google_bigquery_dataset.subscription.project
     }
   }
+}
+`, context)
+}
+
+func testAccBigqueryAnalyticsHubListingSubscription_pubsub_linked_resources(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
+  location         = "US"
+  data_exchange_id = "tf_test_de_%{random_suffix}"
+  display_name     = "tf_test_de_%{random_suffix}"
+}
+
+resource "google_pubsub_topic" "subscription" {
+  name = "tf_test_topic_%{random_suffix}"
+}
+
+resource "google_bigquery_analytics_hub_listing" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = "tf_test_listing_%{random_suffix}"
+  display_name     = "tf_test_listing_%{random_suffix}"
+
+  pubsub_topic {
+    topic = google_pubsub_topic.subscription.id
+  }
+}
+
+resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = google_bigquery_analytics_hub_listing.subscription.listing_id
+
+  destination_pubsub_subscription {
+    pubsub_subscription {
+      name = "projects/${google_pubsub_topic.subscription.project}/subscriptions/tf_test_sub_%{random_suffix}"
+    }
+  }
+}
+`, context)
+}
+
+func testAccBigqueryAnalyticsHubListingSubscription_pubsubAllFieldsPull(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
+  location         = "US"
+  data_exchange_id = "tf_test_de_%{random_suffix}"
+  display_name     = "tf_test_de_%{random_suffix}"
+}
+
+resource "google_pubsub_topic" "subscription" {
+  name = "tf_test_topic_%{random_suffix}"
+}
+
+resource "google_pubsub_topic" "dead_letter" {
+  name = "tf_test_dead_letter_%{random_suffix}"
+}
+
+resource "google_pubsub_topic_iam_member" "dead_letter_publisher" {
+  topic  = google_pubsub_topic.dead_letter.name
+  role   = "roles/pubsub.publisher"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_bigquery_analytics_hub_listing" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = "tf_test_listing_%{random_suffix}"
+  display_name     = "tf_test_listing_%{random_suffix}"
+
+  pubsub_topic {
+    topic = google_pubsub_topic.subscription.id
+  }
+}
+
+resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = google_bigquery_analytics_hub_listing.subscription.listing_id
+
+  destination_pubsub_subscription {
+    pubsub_subscription {
+      name = "projects/${google_pubsub_topic.subscription.project}/subscriptions/tf_test_sub_%{random_suffix}"
+      ack_deadline_seconds = 20
+      dead_letter_policy {
+        dead_letter_topic     = google_pubsub_topic.dead_letter.id
+        max_delivery_attempts = 5
+      }
+      detached                     = false
+      enable_exactly_once_delivery = true
+      enable_message_ordering      = true
+      expiration_policy {
+        ttl = "86400s"
+      }
+      filter = "attributes.foo = \"bar\""
+      labels = {
+        foo = "bar"
+      }
+      message_retention_duration = "1200s"
+      retain_acked_messages      = true
+      retry_policy {
+        maximum_backoff = "20s"
+        minimum_backoff = "10s"
+      }
+    }
+  }
+
+  depends_on = [
+    google_pubsub_topic_iam_member.dead_letter_publisher,
+  ]
+}
+`, context)
+}
+
+func testAccBigqueryAnalyticsHubListingSubscription_pubsubAllFieldsPush(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
+  location         = "US"
+  data_exchange_id = "tf_test_de_%{random_suffix}"
+  display_name     = "tf_test_de_%{random_suffix}"
+}
+
+resource "google_pubsub_topic" "subscription" {
+  name = "tf_test_topic_%{random_suffix}"
+}
+
+resource "google_service_account" "push_service_account" {
+  account_id = "tf-test-push-%{random_suffix}"
+}
+
+resource "google_bigquery_analytics_hub_listing" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = "tf_test_listing_%{random_suffix}"
+  display_name     = "tf_test_listing_%{random_suffix}"
+
+  pubsub_topic {
+    topic = google_pubsub_topic.subscription.id
+  }
+}
+
+resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = google_bigquery_analytics_hub_listing.subscription.listing_id
+
+  destination_pubsub_subscription {
+    pubsub_subscription {
+      name = "projects/${google_pubsub_topic.subscription.project}/subscriptions/tf_test_sub_%{random_suffix}"
+      push_config {
+        attributes = {
+          x-goog-version = "v1"
+        }
+        no_wrapper {
+          write_metadata = true
+        }
+        oidc_token {
+          audience              = "https://${data.google_project.project.project_id}.appspot.com/custom"
+          service_account_email = google_service_account.push_service_account.email
+        }
+        push_endpoint = "https://${data.google_project.project.project_id}.appspot.com/push"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccBigqueryAnalyticsHubListingSubscription_pubsubAllFieldsBigQuery(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
+  location         = "US"
+  data_exchange_id = "tf_test_de_%{random_suffix}"
+  display_name     = "tf_test_de_%{random_suffix}"
+}
+
+resource "google_pubsub_topic" "subscription" {
+  name = "tf_test_topic_%{random_suffix}"
+}
+
+resource "time_sleep" "wait_30_seconds" {
+  create_duration = "30s"
+}
+
+resource "google_service_account" "bq_write_service_account" {
+  account_id   = "tf-test-bq-%{random_suffix}"
+  display_name = "BQ Write Service Account"
+}
+
+resource "google_project_iam_member" "bigquery_metadata_viewer" {
+  project = data.google_project.project.project_id
+  role    = "roles/bigquery.metadataViewer"
+  member  = "serviceAccount:${google_service_account.bq_write_service_account.email}"
+}
+
+resource "google_project_iam_member" "bigquery_data_editor" {
+  project = data.google_project.project.project_id
+  role    = "roles/bigquery.dataEditor"
+  member  = "serviceAccount:${google_service_account.bq_write_service_account.email}"
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "tftestdataset%{random_suffix}"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id            = "tf_test_table_%{random_suffix}"
+  dataset_id          = google_bigquery_dataset.test.dataset_id
+
+  schema = <<EOF
+[
+  {
+    "name": "data",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "The data"
+  },
+  {
+    "name": "publish_time",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "attributes",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "subscription_name",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "message_id",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  }
+]
+EOF
+}
+
+resource "google_bigquery_analytics_hub_listing" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = "tf_test_listing_%{random_suffix}"
+  display_name     = "tf_test_listing_%{random_suffix}"
+
+  pubsub_topic {
+    topic = google_pubsub_topic.subscription.id
+  }
+}
+
+resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = google_bigquery_analytics_hub_listing.subscription.listing_id
+
+  destination_pubsub_subscription {
+    pubsub_subscription {
+      name = "projects/${google_pubsub_topic.subscription.project}/subscriptions/tf_test_sub_%{random_suffix}"
+      bigquery_config {
+        drop_unknown_fields   = false
+        service_account_email = google_service_account.bq_write_service_account.email
+        table                 = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
+        use_table_schema      = true
+        use_topic_schema      = false
+        write_metadata        = true
+      }
+    }
+  }
+
+  depends_on = [
+    google_project_iam_member.bigquery_metadata_viewer,
+    google_project_iam_member.bigquery_data_editor,
+    time_sleep.wait_30_seconds,
+  ]
+}
+`, context)
+}
+
+func testAccBigqueryAnalyticsHubListingSubscription_pubsubAllFieldsCloudStorage(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
+  location         = "US"
+  data_exchange_id = "tf_test_de_%{random_suffix}"
+  display_name     = "tf_test_de_%{random_suffix}"
+}
+
+resource "google_pubsub_topic" "subscription" {
+  name = "tf_test_topic_%{random_suffix}"
+}
+
+resource "google_service_account" "storage_write_service_account" {
+  account_id   = "tf-test-gcs-%{random_suffix}"
+  display_name = "Write Service Account"
+}
+
+resource "google_storage_bucket" "test" {
+  name                        = "tf-test-bucket-%{random_suffix}"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_iam_member" "admin" {
+  bucket = google_storage_bucket.test.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.storage_write_service_account.email}"
+}
+
+resource "google_bigquery_analytics_hub_listing" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = "tf_test_listing_%{random_suffix}"
+  display_name     = "tf_test_listing_%{random_suffix}"
+
+  pubsub_topic {
+    topic = google_pubsub_topic.subscription.id
+  }
+}
+
+resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = google_bigquery_analytics_hub_listing.subscription.listing_id
+
+  destination_pubsub_subscription {
+    pubsub_subscription {
+      name = "projects/${google_pubsub_topic.subscription.project}/subscriptions/tf_test_sub_%{random_suffix}"
+      ack_deadline_seconds = 300
+      cloud_storage_config {
+        avro_config {
+          use_topic_schema = false
+          write_metadata   = true
+        }
+        bucket                   = google_storage_bucket.test.name
+        filename_datetime_format = "YYYY-MM-DD/hh_mm_ssZ"
+        filename_prefix          = "pre-"
+        filename_suffix          = "-suffix"
+        max_bytes                = 1024
+        max_duration             = "300s"
+        max_messages             = 1000
+        service_account_email    = google_service_account.storage_write_service_account.email
+      }
+    }
+  }
+
+  depends_on = [
+    google_storage_bucket_iam_member.admin,
+  ]
 }
 `, context)
 }
