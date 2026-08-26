@@ -18,8 +18,10 @@ package transport_test
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -251,6 +253,29 @@ func TestConfigLoadAndValidate_accountFileJSONInvalid(t *testing.T) {
 
 	if config.LoadAndValidate(context.Background()) == nil {
 		t.Fatalf("expected error, but got nil")
+	}
+}
+
+func TestGetCredentials_doesNotLeakCredentialsInError(t *testing.T) {
+	// A service-account key whose "type" is corrupted: still valid JSON, so it
+	// reaches the credential load and fails to parse there. The returned error
+	// surfaces to the terminal and CI logs, so it must not echo the key material.
+	const secret = "MIISECRETKEYMATERIAL_DO_NOT_LEAK"
+	creds := fmt.Sprintf(`{"type":"service_acount","project_id":"my-proj","private_key_id":"abc","private_key":"-----BEGIN PRIVATE KEY-----\n%s\n-----END PRIVATE KEY-----\n","client_email":"sa@my-proj.iam.gserviceaccount.com","token_uri":"https://oauth2.googleapis.com/token"}`, secret)
+
+	config := &transport_tpg.Config{
+		Context:     context.Background(),
+		Credentials: creds,
+		Project:     "my-gce-project",
+		Region:      "us-central1",
+	}
+
+	_, err := config.GetCredentials([]string{testOauthScope}, false)
+	if err == nil {
+		t.Fatalf("expected an error loading invalid credentials, got nil")
+	}
+	if strings.Contains(err.Error(), secret) {
+		t.Fatalf("credentials leaked in error message: %s", err)
 	}
 }
 

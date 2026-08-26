@@ -630,7 +630,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 		if c.UniverseDomain != "" && c.UniverseDomain != "googleapis.com" {
 			creds, err := transport.Creds(c.Context, option.WithCredentialsJSON([]byte(contents)), option.WithScopes(clientScopes...), internaloption.EnableJwtWithScope())
 			if err != nil {
-				return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials from '%s': %s", contents, err)
+				return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials: %s", err)
 			}
 			log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
 			log.Printf("[INFO]   -- Scopes: %s", clientScopes)
@@ -639,7 +639,7 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 		} else {
 			creds, err := transport.Creds(c.Context, option.WithCredentialsJSON([]byte(contents)), option.WithScopes(clientScopes...))
 			if err != nil {
-				return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials from '%s': %s", contents, err)
+				return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials: %s", err)
 			}
 			log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
 			log.Printf("[INFO]   -- Scopes: %s", clientScopes)
