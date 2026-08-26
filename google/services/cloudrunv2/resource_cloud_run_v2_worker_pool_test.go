@@ -55,7 +55,7 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolFullUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_worker_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "launch_stage", "deletion_protection"},
 			},
 		},
 	})
@@ -67,6 +67,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   name     = "tf-test-cloudrun-worker-pool%{random_suffix}"
   description = "description creating"
   location = "us-central1"
+  launch_stage = "BETA"
   annotations = {
     generated-by = "magic-modules"
   }
@@ -89,6 +90,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
     containers {
       name = "container-1"
       image = "us-docker.pkg.dev/cloudrun/container/worker-pool"
+      sandbox_launcher = true
       env {
         name = "SOURCE"
         value = "remote"
@@ -149,6 +151,7 @@ resource "google_cloud_run_v2_worker_pool" "default" {
     containers {
       name = "container-update"
       image = "us-docker.pkg.dev/cloudrun/container/worker-pool"
+      sandbox_launcher = false
       args    = ["arg1", "arg2"]
       command = ["/bin/sh", "-c"]
       env {
