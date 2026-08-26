@@ -29,7 +29,7 @@ Description
 
 Individual tools of type `openApiTool`, `mcpTool`, `connectorTool`, and `remoteAgentTool` **cannot** be created, updated, or managed directly using the `google_ces_tool` resource.
 
-`openApiTool`, `mcpTool`, and `connectorTool` are dynamically generated at runtime based on their corresponding **toolsets** (configured via the `google_ces_toolset` resource). `remoteAgentTool` represents A2A connections configured externally, and `systemTool` represents pre-defined platform tools managed entirely by Google Cloud.
+`openApiTool`, `mcpTool`, and `connectorTool` are dynamically generated at runtime based on their corresponding **toolsets** (configured via the `google_ces_toolset` resource), `remoteAgentTool` represents A2A connections configured externally, and `systemTool` represents pre-defined platform tools managed entirely by Google Cloud.
 
 Consequently, blocks like `open_api_tool`, `mcp_tool`, `connector_tool`, `remote_agent_tool`, and `system_tool` are marked as **read-only (output-only)** in this resource. They are populated by the server for reference purposes only (e.g., after importing an existing tool into your state) and **cannot** be configured in your Terraform HCL configuration.
 
@@ -2057,6 +2057,11 @@ In addition to the arguments listed above, the following computed attributes are
   The agent card of the remote agent that this tool invokes.
   Structure is [documented below](#nested_remote_agent_tool_agent_card).
 
+* `api_authentication` -
+  (Output)
+  Authentication information required for calling the remote agent.
+  Structure is [documented below](#nested_remote_agent_tool_api_authentication).
+
 
 <a name="nested_remote_agent_tool_agent_card"></a>The `agent_card` block contains:
 
@@ -2137,6 +2142,109 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The set of supported output media types for this skill, overriding the agent's
   defaults.
+
+<a name="nested_remote_agent_tool_api_authentication"></a>The `api_authentication` block contains:
+
+* `api_key_config` -
+  (Output)
+  Configurations for authentication with API key.
+  Structure is [documented below](#nested_remote_agent_tool_api_authentication_api_key_config).
+
+* `bearer_token_config` -
+  (Output)
+  Configurations for authentication with a bearer token.
+  Structure is [documented below](#nested_remote_agent_tool_api_authentication_bearer_token_config).
+
+* `oauth_config` -
+  (Output)
+  Configurations for authentication with OAuth.
+  Structure is [documented below](#nested_remote_agent_tool_api_authentication_oauth_config).
+
+* `service_account_auth_config` -
+  (Output)
+  Configurations for authentication using a custom service account.
+  Structure is [documented below](#nested_remote_agent_tool_api_authentication_service_account_auth_config).
+
+* `service_agent_id_token_auth_config` -
+  (Output)
+  Configurations for authentication with [ID
+  token](https://cloud.google.com/docs/authentication/token-types#id) generated
+  from service agent.
+
+
+<a name="nested_remote_agent_tool_api_authentication_api_key_config"></a>The `api_key_config` block contains:
+
+* `api_key_secret_version` -
+  (Output)
+  The name of the SecretManager secret version resource storing the API key.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
+  Note: You should grant `roles/secretmanager.secretAccessor` role to the CES
+  service agent
+  `service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com`.
+
+* `key_name` -
+  (Output)
+  The parameter name or the header name of the API key.
+  E.g., If the API request is "https://example.com/act?X-Api-Key=", "X-Api-Key" would be the parameter name.
+
+* `request_location` -
+  (Output)
+  Key location in the request.
+  Possible values:
+  HEADER
+  QUERY_STRING
+
+<a name="nested_remote_agent_tool_api_authentication_bearer_token_config"></a>The `bearer_token_config` block contains:
+
+* `token` -
+  (Output)
+  The bearer token. Must be in the format $context.variables.<name_of_variable>.
+
+<a name="nested_remote_agent_tool_api_authentication_oauth_config"></a>The `oauth_config` block contains:
+
+* `client_id` -
+  (Output)
+  The client ID from the OAuth provider.
+
+* `client_secret_version` -
+  (Output)
+  The name of the SecretManager secret version resource storing the
+  client secret.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
+  Note: You should grant `roles/secretmanager.secretAccessor` role to the CES
+  service agent
+  `service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com`.
+
+* `oauth_grant_type` -
+  (Output)
+  OAuth grant types.
+  Possible values:
+  CLIENT_CREDENTIAL
+
+* `scopes` -
+  (Output)
+  The OAuth scopes to grant.
+
+* `token_endpoint` -
+  (Output)
+  The token endpoint in the OAuth provider to exchange for an access token.
+
+<a name="nested_remote_agent_tool_api_authentication_service_account_auth_config"></a>The `service_account_auth_config` block contains:
+
+* `service_account` -
+  (Output)
+  The email address of the service account used for authenticatation. CES
+  uses this service account to exchange an access token and the access token
+  is then sent in the `Authorization` header of the request.
+  The service account must have the
+  `roles/iam.serviceAccountTokenCreator` role granted to the
+  CES service agent
+  `service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com`.
+
+* `scopes` -
+  (Output)
+  The OAuth scopes to grant. If not specified, the default scope
+  `https://www.googleapis.com/auth/cloud-platform` is used.
 
 <a name="nested_system_tool"></a>The `system_tool` block contains:
 

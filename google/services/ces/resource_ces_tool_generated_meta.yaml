@@ -200,6 +200,18 @@ fields:
     - api_field: remoteAgentTool.agentCard.supportedInterfaces.tenant
     - api_field: remoteAgentTool.agentCard.supportedInterfaces.url
     - api_field: remoteAgentTool.agentCard.version
+    - api_field: remoteAgentTool.apiAuthentication.apiKeyConfig.apiKeySecretVersion
+    - api_field: remoteAgentTool.apiAuthentication.apiKeyConfig.keyName
+    - api_field: remoteAgentTool.apiAuthentication.apiKeyConfig.requestLocation
+    - api_field: remoteAgentTool.apiAuthentication.bearerTokenConfig.token
+    - api_field: remoteAgentTool.apiAuthentication.oauthConfig.clientId
+    - api_field: remoteAgentTool.apiAuthentication.oauthConfig.clientSecretVersion
+    - api_field: remoteAgentTool.apiAuthentication.oauthConfig.oauthGrantType
+    - api_field: remoteAgentTool.apiAuthentication.oauthConfig.scopes
+    - api_field: remoteAgentTool.apiAuthentication.oauthConfig.tokenEndpoint
+    - api_field: remoteAgentTool.apiAuthentication.serviceAccountAuthConfig.scopes
+    - api_field: remoteAgentTool.apiAuthentication.serviceAccountAuthConfig.serviceAccount
+    - api_field: remoteAgentTool.apiAuthentication.serviceAgentIdTokenAuthConfig
     - api_field: remoteAgentTool.description
     - api_field: remoteAgentTool.name
     - api_field: systemTool.description

@@ -2256,6 +2256,144 @@ HTTPS URL in production.`,
 								},
 							},
 						},
+						"api_authentication": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Authentication information required for calling the remote agent.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"api_key_config": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Configurations for authentication with API key.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"api_key_secret_version": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The name of the SecretManager secret version resource storing the API key.
+Format: 'projects/{project}/secrets/{secret}/versions/{version}'
+Note: You should grant 'roles/secretmanager.secretAccessor' role to the CES
+service agent
+'service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com'.`,
+												},
+												"key_name": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The parameter name or the header name of the API key.
+E.g., If the API request is "https://example.com/act?X-Api-Key=", "X-Api-Key" would be the parameter name.`,
+												},
+												"request_location": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `Key location in the request.
+Possible values:
+HEADER
+QUERY_STRING`,
+												},
+											},
+										},
+									},
+									"bearer_token_config": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Configurations for authentication with a bearer token.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"token": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The bearer token. Must be in the format $context.variables.<name_of_variable>.`,
+												},
+											},
+										},
+									},
+									"oauth_config": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Configurations for authentication with OAuth.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"client_id": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The client ID from the OAuth provider.`,
+												},
+												"client_secret_version": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The name of the SecretManager secret version resource storing the
+client secret.
+Format: 'projects/{project}/secrets/{secret}/versions/{version}'
+Note: You should grant 'roles/secretmanager.secretAccessor' role to the CES
+service agent
+'service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com'.`,
+												},
+												"oauth_grant_type": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `OAuth grant types.
+Possible values:
+CLIENT_CREDENTIAL`,
+												},
+												"scopes": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `The OAuth scopes to grant.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"token_endpoint": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The token endpoint in the OAuth provider to exchange for an access token.`,
+												},
+											},
+										},
+									},
+									"service_account_auth_config": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `Configurations for authentication using a custom service account.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"scopes": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Description: `The OAuth scopes to grant. If not specified, the default scope
+'https://www.googleapis.com/auth/cloud-platform' is used.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"service_account": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The email address of the service account used for authenticatation. CES
+uses this service account to exchange an access token and the access token
+is then sent in the 'Authorization' header of the request.
+The service account must have the
+'roles/iam.serviceAccountTokenCreator' role granted to the
+CES service agent
+'service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com'.`,
+												},
+											},
+										},
+									},
+									"service_agent_id_token_auth_config": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Description: `Configurations for authentication with [ID
+token](https://cloud.google.com/docs/authentication/token-types#id) generated
+from service agent.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+									},
+								},
+							},
+						},
 						"description": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -4655,6 +4793,8 @@ func flattenCESToolRemoteAgentTool(v interface{}, d *schema.ResourceData, config
 		flattenCESToolRemoteAgentToolDescription(original["description"], d, config)
 	transformed["agent_card"] =
 		flattenCESToolRemoteAgentToolAgentCard(original["agentCard"], d, config)
+	transformed["api_authentication"] =
+		flattenCESToolRemoteAgentToolApiAuthentication(original["apiAuthentication"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolRemoteAgentToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4787,6 +4927,145 @@ func flattenCESToolRemoteAgentToolAgentCardSkillsInputModes(v interface{}, d *sc
 
 func flattenCESToolRemoteAgentToolAgentCardSkillsOutputModes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthentication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["api_key_config"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationApiKeyConfig(original["apiKeyConfig"], d, config)
+	transformed["bearer_token_config"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationBearerTokenConfig(original["bearerTokenConfig"], d, config)
+	transformed["oauth_config"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationOauthConfig(original["oauthConfig"], d, config)
+	transformed["service_account_auth_config"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationServiceAccountAuthConfig(original["serviceAccountAuthConfig"], d, config)
+	transformed["service_agent_id_token_auth_config"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationServiceAgentIdTokenAuthConfig(original["serviceAgentIdTokenAuthConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolRemoteAgentToolApiAuthenticationApiKeyConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["api_key_secret_version"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationApiKeyConfigApiKeySecretVersion(original["apiKeySecretVersion"], d, config)
+	transformed["key_name"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationApiKeyConfigKeyName(original["keyName"], d, config)
+	transformed["request_location"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationApiKeyConfigRequestLocation(original["requestLocation"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolRemoteAgentToolApiAuthenticationApiKeyConfigApiKeySecretVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationApiKeyConfigKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationApiKeyConfigRequestLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationBearerTokenConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["token"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationBearerTokenConfigToken(original["token"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolRemoteAgentToolApiAuthenticationBearerTokenConfigToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationOauthConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["client_id"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationOauthConfigClientId(original["clientId"], d, config)
+	transformed["client_secret_version"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationOauthConfigClientSecretVersion(original["clientSecretVersion"], d, config)
+	transformed["oauth_grant_type"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationOauthConfigOauthGrantType(original["oauthGrantType"], d, config)
+	transformed["scopes"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationOauthConfigScopes(original["scopes"], d, config)
+	transformed["token_endpoint"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationOauthConfigTokenEndpoint(original["tokenEndpoint"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolRemoteAgentToolApiAuthenticationOauthConfigClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationOauthConfigClientSecretVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationOauthConfigOauthGrantType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationOauthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationOauthConfigTokenEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationServiceAccountAuthConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_account"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationServiceAccountAuthConfigServiceAccount(original["serviceAccount"], d, config)
+	transformed["scopes"] =
+		flattenCESToolRemoteAgentToolApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESToolRemoteAgentToolApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolApiAuthenticationServiceAgentIdTokenAuthConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenCESToolSystemTool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
