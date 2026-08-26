@@ -230,6 +230,11 @@ only be one of "global", "us" and "eu".`,
 				Optional:    true,
 				Description: `Whether the license config is for free trial.`,
 			},
+			"last_user_update_time": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Timestamp of the most recent user-initiated update.`,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -296,6 +301,12 @@ func resourceDiscoveryEngineLicenseConfigCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("free_trial"); !tpgresource.IsEmptyValue(reflect.ValueOf(freeTrialProp)) && (ok || !reflect.DeepEqual(v, freeTrialProp)) {
 		obj["freeTrial"] = freeTrialProp
+	}
+	lastUserUpdateTimeProp, err := expandDiscoveryEngineLicenseConfigLastUserUpdateTime(d.Get("last_user_update_time"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("last_user_update_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(lastUserUpdateTimeProp)) && (ok || !reflect.DeepEqual(v, lastUserUpdateTimeProp)) {
+		obj["lastUserUpdateTime"] = lastUserUpdateTimeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/licenseConfigs?licenseConfigId={{license_config_id}}")
@@ -520,6 +531,12 @@ func resourceDiscoveryEngineLicenseConfigUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("free_trial"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, freeTrialProp)) {
 		obj["freeTrial"] = freeTrialProp
 	}
+	lastUserUpdateTimeProp, err := expandDiscoveryEngineLicenseConfigLastUserUpdateTime(d.Get("last_user_update_time"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("last_user_update_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, lastUserUpdateTimeProp)) {
+		obj["lastUserUpdateTime"] = lastUserUpdateTimeProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/licenseConfigs/{{license_config_id}}")
 	if err != nil {
@@ -556,6 +573,10 @@ func resourceDiscoveryEngineLicenseConfigUpdate(d *schema.ResourceData, meta int
 
 	if d.HasChange("free_trial") {
 		updateMask = append(updateMask, "freeTrial")
+	}
+
+	if d.HasChange("last_user_update_time") {
+		updateMask = append(updateMask, "lastUserUpdateTime")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -795,6 +816,10 @@ func flattenDiscoveryEngineLicenseConfigFreeTrial(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenDiscoveryEngineLicenseConfigLastUserUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandDiscoveryEngineLicenseConfigLicenseCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -911,6 +936,10 @@ func expandDiscoveryEngineLicenseConfigFreeTrial(v interface{}, d tpgresource.Te
 	return v, nil
 }
 
+func expandDiscoveryEngineLicenseConfigLastUserUpdateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceDiscoveryEngineLicenseConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -936,6 +965,9 @@ func ResourceDiscoveryEngineLicenseConfigFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading LicenseConfig: %s", err)
 	}
 	if err = d.Set("free_trial", flattenDiscoveryEngineLicenseConfigFreeTrial(res["freeTrial"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LicenseConfig: %s", err)
+	}
+	if err = d.Set("last_user_update_time", flattenDiscoveryEngineLicenseConfigLastUserUpdateTime(res["lastUserUpdateTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading LicenseConfig: %s", err)
 	}
 

@@ -98,6 +98,10 @@ The following arguments are supported:
   (Optional)
   Whether the license config is for free trial.
 
+* `last_user_update_time` -
+  (Optional)
+  Timestamp of the most recent user-initiated update.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

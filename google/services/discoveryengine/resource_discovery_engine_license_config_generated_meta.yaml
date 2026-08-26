@@ -12,6 +12,7 @@ fields:
     - api_field: endDate.month
     - api_field: endDate.year
     - api_field: freeTrial
+    - api_field: lastUserUpdateTime
     - field: license_config_id
       provider_only: true
     - api_field: licenseCount
