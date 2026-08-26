@@ -55,6 +55,7 @@ var (
 )
 
 func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBasicExample(t *testing.T) {
+	t.Skip("Blockchain Node Engine is being deprecated")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -114,6 +115,7 @@ resource "google_blockchain_node_engine_blockchain_nodes" "default_node" {
 }
 
 func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesGethDetailsExample(t *testing.T) {
+	t.Skip("Blockchain Node Engine is being deprecated")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -176,6 +178,7 @@ resource "google_blockchain_node_engine_blockchain_nodes" "default_node_geth" {
 }
 
 func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBeaconFeeRecipientExample(t *testing.T) {
+	t.Skip("Blockchain Node Engine is being deprecated")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
