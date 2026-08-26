@@ -143,7 +143,7 @@ resource "google_hypercomputecluster_cluster" "cluster" {
     id = "network-default"
     config {
       new_network {
-        network = "projects/${local.project_id}/global/networks/net-%{random_suffix}"
+        network = "projects/${local.project_id}/global/networks/tf-test-%{random_suffix}"
       }
     }
   }
@@ -240,7 +240,7 @@ resource "google_hypercomputecluster_cluster" "cluster" {
     id = "network-default"
     config {
       new_network {
-        network = "projects/${local.project_id}/global/networks/net-%{random_suffix}"
+        network = "projects/${local.project_id}/global/networks/tf-test-%{random_suffix}"
       }
     }
   }
@@ -323,13 +323,13 @@ locals {
 }
 
 resource "google_compute_network" "vpc" {
-  name                    = "existing-net-%{random_suffix}"
+  name                    = "tf-test-existing-net-%{random_suffix}"
   auto_create_subnetworks = false
   routing_mode            = "REGIONAL"
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  name          = "existing-subnet-%{random_suffix}"
+  name          = "tf-test-existing-subnet-%{random_suffix}"
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
   network       = google_compute_network.vpc.id
@@ -363,7 +363,7 @@ resource "google_filestore_instance" "filestore_instance" {
     name        = "share"
   }
   networks {
-    network = "existing-net-%{random_suffix}"
+    network = "tf-test-existing-net-%{random_suffix}"
     modes   = ["MODE_IPV4"]
   }
   depends_on = [google_compute_network.vpc] 
@@ -513,7 +513,7 @@ resource "google_hypercomputecluster_cluster" "cluster" {
     config {
       new_network {
         description = "Network one"
-        network = "projects/${local.project_id}/global/networks/net-%{random_suffix}"
+        network = "projects/${local.project_id}/global/networks/tf-test-%{random_suffix}"
       }
     }
   }
@@ -707,7 +707,7 @@ resource "google_hypercomputecluster_cluster" "cluster" {
     id = "network-default"
     config {
       new_network {
-        network = "projects/${local.project_id}/global/networks/net-ipu-%{random_suffix}"
+        network = "projects/${local.project_id}/global/networks/tf-test-ipu-%{random_suffix}"
       }
     }
   }
@@ -771,7 +771,7 @@ resource "google_hypercomputecluster_cluster" "cluster" {
     id = "network-default"
     config {
       new_network {
-        network = "projects/${local.project_id}/global/networks/net-ipu-%{random_suffix}"
+        network = "projects/${local.project_id}/global/networks/tf-test-ipu-%{random_suffix}"
       }
     }
   }
