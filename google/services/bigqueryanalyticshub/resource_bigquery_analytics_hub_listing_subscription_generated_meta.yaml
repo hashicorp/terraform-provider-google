@@ -18,14 +18,52 @@ fields:
     - api_field: destinationDataset.labels
     - api_field: destinationDataset.location
     - api_field: destinationDataset.replicaLocations
+    - api_field: destinationPubsubSubscription.pubsubSubscription.ackDeadlineSeconds
+    - api_field: destinationPubsubSubscription.pubsubSubscription.bigqueryConfig.dropUnknownFields
+    - api_field: destinationPubsubSubscription.pubsubSubscription.bigqueryConfig.serviceAccountEmail
+    - api_field: destinationPubsubSubscription.pubsubSubscription.bigqueryConfig.table
+    - api_field: destinationPubsubSubscription.pubsubSubscription.bigqueryConfig.useTableSchema
+    - api_field: destinationPubsubSubscription.pubsubSubscription.bigqueryConfig.useTopicSchema
+    - api_field: destinationPubsubSubscription.pubsubSubscription.bigqueryConfig.writeMetadata
+    - api_field: destinationPubsubSubscription.pubsubSubscription.cloudStorageConfig.avroConfig.useTopicSchema
+    - api_field: destinationPubsubSubscription.pubsubSubscription.cloudStorageConfig.avroConfig.writeMetadata
+    - api_field: destinationPubsubSubscription.pubsubSubscription.cloudStorageConfig.bucket
+    - api_field: destinationPubsubSubscription.pubsubSubscription.cloudStorageConfig.filenameDatetimeFormat
+    - api_field: destinationPubsubSubscription.pubsubSubscription.cloudStorageConfig.filenamePrefix
+    - api_field: destinationPubsubSubscription.pubsubSubscription.cloudStorageConfig.filenameSuffix
+    - api_field: destinationPubsubSubscription.pubsubSubscription.cloudStorageConfig.maxBytes
+    - api_field: destinationPubsubSubscription.pubsubSubscription.cloudStorageConfig.maxDuration
+    - api_field: destinationPubsubSubscription.pubsubSubscription.cloudStorageConfig.maxMessages
+    - api_field: destinationPubsubSubscription.pubsubSubscription.cloudStorageConfig.serviceAccountEmail
+    - api_field: destinationPubsubSubscription.pubsubSubscription.deadLetterPolicy.deadLetterTopic
+    - api_field: destinationPubsubSubscription.pubsubSubscription.deadLetterPolicy.maxDeliveryAttempts
+    - api_field: destinationPubsubSubscription.pubsubSubscription.detached
+    - api_field: destinationPubsubSubscription.pubsubSubscription.enableExactlyOnceDelivery
+    - api_field: destinationPubsubSubscription.pubsubSubscription.enableMessageOrdering
+    - api_field: destinationPubsubSubscription.pubsubSubscription.expirationPolicy.ttl
+    - api_field: destinationPubsubSubscription.pubsubSubscription.filter
+    - api_field: destinationPubsubSubscription.pubsubSubscription.labels
+    - api_field: destinationPubsubSubscription.pubsubSubscription.messageRetentionDuration
+    - api_field: destinationPubsubSubscription.pubsubSubscription.name
+    - api_field: destinationPubsubSubscription.pubsubSubscription.pushConfig.attributes
+    - api_field: destinationPubsubSubscription.pubsubSubscription.pushConfig.noWrapper.writeMetadata
+    - api_field: destinationPubsubSubscription.pubsubSubscription.pushConfig.oidcToken.audience
+    - api_field: destinationPubsubSubscription.pubsubSubscription.pushConfig.oidcToken.serviceAccountEmail
+    - api_field: destinationPubsubSubscription.pubsubSubscription.pushConfig.pushEndpoint
+    - api_field: destinationPubsubSubscription.pubsubSubscription.retainAckedMessages
+    - api_field: destinationPubsubSubscription.pubsubSubscription.retryPolicy.maximumBackoff
+    - api_field: destinationPubsubSubscription.pubsubSubscription.retryPolicy.minimumBackoff
     - api_field: lastModifyTime
     - api_field: linkedDatasetMap.key
       field: linked_dataset_map.resource_name
     - api_field: linkedDatasetMap.value.linkedDataset
       field: linked_dataset_map.linked_dataset
+    - api_field: linkedDatasetMap.value.linkedPubsubSubscription
+      field: linked_dataset_map.linked_pubsub_subscription
     - api_field: linkedDatasetMap.value.listing
       field: linked_dataset_map.listing
     - api_field: linkedResources.linkedDataset
+    - api_field: linkedResources.linkedPubsubSubscription
     - api_field: linkedResources.listing
     - field: listing_id
       provider_only: true

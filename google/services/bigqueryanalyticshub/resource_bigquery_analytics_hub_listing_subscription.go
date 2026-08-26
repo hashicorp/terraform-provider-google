@@ -152,9 +152,22 @@ func ResourceBigqueryAnalyticsHubListingSubscription() *schema.Resource {
 				ForceNew:    true,
 				Description: `The ID of the data exchange. Must contain only Unicode letters, numbers (0-9), underscores (_). Should not use characters that require URL-escaping, or characters outside of ASCII, spaces.`,
 			},
+			"listing_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The ID of the listing. Must contain only Unicode letters, numbers (0-9), underscores (_). Should not use characters that require URL-escaping, or characters outside of ASCII, spaces.`,
+			},
+			"location": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
+				Description:      `The name of the location of the data exchange. Distinct from the location of the destination data set.`,
+			},
 			"destination_dataset": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `The destination dataset for this subscription.`,
 				MaxItems:    1,
@@ -224,19 +237,444 @@ organize and group your datasets.`,
 						},
 					},
 				},
+				ExactlyOneOf: []string{"destination_dataset", "destination_pubsub_subscription"},
 			},
-			"listing_id": {
-				Type:        schema.TypeString,
-				Required:    true,
+			"destination_pubsub_subscription": {
+				Type:        schema.TypeList,
+				Optional:    true,
 				ForceNew:    true,
-				Description: `The ID of the listing. Must contain only Unicode letters, numbers (0-9), underscores (_). Should not use characters that require URL-escaping, or characters outside of ASCII, spaces.`,
-			},
-			"location": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
-				Description:      `The name of the location of the data exchange. Distinct from the location of the destination data set.`,
+				Description: `Destination Pub/Sub subscription to create for the subscriber.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pubsub_subscription": {
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Destination Pub/Sub subscription resource.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Name of the subscription. Format is 'projects/{project}/subscriptions/{sub}'.`,
+									},
+									"ack_deadline_seconds": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										ForceNew: true,
+										Description: `The approximate amount of time (on a best-effort basis) Pub/Sub waits for the subscriber to
+acknowledge receipt before resending the message. In the interval after the message is delivered
+and before it is acknowledged, it is considered to be outstanding. During that time period, the
+message will not be redelivered (on a best-effort basis). For pull subscriptions, this value is
+used as the initial value for the ack deadline. To override this value for a given message, call
+'ModifyAckDeadline' with the corresponding 'ack_id' if using non-streaming pull or send the
+'ack_id' in a 'StreamingModifyAckDeadlineRequest' if using streaming pull. The minimum custom
+deadline you can specify is 10 seconds. The maximum custom deadline you can specify is 600
+seconds (10 minutes). If this parameter is 0, a default value of 10 seconds is used. For push
+delivery, this value is also used to set the request timeout for the call to the push endpoint.
+If the subscriber never acknowledges the message, the Pub/Sub system will eventually redeliver
+the message.`,
+									},
+									"bigquery_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `If delivery to BigQuery is used with this subscription, this field is used to configure it.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"drop_unknown_fields": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													ForceNew: true,
+													Description: `When true and 'useTopicSchema' is true, any fields that are a part of the topic schema that are
+not part of the BigQuery table schema are dropped when writing to BigQuery. Otherwise, the schemas
+must be kept in sync and any messages with extra fields are not written and remain in the
+subscription's backlog.`,
+												},
+												"service_account_email": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `The service account to use to write to BigQuery. The subscription creator or updater that
+specifies this field must have 'iam.serviceAccounts.actAs' permission on the service account.
+If not specified, the Pub/Sub service agent,
+service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.`,
+												},
+												"table": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `The name of the table to which to write data, of the form
+{projectId}.{datasetId}.{tableId}`,
+												},
+												"use_table_schema": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													ForceNew: true,
+													Description: `When true, use the BigQuery table's schema as the columns to write to in BigQuery.
+'useTableSchema' and 'useTopicSchema' cannot be enabled at the same time.`,
+												},
+												"use_topic_schema": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													ForceNew: true,
+													Description: `When true, use the topic's schema as the columns to write to in BigQuery,
+if it exists. 'useTopicSchema' and 'useTableSchema' cannot be enabled at the same time.`,
+												},
+												"write_metadata": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													ForceNew: true,
+													Description: `When true, write the subscription name, message_id, publish_time, attributes, and ordering_key
+to additional columns in the table. The subscription name, message_id, and publish_time fields
+are put in their own columns while all other message properties (other than data) are written
+to a JSON object in the attributes column.`,
+												},
+											},
+										},
+									},
+									"cloud_storage_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `If delivery to Google Cloud Storage is used with this subscription, this field is used to configure it.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"avro_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													ForceNew:    true,
+													Description: `If set, message data will be written to Cloud Storage in Avro format.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"use_topic_schema": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																ForceNew: true,
+																Description: `When true, the output Cloud Storage file will be serialized using
+the topic schema, if it exists.`,
+															},
+															"write_metadata": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																ForceNew: true,
+																Description: `When true, write the subscription name, message_id, publish_time, attributes, and ordering_key
+as additional fields in the output. The subscription name, message_id, and publish_time fields
+are put in their own fields while all other message properties other than data (for example,
+an ordering_key, if present) are added as entries in the attributes map.`,
+															},
+														},
+													},
+												},
+												"bucket": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `User-provided name for the Cloud Storage bucket. The bucket must be created by the user.
+The bucket name must be without any prefix like "gs://". See the
+[bucket naming requirements](https://cloud.google.com/storage/docs/buckets#naming).`,
+												},
+												"filename_datetime_format": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `User-provided format string specifying how to represent datetimes in Cloud Storage filenames.
+See the [datetime format guidance](https://cloud.google.com/pubsub/docs/create-cloudstorage-subscription#file_names).`,
+												},
+												"filename_prefix": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `User-provided prefix for Cloud Storage filename. See the
+[object naming requirements](https://cloud.google.com/storage/docs/objects#naming).`,
+												},
+												"filename_suffix": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `User-provided suffix for Cloud Storage filename. See the
+[object naming requirements](https://cloud.google.com/storage/docs/objects#naming).
+Must not end in "/".`,
+												},
+												"max_bytes": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `The maximum bytes that can be written to a Cloud Storage file before a new file is created.
+Min 1 KB, max 10 GiB. The maxBytes limit may be exceeded in cases where messages are larger
+than the limit.`,
+												},
+												"max_duration": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `The maximum duration that can elapse before a new Cloud Storage file is created.
+Min 1 minute, max 10 minutes, default 5 minutes. May not exceed the subscription's
+acknowledgement deadline.`,
+												},
+												"max_messages": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `The maximum number of messages that can be written to a Cloud Storage file before a new file
+is created. Min 1000 messages.`,
+												},
+												"service_account_email": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `The service account to use to write to Cloud Storage. The subscription creator or updater that
+specifies this field must have 'iam.serviceAccounts.actAs' permission on the service account.
+If not specified, the Pub/Sub service agent,
+service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.`,
+												},
+											},
+										},
+									},
+									"dead_letter_policy": {
+										Type:     schema.TypeList,
+										Optional: true,
+										ForceNew: true,
+										Description: `A policy that specifies the conditions for dead lettering messages in this subscription. If
+'deadLetterPolicy' is not set, dead lettering is disabled. The Pub/Sub service account associated
+with this subscriptions's parent project (i.e.,
+service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com) must have permission to
+Acknowledge() messages on this subscription.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"dead_letter_topic": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `The name of the topic to which dead letter messages should be published. Format is
+'projects/{project}/topics/{topic}'. The Pub/Sub service account associated with the enclosing
+subscription's parent project (i.e., service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com)
+must have permission to Publish() to this topic. The operation will fail if the topic does not exist.
+Users should ensure that there is a subscription attached to this topic since messages published to
+a topic with no subscriptions are lost.`,
+												},
+												"max_delivery_attempts": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													ForceNew: true,
+													Description: `The maximum number of delivery attempts for any message. The value must be between 5 and 100.
+The number of delivery attempts is defined as 1 + (the sum of number of NACKs and number of times
+the acknowledgement deadline has been exceeded for the message). A NACK is any call to
+ModifyAckDeadline with a 0 deadline. Note that client libraries may automatically extend
+ack_deadlines. This field will be honored on a best effort basis. If this parameter is 0, a
+default value of 5 is used.`,
+												},
+											},
+										},
+									},
+									"detached": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+										Description: `Indicates whether the subscription is detached from its topic. Detached subscriptions don't
+receive messages from their topic and don't retain any backlog. 'Pull' and 'StreamingPull'
+requests will return FAILED_PRECONDITION. If the subscription is a push subscription, pushes
+to the endpoint will not be made.`,
+									},
+									"enable_exactly_once_delivery": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+										Description: `If true, Pub/Sub provides the following guarantees for the delivery of a message with a given
+value of 'message_id' on this subscription: The message sent to a subscriber is guaranteed not
+to be resent before the message's acknowledgement deadline expires. An acknowledged message will
+not be resent to a subscriber. Note that subscribers may still receive multiple copies of a
+message when 'enableExactlyOnceDelivery' is true if the message was published multiple times by
+a publisher client. These copies are considered distinct by Pub/Sub and have distinct 'message_id'
+values.`,
+									},
+									"enable_message_ordering": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+										Description: `If true, messages published with the same 'ordering_key' in 'PubsubMessage'
+will be delivered to the subscribers in the order in which they are received
+by the Pub/Sub system. Otherwise, they may be delivered in any order.`,
+									},
+									"expiration_policy": {
+										Type:     schema.TypeList,
+										Optional: true,
+										ForceNew: true,
+										Description: `A policy that specifies the conditions for this subscription's expiration. A subscription is
+considered active as long as any connected subscriber is successfully consuming messages from
+the subscription or is issuing operations on the subscription. If 'expirationPolicy' is not
+set, a default policy with 'ttl' of 31 days will be used. The minimum allowed value for
+'expirationPolicy.ttl' is 1 day. If 'expirationPolicy' is set, but 'expirationPolicy.ttl'
+is not set, the subscription never expires.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"ttl": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `Specifies the "time-to-live" duration for an associated resource. The resource expires if it
+is not active for a period of 'ttl'. The definition of "activity" depends on the type of the
+associated resource. The minimum and maximum allowed values for 'ttl' depend on the type of
+the associated resource, as well. If 'ttl' is not set, the associated resource never expires.`,
+												},
+											},
+										},
+									},
+									"filter": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `An expression written in the Pub/Sub filter language. If non-empty, then only 'PubsubMessage's
+whose 'attributes' field matches the filter are delivered on this subscription. If empty, then
+no messages are filtered out.`,
+									},
+									"labels": {
+										Type:        schema.TypeMap,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `See [Creating and managing labels](https://cloud.google.com/pubsub/docs/labels).`,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+									"message_retention_duration": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `How long to retain unacknowledged messages in the subscription's backlog, from the moment a
+message is published. If 'retainAckedMessages' is true, then this also configures the retention
+of acknowledged messages, and thus configures how far back in time a Seek can be done. Defaults
+to 7 days. Cannot be more than 31 days or less than 10 minutes.`,
+									},
+									"push_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `If push delivery is used with this subscription, this field is used to configure it.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"attributes": {
+													Type:     schema.TypeMap,
+													Optional: true,
+													ForceNew: true,
+													Description: `Endpoint configuration attributes that can be used to control different aspects of the message delivery.
+The only currently supported attribute is 'x-goog-version', which you can use to change the format of the
+pushed message. This attribute indicates the version of the data expected by the endpoint. This controls
+the shape of the pushed message (i.e., its fields and metadata). If not present during the
+'CreateSubscription' call, it will default to the version of the Pub/Sub API used to make such call.
+If not present in a 'ModifyPushConfig' call, its value will not be changed. 'GetSubscription' calls
+will always return a valid version, even if the subscription was created without this attribute.
+The only supported values for the 'x-goog-version' attribute are: 'v1beta1': uses the push format
+defined in the v1beta1 Pub/Sub API. 'v1' or 'v1beta2': uses the push format defined in the v1 Pub/Sub API.`,
+													Elem: &schema.Schema{Type: schema.TypeString},
+												},
+												"no_wrapper": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													ForceNew:    true,
+													Description: `When set, the payload to the push endpoint is not wrapped.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"write_metadata": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																ForceNew: true,
+																Description: `When true, writes the Pub/Sub message metadata to 'x-goog-pubsub-<KEY>:<VAL>' headers of the
+HTTP request. Writes the Pub/Sub message attributes to '<KEY>:<VAL>' headers of the HTTP request.`,
+															},
+														},
+													},
+												},
+												"oidc_token": {
+													Type:     schema.TypeList,
+													Optional: true,
+													ForceNew: true,
+													Description: `If specified, Pub/Sub will generate and attach an OIDC JWT token as an
+Authorization header in the HTTP request for every pushed message.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"audience": {
+																Type:     schema.TypeString,
+																Optional: true,
+																ForceNew: true,
+																Description: `Audience to be used when generating OIDC token. The audience claim identifies the recipients
+that the JWT is intended for. The audience value is a single case-sensitive string. Having
+multiple values (array) for the audience field is not supported. More info about the OIDC JWT
+token audience here: https://tools.ietf.org/html/rfc7519#section-4.1.3 Note: if not specified,
+the Push endpoint URL will be used.`,
+															},
+															"service_account_email": {
+																Type:     schema.TypeString,
+																Optional: true,
+																ForceNew: true,
+																Description: `Service account email used for generating the OIDC token. For more information
+on setting up authentication, see Push subscriptions.`,
+															},
+														},
+													},
+												},
+												"push_endpoint": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `A URL locating the endpoint to which messages should be pushed.
+For example, a Webhook endpoint might use 'https://example.com/push'.`,
+												},
+											},
+										},
+									},
+									"retain_acked_messages": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+										Description: `Indicates whether to retain acknowledged messages. If true, then messages are not expunged from
+the subscription's backlog, even if they are acknowledged, until they fall out of the
+'messageRetentionDuration' window. This must be true if you would like to Seek to a timestamp
+in the past to replay previously-acknowledged messages.`,
+									},
+									"retry_policy": {
+										Type:     schema.TypeList,
+										Optional: true,
+										ForceNew: true,
+										Description: `A policy that specifies how Pub/Sub retries message delivery for this subscription. If not set,
+the default retry policy is applied. This generally implies that messages will be retried as soon
+as possible for healthy subscribers. RetryPolicy will be triggered on NACKs or acknowledgement
+deadline exceeded events for a given message.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"maximum_backoff": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `The maximum delay between consecutive deliveries of a given message.
+Value should be between 0 and 600 seconds. Defaults to 600 seconds.`,
+												},
+												"minimum_backoff": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `The minimum delay between consecutive deliveries of a given message.
+Value should be between 0 and 600 seconds. Defaults to 10 seconds.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				ExactlyOneOf: []string{"destination_dataset", "destination_pubsub_subscription"},
 			},
 			"commercial_info": {
 				Type:        schema.TypeList,
@@ -287,6 +725,11 @@ e.g. projects/123/locations/US/dataExchanges/456/listings/789 -> projects/123/da
 							Computed:    true,
 							Description: `Output only. Name of the linked dataset, e.g. projects/subscriberproject/datasets/linkedDataset`,
 						},
+						"linked_pubsub_subscription": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Output only. Name of the Pub/Sub subscription, e.g. projects/subscriberproject/subscriptions/sub_id`,
+						},
 						"listing": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -305,6 +748,11 @@ e.g. projects/123/locations/US/dataExchanges/456/listings/789 -> projects/123/da
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `Output only. Name of the linked dataset, e.g. projects/subscriberproject/datasets/linkedDataset`,
+						},
+						"linked_pubsub_subscription": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Output only. Name of the Pub/Sub subscription, e.g. projects/subscriberproject/subscriptions/sub_id`,
 						},
 						"listing": {
 							Type:        schema.TypeString,
@@ -390,6 +838,12 @@ func resourceBigqueryAnalyticsHubListingSubscriptionCreate(d *schema.ResourceDat
 		return err
 	} else if v, ok := d.GetOkExists("destination_dataset"); !tpgresource.IsEmptyValue(reflect.ValueOf(destinationDatasetProp)) && (ok || !reflect.DeepEqual(v, destinationDatasetProp)) {
 		obj["destinationDataset"] = destinationDatasetProp
+	}
+	destinationPubsubSubscriptionProp, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscription(d.Get("destination_pubsub_subscription"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("destination_pubsub_subscription"); !tpgresource.IsEmptyValue(reflect.ValueOf(destinationPubsubSubscriptionProp)) && (ok || !reflect.DeepEqual(v, destinationPubsubSubscriptionProp)) {
+		obj["destinationPubsubSubscription"] = destinationPubsubSubscriptionProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/listings/{{listing_id}}:subscribe")
@@ -495,6 +949,15 @@ func resourceBigqueryAnalyticsHubListingSubscriptionRead(d *schema.ResourceData,
 	// Here, we will use the destination project specifically for reading and deleting.
 	// This cannot be done editing the self_link since the destination project is not a top-level field.
 	destinationProject, ok := d.GetOk("destination_dataset.0.dataset_reference.0.project_id")
+	if !ok {
+		if subName, subOk := d.GetOk("destination_pubsub_subscription.0.pubsub_subscription.0.name"); subOk {
+			parts := strings.Split(subName.(string), "/")
+			if len(parts) >= 4 && parts[0] == "projects" && parts[2] == "subscriptions" {
+				destinationProject = parts[1]
+				ok = true
+			}
+		}
+	}
 	if ok {
 		billingProject = destinationProject.(string)
 
@@ -636,6 +1099,15 @@ func resourceBigqueryAnalyticsHubListingSubscriptionDelete(d *schema.ResourceDat
 	// Here, we will use the destination project specifically for reading and deleting.
 	// This cannot be done editing the self_link since the destination project is not a top-level field.
 	destinationProject, ok := d.GetOk("destination_dataset.0.dataset_reference.0.project_id")
+	if !ok {
+		if subName, subOk := d.GetOk("destination_pubsub_subscription.0.pubsub_subscription.0.name"); subOk {
+			parts := strings.Split(subName.(string), "/")
+			if len(parts) >= 4 && parts[0] == "projects" && parts[2] == "subscriptions" {
+				destinationProject = parts[1]
+				ok = true
+			}
+		}
+	}
 	if ok {
 		billingProject = destinationProject.(string)
 
@@ -831,9 +1303,10 @@ func flattenBigqueryAnalyticsHubListingSubscriptionLinkedDatasetMap(v interface{
 	for k, raw := range l {
 		original := raw.(map[string]interface{})
 		transformed = append(transformed, map[string]interface{}{
-			"resource_name":  k,
-			"listing":        flattenBigqueryAnalyticsHubListingSubscriptionLinkedDatasetMapListing(original["listing"], d, config),
-			"linked_dataset": flattenBigqueryAnalyticsHubListingSubscriptionLinkedDatasetMapLinkedDataset(original["linkedDataset"], d, config),
+			"resource_name":              k,
+			"listing":                    flattenBigqueryAnalyticsHubListingSubscriptionLinkedDatasetMapListing(original["listing"], d, config),
+			"linked_dataset":             flattenBigqueryAnalyticsHubListingSubscriptionLinkedDatasetMapLinkedDataset(original["linkedDataset"], d, config),
+			"linked_pubsub_subscription": flattenBigqueryAnalyticsHubListingSubscriptionLinkedDatasetMapLinkedPubsubSubscription(original["linkedPubsubSubscription"], d, config),
 		})
 	}
 	return transformed
@@ -843,6 +1316,10 @@ func flattenBigqueryAnalyticsHubListingSubscriptionLinkedDatasetMapListing(v int
 }
 
 func flattenBigqueryAnalyticsHubListingSubscriptionLinkedDatasetMapLinkedDataset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionLinkedDatasetMapLinkedPubsubSubscription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -860,8 +1337,9 @@ func flattenBigqueryAnalyticsHubListingSubscriptionLinkedResources(v interface{}
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"listing":        flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesListing(original["listing"], d, config),
-			"linked_dataset": flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesLinkedDataset(original["linkedDataset"], d, config),
+			"listing":                    flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesListing(original["listing"], d, config),
+			"linked_dataset":             flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesLinkedDataset(original["linkedDataset"], d, config),
+			"linked_pubsub_subscription": flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesLinkedPubsubSubscription(original["linkedPubsubSubscription"], d, config),
 		})
 	}
 	return transformed
@@ -871,6 +1349,10 @@ func flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesListing(v inte
 }
 
 func flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesLinkedDataset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryAnalyticsHubListingSubscriptionLinkedResourcesLinkedPubsubSubscription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1027,6 +1509,640 @@ func expandBigqueryAnalyticsHubListingSubscriptionDestinationDatasetLabels(v int
 
 func expandBigqueryAnalyticsHubListingSubscriptionDestinationDatasetReplicaLocations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPubsubSubscription, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscription(original["pubsub_subscription"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPubsubSubscription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pubsubSubscription"] = transformedPubsubSubscription
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedPushConfig, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfig(original["push_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPushConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pushConfig"] = transformedPushConfig
+	}
+
+	transformedBigqueryConfig, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfig(original["bigquery_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBigqueryConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bigqueryConfig"] = transformedBigqueryConfig
+	}
+
+	transformedCloudStorageConfig, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfig(original["cloud_storage_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCloudStorageConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cloudStorageConfig"] = transformedCloudStorageConfig
+	}
+
+	transformedAckDeadlineSeconds, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionAckDeadlineSeconds(original["ack_deadline_seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAckDeadlineSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ackDeadlineSeconds"] = transformedAckDeadlineSeconds
+	}
+
+	transformedRetainAckedMessages, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionRetainAckedMessages(original["retain_acked_messages"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRetainAckedMessages); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["retainAckedMessages"] = transformedRetainAckedMessages
+	}
+
+	transformedMessageRetentionDuration, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionMessageRetentionDuration(original["message_retention_duration"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMessageRetentionDuration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["messageRetentionDuration"] = transformedMessageRetentionDuration
+	}
+
+	transformedLabels, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionLabels(original["labels"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["labels"] = transformedLabels
+	}
+
+	transformedEnableMessageOrdering, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionEnableMessageOrdering(original["enable_message_ordering"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableMessageOrdering); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableMessageOrdering"] = transformedEnableMessageOrdering
+	}
+
+	transformedExpirationPolicy, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionExpirationPolicy(original["expiration_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpirationPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["expirationPolicy"] = transformedExpirationPolicy
+	}
+
+	transformedDeadLetterPolicy, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionDeadLetterPolicy(original["dead_letter_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDeadLetterPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["deadLetterPolicy"] = transformedDeadLetterPolicy
+	}
+
+	transformedRetryPolicy, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionRetryPolicy(original["retry_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRetryPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["retryPolicy"] = transformedRetryPolicy
+	}
+
+	transformedFilter, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionFilter(original["filter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filter"] = transformedFilter
+	}
+
+	transformedEnableExactlyOnceDelivery, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionEnableExactlyOnceDelivery(original["enable_exactly_once_delivery"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableExactlyOnceDelivery); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableExactlyOnceDelivery"] = transformedEnableExactlyOnceDelivery
+	}
+
+	transformedDetached, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionDetached(original["detached"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDetached); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["detached"] = transformedDetached
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPushEndpoint, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigPushEndpoint(original["push_endpoint"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPushEndpoint); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pushEndpoint"] = transformedPushEndpoint
+	}
+
+	transformedAttributes, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigAttributes(original["attributes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAttributes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["attributes"] = transformedAttributes
+	}
+
+	transformedOidcToken, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigOidcToken(original["oidc_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOidcToken); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oidcToken"] = transformedOidcToken
+	}
+
+	transformedNoWrapper, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigNoWrapper(original["no_wrapper"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNoWrapper); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["noWrapper"] = transformedNoWrapper
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigPushEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigAttributes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigOidcToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServiceAccountEmail, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	transformedAudience, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigOidcTokenAudience(original["audience"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAudience); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["audience"] = transformedAudience
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigOidcTokenServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigOidcTokenAudience(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigNoWrapper(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWriteMetadata, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigNoWrapperWriteMetadata(original["write_metadata"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWriteMetadata); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["writeMetadata"] = transformedWriteMetadata
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionPushConfigNoWrapperWriteMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTable, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigTable(original["table"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["table"] = transformedTable
+	}
+
+	transformedUseTopicSchema, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigUseTopicSchema(original["use_topic_schema"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseTopicSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useTopicSchema"] = transformedUseTopicSchema
+	}
+
+	transformedWriteMetadata, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigWriteMetadata(original["write_metadata"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWriteMetadata); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["writeMetadata"] = transformedWriteMetadata
+	}
+
+	transformedDropUnknownFields, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigDropUnknownFields(original["drop_unknown_fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDropUnknownFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dropUnknownFields"] = transformedDropUnknownFields
+	}
+
+	transformedUseTableSchema, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigUseTableSchema(original["use_table_schema"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseTableSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useTableSchema"] = transformedUseTableSchema
+	}
+
+	transformedServiceAccountEmail, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigUseTopicSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigWriteMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigDropUnknownFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigUseTableSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionBigqueryConfigServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBucket, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigBucket(original["bucket"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBucket); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bucket"] = transformedBucket
+	}
+
+	transformedFilenamePrefix, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigFilenamePrefix(original["filename_prefix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilenamePrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filenamePrefix"] = transformedFilenamePrefix
+	}
+
+	transformedFilenameSuffix, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigFilenameSuffix(original["filename_suffix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilenameSuffix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filenameSuffix"] = transformedFilenameSuffix
+	}
+
+	transformedFilenameDatetimeFormat, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigFilenameDatetimeFormat(original["filename_datetime_format"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilenameDatetimeFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filenameDatetimeFormat"] = transformedFilenameDatetimeFormat
+	}
+
+	transformedMaxDuration, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigMaxDuration(original["max_duration"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxDuration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxDuration"] = transformedMaxDuration
+	}
+
+	transformedMaxBytes, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigMaxBytes(original["max_bytes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxBytes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxBytes"] = transformedMaxBytes
+	}
+
+	transformedMaxMessages, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigMaxMessages(original["max_messages"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxMessages); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxMessages"] = transformedMaxMessages
+	}
+
+	transformedServiceAccountEmail, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	transformedAvroConfig, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigAvroConfig(original["avro_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAvroConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["avroConfig"] = transformedAvroConfig
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigBucket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigFilenamePrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigFilenameSuffix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigFilenameDatetimeFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigMaxDuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigMaxBytes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigMaxMessages(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigAvroConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWriteMetadata, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigAvroConfigWriteMetadata(original["write_metadata"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWriteMetadata); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["writeMetadata"] = transformedWriteMetadata
+	}
+
+	transformedUseTopicSchema, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigAvroConfigUseTopicSchema(original["use_topic_schema"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseTopicSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useTopicSchema"] = transformedUseTopicSchema
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigAvroConfigWriteMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionCloudStorageConfigAvroConfigUseTopicSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionAckDeadlineSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionRetainAckedMessages(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionMessageRetentionDuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionEnableMessageOrdering(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionExpirationPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTtl, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionExpirationPolicyTtl(original["ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ttl"] = transformedTtl
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionExpirationPolicyTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionDeadLetterPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDeadLetterTopic, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(original["dead_letter_topic"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDeadLetterTopic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["deadLetterTopic"] = transformedDeadLetterTopic
+	}
+
+	transformedMaxDeliveryAttempts, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(original["max_delivery_attempts"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxDeliveryAttempts); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxDeliveryAttempts"] = transformedMaxDeliveryAttempts
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionDeadLetterPolicyDeadLetterTopic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionDeadLetterPolicyMaxDeliveryAttempts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionRetryPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMinimumBackoff, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionRetryPolicyMinimumBackoff(original["minimum_backoff"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinimumBackoff); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minimumBackoff"] = transformedMinimumBackoff
+	}
+
+	transformedMaximumBackoff, err := expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionRetryPolicyMaximumBackoff(original["maximum_backoff"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaximumBackoff); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maximumBackoff"] = transformedMaximumBackoff
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionRetryPolicyMinimumBackoff(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionRetryPolicyMaximumBackoff(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionEnableExactlyOnceDelivery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryAnalyticsHubListingSubscriptionDestinationPubsubSubscriptionPubsubSubscriptionDetached(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

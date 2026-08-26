@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquery"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigqueryanalyticshub"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -80,7 +81,7 @@ func TestAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingS
 				ResourceName:            "google_bigquery_analytics_hub_listing_subscription.subscription",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"data_exchange_id", "listing_id", "location"},
+				ImportStateVerifyIgnore: []string{"data_exchange_id", "destination_pubsub_subscription", "listing_id", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing_subscription.subscription",
@@ -134,6 +135,83 @@ resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
     dataset_reference {
       dataset_id = "%{destination_dataset_id}"
       project_id = google_bigquery_dataset.subscription.project
+    }
+  }
+}
+`, context)
+}
+
+func TestAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingSubscriptionPubsubExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"data_exchange_id":         "tf_test_my_data_exchange" + randomSuffix,
+		"description":              "tf-test-example pubsub listing subscription" + randomSuffix,
+		"listing_id":               "tf_test_my_listing" + randomSuffix,
+		"pubsub_subscription_name": "tf_test_my_pubsub_subscription" + randomSuffix,
+		"pubsub_topic_name":        "tf_test_my_pubsub_topic" + randomSuffix,
+		"random_suffix":            randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryAnalyticsHubListingSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingSubscriptionPubsubExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_analytics_hub_listing_subscription.subscription",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_exchange_id", "destination_pubsub_subscription", "listing_id", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_analytics_hub_listing_subscription.subscription",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingSubscriptionPubsubExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_analytics_hub_data_exchange" "subscription" {
+  location         = "US"
+  data_exchange_id = "%{data_exchange_id}"
+  display_name     = "%{data_exchange_id}"
+  description      = "%{description}"
+}
+
+resource "google_pubsub_topic" "subscription" {
+  name = "%{pubsub_topic_name}"
+}
+
+resource "google_bigquery_analytics_hub_listing" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = "%{listing_id}"
+  display_name     = "%{listing_id}"
+  description      = "%{description}"
+
+  pubsub_topic {
+    topic = google_pubsub_topic.subscription.id
+  }
+}
+
+resource "google_bigquery_analytics_hub_listing_subscription" "subscription" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.subscription.data_exchange_id
+  listing_id       = google_bigquery_analytics_hub_listing.subscription.listing_id
+
+  destination_pubsub_subscription {
+    pubsub_subscription {
+      name = "projects/${google_pubsub_topic.subscription.project}/subscriptions/%{pubsub_subscription_name}"
     }
   }
 }
