@@ -442,6 +442,13 @@ execution. If not specified, the draft environment will be used.`,
 parameters names to be sent to the Dialogflow agent as input.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
+						"language_code_variable": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The name of the variable that contains the language code to be used for
+the Dialogflow session. If unspecified, the default language code of the
+Dialogflow agent will be used.`,
+						},
 						"output_variable_mapping": {
 							Type:     schema.TypeMap,
 							Optional: true,
@@ -1439,6 +1446,8 @@ func flattenCESAgentRemoteDialogflowAgent(v interface{}, d *schema.ResourceData,
 		flattenCESAgentRemoteDialogflowAgentFlowId(original["flowId"], d, config)
 	transformed["input_variable_mapping"] =
 		flattenCESAgentRemoteDialogflowAgentInputVariableMapping(original["inputVariableMapping"], d, config)
+	transformed["language_code_variable"] =
+		flattenCESAgentRemoteDialogflowAgentLanguageCodeVariable(original["languageCodeVariable"], d, config)
 	transformed["output_variable_mapping"] =
 		flattenCESAgentRemoteDialogflowAgentOutputVariableMapping(original["outputVariableMapping"], d, config)
 	transformed["respect_response_interruption_settings"] =
@@ -1458,6 +1467,10 @@ func flattenCESAgentRemoteDialogflowAgentFlowId(v interface{}, d *schema.Resourc
 }
 
 func flattenCESAgentRemoteDialogflowAgentInputVariableMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAgentRemoteDialogflowAgentLanguageCodeVariable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1926,6 +1939,13 @@ func expandCESAgentRemoteDialogflowAgent(v interface{}, d tpgresource.TerraformR
 		transformed["inputVariableMapping"] = transformedInputVariableMapping
 	}
 
+	transformedLanguageCodeVariable, err := expandCESAgentRemoteDialogflowAgentLanguageCodeVariable(original["language_code_variable"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLanguageCodeVariable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["languageCodeVariable"] = transformedLanguageCodeVariable
+	}
+
 	transformedOutputVariableMapping, err := expandCESAgentRemoteDialogflowAgentOutputVariableMapping(original["output_variable_mapping"], d, config)
 	if err != nil {
 		return nil, err
@@ -1964,6 +1984,10 @@ func expandCESAgentRemoteDialogflowAgentInputVariableMapping(v interface{}, d tp
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandCESAgentRemoteDialogflowAgentLanguageCodeVariable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCESAgentRemoteDialogflowAgentOutputVariableMapping(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

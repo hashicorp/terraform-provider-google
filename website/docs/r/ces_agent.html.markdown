@@ -252,6 +252,7 @@ resource "google_ces_agent" "ces_agent_remote_dialogflow_agent" {
     agent = "projects/example/locations/us/agents/fake-agent"
     flow_id = "fake-flow"
     environment_id = "fake-env"
+    language_code_variable = "language_code"
     input_variable_mapping = {
         "example" : 1
     }
@@ -575,6 +576,12 @@ The following arguments are supported:
   (Optional)
   The mapping of the app variables names to the Dialogflow session
   parameters names to be sent to the Dialogflow agent as input.
+
+* `language_code_variable` -
+  (Optional)
+  The name of the variable that contains the language code to be used for
+  the Dialogflow session. If unspecified, the default language code of the
+  Dialogflow agent will be used.
 
 * `output_variable_mapping` -
   (Optional)

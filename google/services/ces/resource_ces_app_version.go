@@ -510,6 +510,12 @@ execution. If not specified, the draft environment will be used.`,
 parameters names to be sent to the Dialogflow agent as input.`,
 													Elem: &schema.Schema{Type: schema.TypeString},
 												},
+												"language_code_variable": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The name of the variable that contains the language code to be used for
+the Dialogflow session.`,
+												},
 												"output_variable_mapping": {
 													Type:     schema.TypeMap,
 													Computed: true,
@@ -4081,6 +4087,8 @@ func flattenCESAppVersionSnapshotAgentsRemoteDialogflowAgent(v interface{}, d *s
 		flattenCESAppVersionSnapshotAgentsRemoteDialogflowAgentFlowId(original["flowId"], d, config)
 	transformed["input_variable_mapping"] =
 		flattenCESAppVersionSnapshotAgentsRemoteDialogflowAgentInputVariableMapping(original["inputVariableMapping"], d, config)
+	transformed["language_code_variable"] =
+		flattenCESAppVersionSnapshotAgentsRemoteDialogflowAgentLanguageCodeVariable(original["languageCodeVariable"], d, config)
 	transformed["output_variable_mapping"] =
 		flattenCESAppVersionSnapshotAgentsRemoteDialogflowAgentOutputVariableMapping(original["outputVariableMapping"], d, config)
 	return []interface{}{transformed}
@@ -4098,6 +4106,10 @@ func flattenCESAppVersionSnapshotAgentsRemoteDialogflowAgentFlowId(v interface{}
 }
 
 func flattenCESAppVersionSnapshotAgentsRemoteDialogflowAgentInputVariableMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAgentsRemoteDialogflowAgentLanguageCodeVariable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

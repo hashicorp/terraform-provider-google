@@ -55,6 +55,7 @@ fields:
     - api_field: snapshot.agents.remoteDialogflowAgent.environmentId
     - api_field: snapshot.agents.remoteDialogflowAgent.flowId
     - api_field: snapshot.agents.remoteDialogflowAgent.inputVariableMapping
+    - api_field: snapshot.agents.remoteDialogflowAgent.languageCodeVariable
     - api_field: snapshot.agents.remoteDialogflowAgent.outputVariableMapping
     - api_field: snapshot.agents.tools
     - api_field: snapshot.agents.toolsets.toolIds
