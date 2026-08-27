@@ -777,11 +777,6 @@ func (nodePoolInformation *NodePoolInformation) parent() string {
 	)
 }
 
-func (nodePoolInformation *NodePoolInformation) clusterLockKey() string {
-	return containerClusterMutexKey(nodePoolInformation.project,
-		nodePoolInformation.location, nodePoolInformation.cluster)
-}
-
 func (nodePoolInformation *NodePoolInformation) nodePoolLockKey(nodePoolName string) string {
 	return fmt.Sprintf(
 		"projects/%s/locations/%s/clusters/%s/nodePools/%s",
@@ -838,11 +833,6 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-
-	// Acquire read-lock on cluster.
-	clusterLockKey := nodePoolInfo.clusterLockKey()
-	transport_tpg.MutexStore.RLock(clusterLockKey)
-	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
 
 	// Acquire write-lock on nodepool.
 	npLockKey := nodePoolInfo.nodePoolLockKey(nodePool.Name)
@@ -1017,10 +1007,6 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	config := meta.(*transport_tpg.Config)
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return err
-	}
 
 	nodePoolInfo, err := extractNodePoolInformation(d, config)
 	if err != nil {
@@ -1028,26 +1014,11 @@ func resourceContainerNodePoolUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 	name := getNodePoolName(d.Id())
 
-	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return err
-	}
-
 	d.Partial(true)
 	if err := nodePoolUpdate(d, meta, nodePoolInfo, "", d.Timeout(schema.TimeoutUpdate)); err != nil {
 		return err
 	}
 	d.Partial(false)
-
-	//Check cluster is in running state
-	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return err
-	}
-	_, err = containerNodePoolAwaitRestingState(config, nodePoolInfo.fullyQualifiedName(name), nodePoolInfo.project, userAgent, d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return err
-	}
 
 	npCache.remove(nodePoolInfo.fullyQualifiedName(name))
 
@@ -1086,11 +1057,6 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 	}
-
-	// Acquire read-lock on cluster.
-	clusterLockKey := nodePoolInfo.clusterLockKey()
-	transport_tpg.MutexStore.RLock(clusterLockKey)
-	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
 
 	// Acquire write-lock on nodepool.
 	npLockKey := nodePoolInfo.nodePoolLockKey(name)
@@ -1171,11 +1137,6 @@ func resourceContainerNodePoolExists(d *schema.ResourceData, meta interface{}) (
 func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return nil, err
-	}
-
 	if err := tpgresource.ParseImportId([]string{"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<cluster>[^/]+)/nodePools/(?P<name>[^/]+)", "(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)", "(?P<location>[^/]+)/(?P<cluster>[^/]+)/(?P<name>[^/]+)"}, d, config); err != nil {
 		return nil, err
 	}
@@ -1186,26 +1147,6 @@ func resourceContainerNodePoolStateImporter(d *schema.ResourceData, meta interfa
 	}
 
 	d.SetId(id)
-
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	nodePoolInfo, err := extractNodePoolInformation(d, config)
-	if err != nil {
-		return nil, err
-	}
-
-	//Check cluster is in running state
-	_, err = containerClusterAwaitRestingState(config, nodePoolInfo.project, nodePoolInfo.location, nodePoolInfo.cluster, userAgent, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := containerNodePoolAwaitRestingState(config, d.Id(), project, userAgent, d.Timeout(schema.TimeoutCreate)); err != nil {
-		return nil, err
-	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -1759,11 +1700,6 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 	if err != nil {
 		return err
 	}
-
-	// Acquire read-lock on cluster.
-	clusterLockKey := nodePoolInfo.clusterLockKey()
-	transport_tpg.MutexStore.RLock(clusterLockKey)
-	defer transport_tpg.MutexStore.RUnlock(clusterLockKey)
 
 	// Nodepool write-lock will be acquired when update function is called.
 	npLockKey := nodePoolInfo.nodePoolLockKey(name)
