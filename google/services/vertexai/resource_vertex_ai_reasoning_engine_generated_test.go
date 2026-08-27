@@ -511,6 +511,10 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
     class_methods   = jsonencode(local.class_methods)
     service_account = google_service_account.service_account.email
 
+    build_spec {
+      service_account = google_service_account.service_account.email
+    }
+
     deployment_spec {
       min_instances         = 1
       max_instances         = 3

@@ -336,6 +336,10 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
     class_methods   = jsonencode(local.class_methods)
     service_account = google_service_account.service_account.email
 
+    build_spec {
+      service_account = google_service_account.service_account.email
+    }
+
     deployment_spec {
       min_instances         = 1
       max_instances         = 3
@@ -1085,7 +1089,7 @@ When set to "DELETE", deleting the resource is permitted.
   Optional. The A2A Agent Card for the agent (if available).
 
 * `build_spec` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Optional. Configuration for building container image.
   Structure is [documented below](#nested_spec_build_spec).
 
