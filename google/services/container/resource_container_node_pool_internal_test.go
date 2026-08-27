@@ -24,7 +24,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
-	compute "google.golang.org/api/compute/v1"
 	container "google.golang.org/api/container/v1"
 )
 
@@ -139,11 +138,11 @@ func TestUnitFlattenNodePool(t *testing.T) {
 			if tc.prepopulateCache {
 				igmCache.mutex.Lock()
 				igmCache.instanceGroupManagers["projects/ci-project/zones/us-central1-a/instanceGroupManagers/gke-pool-1-grp"] = &instanceGroupManagerWithUpdateTime{
-					instanceGroupManager: &compute.InstanceGroupManager{
-						Name:          "gke-pool-1-grp",
-						TargetSize:    nodeCountFromAPI,
-						InstanceGroup: "https://www.googleapis.com/compute/v1/projects/ci-project/zones/us-central1-a/instanceGroups/gke-pool-1-grp",
-						SelfLink:      "https://www.googleapis.com/compute/v1/projects/ci-project/zones/us-central1-a/instanceGroupManagers/gke-pool-1-grp",
+					instanceGroupManager: map[string]interface{}{
+						"name":          "gke-pool-1-grp",
+						"targetSize":    float64(nodeCountFromAPI),
+						"instanceGroup": "https://www.googleapis.com/compute/v1/projects/ci-project/zones/us-central1-a/instanceGroups/gke-pool-1-grp",
+						"selfLink":      "https://www.googleapis.com/compute/v1/projects/ci-project/zones/us-central1-a/instanceGroupManagers/gke-pool-1-grp",
 					},
 					updateTime: time.Now(),
 				}
