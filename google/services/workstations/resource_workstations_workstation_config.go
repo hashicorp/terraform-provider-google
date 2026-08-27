@@ -725,6 +725,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 						"details": {
 							Type:        schema.TypeList,
 							Computed:    true,
+							Deprecated:  "`details` is deprecated and will be removed in a future major release. This field is no longer populated from the API.",
 							Description: `A list of messages that carry the error details.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeMap,
@@ -2238,7 +2239,6 @@ func flattenWorkstationsWorkstationConfigConditions(v interface{}, d *schema.Res
 		transformed = append(transformed, map[string]interface{}{
 			"code":    flattenWorkstationsWorkstationConfigConditionsCode(original["code"], d, config),
 			"message": flattenWorkstationsWorkstationConfigConditionsMessage(original["message"], d, config),
-			"details": flattenWorkstationsWorkstationConfigConditionsDetails(original["details"], d, config),
 		})
 	}
 	return transformed
@@ -2265,7 +2265,7 @@ func flattenWorkstationsWorkstationConfigConditionsMessage(v interface{}, d *sch
 }
 
 func flattenWorkstationsWorkstationConfigConditionsDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	return d.Get("conditions.0.details")
 }
 
 func flattenWorkstationsWorkstationConfigTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

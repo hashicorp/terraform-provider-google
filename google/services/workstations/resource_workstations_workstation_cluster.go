@@ -285,6 +285,7 @@ Requests redirected to the launch endpoint will be sent with a 'workstation' que
 						"details": {
 							Type:        schema.TypeList,
 							Computed:    true,
+							Deprecated:  "`details` is deprecated and will be removed in a future major release. This field is no longer populated from the API.",
 							Description: `A list of messages that carry the error details.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeMap,
@@ -1019,7 +1020,6 @@ func flattenWorkstationsWorkstationClusterConditions(v interface{}, d *schema.Re
 		transformed = append(transformed, map[string]interface{}{
 			"code":    flattenWorkstationsWorkstationClusterConditionsCode(original["code"], d, config),
 			"message": flattenWorkstationsWorkstationClusterConditionsMessage(original["message"], d, config),
-			"details": flattenWorkstationsWorkstationClusterConditionsDetails(original["details"], d, config),
 		})
 	}
 	return transformed
@@ -1046,7 +1046,7 @@ func flattenWorkstationsWorkstationClusterConditionsMessage(v interface{}, d *sc
 }
 
 func flattenWorkstationsWorkstationClusterConditionsDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	return d.Get("conditions.0.details")
 }
 
 func flattenWorkstationsWorkstationClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

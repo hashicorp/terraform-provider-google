@@ -1252,8 +1252,10 @@ In addition to the arguments listed above, the following computed attributes are
   Human readable message indicating details about the current status.
 
 * `details` -
-  (Output)
+  (Output, Deprecated)
   A list of messages that carry the error details.
+
+  ~> **Warning:** `details` is deprecated and will be removed in a future major release. This field is no longer populated from the API.
 
 ## Timeouts
 
