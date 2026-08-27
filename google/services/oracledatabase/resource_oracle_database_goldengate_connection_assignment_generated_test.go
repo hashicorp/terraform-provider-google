@@ -64,7 +64,7 @@ func TestAccOracleDatabaseGoldengateConnectionAssignment_oracledatabaseGoldengat
 		"goldengate_connection_assignment_id": fmt.Sprintf("tf-gcca-%s", acctest.RandString(t, 10)),
 		"goldengate_connection_id":            "tf-test-permanent-connection",
 		"goldengate_deployment_id":            "tf-test-permanent-deployment",
-		"project":                             "oci-terraform-testing-prod",
+		"project":                             "oasis-terraform-testing-prod",
 		"random_suffix":                       randomSuffix,
 	}
 

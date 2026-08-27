@@ -62,7 +62,7 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 	context := map[string]interface{}{
 		"deletion_protection":          false,
 		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-basic-%s", acctest.RandString(t, 10)),
-		"project":                      "oci-terraform-testing-prod",
+		"project":                      "oasis-terraform-testing-prod",
 		"random_suffix":                randomSuffix,
 	}
 
@@ -116,7 +116,7 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 	context := map[string]interface{}{
 		"deletion_protection":          false,
 		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-full-%s", acctest.RandString(t, 10)),
-		"project":                      "oci-terraform-testing-prod",
+		"project":                      "oasis-terraform-testing-prod",
 		"random_suffix":                randomSuffix,
 	}
 
@@ -179,7 +179,7 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-configured-exadata-%s", acctest.RandString(t, 10)),
 		"deletion_protection":             false,
 		"exascale_db_storage_vault_id":    fmt.Sprintf("ofake-tf-test-vault-on-exadata-%s", acctest.RandString(t, 10)),
-		"project":                         "oci-terraform-testing-prod",
+		"project":                         "oasis-terraform-testing-prod",
 		"random_suffix":                   randomSuffix,
 	}
 

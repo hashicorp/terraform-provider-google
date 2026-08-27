@@ -65,7 +65,7 @@ func TestAccOracleDatabaseOdbSubnet_oracledatabaseOdbsubnetExample(t *testing.T)
 		"deletion_protection": false,
 		"odb_network_id":      "tf-test-permanent-odbnetwork",
 		"odb_subnet_id":       fmt.Sprintf("tf-test-odbsubnet-%s", acctest.RandString(t, 10)),
-		"project":             "oci-terraform-testing-prod",
+		"project":             "oasis-terraform-testing-prod",
 		"random_suffix":       randomSuffix,
 	}
 

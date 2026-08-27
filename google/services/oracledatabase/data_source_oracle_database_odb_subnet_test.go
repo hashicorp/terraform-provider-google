@@ -51,7 +51,7 @@ data "google_oracle_database_odb_subnet" "my-subnet" {
   odb_subnet_id = "tf-test-permanent-client-odbsubnet"
   odbnetwork = "tf-test-permanent-odbnetwork"
   location = "europe-west2"
-  project = "oci-terraform-testing-prod"
+  project = "oasis-terraform-testing-prod"
 }
 `)
 }

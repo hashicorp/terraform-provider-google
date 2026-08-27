@@ -60,13 +60,13 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterBasicExampl
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"backup_odb_subnet":            "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-backup-odbsubnet",
+		"backup_odb_subnet":            "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-backup-odbsubnet",
 		"deletion_protection":          false,
 		"exadb_vm_cluster_id":          fmt.Sprintf("ofake-tf-test-exadb-vm-cluster-basic-%s", acctest.RandString(t, 10)),
 		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-basic-%s", acctest.RandString(t, 10)),
-		"odb_network":                  "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
-		"odb_subnet":                   "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
-		"project":                      "oci-terraform-testing-prod",
+		"odb_network":                  "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":                   "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":                      "oasis-terraform-testing-prod",
 		"random_suffix":                randomSuffix,
 	}
 
@@ -149,13 +149,13 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterFullExample
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"backup_odb_subnet":            "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-backup-odbsubnet",
+		"backup_odb_subnet":            "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-backup-odbsubnet",
 		"deletion_protection":          false,
 		"exadb_vm_cluster_id":          fmt.Sprintf("ofake-tf-test-exadb-vm-cluster-basic-%s", acctest.RandString(t, 10)),
 		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-basic-%s", acctest.RandString(t, 10)),
-		"odb_network":                  "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
-		"odb_subnet":                   "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
-		"project":                      "oci-terraform-testing-prod",
+		"odb_network":                  "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":                   "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":                      "oasis-terraform-testing-prod",
 		"random_suffix":                randomSuffix,
 	}
 

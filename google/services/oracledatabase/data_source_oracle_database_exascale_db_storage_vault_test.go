@@ -32,7 +32,7 @@ func TestAccOracleDatabaseExascaleDbStorageVaultDataSource_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"vault_id": vaultId,
-		"project":  "oci-terraform-testing-prod",
+		"project":  "oasis-terraform-testing-prod",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

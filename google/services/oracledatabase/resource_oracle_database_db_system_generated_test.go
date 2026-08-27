@@ -64,9 +64,9 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(t *testing
 		"db_system_id":        fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", acctest.RandString(t, 10)),
 		"db_unique_name":      fmt.Sprintf("db%s", acctest.RandString(t, 10)),
 		"deletion_protection": false,
-		"odb_network":         "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
-		"odb_subnet":          "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
-		"project":             "oci-terraform-testing-prod",
+		"odb_network":         "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":          "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":             "oasis-terraform-testing-prod",
 		"random_suffix":       randomSuffix,
 	}
 
@@ -141,10 +141,10 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemFullExample(t *testing.
 		"db_system_id":          fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", acctest.RandString(t, 10)),
 		"db_unique_name":        fmt.Sprintf("db%s", acctest.RandString(t, 10)),
 		"deletion_protection":   false,
-		"odb_network":           "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
-		"odb_subnet":            "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"odb_network":           "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":            "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
 		"pluggable_database_id": fmt.Sprintf("ofake-tf-test-mypdb-%s", acctest.RandString(t, 10)),
-		"project":               "oci-terraform-testing-prod",
+		"project":               "oasis-terraform-testing-prod",
 		"random_suffix":         randomSuffix,
 	}
 
