@@ -18,6 +18,8 @@ fields:
     - field: region
       provider_only: true
     - api_field: spec.agentFramework
+    - api_field: spec.buildSpec.serviceAccount
+    - api_field: spec.buildSpec.workerPool
     - api_field: spec.classMethods
       json: true
     - api_field: spec.containerSpec.imageUri
