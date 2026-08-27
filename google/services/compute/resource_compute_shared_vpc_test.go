@@ -24,8 +24,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	"github.com/hashicorp/terraform-provider-google/google/registry"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeSharedVpc_basic(t *testing.T) {
@@ -95,17 +96,25 @@ func testAccCheckComputeSharedVpcHostProject(t *testing.T, hostProject string, e
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		found, err := compute.NewClient(config, config.UserAgent).Projects.Get(hostProject).Do()
+		url := fmt.Sprintf("%sprojects/%s", transport_tpg.BaseUrl(registry.GetProduct("compute"), config), hostProject)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   hostProject,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return fmt.Errorf("Error reading project %s: %s", hostProject, err)
 		}
 
-		if found.Name != hostProject {
+		if found["name"].(string) != hostProject {
 			return fmt.Errorf("Project %s not found", hostProject)
 		}
 
-		if enabled != (found.XpnProjectStatus == "HOST") {
-			return fmt.Errorf("Project %q shared VPC status was not expected, got %q", hostProject, found.XpnProjectStatus)
+		xpnProjectStatus, _ := found["xpnProjectStatus"].(string)
+		if enabled != (xpnProjectStatus == "HOST") {
+			return fmt.Errorf("Project %q shared VPC status was not expected, got %q", hostProject, xpnProjectStatus)
 		}
 
 		return nil
@@ -115,7 +124,14 @@ func testAccCheckComputeSharedVpcHostProject(t *testing.T, hostProject string, e
 func testAccCheckComputeSharedVpcServiceProject(t *testing.T, hostProject, serviceProject string, enabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-		serviceHostProject, err := compute.NewClient(config, config.UserAgent).Projects.GetXpnHost(serviceProject).Do()
+		url := fmt.Sprintf("%sprojects/%s/getXpnHost", transport_tpg.BaseUrl(registry.GetProduct("compute"), config), serviceProject)
+		serviceHostProject, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   serviceProject,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			if enabled {
 				return fmt.Errorf("Expected service project to be enabled.")
@@ -123,8 +139,9 @@ func testAccCheckComputeSharedVpcServiceProject(t *testing.T, hostProject, servi
 			return nil
 		}
 
-		if enabled != (serviceHostProject.Name == hostProject) {
-			return fmt.Errorf("Wrong host project for the given service project. Expected '%s', got '%s'", hostProject, serviceHostProject.Name)
+		serviceHostProjectName, _ := serviceHostProject["name"].(string)
+		if enabled != (serviceHostProjectName == hostProject) {
+			return fmt.Errorf("Wrong host project for the given service project. Expected '%s', got '%s'", hostProject, serviceHostProjectName)
 		}
 
 		return nil

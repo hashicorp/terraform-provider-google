@@ -70,14 +70,21 @@ func resourceComputeSharedVpcHostProjectCreate(d *schema.ResourceData, meta inte
 	}
 
 	hostProject := d.Get("project").(string)
-	op, err := NewClient(config, userAgent).Projects.EnableXpnHost(hostProject).Do()
+	url := fmt.Sprintf("%sprojects/%s/enableXpnHost", transport_tpg.BaseUrl(Product, config), hostProject)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   hostProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return fmt.Errorf("Error enabling Shared VPC Host %q: %s", hostProject, err)
 	}
 
 	d.SetId(hostProject)
 
-	err = ComputeOperationWaitTime(config, op, hostProject, "Enabling Shared VPC Host", userAgent, d.Timeout(schema.TimeoutCreate))
+	err = ComputeOperationWaitTime(config, res, hostProject, "Enabling Shared VPC Host", userAgent, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		d.SetId("")
 		return err
@@ -95,12 +102,19 @@ func resourceComputeSharedVpcHostProjectRead(d *schema.ResourceData, meta interf
 
 	hostProject := d.Id()
 
-	project, err := NewClient(config, userAgent).Projects.Get(hostProject).Do()
+	url := fmt.Sprintf("%sprojects/%s", transport_tpg.BaseUrl(Product, config), hostProject)
+	project, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   hostProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project data for project %q", hostProject))
 	}
 
-	if project.XpnProjectStatus != "HOST" {
+	if project["xpnProjectStatus"] != "HOST" {
 		log.Printf("[WARN] Removing Shared VPC host resource %q because it's not enabled server-side", hostProject)
 		d.SetId("")
 	}
@@ -140,12 +154,19 @@ func resourceComputeSharedVpcHostProjectDelete(d *schema.ResourceData, meta inte
 
 	hostProject := d.Get("project").(string)
 
-	op, err := NewClient(config, userAgent).Projects.DisableXpnHost(hostProject).Do()
+	url := fmt.Sprintf("%sprojects/%s/disableXpnHost", transport_tpg.BaseUrl(Product, config), hostProject)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   hostProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return fmt.Errorf("Error disabling Shared VPC Host %q: %s", hostProject, err)
 	}
 
-	err = ComputeOperationWaitTime(config, op, hostProject, "Disabling Shared VPC Host", userAgent, d.Timeout(schema.TimeoutDelete))
+	err = ComputeOperationWaitTime(config, res, hostProject, "Disabling Shared VPC Host", userAgent, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return err
 	}
