@@ -443,6 +443,18 @@ func resourceColabRuntimeRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished reading ColabRuntime %q: %#v", d.Id(), res)
 
+	res, err = resourceColabRuntimeDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing ColabRuntime because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("desired_state"); !ok {
 		if err := d.Set("desired_state", "RUNNING"); err != nil {
@@ -777,6 +789,13 @@ func resourceColabRuntimeEncoder(d *schema.ResourceData, meta interface{}, obj m
 
 	newObj["notebookRuntime"] = obj
 	return newObj, nil
+}
+
+func resourceColabRuntimeDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	if v, ok := res["name"].(string); ok && v != "" {
+		res["name"] = tpgresource.GetResourceNameFromSelfLink(v)
+	}
+	return res, nil
 }
 
 func ResourceColabRuntimeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
