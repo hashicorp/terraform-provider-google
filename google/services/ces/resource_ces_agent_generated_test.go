@@ -345,6 +345,7 @@ resource "google_ces_agent" "ces_agent_remote_dialogflow_agent" {
     agent = "projects/example/locations/us/agents/fake-agent"
     flow_id = "fake-flow"
     environment_id = "fake-env"
+    language_code_variable = "language_code"
     input_variable_mapping = {
         "example" : 1
     }

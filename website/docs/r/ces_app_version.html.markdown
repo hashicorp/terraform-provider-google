@@ -411,6 +411,11 @@ In addition to the arguments listed above, the following computed attributes are
   The mapping of the app variables names to the Dialogflow session
   parameters names to be sent to the Dialogflow agent as input.
 
+* `language_code_variable` -
+  (Output)
+  The name of the variable that contains the language code to be used for
+  the Dialogflow session.
+
 * `output_variable_mapping` -
   (Output)
   The mapping of the Dialogflow session parameters names to the app
