@@ -1,0 +1,7 @@
+```release-note:deprecation
+workstations: `google_workstations_workstation_config.details` is deprecated and will be removed in a future major release. This field is no longer populated from the API
+```
+
+```release-note:bug
+workstations: fixed unconvertible type error when reading `conditions` in `google_workstations_workstation_config` and `google_workstations_workstation_cluster`
+```
