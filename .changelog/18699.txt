@@ -1,0 +1,11 @@
+```release-note:new-list-resource
+`google_apigee_target_server`
+```
+
+```release-note:new-list-resource
+`google_apigee_environment_keyvaluemaps`
+```
+
+```release-note:new-list-resource
+`google_apigee_organization`
+```

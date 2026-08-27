@@ -425,6 +425,14 @@ func resourceApigeeOrganizationCreate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error waiting to create Organization: %s", err)
 	}
 
+	opRes, err = resourceApigeeOrganizationDecoder(d, meta, opRes)
+	if err != nil {
+		return fmt.Errorf("Error decoding response from operation: %s", err)
+	}
+	if opRes == nil {
+		return fmt.Errorf("Error decoding response from operation, could not find object")
+	}
+
 	if err := d.Set("name", flattenApigeeOrganizationName(opRes["name"], d, config)); err != nil {
 		return err
 	}
@@ -485,6 +493,18 @@ func resourceApigeeOrganizationRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Finished reading ApigeeOrganization %q: %#v", d.Id(), res)
+
+	res, err = resourceApigeeOrganizationDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing ApigeeOrganization because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
@@ -967,6 +987,18 @@ func expandApigeeOrganizationPropertiesPropertyValue(v interface{}, d tpgresourc
 func resourceApigeeOrganizationEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	obj["name"] = d.Get("project_id").(string)
 	return obj, nil
+}
+
+func resourceApigeeOrganizationDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// The list response returns items where the org name is in "organization".
+	// For a direct read response the org name is already in "name". Normalise so
+	// the identity field ("name") is always populated.
+	if name, ok := res["name"].(string); !ok || name == "" {
+		if orgName, ok := res["organization"].(string); ok && orgName != "" {
+			res["name"] = orgName
+		}
+	}
+	return res, nil
 }
 
 func ResourceApigeeOrganizationFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {

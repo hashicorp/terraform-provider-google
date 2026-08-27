@@ -386,11 +386,15 @@ func expandApigeeEnvironmentKeyvaluemapsName(v interface{}, d tpgresource.Terraf
 
 func resourceApigeeEnvironmentKeyvaluemapsDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
-	name, err := tpgresource.ReplaceVars(d, config, "{{name}}")
-	if err != nil {
-		return nil, err
+	// List items are bare strings already copied into res["name"]. Keep that
+	// value; ReplaceVars only has name on direct reads/imports.
+	if existing, ok := res["name"].(string); !ok || existing == "" {
+		name, err := tpgresource.ReplaceVars(d, config, "{{name}}")
+		if err != nil {
+			return nil, err
+		}
+		res["name"] = name
 	}
-	res["name"] = name
 	// "encrypted" field is retained for backward compatibility and the value of encrypted will always be true. Apigee X and hybrid do not support unencrypted key value maps.
 	res["encrypted"] = true
 
