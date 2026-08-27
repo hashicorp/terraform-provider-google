@@ -403,3 +403,109 @@ func ListPages(opt ListPagesOptions) error {
 	}
 	return nil
 }
+
+func listItemAsMap(item interface{}) (map[string]interface{}, error) {
+	switch v := item.(type) {
+	case map[string]interface{}:
+		return v, nil
+	case string:
+		// Apigee keyvaluemaps list returns ["kvm1", "kvm2", ...]
+		return map[string]interface{}{"name": v}, nil
+	default:
+		return nil, fmt.Errorf("expected item to be map[string]interface{} or string, got %T", item)
+	}
+}
+
+type ListArrayPagesOptions struct {
+	Config         *Config
+	TempData       *schema.ResourceData
+	Resource       *schema.Resource
+	ListURL        string
+	BillingProject string
+	UserAgent      string
+	Flattener      func(item map[string]interface{}, d *schema.ResourceData, config *Config) error
+	Callback       func(rd *schema.ResourceData) error
+}
+
+// ListArrayPages performs a GET against ListURL where the response body is a
+// top-level JSON array (not a wrapped object). String elements are coerced to
+// {"name": value} so the same flattener path as ListPages can run.
+func ListArrayPages(opt ListArrayPagesOptions) error {
+	if opt.Config == nil || opt.Config.Client == nil {
+		return fmt.Errorf("client is nil for list request to %s", opt.ListURL)
+	}
+
+	url, err := AddQueryParams(opt.ListURL, map[string]string{})
+	if err != nil {
+		return err
+	}
+
+	reqHeaders := make(http.Header)
+	reqHeaders.Set("User-Agent", opt.UserAgent)
+	reqHeaders.Set("Content-Type", "application/json")
+	if opt.Config.UserProjectOverride && opt.BillingProject != "" {
+		if opt.BillingProject == "NO_BILLING_PROJECT_OVERRIDE" {
+			reqHeaders.Set("X-Goog-User-Project", "")
+		} else {
+			reqHeaders.Set("X-Goog-User-Project", opt.BillingProject)
+		}
+	}
+
+	var res *http.Response
+	err = Retry(RetryOptions{
+		RetryFunc: func() error {
+			u, err := AddQueryParams(url, map[string]string{"alt": "json"})
+			if err != nil {
+				return err
+			}
+			req, err := http.NewRequest("GET", u, nil)
+			if err != nil {
+				return err
+			}
+			req.Header = reqHeaders
+			res, err = opt.Config.Client.Do(req)
+			if err != nil {
+				return err
+			}
+			if err := googleapi.CheckResponse(res); err != nil {
+				googleapi.CloseBody(res)
+				return err
+			}
+			return nil
+		},
+		Timeout:              DefaultRequestTimeout,
+		ErrorRetryPredicates: []RetryErrorPredicateFunc{Is429RetryableQuotaError},
+	})
+	if err != nil {
+		return HandleListGoogleApiError(err, url)
+	}
+	if res == nil {
+		return fmt.Errorf("unable to parse server response for list at %s", url)
+	}
+	defer googleapi.CloseBody(res)
+
+	if res.StatusCode == 204 {
+		return nil
+	}
+
+	var items []interface{}
+	if err := json.NewDecoder(res.Body).Decode(&items); err != nil {
+		return fmt.Errorf("error decoding array response from %s: %w", url, err)
+	}
+
+	seedState := opt.TempData.State()
+	for _, item := range items {
+		itemMap, err := listItemAsMap(item)
+		if err != nil {
+			return err
+		}
+		itemResourceData := opt.Resource.Data(seedState)
+		if err := opt.Flattener(itemMap, itemResourceData, opt.Config); err != nil {
+			return fmt.Errorf("error flattening instance: %s", err)
+		}
+		if err := opt.Callback(itemResourceData); err != nil {
+			return err
+		}
+	}
+	return nil
+}

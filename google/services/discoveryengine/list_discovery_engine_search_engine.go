@@ -155,7 +155,6 @@ func ListDiscoveryEngineSearchEngines(config *transport_tpg.Config,
 	if err != nil {
 		return err
 	}
-
 	return transport_tpg.ListPages(transport_tpg.ListPagesOptions{
 		Config:         config,
 		TempData:       resourceData,
