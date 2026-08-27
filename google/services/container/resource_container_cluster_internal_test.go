@@ -17,12 +17,18 @@
 package container
 
 import (
+	"context"
+	"errors"
+
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"google.golang.org/api/googleapi"
 
 	"google.golang.org/api/container/v1"
 )
@@ -637,5 +643,123 @@ func TestContainerClusterApiDictatedPrivateEndpointField(t *testing.T) {
 				t.Errorf("%s: expected %v, but was %v", tn, tc.expected, got)
 			}
 		})
+	}
+}
+
+func TestContainerCluster_IsClusterUpdateRetryableError(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		err      error
+		expected bool
+	}{
+		"400 failedPrecondition in error items - retryable": {
+			err: &googleapi.Error{
+				Code:    400,
+				Message: "Operation cannot be completed because cluster is busy",
+				Errors: []googleapi.ErrorItem{
+					{Reason: "failedPrecondition", Message: "cluster is undergoing changes"},
+				},
+			},
+			expected: true,
+		},
+		"400 invalidArgument - non-retryable": {
+			err: &googleapi.Error{
+				Code:    400,
+				Message: "invalidArgument: invalid node pool name",
+				Errors: []googleapi.ErrorItem{
+					{Reason: "invalidArgument", Message: "invalid node pool name"},
+				},
+			},
+			expected: false,
+		},
+		"400 bad request without failedPrecondition - non-retryable": {
+			err:      &googleapi.Error{Code: 400, Message: "bad request"},
+			expected: false,
+		},
+		"409 conflict - retryable": {
+			err:      &googleapi.Error{Code: 409, Message: "conflict: resource already in use"},
+			expected: true,
+		},
+		"412 precondition failed - retryable": {
+			err:      &googleapi.Error{Code: 412, Message: "precondition failed"},
+			expected: true,
+		},
+		"429 quota exceeded - retryable": {
+			err:      &googleapi.Error{Code: 429, Message: "Resource exhausted: rateLimitExceeded"},
+			expected: true,
+		},
+		"503 service unavailable - retryable": {
+			err:      &googleapi.Error{Code: 503, Message: "service unavailable"},
+			expected: true,
+		},
+		"404 not found - non-retryable": {
+			err:      &googleapi.Error{Code: 404, Message: "cluster not found"},
+			expected: false,
+		},
+		"500 internal server error - non-retryable": {
+			err:      &googleapi.Error{Code: 500, Message: "internal error"},
+			expected: false,
+		},
+		"generic non-googleapi error - non-retryable": {
+			err:      errors.New("connection reset by peer"),
+			expected: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			got := isClusterUpdateRetryableError(tc.err)
+			if got != tc.expected {
+				t.Errorf("%s: expected isClusterUpdateRetryableError=%v, got %v", tn, tc.expected, got)
+			}
+		})
+	}
+}
+
+func TestContainerCluster_RunClusterOperation_ContextCancellation(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	attempts := 0
+	err := retry.RetryContext(ctx, 1*time.Minute, func() *retry.RetryError {
+		attempts++
+		apiErr := &googleapi.Error{Code: 400, Message: "failedPrecondition: busy"}
+		if isClusterUpdateRetryableError(apiErr) {
+			return retry.RetryableError(apiErr)
+		}
+		return retry.NonRetryableError(apiErr)
+	})
+
+	if err == nil {
+		t.Fatal("expected error on cancelled context, got nil")
+	}
+	if attempts > 2 {
+		t.Fatalf("expected retry loop to abort quickly on canceled context, but got %d attempts", attempts)
+	}
+}
+
+func TestContainerCluster_RunClusterOperation_NonRetryableFailsFast(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	attempts := 0
+	nonRetryableErr := &googleapi.Error{Code: 400, Message: "invalidArgument: bad field value"}
+
+	err := retry.RetryContext(ctx, 1*time.Minute, func() *retry.RetryError {
+		attempts++
+		if isClusterUpdateRetryableError(nonRetryableErr) {
+			return retry.RetryableError(nonRetryableErr)
+		}
+		return retry.NonRetryableError(nonRetryableErr)
+	})
+
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if attempts != 1 {
+		t.Fatalf("expected non-retryable error to fail immediately on attempt 1, but ran %d attempts", attempts)
 	}
 }

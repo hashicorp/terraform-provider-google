@@ -1,0 +1,3 @@
+```release-note:bug
+container: switched to server side request validation to allow for concurrent Cluster Upgrades. `google_container_cluster` and `google_container_node_pool` resources will proceed while not in a resting state for updates (but will continue to wait for one after creates).
+```
