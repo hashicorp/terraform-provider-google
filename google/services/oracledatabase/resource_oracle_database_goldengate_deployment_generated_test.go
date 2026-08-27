@@ -62,8 +62,8 @@ func TestAccOracleDatabaseGoldengateDeployment_oracledatabaseGoldengateDeploymen
 	context := map[string]interface{}{
 		"deletion_policy":          "DELETE",
 		"goldengate_deployment_id": fmt.Sprintf("tf-ggdep-basic-%s", acctest.RandString(t, 10)),
-		"odb_subnet":               "projects/oci-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
-		"project":                  "oci-terraform-testing-prod",
+		"odb_subnet":               "projects/oasis-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 
@@ -121,9 +121,9 @@ func TestAccOracleDatabaseGoldengateDeployment_oracledatabaseGoldengateDeploymen
 	context := map[string]interface{}{
 		"deletion_policy":          "DELETE",
 		"goldengate_deployment_id": fmt.Sprintf("tf-ggdep-full-%s", acctest.RandString(t, 10)),
-		"odb_network":              "projects/oci-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork",
-		"odb_subnet":               "projects/oci-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
-		"project":                  "oci-terraform-testing-prod",
+		"odb_network":              "projects/oasis-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":               "projects/oasis-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 

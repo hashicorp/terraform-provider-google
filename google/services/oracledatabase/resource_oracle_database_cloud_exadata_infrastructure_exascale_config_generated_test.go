@@ -62,7 +62,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructureExascaleConfig_oracledatabas
 	context := map[string]interface{}{
 		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-test-tf-configured-exadata-%s", acctest.RandString(t, 10)),
 		"deletion_protection":             false,
-		"project":                         "oci-terraform-testing-prod",
+		"project":                         "oasis-terraform-testing-prod",
 		"random_suffix":                   randomSuffix,
 	}
 

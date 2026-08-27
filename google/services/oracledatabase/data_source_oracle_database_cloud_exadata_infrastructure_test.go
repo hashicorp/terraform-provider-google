@@ -52,7 +52,7 @@ func testAccOracleDatabaseCloudExadataInfrastructure_basic() string {
 	return fmt.Sprintf(`
 data "google_oracle_database_cloud_exadata_infrastructure" "my-exadata"{
   cloud_exadata_infrastructure_id = "ofake-do-not-delete-tf-exadata"
-  project = "oci-terraform-testing-prod"
+  project = "oasis-terraform-testing-prod"
   location = "us-east4"
 }
 `)

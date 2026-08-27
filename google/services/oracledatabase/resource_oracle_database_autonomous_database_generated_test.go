@@ -64,7 +64,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 		"autonomous_database_id": "tf-test-my-instance" + randomSuffix,
 		"database_name":          fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection":    false,
-		"project":                "oci-terraform-testing-prod",
+		"project":                "oasis-terraform-testing-prod",
 		"random_suffix":          randomSuffix,
 	}
 
@@ -130,9 +130,9 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 		"database_name":          fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection":    false,
 		"endpoint_name":          fmt.Sprintf("tftestendpoint%s", acctest.RandString(t, 10)),
-		"odb_network":            "projects/oci-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork",
-		"odb_subnet":             "projects/oci-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
-		"project":                "oci-terraform-testing-prod",
+		"odb_network":            "projects/oasis-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":             "projects/oasis-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":                "oasis-terraform-testing-prod",
 		"random_suffix":          randomSuffix,
 	}
 
@@ -214,9 +214,9 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseOdb
 		"autonomous_database_id": "tf-test-my-instance" + randomSuffix,
 		"database_name":          fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection":    false,
-		"odb_network":            "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
-		"odb_subnet":             "projects/oci-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
-		"project":                "oci-terraform-testing-prod",
+		"odb_network":            "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":             "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":                "oasis-terraform-testing-prod",
 		"random_suffix":          randomSuffix,
 	}
 
@@ -275,7 +275,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabasePub
 		"autonomous_database_id": "tf-test-my-instance" + randomSuffix,
 		"database_name":          fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
 		"deletion_protection":    false,
-		"project":                "oci-terraform-testing-prod",
+		"project":                "oasis-terraform-testing-prod",
 		"random_suffix":          randomSuffix,
 	}
 
@@ -335,7 +335,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseDis
 		"deletion_protection":       false,
 		"enable_backup_replication": true,
 		"location":                  "us-west3",
-		"project":                   "oci-terraform-testing-prod",
+		"project":                   "oasis-terraform-testing-prod",
 		"random_suffix":             randomSuffix,
 	}
 

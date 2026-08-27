@@ -45,7 +45,7 @@ func testAccOracleDatabaseGoldengateDeploymentTypesConfig() string {
 	return fmt.Sprintf(`
 data "google_oracle_database_goldengate_deployment_types" "my_deployment_types" {
 	location = "us-east4"
-	project  = "oci-terraform-testing-prod"
+	project  = "oasis-terraform-testing-prod"
 }
 `)
 }

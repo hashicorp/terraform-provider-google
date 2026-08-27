@@ -46,7 +46,7 @@ func testAccOracleDatabaseGoldengateDeploymentEnvironmentsConfig() string {
 	return fmt.Sprintf(`
 data "google_oracle_database_goldengate_deployment_environments" "my_deployment_environments" {
 	location = "us-east4"
-	project  = "oci-terraform-testing-prod"
+	project  = "oasis-terraform-testing-prod"
 }
 `)
 }

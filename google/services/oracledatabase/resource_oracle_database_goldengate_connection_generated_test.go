@@ -62,7 +62,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	context := map[string]interface{}{
 		"deletion_protection":      false,
 		"goldengate_connection_id": fmt.Sprintf("tf-conn-basic-%s", acctest.RandString(t, 10)),
-		"project":                  "oci-terraform-testing-prod",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 
@@ -123,9 +123,9 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 		"autonomous_database_id":   "do-not-delete-tf-adb",
 		"deletion_protection":      false,
 		"goldengate_connection_id": fmt.Sprintf("tf-conn-full-%s", acctest.RandString(t, 10)),
-		"odb_network":              "projects/oci-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork",
-		"odb_subnet":               "projects/oci-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
-		"project":                  "oci-terraform-testing-prod",
+		"odb_network":              "projects/oasis-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":               "projects/oasis-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 
@@ -191,7 +191,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	context := map[string]interface{}{
 		"deletion_protection":      false,
 		"goldengate_connection_id": fmt.Sprintf("tf-conn-mysql-%s", acctest.RandString(t, 10)),
-		"project":                  "oci-terraform-testing-prod",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 
@@ -261,7 +261,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	context := map[string]interface{}{
 		"deletion_protection":      false,
 		"goldengate_connection_id": fmt.Sprintf("tf-conn-pg-%s", acctest.RandString(t, 10)),
-		"project":                  "oci-terraform-testing-prod",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 
@@ -323,7 +323,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	context := map[string]interface{}{
 		"deletion_protection":      false,
 		"goldengate_connection_id": fmt.Sprintf("tf-conn-redis-%s", acctest.RandString(t, 10)),
-		"project":                  "oci-terraform-testing-prod",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 
@@ -384,7 +384,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	context := map[string]interface{}{
 		"deletion_protection":      false,
 		"goldengate_connection_id": fmt.Sprintf("tf-conn-kafka-%s", acctest.RandString(t, 10)),
-		"project":                  "oci-terraform-testing-prod",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 
@@ -451,7 +451,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	context := map[string]interface{}{
 		"deletion_protection":      false,
 		"goldengate_connection_id": fmt.Sprintf("tf-conn-iceberg-%s", acctest.RandString(t, 10)),
-		"project":                  "oci-terraform-testing-prod",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 
@@ -524,7 +524,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	context := map[string]interface{}{
 		"deletion_protection":      false,
 		"goldengate_connection_id": fmt.Sprintf("tf-conn-snowflake-%s", acctest.RandString(t, 10)),
-		"project":                  "oci-terraform-testing-prod",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 
@@ -584,7 +584,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 	context := map[string]interface{}{
 		"deletion_protection":      false,
 		"goldengate_connection_id": fmt.Sprintf("tf-conn-jms-%s", acctest.RandString(t, 10)),
-		"project":                  "oci-terraform-testing-prod",
+		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
 

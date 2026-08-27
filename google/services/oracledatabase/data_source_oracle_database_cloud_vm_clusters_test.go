@@ -47,7 +47,7 @@ func testAccOracleDatabaseCloudVmClusters_basic() string {
 	return fmt.Sprintf(`
 data "google_oracle_database_cloud_vm_clusters" "my_vmclusters"{
   location = "us-east4"
-  project = "oci-terraform-testing-prod"
+  project = "oasis-terraform-testing-prod"
 }
 `)
 }

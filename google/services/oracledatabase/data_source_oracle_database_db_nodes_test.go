@@ -51,7 +51,7 @@ func testAccOracleDatabaseDbNodesConfig() string {
 	return fmt.Sprintf(`
 data "google_oracle_database_db_nodes" "my_db_nodes"{
 	location = "us-east4"
-	project = "oci-terraform-testing-prod"
+	project = "oasis-terraform-testing-prod"
 	cloud_vm_cluster = "ofake-do-not-delete-tf-vmcluster"
 }
 `)
