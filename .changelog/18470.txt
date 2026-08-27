@@ -1,0 +1,3 @@
+```release-note:bug
+iam: fixed validation of `google_iam_workload_identity_pool` IDs ending in `.svc.id.goog` where the base name ends in one of the suffix's characters
+```

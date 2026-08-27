@@ -65,9 +65,7 @@ func ValidateWorkloadIdentityPoolId(v interface{}, k string) (ws []string, error
 			"%q (%q) can not start with \"gcp-\"", k, value))
 	}
 
-	if strings.HasSuffix(value, defaultWorkloadIdentityPoolIdSuffix) {
-		value = strings.TrimRight(value, defaultWorkloadIdentityPoolIdSuffix)
-	}
+	value = strings.TrimSuffix(value, defaultWorkloadIdentityPoolIdSuffix)
 
 	if !regexp.MustCompile(workloadIdentityPoolIdRegexp).MatchString(value) {
 		errors = append(errors, fmt.Errorf(

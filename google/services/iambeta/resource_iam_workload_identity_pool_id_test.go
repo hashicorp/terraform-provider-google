@@ -33,6 +33,7 @@ func TestValidateIAMBetaWorkloadIdentityPoolId(t *testing.T) {
 		{TestName: "long", Value: "12345678901234567890123456789012"},
 		{TestName: "has a hyphen", Value: "foo-bar"},
 		{TestName: "default pool format", Value: "foo-bar.svc.id.goog"},
+		{TestName: "default pool format with base name ending in a suffix character", Value: "goods.svc.id.goog"},
 
 		// With errors
 		{TestName: "empty", Value: "", ExpectError: true},
@@ -42,6 +43,7 @@ func TestValidateIAMBetaWorkloadIdentityPoolId(t *testing.T) {
 		{TestName: "has an backslash", Value: "foo\bar", ExpectError: true},
 		{TestName: "too short", Value: "foo", ExpectError: true},
 		{TestName: "too long", Value: strings.Repeat("f", 33), ExpectError: true},
+		{TestName: "too long with suffix", Value: strings.Repeat("a", 32) + "g.svc.id.goog", ExpectError: true},
 	}
 
 	es := verify.TestStringValidationCases(x, iambeta.ValidateWorkloadIdentityPoolId)
