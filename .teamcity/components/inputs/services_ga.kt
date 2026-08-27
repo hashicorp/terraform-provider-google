@@ -601,11 +601,6 @@ var ServicesListGa = mapOf(
         "displayName" to "Migrationcenter",
         "path" to "./google/services/migrationcenter"
     ),
-    "mlengine" to mapOf(
-        "name" to "mlengine",
-        "displayName" to "Mlengine",
-        "path" to "./google/services/mlengine"
-    ),
     "modelarmor" to mapOf(
         "name" to "modelarmor",
         "displayName" to "ModelArmor",
@@ -655,11 +650,6 @@ var ServicesListGa = mapOf(
         "name" to "networkservices",
         "displayName" to "Networkservices",
         "path" to "./google/services/networkservices"
-    ),
-    "notebooks" to mapOf(
-        "name" to "notebooks",
-        "displayName" to "Notebooks",
-        "path" to "./google/services/notebooks"
     ),
     "observability" to mapOf(
         "name" to "observability",

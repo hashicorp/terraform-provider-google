@@ -636,11 +636,6 @@ var ServicesListBeta = mapOf(
         "displayName" to "Migrationcenter",
         "path" to "./google-beta/services/migrationcenter"
     ),
-    "mlengine" to mapOf(
-        "name" to "mlengine",
-        "displayName" to "Mlengine",
-        "path" to "./google-beta/services/mlengine"
-    ),
     "modelarmor" to mapOf(
         "name" to "modelarmor",
         "displayName" to "ModelArmor",
@@ -690,11 +685,6 @@ var ServicesListBeta = mapOf(
         "name" to "networkservices",
         "displayName" to "Networkservices",
         "path" to "./google-beta/services/networkservices"
-    ),
-    "notebooks" to mapOf(
-        "name" to "notebooks",
-        "displayName" to "Notebooks",
-        "path" to "./google-beta/services/notebooks"
     ),
     "observability" to mapOf(
         "name" to "observability",
