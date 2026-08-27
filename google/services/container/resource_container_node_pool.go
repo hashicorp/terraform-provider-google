@@ -33,11 +33,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
-	compute_tpg "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
-	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/container/v1"
 )
 
@@ -107,7 +105,7 @@ func (nodePoolCache *nodePoolCache) remove(nodePool string) {
 }
 
 type instanceGroupManagerWithUpdateTime struct {
-	instanceGroupManager *compute.InstanceGroupManager
+	instanceGroupManager map[string]interface{}
 	updateTime           time.Time
 }
 
@@ -117,7 +115,7 @@ type instanceGroupManagerCache struct {
 	mutex                 sync.RWMutex
 }
 
-func (instanceGroupManagerCache *instanceGroupManagerCache) get(fullyQualifiedName string) (*compute.InstanceGroupManager, bool) {
+func (instanceGroupManagerCache *instanceGroupManagerCache) get(fullyQualifiedName string) (map[string]interface{}, bool) {
 	instanceGroupManagerCache.mutex.RLock()
 	defer instanceGroupManagerCache.mutex.RUnlock()
 	igm, ok := instanceGroupManagerCache.instanceGroupManagers[fullyQualifiedName]
@@ -141,17 +139,55 @@ func (instanceGroupManagerCache *instanceGroupManagerCache) refreshIfNeeded(d *s
 	}
 
 	updateTime := time.Now()
-	err := compute_tpg.NewClient(config, userAgent).InstanceGroupManagers.List(matches[1], matches[2]).Pages(context.Background(), instanceGroupManagerCache.processList(updateTime))
-	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("InstanceGroupManagers for node pool %q", npName))
+	project := matches[1]
+	zone := matches[2]
+	computeBasePath := transport_tpg.BaseUrl(registry.GetProduct("compute"), config)
+	baseUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instanceGroupManagers", computeBasePath, project, zone)
+	pageToken := ""
+	for {
+		url := baseUrl
+		if pageToken != "" {
+			var err error
+			url, err = transport_tpg.AddQueryParams(baseUrl, map[string]string{"pageToken": pageToken})
+			if err != nil {
+				return err
+			}
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("InstanceGroupManagers for node pool %q", npName))
+		}
+		if err := instanceGroupManagerCache.processList(updateTime)(res); err != nil {
+			return err
+		}
+		token, ok := res["nextPageToken"].(string)
+		if !ok || token == "" {
+			break
+		}
+		pageToken = token
 	}
 	return nil
 }
 
-func (instanceGroupManagerCache *instanceGroupManagerCache) processList(updateTime time.Time) func(*compute.InstanceGroupManagerList) error {
-	return func(igmList *compute.InstanceGroupManagerList) error {
-		for _, instanceGroupManager := range igmList.Items {
-			fullyQualifiedName := instanceGroupManagerURL.FindString(instanceGroupManager.SelfLink)
+func (instanceGroupManagerCache *instanceGroupManagerCache) processList(updateTime time.Time) func(map[string]interface{}) error {
+	return func(igmList map[string]interface{}) error {
+		rawItems, ok := igmList["items"].([]interface{})
+		if !ok {
+			return nil
+		}
+		for _, raw := range rawItems {
+			instanceGroupManager, ok := raw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			selfLink, _ := instanceGroupManager["selfLink"].(string)
+			fullyQualifiedName := instanceGroupManagerURL.FindString(selfLink)
 			instanceGroupManagerCache.instanceGroupManagers[fullyQualifiedName] = &instanceGroupManagerWithUpdateTime{
 				instanceGroupManager: instanceGroupManager,
 				updateTime:           updateTime,
@@ -1465,9 +1501,14 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 				// The IGM URL is stale; don't include it
 				continue
 			}
-			size += int(igm.TargetSize)
+			targetSize, ok := igm["targetSize"].(float64)
+			if !ok {
+				return nil, fmt.Errorf("targetSize field is missing or not a number in instance group manager %q", matches[0])
+			}
+			size += int(targetSize)
 			igmUrls = append(igmUrls, url)
-			managedIgmUrls = append(managedIgmUrls, igm.InstanceGroup)
+			instanceGroup, _ := igm["instanceGroup"].(string)
+			managedIgmUrls = append(managedIgmUrls, instanceGroup)
 		}
 		if len(igmUrls) > 0 {
 			nodeCount = size / len(igmUrls)
