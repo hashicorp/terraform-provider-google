@@ -1,16 +1,14 @@
 ## 8.1.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Revert "diff-processor: improve ResourceIdentity coverage detection" ([#29044](https://github.com/hashicorp/terraform-provider-google/pull/29044))
-* Update CHANGELOG for version 8.0.0 and 7.46.0 ([#29051](https://github.com/hashicorp/terraform-provider-google/pull/29051))
 NOTES:
-* compute: Migrate google_compute_shared_vpc_host_project.go file to use direct HTTP rather than a client library ([#29071](https://github.com/hashicorp/terraform-provider-google/pull/29071))
 * compute: migrated `google_compute_global_address` data source to use direct HTTP rather than a client library ([#29038](https://github.com/hashicorp/terraform-provider-google/pull/29038))
 * compute: migrated `google_compute_interconnect_locations` data source to use direct HTTP rather than a client library ([#29055](https://github.com/hashicorp/terraform-provider-google/pull/29055))
-* resource: Migrate resource_container_node_pool.go.tmpl to use direct HTTP rather than a client library ([#29070](https://github.com/hashicorp/terraform-provider-google/pull/29070))
-* resourcemanager: Migrate resource_google_project.go resource to use direct HTTP rather than a client library ([#29054](https://github.com/hashicorp/terraform-provider-google/pull/29054))
+* compute: migrated `google_compute_shared_vpc_host_project` to use direct HTTP rather than a client library ([#29071](https://github.com/hashicorp/terraform-provider-google/pull/29071))
+* container: migrated `google_container_node_pool` to use direct HTTP rather than a client library ([#29070](https://github.com/hashicorp/terraform-provider-google/pull/29070))
+* resourcemanager: migrated `google_project` to use direct HTTP rather than a client library ([#29054](https://github.com/hashicorp/terraform-provider-google/pull/29054))
+
 DEPRECATIONS:
-* workstations: `google_workstations_workstation_config.details` is deprecated and will be removed in a future major release. This field is no longer populated from the API ([#29075](https://github.com/hashicorp/terraform-provider-google/pull/29075))
+* workstations: deprecated `details` in `google_workstations_workstation_config` (no longer populated by the API; will be removed in a future major release) ([#29075](https://github.com/hashicorp/terraform-provider-google/pull/29075))
 
 FEATURES:
 * **New List Resource:** `google_apigee_addons_config` ([#29039](https://github.com/hashicorp/terraform-provider-google/pull/29039))
@@ -23,16 +21,16 @@ FEATURES:
 * **New List Resource:** `google_apigee_organization` ([#29065](https://github.com/hashicorp/terraform-provider-google/pull/29065))
 * **New List Resource:** `google_apigee_target_server` ([#29065](https://github.com/hashicorp/terraform-provider-google/pull/29065))
 * **New List Resource:** `google_colab_notebook_execution` ([#29064](https://github.com/hashicorp/terraform-provider-google/pull/29064))
-* **New List Resource:** `google_colab_runtime_template` ([#29064](https://github.com/hashicorp/terraform-provider-google/pull/29064))
 * **New List Resource:** `google_colab_runtime` ([#29064](https://github.com/hashicorp/terraform-provider-google/pull/29064))
+* **New List Resource:** `google_colab_runtime_template` ([#29064](https://github.com/hashicorp/terraform-provider-google/pull/29064))
 * **New List Resource:** `google_colab_schedule` ([#29064](https://github.com/hashicorp/terraform-provider-google/pull/29064))
 * **New Resource:** `google_eventarc_pipeline_iam_binding` ([#29080](https://github.com/hashicorp/terraform-provider-google/pull/29080))
 * **New Resource:** `google_eventarc_pipeline_iam_member` ([#29080](https://github.com/hashicorp/terraform-provider-google/pull/29080))
 * **New Resource:** `google_eventarc_pipeline_iam_policy` ([#29080](https://github.com/hashicorp/terraform-provider-google/pull/29080))
 * **New Resource:** `google_monitoring_snooze` ([#29037](https://github.com/hashicorp/terraform-provider-google/pull/29037))
+* **New Resource:** `google_network_management_network_monitoring_provider` ([#29056](https://github.com/hashicorp/terraform-provider-google/pull/29056))
 * **New Resource:** `google_observability_bucket` ([#29076](https://github.com/hashicorp/terraform-provider-google/pull/29076))
-* **New Resource:** networkmanagement: added `google_network_management_network_monitoring_provider` resource ([#29056](https://github.com/hashicorp/terraform-provider-google/pull/29056))
-* **New Resource:** securitycenter: added `google_scc_notification_service_account` resource ([#29043](https://github.com/hashicorp/terraform-provider-google/pull/29043))
+* **New Resource:** `google_scc_notification_service_account` ([#29043](https://github.com/hashicorp/terraform-provider-google/pull/29043))
 
 IMPROVEMENTS:
 * bigqueryanalyticshub: added `destination_pubsub_subscription` to `google_bigquery_analytics_hub_listing_subscription` ([#29062](https://github.com/hashicorp/terraform-provider-google/pull/29062))
@@ -49,9 +47,9 @@ IMPROVEMENTS:
 * networkservices: added `forward_attributes` field to `google_network_services_authz_extension` ([#29025](https://github.com/hashicorp/terraform-provider-google/pull/29025))
 * servicenetworking: added `REMOVE_PEERING` value to `deletion_policy` on `google_service_networking_connection`, which removes the VPC peering when the connection cannot be deleted because service producer resources still use it ([#29036](https://github.com/hashicorp/terraform-provider-google/pull/29036))
 * vertexai: added `gateway_configs` field to `google_vertex_ai_semantic_governance_policy_engine` ([#29031](https://github.com/hashicorp/terraform-provider-google/pull/29031))
-* vertexai: added `spec.deployment_spec.agent_gateway_config` field to `google_vertex_ai_reasoning_engine` (ga) ([#29029](https://github.com/hashicorp/terraform-provider-google/pull/29029))
-* vertexai: added `spec.source_code_spec.agent_config_source` field to `google_vertex_ai_reasoning_engine` (ga) ([#29046](https://github.com/hashicorp/terraform-provider-google/pull/29046))
-* vertexai: added spec.build_spec.service_account field to google_vertex_ai_reasoning_engine ([#29034](https://github.com/hashicorp/terraform-provider-google/pull/29034))
+* vertexai: added `spec.build_spec.service_account` field to `google_vertex_ai_reasoning_engine` ([#29034](https://github.com/hashicorp/terraform-provider-google/pull/29034))
+* vertexai: added `spec.deployment_spec.agent_gateway_config` field to `google_vertex_ai_reasoning_engine` ([#29029](https://github.com/hashicorp/terraform-provider-google/pull/29029))
+* vertexai: added `spec.source_code_spec.agent_config_source` field to `google_vertex_ai_reasoning_engine` ([#29046](https://github.com/hashicorp/terraform-provider-google/pull/29046))
 * vertexai: promoted `build_spec` to GA in `google_vertex_ai_reasoning_engine` ([#29077](https://github.com/hashicorp/terraform-provider-google/pull/29077))
 
 BUG FIXES:
@@ -61,7 +59,6 @@ BUG FIXES:
 * iam: fixed validation of `google_iam_workload_identity_pool` IDs ending in `.svc.id.goog` where the base name ends in one of the suffix's characters ([#29072](https://github.com/hashicorp/terraform-provider-google/pull/29072))
 * provider: fixed an issue where an invalid `credentials` value could be echoed back in the error message when it failed to parse ([#29057](https://github.com/hashicorp/terraform-provider-google/pull/29057))
 * workstations: fixed unconvertible type error when reading `conditions` in `google_workstations_workstation_config` and `google_workstations_workstation_cluster` ([#29075](https://github.com/hashicorp/terraform-provider-google/pull/29075))
-
 
 ## 8.0.0 (August 26, 2026)
 
