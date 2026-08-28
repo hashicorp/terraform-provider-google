@@ -4503,6 +4503,13 @@ func expandCloudRunV2ServiceTemplateAnnotations(v interface{}, d tpgresource.Ter
 	return m, nil
 }
 
+// expandCloudRunV2ServiceTemplateScaling uses raw config inspection to support explicitly
+// disabling autoscaling signals by setting `cpu_utilization = 0` or `concurrency_utilization = 0`.
+//
+// In Terraform SDKv2, 0.0 is the zero value for floats and is omitted by default. Conversely,
+// unconfigured float fields default to 0.0 in schema data, which if sent unconditionally triggers
+// Cloud Run API 400 errors ("CPU and concurrency scaling cannot both be disabled").
+// Using GetRawConfigAt ensures 0.0 is only included in the payload when explicitly specified in HCL.
 func expandCloudRunV2ServiceTemplateScaling(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -4511,33 +4518,17 @@ func expandCloudRunV2ServiceTemplateScaling(v interface{}, d tpgresource.Terrafo
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
 	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
+	original := l[0].(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedMinInstanceCount, err := expandCloudRunV2ServiceTemplateScalingMinInstanceCount(original["min_instance_count"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMinInstanceCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["minInstanceCount"] = transformedMinInstanceCount
+	if min, ok := original["min_instance_count"].(int); ok && min > 0 {
+		transformed["minInstanceCount"] = min
 	}
-
-	transformedMaxInstanceCount, err := expandCloudRunV2ServiceTemplateScalingMaxInstanceCount(original["max_instance_count"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxInstanceCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["maxInstanceCount"] = transformedMaxInstanceCount
+	if max, ok := original["max_instance_count"].(int); ok && max > 0 {
+		transformed["maxInstanceCount"] = max
 	}
 
 	return transformed, nil
-}
-
-func expandCloudRunV2ServiceTemplateScalingMinInstanceCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2ServiceTemplateScalingMaxInstanceCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandCloudRunV2ServiceTemplateVpcAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
