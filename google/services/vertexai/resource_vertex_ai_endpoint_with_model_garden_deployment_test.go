@@ -32,6 +32,8 @@ import (
 
 func TestAccVertexAIEndpointWithModelGardenDeployment_basic(t *testing.T) {
 	t.Parallel()
+	t.Skip("b/514579514 for manual test logs")
+
 	context := map[string]interface{}{"random_suffix": acctest.RandString(t, 10)}
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -59,6 +61,7 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "test" {
 
 func TestAccVertexAIEndpointWithModelGardenDeployment_withConfigs(t *testing.T) {
 	t.Parallel()
+	t.Skip("b/514579514 for manual test logs")
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
@@ -210,6 +213,8 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-llama-
 
 func TestAccVertexAIEndpointWithModelGardenDeployment_pscEndpoint(t *testing.T) {
 	t.Parallel()
+	t.Skip("b/514579514 for manual test logs")
+
 	context := map[string]interface{}{"random_suffix": acctest.RandString(t, 10)}
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -247,6 +252,8 @@ data "google_project" "project" {}
 
 func TestAccVertexAIEndpointWithModelGardenDeployment_pscEndpointAutomated(t *testing.T) {
 	t.Parallel()
+	t.Skip("b/514579514 for manual test logs")
+
 	context := map[string]interface{}{"random_suffix": acctest.RandString(t, 10)}
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

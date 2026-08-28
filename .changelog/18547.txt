@@ -1,0 +1,3 @@
+```release-note:bug
+vertexai: fixed `google_vertex_ai_endpoint_with_model_garden_deployment` not detecting drift in replica counts, because the resource had no Read implementation; out-of-band changes to `min_replica_count`, `max_replica_count` and `required_replica_count` are now surfaced on `terraform plan`
+```
