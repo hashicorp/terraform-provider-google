@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `proactive_execution_enabled` field to `google_ces_guardrail`
+```

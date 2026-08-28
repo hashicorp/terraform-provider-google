@@ -17,15 +17,19 @@ fields:
       provider_only: true
     - api_field: codeCallback.afterAgentCallback.description
     - api_field: codeCallback.afterAgentCallback.disabled
+    - api_field: codeCallback.afterAgentCallback.proactiveExecutionEnabled
     - api_field: codeCallback.afterAgentCallback.pythonCode
     - api_field: codeCallback.afterModelCallback.description
     - api_field: codeCallback.afterModelCallback.disabled
+    - api_field: codeCallback.afterModelCallback.proactiveExecutionEnabled
     - api_field: codeCallback.afterModelCallback.pythonCode
     - api_field: codeCallback.beforeAgentCallback.description
     - api_field: codeCallback.beforeAgentCallback.disabled
+    - api_field: codeCallback.beforeAgentCallback.proactiveExecutionEnabled
     - api_field: codeCallback.beforeAgentCallback.pythonCode
     - api_field: codeCallback.beforeModelCallback.description
     - api_field: codeCallback.beforeModelCallback.disabled
+    - api_field: codeCallback.beforeModelCallback.proactiveExecutionEnabled
     - api_field: codeCallback.beforeModelCallback.pythonCode
     - api_field: contentFilter.bannedContents
     - api_field: contentFilter.bannedContentsInAgentResponse
