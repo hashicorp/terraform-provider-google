@@ -318,6 +318,7 @@ resource "google_ces_guardrail" "ces_guardrail_code_callback" {
         description = "Example callback"
         disabled    = true
         python_code = "def callback(context):\n    return {'override': False}"
+        proactive_execution_enabled = true
     }
   }
 }
@@ -543,6 +544,15 @@ The following arguments are supported:
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
 
+* `proactive_execution_enabled` -
+  (Optional)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
+
 * `python_code` -
   (Required)
   The python code to execute for the callback.
@@ -557,6 +567,15 @@ The following arguments are supported:
   (Optional)
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
+
+* `proactive_execution_enabled` -
+  (Optional)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
 
 * `python_code` -
   (Required)
@@ -573,6 +592,15 @@ The following arguments are supported:
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
 
+* `proactive_execution_enabled` -
+  (Optional)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
+
 * `python_code` -
   (Required)
   The python code to execute for the callback.
@@ -587,6 +615,15 @@ The following arguments are supported:
   (Optional)
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
+
+* `proactive_execution_enabled` -
+  (Optional)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
 
 * `python_code` -
   (Required)
