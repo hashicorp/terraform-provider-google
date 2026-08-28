@@ -113,6 +113,25 @@ func ResourceVertexAIEndpointWithModelGardenDeployment() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"location": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"location": {
 				Type:        schema.TypeString,
@@ -122,6 +141,7 @@ func ResourceVertexAIEndpointWithModelGardenDeployment() *schema.Resource {
 			},
 			"deploy_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The deploy config to use for the deployment.`,
@@ -305,6 +325,7 @@ percentage, the machine replicas change. The default value is 60
 									},
 									"max_replica_count": {
 										Type:     schema.TypeInt,
+										Computed: true,
 										Optional: true,
 										Description: `The maximum number of replicas that may be deployed on when the traffic
 against it increases. If the requested value is too large, the deployment
@@ -1711,8 +1732,96 @@ func resourceVertexAIEndpointWithModelGardenDeploymentCreate(d *schema.ResourceD
 }
 
 func resourceVertexAIEndpointWithModelGardenDeploymentRead(d *schema.ResourceData, meta interface{}) error {
-	// This resource could not be read from the API.
-	return nil
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}")
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for EndpointWithModelGardenDeployment: %s", err)
+	}
+	billingProject = project
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	headers := make(http.Header)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Headers:   headers,
+	})
+	if err != nil {
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VertexAIEndpointWithModelGardenDeployment %q", d.Id()))
+	}
+
+	log.Printf("[DEBUG] Finished reading VertexAIEndpointWithModelGardenDeployment %q: %#v", d.Id(), res)
+
+	res, err = resourceVertexAIEndpointWithModelGardenDeploymentDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing VertexAIEndpointWithModelGardenDeployment because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		//prioritize config's value if present
+		if config.DeletionPolicy != "" {
+			if err := d.Set("deletion_policy", config.DeletionPolicy); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		} else {
+			if err := d.Set("deletion_policy", "DELETE"); err != nil {
+				return fmt.Errorf("Error setting deletion_policy: %s", err)
+			}
+		}
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading EndpointWithModelGardenDeployment: %s", err)
+	}
+
+	err = ResourceVertexAIEndpointWithModelGardenDeploymentFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
+	if err != nil {
+		return err
+	}
+
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("location"); !ok && v == "" {
+			err = identity.Set("location", d.Get("location").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
 
 	return nil
 }
@@ -1957,1151 +2066,11 @@ func flattenVertexAIEndpointWithModelGardenDeploymentHuggingFaceModelId(v interf
 }
 
 func flattenVertexAIEndpointWithModelGardenDeploymentModelConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["hugging_face_cache_enabled"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigHuggingFaceCacheEnabled(original["huggingFaceCacheEnabled"], d, config)
-	transformed["model_display_name"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigModelDisplayName(original["modelDisplayName"], d, config)
-	transformed["container_spec"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpec(original["containerSpec"], d, config)
-	transformed["accept_eula"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigAcceptEula(original["acceptEula"], d, config)
-	transformed["hugging_face_access_token"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigHuggingFaceAccessToken(original["huggingFaceAccessToken"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigHuggingFaceCacheEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigModelDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["ports"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecPorts(original["ports"], d, config)
-	transformed["predict_route"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecPredictRoute(original["predictRoute"], d, config)
-	transformed["health_route"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthRoute(original["healthRoute"], d, config)
-	transformed["deployment_timeout"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecDeploymentTimeout(original["deploymentTimeout"], d, config)
-	transformed["startup_probe"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbe(original["startupProbe"], d, config)
-	transformed["health_probe"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbe(original["healthProbe"], d, config)
-	transformed["image_uri"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecImageUri(original["imageUri"], d, config)
-	transformed["command"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecCommand(original["command"], d, config)
-	transformed["args"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecArgs(original["args"], d, config)
-	transformed["grpc_ports"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecGrpcPorts(original["grpcPorts"], d, config)
-	transformed["shared_memory_size_mb"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecSharedMemorySizeMb(original["sharedMemorySizeMb"], d, config)
-	transformed["liveness_probe"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbe(original["livenessProbe"], d, config)
-	transformed["env"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecEnv(original["env"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for i, raw := range l {
-		_ = i
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"container_port": flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecPortsContainerPort(original["containerPort"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecPortsContainerPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecPredictRoute(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthRoute(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecDeploymentTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbe(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["exec"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeExec(original["exec"], d, config)
-	transformed["http_get"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGet(original["httpGet"], d, config)
-	transformed["grpc"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeGrpc(original["grpc"], d, config)
-	transformed["tcp_socket"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeTcpSocket(original["tcpSocket"], d, config)
-	transformed["timeout_seconds"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeTimeoutSeconds(original["timeoutSeconds"], d, config)
-	transformed["success_threshold"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeSuccessThreshold(original["successThreshold"], d, config)
-	transformed["initial_delay_seconds"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeInitialDelaySeconds(original["initialDelaySeconds"], d, config)
-	transformed["period_seconds"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbePeriodSeconds(original["periodSeconds"], d, config)
-	transformed["failure_threshold"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeFailureThreshold(original["failureThreshold"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeExec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["command"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeExecCommand(original["command"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeExecCommand(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["path"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetPath(original["path"], d, config)
-	transformed["port"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetPort(original["port"], d, config)
-	transformed["host"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetHost(original["host"], d, config)
-	transformed["scheme"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetScheme(original["scheme"], d, config)
-	transformed["http_headers"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetHttpHeaders(original["httpHeaders"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetScheme(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetHttpHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for i, raw := range l {
-		_ = i
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"value": flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetHttpHeadersValue(original["value"], d, config),
-			"name":  flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetHttpHeadersName(original["name"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetHttpHeadersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeHttpGetHttpHeadersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeGrpc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["port"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeGrpcPort(original["port"], d, config)
-	transformed["service"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeGrpcService(original["service"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeGrpcPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeGrpcService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeTcpSocket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["port"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeTcpSocketPort(original["port"], d, config)
-	transformed["host"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeTcpSocketHost(original["host"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeTcpSocketPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeTcpSocketHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeSuccessThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeInitialDelaySeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbePeriodSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecStartupProbeFailureThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbe(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["exec"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeExec(original["exec"], d, config)
-	transformed["http_get"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGet(original["httpGet"], d, config)
-	transformed["grpc"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeGrpc(original["grpc"], d, config)
-	transformed["tcp_socket"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeTcpSocket(original["tcpSocket"], d, config)
-	transformed["timeout_seconds"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeTimeoutSeconds(original["timeoutSeconds"], d, config)
-	transformed["success_threshold"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeSuccessThreshold(original["successThreshold"], d, config)
-	transformed["initial_delay_seconds"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeInitialDelaySeconds(original["initialDelaySeconds"], d, config)
-	transformed["period_seconds"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbePeriodSeconds(original["periodSeconds"], d, config)
-	transformed["failure_threshold"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeFailureThreshold(original["failureThreshold"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeExec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["command"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeExecCommand(original["command"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeExecCommand(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["path"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetPath(original["path"], d, config)
-	transformed["port"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetPort(original["port"], d, config)
-	transformed["host"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetHost(original["host"], d, config)
-	transformed["scheme"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetScheme(original["scheme"], d, config)
-	transformed["http_headers"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetHttpHeaders(original["httpHeaders"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetScheme(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetHttpHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for i, raw := range l {
-		_ = i
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetHttpHeadersName(original["name"], d, config),
-			"value": flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetHttpHeadersValue(original["value"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetHttpHeadersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeHttpGetHttpHeadersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeGrpc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["port"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeGrpcPort(original["port"], d, config)
-	transformed["service"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeGrpcService(original["service"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeGrpcPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeGrpcService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeTcpSocket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["port"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeTcpSocketPort(original["port"], d, config)
-	transformed["host"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeTcpSocketHost(original["host"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeTcpSocketPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeTcpSocketHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeSuccessThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeInitialDelaySeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbePeriodSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecHealthProbeFailureThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecImageUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecCommand(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecArgs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecGrpcPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for i, raw := range l {
-		_ = i
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"container_port": flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecGrpcPortsContainerPort(original["containerPort"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecGrpcPortsContainerPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecSharedMemorySizeMb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbe(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["exec"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeExec(original["exec"], d, config)
-	transformed["http_get"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGet(original["httpGet"], d, config)
-	transformed["grpc"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeGrpc(original["grpc"], d, config)
-	transformed["tcp_socket"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeTcpSocket(original["tcpSocket"], d, config)
-	transformed["timeout_seconds"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeTimeoutSeconds(original["timeoutSeconds"], d, config)
-	transformed["success_threshold"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeSuccessThreshold(original["successThreshold"], d, config)
-	transformed["initial_delay_seconds"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeInitialDelaySeconds(original["initialDelaySeconds"], d, config)
-	transformed["period_seconds"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbePeriodSeconds(original["periodSeconds"], d, config)
-	transformed["failure_threshold"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeFailureThreshold(original["failureThreshold"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeExec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["command"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeExecCommand(original["command"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeExecCommand(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["path"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetPath(original["path"], d, config)
-	transformed["port"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetPort(original["port"], d, config)
-	transformed["host"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetHost(original["host"], d, config)
-	transformed["scheme"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetScheme(original["scheme"], d, config)
-	transformed["http_headers"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetHttpHeaders(original["httpHeaders"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetScheme(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetHttpHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for i, raw := range l {
-		_ = i
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetHttpHeadersName(original["name"], d, config),
-			"value": flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetHttpHeadersValue(original["value"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetHttpHeadersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeHttpGetHttpHeadersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeGrpc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["service"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeGrpcService(original["service"], d, config)
-	transformed["port"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeGrpcPort(original["port"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeGrpcService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeGrpcPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeTcpSocket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["port"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeTcpSocketPort(original["port"], d, config)
-	transformed["host"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeTcpSocketHost(original["host"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeTcpSocketPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeTcpSocketHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeSuccessThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeInitialDelaySeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbePeriodSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecLivenessProbeFailureThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for i, raw := range l {
-		_ = i
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecEnvName(original["name"], d, config),
-			"value": flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecEnvValue(original["value"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecEnvName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigContainerSpecEnvValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigAcceptEula(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentModelConfigHuggingFaceAccessToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	return d.Get("model_config")
 }
 
 func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["endpoint_display_name"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigEndpointDisplayName(original["endpointDisplayName"], d, config)
-	transformed["dedicated_endpoint_enabled"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigDedicatedEndpointEnabled(original["dedicatedEndpointEnabled"], d, config)
-	transformed["private_service_connect_config"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfig(original["privateServiceConnectConfig"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigEndpointDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigDedicatedEndpointEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["enable_private_service_connect"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigEnablePrivateServiceConnect(original["enablePrivateServiceConnect"], d, config)
-	transformed["project_allowlist"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigProjectAllowlist(original["projectAllowlist"], d, config)
-	transformed["psc_automation_configs"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(original["pscAutomationConfigs"], d, config)
-	transformed["service_attachment"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigServiceAttachment(original["serviceAttachment"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigEnablePrivateServiceConnect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigProjectAllowlist(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["project_id"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsProjectId(original["projectId"], d, config)
-	transformed["network"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsNetwork(original["network"], d, config)
-	transformed["ip_address"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsIpAddress(original["ipAddress"], d, config)
-	transformed["forwarding_rule"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsForwardingRule(original["forwardingRule"], d, config)
-	transformed["state"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsState(original["state"], d, config)
-	transformed["error_message"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsErrorMessage(original["errorMessage"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsForwardingRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigPscAutomationConfigsErrorMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfigPrivateServiceConnectConfigServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	return d.Get("endpoint_config")
 }
 
 func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3149,101 +2118,7 @@ func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResour
 	return []interface{}{transformed}
 }
 func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["reservation_affinity"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecReservationAffinity(original["reservationAffinity"], d, config)
-	transformed["machine_type"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecMachineType(original["machineType"], d, config)
-	transformed["accelerator_type"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecAcceleratorType(original["acceleratorType"], d, config)
-	transformed["accelerator_count"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecAcceleratorCount(original["acceleratorCount"], d, config)
-	transformed["tpu_topology"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecTpuTopology(original["tpuTopology"], d, config)
-	transformed["multihost_gpu_node_count"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecMultihostGpuNodeCount(original["multihostGpuNodeCount"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecReservationAffinity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["reservation_affinity_type"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecReservationAffinityReservationAffinityType(original["reservationAffinityType"], d, config)
-	transformed["key"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecReservationAffinityKey(original["key"], d, config)
-	transformed["values"] =
-		flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecReservationAffinityValues(original["values"], d, config)
-	return []interface{}{transformed}
-}
-func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecReservationAffinityReservationAffinityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecReservationAffinityKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecReservationAffinityValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecMachineType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecAcceleratorType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecAcceleratorCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecTpuTopology(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMachineSpecMultihostGpuNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
+	return d.Get("deploy_config.0.dedicated_resources.0.machine_spec")
 }
 
 func flattenVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourcesMinReplicaCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5031,4 +3906,94 @@ func expandVertexAIEndpointWithModelGardenDeploymentDeployConfigDedicatedResourc
 
 func expandVertexAIEndpointWithModelGardenDeploymentDeployConfigFastTryoutEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceVertexAIEndpointWithModelGardenDeploymentDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	deployedModelId, _ := d.Get("deployed_model_id").(string)
+
+	deployedModels, _ := res["deployedModels"].([]interface{})
+	var deployedModel map[string]interface{}
+	for _, raw := range deployedModels {
+		m, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if id, _ := m["id"].(string); id == deployedModelId {
+			deployedModel = m
+			break
+		}
+	}
+	if deployedModel == nil {
+		d.SetId("")
+		return nil, nil
+	}
+
+	apiResources, _ := deployedModel["dedicatedResources"].(map[string]interface{})
+	if apiResources == nil {
+		apiResources = map[string]interface{}{}
+	}
+
+	const resourcesPrefix = "deploy_config.0.dedicated_resources.0."
+
+	dedicatedResources := map[string]interface{}{
+		"spot":                   d.Get(resourcesPrefix + "spot"),
+		"autoscalingMetricSpecs": d.Get(resourcesPrefix + "autoscaling_metric_specs"),
+	}
+
+	// The API omits these when they hold their zero value, so fall back to state
+	// rather than reporting drift that isn't there.
+	for apiKey, stateKey := range map[string]string{
+		"minReplicaCount":      "min_replica_count",
+		"maxReplicaCount":      "max_replica_count",
+		"requiredReplicaCount": "required_replica_count",
+	} {
+		if v, ok := apiResources[apiKey]; ok {
+			dedicatedResources[apiKey] = v
+		} else {
+			dedicatedResources[apiKey] = d.Get(resourcesPrefix + stateKey)
+		}
+	}
+
+	res["deployConfig"] = map[string]interface{}{
+		"dedicatedResources": dedicatedResources,
+		"systemLabels":       d.Get("deploy_config.0.system_labels"),
+		"fastTryoutEnabled":  d.Get("deploy_config.0.fast_tryout_enabled"),
+	}
+
+	res["publisherModelName"] = d.Get("publisher_model_name")
+	res["huggingFaceModelId"] = d.Get("hugging_face_model_id")
+	res["deployedModelId"] = deployedModelId
+	if v, ok := deployedModel["displayName"]; ok {
+		res["deployedModelDisplayName"] = v
+	}
+
+	return res, nil
+}
+
+func ResourceVertexAIEndpointWithModelGardenDeploymentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
+	var err error
+
+	if err = d.Set("deployed_model_id", flattenVertexAIEndpointWithModelGardenDeploymentDeployedModelId(res["deployedModelId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointWithModelGardenDeployment: %s", err)
+	}
+	if err = d.Set("deployed_model_display_name", flattenVertexAIEndpointWithModelGardenDeploymentDeployedModelDisplayName(res["deployedModelDisplayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointWithModelGardenDeployment: %s", err)
+	}
+	if err = d.Set("publisher_model_name", flattenVertexAIEndpointWithModelGardenDeploymentPublisherModelName(res["publisherModelName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointWithModelGardenDeployment: %s", err)
+	}
+	if err = d.Set("hugging_face_model_id", flattenVertexAIEndpointWithModelGardenDeploymentHuggingFaceModelId(res["huggingFaceModelId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointWithModelGardenDeployment: %s", err)
+	}
+	if err = d.Set("model_config", flattenVertexAIEndpointWithModelGardenDeploymentModelConfig(res["modelConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointWithModelGardenDeployment: %s", err)
+	}
+	if err = d.Set("endpoint_config", flattenVertexAIEndpointWithModelGardenDeploymentEndpointConfig(res["endpointConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointWithModelGardenDeployment: %s", err)
+	}
+	if err = d.Set("deploy_config", flattenVertexAIEndpointWithModelGardenDeploymentDeployConfig(res["deployConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EndpointWithModelGardenDeployment: %s", err)
+	}
+
+	return nil
 }
