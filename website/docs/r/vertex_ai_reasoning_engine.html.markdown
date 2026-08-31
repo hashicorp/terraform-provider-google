@@ -561,6 +561,17 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
                     output  = "pizza"
                   }
                 }
+                parts {
+                  audio_transcription {
+                    speaker_label = "spk_1"
+                    text          = "I like pepperoni pizza"
+                    words {
+                      start_offset = "0.5s"
+                      end_offset   = "1.5s"
+                      word         = "pepperoni"
+                    }
+                  }
+                }
               }
             }
           }
@@ -1728,6 +1739,11 @@ When set to "DELETE", deleting the resource is permitted.
   Video metadata.
   Structure is [documented below](#nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_conversation_source_events_content_parts_video_metadata).
 
+* `audio_transcription` -
+  (Optional)
+  Audio (input or output) transcription. This is only set when this Part contains audio data.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_conversation_source_events_content_parts_audio_transcription).
+
 
 <a name="nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_conversation_source_events_content_parts_inline_data"></a>The `inline_data` block supports:
 
@@ -1814,6 +1830,36 @@ When set to "DELETE", deleting the resource is permitted.
 * `end_offset` -
   (Optional)
   The end offset of the video.
+
+<a name="nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_conversation_source_events_content_parts_audio_transcription"></a>The `audio_transcription` block supports:
+
+* `speaker_label` -
+  (Optional)
+  A label identifying the speaker of this audio segment (e.g. spk_1, spk_2). Present when diarization is set.
+
+* `text` -
+  (Required)
+  The transcription text of this audio segment.
+
+* `words` -
+  (Optional)
+  Detailed word-level transcriptions and timing details. Present when word_timestamp is set.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_conversation_source_events_content_parts_audio_transcription_words).
+
+
+<a name="nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_conversation_source_events_content_parts_audio_transcription_words"></a>The `words` block supports:
+
+* `end_offset` -
+  (Optional)
+  End offset in time of the word relative to the start of the audio.
+
+* `start_offset` -
+  (Optional)
+  Start offset in time of the word relative to the start of the audio.
+
+* `word` -
+  (Required)
+  Transcript of the word.
 
 <a name="nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_generated_memories"></a>The `generated_memories` block supports:
 

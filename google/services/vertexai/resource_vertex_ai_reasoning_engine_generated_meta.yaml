@@ -10,6 +10,11 @@ fields:
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.consolidationConfig.revisionsPerCandidateCount
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.disableNaturalLanguageMemories
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.enableThirdPersonMemories
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.audioTranscription.speakerLabel
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.audioTranscription.text
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.audioTranscription.words.endOffset
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.audioTranscription.words.startOffset
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.audioTranscription.words.word
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.codeExecutionResult.id
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.codeExecutionResult.outcome
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.codeExecutionResult.output
