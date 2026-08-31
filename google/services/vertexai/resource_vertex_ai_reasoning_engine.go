@@ -262,6 +262,52 @@ func ResourceVertexAIReasoningEngine() *schema.Resource {
 																									Description: `A list of Part objects that make up a single message.`,
 																									Elem: &schema.Resource{
 																										Schema: map[string]*schema.Schema{
+																											"audio_transcription": {
+																												Type:        schema.TypeList,
+																												Optional:    true,
+																												Description: `Audio (input or output) transcription. This is only set when this Part contains audio data.`,
+																												MaxItems:    1,
+																												Elem: &schema.Resource{
+																													Schema: map[string]*schema.Schema{
+																														"text": {
+																															Type:        schema.TypeString,
+																															Required:    true,
+																															Description: `The transcription text of this audio segment.`,
+																														},
+																														"speaker_label": {
+																															Type:        schema.TypeString,
+																															Optional:    true,
+																															Description: `A label identifying the speaker of this audio segment (e.g. spk_1, spk_2). Present when diarization is set.`,
+																														},
+																														"words": {
+																															Type:        schema.TypeList,
+																															Optional:    true,
+																															Description: `Detailed word-level transcriptions and timing details. Present when word_timestamp is set.`,
+																															Elem: &schema.Resource{
+																																Schema: map[string]*schema.Schema{
+																																	"word": {
+																																		Type:        schema.TypeString,
+																																		Required:    true,
+																																		Description: `Transcript of the word.`,
+																																	},
+																																	"end_offset": {
+																																		Type:             schema.TypeString,
+																																		Optional:         true,
+																																		DiffSuppressFunc: tpgresource.DurationDiffSuppress,
+																																		Description:      `End offset in time of the word relative to the start of the audio.`,
+																																	},
+																																	"start_offset": {
+																																		Type:             schema.TypeString,
+																																		Optional:         true,
+																																		DiffSuppressFunc: tpgresource.DurationDiffSuppress,
+																																		Description:      `Start offset in time of the word relative to the start of the audio.`,
+																																	},
+																																},
+																															},
+																														},
+																													},
+																												},
+																											},
 																											"code_execution_result": {
 																												Type:        schema.TypeList,
 																												Optional:    true,
@@ -3121,6 +3167,7 @@ func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfi
 			"executable_code":       flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCode(original["executableCode"], d, config),
 			"code_execution_result": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResult(original["codeExecutionResult"], d, config),
 			"video_metadata":        flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadata(original["videoMetadata"], d, config),
+			"audio_transcription":   flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscription(original["audioTranscription"], d, config),
 		})
 	}
 	return transformed
@@ -3331,6 +3378,64 @@ func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfi
 }
 
 func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadataEndOffset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["speaker_label"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionSpeakerLabel(original["speakerLabel"], d, config)
+	transformed["text"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionText(original["text"], d, config)
+	transformed["words"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWords(original["words"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionSpeakerLabel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionText(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWords(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"end_offset":   flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsEndOffset(original["endOffset"], d, config),
+			"start_offset": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsStartOffset(original["startOffset"], d, config),
+			"word":         flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsWord(original["word"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsEndOffset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsStartOffset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsWord(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5147,6 +5252,13 @@ func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfig
 			transformed["videoMetadata"] = transformedVideoMetadata
 		}
 
+		transformedAudioTranscription, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscription(original["audio_transcription"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAudioTranscription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["audioTranscription"] = transformedAudioTranscription
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -5476,6 +5588,101 @@ func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfig
 }
 
 func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadataEndOffset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSpeakerLabel, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionSpeakerLabel(original["speaker_label"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSpeakerLabel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["speakerLabel"] = transformedSpeakerLabel
+	}
+
+	transformedText, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionText(original["text"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedText); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["text"] = transformedText
+	}
+
+	transformedWords, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWords(original["words"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWords); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["words"] = transformedWords
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionSpeakerLabel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWords(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedEndOffset, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsEndOffset(original["end_offset"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEndOffset); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["endOffset"] = transformedEndOffset
+		}
+
+		transformedStartOffset, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsStartOffset(original["start_offset"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStartOffset); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["startOffset"] = transformedStartOffset
+		}
+
+		transformedWord, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsWord(original["word"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedWord); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["word"] = transformedWord
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsEndOffset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsStartOffset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsAudioTranscriptionWordsWord(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

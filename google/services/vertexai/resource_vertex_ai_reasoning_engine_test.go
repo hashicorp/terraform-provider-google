@@ -959,6 +959,17 @@ resource "google_vertex_ai_reasoning_engine" "primary" {
                     data      = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
                   }
                 }
+                parts {
+                  audio_transcription {
+                    speaker_label = "spk_1"
+                    text          = "I like pepperoni pizza"
+                    words {
+                      start_offset = "0.5s"
+                      end_offset   = "1.5s"
+                      word         = "pepperoni"
+                    }
+                  }
+                }
               }
             }
           }
@@ -1072,6 +1083,17 @@ resource "google_vertex_ai_reasoning_engine" "primary" {
                   inline_data {
                     mime_type = "image/png"
                     data      = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+                  }
+                }
+                parts {
+                  audio_transcription {
+                    speaker_label = "spk_2"
+                    text          = "Remember that I prefer dark mode"
+                    words {
+                      start_offset = "1s"
+                      end_offset   = "2.5s"
+                      word         = "dark"
+                    }
                   }
                 }
               }
