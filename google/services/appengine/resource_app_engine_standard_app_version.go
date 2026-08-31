@@ -555,6 +555,7 @@ Substitute '<language>' with 'python', 'java', 'php', 'ruby', 'go' or 'nodejs'.`
 						},
 					},
 				},
+				ConflictsWith: []string{},
 			},
 			"name": {
 				Type:        schema.TypeString,
