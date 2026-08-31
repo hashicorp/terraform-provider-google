@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed a bug in `data.google_storage_object_signed_url` where an `extension_headers` name that was not all lowercase had its value dropped from the signature
+```

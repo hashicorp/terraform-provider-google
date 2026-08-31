@@ -90,6 +90,53 @@ func TestUrlData_Signing(t *testing.T) {
 
 }
 
+func TestUrlData_SigningString_ExtensionHeaders(t *testing.T) {
+	cases := map[string]struct {
+		headers  map[string]string
+		expected string
+	}{
+		"lowercase name": {
+			headers:  map[string]string{"x-goog-acl": "private"},
+			expected: "PUT\n\n\n1470967410\nx-goog-acl:private\n" + testSignUrlPath,
+		},
+		"mixed case name keeps its value": {
+			headers:  map[string]string{"X-Goog-Acl": "private"},
+			expected: "PUT\n\n\n1470967410\nx-goog-acl:private\n" + testSignUrlPath,
+		},
+		"sorted by lowercased name": {
+			headers:  map[string]string{"X-Goog-Meta-Two": "2", "x-goog-acl": "private"},
+			expected: "PUT\n\n\n1470967410\nx-goog-acl:private\nx-goog-meta-two:2\n" + testSignUrlPath,
+		},
+		"names differing only in case are merged": {
+			headers:  map[string]string{"x-goog-acl": "private", "X-Goog-Acl": "public-read"},
+			expected: "PUT\n\n\n1470967410\nx-goog-acl:private,public-read\n" + testSignUrlPath,
+		},
+		"newline in value does not add a header line": {
+			headers:  map[string]string{"x-goog-meta-a": "v\nx-goog-acl:public-read"},
+			expected: "PUT\n\n\n1470967410\nx-goog-meta-a:v x-goog-acl:public-read\n" + testSignUrlPath,
+		},
+		"whitespace around the value is dropped": {
+			headers:  map[string]string{"x-goog-meta-a": "  v  "},
+			expected: "PUT\n\n\n1470967410\nx-goog-meta-a:v\n" + testSignUrlPath,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			urlData := &UrlData{
+				HttpMethod:  "PUT",
+				Expires:     testUrlExpires,
+				Path:        testUrlPath,
+				SignPath:    testSignUrlPath,
+				HttpHeaders: tc.headers,
+			}
+			if got := string(urlData.SigningString()); got != tc.expected {
+				t.Errorf("signing string does not match expected value:\n%q\n%q", tc.expected, got)
+			}
+		})
+	}
+}
+
 func TestUrlData_SignedUrl(t *testing.T) {
 	// load fake service account credentials
 	cfg, err := google.JWTConfigFromJSON([]byte(fakeCredentials), "")
