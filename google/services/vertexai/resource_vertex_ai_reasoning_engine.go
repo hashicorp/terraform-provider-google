@@ -183,6 +183,537 @@ func ResourceVertexAIReasoningEngine() *schema.Resource {
 				Required:    true,
 				Description: `The display name of the ReasoningEngine.`,
 			},
+			"context_spec": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Optional. Configuration for how Agent Engine sub-resources should manage context.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"memory_bank_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							Description: `Specification for a Memory Bank, which manages memories for the Agent Engine.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"customization_configs": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Customization configs for how Agent Engine sub-resources manage context at different scope levels.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"consolidation_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. Configuration for how many memory revisions Memory Bank considers when consolidating each memory candidate.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"revisions_per_candidate_count": {
+																Type:        schema.TypeInt,
+																Optional:    true,
+																Description: `Number of revisions to consider per candidate count.`,
+															},
+														},
+													},
+												},
+												"disable_natural_language_memories": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Indicates whether natural language memory generation should be disabled.`,
+												},
+												"enable_third_person_memories": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Optional. Generate memories in the third person if set to true.`,
+												},
+												"generate_memories_examples": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Provides examples of how to generate memories for a particular scope.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"conversation_source": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `A conversation source for the example.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"events": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Represents the input conversation events for the example.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"content": {
+																						Type:        schema.TypeList,
+																						Required:    true,
+																						Description: `Represents the content of the event.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"parts": {
+																									Type:        schema.TypeList,
+																									Required:    true,
+																									Description: `A list of Part objects that make up a single message.`,
+																									Elem: &schema.Resource{
+																										Schema: map[string]*schema.Schema{
+																											"code_execution_result": {
+																												Type:        schema.TypeList,
+																												Optional:    true,
+																												Description: `Result of executing the ExecutableCode.`,
+																												MaxItems:    1,
+																												Elem: &schema.Resource{
+																													Schema: map[string]*schema.Schema{
+																														"outcome": {
+																															Type:        schema.TypeString,
+																															Required:    true,
+																															Description: `Outcome of the code execution. Possible values: ["OUTCOME_UNSPECIFIED", "OUTCOME_OK", "OUTCOME_FAILED", "OUTCOME_DEADLINE_EXCEEDED"]`,
+																														},
+																														"id": {
+																															Type:        schema.TypeString,
+																															Optional:    true,
+																															Description: `The identifier of the ExecutableCode part this result is for.`,
+																														},
+																														"output": {
+																															Type:        schema.TypeString,
+																															Optional:    true,
+																															Description: `Contains stdout when code execution is successful, stderr or other description otherwise.`,
+																														},
+																													},
+																												},
+																											},
+																											"executable_code": {
+																												Type:        schema.TypeList,
+																												Optional:    true,
+																												Description: `Code generated by the model that is intended to be executed.`,
+																												MaxItems:    1,
+																												Elem: &schema.Resource{
+																													Schema: map[string]*schema.Schema{
+																														"code": {
+																															Type:        schema.TypeString,
+																															Required:    true,
+																															Description: `The code to be executed.`,
+																														},
+																														"language": {
+																															Type:        schema.TypeString,
+																															Required:    true,
+																															Description: `Supported programming languages for the generated code. Possible values: ["LANGUAGE_UNSPECIFIED", "PYTHON", "BASH"]`,
+																														},
+																														"id": {
+																															Type:        schema.TypeString,
+																															Optional:    true,
+																															Description: `Unique identifier of the ExecutableCode part.`,
+																														},
+																													},
+																												},
+																											},
+																											"file_data": {
+																												Type:        schema.TypeList,
+																												Optional:    true,
+																												Description: `URI based data.`,
+																												MaxItems:    1,
+																												Elem: &schema.Resource{
+																													Schema: map[string]*schema.Schema{
+																														"file_uri": {
+																															Type:        schema.TypeString,
+																															Required:    true,
+																															Description: `The URI of the file in Google Cloud Storage.`,
+																														},
+																														"mime_type": {
+																															Type:        schema.TypeString,
+																															Required:    true,
+																															Description: `The IANA standard MIME type of the source data.`,
+																														},
+																													},
+																												},
+																											},
+																											"function_call": {
+																												Type:        schema.TypeList,
+																												Optional:    true,
+																												Description: `A predicted function call returned from the model.`,
+																												MaxItems:    1,
+																												Elem: &schema.Resource{
+																													Schema: map[string]*schema.Schema{
+																														"args": {
+																															Type:         schema.TypeString,
+																															Optional:     true,
+																															ValidateFunc: validation.StringIsJSON,
+																															StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																															Description:  `The function parameters and values in JSON object format.`,
+																														},
+																														"id": {
+																															Type:        schema.TypeString,
+																															Optional:    true,
+																															Description: `The unique id of the function call.`,
+																														},
+																														"name": {
+																															Type:        schema.TypeString,
+																															Optional:    true,
+																															Description: `The name of the function to call.`,
+																														},
+																													},
+																												},
+																											},
+																											"function_response": {
+																												Type:        schema.TypeList,
+																												Optional:    true,
+																												Description: `The result of a function call.`,
+																												MaxItems:    1,
+																												Elem: &schema.Resource{
+																													Schema: map[string]*schema.Schema{
+																														"name": {
+																															Type:        schema.TypeString,
+																															Required:    true,
+																															Description: `The name of the function to call.`,
+																														},
+																														"id": {
+																															Type:        schema.TypeString,
+																															Optional:    true,
+																															Description: `The id of the function call this response is for.`,
+																														},
+																														"response": {
+																															Type:         schema.TypeString,
+																															Optional:     true,
+																															ValidateFunc: validation.StringIsJSON,
+																															StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																															Description:  `The function response in JSON object format.`,
+																														},
+																													},
+																												},
+																											},
+																											"inline_data": {
+																												Type:        schema.TypeList,
+																												Optional:    true,
+																												Description: `The inline data content of the part.`,
+																												MaxItems:    1,
+																												Elem: &schema.Resource{
+																													Schema: map[string]*schema.Schema{
+																														"data": {
+																															Type:        schema.TypeString,
+																															Required:    true,
+																															Description: `Raw bytes, which should be base64-encoded.`,
+																														},
+																														"mime_type": {
+																															Type:        schema.TypeString,
+																															Required:    true,
+																															Description: `The IANA standard MIME type of the source data.`,
+																														},
+																													},
+																												},
+																											},
+																											"text": {
+																												Type:        schema.TypeString,
+																												Optional:    true,
+																												Description: `The text content of the part.`,
+																											},
+																											"thought": {
+																												Type:        schema.TypeBool,
+																												Optional:    true,
+																												Description: `Indicates whether the part represents the model's thought process or reasoning.`,
+																											},
+																											"video_metadata": {
+																												Type:        schema.TypeList,
+																												Optional:    true,
+																												Description: `Video metadata.`,
+																												MaxItems:    1,
+																												Elem: &schema.Resource{
+																													Schema: map[string]*schema.Schema{
+																														"end_offset": {
+																															Type:        schema.TypeString,
+																															Optional:    true,
+																															Description: `The end offset of the video.`,
+																														},
+																														"start_offset": {
+																															Type:        schema.TypeString,
+																															Optional:    true,
+																															Description: `The start offset of the video.`,
+																														},
+																													},
+																												},
+																											},
+																										},
+																									},
+																								},
+																								"role": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `The producer of the content. Must be either 'user' or 'model'. If not set, the service will default to 'user'.`,
+																								},
+																							},
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"generated_memories": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Represents the memories that are expected to be generated from the input conversation.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"fact": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Represents the fact to generate a memory from.`,
+																		},
+																		"topics": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Represents the list of topics that the memory should be associated with.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"custom_memory_topic_label": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Represents the custom memory topic label.`,
+																					},
+																					"managed_memory_topic": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Represents the managed memory topic. Possible values: ["USER_PERSONAL_INFO", "USER_PREFERENCES", "KEY_CONVERSATION_DETAILS", "EXPLICIT_INSTRUCTIONS"]`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"memory_topics": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. List of topics that the memory should be associated with.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"custom_memory_topic": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. Custom memory topic.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"description": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Description of custom memory topic.`,
+																		},
+																		"label": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Label of custom memory topic.`,
+																		},
+																	},
+																},
+															},
+															"managed_memory_topic": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. Managed memory topic.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"managed_topic_enum": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Managed topic enum (e.g. USER_PREFERENCES, EXPLICIT_INSTRUCTIONS).`,
+																		},
+																	},
+																},
+																ExactlyOneOf: []string{},
+															},
+														},
+													},
+												},
+												"scope_keys": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. List of scope keys that this customization config applies to.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+									"disable_memory_revisions": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If true, no memory revisions will be created for any requests to the Memory Bank.`,
+									},
+									"generation_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for how to generate memories for the Memory Bank.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"model": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The model used to generate memories. Format: projects/{project}/locations/{location}/publishers/google/models/{model}.`,
+												},
+												"generation_trigger_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. Configuration for triggering memory generation.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"generation_rule": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `Optional. The active rule that determines when to flush the buffer. If not set,
+then the stream will be force flushed immediately.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"event_count": {
+																			Type:        schema.TypeInt,
+																			Optional:    true,
+																			Description: `Optional. Specifies to trigger generation when the event count reaches this limit.`,
+																		},
+																		"fixed_interval": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `Optional. Specifies to trigger generation at a fixed interval. The duration
+must have a minute-level granularity.`,
+																		},
+																		"idle_duration": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `Optional. Specifies to trigger generation if the stream is inactive for the
+specified duration after the most recent event. The duration must have a
+minute-level granularity.`,
+																		},
+																		"overlap_event_count": {
+																			Type:        schema.TypeInt,
+																			Optional:    true,
+																			Description: `Optional. Re-include the last N already-processed events in the next window.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"similarity_search_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for how to perform similarity search on memories.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"embedding_model": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The model used to generate embeddings to lookup similar memories. Format: projects/{project}/locations/{location}/publishers/google/models/{model}.`,
+												},
+											},
+										},
+									},
+									"structured_memory_configs": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. Structured memory configurations for Agent Engine sub-resources.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"schema_configs": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. List of schema configs that this structured memory config applies to.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"id": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. Unique ID identifying the memory schema.`,
+															},
+															"memory_schema": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: validation.StringIsJSON,
+																StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																Description:  `Optional. The memory schema defined as an OpenAPI Schema Object JSON string.`,
+															},
+														},
+													},
+												},
+												"scope_keys": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. List of scope keys that this structured memory config applies to.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+									"ttl_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"default_ttl": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `The default TTL duration of the memories in the Memory Bank.`,
+													ExactlyOneOf: []string{},
+												},
+												"granular_ttl_config": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The granular TTL configuration of the memories in the Memory Bank.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"create_ttl": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The TTL duration for memories uploaded via CreateMemory.`,
+															},
+															"generate_created_ttl": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The TTL duration for memories newly generated via GenerateMemories.`,
+															},
+															"generate_updated_ttl": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The TTL duration for memories updated via GenerateMemories.`,
+															},
+														},
+													},
+												},
+												"memory_revision_default_ttl": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The default TTL duration of the memory revisions in the Memory Bank.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -1068,6 +1599,12 @@ func resourceVertexAIReasoningEngineCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(specProp)) && (ok || !reflect.DeepEqual(v, specProp)) {
 		obj["spec"] = specProp
 	}
+	contextSpecProp, err := expandVertexAIReasoningEngineContextSpec(d.Get("context_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("context_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(contextSpecProp)) && (ok || !reflect.DeepEqual(v, contextSpecProp)) {
+		obj["contextSpec"] = contextSpecProp
+	}
 	effectiveLabelsProp, err := expandVertexAIReasoningEngineEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1322,6 +1859,12 @@ func resourceVertexAIReasoningEngineUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, specProp)) {
 		obj["spec"] = specProp
 	}
+	contextSpecProp, err := expandVertexAIReasoningEngineContextSpec(d.Get("context_spec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("context_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, contextSpecProp)) {
+		obj["contextSpec"] = contextSpecProp
+	}
 	effectiveLabelsProp, err := expandVertexAIReasoningEngineEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1348,6 +1891,10 @@ func resourceVertexAIReasoningEngineUpdate(d *schema.ResourceData, meta interfac
 
 	if d.HasChange("spec") {
 		updateMask = append(updateMask, "spec")
+	}
+
+	if d.HasChange("context_spec") {
+		updateMask = append(updateMask, "contextSpec")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -2148,6 +2695,755 @@ func flattenVertexAIReasoningEngineSpecBuildSpecWorkerPool(v interface{}, d *sch
 
 func flattenVertexAIReasoningEngineSpecBuildSpecServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["memory_bank_config"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfig(original["memoryBankConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["generation_config"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfig(original["generationConfig"], d, config)
+	transformed["similarity_search_config"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(original["similaritySearchConfig"], d, config)
+	transformed["ttl_config"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfig(original["ttlConfig"], d, config)
+	transformed["disable_memory_revisions"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigDisableMemoryRevisions(original["disableMemoryRevisions"], d, config)
+	transformed["customization_configs"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigs(original["customizationConfigs"], d, config)
+	transformed["structured_memory_configs"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigs(original["structuredMemoryConfigs"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["model"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigModel(original["model"], d, config)
+	transformed["generation_trigger_config"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfig(original["generationTriggerConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["generation_rule"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRule(original["generationRule"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["idle_duration"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleIdleDuration(original["idleDuration"], d, config)
+	transformed["fixed_interval"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleFixedInterval(original["fixedInterval"], d, config)
+	transformed["event_count"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleEventCount(original["eventCount"], d, config)
+	transformed["overlap_event_count"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleOverlapEventCount(original["overlapEventCount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleIdleDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleFixedInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleEventCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleOverlapEventCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["embedding_model"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigEmbeddingModel(original["embeddingModel"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigEmbeddingModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["default_ttl"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigDefaultTtl(original["defaultTtl"], d, config)
+	transformed["granular_ttl_config"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(original["granularTtlConfig"], d, config)
+	transformed["memory_revision_default_ttl"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigMemoryRevisionDefaultTtl(original["memoryRevisionDefaultTtl"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigDefaultTtl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["create_ttl"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigCreateTtl(original["createTtl"], d, config)
+	transformed["generate_created_ttl"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigGenerateCreatedTtl(original["generateCreatedTtl"], d, config)
+	transformed["generate_updated_ttl"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigGenerateUpdatedTtl(original["generateUpdatedTtl"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigCreateTtl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigGenerateCreatedTtl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigGenerateUpdatedTtl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigMemoryRevisionDefaultTtl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigDisableMemoryRevisions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"scope_keys":                        flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsScopeKeys(original["scopeKeys"], d, config),
+			"memory_topics":                     flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopics(original["memoryTopics"], d, config),
+			"consolidation_config":              flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsConsolidationConfig(original["consolidationConfig"], d, config),
+			"enable_third_person_memories":      flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsEnableThirdPersonMemories(original["enableThirdPersonMemories"], d, config),
+			"disable_natural_language_memories": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsDisableNaturalLanguageMemories(original["disableNaturalLanguageMemories"], d, config),
+			"generate_memories_examples":        flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamples(original["generateMemoriesExamples"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsScopeKeys(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopics(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"managed_memory_topic": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsManagedMemoryTopic(original["managedMemoryTopic"], d, config),
+			"custom_memory_topic":  flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopic(original["customMemoryTopic"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsManagedMemoryTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["managed_topic_enum"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsManagedMemoryTopicManagedTopicEnum(original["managedTopicEnum"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsManagedMemoryTopicManagedTopicEnum(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["label"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopicLabel(original["label"], d, config)
+	transformed["description"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopicDescription(original["description"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopicLabel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopicDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsConsolidationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["revisions_per_candidate_count"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsConsolidationConfigRevisionsPerCandidateCount(original["revisionsPerCandidateCount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsConsolidationConfigRevisionsPerCandidateCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsEnableThirdPersonMemories(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsDisableNaturalLanguageMemories(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamples(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"conversation_source": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSource(original["conversationSource"], d, config),
+			"generated_memories":  flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemories(original["generatedMemories"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["events"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEvents(original["events"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEvents(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"content": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContent(original["content"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["role"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentRole(original["role"], d, config)
+	transformed["parts"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentParts(original["parts"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentRole(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentParts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"text":                  flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsText(original["text"], d, config),
+			"thought":               flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsThought(original["thought"], d, config),
+			"inline_data":           flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineData(original["inlineData"], d, config),
+			"file_data":             flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileData(original["fileData"], d, config),
+			"function_call":         flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCall(original["functionCall"], d, config),
+			"function_response":     flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponse(original["functionResponse"], d, config),
+			"executable_code":       flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCode(original["executableCode"], d, config),
+			"code_execution_result": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResult(original["codeExecutionResult"], d, config),
+			"video_metadata":        flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadata(original["videoMetadata"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsText(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsThought(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["mime_type"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineDataMimeType(original["mimeType"], d, config)
+	transformed["data"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineDataData(original["data"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineDataMimeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineDataData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["mime_type"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileDataMimeType(original["mimeType"], d, config)
+	transformed["file_uri"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileDataFileUri(original["fileUri"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileDataMimeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileDataFileUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCall(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["id"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallId(original["id"], d, config)
+	transformed["name"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallName(original["name"], d, config)
+	transformed["args"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallArgs(original["args"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallArgs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["id"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseId(original["id"], d, config)
+	transformed["name"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseName(original["name"], d, config)
+	transformed["response"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseResponse(original["response"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseResponse(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["id"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeId(original["id"], d, config)
+	transformed["language"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeLanguage(original["language"], d, config)
+	transformed["code"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeCode(original["code"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeLanguage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResult(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["id"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultId(original["id"], d, config)
+	transformed["outcome"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultOutcome(original["outcome"], d, config)
+	transformed["output"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultOutput(original["output"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultOutcome(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultOutput(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["start_offset"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadataStartOffset(original["startOffset"], d, config)
+	transformed["end_offset"] =
+		flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadataEndOffset(original["endOffset"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadataStartOffset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadataEndOffset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemories(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"fact":   flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesFact(original["fact"], d, config),
+			"topics": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopics(original["topics"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesFact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopics(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"custom_memory_topic_label": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopicsCustomMemoryTopicLabel(original["customMemoryTopicLabel"], d, config),
+			"managed_memory_topic":      flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopicsManagedMemoryTopic(original["managedMemoryTopic"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopicsCustomMemoryTopicLabel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopicsManagedMemoryTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"scope_keys":     flattenVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsScopeKeys(original["scopeKeys"], d, config),
+			"schema_configs": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigs(original["schemaConfigs"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsScopeKeys(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"id":            flattenVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigsId(original["id"], d, config),
+			"memory_schema": flattenVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigsMemorySchema(original["schema"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigsId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigsMemorySchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenVertexAIReasoningEngineTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3155,6 +4451,1194 @@ func expandVertexAIReasoningEngineSpecBuildSpecServiceAccount(v interface{}, d t
 	return v, nil
 }
 
+func expandVertexAIReasoningEngineContextSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMemoryBankConfig, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfig(original["memory_bank_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMemoryBankConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["memoryBankConfig"] = transformedMemoryBankConfig
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedGenerationConfig, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfig(original["generation_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGenerationConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["generationConfig"] = transformedGenerationConfig
+	}
+
+	transformedSimilaritySearchConfig, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(original["similarity_search_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSimilaritySearchConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["similaritySearchConfig"] = transformedSimilaritySearchConfig
+	}
+
+	transformedTtlConfig, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfig(original["ttl_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTtlConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ttlConfig"] = transformedTtlConfig
+	}
+
+	transformedDisableMemoryRevisions, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigDisableMemoryRevisions(original["disable_memory_revisions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisableMemoryRevisions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disableMemoryRevisions"] = transformedDisableMemoryRevisions
+	}
+
+	transformedCustomizationConfigs, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigs(original["customization_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomizationConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["customizationConfigs"] = transformedCustomizationConfigs
+	}
+
+	transformedStructuredMemoryConfigs, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigs(original["structured_memory_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStructuredMemoryConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["structuredMemoryConfigs"] = transformedStructuredMemoryConfigs
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedModel, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigModel(original["model"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedModel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["model"] = transformedModel
+	}
+
+	transformedGenerationTriggerConfig, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfig(original["generation_trigger_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGenerationTriggerConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["generationTriggerConfig"] = transformedGenerationTriggerConfig
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedGenerationRule, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRule(original["generation_rule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGenerationRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["generationRule"] = transformedGenerationRule
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIdleDuration, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleIdleDuration(original["idle_duration"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdleDuration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["idleDuration"] = transformedIdleDuration
+	}
+
+	transformedFixedInterval, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleFixedInterval(original["fixed_interval"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFixedInterval); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fixedInterval"] = transformedFixedInterval
+	}
+
+	transformedEventCount, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleEventCount(original["event_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEventCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["eventCount"] = transformedEventCount
+	}
+
+	transformedOverlapEventCount, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleOverlapEventCount(original["overlap_event_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOverlapEventCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["overlapEventCount"] = transformedOverlapEventCount
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleIdleDuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleFixedInterval(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleEventCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRuleOverlapEventCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEmbeddingModel, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigEmbeddingModel(original["embedding_model"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEmbeddingModel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["embeddingModel"] = transformedEmbeddingModel
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigEmbeddingModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDefaultTtl, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigDefaultTtl(original["default_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defaultTtl"] = transformedDefaultTtl
+	}
+
+	transformedGranularTtlConfig, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(original["granular_ttl_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGranularTtlConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["granularTtlConfig"] = transformedGranularTtlConfig
+	}
+
+	transformedMemoryRevisionDefaultTtl, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigMemoryRevisionDefaultTtl(original["memory_revision_default_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMemoryRevisionDefaultTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["memoryRevisionDefaultTtl"] = transformedMemoryRevisionDefaultTtl
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigDefaultTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCreateTtl, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigCreateTtl(original["create_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCreateTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["createTtl"] = transformedCreateTtl
+	}
+
+	transformedGenerateCreatedTtl, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigGenerateCreatedTtl(original["generate_created_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGenerateCreatedTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["generateCreatedTtl"] = transformedGenerateCreatedTtl
+	}
+
+	transformedGenerateUpdatedTtl, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigGenerateUpdatedTtl(original["generate_updated_ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGenerateUpdatedTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["generateUpdatedTtl"] = transformedGenerateUpdatedTtl
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigCreateTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigGenerateCreatedTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigGenerateUpdatedTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigTtlConfigMemoryRevisionDefaultTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigDisableMemoryRevisions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedScopeKeys, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsScopeKeys(original["scope_keys"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScopeKeys); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["scopeKeys"] = transformedScopeKeys
+		}
+
+		transformedMemoryTopics, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopics(original["memory_topics"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMemoryTopics); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["memoryTopics"] = transformedMemoryTopics
+		}
+
+		transformedConsolidationConfig, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsConsolidationConfig(original["consolidation_config"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedConsolidationConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["consolidationConfig"] = transformedConsolidationConfig
+		}
+
+		transformedEnableThirdPersonMemories, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsEnableThirdPersonMemories(original["enable_third_person_memories"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEnableThirdPersonMemories); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["enableThirdPersonMemories"] = transformedEnableThirdPersonMemories
+		}
+
+		transformedDisableNaturalLanguageMemories, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsDisableNaturalLanguageMemories(original["disable_natural_language_memories"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDisableNaturalLanguageMemories); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["disableNaturalLanguageMemories"] = transformedDisableNaturalLanguageMemories
+		}
+
+		transformedGenerateMemoriesExamples, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamples(original["generate_memories_examples"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedGenerateMemoriesExamples); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["generateMemoriesExamples"] = transformedGenerateMemoriesExamples
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsScopeKeys(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopics(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedManagedMemoryTopic, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsManagedMemoryTopic(original["managed_memory_topic"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedManagedMemoryTopic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["managedMemoryTopic"] = transformedManagedMemoryTopic
+		}
+
+		transformedCustomMemoryTopic, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopic(original["custom_memory_topic"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCustomMemoryTopic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["customMemoryTopic"] = transformedCustomMemoryTopic
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsManagedMemoryTopic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedManagedTopicEnum, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsManagedMemoryTopicManagedTopicEnum(original["managed_topic_enum"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedManagedTopicEnum); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["managedTopicEnum"] = transformedManagedTopicEnum
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsManagedMemoryTopicManagedTopicEnum(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLabel, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopicLabel(original["label"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLabel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["label"] = transformedLabel
+	}
+
+	transformedDescription, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopicDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopicLabel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsMemoryTopicsCustomMemoryTopicDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsConsolidationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRevisionsPerCandidateCount, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsConsolidationConfigRevisionsPerCandidateCount(original["revisions_per_candidate_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRevisionsPerCandidateCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["revisionsPerCandidateCount"] = transformedRevisionsPerCandidateCount
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsConsolidationConfigRevisionsPerCandidateCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsEnableThirdPersonMemories(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsDisableNaturalLanguageMemories(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamples(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedConversationSource, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSource(original["conversation_source"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedConversationSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["conversationSource"] = transformedConversationSource
+		}
+
+		transformedGeneratedMemories, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemories(original["generated_memories"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedGeneratedMemories); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["generatedMemories"] = transformedGeneratedMemories
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEvents, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEvents(original["events"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEvents); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["events"] = transformedEvents
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEvents(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedContent, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContent(original["content"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedContent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["content"] = transformedContent
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRole, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentRole(original["role"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRole); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["role"] = transformedRole
+	}
+
+	transformedParts, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentParts(original["parts"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParts); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parts"] = transformedParts
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentParts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedText, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsText(original["text"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedText); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["text"] = transformedText
+		}
+
+		transformedThought, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsThought(original["thought"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedThought); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["thought"] = transformedThought
+		}
+
+		transformedInlineData, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineData(original["inline_data"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedInlineData); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["inlineData"] = transformedInlineData
+		}
+
+		transformedFileData, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileData(original["file_data"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFileData); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["fileData"] = transformedFileData
+		}
+
+		transformedFunctionCall, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCall(original["function_call"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFunctionCall); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["functionCall"] = transformedFunctionCall
+		}
+
+		transformedFunctionResponse, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponse(original["function_response"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFunctionResponse); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["functionResponse"] = transformedFunctionResponse
+		}
+
+		transformedExecutableCode, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCode(original["executable_code"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExecutableCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["executableCode"] = transformedExecutableCode
+		}
+
+		transformedCodeExecutionResult, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResult(original["code_execution_result"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCodeExecutionResult); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["codeExecutionResult"] = transformedCodeExecutionResult
+		}
+
+		transformedVideoMetadata, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadata(original["video_metadata"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVideoMetadata); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["videoMetadata"] = transformedVideoMetadata
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsThought(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineData(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMimeType, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineDataMimeType(original["mime_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMimeType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mimeType"] = transformedMimeType
+	}
+
+	transformedData, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineDataData(original["data"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedData); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["data"] = transformedData
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineDataMimeType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsInlineDataData(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileData(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMimeType, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileDataMimeType(original["mime_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMimeType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mimeType"] = transformedMimeType
+	}
+
+	transformedFileUri, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileDataFileUri(original["file_uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFileUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fileUri"] = transformedFileUri
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileDataMimeType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFileDataFileUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCall(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedId, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallId(original["id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["id"] = transformedId
+	}
+
+	transformedName, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedArgs, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallArgs(original["args"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedArgs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["args"] = transformedArgs
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionCallArgs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponse(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedId, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseId(original["id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["id"] = transformedId
+	}
+
+	transformedName, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedResponse, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseResponse(original["response"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResponse); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["response"] = transformedResponse
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsFunctionResponseResponse(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedId, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeId(original["id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["id"] = transformedId
+	}
+
+	transformedLanguage, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeLanguage(original["language"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLanguage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["language"] = transformedLanguage
+	}
+
+	transformedCode, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeCode(original["code"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["code"] = transformedCode
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeLanguage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsExecutableCodeCode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResult(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedId, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultId(original["id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["id"] = transformedId
+	}
+
+	transformedOutcome, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultOutcome(original["outcome"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOutcome); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["outcome"] = transformedOutcome
+	}
+
+	transformedOutput, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultOutput(original["output"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOutput); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["output"] = transformedOutput
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultOutcome(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsCodeExecutionResultOutput(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStartOffset, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadataStartOffset(original["start_offset"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartOffset); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["startOffset"] = transformedStartOffset
+	}
+
+	transformedEndOffset, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadataEndOffset(original["end_offset"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEndOffset); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["endOffset"] = transformedEndOffset
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadataStartOffset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesConversationSourceEventsContentPartsVideoMetadataEndOffset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemories(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedFact, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesFact(original["fact"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["fact"] = transformedFact
+		}
+
+		transformedTopics, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopics(original["topics"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTopics); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["topics"] = transformedTopics
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesFact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopics(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedCustomMemoryTopicLabel, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopicsCustomMemoryTopicLabel(original["custom_memory_topic_label"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCustomMemoryTopicLabel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["customMemoryTopicLabel"] = transformedCustomMemoryTopicLabel
+		}
+
+		transformedManagedMemoryTopic, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopicsManagedMemoryTopic(original["managed_memory_topic"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedManagedMemoryTopic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["managedMemoryTopic"] = transformedManagedMemoryTopic
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopicsCustomMemoryTopicLabel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigCustomizationConfigsGenerateMemoriesExamplesGeneratedMemoriesTopicsManagedMemoryTopic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedScopeKeys, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsScopeKeys(original["scope_keys"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedScopeKeys); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["scopeKeys"] = transformedScopeKeys
+		}
+
+		transformedSchemaConfigs, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigs(original["schema_configs"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchemaConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["schemaConfigs"] = transformedSchemaConfigs
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsScopeKeys(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedId, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigsId(original["id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["id"] = transformedId
+		}
+
+		transformedMemorySchema, err := expandVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigsMemorySchema(original["memory_schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMemorySchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["schema"] = transformedMemorySchema
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigsId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIReasoningEngineContextSpecMemoryBankConfigStructuredMemoryConfigsSchemaConfigsMemorySchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
 func expandVertexAIReasoningEngineEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -3191,6 +5675,9 @@ func ResourceVertexAIReasoningEngineFlatten(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
 	}
 	if err = d.Set("spec", flattenVertexAIReasoningEngineSpec(res["spec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
+	}
+	if err = d.Set("context_spec", flattenVertexAIReasoningEngineContextSpec(res["contextSpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ReasoningEngine: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenVertexAIReasoningEngineTerraformLabels(res["labels"], d, config)); err != nil {

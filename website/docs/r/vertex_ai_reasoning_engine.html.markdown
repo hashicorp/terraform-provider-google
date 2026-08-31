@@ -664,7 +664,6 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name = "re-gran-ttl"
   description  = "Reasoning engine with granular ttl"
   region       = "us-central1"
-  provider     = google-beta
 
   context_spec {
     memory_bank_config {
@@ -687,9 +686,7 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   }
 }
 
-data "google_project" "project" {
-  provider = google-beta
-}
+data "google_project" "project" {}
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_reasoning_engine_traffic_config&open_in_editor=main.tf" target="_blank">
@@ -751,7 +748,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_spec).
 
 * `context_spec` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Optional. Configuration for how Agent Engine sub-resources should manage context.
   Structure is [documented below](#nested_context_spec).
 

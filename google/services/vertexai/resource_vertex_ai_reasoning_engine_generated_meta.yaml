@@ -7,6 +7,56 @@ api_service_name: aiplatform.googleapis.com
 api_version: v1
 api_resource_type_kind: ReasoningEngine
 fields:
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.consolidationConfig.revisionsPerCandidateCount
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.disableNaturalLanguageMemories
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.enableThirdPersonMemories
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.codeExecutionResult.id
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.codeExecutionResult.outcome
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.codeExecutionResult.output
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.executableCode.code
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.executableCode.id
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.executableCode.language
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.fileData.fileUri
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.fileData.mimeType
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.functionCall.args
+      json: true
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.functionCall.id
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.functionCall.name
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.functionResponse.id
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.functionResponse.name
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.functionResponse.response
+      json: true
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.inlineData.data
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.inlineData.mimeType
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.text
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.thought
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.videoMetadata.endOffset
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.videoMetadata.startOffset
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.role
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.generatedMemories.fact
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.generatedMemories.topics.customMemoryTopicLabel
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.generatedMemories.topics.managedMemoryTopic
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.memoryTopics.customMemoryTopic.description
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.memoryTopics.customMemoryTopic.label
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.memoryTopics.managedMemoryTopic.managedTopicEnum
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.scopeKeys
+    - api_field: contextSpec.memoryBankConfig.disableMemoryRevisions
+    - api_field: contextSpec.memoryBankConfig.generationConfig.generationTriggerConfig.generationRule.eventCount
+    - api_field: contextSpec.memoryBankConfig.generationConfig.generationTriggerConfig.generationRule.fixedInterval
+    - api_field: contextSpec.memoryBankConfig.generationConfig.generationTriggerConfig.generationRule.idleDuration
+    - api_field: contextSpec.memoryBankConfig.generationConfig.generationTriggerConfig.generationRule.overlapEventCount
+    - api_field: contextSpec.memoryBankConfig.generationConfig.model
+    - api_field: contextSpec.memoryBankConfig.similaritySearchConfig.embeddingModel
+    - api_field: contextSpec.memoryBankConfig.structuredMemoryConfigs.schemaConfigs.id
+    - api_field: contextSpec.memoryBankConfig.structuredMemoryConfigs.schemaConfigs.schema
+      field: context_spec.memory_bank_config.structured_memory_configs.schema_configs.memory_schema
+      json: true
+    - api_field: contextSpec.memoryBankConfig.structuredMemoryConfigs.scopeKeys
+    - api_field: contextSpec.memoryBankConfig.ttlConfig.defaultTtl
+    - api_field: contextSpec.memoryBankConfig.ttlConfig.granularTtlConfig.createTtl
+    - api_field: contextSpec.memoryBankConfig.ttlConfig.granularTtlConfig.generateCreatedTtl
+    - api_field: contextSpec.memoryBankConfig.ttlConfig.granularTtlConfig.generateUpdatedTtl
+    - api_field: contextSpec.memoryBankConfig.ttlConfig.memoryRevisionDefaultTtl
     - api_field: createTime
     - api_field: description
     - api_field: displayName

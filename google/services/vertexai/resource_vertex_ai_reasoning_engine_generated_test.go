@@ -651,6 +651,72 @@ data "google_project" "project" {
 `, context)
 }
 
+func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineGranularTtlExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"name":          "tf-test-re-gran-ttl" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_vertexAiReasoningEngineGranularTtlExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_reasoning_engine.reasoning_engine",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "region", "spec.0.source_code_spec.0.inline_source", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_reasoning_engine.reasoning_engine",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_vertexAiReasoningEngineGranularTtlExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
+  display_name = "%{name}"
+  description  = "Reasoning engine with granular ttl"
+  region       = "us-central1"
+
+  context_spec {
+    memory_bank_config {
+      generation_config {
+        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+      }
+      similarity_search_config {
+        embedding_model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/text-embedding-005"
+      }
+      disable_memory_revisions = false
+      ttl_config {
+        memory_revision_default_ttl = "86400s"
+        granular_ttl_config {
+          create_ttl = "86400s"
+          generate_created_ttl = "86400s"
+          generate_updated_ttl = "86400s"
+        }
+      }
+    }
+  }
+}
+
+data "google_project" "project" {}
+`, context)
+}
+
 func testAccCheckVertexAIReasoningEngineDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
