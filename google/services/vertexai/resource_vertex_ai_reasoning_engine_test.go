@@ -746,6 +746,357 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
 `, context)
 }
 
+func TestAccVertexAIReasoningEngine_memoryGenerationTriggerUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_memoryGenerationTriggerFixedInterval(context),
+			},
+			{
+				ResourceName:      "google_vertex_ai_reasoning_engine.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccVertexAIReasoningEngine_memoryGenerationTriggerEventCount(context),
+			},
+			{
+				ResourceName:      "google_vertex_ai_reasoning_engine.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_memoryGenerationTriggerFixedInterval(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_vertex_ai_reasoning_engine" "primary" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  description  = "Reasoning engine testing memory generation triggers"
+  region       = "us-central1"
+
+  context_spec {
+    memory_bank_config {
+      generation_config {
+        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+        generation_trigger_config {
+          generation_rule {
+            fixed_interval = "600s"
+          }
+        }
+      }
+      similarity_search_config {
+        embedding_model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/text-embedding-005"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccVertexAIReasoningEngine_memoryGenerationTriggerEventCount(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_vertex_ai_reasoning_engine" "primary" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  description  = "Reasoning engine testing memory generation triggers"
+  region       = "us-central1"
+
+  context_spec {
+    memory_bank_config {
+      generation_config {
+        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+        generation_trigger_config {
+          generation_rule {
+            event_count         = 10
+            overlap_event_count = 2
+          }
+        }
+      }
+      similarity_search_config {
+        embedding_model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/text-embedding-005"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccVertexAIReasoningEngine_customizationConfigsUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIReasoningEngineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIReasoningEngine_customizationConfigsBefore(context),
+			},
+			{
+				ResourceName:      "google_vertex_ai_reasoning_engine.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccVertexAIReasoningEngine_customizationConfigsAfter(context),
+			},
+			{
+				ResourceName:      "google_vertex_ai_reasoning_engine.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccVertexAIReasoningEngine_customizationConfigsBefore(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_vertex_ai_reasoning_engine" "primary" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  description  = "Reasoning engine testing customization configs update"
+  region       = "us-central1"
+
+  context_spec {
+    memory_bank_config {
+      generation_config {
+        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+      }
+      similarity_search_config {
+        embedding_model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/text-embedding-005"
+      }
+      customization_configs {
+        scope_keys                        = ["user_id"]
+        enable_third_person_memories      = true
+        disable_natural_language_memories = false
+        consolidation_config {
+          revisions_per_candidate_count = 1
+        }
+        memory_topics {
+          managed_memory_topic {
+            managed_topic_enum = "USER_PREFERENCES"
+          }
+        }
+        memory_topics {
+          custom_memory_topic {
+            label       = "custom_user_workflow"
+            description = "Workflow and process steps preferred by user."
+          }
+        }
+        generate_memories_examples {
+          conversation_source {
+            events {
+              content {
+                role = "user"
+                parts {
+                  text    = "I like pepperoni pizza"
+                  thought = false
+                }
+                parts {
+                  function_call {
+                    id   = "fn-call-1"
+                    name = "order_pizza"
+                    args = jsonencode({
+                      type = "pepperoni"
+                    })
+                  }
+                }
+                parts {
+                  function_response {
+                    id   = "fn-resp-1"
+                    name = "order_pizza"
+                    response = jsonencode({
+                      status = "ordered"
+                    })
+                  }
+                }
+                parts {
+                  executable_code {
+                    id       = "exec-code-1"
+                    language = "PYTHON"
+                    code     = "print('pizza')"
+                  }
+                }
+                parts {
+                  code_execution_result {
+                    id      = "exec-result-1"
+                    outcome = "OUTCOME_OK"
+                    output  = "pizza"
+                  }
+                }
+                parts {
+                  file_data {
+                    file_uri  = "gs://cloud-samples-data/generative-ai/video/pixel8.mp4"
+                    mime_type = "video/mp4"
+                  }
+                  video_metadata {
+                    start_offset = "0s"
+                    end_offset   = "10s"
+                  }
+                }
+                parts {
+                  inline_data {
+                    mime_type = "image/png"
+                    data      = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+                  }
+                }
+              }
+            }
+          }
+          generated_memories {
+            fact = "User likes pepperoni pizza."
+            topics {
+              managed_memory_topic = "USER_PREFERENCES"
+            }
+          }
+          generated_memories {
+            fact = "User workflow preferences captured from sample video and diagram."
+            topics {
+              custom_memory_topic_label = "custom_user_workflow"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccVertexAIReasoningEngine_customizationConfigsAfter(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_vertex_ai_reasoning_engine" "primary" {
+  display_name = "tf-test-reasoning-engine-%{random_suffix}"
+  description  = "Reasoning engine testing customization configs update"
+  region       = "us-central1"
+
+  context_spec {
+    memory_bank_config {
+      generation_config {
+        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+      }
+      similarity_search_config {
+        embedding_model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/text-embedding-005"
+      }
+      customization_configs {
+        scope_keys                        = ["user_id"]
+        enable_third_person_memories      = false
+        disable_natural_language_memories = true
+        consolidation_config {
+          revisions_per_candidate_count = 2
+        }
+        memory_topics {
+          managed_memory_topic {
+            managed_topic_enum = "EXPLICIT_INSTRUCTIONS"
+          }
+        }
+        memory_topics {
+          custom_memory_topic {
+            label       = "custom_updated_workflow"
+            description = "Updated workflow preferences."
+          }
+        }
+        generate_memories_examples {
+          conversation_source {
+            events {
+              content {
+                role = "user"
+                parts {
+                  text    = "Remember that I prefer dark mode"
+                  thought = true
+                }
+                parts {
+                  function_call {
+                    id   = "fn-call-2"
+                    name = "set_theme"
+                    args = jsonencode({
+                      theme = "dark"
+                    })
+                  }
+                }
+                parts {
+                  function_response {
+                    id   = "fn-resp-2"
+                    name = "set_theme"
+                    response = jsonencode({
+                      status = "success"
+                    })
+                  }
+                }
+                parts {
+                  executable_code {
+                    id       = "exec-code-2"
+                    language = "PYTHON"
+                    code     = "set_theme('dark')"
+                  }
+                }
+                parts {
+                  code_execution_result {
+                    id      = "exec-result-2"
+                    outcome = "OUTCOME_OK"
+                    output  = "success"
+                  }
+                }
+                parts {
+                  file_data {
+                    file_uri  = "gs://cloud-samples-data/generative-ai/video/pixel8.mp4"
+                    mime_type = "video/mp4"
+                  }
+                  video_metadata {
+                    start_offset = "2s"
+                    end_offset   = "12s"
+                  }
+                }
+                parts {
+                  inline_data {
+                    mime_type = "image/png"
+                    data      = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+                  }
+                }
+              }
+            }
+          }
+          generated_memories {
+            fact = "User prefers dark mode theme."
+            topics {
+              managed_memory_topic = "EXPLICIT_INSTRUCTIONS"
+            }
+          }
+          generated_memories {
+            fact = "User updated workflow preferences."
+            topics {
+              custom_memory_topic_label = "custom_updated_workflow"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
 func TestAccVertexAIReasoningEngine_agentGatewayConfig(t *testing.T) {
 	t.Parallel()
 
