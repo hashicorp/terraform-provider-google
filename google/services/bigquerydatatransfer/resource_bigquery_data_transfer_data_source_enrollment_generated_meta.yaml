@@ -1,0 +1,16 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_bigquery_data_transfer_data_source_enrollment
+generation_type: mmv1
+source_file: products/bigquerydatatransfer/DataSourceEnrollment.yaml
+api_service_name: bigquerydatatransfer.googleapis.com
+api_version: v1
+api_resource_type_kind: DataSource
+fields:
+    - field: data_source_id
+      provider_only: true
+    - api_field: displayName
+    - field: unenroll_location
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
