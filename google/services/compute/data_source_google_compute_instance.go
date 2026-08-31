@@ -52,38 +52,42 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 
 	id := fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, name)
 
-	instance, err := NewClient(config, userAgent).Instances.Get(project, zone, name).Do()
+	baseURL, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}")
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", baseURL, project, zone, name)
+	instance, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Instance %s", name), id)
 	}
 
-	var metadataMap map[string]interface{}
-	if instance.Metadata != nil {
-		if metadataMap, err = tpgresource.ConvertToMap(instance.Metadata); err != nil {
-			return fmt.Errorf("error converting metadata: %s", err)
-		}
-	}
+	metadataMap, _ := instance["metadata"].(map[string]interface{})
 	md := flattenMetadataBeta(metadataMap)
 	if err = d.Set("metadata", md); err != nil {
 		return fmt.Errorf("error setting metadata: %s", err)
 	}
 
-	if err := d.Set("can_ip_forward", instance.CanIpForward); err != nil {
+	if err := d.Set("can_ip_forward", instance["canIpForward"]); err != nil {
 		return fmt.Errorf("Error setting can_ip_forward: %s", err)
 	}
-	if err := d.Set("machine_type", tpgresource.GetResourceNameFromSelfLink(instance.MachineType)); err != nil {
+	machineType, _ := instance["machineType"].(string)
+	if err := d.Set("machine_type", tpgresource.GetResourceNameFromSelfLink(machineType)); err != nil {
 		return fmt.Errorf("Error setting machine_type: %s", err)
 	}
-	if err := d.Set("hostname", instance.Hostname); err != nil {
+	if err := d.Set("hostname", instance["hostname"]); err != nil {
 		return fmt.Errorf("Error setting hostname: %s", err)
 	}
 
 	// Set the networks
 	// Use the first external IP found for the default connection info.
-	networkInterfacesRaw, err := networkInterfacesToInterface(instance.NetworkInterfaces)
-	if err != nil {
-		return err
-	}
+	networkInterfacesRaw, _ := instance["networkInterfaces"].([]interface{})
 	networkInterfaces, _, internalIP, externalIP, err := flattenNetworkInterfaces(d, config, networkInterfacesRaw)
 	if err != nil {
 		return err
@@ -107,55 +111,63 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 	})
 
 	// Set the metadata fingerprint if there is one.
-	if instance.Metadata != nil {
-		if err := d.Set("metadata_fingerprint", instance.Metadata.Fingerprint); err != nil {
+	if metadataMap != nil {
+		if err := d.Set("metadata_fingerprint", metadataMap["fingerprint"]); err != nil {
 			return fmt.Errorf("Error setting metadata_fingerprint: %s", err)
 		}
 	}
 
 	// Set the tags fingerprint if there is one.
-	if instance.Tags != nil {
-		if err := d.Set("tags_fingerprint", instance.Tags.Fingerprint); err != nil {
+	if tags, ok := instance["tags"].(map[string]interface{}); ok {
+		if err := d.Set("tags_fingerprint", tags["fingerprint"]); err != nil {
 			return fmt.Errorf("Error setting tags_fingerprint: %s", err)
 		}
-		if err := d.Set("tags", tpgresource.ConvertStringArrToInterface(instance.Tags.Items)); err != nil {
+		items, _ := tags["items"].([]interface{})
+		if err := d.Set("tags", items); err != nil {
 			return fmt.Errorf("Error setting tags: %s", err)
 		}
 	}
 
-	if err := d.Set("labels", instance.Labels); err != nil {
+	instanceLabels, _ := instance["labels"].(map[string]interface{})
+	if err := d.Set("labels", instanceLabels); err != nil {
 		return err
 	}
 
-	if err := d.Set("terraform_labels", instance.Labels); err != nil {
+	if err := d.Set("terraform_labels", instanceLabels); err != nil {
 		return err
 	}
 
-	if instance.LabelFingerprint != "" {
-		if err := d.Set("label_fingerprint", instance.LabelFingerprint); err != nil {
+	if labelFingerprint, _ := instance["labelFingerprint"].(string); labelFingerprint != "" {
+		if err := d.Set("label_fingerprint", labelFingerprint); err != nil {
 			return fmt.Errorf("Error setting label_fingerprint: %s", err)
 		}
 	}
 
 	attachedDisks := []map[string]interface{}{}
 	scratchDisks := []map[string]interface{}{}
-	for _, disk := range instance.Disks {
-		if disk.Boot {
+	instanceDisks, _ := instance["disks"].([]interface{})
+	for _, rawDisk := range instanceDisks {
+		disk, ok := rawDisk.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if isBoot, _ := disk["boot"].(bool); isBoot {
 			err = d.Set("boot_disk", flattenBootDisk(d, disk, config))
 			if err != nil {
 				return err
 			}
-		} else if disk.Type == "SCRATCH" {
+		} else if diskType, _ := disk["type"].(string); diskType == "SCRATCH" {
 			scratchDisks = append(scratchDisks, flattenScratchDisk(disk))
 		} else {
+			diskSource, _ := disk["source"].(string)
 			di := map[string]interface{}{
-				"source":      tpgresource.ConvertSelfLinkToV1(disk.Source),
-				"device_name": disk.DeviceName,
-				"mode":        disk.Mode,
+				"source":      tpgresource.ConvertSelfLinkToV1(diskSource),
+				"device_name": disk["deviceName"],
+				"mode":        disk["mode"],
 			}
-			if key := disk.DiskEncryptionKey; key != nil {
-				di["disk_encryption_key_sha256"] = key.Sha256
-				di["kms_key_self_link"] = key.KmsKeyName
+			if key, ok := disk["diskEncryptionKey"].(map[string]interface{}); ok {
+				di["disk_encryption_key_sha256"] = key["sha256"]
+				di["kms_key_self_link"] = key["kmsKeyName"]
 			}
 			attachedDisks = append(attachedDisks, di)
 		}
@@ -169,21 +181,20 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	err = d.Set("service_account", flattenServiceAccounts(serviceAccountsToInterface(instance.ServiceAccounts)))
+	instanceServiceAccounts, _ := instance["serviceAccounts"].([]interface{})
+	err = d.Set("service_account", flattenServiceAccounts(instanceServiceAccounts))
 	if err != nil {
 		return err
 	}
 
-	schedulingMap, err := tpgresource.ConvertToMap(instance.Scheduling)
-	if err != nil {
-		return fmt.Errorf("Error converting scheduling: %s", err)
-	}
+	schedulingMap, _ := instance["scheduling"].(map[string]interface{})
 	err = d.Set("scheduling", flattenScheduling(schedulingMap))
 	if err != nil {
 		return err
 	}
 
-	err = d.Set("guest_accelerator", flattenGuestAccelerators(guestAcceleratorsToInterface(instance.GuestAccelerators)))
+	instanceGuestAccelerators, _ := instance["guestAccelerators"].([]interface{})
+	err = d.Set("guest_accelerator", flattenGuestAccelerators(instanceGuestAccelerators))
 	if err != nil {
 		return err
 	}
@@ -193,23 +204,13 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	var shieldedVmConfigMap map[string]interface{}
-	if sic := instance.ShieldedInstanceConfig; sic != nil {
-		shieldedVmConfigMap = map[string]interface{}{
-			"enableSecureBoot":          sic.EnableSecureBoot,
-			"enableVtpm":                sic.EnableVtpm,
-			"enableIntegrityMonitoring": sic.EnableIntegrityMonitoring,
-		}
-	}
+	shieldedVmConfigMap, _ := instance["shieldedInstanceConfig"].(map[string]interface{})
 	err = d.Set("shielded_instance_config", flattenShieldedVmConfig(shieldedVmConfigMap))
 	if err != nil {
 		return err
 	}
 
-	var displayDeviceMap map[string]interface{}
-	if instance.DisplayDevice != nil {
-		displayDeviceMap = map[string]interface{}{"enableDisplay": instance.DisplayDevice.EnableDisplay}
-	}
+	displayDeviceMap, _ := instance["displayDevice"].(map[string]interface{})
 	err = d.Set("enable_display", flattenEnableDisplay(displayDeviceMap))
 	if err != nil {
 		return err
@@ -218,41 +219,44 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("attached_disk", ads); err != nil {
 		return fmt.Errorf("Error setting attached_disk: %s", err)
 	}
-	if err := d.Set("cpu_platform", instance.CpuPlatform); err != nil {
+	if err := d.Set("cpu_platform", instance["cpuPlatform"]); err != nil {
 		return fmt.Errorf("Error setting cpu_platform: %s", err)
 	}
-	if err := d.Set("min_cpu_platform", instance.MinCpuPlatform); err != nil {
+	if err := d.Set("min_cpu_platform", instance["minCpuPlatform"]); err != nil {
 		return fmt.Errorf("Error setting min_cpu_platform: %s", err)
 	}
-	if err := d.Set("deletion_protection", instance.DeletionProtection); err != nil {
+	if err := d.Set("deletion_protection", instance["deletionProtection"]); err != nil {
 		return fmt.Errorf("Error setting deletion_protection: %s", err)
 	}
-	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(instance.SelfLink)); err != nil {
+	selfLink, _ := instance["selfLink"].(string)
+	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(selfLink)); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
-	if err := d.Set("instance_id", fmt.Sprintf("%d", instance.Id)); err != nil {
+	if err := d.Set("instance_id", fmt.Sprintf("%d", getInt(instance["id"]))); err != nil {
 		return fmt.Errorf("Error setting instance_id: %s", err)
 	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("zone", tpgresource.GetResourceNameFromSelfLink(instance.Zone)); err != nil {
+	instanceZone, _ := instance["zone"].(string)
+	if err := d.Set("zone", tpgresource.GetResourceNameFromSelfLink(instanceZone)); err != nil {
 		return fmt.Errorf("Error setting zone: %s", err)
 	}
-	if err := d.Set("current_status", instance.Status); err != nil {
+	if err := d.Set("current_status", instance["status"]); err != nil {
 		return fmt.Errorf("Error setting current_status: %s", err)
 	}
-	if err := d.Set("name", instance.Name); err != nil {
+	instanceName, _ := instance["name"].(string)
+	if err := d.Set("name", instanceName); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("key_revocation_action_type", instance.KeyRevocationActionType); err != nil {
+	if err := d.Set("key_revocation_action_type", instance["keyRevocationActionType"]); err != nil {
 		return fmt.Errorf("Error setting key_revocation_action_type: %s", err)
 	}
-	if err := d.Set("creation_timestamp", instance.CreationTimestamp); err != nil {
+	if err := d.Set("creation_timestamp", instance["creationTimestamp"]); err != nil {
 		return fmt.Errorf("Error setting creation_timestamp: %s", err)
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, tpgresource.GetResourceNameFromSelfLink(instance.Zone), instance.Name))
+	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, tpgresource.GetResourceNameFromSelfLink(instanceZone), instanceName))
 	return nil
 }
 

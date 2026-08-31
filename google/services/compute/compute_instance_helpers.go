@@ -780,10 +780,13 @@ func expandServiceAccounts(configs []interface{}) []interface{} {
 			email = "default"
 		}
 
-		accounts[i] = map[string]interface{}{
-			"email":  email,
-			"scopes": tpgresource.CanonicalizeServiceScopes(tpgresource.ConvertStringSet(data["scopes"].(*schema.Set))),
+		account := map[string]interface{}{
+			"email": email,
 		}
+		if scopes := tpgresource.CanonicalizeServiceScopes(tpgresource.ConvertStringSet(data["scopes"].(*schema.Set))); len(scopes) > 0 {
+			account["scopes"] = scopes
+		}
+		accounts[i] = account
 	}
 	return accounts
 }
@@ -816,6 +819,122 @@ func resourceInstanceTags(d tpgresource.TerraformResourceData) map[string]interf
 	return map[string]interface{}{
 		"items":       items,
 		"fingerprint": d.Get("tags_fingerprint").(string),
+	}
+}
+
+func resourceInstanceTagsOmitEmpty(d tpgresource.TerraformResourceData) map[string]interface{} {
+	tags := map[string]interface{}{}
+	v := d.Get("tags")
+	if v == nil {
+		return tags
+	}
+	vs := v.(*schema.Set)
+	if vs.Len() > 0 {
+		items := make([]string, vs.Len())
+		for i, v := range vs.List() {
+			items[i] = v.(string)
+		}
+		tags["items"] = items
+	}
+	if fingerprint := d.Get("tags_fingerprint").(string); fingerprint != "" {
+		tags["fingerprint"] = fingerprint
+	}
+	return tags
+}
+
+func isZeroSchedulingValue(v interface{}) bool {
+	switch val := v.(type) {
+	case nil:
+		// hostErrorTimeoutSeconds, set to an explicit null that unmarshalled to int64 0.
+		return true
+	case bool:
+		// preemptible, skipGuestOsShutdown.
+		return !val
+	case string:
+		// onHostMaintenance, provisioningModel, instanceTerminationAction,
+		// terminationTime, maintenanceInterval.
+		return val == ""
+	case int:
+		return val == 0
+	case int64:
+		// minNodeCpus, availabilityDomain.
+		return val == 0
+	case float64:
+		return val == 0
+	case map[string]interface{}:
+		// The *Duration fields. Their expanders return a typed nil map, which does not
+		// compare equal to untyped nil and so must be matched by type.
+		return val == nil
+	case []interface{}:
+		// nodeAffinities.
+		return len(val) == 0
+	}
+	// Unknown types are kept, matching a field with no droppable zero value.
+	return false
+}
+
+// schedulingOmitEmpty reproduces the omitempty serialization callers used to get from
+// compute.Scheduling. Paths that sent a raw map keep their zero values instead and
+// should use stripNilSchedulingDurations.
+func schedulingOmitEmpty(scheduling map[string]interface{}) map[string]interface{} {
+	if scheduling == nil {
+		return nil
+	}
+	// AutomaticRestart is a *bool in compute.Scheduling, so false unmarshalled into a
+	// non-nil pointer and was serialized. Every other scalar is a plain value.
+	forceSendKeys := map[string]bool{
+		"automaticRestart": true,
+	}
+	result := map[string]interface{}{}
+	for k, v := range scheduling {
+		if forceSendKeys[k] || !isZeroSchedulingValue(v) {
+			result[k] = v
+		}
+	}
+	return result
+}
+
+func isNilSchedulingValue(v interface{}) bool {
+	if v == nil {
+		return true
+	}
+	switch t := v.(type) {
+	case map[string]interface{}:
+		return t == nil
+	case []interface{}:
+		return t == nil
+	}
+	return false
+}
+
+func stripNilSchedulingDurations(scheduling map[string]interface{}) map[string]interface{} {
+	if scheduling == nil {
+		return nil
+	}
+	for _, k := range []string{"localSsdRecoveryTimeout", "maxRunDuration", "gracefulShutdown", "preemptionNoticeDuration"} {
+		if v, ok := scheduling[k]; ok && isNilSchedulingValue(v) {
+			delete(scheduling, k)
+		}
+	}
+	return scheduling
+}
+
+func omitZeroIndex(disk map[string]interface{}) {
+	if idx, ok := disk["index"]; ok {
+		switch v := idx.(type) {
+		case float64:
+			if v == 0 {
+				delete(disk, "index")
+			}
+		case int:
+			if v == 0 {
+				delete(disk, "index")
+			}
+		case int64:
+			if v == 0 {
+				delete(disk, "index")
+			}
+		}
 	}
 }
 
@@ -1205,13 +1324,23 @@ func expandComputeInstanceSourceEncryptionKey(d tpgresource.TerraformResourceDat
 	}
 
 	cekRes := cek.([]interface{})[0].(map[string]interface{})
-	return map[string]interface{}{
-		"rsaEncryptedKey":      cekRes["rsa_encrypted_key"].(string),
-		"rawKey":               cekRes["raw_key"].(string),
-		"kmsKeyName":           cekRes["kms_key_self_link"].(string),
-		"sha256":               cekRes["sha256"].(string),
-		"kmsKeyServiceAccount": cekRes["kms_key_service_account"].(string),
+	result := map[string]interface{}{}
+	if v, _ := cekRes["rsa_encrypted_key"].(string); v != "" {
+		result["rsaEncryptedKey"] = v
 	}
+	if v, _ := cekRes["raw_key"].(string); v != "" {
+		result["rawKey"] = v
+	}
+	if v, _ := cekRes["kms_key_self_link"].(string); v != "" {
+		result["kmsKeyName"] = v
+	}
+	if v, _ := cekRes["sha256"].(string); v != "" {
+		result["sha256"] = v
+	}
+	if v, _ := cekRes["kms_key_service_account"].(string); v != "" {
+		result["kmsKeyServiceAccount"] = v
+	}
+	return result
 }
 
 func flattenComputeInstanceSourceEncryptionKey(v map[string]interface{}) []map[string]interface{} {
