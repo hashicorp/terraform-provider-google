@@ -205,6 +205,109 @@ resource "google_app_engine_standard_app_version" "gae-std-app-ver-bundled" {
   ]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=app_engine_standard_app_version_vpc_access&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - App Engine Standard App Version Vpc Access
+
+
+```hcl
+resource "google_service_account" "service_account" {
+  provider     = google-beta
+  account_id   = "gae-sa"
+  display_name = "Test Service Account for GAE"
+}
+
+resource "google_project_iam_member" "gae_api" {
+  provider = google-beta
+  project  = google_service_account.service_account.project
+  role     = "roles/compute.networkUser"
+  member   = "serviceAccount:${google_service_account.service_account.email}"
+}
+
+resource "google_project_iam_member" "storage_viewer" {
+  provider = google-beta
+  project  = google_service_account.service_account.project
+  role     = "roles/storage.objectViewer"
+  member   = "serviceAccount:${google_service_account.service_account.email}"
+}
+
+resource "google_compute_network" "custom" {
+  provider                = google-beta
+  name                    = "custom-net-vpc-service"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "custom" {
+  provider      = google-beta
+  name          = "custom-sub-vpc-service"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.custom.id
+}
+
+resource "google_storage_bucket" "bucket" {
+  provider                    = google-beta
+  name                        = "tf-test-gae-bkt-vpc-access"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "requirements" {
+  provider = google-beta
+  name     = "requirements.txt"
+  bucket   = google_storage_bucket.bucket.name
+  source   = "./test-fixtures/hello-world-flask/requirements.txt"
+}
+
+resource "google_storage_bucket_object" "main" {
+  provider = google-beta
+  name     = "main.py"
+  bucket   = google_storage_bucket.bucket.name
+  source   = "./test-fixtures/hello-world-flask/main.py"
+}
+
+resource "google_app_engine_standard_app_version" "gae-std-app-ver-vpc-access" {
+  provider     = google-beta
+  version_id   = "v1"
+  service      = "vpc-service"
+  runtime      = "python310"
+
+  vpc_access {
+    egress_setting = "ALL_TRAFFIC"
+    network_interfaces {
+      network    = google_compute_network.custom.name
+      subnetwork = google_compute_subnetwork.custom.name
+      tags       = ["tag1", "tag2"]
+    }
+  }
+
+  deployment {
+    files {
+      name       = "main.py"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.main.name}"
+    }
+    files {
+      name       = "requirements.txt"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
+    }
+  }
+
+  entrypoint {
+    shell = "gunicorn -b :$PORT main:app"
+  }
+
+  delete_service_on_destroy = true
+  service_account = google_service_account.service_account.email
+
+  depends_on = [
+    google_project_iam_member.gae_api,
+    google_project_iam_member.storage_viewer,
+  ]
+}
+```
 
 ## Argument Reference
 
@@ -272,6 +375,11 @@ The following arguments are supported:
   (Optional)
   Enables VPC connectivity for standard apps.
   Structure is [documented below](#nested_vpc_access_connector).
+
+* `vpc_access` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Direct VPC Access settings for standard apps.
+  Structure is [documented below](#nested_vpc_access).
 
 * `inbound_services` -
   (Optional)
@@ -462,6 +570,32 @@ The following arguments are supported:
 * `egress_setting` -
   (Optional)
   The egress setting for the connector, controlling what traffic is diverted through it.
+
+<a name="nested_vpc_access"></a>The `vpc_access` block supports:
+
+* `egress_setting` -
+  (Optional)
+  The egress setting for the VPC Access, controlling what traffic is diverted through it.
+
+* `network_interfaces` -
+  (Optional)
+  List of network interfaces for the VPC Access. Currently only a single network interface is supported.
+  Structure is [documented below](#nested_vpc_access_network_interfaces).
+
+
+<a name="nested_vpc_access_network_interfaces"></a>The `network_interfaces` block supports:
+
+* `network` -
+  (Optional)
+  The name of the VPC network to which the version connects (e.g. `projects/my-project/global/networks/default`).
+
+* `subnetwork` -
+  (Optional)
+  The name of the subnetwork to which the version connects (e.g. `projects/my-project/regions/us-central1/subnetworks/default`).
+
+* `tags` -
+  (Optional)
+  Network tags applied to this App Engine version.
 
 <a name="nested_automatic_scaling"></a>The `automatic_scaling` block supports:
 
