@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fix permadiff regression when iap is omitted
+```
