@@ -141,6 +141,10 @@ func ResourceIapSettings() *schema.Resource {
 * projects/{project_id}/iap_web/compute-{region}
 * projects/{project_id}/iap_web/compute/services/{service_id}
 * projects/{project_id}/iap_web/compute-{region}/services/{service_id}
+* projects/{project_id}/iap_web/forwarding_rule
+* projects/{project_id}/iap_web/forwarding_rule-{region}
+* projects/{project_id}/iap_web/forwarding_rule/services/{service_id}
+* projects/{project_id}/iap_web/forwarding_rule-{region}/services/{service_id}
 * projects/{project_id}/iap_web/appengine-{app_id}
 * projects/{project_id}/iap_web/appengine-{app_id}/services/{service_id}
 * projects/{project_id}/iap_web/appengine-{app_id}/services/{service_id}/version/{version_id}`,
