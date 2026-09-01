@@ -34,6 +34,7 @@ type Key struct {
 	ServiceAccountEmail *string          `json:"serviceAccountEmail"`
 	Restrictions        *KeyRestrictions `json:"restrictions"`
 	Project             *string          `json:"project"`
+	CheckExistingUsage  *string          `json:"-"`
 }
 
 func (r *Key) String() string {

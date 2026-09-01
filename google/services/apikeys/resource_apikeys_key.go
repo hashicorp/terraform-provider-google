@@ -20,10 +20,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
 	dcl "github.com/hashicorp/terraform-provider-google/google/tpgdclresource"
@@ -32,6 +34,15 @@ import (
 )
 
 func ResourceApikeysKey() *schema.Resource {
+	deletionPolicySchema := tpgresource.DeletionPolicySchemaEntry("DELETE")
+	deletionPolicySchema.Description = `Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the resource,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed, and existing traffic usage will be checked. If active usage was detected in the last 7 days, the request fails.
+When set to "FORCE", deleting the resource will bypass the active traffic usage check.`
+
 	return &schema.Resource{
 		Create: resourceApikeysKeyCreate,
 		Read:   resourceApikeysKeyRead,
@@ -104,8 +115,15 @@ func ResourceApikeysKey() *schema.Resource {
 				Description: "Output only. Unique id in UUID4 format.",
 			},
 
+			"check_existing_usage": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"SKIP", "CHECK"}, false),
+				Description:  "Defines the behavior for checking existing usage when updating a key. Possible values: 'SKIP', 'CHECK'.",
+			},
+
 			//UDP schema start
-			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			"deletion_policy": deletionPolicySchema,
 			//UDP schema end
 		},
 	}
@@ -374,12 +392,18 @@ func resourceApikeysKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	var checkExistingUsage *string
+	if v, ok := d.GetOk("check_existing_usage"); ok {
+		checkExistingUsage = dcl.String(v.(string))
+	}
+
 	obj := &Key{
 		Name:                dcl.String(d.Get("name").(string)),
 		DisplayName:         dcl.String(d.Get("display_name").(string)),
 		Project:             dcl.String(project),
 		Restrictions:        expandApikeysKeyRestrictions(d.Get("restrictions")),
 		ServiceAccountEmail: dcl.String(d.Get("service_account_email").(string)),
+		CheckExistingUsage:  checkExistingUsage,
 	}
 	directive := tpgdclresource.UpdateDirective
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -428,12 +452,19 @@ func resourceApikeysKeyDelete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	deletionPolicy := d.Get("deletion_policy").(string)
+	checkExistingUsage := "CHECK"
+	if strings.EqualFold(deletionPolicy, "FORCE") {
+		checkExistingUsage = "SKIP"
+	}
+
 	obj := &Key{
 		Name:                dcl.String(d.Get("name").(string)),
 		DisplayName:         dcl.String(d.Get("display_name").(string)),
 		Project:             dcl.String(project),
 		Restrictions:        expandApikeysKeyRestrictions(d.Get("restrictions")),
 		ServiceAccountEmail: dcl.String(d.Get("service_account_email").(string)),
+		CheckExistingUsage:  dcl.String(checkExistingUsage),
 	}
 
 	log.Printf("[DEBUG] Deleting Key %q", d.Id())

@@ -21,3 +21,5 @@ fields:
   - api_field: 'serviceAccountEmail'
   - field: 'deletion_policy'
     provider_only: true
+  - field: 'check_existing_usage'
+    provider_only: true
