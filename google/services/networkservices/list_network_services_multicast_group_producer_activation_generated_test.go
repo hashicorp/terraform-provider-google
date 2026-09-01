@@ -20,6 +20,7 @@
 package networkservices_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -32,6 +33,7 @@ import (
 )
 
 var (
+	_ = strings.Trim
 	_ = envvar.TestEnvVar
 )
 
