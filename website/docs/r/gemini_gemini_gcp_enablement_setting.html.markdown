@@ -40,6 +40,7 @@ resource "google_gemini_gemini_gcp_enablement_setting" "example" {
     labels = {"my_key": "my_value"}
     enable_customer_data_sharing = true
     web_grounding_type = "WEB_GROUNDING_FOR_ENTERPRISE"
+    mutations_enabled = true
 }
 ```
 
@@ -79,6 +80,10 @@ The following arguments are supported:
   Possible values:
   GROUNDING_WITH_GOOGLE_SEARCH
   WEB_GROUNDING_FOR_ENTERPRISE
+
+* `mutations_enabled` -
+  (Optional)
+  Whether resource mutations should be enabled.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

@@ -174,6 +174,11 @@ func ResourceGeminiGeminiGcpEnablementSetting() *schema.Resource {
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"mutations_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether resource mutations should be enabled.`,
+			},
 			"web_grounding_type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -259,6 +264,12 @@ func resourceGeminiGeminiGcpEnablementSettingCreate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("web_grounding_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(webGroundingTypeProp)) && (ok || !reflect.DeepEqual(v, webGroundingTypeProp)) {
 		obj["webGroundingType"] = webGroundingTypeProp
+	}
+	mutationsEnabledProp, err := expandGeminiGeminiGcpEnablementSettingMutationsEnabled(d.Get("mutations_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mutations_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(mutationsEnabledProp)) && (ok || !reflect.DeepEqual(v, mutationsEnabledProp)) {
+		obj["mutationsEnabled"] = mutationsEnabledProp
 	}
 	effectiveLabelsProp, err := expandGeminiGeminiGcpEnablementSettingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -497,6 +508,12 @@ func resourceGeminiGeminiGcpEnablementSettingUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("web_grounding_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, webGroundingTypeProp)) {
 		obj["webGroundingType"] = webGroundingTypeProp
 	}
+	mutationsEnabledProp, err := expandGeminiGeminiGcpEnablementSettingMutationsEnabled(d.Get("mutations_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("mutations_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mutationsEnabledProp)) {
+		obj["mutationsEnabled"] = mutationsEnabledProp
+	}
 	effectiveLabelsProp, err := expandGeminiGeminiGcpEnablementSettingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -530,6 +547,10 @@ func resourceGeminiGeminiGcpEnablementSettingUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("web_grounding_type") {
 		updateMask = append(updateMask, "webGroundingType")
+	}
+
+	if d.HasChange("mutations_enabled") {
+		updateMask = append(updateMask, "mutationsEnabled")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -691,6 +712,10 @@ func flattenGeminiGeminiGcpEnablementSettingWebGroundingType(v interface{}, d *s
 	return v
 }
 
+func flattenGeminiGeminiGcpEnablementSettingMutationsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGeminiGeminiGcpEnablementSettingTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -719,6 +744,10 @@ func expandGeminiGeminiGcpEnablementSettingDisableWebGrounding(v interface{}, d 
 }
 
 func expandGeminiGeminiGcpEnablementSettingWebGroundingType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiGeminiGcpEnablementSettingMutationsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -755,6 +784,9 @@ func ResourceGeminiGeminiGcpEnablementSettingFlatten(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
 	}
 	if err = d.Set("web_grounding_type", flattenGeminiGeminiGcpEnablementSettingWebGroundingType(res["webGroundingType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
+	}
+	if err = d.Set("mutations_enabled", flattenGeminiGeminiGcpEnablementSettingMutationsEnabled(res["mutationsEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GeminiGcpEnablementSetting: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenGeminiGeminiGcpEnablementSettingTerraformLabels(res["labels"], d, config)); err != nil {
