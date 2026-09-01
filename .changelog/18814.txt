@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: fixed schema validation error when configuring `disk_config` under `cluster_config.preemptible_worker_config` on `google_dataproc_cluster`
+```

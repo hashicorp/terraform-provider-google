@@ -4055,3 +4055,59 @@ resource "google_dataproc_cluster" "attached_disk_config_secondary" {
 }
 `, rnd)
 }
+
+func TestAccDataprocCluster_PreemptibleWorkerDiskConfig(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_preemptibleWorkerDiskConfig(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.preemptible_disk_config", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.preemptible_disk_config", "cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_size_gb", "30"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.preemptible_disk_config", "cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_type", "pd-standard"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataprocCluster_preemptibleWorkerDiskConfig(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "preemptible_disk_config" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    master_config {
+      num_instances = 1
+      machine_type  = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
+
+    worker_config {
+      num_instances = 2
+      machine_type  = "e2-medium"
+    }
+
+    preemptible_worker_config {
+      num_instances  = 1
+      preemptibility = "PREEMPTIBLE"
+
+      disk_config {
+        boot_disk_size_gb = 30
+        boot_disk_type    = "pd-standard"
+      }
+    }
+  }
+}
+`, rnd)
+}

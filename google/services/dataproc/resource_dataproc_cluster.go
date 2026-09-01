@@ -1671,7 +1671,7 @@ func ResourceDataprocCluster() *schema.Resource {
 													Type:         schema.TypeList,
 													Optional:     true,
 													Description:  `Optional. Attached disk configuration.`,
-													AtLeastOneOf: workerDiskConfigKeys,
+													AtLeastOneOf: preemptibleWorkerDiskConfigKeys,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"disk_size_gb": {
