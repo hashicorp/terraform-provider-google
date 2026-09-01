@@ -836,6 +836,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Storagecontrol",
         "path" to "./google/services/storagecontrol"
     ),
+    "storageftp" to mapOf(
+        "name" to "storageftp",
+        "displayName" to "Storageftp",
+        "path" to "./google/services/storageftp"
+    ),
     "storageinsights" to mapOf(
         "name" to "storageinsights",
         "displayName" to "Storageinsights",
