@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: fixed permadiff on `network_config` for `google_alloydb_instance` when `enable_public_ip` is set to `false`
+```

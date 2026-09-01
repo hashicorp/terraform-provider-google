@@ -763,6 +763,18 @@ func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf("[DEBUG] Finished reading AlloydbInstance %q: %#v", d.Id(), res)
 
+	res, err = resourceAlloydbInstanceDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing AlloydbInstance because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
@@ -2109,6 +2121,27 @@ func expandAlloydbInstanceEffectiveAnnotations(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceAlloydbInstanceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// API omits networkConfig when public IP flags are false. Backfill so
+	// generated flatten does not drop the block (permadiff).
+	networkConfig, _ := res["networkConfig"].(map[string]interface{})
+	if networkConfig == nil {
+		networkConfig = make(map[string]interface{})
+	}
+
+	for apiName, tfName := range map[string]string{
+		"enablePublicIp":         "network_config.0.enable_public_ip",
+		"enableOutboundPublicIp": "network_config.0.enable_outbound_public_ip",
+	} {
+		if v, exists := networkConfig[apiName]; !exists || v == nil {
+			networkConfig[apiName] = d.Get(tfName)
+		}
+	}
+
+	res["networkConfig"] = networkConfig
+	return res, nil
 }
 
 func ResourceAlloydbInstanceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
