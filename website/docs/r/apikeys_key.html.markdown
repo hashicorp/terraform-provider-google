@@ -170,12 +170,17 @@ The following arguments are supported:
   (Optional)
   The email of the service account the key is bound to. If this field is specified, the key is a service account bound key and auth enabled. See [Documentation](https://cloud.google.com/docs/authentication/api-keys?#api-keys-bound-sa) for more details.
 
+* `check_existing_usage` -
+  (Optional)
+  Defines the behavior for checking existing usage when updating a key. Possible values: `SKIP`, `CHECK`.
+
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
     When a 'terraform destroy' or 'terraform apply' would delete the resource,
     the command will fail if this field is set to "PREVENT" in Terraform state.
     When set to "ABANDON", the command will remove the resource from Terraform
     management without updating or deleting the resource in the API.
-    When set to "DELETE", deleting the resource is allowed.
+    When set to "DELETE", deleting the resource is allowed, and existing traffic usage will be checked. If active usage was detected in the last 7 days, the request fails.
+    When set to "FORCE", deleting the resource will bypass the active traffic usage check.
   
 
 
