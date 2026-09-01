@@ -164,11 +164,17 @@ func ListColabNotebookExecutions(config *transport_tpg.Config,
 				return fmt.Errorf("error decoding ColabNotebookExecution from list response")
 			}
 			if v, ok := res["location"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("location", v); err != nil {
 					return fmt.Errorf("error setting location: %w", err)
 				}
 			}
 			if v, ok := res["notebookExecutionJobId"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("notebook_execution_job_id", v); err != nil {
 					return fmt.Errorf("error setting notebook_execution_job_id: %w", err)
 				}

@@ -147,11 +147,17 @@ func ListApigeeDataCollectors(config *transport_tpg.Config,
 			headers := make(http.Header)
 			var err error
 			if v, ok := res["orgId"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("org_id", v); err != nil {
 					return fmt.Errorf("error setting org_id: %w", err)
 				}
 			}
 			if v, ok := res["dataCollectorId"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("data_collector_id", v); err != nil {
 					return fmt.Errorf("error setting data_collector_id: %w", err)
 				}

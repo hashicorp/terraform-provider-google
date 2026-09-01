@@ -151,6 +151,9 @@ func ListApigeeTargetServers(config *transport_tpg.Config,
 				}
 			}
 			if v, ok := res["envId"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("env_id", v); err != nil {
 					return fmt.Errorf("error setting env_id: %w", err)
 				}

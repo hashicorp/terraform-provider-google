@@ -162,6 +162,9 @@ func ListCloudSchedulerJobs(config *transport_tpg.Config,
 				}
 			}
 			if v, ok := res["region"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("region", v); err != nil {
 					return fmt.Errorf("error setting region: %w", err)
 				}

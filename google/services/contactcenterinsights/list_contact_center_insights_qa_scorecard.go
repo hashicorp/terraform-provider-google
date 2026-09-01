@@ -157,11 +157,17 @@ func ListContactCenterInsightsQaScorecards(config *transport_tpg.Config,
 			headers := make(http.Header)
 			var err error
 			if v, ok := res["location"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("location", v); err != nil {
 					return fmt.Errorf("error setting location: %w", err)
 				}
 			}
 			if v, ok := res["qaScorecardId"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("qa_scorecard_id", v); err != nil {
 					return fmt.Errorf("error setting qa_scorecard_id: %w", err)
 				}

@@ -66,6 +66,7 @@ func TestAccVertexAIFeaturestore_vertexAiFeaturestoreExample(t *testing.T) {
 		"kms_key_name":    kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"name":            "terraform" + randomSuffix,
 		"project":         "tf-test-appeng-flex" + randomSuffix,
+		"region":          "us-central1",
 		"random_suffix":   randomSuffix,
 	}
 

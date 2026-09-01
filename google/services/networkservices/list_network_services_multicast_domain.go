@@ -157,11 +157,17 @@ func ListNetworkServicesMulticastDomains(config *transport_tpg.Config,
 			headers := make(http.Header)
 			var err error
 			if v, ok := res["location"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("location", v); err != nil {
 					return fmt.Errorf("error setting location: %w", err)
 				}
 			}
 			if v, ok := res["multicastDomainId"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("multicast_domain_id", v); err != nil {
 					return fmt.Errorf("error setting multicast_domain_id: %w", err)
 				}

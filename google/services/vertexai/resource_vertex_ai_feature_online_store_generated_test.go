@@ -62,6 +62,7 @@ func TestAccVertexAIFeatureOnlineStore_vertexAiFeatureOnlineStoreExample(t *test
 
 	context := map[string]interface{}{
 		"name":          "tf_test_example_feature_online_store" + randomSuffix,
+		"region":        "us-central1",
 		"random_suffix": randomSuffix,
 	}
 

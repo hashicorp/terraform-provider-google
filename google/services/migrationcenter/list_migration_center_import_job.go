@@ -157,11 +157,17 @@ func ListMigrationCenterImportJobs(config *transport_tpg.Config,
 			headers := make(http.Header)
 			var err error
 			if v, ok := res["location"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("location", v); err != nil {
 					return fmt.Errorf("error setting location: %w", err)
 				}
 			}
 			if v, ok := res["importJobId"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("import_job_id", v); err != nil {
 					return fmt.Errorf("error setting import_job_id: %w", err)
 				}
