@@ -63,6 +63,15 @@ func suppressWhenDisabled(k, old, new string, d *schema.ResourceData) bool {
 	return false
 }
 
+// Suppress API-returned IAP values when the iap block is omitted from configuration.
+func suppressIapDiffWhenUnset(_ string, _, _ string, d *schema.ResourceData) bool {
+	iap := d.GetRawConfig().GetAttr("iap")
+	if iap.IsNull() {
+		return true
+	}
+	return iap.IsKnown() && iap.LengthInt() == 0
+}
+
 // Whether the backend is a global or regional NEG
 func isNegBackend(backend map[string]interface{}) bool {
 	backendGroup, ok := backend["group"]
@@ -774,8 +783,9 @@ For internal load balancing, a URL to a HealthCheck resource must be specified i
 				Set: tpgresource.SelfLinkRelativePathHash,
 			},
 			"iap": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: suppressIapDiffWhenUnset,
 				Description: `Settings for enabling Cloud Identity Aware Proxy.
 If OAuth client is not set, the Google-managed OAuth client is used.`,
 				MaxItems: 1,
