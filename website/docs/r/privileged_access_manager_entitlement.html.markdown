@@ -54,7 +54,7 @@ resource "google_privileged_access_manager_entitlement" "tfentitlement" {
                 role = "roles/storage.admin"
                 condition_expression = "request.time < timestamp(\"2024-04-23T18:30:00.000Z\")"
             }
-            resource = "//cloudresourcemanager.googleapis.com/projects/my-project-name"
+            resource = "//cloudresourcemanager.googleapis.com/projects/my-project-id"
             resource_type = "cloudresourcemanager.googleapis.com/Project"
         }
     }
@@ -167,7 +167,7 @@ The following arguments are supported:
 
 * `resource` -
   (Required)
-  Name of the resource.
+  The ID of the resource.
 
 * `role_bindings` -
   (Required)
