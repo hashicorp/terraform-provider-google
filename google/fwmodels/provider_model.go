@@ -219,6 +219,7 @@ type ProviderModel struct {
 	StorageCustomEndpoint                  types.String `tfsdk:"storage_custom_endpoint"`
 	StorageBatchOperationsCustomEndpoint   types.String `tfsdk:"storage_batch_operations_custom_endpoint"`
 	StorageControlCustomEndpoint           types.String `tfsdk:"storage_control_custom_endpoint"`
+	StorageFtpCustomEndpoint               types.String `tfsdk:"storage_ftp_custom_endpoint"`
 	StorageInsightsCustomEndpoint          types.String `tfsdk:"storage_insights_custom_endpoint"`
 	StorageTransferCustomEndpoint          types.String `tfsdk:"storage_transfer_custom_endpoint"`
 	TagsCustomEndpoint                     types.String `tfsdk:"tags_custom_endpoint"`

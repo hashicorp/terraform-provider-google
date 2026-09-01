@@ -1,0 +1,21 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_storage_ftp_server
+generation_type: mmv1
+source_file: products/storageftp/Server.yaml
+api_service_name: ftp.googleapis.com
+api_version: v1
+api_resource_type_kind: Server
+fields:
+    - api_field: accessType
+    - api_field: displayName
+    - api_field: externalConfig.allowedCidrBlocks
+    - api_field: internalConfig.consumerAcceptList.connectionLimit
+    - api_field: internalConfig.consumerAcceptList.project
+    - api_field: internalConfig.consumerRejectList.project
+    - field: location
+      provider_only: true
+    - field: server_id
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true

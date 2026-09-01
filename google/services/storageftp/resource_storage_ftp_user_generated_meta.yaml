@@ -1,0 +1,25 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_storage_ftp_user
+generation_type: mmv1
+source_file: products/storageftp/User.yaml
+api_service_name: ftp.googleapis.com
+api_version: v1
+api_resource_type_kind: User
+fields:
+    - api_field: customerServiceAccount
+    - field: location
+      provider_only: true
+    - field: server_id
+      provider_only: true
+    - api_field: storageDirectoryMappings.bucket
+    - api_field: storageDirectoryMappings.bucketPrefix
+    - api_field: storageDirectoryMappings.directory
+    - api_field: storageDirectoryMappings.permission
+    - api_field: userCredentials.credentialName
+    - api_field: userCredentials.credentialType
+    - api_field: userCredentials.sshPublicKeyBody
+    - field: user_id
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
