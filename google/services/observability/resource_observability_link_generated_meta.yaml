@@ -1,0 +1,25 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_observability_link
+generation_type: mmv1
+source_file: products/observability/Link.yaml
+api_service_name: observability.googleapis.com
+api_version: v1
+api_resource_type_kind: Link
+autogen_status: true
+autogen_version: 2
+fields:
+    - field: bucket
+      provider_only: true
+    - api_field: createTime
+    - field: dataset
+      provider_only: true
+    - api_field: description
+    - api_field: displayName
+    - field: link_id
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: deletion_policy
+      provider_only: true
