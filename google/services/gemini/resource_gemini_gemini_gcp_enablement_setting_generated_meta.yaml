@@ -19,6 +19,7 @@ fields:
     - api_field: labels
     - field: location
       provider_only: true
+    - api_field: mutationsEnabled
     - api_field: name
     - field: terraform_labels
       provider_only: true
