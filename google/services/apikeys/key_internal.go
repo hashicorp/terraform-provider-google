@@ -205,7 +205,11 @@ func (op *updateKeyUpdateKeyOperation) do(ctx context.Context, r *Key, c *Client
 		return err
 	}
 	mask := dcl.TopLevelUpdateMask(op.FieldDiffs)
-	u, err = dcl.AddQueryParams(u, map[string]string{"updateMask": mask})
+	params := map[string]string{"updateMask": mask}
+	if r.CheckExistingUsage != nil && *r.CheckExistingUsage != "" {
+		params["checkExistingUsage"] = *r.CheckExistingUsage
+	}
+	u, err = dcl.AddQueryParams(u, params)
 	if err != nil {
 		return err
 	}
@@ -315,6 +319,7 @@ func (c *Client) deleteAllKey(ctx context.Context, f func(*Key) bool, resources 
 type deleteKeyOperation struct{}
 
 func (op *deleteKeyOperation) do(ctx context.Context, r *Key, c *Client) error {
+	checkExistingUsage := r.CheckExistingUsage
 	r, err := c.GetKey(ctx, r)
 	if err != nil {
 		if dcl.IsNotFound(err) {
@@ -324,10 +329,17 @@ func (op *deleteKeyOperation) do(ctx context.Context, r *Key, c *Client) error {
 		c.Config.Logger.WarningWithContextf(ctx, "GetKey checking for existence. error: %v", err)
 		return err
 	}
+	r.CheckExistingUsage = checkExistingUsage
 
 	u, err := r.deleteURL(c.Config.BasePath)
 	if err != nil {
 		return err
+	}
+	if r.CheckExistingUsage != nil && *r.CheckExistingUsage != "" {
+		u, err = dcl.AddQueryParams(u, map[string]string{"checkExistingUsage": *r.CheckExistingUsage})
+		if err != nil {
+			return err
+		}
 	}
 
 	// Delete should never have a body
@@ -470,6 +482,7 @@ func canonicalizeKeyDesiredState(rawDesired, rawInitial *Key, opts ...dcl.ApplyO
 		return rawDesired, nil
 	}
 	canonicalDesired := &Key{}
+	canonicalDesired.CheckExistingUsage = rawDesired.CheckExistingUsage
 	if dcl.NameToSelfLink(rawDesired.Name, rawInitial.Name) {
 		canonicalDesired.Name = rawInitial.Name
 	} else {
