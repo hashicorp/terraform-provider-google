@@ -147,11 +147,17 @@ func ListApigeeEndpointAttachments(config *transport_tpg.Config,
 			headers := make(http.Header)
 			var err error
 			if v, ok := res["orgId"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("org_id", v); err != nil {
 					return fmt.Errorf("error setting org_id: %w", err)
 				}
 			}
 			if v, ok := res["endpointAttachmentId"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("endpoint_attachment_id", v); err != nil {
 					return fmt.Errorf("error setting endpoint_attachment_id: %w", err)
 				}

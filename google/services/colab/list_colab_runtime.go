@@ -164,11 +164,17 @@ func ListColabRuntimes(config *transport_tpg.Config,
 				return fmt.Errorf("error decoding ColabRuntime from list response")
 			}
 			if v, ok := res["location"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("location", v); err != nil {
 					return fmt.Errorf("error setting location: %w", err)
 				}
 			}
 			if v, ok := res["name"]; ok && v != nil {
+				if s, ok := v.(string); ok {
+					v = tpgresource.GetResourceNameFromSelfLink(s)
+				}
 				if err := d.Set("name", v); err != nil {
 					return fmt.Errorf("error setting name: %w", err)
 				}

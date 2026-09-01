@@ -142,9 +142,9 @@ func listAndActionVertexAIIndex(action sweeper.ResourceAction) error {
 		}
 
 		// First try the expected resource key
-		resourceList, ok := res["indices"]
+		resourceList, ok := res["indexes"]
 		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'indices'")
+			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'indexes'")
 		} else {
 			// Next, try the common "items" pattern
 			resourceList, ok = res["items"]
