@@ -1,0 +1,11 @@
+```release-note:new-list-resource
+`google_identityplatform_inbound_saml_config`
+```
+
+```release-note:new-list-resource
+`google_identityplatform_oauth_idp_config`
+```
+
+```release-note:new-list-resource
+`google_identityplatform_tenant`
+```
