@@ -15,15 +15,15 @@ For general information, [look at the TeamCity documentation](https://www.jetbra
 Note: these instructions need to be tested and improved. Please contact @SarahFrench (e.g. [open a GitHub issue](https://github.com/hashicorp/terraform-provider-google/issues/new?assignees=&labels=technical-debt&projects=&template=11_developer_productivity.md) and tag me) for help!
 
 You will need to install:
-* Java 17
-    * `brew install openjdk@17`
+* Java 21
+    * `brew install openjdk@21`
 * Maven
     * `brew install --ignore-dependencies maven`
 
 Add the following to `~/.zshrc` and reload your terminal:
 
 ```
-export JAVA_HOME=/usr/local/Cellar/openjdk@17/17.0.9/libexec/openjdk.jdk/Contents/Home
+export JAVA_HOME=/usr/local/Cellar/openjdk@21/21.0.9/libexec/openjdk.jdk/Contents/Home
 ```
 
 
