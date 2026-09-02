@@ -40,13 +40,22 @@ func TestAccStorageFtpServer_updateInternal(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageFtpServer_internalInitial(serverId1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "labels.env", "default"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "terraform_labels.env", "default"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "effective_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "effective_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "effective_labels.env", "default"),
+				),
 			},
 			{
-				ResourceName:      "google_storage_ftp_server.internal_server",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// Ignore location and server_id as they are URL-only parameters.
-				ImportStateVerifyIgnore: []string{"location", "server_id"},
+				ResourceName:            "google_storage_ftp_server.internal_server",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "server_id", "terraform_labels"},
 			},
 			{
 				Config: testAccStorageFtpServer_internalUpdated(serverId1),
@@ -55,13 +64,25 @@ func TestAccStorageFtpServer_updateInternal(t *testing.T) {
 						plancheck.ExpectResourceAction("google_storage_ftp_server.internal_server", plancheck.ResourceActionUpdate),
 					},
 				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "labels.env", "updated"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "labels.foo", "bar"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "terraform_labels.env", "updated"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "terraform_labels.foo", "bar"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "effective_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "effective_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "effective_labels.env", "updated"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "effective_labels.foo", "bar"),
+				),
 			},
 			{
-				ResourceName:      "google_storage_ftp_server.internal_server",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// Ignore location and server_id as they are URL-only parameters.
-				ImportStateVerifyIgnore: []string{"location", "server_id"},
+				ResourceName:            "google_storage_ftp_server.internal_server",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "server_id", "terraform_labels"},
 			},
 			{
 				Config: testAccStorageFtpServer_internalUpdated(serverId2),
@@ -72,11 +93,10 @@ func TestAccStorageFtpServer_updateInternal(t *testing.T) {
 				},
 			},
 			{
-				ResourceName:      "google_storage_ftp_server.internal_server",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// Ignore location and server_id as they are URL-only parameters.
-				ImportStateVerifyIgnore: []string{"location", "server_id"},
+				ResourceName:            "google_storage_ftp_server.internal_server",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "server_id", "terraform_labels"},
 			},
 		},
 	})
@@ -96,13 +116,19 @@ func TestAccStorageFtpServer_updateExternal(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageFtpServer_externalInitial(serverId1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_storage_ftp_server.external_server", "labels.%"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "terraform_labels.%", "1"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "effective_labels.%", "1"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "effective_labels.goog-terraform-provisioned", "true"),
+				),
 			},
 			{
-				ResourceName:      "google_storage_ftp_server.external_server",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// Ignore location and server_id as they are URL-only parameters.
-				ImportStateVerifyIgnore: []string{"location", "server_id"},
+				ResourceName:            "google_storage_ftp_server.external_server",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "server_id", "terraform_labels"},
 			},
 			{
 				Config: testAccStorageFtpServer_externalUpdated(serverId1),
@@ -111,13 +137,22 @@ func TestAccStorageFtpServer_updateExternal(t *testing.T) {
 						plancheck.ExpectResourceAction("google_storage_ftp_server.external_server", plancheck.ResourceActionUpdate),
 					},
 				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "labels.env", "test"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "terraform_labels.env", "test"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "effective_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "effective_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "effective_labels.env", "test"),
+				),
 			},
 			{
-				ResourceName:      "google_storage_ftp_server.external_server",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// Ignore location and server_id as they are URL-only parameters.
-				ImportStateVerifyIgnore: []string{"location", "server_id"},
+				ResourceName:            "google_storage_ftp_server.external_server",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "server_id", "terraform_labels"},
 			},
 			{
 				Config: testAccStorageFtpServer_externalUpdated(serverId2),
@@ -128,11 +163,10 @@ func TestAccStorageFtpServer_updateExternal(t *testing.T) {
 				},
 			},
 			{
-				ResourceName:      "google_storage_ftp_server.external_server",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// Ignore location and server_id as they are URL-only parameters.
-				ImportStateVerifyIgnore: []string{"location", "server_id"},
+				ResourceName:            "google_storage_ftp_server.external_server",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "server_id", "terraform_labels"},
 			},
 		},
 	})
@@ -145,6 +179,10 @@ resource "google_storage_ftp_server" "internal_server" {
   server_id    = "%s"
   display_name = "Initial Internal SFTP Server"
   access_type  = "INTERNAL"
+
+  labels = {
+    env = "default"
+  }
 
   internal_config {
     consumer_accept_list {
@@ -169,6 +207,11 @@ resource "google_storage_ftp_server" "internal_server" {
   server_id    = "%s"
   display_name = "Updated Internal SFTP Server"
   access_type  = "INTERNAL"
+
+  labels = {
+    env = "updated"
+    foo = "bar"
+  }
 
   internal_config {
     consumer_accept_list {
@@ -214,6 +257,10 @@ resource "google_storage_ftp_server" "external_server" {
   server_id    = "%s"
   display_name = "Updated External SFTP Server"
   access_type  = "EXTERNAL"
+
+  labels = {
+    env = "test"
+  }
 
   external_config {
     allowed_cidr_blocks = [

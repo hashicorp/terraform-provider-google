@@ -104,6 +104,13 @@ The following arguments are supported:
   (Optional)
   A display name for the server.
 
+* `labels` -
+  (Optional)
+  A set of key/value label pairs to assign to the Storage FTP Server.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `internal_config` -
   (Optional)
   Configuration for internal access type SFTP servers.
@@ -165,6 +172,13 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/servers/{{server_id}}`
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts
