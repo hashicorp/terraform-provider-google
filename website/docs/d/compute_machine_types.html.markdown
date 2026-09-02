@@ -118,6 +118,8 @@ The following attributes are exported:
 
 * `name` - The name of the machine type.
 
+* `architecture` - The architecture of the machine type, either `X86_64` or `ARM64` when reported by the API. May be empty for legacy machine types.
+
 * `description` - A textual description of the machine type.
 
 * `bundled_local_ssds` - ([Beta](../guides/provider_versions.html.markdown)) The configuration of bundled local SSD for the machine type. Structure is [documented below](#nested_bundled_local_ssds).

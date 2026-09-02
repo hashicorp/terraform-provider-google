@@ -37,6 +37,7 @@ func TestAccDataSourceGoogleComputeMachineTypes_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					// We can't guarantee machine type availability in a given project and zone, so we'll check set-ness rather than correctness
 					resource.TestMatchResourceAttr("data.google_compute_machine_types.test", "machine_types.0.name", regexp.MustCompile(`^[a-z0-9-]+$`)),
+					resource.TestMatchResourceAttr("data.google_compute_machine_types.test", "machine_types.0.architecture", regexp.MustCompile(`^(X86_64|ARM64)$`)),
 					resource.TestMatchResourceAttr("data.google_compute_machine_types.test", "machine_types.0.guest_cpus", regexp.MustCompile(`^\d+$`)),
 					resource.TestMatchResourceAttr("data.google_compute_machine_types.test", "machine_types.0.memory_mb", regexp.MustCompile(`^\d+$`)),
 					resource.TestMatchResourceAttr("data.google_compute_machine_types.test", "machine_types.0.maximum_persistent_disks", regexp.MustCompile(`^\d+$`)),
@@ -54,7 +55,7 @@ const testAccComputeMachineTypes = `
 data "google_compute_zones" "available" {}
 
 data "google_compute_machine_types" "test" {
-	filter = "guest_cpus > 0"
+	filter = "architecture = \"X86_64\""
 	zone   = data.google_compute_zones.available.names[0]
 }
 `

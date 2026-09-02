@@ -50,6 +50,11 @@ func DataSourceGoogleComputeMachineTypes() *schema.Resource {
 							Computed:    true,
 							Description: `The name of the machine type.`,
 						},
+						"architecture": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The architecture of the machine type, either X86_64 or ARM64 when reported by the API. May be empty for legacy machine types.`,
+						},
 						"guest_cpus": {
 							Type:        schema.TypeInt,
 							Computed:    true,
@@ -239,6 +244,7 @@ func flattenDatasourceGoogleComputeMachineTypesListV2(v interface{}) []map[strin
 		}
 		machineType := map[string]interface{}{
 			"name":                             mt["name"],
+			"architecture":                     mt["architecture"],
 			"guest_cpus":                       mt["guestCpus"],
 			"memory_mb":                        mt["memoryMb"],
 			"maximum_persistent_disks":         mt["maximumPersistentDisks"],
