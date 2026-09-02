@@ -9,13 +9,18 @@ api_resource_type_kind: Server
 fields:
     - api_field: accessType
     - api_field: displayName
+    - field: effective_labels
+      provider_only: true
     - api_field: externalConfig.allowedCidrBlocks
     - api_field: internalConfig.consumerAcceptList.connectionLimit
     - api_field: internalConfig.consumerAcceptList.project
     - api_field: internalConfig.consumerRejectList.project
+    - api_field: labels
     - field: location
       provider_only: true
     - field: server_id
+      provider_only: true
+    - field: terraform_labels
       provider_only: true
     - field: deletion_policy
       provider_only: true

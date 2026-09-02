@@ -139,6 +139,7 @@ func ResourceStorageFtpServer() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
@@ -237,6 +238,29 @@ func ResourceStorageFtpServer() *schema.Resource {
 				},
 				ExactlyOneOf: []string{"external_config", "internal_config"},
 			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `A set of key/value label pairs to assign to the Storage FTP Server.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -320,6 +344,12 @@ func resourceStorageFtpServerCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("external_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(externalConfigProp)) && (ok || !reflect.DeepEqual(v, externalConfigProp)) {
 		obj["externalConfig"] = externalConfigProp
+	}
+	effectiveLabelsProp, err := expandStorageFtpServerEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/servers?serverId={{server_id}}")
@@ -561,6 +591,12 @@ func resourceStorageFtpServerUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("external_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, externalConfigProp)) {
 		obj["externalConfig"] = externalConfigProp
 	}
+	effectiveLabelsProp, err := expandStorageFtpServerEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/servers/{{server_id}}")
 	if err != nil {
@@ -585,6 +621,10 @@ func resourceStorageFtpServerUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("external_config") {
 		updateMask = append(updateMask, "externalConfig")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -715,6 +755,21 @@ func flattenStorageFtpServerDisplayName(v interface{}, d *schema.ResourceData, c
 	return v
 }
 
+func flattenStorageFtpServerLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
 func flattenStorageFtpServerAccessType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -816,6 +871,25 @@ func flattenStorageFtpServerExternalConfigAllowedCidrBlocks(v interface{}, d *sc
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenStorageFtpServerTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenStorageFtpServerEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandStorageFtpServerDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -953,10 +1027,24 @@ func expandStorageFtpServerExternalConfigAllowedCidrBlocks(v interface{}, d tpgr
 	return v, nil
 }
 
+func expandStorageFtpServerEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func ResourceStorageFtpServerFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
 	if err = d.Set("display_name", flattenStorageFtpServerDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Server: %s", err)
+	}
+	if err = d.Set("labels", flattenStorageFtpServerLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Server: %s", err)
 	}
 	if err = d.Set("access_type", flattenStorageFtpServerAccessType(res["accessType"], d, config)); err != nil {
@@ -966,6 +1054,12 @@ func ResourceStorageFtpServerFlatten(d *schema.ResourceData, meta interface{}, r
 		return fmt.Errorf("Error reading Server: %s", err)
 	}
 	if err = d.Set("external_config", flattenStorageFtpServerExternalConfig(res["externalConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Server: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenStorageFtpServerTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Server: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenStorageFtpServerEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Server: %s", err)
 	}
 

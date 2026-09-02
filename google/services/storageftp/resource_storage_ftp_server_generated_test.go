@@ -77,7 +77,7 @@ func TestAccStorageFtpServer_storageFtpServerInternalExample(t *testing.T) {
 				ResourceName:            "google_storage_ftp_server.internal_server",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "server_id"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "server_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_storage_ftp_server.internal_server",
@@ -138,7 +138,7 @@ func TestAccStorageFtpServer_storageFtpServerExternalExample(t *testing.T) {
 				ResourceName:            "google_storage_ftp_server.external_server",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "server_id"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "server_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_storage_ftp_server.external_server",
