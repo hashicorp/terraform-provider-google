@@ -402,7 +402,7 @@ func resourceDeploymentManagerDeploymentCreate(d *schema.ResourceData, meta inte
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
-		resourceDeploymentManagerDeploymentPostCreateFailure(d, meta)
+		err = resourceDeploymentManagerDeploymentPostCreateFailure(d, meta, err)
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Deployment: %s", err)
@@ -978,7 +978,8 @@ func expandDeploymentManagerDeploymentTargetImportsName(v interface{}, d tpgreso
 	return v, nil
 }
 
-func resourceDeploymentManagerDeploymentPostCreateFailure(d *schema.ResourceData, meta interface{}) {
+func resourceDeploymentManagerDeploymentPostCreateFailure(d *schema.ResourceData, meta interface{}, err error) error {
+	log.Printf("[DEBUG] Error before post_create_failure hook: %v", err)
 	log.Printf("[WARN] Attempt to clean up Deployment if it still exists")
 	var cleanErr error
 	if cleanErr = resourceDeploymentManagerDeploymentRead(d, meta); cleanErr == nil {
@@ -993,6 +994,7 @@ func resourceDeploymentManagerDeploymentPostCreateFailure(d *schema.ResourceData
 	if cleanErr != nil {
 		log.Printf("[WARN] Could not confirm cleanup of Deployment if created in error state: %v", cleanErr)
 	}
+	return err
 }
 
 func ResourceDeploymentManagerDeploymentFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {

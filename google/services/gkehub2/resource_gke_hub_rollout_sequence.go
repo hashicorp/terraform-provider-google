@@ -686,7 +686,7 @@ func resourceGKEHub2RolloutSequenceCreate(d *schema.ResourceData, meta interface
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
-		resourceGKEHub2RolloutSequencePostCreateFailure(d, meta)
+		err = resourceGKEHub2RolloutSequencePostCreateFailure(d, meta, err)
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create RolloutSequence: %s", err)
@@ -748,8 +748,7 @@ func resourceGKEHub2RolloutSequenceCreate(d *schema.ResourceData, meta interface
 		}
 		return nil
 	}(); err != nil {
-		resourceGKEHub2RolloutSequencePostCreateFailure(d, meta)
-		return err
+		return resourceGKEHub2RolloutSequencePostCreateFailure(d, meta, err)
 	}
 
 	log.Printf("[DEBUG] Finished creating RolloutSequence %q: %#v", d.Id(), res)
@@ -1515,7 +1514,8 @@ func expandGKEHub2RolloutSequenceEffectiveLabels(v interface{}, d tpgresource.Te
 	return m, nil
 }
 
-func resourceGKEHub2RolloutSequencePostCreateFailure(d *schema.ResourceData, meta interface{}) {
+func resourceGKEHub2RolloutSequencePostCreateFailure(d *schema.ResourceData, meta interface{}, err error) error {
+	log.Printf("[DEBUG] Error before post_create_failure hook: %v", err)
 	log.Printf("[WARN] Attempt to clean up RolloutSequence if it still exists")
 	var cleanErr error
 	if cleanErr = resourceGKEHub2RolloutSequenceRead(d, meta); cleanErr == nil {
@@ -1530,6 +1530,7 @@ func resourceGKEHub2RolloutSequencePostCreateFailure(d *schema.ResourceData, met
 	if cleanErr != nil {
 		log.Printf("[WARN] Could not confirm cleanup of RolloutSequence if created in error state: %v", cleanErr)
 	}
+	return err
 }
 
 func ResourceGKEHub2RolloutSequenceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
