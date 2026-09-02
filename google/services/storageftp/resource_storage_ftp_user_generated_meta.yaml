@@ -8,6 +8,9 @@ api_version: v1
 api_resource_type_kind: User
 fields:
     - api_field: customerServiceAccount
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
     - field: location
       provider_only: true
     - field: server_id
@@ -16,6 +19,8 @@ fields:
     - api_field: storageDirectoryMappings.bucketPrefix
     - api_field: storageDirectoryMappings.directory
     - api_field: storageDirectoryMappings.permission
+    - field: terraform_labels
+      provider_only: true
     - api_field: userCredentials.credentialName
     - api_field: userCredentials.credentialType
     - api_field: userCredentials.sshPublicKeyBody

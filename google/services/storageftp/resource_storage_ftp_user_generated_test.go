@@ -81,7 +81,7 @@ func TestAccStorageFtpUser_storageFtpUserBasicExample(t *testing.T) {
 				ResourceName:            "google_storage_ftp_user.user_ftp",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "server_id", "user_id"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "server_id", "terraform_labels", "user_id"},
 			},
 			{
 				ResourceName:       "google_storage_ftp_user.user_ftp",
