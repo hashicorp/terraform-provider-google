@@ -166,11 +166,12 @@ func (u *ApigeeEnvironmentIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 	}
 
 	policy, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    u.Config,
-		Method:    "GET",
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
+		Config:               u.Config,
+		Method:               "GET",
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsApigeeRetryableError},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %w", u.DescribeResource(), err)
@@ -205,12 +206,13 @@ func (u *ApigeeEnvironmentIamUpdater) SetResourceIamPolicy(policy *cloudresource
 	}
 
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    u.Config,
-		Method:    "POST",
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   u.d.Timeout(schema.TimeoutCreate),
+		Config:               u.Config,
+		Method:               "POST",
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              u.d.Timeout(schema.TimeoutCreate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsApigeeRetryableError},
 	})
 	if err != nil {
 		return fmt.Errorf("Error setting IAM policy for %s: %w", u.DescribeResource(), err)

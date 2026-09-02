@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: fixed an issue where concurrently creating `google_apigee_endpoint_attachment`, `google_apigee_instance_attachment`, `google_apigee_envgroup_attachment`, `google_apigee_environment`, `google_apigee_envgroup` or `google_apigee_nat_address` resources could fail with a 400 error stating the resource is locked by another operation
+```
