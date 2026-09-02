@@ -1,0 +1,11 @@
+```release-note:new-list-resource
+`google_appengine_domain_mapping`
+```
+
+```release-note:new-list-resource
+`google_appengine_service_network_settings`
+```
+
+```release-note:new-list-resource
+`google_appengine_service_split_traffic`
+```
