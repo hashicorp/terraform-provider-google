@@ -6,6 +6,8 @@ source_file: products/biglakeiceberg/IcebergTable.yaml
 api_service_name: biglake.googleapis.com
 api_version: v1
 api_resource_type_kind: Table
+api_variant_patterns:
+    - projects/{project}/catalogs/{catalog}/namespaces/{namespace}/tables/{table}
 fields:
     - field: catalog
       provider_only: true
