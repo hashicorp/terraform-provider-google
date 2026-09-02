@@ -6,6 +6,8 @@ source_file: products/biglake/Table.yaml
 api_service_name: biglake.googleapis.com
 api_version: v1
 api_resource_type_kind: Table
+api_variant_patterns:
+    - projects/{project}/locations/{location}/catalogs/{catalog}/databases/{database}/tables/{table}
 fields:
     - api_field: createTime
     - field: database
