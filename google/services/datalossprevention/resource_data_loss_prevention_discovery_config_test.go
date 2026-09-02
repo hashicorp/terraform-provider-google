@@ -907,6 +907,7 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
 				inspect_template_modified_cadence {
 					frequency = "UPDATE_FREQUENCY_DAILY"
 				}
+				refresh_frequency = "UPDATE_FREQUENCY_DAILY"
 			}
 		}
 	}

@@ -505,6 +505,12 @@ and table will be named 'discovery_profiles'. This table will be placed in the s
 														},
 													},
 												},
+												"refresh_frequency": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: verify.ValidateEnum([]string{"UPDATE_FREQUENCY_NEVER", "UPDATE_FREQUENCY_DAILY", "UPDATE_FREQUENCY_MONTHLY", ""}),
+													Description:  `Frequency at which profiles should be updated, regardless of whether the underlying resource has changed. Defaults to never. Possible values: ["UPDATE_FREQUENCY_NEVER", "UPDATE_FREQUENCY_DAILY", "UPDATE_FREQUENCY_MONTHLY"]`,
+												},
 												"schema_modified_cadence": {
 													Type:        schema.TypeList,
 													Optional:    true,
@@ -2544,6 +2550,8 @@ func flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadence(v inte
 		flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceSchemaModifiedCadence(original["schemaModifiedCadence"], d, config)
 	transformed["table_modified_cadence"] =
 		flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceTableModifiedCadence(original["tableModifiedCadence"], d, config)
+	transformed["refresh_frequency"] =
+		flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceRefreshFrequency(original["refreshFrequency"], d, config)
 	transformed["inspect_template_modified_cadence"] =
 		flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceInspectTemplateModifiedCadence(original["inspectTemplateModifiedCadence"], d, config)
 	return []interface{}{transformed}
@@ -2591,6 +2599,10 @@ func flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceTableMo
 }
 
 func flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceTableModifiedCadenceFrequency(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceRefreshFrequency(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4601,6 +4613,13 @@ func expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadence(v inter
 		transformed["tableModifiedCadence"] = transformedTableModifiedCadence
 	}
 
+	transformedRefreshFrequency, err := expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceRefreshFrequency(original["refresh_frequency"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRefreshFrequency); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["refreshFrequency"] = transformedRefreshFrequency
+	}
+
 	transformedInspectTemplateModifiedCadence, err := expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceInspectTemplateModifiedCadence(original["inspect_template_modified_cadence"], d, config)
 	if err != nil {
 		return nil, err
@@ -4682,6 +4701,10 @@ func expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceTableMod
 }
 
 func expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceTableModifiedCadenceFrequency(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionDiscoveryConfigTargetsBigQueryTargetCadenceRefreshFrequency(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -46,6 +46,7 @@ fields:
       provider_only: true
     - api_field: status
     - api_field: targets.bigQueryTarget.cadence.inspectTemplateModifiedCadence.frequency
+    - api_field: targets.bigQueryTarget.cadence.refreshFrequency
     - api_field: targets.bigQueryTarget.cadence.schemaModifiedCadence.frequency
     - api_field: targets.bigQueryTarget.cadence.schemaModifiedCadence.types
     - api_field: targets.bigQueryTarget.cadence.tableModifiedCadence.frequency

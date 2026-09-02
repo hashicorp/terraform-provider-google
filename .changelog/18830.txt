@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: added `big_query_target.cadence.refresh_frequency` field to `google_data_loss_prevention_discovery_config` resource
+```
