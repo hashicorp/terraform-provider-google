@@ -135,6 +135,7 @@ func ResourceStorageFtpUser() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
@@ -190,6 +191,16 @@ func ResourceStorageFtpUser() *schema.Resource {
 				ForceNew:    true,
 				Description: `The unique ID for the user.`,
 			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Resource labels that can contain user-provided metadata.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"storage_directory_mappings": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -222,6 +233,19 @@ func ResourceStorageFtpUser() *schema.Resource {
 						},
 					},
 				},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -299,6 +323,12 @@ func resourceStorageFtpUserCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("user_credentials"); !tpgresource.IsEmptyValue(reflect.ValueOf(userCredentialsProp)) && (ok || !reflect.DeepEqual(v, userCredentialsProp)) {
 		obj["userCredentials"] = userCredentialsProp
+	}
+	effectiveLabelsProp, err := expandStorageFtpUserEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/servers/{{server_id}}/users?user_id={{user_id}}")
@@ -550,6 +580,12 @@ func resourceStorageFtpUserUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("user_credentials"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userCredentialsProp)) {
 		obj["userCredentials"] = userCredentialsProp
 	}
+	effectiveLabelsProp, err := expandStorageFtpUserEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/servers/{{server_id}}/users/{{user_id}}")
 	if err != nil {
@@ -570,6 +606,10 @@ func resourceStorageFtpUserUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("user_credentials") {
 		updateMask = append(updateMask, "userCredentials")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -771,6 +811,40 @@ func flattenStorageFtpUserUserCredentialsSshPublicKeyBody(v interface{}, d *sche
 	return v
 }
 
+func flattenStorageFtpUserLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenStorageFtpUserTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenStorageFtpUserEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandStorageFtpUserStorageDirectoryMappings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	if v == nil {
@@ -889,6 +963,17 @@ func expandStorageFtpUserUserCredentialsSshPublicKeyBody(v interface{}, d tpgres
 	return v, nil
 }
 
+func expandStorageFtpUserEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func ResourceStorageFtpUserFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -899,6 +984,15 @@ func ResourceStorageFtpUserFlatten(d *schema.ResourceData, meta interface{}, res
 		return fmt.Errorf("Error reading User: %s", err)
 	}
 	if err = d.Set("user_credentials", flattenStorageFtpUserUserCredentials(res["userCredentials"], d, config)); err != nil {
+		return fmt.Errorf("Error reading User: %s", err)
+	}
+	if err = d.Set("labels", flattenStorageFtpUserLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading User: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenStorageFtpUserTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading User: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenStorageFtpUserEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading User: %s", err)
 	}
 
