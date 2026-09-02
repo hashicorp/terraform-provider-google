@@ -197,14 +197,15 @@ func resourceApigeeEnvgroupAttachmentCreate(d *schema.ResourceData, meta interfa
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutCreate),
-		Headers:   headers,
+		Config:               config,
+		Method:               "POST",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutCreate),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsApigeeRetryableError},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating EnvgroupAttachment: %s", err)
@@ -283,12 +284,13 @@ func resourceApigeeEnvgroupAttachmentRead(d *schema.ResourceData, meta interface
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Headers:   headers,
+		Config:               config,
+		Method:               "GET",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsApigeeRetryableError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeEnvgroupAttachment %q", d.Id()))
@@ -373,14 +375,15 @@ func resourceApigeeEnvgroupAttachmentDelete(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Deleting EnvgroupAttachment %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "DELETE",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-		Headers:   headers,
+		Config:               config,
+		Method:               "DELETE",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutDelete),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsApigeeRetryableError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "EnvgroupAttachment")

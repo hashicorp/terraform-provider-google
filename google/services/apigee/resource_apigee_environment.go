@@ -386,14 +386,15 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutCreate),
-		Headers:   headers,
+		Config:               config,
+		Method:               "POST",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutCreate),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsApigeeRetryableError},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Environment: %s", err)
@@ -458,12 +459,13 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Headers:   headers,
+		Config:               config,
+		Method:               "GET",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsApigeeRetryableError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeEnvironment %q", d.Id()))
@@ -624,14 +626,15 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PUT",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-		Headers:   headers,
+		Config:               config,
+		Method:               "PUT",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsApigeeRetryableError},
 	})
 
 	if err != nil {
@@ -675,14 +678,15 @@ func resourceApigeeEnvironmentDelete(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Deleting Environment %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "DELETE",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-		Headers:   headers,
+		Config:               config,
+		Method:               "DELETE",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutDelete),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsApigeeRetryableError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Environment")
