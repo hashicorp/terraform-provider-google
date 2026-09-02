@@ -268,6 +268,7 @@ resource "google_data_loss_prevention_discovery_config" "conditions_cadence" {
                 inspect_template_modified_cadence {
                     frequency = "UPDATE_FREQUENCY_DAILY"
                 }
+                refresh_frequency = "UPDATE_FREQUENCY_DAILY"
             }
         }
     }
@@ -942,6 +943,11 @@ The following arguments are supported:
   (Optional)
   Governs when to update profile when a table is modified.
   Structure is [documented below](#nested_targets_big_query_target_cadence_table_modified_cadence).
+
+* `refresh_frequency` -
+  (Optional)
+  Frequency at which profiles should be updated, regardless of whether the underlying resource has changed. Defaults to never.
+  Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
 * `inspect_template_modified_cadence` -
   (Optional)
