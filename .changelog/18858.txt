@@ -1,0 +1,3 @@
+```release-note:bug
+colab: fixed an issue in `google_colab_schedule` where `notebookExecutionJob.workbench_runtime` could not be configured with an empty value 
+```
