@@ -23,8 +23,6 @@ description: |-
 
 Manages Cloud Observability settings for a project.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage - Observability Project Settings Basic
@@ -32,7 +30,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 resource "google_project" "project" {
-	provider        = "google-beta"
   project_id      = "tf-test%{random_suffix}"
   name            = "tf-test%{random_suffix}"
   org_id          = "%{org_id}"
@@ -40,36 +37,37 @@ resource "google_project" "project" {
 }
 
 resource "google_project_service" "observability_api" {
-	provider           = "google-beta"
   project            = google_project.project.project_id
   service            = "observability.googleapis.com"
   disable_on_destroy = false
 }
 
-# Actively force the creation of the Service Agent identity
-resource "google_project_service_identity" "observability_sa" {
-	provider = "google-beta"
-  project  = google_project.project.project_id
-  service  = "observability.googleapis.com"
-
-  depends_on = [
-    google_project_service.observability_api
-  ]
+# Wait for the project to be created and recognized by the Observability API
+resource "time_sleep" "wait_for_project_propagation" {
+  create_duration = "90s"
+  depends_on      = [google_project_service.observability_api]
 }
 
-# Short buffer for the new identity to propagate to global IAM indexes
+# Creates the observability service account
+resource "google_observability_project_settings" "global" {
+  location                 = "global"
+  project                  = google_project.project.project_id
+  default_storage_location = "us"
+  depends_on = [time_sleep.wait_for_project_propagation]
+}
+
+# Buffer for the new identity to propagate to global IAM indexes
 resource "time_sleep" "wait_for_sa_propagation" {
   create_duration = "30s"
   depends_on      = [
-    google_project_service_identity.observability_sa
+    google_observability_project_settings.global
   ]
 }
 
 resource "google_kms_crypto_key_iam_member" "crypto_key" {
-	provider      = "google-beta"
   crypto_key_id = "%{kms_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:${google_project_service_identity.observability_sa.email}"
+  member        = "serviceAccount:service-${google_project.project.number}@gcp-sa-observability.iam.gserviceaccount.com"
 
   depends_on = [
     time_sleep.wait_for_sa_propagation
@@ -77,7 +75,6 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
 }
 
 resource "google_observability_project_settings" "primary" {
-	provider     = "google-beta"
   location     = "us"
   project      = google_project.project.project_id
   kms_key_name = "%{kms_key_name}"
@@ -92,7 +89,6 @@ resource "google_observability_project_settings" "primary" {
 
 ```hcl
 resource "google_project" "project" {
-  provider   = "google-beta"
   project_id = "tf-test%{random_suffix}"
   name       = "tf-test%{random_suffix}"
   org_id     = "123456789"
@@ -100,7 +96,6 @@ resource "google_project" "project" {
 }
 
 resource "google_project_service" "observability_api" {
-  provider           = "google-beta"
   project            = google_project.project.project_id
   service            = "observability.googleapis.com"
   disable_on_destroy = false
@@ -113,7 +108,6 @@ resource "time_sleep" "wait_for_settings_propagation" {
 }
 
 resource "google_observability_project_settings" "primary_global" {
-  provider                 = "google-beta"
   location                 = "global"
   project                  = google_project.project.project_id
   default_storage_location = "eu"

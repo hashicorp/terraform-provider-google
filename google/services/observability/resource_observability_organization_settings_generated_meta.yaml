@@ -1,0 +1,17 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_observability_organization_settings
+generation_type: mmv1
+source_file: products/observability/OrganizationSettings.yaml
+api_service_name: observability.googleapis.com
+api_version: v1
+api_resource_type_kind: OrganizationSettings
+fields:
+    - api_field: defaultStorageLocation
+    - api_field: kmsKeyName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: organization
+      provider_only: true
+    - api_field: serviceAccountId

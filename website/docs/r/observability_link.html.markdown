@@ -25,46 +25,87 @@ Link configuration for exposing observability dataset data.
 
 
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=observability_link_basic&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Observability Link Basic
 
 
 ```hcl
-# Force the creation of the Service Agent identity
-resource "google_project_service_identity" "observability_sa" {
-  service = "observability.googleapis.com"
+resource "google_project" "project" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "observability_api" {
+  project            = google_project.project.project_id
+  service            = "observability.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "bigquery_api" {
+  project            = google_project.project.project_id
+  service            = "bigquery.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Wait for the project to be created and recognized by the Observability API
+resource "time_sleep" "wait_for_project_propagation" {
+  create_duration = "90s"
+  depends_on = [
+    google_project_service.observability_api,
+    google_project_service.bigquery_api,
+  ]
+}
+
+# Instantiating observability settings will create the service account if it doesn't already exist
+resource "google_observability_project_settings" "global" {
+  location                 = "global"
+  project                  = google_project.project.project_id
+  default_storage_location = "us"
+  depends_on               = [time_sleep.wait_for_project_propagation]
 }
 
 # Buffer for the new identity to propagate to global IAM indexes
 resource "time_sleep" "wait_for_sa_propagation" {
   create_duration = "30s"
   depends_on      = [
-    google_project_service_identity.observability_sa
+    google_observability_project_settings.global
   ]
 }
 
 resource "google_project_iam_member" "observability_sa_bq_admin" {
-  project = google_project_service_identity.observability_sa.project
+  project = google_project.project.project_id
   role    = "roles/bigquery.admin"
-  member  = "serviceAccount:${google_project_service_identity.observability_sa.email}"
+  member  = "serviceAccount:service-${google_project.project.number}@gcp-sa-observability.iam.gserviceaccount.com"
 
   depends_on = [
     time_sleep.wait_for_sa_propagation
   ]
 }
 
+# Buffer for the new permission to propagate
+resource "time_sleep" "wait_for_iam_propagation" {
+  create_duration = "90s"
+  depends_on      = [
+    google_project_iam_member.observability_sa_bq_admin
+  ]
+}
+
 resource "google_observability_bucket" "bucket" {
   bucket_id    = "_Trace"
-  location     = "us"
+  location     = "us-east1"
+  project      = google_project.project.project_id
   display_name = "Bucket for Link"
   description  = "Bucket for testing Link"
+
+  depends_on = [
+    google_observability_project_settings.global
+  ]
 }
 
 resource "google_observability_link" "primary" {
+  project      = google_project.project.project_id
   location     = google_observability_bucket.bucket.location
   bucket       = google_observability_bucket.bucket.bucket_id
   dataset      = "Spans"
@@ -73,7 +114,7 @@ resource "google_observability_link" "primary" {
   description  = "Initial description"
 
   depends_on = [
-    google_project_iam_member.observability_sa_bq_admin,
+    time_sleep.wait_for_iam_propagation
   ]
 }
 ```

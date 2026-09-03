@@ -23,8 +23,6 @@ description: |-
 
 Manages Cloud Observability settings for an organization.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage - Observability Organization Settings Basic
@@ -32,7 +30,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 data "google_observability_organization_settings" "settings_data" {
-  provider     = "google-beta"
   organization = "123456789"
   location     = "us"
 }
@@ -44,7 +41,6 @@ resource "time_sleep" "wait_for_sa_propagation" {
 }
 
 resource "google_kms_crypto_key_iam_member" "iam" {
-  provider      = "google-beta"
   crypto_key_id = "example-key"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:${data.google_observability_organization_settings.settings_data.service_account_id}"
@@ -52,7 +48,6 @@ resource "google_kms_crypto_key_iam_member" "iam" {
 }
 
 resource "google_observability_organization_settings" "primary" {
-  provider                 = "google-beta"
   location                 = "us"
   organization             = "123456789"
   kms_key_name             = "example-key"
@@ -64,13 +59,11 @@ resource "google_observability_organization_settings" "primary" {
 
 ```hcl
 data "google_observability_organization_settings" "settings_data" {
-  provider = "google-beta"
   organization = "123456789"
   location     = "global"
 }
 
 resource "google_observability_organization_settings" "primary_global" {
-  provider = "google-beta"
   location                 = "global"
   organization             = "123456789"
   default_storage_location = "us"
