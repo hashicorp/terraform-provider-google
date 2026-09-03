@@ -43,6 +43,7 @@ var (
 )
 
 func TestAccComputeRegionNetworkEndpointGroupListQuery_generated(t *testing.T) {
+
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)

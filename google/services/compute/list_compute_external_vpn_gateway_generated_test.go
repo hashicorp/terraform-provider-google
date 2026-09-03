@@ -41,6 +41,7 @@ var (
 )
 
 func TestAccComputeExternalVpnGatewayListQuery_generated(t *testing.T) {
+
 	t.Parallel()
 	acctest.SkipIfVcr(t)
 
