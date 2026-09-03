@@ -1,0 +1,22 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_parameter_manager_template
+generation_type: mmv1
+source_file: products/parametermanager/Template.yaml
+api_service_name: parametermanager.googleapis.com
+api_version: v1
+api_resource_type_kind: Template
+fields:
+    - api_field: createTime
+    - field: effective_labels
+      provider_only: true
+    - api_field: format
+    - api_field: labels
+    - api_field: name
+    - field: template_id
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
