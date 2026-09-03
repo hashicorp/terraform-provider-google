@@ -1,0 +1,15 @@
+```release-note:new-resource
+`google_observability_bucket` (ga)
+```
+```release-note:new-resource
+`google_observability_link` (ga)
+```
+```release-note:new-resource
+`google_observability_project_settings` (ga)
+```
+```release-note:new-resource
+`google_observability_folder_settings` (ga)
+```
+```release-note:new-resource
+`google_observability_organization_settings` (ga)
+```

@@ -23,8 +23,6 @@ description: |-
 
 Manages Cloud Observability settings for a folder.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage - Observability Folder Settings Basic
@@ -32,7 +30,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 resource "google_folder" "test_folder" {
-  provider            = "google-beta"
   display_name        = "tf-test-%{random_suffix}"
   parent              = "organizations/123456789"
   deletion_protection = false
@@ -45,7 +42,6 @@ resource "time_sleep" "wait_for_settings_propagation" {
 }
 
 data "google_observability_folder_settings" "settings_data" {
-  provider   = "google-beta"
   folder     = google_folder.test_folder.folder_id
   location   = "us"
   depends_on = [time_sleep.wait_for_settings_propagation]
@@ -58,7 +54,6 @@ resource "time_sleep" "wait_for_sa_propagation" {
 }
 
 resource "google_kms_crypto_key_iam_member" "iam" {
-  provider      = "google-beta"
   crypto_key_id = "example-key"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:${data.google_observability_folder_settings.settings_data.service_account_id}"
@@ -66,7 +61,6 @@ resource "google_kms_crypto_key_iam_member" "iam" {
 }
 
 resource "google_observability_folder_settings" "primary" {
-  provider     = "google-beta"
   location     = "us"
   folder       = google_folder.test_folder.folder_id
   kms_key_name = "example-key"
@@ -78,7 +72,6 @@ resource "google_observability_folder_settings" "primary" {
 
 ```hcl
 resource "google_folder" "test_folder" {
-  provider            = "google-beta"
   display_name        = "tf-test-%{random_suffix}"
   parent              = "organizations/123456789"
   deletion_protection = false
@@ -91,14 +84,12 @@ resource "time_sleep" "wait_for_folder" {
 }
 
 data "google_observability_folder_settings" "settings_data" {
-  provider   = "google-beta"
   folder     = google_folder.test_folder.folder_id
   location   = "global"
   depends_on = [time_sleep.wait_for_folder]
 }
 
 resource "google_observability_folder_settings" "primary_global" {
-  provider                 = "google-beta"
   location                 = "global"
   folder                   = google_folder.test_folder.folder_id
   default_storage_location = "us"

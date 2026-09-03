@@ -43,28 +43,31 @@ resource "google_project_service" "observability_api" {
   disable_on_destroy = false
 }
 
-# Actively force the creation of the Service Agent identity
-resource "google_project_service_identity" "observability_sa" {
-  project  = google_project.project.project_id
-  service  = "observability.googleapis.com"
-
-  depends_on = [
-    google_project_service.observability_api
-  ]
+# Wait for the project to be created and recognized by the Observability API
+resource "time_sleep" "wait_for_project_propagation" {
+  create_duration = "90s"
+  depends_on      = [google_project_service.observability_api]
 }
 
-# Short buffer for the new identity to propagate to global IAM indexes
+resource "google_observability_project_settings" "global" {
+  location                 = "global"
+  project                  = google_project.project.project_id
+  default_storage_location = "us"
+  depends_on = [time_sleep.wait_for_project_propagation]
+}
+
+# Buffer for the new identity to propagate to global IAM indexes
 resource "time_sleep" "wait_for_sa_propagation" {
   create_duration = "30s"
   depends_on      = [
-    google_project_service_identity.observability_sa
+    google_observability_project_settings.global
   ]
 }
 
 resource "google_kms_crypto_key_iam_member" "crypto_key" {
   crypto_key_id = "%{kms_key}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:${google_project_service_identity.observability_sa.email}"
+  member        = "serviceAccount:service-${google_project.project.number}@gcp-sa-observability.iam.gserviceaccount.com"
 
   depends_on = [
     time_sleep.wait_for_sa_propagation

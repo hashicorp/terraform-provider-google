@@ -28,14 +28,10 @@ To get more information about Observability Settings, see:
 * How-to Guides
     * [Official Documentation](https://docs.cloud.google.com/stackdriver/docs/observability/set-defaults-for-observability-buckets)
 
-~> **Warning:** This data source is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
-
 ## Example Usage - Observability Project Settings Basic
 
 ```hcl
 data "google_observability_project_settings" "settings" {
-  provider = "google-beta"
   project  = "my-project-name"
   location = "global"
 }
