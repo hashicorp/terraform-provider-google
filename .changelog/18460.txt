@@ -1,0 +1,3 @@
+```release-note:note
+compute: migrate data_source_google_compute_subnetworks.go source to use direct HTTP rather than a client library
+```

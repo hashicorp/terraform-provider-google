@@ -110,22 +110,59 @@ func dataSourceGoogleComputeSubnetworksRead(d *schema.ResourceData, meta interfa
 
 	subnetworks := make([]map[string]interface{}, 0)
 
-	subnetworkList, err := NewClient(config, userAgent).Subnetworks.List(project, region).Filter(filter).Do()
+	baseURL, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks")
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Subnetworks : %s %s", project, region))
+		return err
 	}
 
-	for _, subnet := range subnetworkList.Items {
-		subnetworks = append(subnetworks, map[string]interface{}{
-			"description":              subnet.Description,
-			"ip_cidr_range":            subnet.IpCidrRange,
-			"name":                     subnet.Name,
-			"network_self_link":        filepath.Base(subnet.Network),
-			"network":                  subnet.Network,
-			"network_name":             filepath.Base(subnet.Network),
-			"private_ip_google_access": subnet.PrivateIpGoogleAccess,
-			"self_link":                subnet.SelfLink,
+	pageToken := ""
+	for {
+		params := map[string]string{
+			"filter": filter,
+		}
+		if pageToken != "" {
+			params["pageToken"] = pageToken
+		}
+		url, err := transport_tpg.AddQueryParams(baseURL, params)
+		if err != nil {
+			return err
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
 		})
+		if err != nil {
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Subnetworks : %s %s", project, region))
+		}
+
+		if items, ok := res["items"].([]interface{}); ok {
+			for _, item := range items {
+				subnet, ok := item.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				network, _ := subnet["network"].(string)
+				subnetworks = append(subnetworks, map[string]interface{}{
+					"description":              subnet["description"],
+					"ip_cidr_range":            subnet["ipCidrRange"],
+					"name":                     subnet["name"],
+					"network_self_link":        filepath.Base(network),
+					"network":                  subnet["network"],
+					"network_name":             filepath.Base(network),
+					"private_ip_google_access": subnet["privateIpGoogleAccess"],
+					"self_link":                subnet["selfLink"],
+				})
+			}
+		}
+
+		pageToken, _ = res["nextPageToken"].(string)
+		if pageToken == "" {
+			break
+		}
 	}
 
 	if err := d.Set("subnetworks", subnetworks); err != nil {
