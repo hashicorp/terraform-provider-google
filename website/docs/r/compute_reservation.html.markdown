@@ -95,7 +95,7 @@ resource "google_compute_reservation" "gce_reservation" {
 
 ```hcl
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -153,7 +153,7 @@ resource "google_compute_reservation" "gce_reservation_source_instance_template"
 
 ```hcl
 data "google_compute_image" "my_image" {
-  family = "debian-11"
+  family = "debian-13"
   project = "debian-cloud"
 }
 

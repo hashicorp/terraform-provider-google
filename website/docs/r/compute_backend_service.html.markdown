@@ -410,7 +410,7 @@ resource "google_compute_instance_template" "default" {
   machine_type          = "e2-micro"
 
   disk {
-    source_image = "debian-cloud/debian-11"
+    source_image = "debian-cloud/debian-13"
     auto_delete  = true
     boot         = true
   }
@@ -631,7 +631,7 @@ locals {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 

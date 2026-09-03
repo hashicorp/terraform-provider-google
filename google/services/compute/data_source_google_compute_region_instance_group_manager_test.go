@@ -112,7 +112,7 @@ func testAccDataSourceGoogleComputeRegionInstanceGroupManager_usingSelfLink(cont
     }
 
     data "google_compute_image" "my_image" {
-        family  = "debian-11"
+        family  = "debian-13"
         project = "debian-cloud"
     }
 
@@ -189,7 +189,7 @@ func testAccDataSourceGoogleComputeRegionInstanceGroupManager_usingNameAndRegion
     }
 
     data "google_compute_image" "my_image" {
-        family  = "debian-11"
+        family  = "debian-13"
         project = "debian-cloud"
     }
 

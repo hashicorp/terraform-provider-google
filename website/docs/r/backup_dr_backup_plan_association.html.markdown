@@ -45,7 +45,7 @@ resource "google_compute_instance" "myinstance" {
   zone         = "us-central1-a"
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-11"
+      image = "debian-cloud/debian-13"
       labels = {
         my_label = "value"
       }

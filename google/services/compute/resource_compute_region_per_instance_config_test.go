@@ -359,7 +359,7 @@ resource "google_compute_disk" "disk1" {
   name  = "test-disk2-%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-c"
-  image = "debian-cloud/debian-11"
+  image = "debian-cloud/debian-13"
   physical_block_size_bytes = 4096
 }
 
@@ -376,7 +376,7 @@ resource "google_compute_disk" "disk2" {
 func testAccComputeRegionPerInstanceConfig_rigm(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -494,7 +494,7 @@ resource "google_compute_disk" "disk1" {
   name  = "test-disk2-%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-c"
-  image = "debian-cloud/debian-11"
+  image = "debian-cloud/debian-13"
   physical_block_size_bytes = 4096
 }
 
@@ -598,7 +598,7 @@ resource "google_compute_disk" "disk1" {
   name  = "test-disk2-%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-c"
-  image = "debian-cloud/debian-11"
+  image = "debian-cloud/debian-13"
   physical_block_size_bytes = 4096
 }
 `, context) + testAccComputeRegionPerInstanceConfig_rigm(context)
@@ -674,7 +674,7 @@ resource "google_compute_disk" "disk1" {
   name  = "test-disk2-%{random_suffix}"
   type  = "pd-ssd"
   zone  = "us-central1-c"
-  image = "debian-cloud/debian-11"
+  image = "debian-cloud/debian-13"
   physical_block_size_bytes = 4096
 }
 `, context) + testAccComputeRegionPerInstanceConfig_rigm(context)

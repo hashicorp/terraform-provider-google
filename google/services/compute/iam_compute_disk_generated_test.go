@@ -159,7 +159,7 @@ resource "google_compute_disk" "default" {
   name  = "%{disk_name}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-11-bullseye-v20220719"
+  image = "debian-13-trixie-v20260827"
   labels = {
     environment = "dev"
   }
@@ -182,7 +182,7 @@ resource "google_compute_disk" "default" {
   name  = "%{disk_name}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-11-bullseye-v20220719"
+  image = "debian-13-trixie-v20260827"
   labels = {
     environment = "dev"
   }
@@ -220,7 +220,7 @@ resource "google_compute_disk" "default" {
   name  = "%{disk_name}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-11-bullseye-v20220719"
+  image = "debian-13-trixie-v20260827"
   labels = {
     environment = "dev"
   }
@@ -245,7 +245,7 @@ resource "google_compute_disk" "default" {
   name  = "%{disk_name}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-11-bullseye-v20220719"
+  image = "debian-13-trixie-v20260827"
   labels = {
     environment = "dev"
   }
@@ -268,7 +268,7 @@ resource "google_compute_disk" "default" {
   name  = "%{disk_name}"
   type  = "pd-ssd"
   zone  = "us-central1-a"
-  image = "debian-11-bullseye-v20220719"
+  image = "debian-13-trixie-v20260827"
   labels = {
     environment = "dev"
   }
