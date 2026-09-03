@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_service_directory_service_iam_member",
 		ProductName: "ServiceDirectory",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ServiceDirectoryServiceIamSchema, ServiceDirectoryServiceIamUpdaterProducer, ServiceDirectoryServiceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ServiceDirectoryServiceIamParentParentResourceIdentityParser)),
+		Schema:      NewServiceDirectoryServiceIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_service_directory_service_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ServiceDirectoryServiceIamSchema, ServiceDirectoryServiceIamUpdaterProducer),
 	}.Register()
+}
+
+// NewServiceDirectoryServiceIamMemberResource returns the google_service_directory_service_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewServiceDirectoryServiceIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ServiceDirectoryServiceIamSchema,
+		ServiceDirectoryServiceIamUpdaterProducer,
+		ServiceDirectoryServiceIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ServiceDirectoryServiceIamParentParentResourceIdentityParser),
+	)
 }
 
 var ServiceDirectoryServiceIamSchema = map[string]*schema.Schema{

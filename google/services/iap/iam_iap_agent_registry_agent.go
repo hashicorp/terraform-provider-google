@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iap_agent_registry_agent_iam_member",
 		ProductName: "Iap",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IapAgentRegistryAgentIamSchema, IapAgentRegistryAgentIamUpdaterProducer, IapAgentRegistryAgentIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IapAgentRegistryAgentIamParentParentResourceIdentityParser)),
+		Schema:      NewIapAgentRegistryAgentIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iap_agent_registry_agent_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(IapAgentRegistryAgentIamSchema, IapAgentRegistryAgentIamUpdaterProducer),
 	}.Register()
+}
+
+// NewIapAgentRegistryAgentIamMemberResource returns the google_iap_agent_registry_agent_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewIapAgentRegistryAgentIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		IapAgentRegistryAgentIamSchema,
+		IapAgentRegistryAgentIamUpdaterProducer,
+		IapAgentRegistryAgentIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(IapAgentRegistryAgentIamParentParentResourceIdentityParser),
+	)
 }
 
 var IapAgentRegistryAgentIamSchema = map[string]*schema.Schema{

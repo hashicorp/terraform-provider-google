@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_privateca_ca_pool_iam_member",
 		ProductName: "Privateca",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(PrivatecaCaPoolIamSchema, PrivatecaCaPoolIamUpdaterProducer, PrivatecaCaPoolIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(PrivatecaCaPoolIamParentParentResourceIdentityParser)),
+		Schema:      NewPrivatecaCaPoolIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_privateca_ca_pool_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(PrivatecaCaPoolIamSchema, PrivatecaCaPoolIamUpdaterProducer),
 	}.Register()
+}
+
+// NewPrivatecaCaPoolIamMemberResource returns the google_privateca_ca_pool_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewPrivatecaCaPoolIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		PrivatecaCaPoolIamSchema,
+		PrivatecaCaPoolIamUpdaterProducer,
+		PrivatecaCaPoolIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(PrivatecaCaPoolIamParentParentResourceIdentityParser),
+	)
 }
 
 var PrivatecaCaPoolIamSchema = map[string]*schema.Schema{

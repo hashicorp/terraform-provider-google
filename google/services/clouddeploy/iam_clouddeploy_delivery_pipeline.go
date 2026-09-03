@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_clouddeploy_delivery_pipeline_iam_member",
 		ProductName: "Clouddeploy",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ClouddeployDeliveryPipelineIamSchema, ClouddeployDeliveryPipelineIamUpdaterProducer, ClouddeployDeliveryPipelineIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ClouddeployDeliveryPipelineIamParentParentResourceIdentityParser)),
+		Schema:      NewClouddeployDeliveryPipelineIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_clouddeploy_delivery_pipeline_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ClouddeployDeliveryPipelineIamSchema, ClouddeployDeliveryPipelineIamUpdaterProducer),
 	}.Register()
+}
+
+// NewClouddeployDeliveryPipelineIamMemberResource returns the google_clouddeploy_delivery_pipeline_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewClouddeployDeliveryPipelineIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ClouddeployDeliveryPipelineIamSchema,
+		ClouddeployDeliveryPipelineIamUpdaterProducer,
+		ClouddeployDeliveryPipelineIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ClouddeployDeliveryPipelineIamParentParentResourceIdentityParser),
+	)
 }
 
 var ClouddeployDeliveryPipelineIamSchema = map[string]*schema.Schema{

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_biglake_iceberg_catalog_iam_member",
 		ProductName: "BiglakeIceberg",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BiglakeIcebergIcebergCatalogIamSchema, BiglakeIcebergIcebergCatalogIamUpdaterProducer, BiglakeIcebergIcebergCatalogIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BiglakeIcebergIcebergCatalogIamParentParentResourceIdentityParser)),
+		Schema:      NewBiglakeIcebergIcebergCatalogIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_biglake_iceberg_catalog_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(BiglakeIcebergIcebergCatalogIamSchema, BiglakeIcebergIcebergCatalogIamUpdaterProducer),
 	}.Register()
+}
+
+// NewBiglakeIcebergIcebergCatalogIamMemberResource returns the google_biglake_iceberg_catalog_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewBiglakeIcebergIcebergCatalogIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		BiglakeIcebergIcebergCatalogIamSchema,
+		BiglakeIcebergIcebergCatalogIamUpdaterProducer,
+		BiglakeIcebergIcebergCatalogIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(BiglakeIcebergIcebergCatalogIamParentParentResourceIdentityParser),
+	)
 }
 
 var BiglakeIcebergIcebergCatalogIamSchema = map[string]*schema.Schema{

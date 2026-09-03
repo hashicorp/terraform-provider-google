@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_gke_hub_feature_iam_member",
 		ProductName: "GKEHub2",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(GKEHub2FeatureIamSchema, GKEHub2FeatureIamUpdaterProducer, GKEHub2FeatureIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(GKEHub2FeatureIamParentParentResourceIdentityParser)),
+		Schema:      NewGKEHub2FeatureIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_gke_hub_feature_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(GKEHub2FeatureIamSchema, GKEHub2FeatureIamUpdaterProducer),
 	}.Register()
+}
+
+// NewGKEHub2FeatureIamMemberResource returns the google_gke_hub_feature_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewGKEHub2FeatureIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		GKEHub2FeatureIamSchema,
+		GKEHub2FeatureIamUpdaterProducer,
+		GKEHub2FeatureIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(GKEHub2FeatureIamParentParentResourceIdentityParser),
+	)
 }
 
 var GKEHub2FeatureIamSchema = map[string]*schema.Schema{

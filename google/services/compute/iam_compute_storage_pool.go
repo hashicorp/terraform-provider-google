@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_compute_storage_pool_iam_member",
 		ProductName: "Compute",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ComputeStoragePoolIamSchema, ComputeStoragePoolIamUpdaterProducer, ComputeStoragePoolIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ComputeStoragePoolIamParentParentResourceIdentityParser)),
+		Schema:      NewComputeStoragePoolIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_compute_storage_pool_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ComputeStoragePoolIamSchema, ComputeStoragePoolIamUpdaterProducer),
 	}.Register()
+}
+
+// NewComputeStoragePoolIamMemberResource returns the google_compute_storage_pool_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewComputeStoragePoolIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ComputeStoragePoolIamSchema,
+		ComputeStoragePoolIamUpdaterProducer,
+		ComputeStoragePoolIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ComputeStoragePoolIamParentParentResourceIdentityParser),
+	)
 }
 
 var ComputeStoragePoolIamSchema = map[string]*schema.Schema{

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_kms_ekm_connection_iam_member",
 		ProductName: "KMS",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(KMSEkmConnectionIamSchema, KMSEkmConnectionIamUpdaterProducer, KMSEkmConnectionIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(KMSEkmConnectionIamParentParentResourceIdentityParser)),
+		Schema:      NewKMSEkmConnectionIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_kms_ekm_connection_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(KMSEkmConnectionIamSchema, KMSEkmConnectionIamUpdaterProducer),
 	}.Register()
+}
+
+// NewKMSEkmConnectionIamMemberResource returns the google_kms_ekm_connection_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewKMSEkmConnectionIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		KMSEkmConnectionIamSchema,
+		KMSEkmConnectionIamUpdaterProducer,
+		KMSEkmConnectionIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(KMSEkmConnectionIamParentParentResourceIdentityParser),
+	)
 }
 
 var KMSEkmConnectionIamSchema = map[string]*schema.Schema{

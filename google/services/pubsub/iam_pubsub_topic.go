@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_pubsub_topic_iam_member",
 		ProductName: "Pubsub",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer, PubsubTopicIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(PubsubTopicIamParentParentResourceIdentityParser)),
+		Schema:      NewPubsubTopicIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_pubsub_topic_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(PubsubTopicIamSchema, PubsubTopicIamUpdaterProducer),
 	}.Register()
+}
+
+// NewPubsubTopicIamMemberResource returns the google_pubsub_topic_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewPubsubTopicIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		PubsubTopicIamSchema,
+		PubsubTopicIamUpdaterProducer,
+		PubsubTopicIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(PubsubTopicIamParentParentResourceIdentityParser),
+	)
 }
 
 var PubsubTopicIamSchema = map[string]*schema.Schema{

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_container_analysis_note_iam_member",
 		ProductName: "ContainerAnalysis",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer, ContainerAnalysisNoteIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ContainerAnalysisNoteIamParentParentResourceIdentityParser)),
+		Schema:      NewContainerAnalysisNoteIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_container_analysis_note_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ContainerAnalysisNoteIamSchema, ContainerAnalysisNoteIamUpdaterProducer),
 	}.Register()
+}
+
+// NewContainerAnalysisNoteIamMemberResource returns the google_container_analysis_note_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewContainerAnalysisNoteIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ContainerAnalysisNoteIamSchema,
+		ContainerAnalysisNoteIamUpdaterProducer,
+		ContainerAnalysisNoteIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ContainerAnalysisNoteIamParentParentResourceIdentityParser),
+	)
 }
 
 var ContainerAnalysisNoteIamSchema = map[string]*schema.Schema{

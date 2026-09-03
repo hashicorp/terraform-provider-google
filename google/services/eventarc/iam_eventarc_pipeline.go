@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_eventarc_pipeline_iam_member",
 		ProductName: "Eventarc",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(EventarcPipelineIamSchema, EventarcPipelineIamUpdaterProducer, EventarcPipelineIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(EventarcPipelineIamParentParentResourceIdentityParser)),
+		Schema:      NewEventarcPipelineIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_eventarc_pipeline_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(EventarcPipelineIamSchema, EventarcPipelineIamUpdaterProducer),
 	}.Register()
+}
+
+// NewEventarcPipelineIamMemberResource returns the google_eventarc_pipeline_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewEventarcPipelineIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		EventarcPipelineIamSchema,
+		EventarcPipelineIamUpdaterProducer,
+		EventarcPipelineIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(EventarcPipelineIamParentParentResourceIdentityParser),
+	)
 }
 
 var EventarcPipelineIamSchema = map[string]*schema.Schema{

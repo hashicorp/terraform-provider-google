@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_data_catalog_taxonomy_iam_member",
 		ProductName: "DataCatalog",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataCatalogTaxonomyIamSchema, DataCatalogTaxonomyIamUpdaterProducer, DataCatalogTaxonomyIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataCatalogTaxonomyIamParentParentResourceIdentityParser)),
+		Schema:      NewDataCatalogTaxonomyIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_data_catalog_taxonomy_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(DataCatalogTaxonomyIamSchema, DataCatalogTaxonomyIamUpdaterProducer),
 	}.Register()
+}
+
+// NewDataCatalogTaxonomyIamMemberResource returns the google_data_catalog_taxonomy_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewDataCatalogTaxonomyIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		DataCatalogTaxonomyIamSchema,
+		DataCatalogTaxonomyIamUpdaterProducer,
+		DataCatalogTaxonomyIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(DataCatalogTaxonomyIamParentParentResourceIdentityParser),
+	)
 }
 
 var DataCatalogTaxonomyIamSchema = map[string]*schema.Schema{

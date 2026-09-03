@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iam_workforce_pool_iam_member",
 		ProductName: "IAMWorkforcePool",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IAMWorkforcePoolWorkforcePoolIamSchema, IAMWorkforcePoolWorkforcePoolIamUpdaterProducer, IAMWorkforcePoolWorkforcePoolIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IAMWorkforcePoolWorkforcePoolIamParentParentResourceIdentityParser)),
+		Schema:      NewIAMWorkforcePoolWorkforcePoolIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iam_workforce_pool_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(IAMWorkforcePoolWorkforcePoolIamSchema, IAMWorkforcePoolWorkforcePoolIamUpdaterProducer),
 	}.Register()
+}
+
+// NewIAMWorkforcePoolWorkforcePoolIamMemberResource returns the google_iam_workforce_pool_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewIAMWorkforcePoolWorkforcePoolIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		IAMWorkforcePoolWorkforcePoolIamSchema,
+		IAMWorkforcePoolWorkforcePoolIamUpdaterProducer,
+		IAMWorkforcePoolWorkforcePoolIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(IAMWorkforcePoolWorkforcePoolIamParentParentResourceIdentityParser),
+	)
 }
 
 var IAMWorkforcePoolWorkforcePoolIamSchema = map[string]*schema.Schema{

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_endpoints_service_consumers_iam_member",
 		ProductName: "ServiceManagement",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ServiceManagementServiceConsumersIamSchema, ServiceManagementServiceConsumersIamUpdaterProducer, ServiceManagementServiceConsumersIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ServiceManagementServiceConsumersIamParentParentResourceIdentityParser)),
+		Schema:      NewServiceManagementServiceConsumersIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_endpoints_service_consumers_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ServiceManagementServiceConsumersIamSchema, ServiceManagementServiceConsumersIamUpdaterProducer),
 	}.Register()
+}
+
+// NewServiceManagementServiceConsumersIamMemberResource returns the google_endpoints_service_consumers_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewServiceManagementServiceConsumersIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ServiceManagementServiceConsumersIamSchema,
+		ServiceManagementServiceConsumersIamUpdaterProducer,
+		ServiceManagementServiceConsumersIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ServiceManagementServiceConsumersIamParentParentResourceIdentityParser),
+	)
 }
 
 var ServiceManagementServiceConsumersIamSchema = map[string]*schema.Schema{

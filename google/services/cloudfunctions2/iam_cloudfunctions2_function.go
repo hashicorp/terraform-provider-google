@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_cloudfunctions2_function_iam_member",
 		ProductName: "Cloudfunctions2",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer, Cloudfunctions2functionIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(Cloudfunctions2functionIamParentParentResourceIdentityParser)),
+		Schema:      NewCloudfunctions2functionIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_cloudfunctions2_function_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(Cloudfunctions2functionIamSchema, Cloudfunctions2functionIamUpdaterProducer),
 	}.Register()
+}
+
+// NewCloudfunctions2functionIamMemberResource returns the google_cloudfunctions2_function_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewCloudfunctions2functionIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		Cloudfunctions2functionIamSchema,
+		Cloudfunctions2functionIamUpdaterProducer,
+		Cloudfunctions2functionIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(Cloudfunctions2functionIamParentParentResourceIdentityParser),
+	)
 }
 
 var Cloudfunctions2functionIamSchema = map[string]*schema.Schema{

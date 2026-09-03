@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_clouddeploy_custom_target_type_iam_member",
 		ProductName: "Clouddeploy",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ClouddeployCustomTargetTypeIamSchema, ClouddeployCustomTargetTypeIamUpdaterProducer, ClouddeployCustomTargetTypeIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ClouddeployCustomTargetTypeIamParentParentResourceIdentityParser)),
+		Schema:      NewClouddeployCustomTargetTypeIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_clouddeploy_custom_target_type_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ClouddeployCustomTargetTypeIamSchema, ClouddeployCustomTargetTypeIamUpdaterProducer),
 	}.Register()
+}
+
+// NewClouddeployCustomTargetTypeIamMemberResource returns the google_clouddeploy_custom_target_type_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewClouddeployCustomTargetTypeIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ClouddeployCustomTargetTypeIamSchema,
+		ClouddeployCustomTargetTypeIamUpdaterProducer,
+		ClouddeployCustomTargetTypeIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ClouddeployCustomTargetTypeIamParentParentResourceIdentityParser),
+	)
 }
 
 var ClouddeployCustomTargetTypeIamSchema = map[string]*schema.Schema{

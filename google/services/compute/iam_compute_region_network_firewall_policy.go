@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_compute_region_network_firewall_policy_iam_member",
 		ProductName: "Compute",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ComputeRegionNetworkFirewallPolicyIamSchema, ComputeRegionNetworkFirewallPolicyIamUpdaterProducer, ComputeRegionNetworkFirewallPolicyIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ComputeRegionNetworkFirewallPolicyIamParentParentResourceIdentityParser)),
+		Schema:      NewComputeRegionNetworkFirewallPolicyIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_compute_region_network_firewall_policy_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ComputeRegionNetworkFirewallPolicyIamSchema, ComputeRegionNetworkFirewallPolicyIamUpdaterProducer),
 	}.Register()
+}
+
+// NewComputeRegionNetworkFirewallPolicyIamMemberResource returns the google_compute_region_network_firewall_policy_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewComputeRegionNetworkFirewallPolicyIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ComputeRegionNetworkFirewallPolicyIamSchema,
+		ComputeRegionNetworkFirewallPolicyIamUpdaterProducer,
+		ComputeRegionNetworkFirewallPolicyIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ComputeRegionNetworkFirewallPolicyIamParentParentResourceIdentityParser),
+	)
 }
 
 var ComputeRegionNetworkFirewallPolicyIamSchema = map[string]*schema.Schema{

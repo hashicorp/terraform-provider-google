@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_colab_runtime_template_iam_member",
 		ProductName: "Colab",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ColabRuntimeTemplateIamSchema, ColabRuntimeTemplateIamUpdaterProducer, ColabRuntimeTemplateIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ColabRuntimeTemplateIamParentParentResourceIdentityParser)),
+		Schema:      NewColabRuntimeTemplateIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_colab_runtime_template_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ColabRuntimeTemplateIamSchema, ColabRuntimeTemplateIamUpdaterProducer),
 	}.Register()
+}
+
+// NewColabRuntimeTemplateIamMemberResource returns the google_colab_runtime_template_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewColabRuntimeTemplateIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ColabRuntimeTemplateIamSchema,
+		ColabRuntimeTemplateIamUpdaterProducer,
+		ColabRuntimeTemplateIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ColabRuntimeTemplateIamParentParentResourceIdentityParser),
+	)
 }
 
 var ColabRuntimeTemplateIamSchema = map[string]*schema.Schema{

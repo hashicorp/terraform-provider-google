@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_cloud_tasks_queue_iam_member",
 		ProductName: "CloudTasks",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer, CloudTasksQueueIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(CloudTasksQueueIamParentParentResourceIdentityParser)),
+		Schema:      NewCloudTasksQueueIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_cloud_tasks_queue_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(CloudTasksQueueIamSchema, CloudTasksQueueIamUpdaterProducer),
 	}.Register()
+}
+
+// NewCloudTasksQueueIamMemberResource returns the google_cloud_tasks_queue_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewCloudTasksQueueIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		CloudTasksQueueIamSchema,
+		CloudTasksQueueIamUpdaterProducer,
+		CloudTasksQueueIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(CloudTasksQueueIamParentParentResourceIdentityParser),
+	)
 }
 
 var CloudTasksQueueIamSchema = map[string]*schema.Schema{
