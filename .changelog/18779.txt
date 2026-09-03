@@ -1,0 +1,9 @@
+```release-note:new-resource
+`google_biglake_hive_catalog` (ga)
+```
+```release-note:new-resource
+`google_biglake_hive_database` (ga)
+```
+```release-note:new-resource
+`google_biglake_hive_table` (ga)
+```

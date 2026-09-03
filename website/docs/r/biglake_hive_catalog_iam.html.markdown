@@ -35,14 +35,11 @@ A data source can be used to retrieve policy data in advent you do not need crea
 
 ~> **Note:** `google_biglake_hive_catalog_iam_binding` resources **can be** used in conjunction with `google_biglake_hive_catalog_iam_member` resources **only if** they do not grant privilege to the same role.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 ## google_biglake_hive_catalog_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
-  provider = google-beta
   binding {
     role = "roles/biglake.editor"
     members = [
@@ -52,7 +49,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_biglake_hive_catalog_iam_policy" "policy" {
-  provider = google-beta
   project = google_biglake_hive_catalog.my_hive_catalog.project
   name = google_biglake_hive_catalog.my_hive_catalog.name
   policy_data = data.google_iam_policy.admin.policy_data
@@ -63,7 +59,6 @@ resource "google_biglake_hive_catalog_iam_policy" "policy" {
 
 ```hcl
 resource "google_biglake_hive_catalog_iam_binding" "binding" {
-  provider = google-beta
   project = google_biglake_hive_catalog.my_hive_catalog.project
   name = google_biglake_hive_catalog.my_hive_catalog.name
   role = "roles/biglake.editor"
@@ -77,7 +72,6 @@ resource "google_biglake_hive_catalog_iam_binding" "binding" {
 
 ```hcl
 resource "google_biglake_hive_catalog_iam_member" "member" {
-  provider = google-beta
   project = google_biglake_hive_catalog.my_hive_catalog.project
   name = google_biglake_hive_catalog.my_hive_catalog.name
   role = "roles/biglake.editor"
