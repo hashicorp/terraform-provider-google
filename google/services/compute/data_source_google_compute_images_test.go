@@ -29,7 +29,7 @@ func TestAccDataSourceComputeImages_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"image":         "debian-cloud/debian-11",
+		"image":         "debian-cloud/debian-13",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

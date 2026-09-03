@@ -112,7 +112,7 @@ func TestAccComputeInstanceMigrateState(t *testing.T) {
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 		},
@@ -192,7 +192,7 @@ func TestAccComputeInstanceMigrateState_bootDisk(t *testing.T) {
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 		},
@@ -268,7 +268,7 @@ func TestAccComputeInstanceMigrateState_v4FixBootDisk(t *testing.T) {
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 		},
@@ -338,7 +338,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 	diskName := fmt.Sprintf("tf-test-instance-test-%s", acctest.RandString(t, 10))
 	disk := map[string]interface{}{
 		"name":        diskName,
-		"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+		"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 		"zone":        zone,
 	}
 	url := fmt.Sprintf("%sprojects/%s/zones/%s/disks", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
@@ -367,7 +367,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromSource(t *testing.T) {
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 			map[string]interface{}{
@@ -435,7 +435,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 	diskName := fmt.Sprintf("tf-test-instance-test-%s", acctest.RandString(t, 10))
 	disk := map[string]interface{}{
 		"name":        diskName,
-		"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+		"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 		"zone":        zone,
 	}
 	url := fmt.Sprintf("%sprojects/%s/zones/%s/disks", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, zone)
@@ -464,7 +464,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromSource(t *testing.T
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 			map[string]interface{}{
@@ -535,13 +535,13 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 			map[string]interface{}{
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 				"diskEncryptionKey": map[string]interface{}{
 					"rawKey": "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
@@ -576,7 +576,7 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromEncryptionKey(t *testing
 	attributes := map[string]string{
 		"boot_disk.#":                       "1",
 		"disk.#":                            "1",
-		"disk.0.image":                      "projects/debian-cloud/global/images/family/debian-11",
+		"disk.0.image":                      "projects/debian-cloud/global/images/family/debian-13",
 		"disk.0.disk_encryption_key_raw":    "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
 		"disk.0.disk_encryption_key_sha256": "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
 		"zone":                              zone,
@@ -612,13 +612,13 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 			map[string]interface{}{
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 				"diskEncryptionKey": map[string]interface{}{
 					"rawKey": "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
@@ -653,7 +653,7 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromEncryptionKey(t *te
 	attributes := map[string]string{
 		"boot_disk.#":                       "1",
 		"disk.#":                            "1",
-		"disk.0.image":                      "projects/debian-cloud/global/images/family/debian-11",
+		"disk.0.image":                      "projects/debian-cloud/global/images/family/debian-13",
 		"disk.0.disk_encryption_key_raw":    "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
 		"disk.0.disk_encryption_key_sha256": "esTuF7d4eatX4cnc4JsiEiaI+Rff78JgPhA/v1zxX9E=",
 		"zone":                              zone,
@@ -688,19 +688,19 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 			map[string]interface{}{
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 			map[string]interface{}{
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/debian-11-bullseye-v20220719",
+					"sourceImage": "projects/debian-cloud/global/images/debian-13-trixie-v20260827",
 				},
 			},
 		},
@@ -732,9 +732,9 @@ func TestAccComputeInstanceMigrateState_attachedDiskFromAutoDeleteAndImage(t *te
 	attributes := map[string]string{
 		"boot_disk.#":        "1",
 		"disk.#":             "2",
-		"disk.0.image":       "projects/debian-cloud/global/images/debian-11-bullseye-v20220719",
+		"disk.0.image":       "projects/debian-cloud/global/images/debian-13-trixie-v20260827",
 		"disk.0.auto_delete": "true",
-		"disk.1.image":       "global/images/family/debian-11",
+		"disk.1.image":       "global/images/family/debian-13",
 		"disk.1.auto_delete": "true",
 		"zone":               zone,
 	}
@@ -769,19 +769,19 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 			map[string]interface{}{
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 			map[string]interface{}{
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/debian-11-bullseye-v20220719",
+					"sourceImage": "projects/debian-cloud/global/images/debian-13-trixie-v20260827",
 				},
 			},
 		},
@@ -813,9 +813,9 @@ func TestAccComputeInstanceMigrateState_v4FixAttachedDiskFromAutoDeleteAndImage(
 	attributes := map[string]string{
 		"boot_disk.#":        "1",
 		"disk.#":             "2",
-		"disk.0.image":       "projects/debian-cloud/global/images/debian-11-bullseye-v20220719",
+		"disk.0.image":       "projects/debian-cloud/global/images/debian-13-trixie-v20260827",
 		"disk.0.auto_delete": "true",
-		"disk.1.image":       "global/images/family/debian-11",
+		"disk.1.image":       "global/images/family/debian-13",
 		"disk.1.auto_delete": "true",
 		"zone":               zone,
 	}
@@ -850,7 +850,7 @@ func TestAccComputeInstanceMigrateState_scratchDisk(t *testing.T) {
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 			map[string]interface{}{
@@ -924,7 +924,7 @@ func TestAccComputeInstanceMigrateState_v4FixScratchDisk(t *testing.T) {
 				"boot":       true,
 				"autoDelete": true,
 				"initializeParams": map[string]interface{}{
-					"sourceImage": "projects/debian-cloud/global/images/family/debian-11",
+					"sourceImage": "projects/debian-cloud/global/images/family/debian-13",
 				},
 			},
 			map[string]interface{}{

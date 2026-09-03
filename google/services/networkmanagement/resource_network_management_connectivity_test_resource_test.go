@@ -151,7 +151,7 @@ resource "google_compute_subnetwork" "subnet" {
 }	
 
 data "google_compute_image" "debian_9" {
-	family  = "debian-11"
+	family  = "debian-13"
 	project = "debian-cloud"
 }
 `, context)

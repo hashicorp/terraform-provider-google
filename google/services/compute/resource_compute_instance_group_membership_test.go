@@ -143,7 +143,7 @@ func testAccComputeInstanceGroupMembership_noInstanceGroupMembership(context map
 
       boot_disk {
         initialize_params {
-          image = "debian-cloud/debian-11"
+          image = "debian-cloud/debian-13"
         }
       }
 
@@ -158,7 +158,7 @@ func testAccComputeInstanceGroupMembership_noInstanceGroupMembership(context map
 
       boot_disk {
         initialize_params {
-          image = "debian-cloud/debian-11"
+          image = "debian-cloud/debian-13"
         }
       }
 
@@ -173,7 +173,7 @@ func testAccComputeInstanceGroupMembership_noInstanceGroupMembership(context map
 
       boot_disk {
         initialize_params {
-          image = "debian-cloud/debian-11"
+          image = "debian-cloud/debian-13"
         }
       }
 

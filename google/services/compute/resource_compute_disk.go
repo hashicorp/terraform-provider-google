@@ -206,7 +206,7 @@ func diskImageEquals(oldImageName, newImageName string) bool {
 
 func diskImageFamilyEquals(imageName, familyName string) bool {
 	// Handles the case when the image name includes the family name
-	// e.g. image name: debian-11-bullseye-v20220719, family name: debian-11
+	// e.g. image name: debian-13-trixie-v20260827, family name: debian-13
 
 	// First condition is to check if image contains arm64 because of case like:
 	// image name: opensuse-leap-15-4-v20220713-arm64, family name: opensuse-leap (should not be evaluated during handling of amd64 cases)

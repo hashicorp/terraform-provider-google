@@ -1332,7 +1332,7 @@ func testAccComputeBackendService_withBackend(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1389,7 +1389,7 @@ func testAccComputeBackendService_withBackendAndMaxUtilization(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1447,7 +1447,7 @@ func testAccComputeBackendService_withBackendAndIAP(
 	serviceName, igName, itName, checkName string, timeout int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1777,7 +1777,7 @@ func testAccComputeBackendService_withMaxConnections(
 	serviceName, igName, itName, checkName string, maxConnections int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1834,7 +1834,7 @@ func testAccComputeBackendService_withMaxConnectionsPerInstance(
 	serviceName, igName, itName, checkName string, maxConnectionsPerInstance int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1906,7 +1906,7 @@ resource "google_compute_backend_service" "lipsum" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -2064,7 +2064,7 @@ resource "google_compute_backend_service" "lipsum" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -2212,7 +2212,7 @@ resource "google_compute_url_map" "default" {
 }
 
 data "google_compute_image" "debian_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -2674,7 +2674,7 @@ resource "google_compute_health_check" "health_check" {
 func testAccComputeBackendService_withBackendAndPreference(suffix, loadBalancingScheme, preference string, timeout int64) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 

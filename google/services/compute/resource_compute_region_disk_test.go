@@ -537,7 +537,7 @@ func testAccComputeRegionDisk_hyperdisk(diskName, refSelector string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
 	name  = "%s"
-	image = "debian-cloud/debian-11"
+	image = "debian-cloud/debian-13"
 	size  = 50
 	type  = "pd-ssd"
 	zone  = "us-central1-a"
@@ -567,7 +567,7 @@ func testAccComputeRegionDisk_hyperdiskUpdated(diskName, refSelector string) str
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
 	name  = "%s"
-	image = "debian-cloud/debian-11"
+	image = "debian-cloud/debian-13"
 	size  = 50
 	type  = "pd-ssd"
 	zone  = "us-central1-a"
@@ -599,7 +599,7 @@ func testAccComputeRegionDisk_basic(diskName, refSelector string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
   name  = "%s"
-  image = "debian-cloud/debian-11"
+  image = "debian-cloud/debian-13"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -624,7 +624,7 @@ func testAccComputeRegionDisk_basicUpdated(diskName, refSelector string) string 
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
   name  = "%s"
-  image = "debian-cloud/debian-11"
+  image = "debian-cloud/debian-13"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -657,7 +657,7 @@ func testAccComputeRegionDisk_encryption(diskName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
   name  = "%s"
-  image = "debian-cloud/debian-11"
+  image = "debian-cloud/debian-13"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -688,7 +688,7 @@ func testAccComputeRegionDisk_deleteDetach(instanceName, diskName, regionDiskNam
 	return fmt.Sprintf(`
 resource "google_compute_disk" "disk" {
   name  = "%s"
-  image = "debian-cloud/debian-11"
+  image = "debian-cloud/debian-13"
   size  = 50
   type  = "pd-ssd"
   zone  = "us-central1-a"
@@ -715,7 +715,7 @@ resource "google_compute_instance" "inst" {
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-11"
+      image = "debian-cloud/debian-13"
     }
   }
 
@@ -744,7 +744,7 @@ func testAccComputeRegionDisk_diskClone(diskName, refSelector string) string {
 	  
 	  resource "google_compute_disk" "disk" {
 		name  = "%s"
-		image = "debian-11-bullseye-v20220719"
+		image = "debian-13-trixie-v20260827"
 		size  = 50
 		type  = "pd-ssd"
 		zone  = "us-central1-a"
