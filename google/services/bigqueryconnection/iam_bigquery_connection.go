@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_bigquery_connection_iam_member",
 		ProductName: "BigqueryConnection",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BigqueryConnectionConnectionIamSchema, BigqueryConnectionConnectionIamUpdaterProducer, BigqueryConnectionConnectionIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BigqueryConnectionConnectionIamParentParentResourceIdentityParser)),
+		Schema:      NewBigqueryConnectionConnectionIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_bigquery_connection_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(BigqueryConnectionConnectionIamSchema, BigqueryConnectionConnectionIamUpdaterProducer),
 	}.Register()
+}
+
+// NewBigqueryConnectionConnectionIamMemberResource returns the google_bigquery_connection_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewBigqueryConnectionConnectionIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		BigqueryConnectionConnectionIamSchema,
+		BigqueryConnectionConnectionIamUpdaterProducer,
+		BigqueryConnectionConnectionIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(BigqueryConnectionConnectionIamParentParentResourceIdentityParser),
+	)
 }
 
 var BigqueryConnectionConnectionIamSchema = map[string]*schema.Schema{

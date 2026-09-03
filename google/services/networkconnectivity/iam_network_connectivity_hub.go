@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_network_connectivity_hub_iam_member",
 		ProductName: "NetworkConnectivity",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(NetworkConnectivityHubIamSchema, NetworkConnectivityHubIamUpdaterProducer, NetworkConnectivityHubIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(NetworkConnectivityHubIamParentParentResourceIdentityParser)),
+		Schema:      NewNetworkConnectivityHubIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_network_connectivity_hub_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(NetworkConnectivityHubIamSchema, NetworkConnectivityHubIamUpdaterProducer),
 	}.Register()
+}
+
+// NewNetworkConnectivityHubIamMemberResource returns the google_network_connectivity_hub_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewNetworkConnectivityHubIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		NetworkConnectivityHubIamSchema,
+		NetworkConnectivityHubIamUpdaterProducer,
+		NetworkConnectivityHubIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(NetworkConnectivityHubIamParentParentResourceIdentityParser),
+	)
 }
 
 var NetworkConnectivityHubIamSchema = map[string]*schema.Schema{

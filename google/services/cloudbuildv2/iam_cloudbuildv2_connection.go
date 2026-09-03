@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_cloudbuildv2_connection_iam_member",
 		ProductName: "Cloudbuildv2",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(Cloudbuildv2ConnectionIamSchema, Cloudbuildv2ConnectionIamUpdaterProducer, Cloudbuildv2ConnectionIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(Cloudbuildv2ConnectionIamParentParentResourceIdentityParser)),
+		Schema:      NewCloudbuildv2ConnectionIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_cloudbuildv2_connection_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(Cloudbuildv2ConnectionIamSchema, Cloudbuildv2ConnectionIamUpdaterProducer),
 	}.Register()
+}
+
+// NewCloudbuildv2ConnectionIamMemberResource returns the google_cloudbuildv2_connection_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewCloudbuildv2ConnectionIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		Cloudbuildv2ConnectionIamSchema,
+		Cloudbuildv2ConnectionIamUpdaterProducer,
+		Cloudbuildv2ConnectionIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(Cloudbuildv2ConnectionIamParentParentResourceIdentityParser),
+	)
 }
 
 var Cloudbuildv2ConnectionIamSchema = map[string]*schema.Schema{

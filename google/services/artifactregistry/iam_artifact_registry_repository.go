@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_artifact_registry_repository_iam_member",
 		ProductName: "ArtifactRegistry",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ArtifactRegistryRepositoryIamSchema, ArtifactRegistryRepositoryIamUpdaterProducer, ArtifactRegistryRepositoryIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ArtifactRegistryRepositoryIamParentParentResourceIdentityParser)),
+		Schema:      NewArtifactRegistryRepositoryIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_artifact_registry_repository_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ArtifactRegistryRepositoryIamSchema, ArtifactRegistryRepositoryIamUpdaterProducer),
 	}.Register()
+}
+
+// NewArtifactRegistryRepositoryIamMemberResource returns the google_artifact_registry_repository_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewArtifactRegistryRepositoryIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ArtifactRegistryRepositoryIamSchema,
+		ArtifactRegistryRepositoryIamUpdaterProducer,
+		ArtifactRegistryRepositoryIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ArtifactRegistryRepositoryIamParentParentResourceIdentityParser),
+	)
 }
 
 var ArtifactRegistryRepositoryIamSchema = map[string]*schema.Schema{

@@ -52,7 +52,12 @@ func init() {
 		Name:        "google_secret_manager_secret_iam_member",
 		ProductName: "SecretManager",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer, SecretManagerSecretIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(SecretManagerSecretIamParentParentResourceIdentityParser)),
+		Schema:      NewSecretManagerSecretIamMemberResource(),
+	}.Register()
+	registry.FrameworkListResource{
+		Name:        "google_secret_manager_secret_iam_member",
+		ProductName: "SecretManager",
+		Func:        NewSecretManagerSecretIamMemberListResource,
 	}.Register()
 	registry.Schema{
 		Name:        "google_secret_manager_secret_iam_policy",
@@ -66,6 +71,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(SecretManagerSecretIamSchema, SecretManagerSecretIamUpdaterProducer),
 	}.Register()
+}
+
+// NewSecretManagerSecretIamMemberResource returns the google_secret_manager_secret_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewSecretManagerSecretIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		SecretManagerSecretIamSchema,
+		SecretManagerSecretIamUpdaterProducer,
+		SecretManagerSecretIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(SecretManagerSecretIamParentParentResourceIdentityParser),
+	)
 }
 
 var SecretManagerSecretIamSchema = map[string]*schema.Schema{

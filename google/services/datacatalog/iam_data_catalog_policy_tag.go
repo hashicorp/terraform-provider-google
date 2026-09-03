@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_data_catalog_policy_tag_iam_member",
 		ProductName: "DataCatalog",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataCatalogPolicyTagIamSchema, DataCatalogPolicyTagIamUpdaterProducer, DataCatalogPolicyTagIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataCatalogPolicyTagIamParentParentResourceIdentityParser)),
+		Schema:      NewDataCatalogPolicyTagIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_data_catalog_policy_tag_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(DataCatalogPolicyTagIamSchema, DataCatalogPolicyTagIamUpdaterProducer),
 	}.Register()
+}
+
+// NewDataCatalogPolicyTagIamMemberResource returns the google_data_catalog_policy_tag_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewDataCatalogPolicyTagIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		DataCatalogPolicyTagIamSchema,
+		DataCatalogPolicyTagIamUpdaterProducer,
+		DataCatalogPolicyTagIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(DataCatalogPolicyTagIamParentParentResourceIdentityParser),
+	)
 }
 
 var DataCatalogPolicyTagIamSchema = map[string]*schema.Schema{

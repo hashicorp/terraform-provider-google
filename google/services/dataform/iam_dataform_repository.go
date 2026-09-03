@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dataform_repository_iam_member",
 		ProductName: "Dataform",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataformRepositoryIamSchema, DataformRepositoryIamUpdaterProducer, DataformRepositoryIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataformRepositoryIamParentParentResourceIdentityParser)),
+		Schema:      NewDataformRepositoryIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataform_repository_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(DataformRepositoryIamSchema, DataformRepositoryIamUpdaterProducer),
 	}.Register()
+}
+
+// NewDataformRepositoryIamMemberResource returns the google_dataform_repository_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewDataformRepositoryIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		DataformRepositoryIamSchema,
+		DataformRepositoryIamUpdaterProducer,
+		DataformRepositoryIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(DataformRepositoryIamParentParentResourceIdentityParser),
+	)
 }
 
 var DataformRepositoryIamSchema = map[string]*schema.Schema{

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dataplex_data_product_iam_member",
 		ProductName: "Dataplex",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataplexDataProductIamSchema, DataplexDataProductIamUpdaterProducer, DataplexDataProductIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataplexDataProductIamParentParentResourceIdentityParser)),
+		Schema:      NewDataplexDataProductIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataplex_data_product_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(DataplexDataProductIamSchema, DataplexDataProductIamUpdaterProducer),
 	}.Register()
+}
+
+// NewDataplexDataProductIamMemberResource returns the google_dataplex_data_product_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewDataplexDataProductIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		DataplexDataProductIamSchema,
+		DataplexDataProductIamUpdaterProducer,
+		DataplexDataProductIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(DataplexDataProductIamParentParentResourceIdentityParser),
+	)
 }
 
 var DataplexDataProductIamSchema = map[string]*schema.Schema{

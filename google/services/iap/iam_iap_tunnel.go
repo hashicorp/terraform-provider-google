@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iap_tunnel_iam_member",
 		ProductName: "Iap",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IapTunnelIamSchema, IapTunnelIamUpdaterProducer, IapTunnelIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IapTunnelIamParentParentResourceIdentityParser)),
+		Schema:      NewIapTunnelIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iap_tunnel_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(IapTunnelIamSchema, IapTunnelIamUpdaterProducer),
 	}.Register()
+}
+
+// NewIapTunnelIamMemberResource returns the google_iap_tunnel_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewIapTunnelIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		IapTunnelIamSchema,
+		IapTunnelIamUpdaterProducer,
+		IapTunnelIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(IapTunnelIamParentParentResourceIdentityParser),
+	)
 }
 
 var IapTunnelIamSchema = map[string]*schema.Schema{

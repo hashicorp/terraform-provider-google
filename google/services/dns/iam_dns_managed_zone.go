@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dns_managed_zone_iam_member",
 		ProductName: "DNS",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DNSManagedZoneIamSchema, DNSManagedZoneIamUpdaterProducer, DNSManagedZoneIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DNSManagedZoneIamParentParentResourceIdentityParser)),
+		Schema:      NewDNSManagedZoneIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dns_managed_zone_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(DNSManagedZoneIamSchema, DNSManagedZoneIamUpdaterProducer),
 	}.Register()
+}
+
+// NewDNSManagedZoneIamMemberResource returns the google_dns_managed_zone_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewDNSManagedZoneIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		DNSManagedZoneIamSchema,
+		DNSManagedZoneIamUpdaterProducer,
+		DNSManagedZoneIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(DNSManagedZoneIamParentParentResourceIdentityParser),
+	)
 }
 
 var DNSManagedZoneIamSchema = map[string]*schema.Schema{

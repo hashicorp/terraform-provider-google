@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dataplex_asset_iam_member",
 		ProductName: "Dataplex",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataplexAssetIamSchema, DataplexAssetIamUpdaterProducer, DataplexAssetIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataplexAssetIamParentParentResourceIdentityParser)),
+		Schema:      NewDataplexAssetIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataplex_asset_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(DataplexAssetIamSchema, DataplexAssetIamUpdaterProducer),
 	}.Register()
+}
+
+// NewDataplexAssetIamMemberResource returns the google_dataplex_asset_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewDataplexAssetIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		DataplexAssetIamSchema,
+		DataplexAssetIamUpdaterProducer,
+		DataplexAssetIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(DataplexAssetIamParentParentResourceIdentityParser),
+	)
 }
 
 var DataplexAssetIamSchema = map[string]*schema.Schema{

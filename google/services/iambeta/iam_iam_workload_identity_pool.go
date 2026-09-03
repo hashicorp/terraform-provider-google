@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_iam_workload_identity_pool_iam_member",
 		ProductName: "IAMBeta",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(IAMBetaWorkloadIdentityPoolIamSchema, IAMBetaWorkloadIdentityPoolIamUpdaterProducer, IAMBetaWorkloadIdentityPoolIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(IAMBetaWorkloadIdentityPoolIamParentParentResourceIdentityParser)),
+		Schema:      NewIAMBetaWorkloadIdentityPoolIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_iam_workload_identity_pool_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(IAMBetaWorkloadIdentityPoolIamSchema, IAMBetaWorkloadIdentityPoolIamUpdaterProducer),
 	}.Register()
+}
+
+// NewIAMBetaWorkloadIdentityPoolIamMemberResource returns the google_iam_workload_identity_pool_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewIAMBetaWorkloadIdentityPoolIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		IAMBetaWorkloadIdentityPoolIamSchema,
+		IAMBetaWorkloadIdentityPoolIamUpdaterProducer,
+		IAMBetaWorkloadIdentityPoolIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(IAMBetaWorkloadIdentityPoolIamParentParentResourceIdentityParser),
+	)
 }
 
 var IAMBetaWorkloadIdentityPoolIamSchema = map[string]*schema.Schema{

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_clouddeploy_target_iam_member",
 		ProductName: "Clouddeploy",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ClouddeployTargetIamSchema, ClouddeployTargetIamUpdaterProducer, ClouddeployTargetIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ClouddeployTargetIamParentParentResourceIdentityParser)),
+		Schema:      NewClouddeployTargetIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_clouddeploy_target_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ClouddeployTargetIamSchema, ClouddeployTargetIamUpdaterProducer),
 	}.Register()
+}
+
+// NewClouddeployTargetIamMemberResource returns the google_clouddeploy_target_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewClouddeployTargetIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ClouddeployTargetIamSchema,
+		ClouddeployTargetIamUpdaterProducer,
+		ClouddeployTargetIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ClouddeployTargetIamParentParentResourceIdentityParser),
+	)
 }
 
 var ClouddeployTargetIamSchema = map[string]*schema.Schema{

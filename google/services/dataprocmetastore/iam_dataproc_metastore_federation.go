@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_dataproc_metastore_federation_iam_member",
 		ProductName: "DataprocMetastore",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(DataprocMetastoreFederationIamSchema, DataprocMetastoreFederationIamUpdaterProducer, DataprocMetastoreFederationIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(DataprocMetastoreFederationIamParentParentResourceIdentityParser)),
+		Schema:      NewDataprocMetastoreFederationIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataproc_metastore_federation_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(DataprocMetastoreFederationIamSchema, DataprocMetastoreFederationIamUpdaterProducer),
 	}.Register()
+}
+
+// NewDataprocMetastoreFederationIamMemberResource returns the google_dataproc_metastore_federation_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewDataprocMetastoreFederationIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		DataprocMetastoreFederationIamSchema,
+		DataprocMetastoreFederationIamUpdaterProducer,
+		DataprocMetastoreFederationIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(DataprocMetastoreFederationIamParentParentResourceIdentityParser),
+	)
 }
 
 var DataprocMetastoreFederationIamSchema = map[string]*schema.Schema{

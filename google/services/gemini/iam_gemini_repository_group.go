@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_gemini_repository_group_iam_member",
 		ProductName: "Gemini",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(GeminiRepositoryGroupIamSchema, GeminiRepositoryGroupIamUpdaterProducer, GeminiRepositoryGroupIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(GeminiRepositoryGroupIamParentParentResourceIdentityParser)),
+		Schema:      NewGeminiRepositoryGroupIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_gemini_repository_group_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(GeminiRepositoryGroupIamSchema, GeminiRepositoryGroupIamUpdaterProducer),
 	}.Register()
+}
+
+// NewGeminiRepositoryGroupIamMemberResource returns the google_gemini_repository_group_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewGeminiRepositoryGroupIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		GeminiRepositoryGroupIamSchema,
+		GeminiRepositoryGroupIamUpdaterProducer,
+		GeminiRepositoryGroupIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(GeminiRepositoryGroupIamParentParentResourceIdentityParser),
+	)
 }
 
 var GeminiRepositoryGroupIamSchema = map[string]*schema.Schema{

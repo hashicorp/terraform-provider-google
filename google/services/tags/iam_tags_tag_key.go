@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_tags_tag_key_iam_member",
 		ProductName: "Tags",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(TagsTagKeyIamSchema, TagsTagKeyIamUpdaterProducer, TagsTagKeyIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(TagsTagKeyIamParentParentResourceIdentityParser)),
+		Schema:      NewTagsTagKeyIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_tags_tag_key_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(TagsTagKeyIamSchema, TagsTagKeyIamUpdaterProducer),
 	}.Register()
+}
+
+// NewTagsTagKeyIamMemberResource returns the google_tags_tag_key_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewTagsTagKeyIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		TagsTagKeyIamSchema,
+		TagsTagKeyIamUpdaterProducer,
+		TagsTagKeyIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(TagsTagKeyIamParentParentResourceIdentityParser),
+	)
 }
 
 var TagsTagKeyIamSchema = map[string]*schema.Schema{

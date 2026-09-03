@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_cloud_run_v2_job_iam_member",
 		ProductName: "CloudRunV2",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(CloudRunV2JobIamSchema, CloudRunV2JobIamUpdaterProducer, CloudRunV2JobIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(CloudRunV2JobIamParentParentResourceIdentityParser)),
+		Schema:      NewCloudRunV2JobIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_cloud_run_v2_job_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(CloudRunV2JobIamSchema, CloudRunV2JobIamUpdaterProducer),
 	}.Register()
+}
+
+// NewCloudRunV2JobIamMemberResource returns the google_cloud_run_v2_job_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewCloudRunV2JobIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		CloudRunV2JobIamSchema,
+		CloudRunV2JobIamUpdaterProducer,
+		CloudRunV2JobIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(CloudRunV2JobIamParentParentResourceIdentityParser),
+	)
 }
 
 var CloudRunV2JobIamSchema = map[string]*schema.Schema{

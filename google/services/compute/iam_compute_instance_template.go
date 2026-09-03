@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_compute_instance_template_iam_member",
 		ProductName: "Compute",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(ComputeInstanceTemplateIamSchema, ComputeInstanceTemplateIamUpdaterProducer, ComputeInstanceTemplateIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(ComputeInstanceTemplateIamParentParentResourceIdentityParser)),
+		Schema:      NewComputeInstanceTemplateIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_compute_instance_template_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(ComputeInstanceTemplateIamSchema, ComputeInstanceTemplateIamUpdaterProducer),
 	}.Register()
+}
+
+// NewComputeInstanceTemplateIamMemberResource returns the google_compute_instance_template_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewComputeInstanceTemplateIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		ComputeInstanceTemplateIamSchema,
+		ComputeInstanceTemplateIamUpdaterProducer,
+		ComputeInstanceTemplateIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(ComputeInstanceTemplateIamParentParentResourceIdentityParser),
+	)
 }
 
 var ComputeInstanceTemplateIamSchema = map[string]*schema.Schema{

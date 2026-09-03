@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_secure_source_manager_instance_iam_member",
 		ProductName: "SecureSourceManager",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(SecureSourceManagerInstanceIamSchema, SecureSourceManagerInstanceIamUpdaterProducer, SecureSourceManagerInstanceIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(SecureSourceManagerInstanceIamParentParentResourceIdentityParser)),
+		Schema:      NewSecureSourceManagerInstanceIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_secure_source_manager_instance_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(SecureSourceManagerInstanceIamSchema, SecureSourceManagerInstanceIamUpdaterProducer),
 	}.Register()
+}
+
+// NewSecureSourceManagerInstanceIamMemberResource returns the google_secure_source_manager_instance_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewSecureSourceManagerInstanceIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		SecureSourceManagerInstanceIamSchema,
+		SecureSourceManagerInstanceIamUpdaterProducer,
+		SecureSourceManagerInstanceIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(SecureSourceManagerInstanceIamParentParentResourceIdentityParser),
+	)
 }
 
 var SecureSourceManagerInstanceIamSchema = map[string]*schema.Schema{

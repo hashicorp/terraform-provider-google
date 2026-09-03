@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_vertex_ai_reasoning_engine_iam_member",
 		ProductName: "VertexAI",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(VertexAIReasoningEngineIamSchema, VertexAIReasoningEngineIamUpdaterProducer, VertexAIReasoningEngineIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(VertexAIReasoningEngineIamParentParentResourceIdentityParser)),
+		Schema:      NewVertexAIReasoningEngineIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_vertex_ai_reasoning_engine_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(VertexAIReasoningEngineIamSchema, VertexAIReasoningEngineIamUpdaterProducer),
 	}.Register()
+}
+
+// NewVertexAIReasoningEngineIamMemberResource returns the google_vertex_ai_reasoning_engine_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewVertexAIReasoningEngineIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		VertexAIReasoningEngineIamSchema,
+		VertexAIReasoningEngineIamUpdaterProducer,
+		VertexAIReasoningEngineIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(VertexAIReasoningEngineIamParentParentResourceIdentityParser),
+	)
 }
 
 var VertexAIReasoningEngineIamSchema = map[string]*schema.Schema{

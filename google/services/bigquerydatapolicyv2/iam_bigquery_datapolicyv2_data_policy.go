@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_bigquery_datapolicyv2_data_policy_iam_member",
 		ProductName: "BigqueryDatapolicyv2",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BigqueryDatapolicyv2DataPolicyIamSchema, BigqueryDatapolicyv2DataPolicyIamUpdaterProducer, BigqueryDatapolicyv2DataPolicyIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BigqueryDatapolicyv2DataPolicyIamParentParentResourceIdentityParser)),
+		Schema:      NewBigqueryDatapolicyv2DataPolicyIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_bigquery_datapolicyv2_data_policy_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(BigqueryDatapolicyv2DataPolicyIamSchema, BigqueryDatapolicyv2DataPolicyIamUpdaterProducer),
 	}.Register()
+}
+
+// NewBigqueryDatapolicyv2DataPolicyIamMemberResource returns the google_bigquery_datapolicyv2_data_policy_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewBigqueryDatapolicyv2DataPolicyIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		BigqueryDatapolicyv2DataPolicyIamSchema,
+		BigqueryDatapolicyv2DataPolicyIamUpdaterProducer,
+		BigqueryDatapolicyv2DataPolicyIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(BigqueryDatapolicyv2DataPolicyIamParentParentResourceIdentityParser),
+	)
 }
 
 var BigqueryDatapolicyv2DataPolicyIamSchema = map[string]*schema.Schema{

@@ -52,7 +52,7 @@ func init() {
 		Name:        "google_beyondcorp_security_gateway_iam_member",
 		ProductName: "Beyondcorp",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamMember(BeyondcorpSecurityGatewayIamSchema, BeyondcorpSecurityGatewayIamUpdaterProducer, BeyondcorpSecurityGatewayIdParseFunc, tpgiamresource.IamWithParentResourceIdentity(BeyondcorpSecurityGatewayIamParentParentResourceIdentityParser)),
+		Schema:      NewBeyondcorpSecurityGatewayIamMemberResource(),
 	}.Register()
 	registry.Schema{
 		Name:        "google_beyondcorp_security_gateway_iam_policy",
@@ -66,6 +66,18 @@ func init() {
 		Type:        registry.SchemaTypeIAMDataSource,
 		Schema:      tpgiamresource.DataSourceIamPolicy(BeyondcorpSecurityGatewayIamSchema, BeyondcorpSecurityGatewayIamUpdaterProducer),
 	}.Register()
+}
+
+// NewBeyondcorpSecurityGatewayIamMemberResource returns the google_beyondcorp_security_gateway_iam_member
+// managed resource. It is shared by the managed resource registration and the
+// list resource, so both stay in sync.
+func NewBeyondcorpSecurityGatewayIamMemberResource() *schema.Resource {
+	return tpgiamresource.ResourceIamMember(
+		BeyondcorpSecurityGatewayIamSchema,
+		BeyondcorpSecurityGatewayIamUpdaterProducer,
+		BeyondcorpSecurityGatewayIdParseFunc,
+		tpgiamresource.IamWithParentResourceIdentity(BeyondcorpSecurityGatewayIamParentParentResourceIdentityParser),
+	)
 }
 
 var BeyondcorpSecurityGatewayIamSchema = map[string]*schema.Schema{
