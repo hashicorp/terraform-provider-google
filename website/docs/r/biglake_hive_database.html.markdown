@@ -23,8 +23,6 @@ description: |-
 
 Hive Databases in Biglake Metastore. Hive Databases exist within a Hive Catalog.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about HiveDatabase, see:
 * How-to Guides
@@ -34,14 +32,6 @@ To get more information about HiveDatabase, see:
 
 
 ```hcl
-terraform {
-  required_providers {
-    google = {
-      source = "hashicorp/google-beta"
-    }
-  }
-}
-
 resource "google_storage_bucket" "bucket" {
   name          = "example-bucket"
   location      = "us-central1"
@@ -112,7 +102,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `hive/v1beta/projects/{{project}}/catalogs/{{catalog}}/databases/{{name}}`
+* `id` - an identifier for the resource with format `hive/v1/projects/{{project}}/catalogs/{{catalog}}/databases/{{name}}`
 
 * `create_time` -
   Output only. The creation time of the database.
@@ -135,7 +125,7 @@ This resource provides the following
 
 HiveDatabase can be imported using any of these accepted formats:
 
-* `hive/v1beta/projects/{{project}}/catalogs/{{catalog}}/databases/{{name}}`
+* `hive/v1/projects/{{project}}/catalogs/{{catalog}}/databases/{{name}}`
 * `{{project}}/{{catalog}}/{{name}}`
 * `{{catalog}}/{{name}}`
 
@@ -156,7 +146,7 @@ In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashico
 
 ```tf
 import {
-  id = "hive/v1beta/projects/{{project}}/catalogs/{{catalog}}/databases/{{name}}"
+  id = "hive/v1/projects/{{project}}/catalogs/{{catalog}}/databases/{{name}}"
   to = google_biglake_hive_database.default
 }
 ```
@@ -164,7 +154,7 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), HiveDatabase can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_biglake_hive_database.default hive/v1beta/projects/{{project}}/catalogs/{{catalog}}/databases/{{name}}
+$ terraform import google_biglake_hive_database.default hive/v1/projects/{{project}}/catalogs/{{catalog}}/databases/{{name}}
 $ terraform import google_biglake_hive_database.default {{project}}/{{catalog}}/{{name}}
 $ terraform import google_biglake_hive_database.default {{catalog}}/{{name}}
 ```

@@ -1,0 +1,54 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_biglake_hive_table
+generation_type: mmv1
+source_file: products/biglakehive/HiveTable.yaml
+api_service_name: biglake.googleapis.com
+api_version: v1
+api_resource_type_kind: Table
+api_variant_patterns:
+    - projects/{project}/catalogs/{catalog}/databases/{database}/tables/{table}
+fields:
+    - field: catalog
+      provider_only: true
+    - api_field: createTime
+    - field: database
+      provider_only: true
+    - api_field: description
+    - api_field: lastAccessTime
+    - field: name
+      provider_only: true
+    - api_field: parameters
+    - api_field: partitionKeys.comment
+    - api_field: partitionKeys.name
+    - api_field: partitionKeys.type
+    - api_field: storageDescriptor.bucketCols
+    - api_field: storageDescriptor.columns.comment
+    - api_field: storageDescriptor.columns.name
+    - api_field: storageDescriptor.columns.type
+    - api_field: storageDescriptor.compressed
+    - api_field: storageDescriptor.inputFormat
+    - api_field: storageDescriptor.locationUri
+    - api_field: storageDescriptor.numBuckets
+    - api_field: storageDescriptor.outputFormat
+    - api_field: storageDescriptor.parameters
+    - api_field: storageDescriptor.serdeInfo.description
+    - api_field: storageDescriptor.serdeInfo.deserializerClass
+    - api_field: storageDescriptor.serdeInfo.name
+    - api_field: storageDescriptor.serdeInfo.parameters
+    - api_field: storageDescriptor.serdeInfo.serdeType
+    - api_field: storageDescriptor.serdeInfo.serializationLib
+    - api_field: storageDescriptor.serdeInfo.serializerClass
+    - api_field: storageDescriptor.skewedInfo.skewedColNames
+    - api_field: storageDescriptor.skewedInfo.skewedColValues.values
+    - api_field: storageDescriptor.skewedInfo.skewedKeyValuesLocations.location
+    - api_field: storageDescriptor.skewedInfo.skewedKeyValuesLocations.values
+    - api_field: storageDescriptor.sortCols.col
+    - api_field: storageDescriptor.sortCols.order
+    - api_field: storageDescriptor.storedAsSubDirs
+    - api_field: tableType
+    - api_field: updateTime
+    - api_field: viewExpandedText
+    - api_field: viewOriginalText
+    - field: deletion_policy
+      provider_only: true

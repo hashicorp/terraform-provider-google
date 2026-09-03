@@ -23,22 +23,12 @@ description: |-
 
 Hive Tables in BigLake Metastore that exist within a Hive Catalog and Database.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage - Biglake Hive Table
 
 
 ```hcl
-terraform {
-  required_providers {
-    google = {
-      source = "hashicorp/google-beta"
-    }
-  }
-}
-
 resource "google_storage_bucket" "bucket" {
   name          = "example-bucket"
   location      = "us-central1"
@@ -333,7 +323,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `hive/v1beta/projects/{{project}}/catalogs/{{catalog}}/databases/{{database}}/tables/{{name}}`
+* `id` - an identifier for the resource with format `hive/v1/projects/{{project}}/catalogs/{{catalog}}/databases/{{database}}/tables/{{name}}`
 
 * `create_time` -
   Output only. The creation time of the table.
@@ -362,7 +352,7 @@ This resource provides the following
 
 HiveTable can be imported using any of these accepted formats:
 
-* `hive/v1beta/projects/{{project}}/catalogs/{{catalog}}/databases/{{database}}/tables/{{name}}`
+* `hive/v1/projects/{{project}}/catalogs/{{catalog}}/databases/{{database}}/tables/{{name}}`
 * `{{project}}/{{catalog}}/{{database}}/{{name}}`
 * `{{catalog}}/{{database}}/{{name}}`
 
@@ -384,7 +374,7 @@ In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashico
 
 ```tf
 import {
-  id = "hive/v1beta/projects/{{project}}/catalogs/{{catalog}}/databases/{{database}}/tables/{{name}}"
+  id = "hive/v1/projects/{{project}}/catalogs/{{catalog}}/databases/{{database}}/tables/{{name}}"
   to = google_biglake_hive_table.default
 }
 ```
@@ -392,7 +382,7 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), HiveTable can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_biglake_hive_table.default hive/v1beta/projects/{{project}}/catalogs/{{catalog}}/databases/{{database}}/tables/{{name}}
+$ terraform import google_biglake_hive_table.default hive/v1/projects/{{project}}/catalogs/{{catalog}}/databases/{{database}}/tables/{{name}}
 $ terraform import google_biglake_hive_table.default {{project}}/{{catalog}}/{{database}}/{{name}}
 $ terraform import google_biglake_hive_table.default {{catalog}}/{{database}}/{{name}}
 ```

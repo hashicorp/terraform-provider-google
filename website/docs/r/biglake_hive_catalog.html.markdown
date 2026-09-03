@@ -23,8 +23,6 @@ description: |-
 
 Hive Catalogs in Biglake Metastore
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about HiveCatalog, see:
 * How-to Guides
@@ -39,7 +37,6 @@ resource "google_storage_bucket" "bucket_for_my_hive_catalog" {
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
-  provider = google-beta
 }
 
 resource "google_biglake_hive_catalog" "my_hive_catalog" {
@@ -49,7 +46,6 @@ resource "google_biglake_hive_catalog" "my_hive_catalog" {
   depends_on = [
     google_storage_bucket.bucket_for_my_hive_catalog
   ]
-  provider = google-beta
 }
 ```
 ## Example Usage - Biglake Hive Catalog Full
@@ -61,7 +57,6 @@ resource "google_storage_bucket" "bucket_for_my_hive_catalog" {
   location      = "us-central1"
   force_destroy = true
   uniform_bucket_level_access = true
-  provider = google-beta
 }
 
 resource "google_biglake_hive_catalog" "my_hive_catalog" {
@@ -72,7 +67,6 @@ resource "google_biglake_hive_catalog" "my_hive_catalog" {
   depends_on = [
     google_storage_bucket.bucket_for_my_hive_catalog
   ]
-  provider = google-beta
 }
 ```
 
@@ -115,7 +109,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `hive/v1beta/projects/{{project}}/catalogs/{{name}}`
+* `id` - an identifier for the resource with format `hive/v1/projects/{{project}}/catalogs/{{name}}`
 
 * `create_time` -
   Output only. The creation time of the catalog.
@@ -152,7 +146,7 @@ This resource provides the following
 
 HiveCatalog can be imported using any of these accepted formats:
 
-* `hive/v1beta/projects/{{project}}/catalogs/{{name}}`
+* `hive/v1/projects/{{project}}/catalogs/{{name}}`
 * `{{project}}/{{name}}`
 * `{{name}}`
 
@@ -172,7 +166,7 @@ In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashico
 
 ```tf
 import {
-  id = "hive/v1beta/projects/{{project}}/catalogs/{{name}}"
+  id = "hive/v1/projects/{{project}}/catalogs/{{name}}"
   to = google_biglake_hive_catalog.default
 }
 ```
@@ -180,7 +174,7 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), HiveCatalog can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_biglake_hive_catalog.default hive/v1beta/projects/{{project}}/catalogs/{{name}}
+$ terraform import google_biglake_hive_catalog.default hive/v1/projects/{{project}}/catalogs/{{name}}
 $ terraform import google_biglake_hive_catalog.default {{project}}/{{name}}
 $ terraform import google_biglake_hive_catalog.default {{name}}
 ```

@@ -23,8 +23,6 @@ description: |-
 # google_biglake_hive_catalog_iam_policy
 
 Retrieves the current IAM policy data for hivecatalog
-~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage
@@ -32,7 +30,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 data "google_biglake_hive_catalog_iam_policy" "policy" {
-  provider = google-beta
   project = google_biglake_hive_catalog.my_hive_catalog.project
   name = google_biglake_hive_catalog.my_hive_catalog.name
 }
