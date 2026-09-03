@@ -673,7 +673,7 @@ resource "google_compute_backend_service" "default" {
 
 data "google_compute_image" "debian_image" {
   provider = google-beta
-  family   = "debian-11"
+  family   = "debian-13"
   project  = "debian-cloud"
 }
 

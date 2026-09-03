@@ -708,7 +708,7 @@ resource "google_compute_region_backend_service" "default" {
 
 data "google_compute_image" "debian_image" {
   provider = google-beta
-  family   = "debian-11"
+  family   = "debian-13"
   project  = "debian-cloud"
 }
 
@@ -907,7 +907,7 @@ resource "google_compute_region_backend_service" "default" {
 
 data "google_compute_image" "debian_image" {
   provider = google-beta
-  family   = "debian-11"
+  family   = "debian-13"
   project  = "debian-cloud"
 }
 

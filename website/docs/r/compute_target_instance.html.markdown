@@ -51,7 +51,7 @@ resource "google_compute_target_instance" "default" {
 }
 
 data "google_compute_image" "vmimage" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -144,7 +144,7 @@ resource "google_compute_subnetwork" "default" {
 
 data "google_compute_image" "vmimage" {
   provider = google-beta
-  family   = "debian-11"
+  family   = "debian-13"
   project  = "debian-cloud"
 }
 

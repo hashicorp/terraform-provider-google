@@ -134,7 +134,7 @@ func TestAccComputeRegionAutoscaler_scaleInControl(t *testing.T) {
 func testAccComputeRegionAutoscaler_scaffolding(itName, tpName, igmName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 

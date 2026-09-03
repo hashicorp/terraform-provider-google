@@ -36,7 +36,7 @@ To get more information about PerInstanceConfig, see:
 
 ```hcl
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -79,7 +79,7 @@ resource "google_compute_disk" "default" {
   name  = "my-disk-name"
   type  = "pd-ssd"
   zone  = google_compute_instance_group_manager.igm.zone
-  image = "debian-11-bullseye-v20220719"
+  image = "debian-13-trixie-v20260827"
   physical_block_size_bytes = 4096
 }
 

@@ -200,7 +200,7 @@ resource "google_compute_bulk_per_instance_config" "default" {
 func testAccComputeBulkPerInstanceConfig_igm(context map[string]any) string {
 	return acctest.Nprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 

@@ -61,7 +61,7 @@ resource "google_compute_network_endpoints" "default-endpoints" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 

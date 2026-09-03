@@ -519,7 +519,7 @@ func TestAccComputeInstanceFromTemplate_workloadIdentity(t *testing.T) {
 func testAccComputeInstanceFromTemplate_basic(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -601,7 +601,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_localSsdRecoveryTimeout(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -687,7 +687,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplateWithOverride_localSsdRecoveryTimeout(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -777,7 +777,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_regionalDisk(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -844,7 +844,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_self_link_unique(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -926,7 +926,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_overrideBootDisk(templateDisk, overrideDisk, template, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -991,7 +991,7 @@ resource "google_compute_instance_from_template" "inst" {
 func testAccComputeInstanceFromTemplate_overrideAttachedDisk(templateDisk, overrideDisk, template, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1029,7 +1029,7 @@ resource "google_compute_instance_template" "template" {
   }
 
   disk {
-    source_image = "debian-cloud/debian-11"
+    source_image = "debian-cloud/debian-13"
     auto_delete  = true
     boot         = false
   }
@@ -1056,7 +1056,7 @@ resource "google_compute_instance_from_template" "inst" {
 func testAccComputeInstanceFromTemplate_overrideScratchDisk(templateDisk, overrideDisk, template, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1133,7 +1133,7 @@ resource "google_compute_instance_from_template" "inst" {
 func testAccComputeInstanceFromTemplate_overrideScheduling(templateDisk, template, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1183,7 +1183,7 @@ resource "google_compute_instance_from_template" "inst" {
 func testAccComputeInstanceFromTemplate_terminationTime(templateDisk, template, termination_time, instance string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1238,7 +1238,7 @@ resource "google_compute_instance_from_template" "inst" {
 func testAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1640,7 +1640,7 @@ func TestAccComputeInstanceFromTemplate_IgmpQuery_v2(t *testing.T) {
 func testAccComputeInstanceFromTemplateWithOverride_interface(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1720,7 +1720,7 @@ resource "google_compute_resource_policy" "test-snapshot-policy2" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1772,7 +1772,7 @@ resource "google_compute_resource_policy" "test-snapshot-policy2" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1824,7 +1824,7 @@ resource "google_compute_resource_policy" "test-snapshot-policy2" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1852,7 +1852,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_DiskForceAttach_zonal(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1919,7 +1919,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_DiskForceAttach(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -1995,7 +1995,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_igmpQuery_v2(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-11"
+	family  = "debian-13"
 	project = "debian-cloud"
 }
 
@@ -2061,7 +2061,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_workloadIdentity(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_compute_image" "my_image" {
-	family  = "debian-11"
+	family  = "debian-13"
 	project = "debian-cloud"
 }
 

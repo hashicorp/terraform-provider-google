@@ -152,7 +152,7 @@ resource "google_compute_instance_group_manager" "foobar" {
 }
 
 data "google_compute_image" "debian_9" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 `, context)

@@ -82,7 +82,7 @@ func TestAccComputeSnapshot_encryptionCMEK(t *testing.T) {
 func testAccComputeSnapshot_encryption(snapshotName string, diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -210,7 +210,7 @@ resource "google_compute_snapshot" "snapshot" {
 }
 
 data "google_compute_image" "debian" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 
@@ -258,7 +258,7 @@ resource "google_tags_tag_value" "tag_value" {
 }
 
 data "google_compute_image" "my_image" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 

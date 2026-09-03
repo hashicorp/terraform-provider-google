@@ -91,7 +91,7 @@ resource "google_compute_target_instance" "default" {
 }
 
 data "google_compute_image" "vmimage" {
-  family  = "debian-11"
+  family  = "debian-13"
   project = "debian-cloud"
 }
 

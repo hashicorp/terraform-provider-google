@@ -434,7 +434,7 @@ resource "google_compute_instance" "default" {
 	zone         = "us-central1-a"
 	boot_disk {
 		initialize_params {
-			image = "debian-11-bullseye-v20241009"
+			image = "debian-13-trixie-v20260827"
 		}
 	}
 
