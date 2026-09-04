@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `evaluation_metrics_thresholds.golden_hallucination_metric_behavior` and `evaluation_metrics_thresholds.scenario_hallucination_metric_behavior` fields to `google_ces_app` and `google_ces_app_version`
+```

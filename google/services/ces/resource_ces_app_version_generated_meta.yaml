@@ -103,6 +103,8 @@ fields:
     - api_field: snapshot.app.evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.expectationLevelMetricsThresholds.toolInvocationParameterCorrectnessThreshold
     - api_field: snapshot.app.evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.overallToolInvocationCorrectnessThreshold
     - api_field: snapshot.app.evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.semanticSimilaritySuccessThreshold
+    - api_field: snapshot.app.evaluationMetricsThresholds.goldenHallucinationMetricBehavior
+    - api_field: snapshot.app.evaluationMetricsThresholds.scenarioHallucinationMetricBehavior
     - api_field: snapshot.app.globalInstruction
     - api_field: snapshot.app.guardrails
     - api_field: snapshot.app.languageSettings.defaultLanguageCode

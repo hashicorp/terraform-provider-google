@@ -770,6 +770,20 @@ In addition to the arguments listed above, the following computed attributes are
   Settings for golden evaluations.
   Structure is [documented below](#nested_snapshot_app_evaluation_metrics_thresholds_golden_evaluation_metrics_thresholds).
 
+* `golden_hallucination_metric_behavior` -
+  (Output)
+  The hallucination metric behavior for golden evaluations.
+  Possible values:
+  DISABLED
+  ENABLED
+
+* `scenario_hallucination_metric_behavior` -
+  (Output)
+  The hallucination metric behavior for scenario evaluations.
+  Possible values:
+  DISABLED
+  ENABLED
+
 
 <a name="nested_snapshot_app_evaluation_metrics_thresholds_golden_evaluation_metrics_thresholds"></a>The `golden_evaluation_metrics_thresholds` block contains:
 
