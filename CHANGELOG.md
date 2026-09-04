@@ -1,7 +1,7 @@
 ## 7.46.1 (Unreleased)
 
 BUG FIXES:
-* compute: fix permadiff regression when iap is omitted ([#29156](https://github.com/hashicorp/terraform-provider-google/pull/29156))
+* compute: fix permadiff regression when iap is omitted from `google_compute_backend_service` ([#29156](https://github.com/hashicorp/terraform-provider-google/pull/29156))
 
 ## 7.46.0 (August 25th, 2026)
 
