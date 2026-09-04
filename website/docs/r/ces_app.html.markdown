@@ -121,6 +121,10 @@ resource "google_ces_app" "ces_app_basic" {
     conversation_logging_settings {
       disable_conversation_logging = true
     }
+
+    metric_analysis_settings {
+      llm_metrics_opted_out = false
+    }
   }
 
   model_settings {
@@ -832,6 +836,12 @@ The following arguments are supported:
   Settings to describe the conversation logging behaviors for the app.
   Structure is [documented below](#nested_logging_settings_conversation_logging_settings).
 
+* `metric_analysis_settings` -
+  (Optional)
+  Settings to describe the conversation data collection behaviors for the LLM
+  analysis pipeline for the app.
+  Structure is [documented below](#nested_logging_settings_metric_analysis_settings).
+
 * `redaction_config` -
   (Optional)
   Configuration to instruct how sensitive data should be handled.
@@ -894,6 +904,14 @@ The following arguments are supported:
   (Optional)
   Controls the retention window for the conversation.
   If not set, the conversation will be retained for 365 days.
+
+<a name="nested_logging_settings_metric_analysis_settings"></a>The `metric_analysis_settings` block supports:
+
+* `llm_metrics_opted_out` -
+  (Optional)
+  Whether to collect conversation data for llm analysis metrics. If true,
+  conversation data will not be collected for llm analysis metrics;
+  otherwise, conversation data will be collected.
 
 <a name="nested_logging_settings_redaction_config"></a>The `redaction_config` block supports:
 

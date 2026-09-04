@@ -154,6 +154,10 @@ resource "google_ces_app" "ces_app_basic" {
       disable_conversation_logging = true
       retention_window = "86400s"
     }
+
+    metric_analysis_settings {
+      llm_metrics_opted_out = false
+    }
   }
 
   model_settings {
@@ -362,6 +366,10 @@ resource "google_ces_app" "ces_app_basic" {
     conversation_logging_settings {
       disable_conversation_logging = true
       retention_window = "172800s"
+    }
+
+    metric_analysis_settings {
+      llm_metrics_opted_out = true
     }
   }
 

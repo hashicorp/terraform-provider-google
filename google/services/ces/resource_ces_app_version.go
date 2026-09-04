@@ -1170,6 +1170,23 @@ If not set, the conversation will be retained for 365 days.`,
 														},
 													},
 												},
+												"metric_analysis_settings": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Description: `Settings to describe the conversation data collection behaviors for the LLM
+analysis pipeline for the app.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"llm_metrics_opted_out": {
+																Type:     schema.TypeBool,
+																Computed: true,
+																Description: `Whether to collect conversation data for llm analysis metrics. If true,
+conversation data will not be collected for llm analysis metrics;
+otherwise, conversation data will be collected.`,
+															},
+														},
+													},
+												},
 												"redaction_config": {
 													Type:        schema.TypeList,
 													Computed:    true,
@@ -4652,6 +4669,8 @@ func flattenCESAppVersionSnapshotAppLoggingSettings(v interface{}, d *schema.Res
 		flattenCESAppVersionSnapshotAppLoggingSettingsCloudLoggingSettings(original["cloudLoggingSettings"], d, config)
 	transformed["conversation_logging_settings"] =
 		flattenCESAppVersionSnapshotAppLoggingSettingsConversationLoggingSettings(original["conversationLoggingSettings"], d, config)
+	transformed["metric_analysis_settings"] =
+		flattenCESAppVersionSnapshotAppLoggingSettingsMetricAnalysisSettings(original["metricAnalysisSettings"], d, config)
 	transformed["redaction_config"] =
 		flattenCESAppVersionSnapshotAppLoggingSettingsRedactionConfig(original["redactionConfig"], d, config)
 	return []interface{}{transformed}
@@ -4745,6 +4764,20 @@ func flattenCESAppVersionSnapshotAppLoggingSettingsConversationLoggingSettingsDi
 }
 
 func flattenCESAppVersionSnapshotAppLoggingSettingsConversationLoggingSettingsRetentionWindow(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppLoggingSettingsMetricAnalysisSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["llm_metrics_opted_out"] =
+		flattenCESAppVersionSnapshotAppLoggingSettingsMetricAnalysisSettingsLlmMetricsOptedOut(original["llmMetricsOptedOut"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAppLoggingSettingsMetricAnalysisSettingsLlmMetricsOptedOut(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

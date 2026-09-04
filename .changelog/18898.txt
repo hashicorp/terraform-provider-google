@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `logging_settings.metric_analysis_settings` field to `google_ces_app`
+```
