@@ -587,6 +587,18 @@ between 0 and 4. Default is >= 3.`,
 								},
 							},
 						},
+						"golden_hallucination_metric_behavior": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "ENABLED", ""}),
+							Description:  `The hallucination metric behavior for golden evaluations. Possible values: ["DISABLED", "ENABLED"]`,
+						},
+						"scenario_hallucination_metric_behavior": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "ENABLED", ""}),
+							Description:  `The hallucination metric behavior for scenario evaluations. Possible values: ["DISABLED", "ENABLED"]`,
+						},
 					},
 				},
 			},
@@ -2125,6 +2137,10 @@ func flattenCESAppEvaluationMetricsThresholds(v interface{}, d *schema.ResourceD
 	transformed := make(map[string]interface{})
 	transformed["golden_evaluation_metrics_thresholds"] =
 		flattenCESAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholds(original["goldenEvaluationMetricsThresholds"], d, config)
+	transformed["golden_hallucination_metric_behavior"] =
+		flattenCESAppEvaluationMetricsThresholdsGoldenHallucinationMetricBehavior(original["goldenHallucinationMetricBehavior"], d, config)
+	transformed["scenario_hallucination_metric_behavior"] =
+		flattenCESAppEvaluationMetricsThresholdsScenarioHallucinationMetricBehavior(original["scenarioHallucinationMetricBehavior"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2193,6 +2209,14 @@ func flattenCESAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsTu
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenCESAppEvaluationMetricsThresholdsGoldenHallucinationMetricBehavior(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppEvaluationMetricsThresholdsScenarioHallucinationMetricBehavior(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCESAppGlobalInstruction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3251,6 +3275,20 @@ func expandCESAppEvaluationMetricsThresholds(v interface{}, d tpgresource.Terraf
 		transformed["goldenEvaluationMetricsThresholds"] = transformedGoldenEvaluationMetricsThresholds
 	}
 
+	transformedGoldenHallucinationMetricBehavior, err := expandCESAppEvaluationMetricsThresholdsGoldenHallucinationMetricBehavior(original["golden_hallucination_metric_behavior"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGoldenHallucinationMetricBehavior); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["goldenHallucinationMetricBehavior"] = transformedGoldenHallucinationMetricBehavior
+	}
+
+	transformedScenarioHallucinationMetricBehavior, err := expandCESAppEvaluationMetricsThresholdsScenarioHallucinationMetricBehavior(original["scenario_hallucination_metric_behavior"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScenarioHallucinationMetricBehavior); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scenarioHallucinationMetricBehavior"] = transformedScenarioHallucinationMetricBehavior
+	}
+
 	return transformed, nil
 }
 
@@ -3343,6 +3381,14 @@ func expandCESAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsTur
 }
 
 func expandCESAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsTurnLevelMetricsThresholdsSemanticSimilaritySuccessThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppEvaluationMetricsThresholdsGoldenHallucinationMetricBehavior(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppEvaluationMetricsThresholdsScenarioHallucinationMetricBehavior(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

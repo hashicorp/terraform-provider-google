@@ -142,6 +142,8 @@ resource "google_ces_app" "ces_app_basic" {
         tool_invocation_parameter_correctness_threshold = 1.0
       }
     }
+    golden_hallucination_metric_behavior   = "ENABLED"
+    scenario_hallucination_metric_behavior = "ENABLED"
   }
 
 variable_declarations {
@@ -753,6 +755,16 @@ The following arguments are supported:
   (Optional)
   Settings for golden evaluations.
   Structure is [documented below](#nested_evaluation_metrics_thresholds_golden_evaluation_metrics_thresholds).
+
+* `golden_hallucination_metric_behavior` -
+  (Optional)
+  The hallucination metric behavior for golden evaluations.
+  Possible values are: `DISABLED`, `ENABLED`.
+
+* `scenario_hallucination_metric_behavior` -
+  (Optional)
+  The hallucination metric behavior for scenario evaluations.
+  Possible values are: `DISABLED`, `ENABLED`.
 
 
 <a name="nested_evaluation_metrics_thresholds_golden_evaluation_metrics_thresholds"></a>The `golden_evaluation_metrics_thresholds` block supports:

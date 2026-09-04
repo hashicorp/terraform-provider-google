@@ -1010,6 +1010,22 @@ between 0 and 4. Default is >= 3.`,
 														},
 													},
 												},
+												"golden_hallucination_metric_behavior": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The hallucination metric behavior for golden evaluations.
+Possible values:
+DISABLED
+ENABLED`,
+												},
+												"scenario_hallucination_metric_behavior": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The hallucination metric behavior for scenario evaluations.
+Possible values:
+DISABLED
+ENABLED`,
+												},
 											},
 										},
 									},
@@ -4539,6 +4555,10 @@ func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholds(v interface{}, d
 	transformed := make(map[string]interface{})
 	transformed["golden_evaluation_metrics_thresholds"] =
 		flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholds(original["goldenEvaluationMetricsThresholds"], d, config)
+	transformed["golden_hallucination_metric_behavior"] =
+		flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenHallucinationMetricBehavior(original["goldenHallucinationMetricBehavior"], d, config)
+	transformed["scenario_hallucination_metric_behavior"] =
+		flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsScenarioHallucinationMetricBehavior(original["scenarioHallucinationMetricBehavior"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4607,6 +4627,14 @@ func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationM
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenHallucinationMetricBehavior(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsScenarioHallucinationMetricBehavior(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCESAppVersionSnapshotAppGlobalInstruction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
