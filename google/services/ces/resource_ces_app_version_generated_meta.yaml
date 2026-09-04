@@ -117,6 +117,7 @@ fields:
     - api_field: snapshot.app.loggingSettings.cloudLoggingSettings.enableCloudLogging
     - api_field: snapshot.app.loggingSettings.conversationLoggingSettings.disableConversationLogging
     - api_field: snapshot.app.loggingSettings.conversationLoggingSettings.retentionWindow
+    - api_field: snapshot.app.loggingSettings.metricAnalysisSettings.llmMetricsOptedOut
     - api_field: snapshot.app.loggingSettings.redactionConfig.deidentifyTemplate
     - api_field: snapshot.app.loggingSettings.redactionConfig.enableRedaction
     - api_field: snapshot.app.loggingSettings.redactionConfig.inspectTemplate
