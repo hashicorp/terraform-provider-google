@@ -34,6 +34,10 @@ fields:
     - api_field: defaultChannelProfile.personaProperty.persona
     - api_field: defaultChannelProfile.profileId
     - api_field: defaultChannelProfile.webWidgetConfig.modality
+    - api_field: defaultChannelProfile.webWidgetConfig.securitySettings.allowedOrigins
+    - api_field: defaultChannelProfile.webWidgetConfig.securitySettings.enableOriginCheck
+    - api_field: defaultChannelProfile.webWidgetConfig.securitySettings.enablePublicAccess
+    - api_field: defaultChannelProfile.webWidgetConfig.securitySettings.enableRecaptcha
     - api_field: defaultChannelProfile.webWidgetConfig.theme
     - api_field: defaultChannelProfile.webWidgetConfig.webWidgetTitle
     - api_field: defaultChannelProfile.whatsappConfig.description
@@ -63,6 +67,7 @@ fields:
     - api_field: languageSettings.supportedLanguageCodes
     - field: location
       provider_only: true
+    - api_field: locked
     - api_field: loggingSettings.audioRecordingConfig.gcsBucket
     - api_field: loggingSettings.audioRecordingConfig.gcsPathPrefix
     - api_field: loggingSettings.bigqueryExportSettings.dataset

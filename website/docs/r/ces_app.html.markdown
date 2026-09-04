@@ -208,6 +208,12 @@ variable_declarations {
       modality = "CHAT_ONLY"
       theme    = "LIGHT"
       web_widget_title = "Help Assistant"
+      security_settings {
+        enable_public_access = true
+        enable_origin_check  = false
+        enable_recaptcha     = false
+        allowed_origins      = ["https://example.com"]
+      }
     }
   }
 
@@ -482,6 +488,11 @@ The following arguments are supported:
   Settings to describe the logging behaviors for the app.
   Structure is [documented below](#nested_logging_settings).
 
+* `locked` -
+  (Optional)
+  Indicates whether the app is locked for changes. If the app is locked,
+  modifications to the app resources will be rejected.
+
 * `metadata` -
   (Optional)
   Metadata about the app. This field can be used to store additional
@@ -722,6 +733,40 @@ The following arguments are supported:
 * `web_widget_title` -
   (Optional)
   The title of the web widget.
+
+* `security_settings` -
+  (Optional)
+  The security settings of the web widget.
+  Structure is [documented below](#nested_default_channel_profile_web_widget_config_security_settings).
+
+
+<a name="nested_default_channel_profile_web_widget_config_security_settings"></a>The `security_settings` block supports:
+
+* `allowed_origins` -
+  (Optional)
+  The origins that are allowed to host the web widget. An origin is
+  defined by RFC 6454. If empty, all origins are allowed.
+  A maximum of 100 origins is allowed.
+  Example: "https://example.com"
+
+* `enable_origin_check` -
+  (Optional)
+  Indicates whether origin check for the web widget is enabled.
+  If `true`, the web widget will check the origin of the website that
+  loads the web widget and only allow it to be loaded in the same origin
+  or any of the allowed origins.
+
+* `enable_public_access` -
+  (Optional)
+  Indicates whether public access to the web widget is enabled.
+  If `true`, the web widget will be publicly accessible.
+  If `false`, the web widget must be integrated with your own
+  authentication and authorization system to return valid credentials for
+  accessing the CES agent.
+
+* `enable_recaptcha` -
+  (Optional)
+  Indicates whether reCAPTCHA verification for the web widget is enabled.
 
 <a name="nested_default_channel_profile_whatsapp_config"></a>The `whatsapp_config` block supports:
 

@@ -64,6 +64,7 @@ func TestAccCESApp_cesAppBasicExample(t *testing.T) {
 	context := map[string]interface{}{
 		"app_id":        "tf-test-app-id" + randomSuffix,
 		"display_name":  "tf-test-my-app" + randomSuffix,
+		"secret_id":     "tf-test-1" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -96,7 +97,7 @@ func testAccCESApp_cesAppBasicExample(context map[string]interface{}) string {
 data "google_project" "project" {}
 
 resource "google_secret_manager_secret" "fake_private_key_secret" {
-  secret_id = "fake-pk-secret-app-tf1"
+  secret_id = "fake-pk-secret-app-tf%{secret_id}"
 
   replication {
     auto{}
@@ -264,6 +265,12 @@ variable_declarations {
       modality = "CHAT_ONLY"
       theme    = "LIGHT"
       web_widget_title = "Help Assistant"
+      security_settings {
+        enable_public_access = true
+        enable_origin_check  = false
+        enable_recaptcha     = false
+        allowed_origins      = ["https://example.com"]
+      }
     }
   }
 
