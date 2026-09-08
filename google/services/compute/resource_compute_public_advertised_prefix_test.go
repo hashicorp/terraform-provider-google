@@ -150,7 +150,7 @@ func testAccCheckParentHasSubPrefix(t *testing.T, project, region, parentName, s
 		newSubPrefixName := rs.Primary.Attributes["name"]
 
 		config := acctest.GoogleProviderConfig(t)
-		computeService := compute.NewClient(config, config.UserAgent)
+		computeService := compute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent)
 
 		parent, err := computeService.PublicDelegatedPrefixes.Get(project, region, parentName).Do()
 		if err != nil {

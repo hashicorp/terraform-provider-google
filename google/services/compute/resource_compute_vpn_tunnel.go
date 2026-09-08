@@ -145,7 +145,7 @@ var invalidPeerAddrs = []struct {
 func getVpnTunnelLink(config *transport_tpg.Config, project, region, tunnel, userAgent string) (string, error) {
 	if !strings.Contains(tunnel, "/") {
 		// Tunnel value provided is just the name, lookup the tunnel SelfLink
-		tunnelData, err := NewClient(config, userAgent).VpnTunnels.Get(
+		tunnelData, err := DEPRECATED_LegacyApiaryClient(config, userAgent).VpnTunnels.Get(
 			project, region, tunnel).Do()
 		if err != nil {
 			return "", fmt.Errorf("Error reading tunnel: %s", err)

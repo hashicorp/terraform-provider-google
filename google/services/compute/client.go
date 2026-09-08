@@ -24,8 +24,10 @@ import (
 	"google.golang.org/api/option"
 )
 
-func NewClient(c *transport_tpg.Config, userAgent string) *compute.Service {
-	log.Printf("[INFO] Instantiating GCE client for path %s", transport_tpg.BaseUrl(Product, c))
+// Deprecated: Do not use the legacy Apiary client for new GCE resources.
+// Use transport_tpg.SendRequest instead (see PR #16847 for an example).
+func DEPRECATED_LegacyApiaryClient(c *transport_tpg.Config, userAgent string) *compute.Service {
+	log.Printf("[INFO] Instantiating DEPRECATED GCE Apiary client for path %s", transport_tpg.BaseUrl(Product, c))
 	clientCompute, err := compute.NewService(c.Context, option.WithHTTPClient(c.Client))
 	if err != nil {
 		log.Printf("[WARN] Error creating client compute: %s", err)
