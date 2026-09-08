@@ -817,6 +817,14 @@ In addition to the arguments listed above, the following computed attributes are
   The success threshold for semantic similarity. Must be an integer
   between 0 and 4. Default is >= 3.
 
+* `semantic_similarity_channel` -
+  (Output)
+  The semantic similarity channel to use for evaluation.
+  Possible values:
+  SEMANTIC_SIMILARITY_CHANNEL_UNSPECIFIED
+  TEXT
+  AUDIO
+
 <a name="nested_snapshot_app_language_settings"></a>The `language_settings` block contains:
 
 * `default_language_code` -
