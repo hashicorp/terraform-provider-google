@@ -986,6 +986,27 @@ correctness. Must be a float between 0 and 1. Default is 1.0.`,
 																	},
 																},
 															},
+															"tool_matching_settings": {
+																Type:     schema.TypeList,
+																Computed: true,
+																Description: `The tool matching settings. An extra tool call is a tool call that is
+present in the execution but does not match any tool call in the golden
+expectation.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"extra_tool_call_behavior": {
+																			Type:     schema.TypeString,
+																			Computed: true,
+																			Description: `Defines the behavior when an extra tool call is encountered. An extra
+tool call is a tool call that is present in the execution but does
+not match any tool call in the golden expectation.
+Possible values:
+FAIL
+ALLOW`,
+																		},
+																	},
+																},
+															},
 															"turn_level_metrics_thresholds": {
 																Type:        schema.TypeList,
 																Computed:    true,
@@ -4583,6 +4604,8 @@ func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationM
 		flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsExpectationLevelMetricsThresholds(original["expectationLevelMetricsThresholds"], d, config)
 	transformed["turn_level_metrics_thresholds"] =
 		flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsTurnLevelMetricsThresholds(original["turnLevelMetricsThresholds"], d, config)
+	transformed["tool_matching_settings"] =
+		flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsToolMatchingSettings(original["toolMatchingSettings"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsExpectationLevelMetricsThresholds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4641,6 +4664,23 @@ func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationM
 }
 
 func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsTurnLevelMetricsThresholdsSemanticSimilarityChannel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsToolMatchingSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["extra_tool_call_behavior"] =
+		flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsToolMatchingSettingsExtraToolCallBehavior(original["extraToolCallBehavior"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAppEvaluationMetricsThresholdsGoldenEvaluationMetricsThresholdsToolMatchingSettingsExtraToolCallBehavior(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

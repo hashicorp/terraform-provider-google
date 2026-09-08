@@ -142,6 +142,9 @@ resource "google_ces_app" "ces_app_basic" {
       expectation_level_metrics_thresholds {
         tool_invocation_parameter_correctness_threshold = 1.0
       }
+      tool_matching_settings {
+        extra_tool_call_behavior = "ALLOW"
+      }
     }
     golden_hallucination_metric_behavior   = "ENABLED"
     scenario_hallucination_metric_behavior = "ENABLED"
@@ -825,6 +828,13 @@ The following arguments are supported:
   Turn level metrics thresholds.
   Structure is [documented below](#nested_evaluation_metrics_thresholds_golden_evaluation_metrics_thresholds_turn_level_metrics_thresholds).
 
+* `tool_matching_settings` -
+  (Optional)
+  The tool matching settings. An extra tool call is a tool call that is
+  present in the execution but does not match any tool call in the golden
+  expectation.
+  Structure is [documented below](#nested_evaluation_metrics_thresholds_golden_evaluation_metrics_thresholds_tool_matching_settings).
+
 
 <a name="nested_evaluation_metrics_thresholds_golden_evaluation_metrics_thresholds_expectation_level_metrics_thresholds"></a>The `expectation_level_metrics_thresholds` block supports:
 
@@ -852,6 +862,15 @@ The following arguments are supported:
   SEMANTIC_SIMILARITY_CHANNEL_UNSPECIFIED
   TEXT
   AUDIO
+
+<a name="nested_evaluation_metrics_thresholds_golden_evaluation_metrics_thresholds_tool_matching_settings"></a>The `tool_matching_settings` block supports:
+
+* `extra_tool_call_behavior` -
+  (Optional)
+  Defines the behavior when an extra tool call is encountered. An extra
+  tool call is a tool call that is present in the execution but does
+  not match any tool call in the golden expectation.
+  Possible values are: `FAIL`, `ALLOW`.
 
 <a name="nested_language_settings"></a>The `language_settings` block supports:
 

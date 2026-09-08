@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `evaluation_metrics_thresholds.golden_evaluation_metrics_thresholds.tool_matching_settings.extra_tool_call_behavior` field to `google_ces_app`
+```
