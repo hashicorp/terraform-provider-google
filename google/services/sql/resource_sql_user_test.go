@@ -489,6 +489,7 @@ func TestAccSqlUser_instanceWithActivationPolicy(t *testing.T) {
 			// Step 3a: ImportState with instance stopped — verifies identity survives a round-trip
 			{
 				ResourceName:            "google_sql_user.user",
+				ImportStateId:           fmt.Sprintf("%s/%s/admin", envvar.GetTestProjectFromEnv(), instance),
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password", "deletion_policy"},
