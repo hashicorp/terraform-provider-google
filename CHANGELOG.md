@@ -51,7 +51,8 @@ FEATURES:
 * **New Resource:** `google_observability_organization_settings` ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
 * **New Resource:** `google_observability_project_settings` ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
 * **New Resource:** `google_service_usage_v2_consumer_policy` ([#29222](https://github.com/hashicorp/terraform-provider-google/pull/29222))
-* **New Resource:** `google_storage_ftp_user`,  `google_storage_ftp_server` ([#29155](https://github.com/hashicorp/terraform-provider-google/pull/29155))
+* **New Resource:** `google_storage_ftp_server` ([#29155](https://github.com/hashicorp/terraform-provider-google/pull/29155))
+* **New Resource:** `google_storage_ftp_user` ([#29155](https://github.com/hashicorp/terraform-provider-google/pull/29155))
 
 IMPROVEMENTS:
 * apikeys: added `check_existing_usage` field and `FORCE` `deletion_policy` support to `google_apikeys_key` ([#29153](https://github.com/hashicorp/terraform-provider-google/pull/29153))
