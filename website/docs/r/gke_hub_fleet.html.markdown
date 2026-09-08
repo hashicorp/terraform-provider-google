@@ -41,6 +41,12 @@ resource "google_gke_hub_fleet" "default" {
       mode = "DISABLED"
       vulnerability_mode = "VULNERABILITY_DISABLED"
     }
+    compliance_posture_config {
+      mode = "ENABLED"
+    }
+  }
+  labels = {
+    env = "prod"
   }
 }
 ```
@@ -55,6 +61,13 @@ The following arguments are supported:
   (Optional)
   A user-assigned display name of the Fleet. When present, it must be between 4 to 30 characters.
   Allowed characters are: lowercase and uppercase letters, numbers, hyphen, single-quote, double-quote, space, and exclamation point.
+
+* `labels` -
+  (Optional)
+  Labels for this Fleet.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `default_cluster_config` -
   (Optional)
@@ -83,6 +96,11 @@ The following arguments are supported:
   (Optional)
   Enable/Disable Security Posture features for the cluster.
   Structure is [documented below](#nested_default_cluster_config_security_posture_config).
+
+* `compliance_posture_config` -
+  (Optional)
+  Enable/Disable Compliance Posture features for the cluster.
+  Structure is [documented below](#nested_default_cluster_config_compliance_posture_config).
 
 
 <a name="nested_default_cluster_config_binary_authorization_config"></a>The `binary_authorization_config` block supports:
@@ -118,6 +136,25 @@ The following arguments are supported:
   Sets which mode to use for vulnerability scanning.
   Possible values are: `VULNERABILITY_DISABLED`, `VULNERABILITY_BASIC`, `VULNERABILITY_ENTERPRISE`.
 
+<a name="nested_default_cluster_config_compliance_posture_config"></a>The `compliance_posture_config` block supports:
+
+* `mode` -
+  (Optional)
+  Sets which mode to use for Compliance Posture features.
+  Possible values are: `DISABLED`, `ENABLED`.
+
+* `compliance_standards` -
+  (Optional)
+  List of enabled compliance standards.
+  Structure is [documented below](#nested_default_cluster_config_compliance_posture_config_compliance_standards).
+
+
+<a name="nested_default_cluster_config_compliance_posture_config_compliance_standards"></a>The `compliance_standards` block supports:
+
+* `standard` -
+  (Optional)
+  Name of the compliance standard.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -141,6 +178,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `state` -
   The state of the fleet resource.
   Structure is [documented below](#nested_state).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_state"></a>The `state` block contains:

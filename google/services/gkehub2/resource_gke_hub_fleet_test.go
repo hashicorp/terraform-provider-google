@@ -53,25 +53,28 @@ func TestAccGKEHub2Fleet_gkehubFleetBasicExample_update(t *testing.T) {
 				Config: testAccGKEHub2Fleet_basic(context),
 			},
 			{
-				ResourceName:      "google_gke_hub_fleet.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_gke_hub_fleet.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccGKEHub2Fleet_update(context),
 			},
 			{
-				ResourceName:      "google_gke_hub_fleet.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_gke_hub_fleet.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccGKEHub2Fleet_removedDefaultClusterConfig(context),
 			},
 			{
-				ResourceName:      "google_gke_hub_fleet.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_gke_hub_fleet.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -90,6 +93,12 @@ resource "google_gke_hub_fleet" "default" {
 		mode = "DISABLED"
 		vulnerability_mode = "VULNERABILITY_DISABLED"
 	}
+	compliance_posture_config {
+		mode = "DISABLED"
+	}
+  }
+  labels = {
+	env = "test"
   }
   depends_on = [time_sleep.wait_for_gkehub_enablement]
 }
@@ -112,6 +121,15 @@ resource "google_gke_hub_fleet" "default" {
 		mode = "BASIC"
 		vulnerability_mode = "VULNERABILITY_BASIC"
 	}
+	compliance_posture_config {
+		mode = "ENABLED"
+		compliance_standards {
+			standard = "cis-gke-v1.5.0"
+		}
+	}
+  }
+  labels = {
+	env = "prod"
   }
   depends_on = [time_sleep.wait_for_gkehub_enablement]
 }

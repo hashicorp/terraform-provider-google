@@ -113,6 +113,7 @@ func ResourceGKEHub2Fleet() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
@@ -172,6 +173,36 @@ platform policies have the following format:
 								},
 							},
 						},
+						"compliance_posture_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Enable/Disable Compliance Posture features for the cluster.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"compliance_standards": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `List of enabled compliance standards.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"standard": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Name of the compliance standard.`,
+												},
+											},
+										},
+									},
+									"mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "ENABLED", ""}),
+										Description:  `Sets which mode to use for Compliance Posture features. Possible values: ["DISABLED", "ENABLED"]`,
+									},
+								},
+							},
+						},
 						"security_posture_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -203,6 +234,16 @@ platform policies have the following format:
 				Description: `A user-assigned display name of the Fleet. When present, it must be between 4 to 30 characters.
 Allowed characters are: lowercase and uppercase letters, numbers, hyphen, single-quote, double-quote, space, and exclamation point.`,
 			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels for this Fleet.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -212,6 +253,12 @@ Allowed characters are: lowercase and uppercase letters, numbers, hyphen, single
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The time the fleet was deleted, in RFC3339 text format.`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"state": {
 				Type:        schema.TypeList,
@@ -226,6 +273,13 @@ Allowed characters are: lowercase and uppercase letters, numbers, hyphen, single
 						},
 					},
 				},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"uid": {
 				Type:     schema.TypeString,
@@ -281,6 +335,12 @@ func resourceGKEHub2FleetCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("default_cluster_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultClusterConfigProp)) && (ok || !reflect.DeepEqual(v, defaultClusterConfigProp)) {
 		obj["defaultClusterConfig"] = defaultClusterConfigProp
+	}
+	effectiveLabelsProp, err := expandGKEHub2FleetEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/fleets")
@@ -478,6 +538,12 @@ func resourceGKEHub2FleetUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("default_cluster_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultClusterConfigProp)) {
 		obj["defaultClusterConfig"] = defaultClusterConfigProp
 	}
+	effectiveLabelsProp, err := expandGKEHub2FleetEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/fleets/default")
 	if err != nil {
@@ -494,6 +560,10 @@ func resourceGKEHub2FleetUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("default_cluster_config") {
 		updateMask = append(updateMask, "defaultClusterConfig")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -623,6 +693,21 @@ func flattenGKEHub2FleetDisplayName(v interface{}, d *schema.ResourceData, confi
 	return v
 }
 
+func flattenGKEHub2FleetLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
 func flattenGKEHub2FleetCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -669,6 +754,8 @@ func flattenGKEHub2FleetDefaultClusterConfig(v interface{}, d *schema.ResourceDa
 		flattenGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfig(original["binaryAuthorizationConfig"], d, config)
 	transformed["security_posture_config"] =
 		flattenGKEHub2FleetDefaultClusterConfigSecurityPostureConfig(original["securityPostureConfig"], d, config)
+	transformed["compliance_posture_config"] =
+		flattenGKEHub2FleetDefaultClusterConfigCompliancePostureConfig(original["compliancePostureConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -736,6 +823,67 @@ func flattenGKEHub2FleetDefaultClusterConfigSecurityPostureConfigVulnerabilityMo
 	return v
 }
 
+func flattenGKEHub2FleetDefaultClusterConfigCompliancePostureConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["mode"] =
+		flattenGKEHub2FleetDefaultClusterConfigCompliancePostureConfigMode(original["mode"], d, config)
+	transformed["compliance_standards"] =
+		flattenGKEHub2FleetDefaultClusterConfigCompliancePostureConfigComplianceStandards(original["complianceStandards"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FleetDefaultClusterConfigCompliancePostureConfigMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FleetDefaultClusterConfigCompliancePostureConfigComplianceStandards(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"standard": flattenGKEHub2FleetDefaultClusterConfigCompliancePostureConfigComplianceStandardsStandard(original["standard"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGKEHub2FleetDefaultClusterConfigCompliancePostureConfigComplianceStandardsStandard(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FleetTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenGKEHub2FleetEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandGKEHub2FleetDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -764,6 +912,13 @@ func expandGKEHub2FleetDefaultClusterConfig(v interface{}, d tpgresource.Terrafo
 		return nil, err
 	} else if val := reflect.ValueOf(transformedSecurityPostureConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["securityPostureConfig"] = transformedSecurityPostureConfig
+	}
+
+	transformedCompliancePostureConfig, err := expandGKEHub2FleetDefaultClusterConfigCompliancePostureConfig(original["compliance_posture_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCompliancePostureConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["compliancePostureConfig"] = transformedCompliancePostureConfig
 	}
 
 	return transformed, nil
@@ -868,10 +1023,86 @@ func expandGKEHub2FleetDefaultClusterConfigSecurityPostureConfigVulnerabilityMod
 	return v, nil
 }
 
+func expandGKEHub2FleetDefaultClusterConfigCompliancePostureConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMode, err := expandGKEHub2FleetDefaultClusterConfigCompliancePostureConfigMode(original["mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mode"] = transformedMode
+	}
+
+	transformedComplianceStandards, err := expandGKEHub2FleetDefaultClusterConfigCompliancePostureConfigComplianceStandards(original["compliance_standards"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedComplianceStandards); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["complianceStandards"] = transformedComplianceStandards
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfigCompliancePostureConfigMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfigCompliancePostureConfigComplianceStandards(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedStandard, err := expandGKEHub2FleetDefaultClusterConfigCompliancePostureConfigComplianceStandardsStandard(original["standard"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStandard); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["standard"] = transformedStandard
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfigCompliancePostureConfigComplianceStandardsStandard(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FleetEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func ResourceGKEHub2FleetFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
 	if err = d.Set("display_name", flattenGKEHub2FleetDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Fleet: %s", err)
+	}
+	if err = d.Set("labels", flattenGKEHub2FleetLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Fleet: %s", err)
 	}
 	if err = d.Set("create_time", flattenGKEHub2FleetCreateTime(res["createTime"], d, config)); err != nil {
@@ -890,6 +1121,12 @@ func ResourceGKEHub2FleetFlatten(d *schema.ResourceData, meta interface{}, res m
 		return fmt.Errorf("Error reading Fleet: %s", err)
 	}
 	if err = d.Set("default_cluster_config", flattenGKEHub2FleetDefaultClusterConfig(res["defaultClusterConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Fleet: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenGKEHub2FleetTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Fleet: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenGKEHub2FleetEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Fleet: %s", err)
 	}
 

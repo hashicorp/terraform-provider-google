@@ -1,0 +1,3 @@
+```release-note:enhancement
+gkehub: added `default_cluster_config.compliance_posture_config` and `labels` to `google_gke_hub_fleet`
+```
