@@ -1,0 +1,23 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_compute_network_edge_security_service
+generation_type: mmv1
+source_file: products/compute/NetworkEdgeSecurityService.yaml
+api_service_name: compute.googleapis.com
+api_version: v1
+api_resource_type_kind: NetworkEdgeSecurityService
+fields:
+    - api_field: creationTimestamp
+    - api_field: description
+    - api_field: fingerprint
+    - api_field: name
+    - field: region
+      provider_only: true
+    - api_field: securityPolicy
+    - api_field: selfLink
+    - api_field: selfLinkWithId
+      field: self_link_with_service_id
+    - api_field: id
+      field: service_id
+    - field: deletion_policy
+      provider_only: true
