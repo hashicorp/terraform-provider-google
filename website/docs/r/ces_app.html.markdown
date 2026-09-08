@@ -137,6 +137,7 @@ resource "google_ces_app" "ces_app_basic" {
       turn_level_metrics_thresholds {
         semantic_similarity_success_threshold        = 3
         overall_tool_invocation_correctness_threshold = 1.0
+        semantic_similarity_channel                   = "TEXT"
       }
       expectation_level_metrics_thresholds {
         tool_invocation_parameter_correctness_threshold = 1.0
@@ -843,6 +844,14 @@ The following arguments are supported:
   (Optional)
   The success threshold for semantic similarity. Must be an integer
   between 0 and 4. Default is >= 3.
+
+* `semantic_similarity_channel` -
+  (Optional)
+  The semantic similarity channel to use for evaluation.
+  Possible values:
+  SEMANTIC_SIMILARITY_CHANNEL_UNSPECIFIED
+  TEXT
+  AUDIO
 
 <a name="nested_language_settings"></a>The `language_settings` block supports:
 
