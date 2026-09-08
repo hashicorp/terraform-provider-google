@@ -101,6 +101,7 @@ fields:
     - api_field: snapshot.app.errorHandlingSettings.fallbackResponseConfig.maxFallbackAttempts
     - api_field: snapshot.app.etag
     - api_field: snapshot.app.evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.expectationLevelMetricsThresholds.toolInvocationParameterCorrectnessThreshold
+    - api_field: snapshot.app.evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.toolMatchingSettings.extraToolCallBehavior
     - api_field: snapshot.app.evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.overallToolInvocationCorrectnessThreshold
     - api_field: snapshot.app.evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.semanticSimilarityChannel
     - api_field: snapshot.app.evaluationMetricsThresholds.goldenEvaluationMetricsThresholds.turnLevelMetricsThresholds.semanticSimilaritySuccessThreshold
