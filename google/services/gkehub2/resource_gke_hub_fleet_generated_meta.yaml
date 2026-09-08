@@ -10,11 +10,18 @@ fields:
     - api_field: createTime
     - api_field: defaultClusterConfig.binaryAuthorizationConfig.evaluationMode
     - api_field: defaultClusterConfig.binaryAuthorizationConfig.policyBindings.name
+    - api_field: defaultClusterConfig.compliancePostureConfig.complianceStandards.standard
+    - api_field: defaultClusterConfig.compliancePostureConfig.mode
     - api_field: defaultClusterConfig.securityPostureConfig.mode
     - api_field: defaultClusterConfig.securityPostureConfig.vulnerabilityMode
     - api_field: deleteTime
     - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
     - api_field: state.code
+    - field: terraform_labels
+      provider_only: true
     - api_field: uid
     - api_field: updateTime
     - field: deletion_policy
