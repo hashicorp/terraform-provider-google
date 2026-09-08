@@ -298,7 +298,7 @@ This resource provides the following
 
 SecretVersion can be imported using any of these accepted formats:
 
-* `projects/{{project}}/secrets/{{secret_id}}/versions/{{version}}`
+* `projects/{{project}}/secrets/{{secret}}/versions/{{version}}`
 
 In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import SecretVersion using identity values. For example:
 
@@ -307,6 +307,7 @@ import {
   identity = {
     version = "<-optional value->"
     project = "<-optional value->"
+    secret = "<-required value->"
   }
   to = google_secret_manager_secret_version.default
 }
@@ -316,7 +317,7 @@ In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashico
 
 ```tf
 import {
-  id = "projects/{{project}}/secrets/{{secret_id}}/versions/{{version}}"
+  id = "projects/{{project}}/secrets/{{secret}}/versions/{{version}}"
   to = google_secret_manager_secret_version.default
 }
 ```
@@ -324,5 +325,5 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), SecretVersion can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_secret_manager_secret_version.default projects/{{project}}/secrets/{{secret_id}}/versions/{{version}}
+$ terraform import google_secret_manager_secret_version.default projects/{{project}}/secrets/{{secret}}/versions/{{version}}
 ```
