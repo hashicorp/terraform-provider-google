@@ -1,0 +1,27 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_rag_corpus
+generation_type: mmv1
+source_file: products/vertexai/RagCorpus.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: RagCorpus
+fields:
+    - api_field: corpusStatus.errorStatus
+    - api_field: corpusStatus.state
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: name
+    - field: region
+      provider_only: true
+    - api_field: updateTime
+    - api_field: vectorDbConfig.ragEmbeddingModelConfig.vertexPredictionEndpoint.endpoint
+    - api_field: vectorDbConfig.ragEmbeddingModelConfig.vertexPredictionEndpoint.model
+    - api_field: vectorDbConfig.ragEmbeddingModelConfig.vertexPredictionEndpoint.modelVersionId
+    - api_field: vectorDbConfig.ragManagedDb.ann.leafCount
+    - api_field: vectorDbConfig.ragManagedDb.ann.treeDepth
+    - api_field: vectorDbConfig.ragManagedDb.knn
+    - field: deletion_policy
+      provider_only: true
