@@ -14,7 +14,7 @@
 //     overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // IAM list resources enumerate rows for google_*_iam_member instances by reading
