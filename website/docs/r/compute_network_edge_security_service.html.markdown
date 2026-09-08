@@ -23,8 +23,6 @@ description: |-
 
 Google Cloud Armor network edge security service resource.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about NetworkEdgeSecurityService, see:
 
@@ -37,8 +35,6 @@ To get more information about NetworkEdgeSecurityService, see:
 
 ```hcl
 resource "google_compute_network_edge_security_service" "default" {
-  provider     = google-beta  
-
   name         = "my-edge-security-service"
   region       = "us-east1"
   description  = "My basic resource"
