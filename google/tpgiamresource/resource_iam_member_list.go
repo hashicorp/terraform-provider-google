@@ -17,10 +17,8 @@
 
 // IAM list resources enumerate rows for google_*_iam_member instances by reading
 // IAM policies on one or more GCP resources (policy targets).
-//
-// When IamMemberListCallConfig.ListUrlFunc is set, List() uses transport.ListCall to
-// discover multiple targets (e.g. all disks in a zone), then reads IAM for each.
-// Otherwise a single target is built from the list block.
+// Shared machinery lives in iamListCore (resource_iam_list.go); this file keeps only the
+// member-specific result shaping.
 
 package tpgiamresource
 
@@ -31,198 +29,26 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/list"
-	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 var _ list.ListResource = &IamMemberListResource{}
 var _ list.ListResourceWithRawV5Schemas = &IamMemberListResource{}
 var _ list.ListResourceWithConfigure = &IamMemberListResource{}
 
-// suportedScopeFields are the scope dimensions added to a list config
-// automatically when the member resource's schema declares them.
-// All are optional: when ommited, the value is resolved downstream from the provider
-// config(GetProject/GetRegion/GetZone/GetLocation) or environment variables.
-var supportedScopeFields = []tpgresource.ListConfigField{
-	{Name: "project", Kind: tpgresource.ListConfigKindString, Optional: true},
-	{Name: "region", Kind: tpgresource.ListConfigKindString, Optional: true},
-	{Name: "zone", Kind: tpgresource.ListConfigKindString, Optional: true},
-	{Name: "location", Kind: tpgresource.ListConfigKindString, Optional: true},
-}
-
-// IamMemberListCallConfig holds resource-specific pieces for transport.ListCall.
-type IamMemberListCallConfig struct {
-	ListPagesOptions    transport_tpg.ListPagesOptions
-	ParentResourceField string
-	EnableRoleFilter    bool
-	EnableMemberFilter  bool
-}
-
 // IamMemberListResource lists IAM member rows by reading IAM policies on one or more policy targets.
+// It embeds iamListCore for all shared behaviour and adds only member-specipic shaping below.
 type IamMemberListResource struct {
-	tpgresource.ListResourceMetadata
-
-	typeName          string
-	memberResource    *schema.Resource
-	iamResourceSchema map[string]*schema.Schema // parent-identifying fields (project, zone, name, …)
-	listBlockSchema   listschema.Schema
-	listCallConfig    IamMemberListCallConfig
-	newUpdater        NewResourceIamUpdaterFunc
-	Client            *transport_tpg.Config
+	IamListCore
 }
 
-func NewIamMemberListResource(typeName string, memberResource *schema.Resource, newUpdater NewResourceIamUpdaterFunc, listCallConfig IamMemberListCallConfig) list.ListResource {
-	if memberResource.Identity == nil {
-		panic("tpgiamresource: NewIamMemberListResource requires a memberResource with identity (use IamWithResourceIdentity)")
-	}
-
-	listConfigFields := []tpgresource.ListConfigField{
-		{
-			Name: listCallConfig.ParentResourceField,
-			Kind: tpgresource.ListConfigKindString,
-		},
-	}
-
-	// Auto-expose target-scope dimensions (project/region/zone/location) when the
-	// member resource declares them and they are not  already the parent field.
-	for _, sf := range supportedScopeFields {
-		if sf.Name == listCallConfig.ParentResourceField {
-			continue // scope dimension is itself the parent (e.g. project-iam-member)
-		}
-		if _, ok := memberResource.Schema[sf.Name]; ok {
-			listConfigFields = append(listConfigFields, sf)
-		}
-	}
-
-	if listCallConfig.EnableRoleFilter {
-		listConfigFields = append(listConfigFields, tpgresource.ListConfigField{
-			Name:     "role",
-			Kind:     tpgresource.ListConfigKindString,
-			Optional: true,
-		})
-	}
-
-	if listCallConfig.EnableMemberFilter {
-		listConfigFields = append(listConfigFields, tpgresource.ListConfigField{
-			Name:     "member",
-			Kind:     tpgresource.ListConfigKindString,
-			Optional: true,
-		})
-	}
-
-	iamResourceSchema := make(map[string]*schema.Schema)
-	for _, field := range listConfigFields {
-		if field.Name == "role" || field.Name == "member" {
-			continue
-		}
-		if schemaField, ok := memberResource.Schema[field.Name]; ok {
-			iamResourceSchema[field.Name] = schemaField
-		}
-	}
-
+func NewIamMemberListResource(typeName string, memberResource *schema.Resource, newUpdater NewResourceIamUpdaterFunc, listCallConfig IamListCallConfig) list.ListResource {
 	return &IamMemberListResource{
-		ListResourceMetadata: tpgresource.ListResourceMetadata{
-			TypeName:         typeName,
-			SDKv2Resource:    memberResource,
-			ListConfigFields: listConfigFields,
-		},
-		typeName:          typeName,
-		memberResource:    memberResource,
-		iamResourceSchema: iamResourceSchema,
-		listCallConfig:    listCallConfig,
-		newUpdater:        newUpdater,
+		IamListCore: buildIamListCore(typeName, memberResource, newUpdater, listCallConfig),
 	}
-}
-
-func (r *IamMemberListResource) Metadata(_ context.Context, _ resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = r.typeName
-}
-
-func (r *IamMemberListResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	r.Defaults(req, resp)
-
-	if req.ProviderData == nil {
-		return
-	}
-
-	config, ok := req.ProviderData.(*transport_tpg.Config)
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected provider data type",
-			fmt.Sprintf("Expected *transport_tpg.Config, got %T", req.ProviderData),
-		)
-
-		return
-	}
-	r.Client = config
-}
-
-func (r *IamMemberListResource) RawV5Schemas(ctx context.Context, _ list.RawV5SchemaRequest, resp *list.RawV5SchemaResponse) {
-	resp.ProtoV5Schema = r.memberResource.ProtoSchema(ctx)()
-	if fn := r.memberResource.ProtoIdentitySchema(ctx); fn != nil {
-		resp.ProtoV5IdentitySchema = fn()
-	}
-}
-
-// discoverPolicyTargets returns one ResourceData per GCP resource whose IAM policy should be read.
-func (r *IamMemberListResource) discoverPolicyTargets(ctx context.Context, req list.ListRequest) ([]*schema.ResourceData, error) {
-	baseRd := r.memberResource.TestResourceData()
-
-	// Set every target-identifying field (parent + scope dimensions like project/region/
-	// zone/location) from the list config onto the ResourceData the updater reads.
-	// Provider-default fallback is handled downstream by the updators's
-	// updater's GetProject/GetRegion/GetZone/GetLocation when a value is omitted.
-	for name := range r.iamResourceSchema {
-		var v types.String
-		d := req.Config.GetAttribute(ctx, path.Root(name), &v)
-		if d.HasError() {
-			return nil, fmt.Errorf("%s", d.Errors()[0].Detail())
-		}
-		if v.IsNull() || v.IsUnknown() {
-			continue
-		}
-		if err := baseRd.Set(name, v.ValueString()); err != nil {
-			return nil, fmt.Errorf("setting %s: %w", name, err)
-		}
-	}
-
-	if r.listCallConfig.ListPagesOptions.Callback == nil {
-		return []*schema.ResourceData{baseRd}, nil
-	}
-
-	if r.Client == nil {
-		return nil, fmt.Errorf("provider client nil")
-	}
-
-	var targets []*schema.ResourceData
-
-	listOpts := r.listCallConfig.ListPagesOptions
-	listOpts.Config = r.Client
-	listOpts.TempData = baseRd
-	listOpts.Resource = r.memberResource
-	listOpts.UserAgent = r.Client.UserAgent
-
-	if listOpts.ItemName == "" {
-		listOpts.ItemName = "items"
-	}
-
-	listOpts.Callback = func(rd *schema.ResourceData) error {
-		targetRd := r.memberResource.TestResourceData()
-		targets = append(targets, targetRd)
-		return nil
-	}
-
-	if err := transport_tpg.ListPages(listOpts); err != nil {
-		return nil, fmt.Errorf("listing Iam policy targets: %w", err)
-	}
-	return targets, nil
 }
 
 func (r *IamMemberListResource) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
@@ -306,7 +132,7 @@ func (r *IamMemberListResource) yieldPolicyMembers(ctx context.Context, req list
 
 // buildMemberResult populates a ResourceData for one binding member and converts it to a ListResult.
 func (r *IamMemberListResource) buildMemberResult(ctx context.Context, req list.ListRequest, targetRd *schema.ResourceData, updater ResourceIamUpdater, binding *cloudresourcemanager.Binding, member, etag string) (list.ListResult, error) {
-	rd := r.memberResource.TestResourceData()
+	rd := r.iamResource.TestResourceData()
 	for k := range r.iamResourceSchema {
 		if v, ok := targetRd.GetOk(k); ok {
 			if err := rd.Set(k, v); err != nil {
@@ -378,28 +204,4 @@ func (r *IamMemberListResource) buildMemberResult(ctx context.Context, req list.
 
 	res.DisplayName = fmt.Sprintf("%s %s %s", updater.DescribeResource(), binding.Role, normalized)
 	return res, nil
-}
-
-func (r *IamMemberListResource) readFilters(ctx context.Context, req list.ListRequest) (string, string, diag.Diagnostics) {
-	var diags diag.Diagnostics
-	roleFilter := ""
-	memberFilter := ""
-
-	if r.listCallConfig.EnableRoleFilter {
-		var v types.String
-		diags.Append(req.Config.GetAttribute(ctx, path.Root("role"), &v)...)
-		if !v.IsNull() && !v.IsUnknown() {
-			roleFilter = v.ValueString()
-		}
-	}
-
-	if r.listCallConfig.EnableMemberFilter {
-		var v types.String
-		diags.Append(req.Config.GetAttribute(ctx, path.Root("member"), &v)...)
-		if !v.IsNull() && !v.IsUnknown() {
-			memberFilter = v.ValueString()
-		}
-	}
-
-	return roleFilter, memberFilter, diags
 }
