@@ -231,6 +231,7 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 			},
 			"artifacts_gcs_bucket": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: `Location for Cloud Build logs and artifacts.`,
 			},

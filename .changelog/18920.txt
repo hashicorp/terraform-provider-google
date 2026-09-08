@@ -1,0 +1,3 @@
+```release-note:bug
+config: fixed diff when `artifacts_gcs_bucket` is not specified on `google_config_deployment`
+```
