@@ -156,6 +156,29 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 			},
 		},
 
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"version": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+					"secret": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+				}
+			},
+		},
+		ResourceBehavior: schema.ResourceBehavior{
+			MutableIdentity: true,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"secret_data": {
 				Type:         schema.TypeString,
@@ -353,6 +376,27 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Finished creating SecretVersion %q: %#v", d.Id(), res)
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if versionValue, ok := d.GetOk("version"); ok && versionValue.(string) != "" {
+			if err = identity.Set("version", versionValue.(string)); err != nil {
+				return fmt.Errorf("Error setting version: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+		if secretValue, ok := d.GetOk("secret"); ok && secretValue.(string) != "" {
+			if err = identity.Set("secret", secretValue.(string)); err != nil {
+				return fmt.Errorf("Error setting secret: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Create) identity not set: %s", err)
+	}
+
 	return resourceSecretManagerSecretVersionRead(d, meta)
 }
 
@@ -427,6 +471,30 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if v, ok := identity.GetOk("version"); !ok && v == "" {
+			err = identity.Set("version", d.Get("version").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting version: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("project"); !ok && v == "" {
+			err = identity.Set("project", d.Get("project").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+		if v, ok := identity.GetOk("secret"); !ok && v == "" {
+			err = identity.Set("secret", d.Get("secret").(string))
+			if err != nil {
+				return fmt.Errorf("Error setting secret: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+	}
+
 	return nil
 }
 
@@ -445,6 +513,14 @@ func resourceSecretManagerSecretVersionUpdate(d *schema.ResourceData, meta inter
 	}
 
 	config := meta.(*transport_tpg.Config)
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project": d.Get("project"),
+		"secret":  d.Get("secret"),
+		"version": d.Get("version"),
+	}); err != nil {
+		return err
+	}
+
 	err := setEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
@@ -511,13 +587,12 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 
 func resourceSecretManagerSecretVersionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
+	_ = config
 
-	// current import_formats can't import fields with forward slashes in their value
-	if err := tpgresource.ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
-		return nil, err
+	name := d.Id()
+	if err := d.Set("name", name); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
 	}
-
-	name := d.Get("name").(string)
 	secretRegex := regexp.MustCompile("(projects/.+/secrets/.+)/versions/.+$")
 	versionRegex := regexp.MustCompile("projects/(.+)/secrets/(.+)/versions/(.+)$")
 
@@ -538,6 +613,14 @@ func resourceSecretManagerSecretVersionImport(d *schema.ResourceData, meta inter
 	// Explicitly set virtual fields to default values on import
 	if err := d.Set("deletion_policy", "DELETE"); err != nil {
 		return nil, fmt.Errorf("Error setting version: %s", err)
+	}
+
+	if err := tpgresource.SetResourceIdentityAttributes(d, map[string]interface{}{
+		"project": parts[1],
+		"secret":  parts[2],
+		"version": parts[3],
+	}); err != nil {
+		return nil, err
 	}
 
 	return []*schema.ResourceData{d}, nil
