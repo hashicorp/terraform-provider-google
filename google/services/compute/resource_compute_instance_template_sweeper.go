@@ -45,7 +45,7 @@ func testSweepComputeInstanceTemplate(region string) error {
 		return err
 	}
 
-	instanceTemplates, err := NewClient(config, config.UserAgent).InstanceTemplates.List(config.Project).Do()
+	instanceTemplates, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).InstanceTemplates.List(config.Project).Do()
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request instance templates LIST: %s", err)
 		return nil
@@ -68,7 +68,7 @@ func testSweepComputeInstanceTemplate(region string) error {
 		}
 
 		// Don't wait on operations as we may have a lot to delete
-		_, err := NewClient(config, config.UserAgent).InstanceTemplates.Delete(config.Project, instanceTemplate.Name).Do()
+		_, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).InstanceTemplates.Delete(config.Project, instanceTemplate.Name).Do()
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting instance template: %s", instanceTemplate.Name)
 		} else {

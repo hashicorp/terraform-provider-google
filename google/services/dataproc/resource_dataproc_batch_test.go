@@ -113,7 +113,7 @@ func BootstrapFirewallForDataprocSharedNetwork(t *testing.T, firewallName string
 	}
 
 	log.Printf("[DEBUG] Getting Firewall %q for Network %q", firewallName, networkName)
-	_, err := tpgcompute.NewClient(config, config.UserAgent).Firewalls.Get(project, firewallName).Do()
+	_, err := tpgcompute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Firewalls.Get(project, firewallName).Do()
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] firewallName %q not found, bootstrapping", firewallName)
 		url := fmt.Sprintf("%sprojects/%s/global/firewalls", transport_tpg.BaseUrl(tpgcompute.Product, config), project)
@@ -159,7 +159,7 @@ func BootstrapFirewallForDataprocSharedNetwork(t *testing.T, firewallName string
 		}
 	}
 
-	firewall, err := tpgcompute.NewClient(config, config.UserAgent).Firewalls.Get(project, firewallName).Do()
+	firewall, err := tpgcompute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Firewalls.Get(project, firewallName).Do()
 	if err != nil {
 		t.Errorf("Error getting Firewall %q: %s", firewallName, err)
 	}

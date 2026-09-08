@@ -825,7 +825,7 @@ func testAccDataflowJobGetGeneratedInstanceTemplate(t *testing.T, s *terraform.S
 	var instanceTemplate *compute.InstanceTemplate
 
 	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
-		instanceTemplates, rerr := compute_tpg.NewClient(config, config.UserAgent).RegionInstanceTemplates.
+		instanceTemplates, rerr := compute_tpg.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).RegionInstanceTemplates.
 			List(config.Project, config.Region).
 			Filter(filter).
 			MaxResults(2).

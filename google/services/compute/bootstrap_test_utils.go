@@ -62,7 +62,7 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 	}
 
 	log.Printf("[DEBUG] Getting shared test network %q", networkName)
-	_, err := NewClient(config, config.UserAgent).Networks.Get(project, networkName).Do()
+	_, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Networks.Get(project, networkName).Do()
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Network %q not found, bootstrapping", networkName)
 		url := fmt.Sprintf("%sprojects/%s/global/networks", transport_tpg.BaseUrl(Product, config), project)
@@ -91,7 +91,7 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 		}
 	}
 
-	network, err := NewClient(config, config.UserAgent).Networks.Get(project, networkName).Do()
+	network, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Networks.Get(project, networkName).Do()
 	if err != nil {
 		t.Errorf("Error getting shared test network %q: %s", networkName, err)
 	}
@@ -137,7 +137,7 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...fun
 	}
 
 	log.Printf("[DEBUG] Getting shared test global address %q", addressName)
-	_, err := NewClient(config, config.UserAgent).GlobalAddresses.Get(project, addressName).Do()
+	_, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).GlobalAddresses.Get(project, addressName).Do()
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Global address %q not found, bootstrapping", addressName)
 		url := fmt.Sprintf("%sprojects/%s/global/addresses", transport_tpg.BaseUrl(Product, config), project)
@@ -172,7 +172,7 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...fun
 		}
 	}
 
-	address, err := NewClient(config, config.UserAgent).GlobalAddresses.Get(project, addressName).Do()
+	address, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).GlobalAddresses.Get(project, addressName).Do()
 	if err != nil {
 		t.Errorf("Error getting shared test global address %q: %s", addressName, err)
 	}
@@ -195,7 +195,7 @@ func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName s
 		t.Fatal("Could not bootstrap config.")
 	}
 
-	computeService := NewClient(config, config.UserAgent)
+	computeService := DEPRECATED_LegacyApiaryClient(config, config.UserAgent)
 	if computeService == nil {
 		t.Fatal("Could not create compute client.")
 	}
@@ -262,7 +262,7 @@ func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subn
 		return ""
 	}
 
-	computeService := NewClient(config, config.UserAgent)
+	computeService := DEPRECATED_LegacyApiaryClient(config, config.UserAgent)
 	if computeService == nil {
 		return ""
 	}
@@ -327,7 +327,7 @@ func BootstrapComputeStoragePool(t *testing.T, storagePoolName, storagePoolType 
 		t.Fatal("Could not bootstrap config.")
 	}
 
-	computeService := NewClient(config, config.UserAgent)
+	computeService := DEPRECATED_LegacyApiaryClient(config, config.UserAgent)
 	if computeService == nil {
 		t.Fatal("Could not create compute client.")
 	}

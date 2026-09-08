@@ -1040,7 +1040,7 @@ func expandComputeRouteNextHopInstance(v interface{}, d tpgresource.TerraformRes
 		return nil, err
 	}
 
-	nextInstance, err := NewClient(config, userAgent).Instances.Get(val.Project, val.Zone, val.Name).Do()
+	nextInstance, err := DEPRECATED_LegacyApiaryClient(config, userAgent).Instances.Get(val.Project, val.Zone, val.Name).Do()
 	if err != nil {
 		return nil, err
 	}
