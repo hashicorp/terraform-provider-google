@@ -1,7 +1,7 @@
 ## 8.2.0 (Unreleased)
 
 NOTES:
-* compute: migrate data_source_google_compute_subnetworks.go source to use direct HTTP rather than a client library ([#29226](https://github.com/hashicorp/terraform-provider-google/pull/29226))
+* compute: migrate `google_compute_subnetworks` data source to use direct HTTP rather than a client library ([#29226](https://github.com/hashicorp/terraform-provider-google/pull/29226))
 
 FEATURES:
 * **New List Resource:** `google_appengine_domain_mapping` ([#29174](https://github.com/hashicorp/terraform-provider-google/pull/29174))
@@ -36,18 +36,18 @@ FEATURES:
 * **New List Resource:** `google_vertexai_persistent_resource` ([#29147](https://github.com/hashicorp/terraform-provider-google/pull/29147))
 * **New List Resource:** `google_vertexai_reasoning_engine` ([#29147](https://github.com/hashicorp/terraform-provider-google/pull/29147))
 * **New List Resource:** `google_vertexai_tensorboard` ([#29147](https://github.com/hashicorp/terraform-provider-google/pull/29147))
-* **New Resource:** `google_biglake_hive_catalog` (ga) ([#29223](https://github.com/hashicorp/terraform-provider-google/pull/29223))
-* **New Resource:** `google_biglake_hive_database` (ga) ([#29223](https://github.com/hashicorp/terraform-provider-google/pull/29223))
-* **New Resource:** `google_biglake_hive_table` (ga) ([#29223](https://github.com/hashicorp/terraform-provider-google/pull/29223))
+* **New Resource:** `google_biglake_hive_catalog` ([#29223](https://github.com/hashicorp/terraform-provider-google/pull/29223))
+* **New Resource:** `google_biglake_hive_database` ([#29223](https://github.com/hashicorp/terraform-provider-google/pull/29223))
+* **New Resource:** `google_biglake_hive_table` ([#29223](https://github.com/hashicorp/terraform-provider-google/pull/29223))
 * **New Resource:** `google_bigquery_data_transfer_data_source_enrollment` ([#29140](https://github.com/hashicorp/terraform-provider-google/pull/29140))
 * **New Resource:** `google_chronicle_case_close_definition` ([#29228](https://github.com/hashicorp/terraform-provider-google/pull/29228))
 * **New Resource:** `google_chronicle_case_tag_definition` ([#29236](https://github.com/hashicorp/terraform-provider-google/pull/29236))
-* **New Resource:** `google_observability_bucket` (ga) ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
-* **New Resource:** `google_observability_folder_settings` (ga) ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
+* **New Resource:** `google_observability_bucket` ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
+* **New Resource:** `google_observability_folder_settings` ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
 * **New Resource:** `google_observability_link` ([#29161](https://github.com/hashicorp/terraform-provider-google/pull/29161))
-* **New Resource:** `google_observability_link` (ga) ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
-* **New Resource:** `google_observability_organization_settings` (ga) ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
-* **New Resource:** `google_observability_project_settings` (ga) ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
+* **New Resource:** `google_observability_link` ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
+* **New Resource:** `google_observability_organization_settings` ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
+* **New Resource:** `google_observability_project_settings` ([#29225](https://github.com/hashicorp/terraform-provider-google/pull/29225))
 * **New Resource:** `google_service_usage_v2_consumer_policy` ([#29222](https://github.com/hashicorp/terraform-provider-google/pull/29222))
 * **New Resource:** `google_storage_ftp_user`,  `google_storage_ftp_server` ([#29155](https://github.com/hashicorp/terraform-provider-google/pull/29155))
 
@@ -66,14 +66,13 @@ IMPROVEMENTS:
 * storageftp: added `labels` field to `google_storage_ftp_server` ([#29173](https://github.com/hashicorp/terraform-provider-google/pull/29173))
 * storageftp: added `labels` field to `google_storage_ftp_user` ([#29172](https://github.com/hashicorp/terraform-provider-google/pull/29172))
 * vertexai: added `audio_transcription` field to `google_vertex_ai_reasoning_engine` resource ([#29144](https://github.com/hashicorp/terraform-provider-google/pull/29144))
-* vertexai: added `context_spec` field to `google_vertex_ai_reasoning_engine` (ga) ([#29139](https://github.com/hashicorp/terraform-provider-google/pull/29139))
+* vertexai: added `context_spec` field to `google_vertex_ai_reasoning_engine` ([#29139](https://github.com/hashicorp/terraform-provider-google/pull/29139))
 
 BUG FIXES:
 * alloydb: fixed permadiff on `network_config` for `google_alloydb_instance` when `enable_public_ip` is set to `false` ([#29157](https://github.com/hashicorp/terraform-provider-google/pull/29157))
 * apigee: fixed an issue where concurrently creating `google_apigee_endpoint_attachment`, `google_apigee_instance_attachment`, `google_apigee_envgroup_attachment`, `google_apigee_environment`, `google_apigee_envgroup` or `google_apigee_nat_address` resources could fail with a 400 error stating the resource is locked by another operation ([#29175](https://github.com/hashicorp/terraform-provider-google/pull/29175))
-* colab: fixed an issue in `google_colab_schedule` where `notebookExecutionJob.workbench_runtime` could not be configured with an empty value ([#29177](https://github.com/hashicorp/terraform-provider-google/pull/29177))
-* compute: fix permadiff regression when iap is omitted ([#29156](https://github.com/hashicorp/terraform-provider-google/pull/29156))
-* compute: updated examples to use `debian-13` in place of `debian-11` ([#29182](https://github.com/hashicorp/terraform-provider-google/pull/29182))
+* colab: fixed an issue in `google_colab_schedule` where `notebook_execution_job.workbench_runtime` could not be configured with an empty value ([#29177](https://github.com/hashicorp/terraform-provider-google/pull/29177))
+* compute: fix permadiff regression on `google_compute_backend_service` when iap is omitted ([#29156](https://github.com/hashicorp/terraform-provider-google/pull/29156))
 * dataproc: fixed schema validation error when configuring `disk_config` under `cluster_config.preemptible_worker_config` on `google_dataproc_cluster` ([#29158](https://github.com/hashicorp/terraform-provider-google/pull/29158))
 * gkehub: fixed issue the prevented `workloadidentity` and `fleetobservability` fields being set to empty values in the `google_gke_hub_feature` resource ([#29145](https://github.com/hashicorp/terraform-provider-google/pull/29145))
 * storage: fixed a bug in `data.google_storage_object_signed_url` where an `extension_headers` name that was not all lowercase had its value dropped from the signature ([#29138](https://github.com/hashicorp/terraform-provider-google/pull/29138))
