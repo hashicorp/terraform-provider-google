@@ -7,10 +7,37 @@ api_service_name: bigquerydatatransfer.googleapis.com
 api_version: v1
 api_resource_type_kind: DataSource
 fields:
+    - api_field: authorizationType
+    - api_field: clientId
+    - api_field: dataRefreshType
     - field: data_source_id
       provider_only: true
+    - api_field: defaultDataRefreshWindowDays
+    - api_field: defaultSchedule
+    - api_field: description
     - api_field: displayName
+    - api_field: helpUrl
+    - api_field: manualRunsDisabled
+    - api_field: minimumScheduleInterval
+    - api_field: name
+    - api_field: parameters.allowedValues
+    - api_field: parameters.deprecated
+    - api_field: parameters.description
+    - api_field: parameters.displayName
+    - api_field: parameters.immutable
+    - api_field: parameters.maxListSize
+    - api_field: parameters.maxValue
+    - api_field: parameters.minValue
+    - api_field: parameters.paramId
+    - api_field: parameters.required
+    - api_field: parameters.type
+    - api_field: parameters.validationDescription
+    - api_field: parameters.validationHelpUrl
+    - api_field: parameters.validationRegex
+    - api_field: scopes
+    - api_field: supportsCustomSchedule
     - field: unenroll_location
       provider_only: true
+    - api_field: updateDeadlineSeconds
     - field: deletion_policy
       provider_only: true
