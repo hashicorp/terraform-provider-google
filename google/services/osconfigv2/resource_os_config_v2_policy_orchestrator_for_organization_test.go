@@ -57,10 +57,11 @@ func TestAccOSConfigV2PolicyOrchestratorForOrganization_basic(t *testing.T) {
 				Config: testAccOSConfigV2PolicyOrchestratorForOrganization_basic(context),
 			},
 			{
-				ResourceName:            "google_os_config_v2_policy_orchestrator_for_organization.policy_orchestrator_for_organization",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "organization_id", "policy_orchestrator_id", "terraform_labels"},
+				ResourceName:      "google_os_config_v2_policy_orchestrator_for_organization.policy_orchestrator_for_organization",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// orchestration_state contains dynamic status fields (e.g. performed_actions, progress) that advance asynchronously in the background as the orchestrator runs.
+				ImportStateVerifyIgnore: []string{"labels", "orchestration_state", "organization_id", "policy_orchestrator_id", "terraform_labels"},
 			},
 		},
 	})
