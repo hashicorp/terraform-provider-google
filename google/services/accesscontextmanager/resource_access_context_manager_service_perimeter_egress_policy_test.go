@@ -421,3 +421,135 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 }
 `, org, policyTitle, perimeterTitleName, perimeterTitleName)
 }
+
+// This is a regression test for https://github.com/hashicorp/terraform-provider-google/issues/29005
+func testAccAccessContextManagerServicePerimeterEgressPolicy_parentPerimeterUpdateTest(t *testing.T) {
+	org := envvar.GetTestOrgFromEnv(t)
+	projects := BootstrapServicePerimeterProjects(t, 7)
+
+	policyTitle := acctest.RandString(t, 10)
+	perimeterTitle := "perimeter"
+
+	perimeterProject := projects[0].ProjectNumber
+	var egressProjects []int64
+	for i := 1; i <= 6; i++ {
+		egressProjects = append(egressProjects, projects[i].ProjectNumber)
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_parentPerimeterUpdate_step(org, policyTitle, perimeterTitle, "", egressProjects),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_access_context_manager_service_perimeter_egress_policy.test-access1", "egress_to.0.resources.#", "6"),
+				),
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_parentPerimeterUpdate_step(org, policyTitle, perimeterTitle, fmt.Sprintf(`["projects/%d"]`, perimeterProject), egressProjects),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_access_context_manager_service_perimeter.test-access",
+							plancheck.ResourceActionUpdate,
+						),
+						plancheck.ExpectResourceAction(
+							"google_access_context_manager_service_perimeter_egress_policy.test-access1",
+							plancheck.ResourceActionNoop,
+						),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_access_context_manager_service_perimeter.test-access", "status.0.resources.#", "1"),
+					resource.TestCheckResourceAttr("google_access_context_manager_service_perimeter_egress_policy.test-access1", "egress_to.0.resources.#", "6"),
+				),
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_parentPerimeterUpdate_step(org, policyTitle, perimeterTitle, fmt.Sprintf(`["projects/%d"]`, perimeterProject), egressProjects[:5]),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(
+							"google_access_context_manager_service_perimeter.test-access",
+							plancheck.ResourceActionNoop,
+						),
+						plancheck.ExpectResourceAction(
+							"google_access_context_manager_service_perimeter_egress_policy.test-access1",
+							plancheck.ResourceActionUpdate,
+						),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_access_context_manager_service_perimeter_egress_policy.test-access1", "egress_to.0.resources.#", "5"),
+				),
+			},
+			{
+				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_parentPerimeterUpdate_base(org, policyTitle, perimeterTitle, fmt.Sprintf(`["projects/%d"]`, perimeterProject)),
+				Check:  testAccCheckAccessContextManagerServicePerimeterEgressPolicyDestroyProducer(t),
+			},
+		},
+	})
+}
+
+func formatProjectsHCL(projectNumbers []int64) string {
+	var formatted []string
+	for _, num := range projectNumbers {
+		formatted = append(formatted, fmt.Sprintf(`"projects/%d"`, num))
+	}
+	return strings.Join(formatted, ",\n      ")
+}
+
+func testAccAccessContextManagerServicePerimeterEgressPolicy_parentPerimeterUpdate_base(org, policyTitle, perimeterTitleName, perimeterResources string) string {
+	resourcesBlock := ""
+	if perimeterResources != "" {
+		resourcesBlock = fmt.Sprintf("resources = %s", perimeterResources)
+	}
+	return fmt.Sprintf(`
+resource "google_access_context_manager_access_policy" "test-access" {
+  parent = "organizations/%s"
+  title  = "%s"
+}
+
+resource "google_access_context_manager_service_perimeter" "test-access" {
+  parent         = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name           = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/servicePerimeters/%s"
+  title          = "%s"
+  status {
+    restricted_services = ["storage.googleapis.com"]
+    %s
+  }
+
+  lifecycle {
+    ignore_changes = [
+      status[0].egress_policies,
+      status[0].ingress_policies,
+    ]
+  }
+}
+`, org, policyTitle, perimeterTitleName, perimeterTitleName, resourcesBlock)
+}
+
+func testAccAccessContextManagerServicePerimeterEgressPolicy_parentPerimeterUpdate_step(org, policyTitle, perimeterTitleName string, perimeterResources string, egressProjects []int64) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_access_context_manager_service_perimeter_egress_policy" "test-access1" {
+  perimeter = google_access_context_manager_service_perimeter.test-access.name
+  title     = "egress policy update test"
+  egress_from {
+    identity_type = "ANY_USER_ACCOUNT"
+  }
+  egress_to {
+    resources = [
+      %s,
+    ]
+    operations {
+      service_name = "storage.googleapis.com"
+      method_selectors {
+        method = "google.storage.objects.get"
+      }
+    }
+  }
+}
+`, testAccAccessContextManagerServicePerimeterEgressPolicy_parentPerimeterUpdate_base(org, policyTitle, perimeterTitleName, perimeterResources), formatProjectsHCL(egressProjects))
+}

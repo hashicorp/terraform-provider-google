@@ -1311,6 +1311,11 @@ bet set to True if any of the fields in the spec are set to non-default values.`
 				Computed:    true,
 				Description: `Time the AccessPolicy was created in UTC.`,
 			},
+			"etag": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The etag for the version of the ServicePerimeter that this request is based on.`,
+			},
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1353,6 +1358,12 @@ func resourceAccessContextManagerServicePerimeterCreate(d *schema.ResourceData, 
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	etagProp, err := expandAccessContextManagerServicePerimeterEtag(d.Get("etag"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
+		obj["etag"] = etagProp
 	}
 	perimeterTypeProp, err := expandAccessContextManagerServicePerimeterPerimeterType(d.Get("perimeter_type"), d, config)
 	if err != nil {
@@ -1577,6 +1588,12 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	etagProp, err := expandAccessContextManagerServicePerimeterEtag(d.Get("etag"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, etagProp)) {
+		obj["etag"] = etagProp
+	}
 	statusProp, err := expandAccessContextManagerServicePerimeterStatus(d.Get("status"), d, config)
 	if err != nil {
 		return err
@@ -1625,6 +1642,10 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 		updateMask = append(updateMask, "description")
 	}
 
+	if d.HasChange("etag") {
+		updateMask = append(updateMask, "etag")
+	}
+
 	if d.HasChange("status") {
 		updateMask = append(updateMask, "status")
 	}
@@ -1638,6 +1659,77 @@ func resourceAccessContextManagerServicePerimeterUpdate(d *schema.ResourceData, 
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	newUpdateMask := []string{}
+	for _, mask := range updateMask {
+		switch mask {
+		case "status":
+			statusSubfieldsChanged := false
+			if d.HasChange("status.0.resources") {
+				newUpdateMask = append(newUpdateMask, "status.resources")
+				statusSubfieldsChanged = true
+			}
+			if d.HasChange("status.0.access_levels") {
+				newUpdateMask = append(newUpdateMask, "status.accessLevels")
+				statusSubfieldsChanged = true
+			}
+			if d.HasChange("status.0.restricted_services") {
+				newUpdateMask = append(newUpdateMask, "status.restrictedServices")
+				statusSubfieldsChanged = true
+			}
+			if d.HasChange("status.0.vpc_accessible_services") {
+				newUpdateMask = append(newUpdateMask, "status.vpcAccessibleServices")
+				statusSubfieldsChanged = true
+			}
+			if d.HasChange("status.0.ingress_policies") {
+				newUpdateMask = append(newUpdateMask, "status.ingressPolicies")
+				statusSubfieldsChanged = true
+			}
+			if d.HasChange("status.0.egress_policies") {
+				newUpdateMask = append(newUpdateMask, "status.egressPolicies")
+				statusSubfieldsChanged = true
+			}
+			if !statusSubfieldsChanged {
+				newUpdateMask = append(newUpdateMask, "status")
+			}
+		case "spec":
+			specSubfieldsChanged := false
+			if d.HasChange("spec.0.resources") {
+				newUpdateMask = append(newUpdateMask, "spec.resources")
+				specSubfieldsChanged = true
+			}
+			if d.HasChange("spec.0.access_levels") {
+				newUpdateMask = append(newUpdateMask, "spec.accessLevels")
+				specSubfieldsChanged = true
+			}
+			if d.HasChange("spec.0.restricted_services") {
+				newUpdateMask = append(newUpdateMask, "spec.restrictedServices")
+				specSubfieldsChanged = true
+			}
+			if d.HasChange("spec.0.vpc_accessible_services") {
+				newUpdateMask = append(newUpdateMask, "spec.vpcAccessibleServices")
+				specSubfieldsChanged = true
+			}
+			if d.HasChange("spec.0.ingress_policies") {
+				newUpdateMask = append(newUpdateMask, "spec.ingressPolicies")
+				specSubfieldsChanged = true
+			}
+			if d.HasChange("spec.0.egress_policies") {
+				newUpdateMask = append(newUpdateMask, "spec.egressPolicies")
+				specSubfieldsChanged = true
+			}
+			if !specSubfieldsChanged {
+				newUpdateMask = append(newUpdateMask, "spec")
+			}
+		default:
+			newUpdateMask = append(newUpdateMask, mask)
+		}
+	}
+	updateMask = newUpdateMask
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
@@ -1772,6 +1864,10 @@ func flattenAccessContextManagerServicePerimeterCreateTime(v interface{}, d *sch
 }
 
 func flattenAccessContextManagerServicePerimeterUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerServicePerimeterEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2840,6 +2936,10 @@ func expandAccessContextManagerServicePerimeterTitle(v interface{}, d tpgresourc
 }
 
 func expandAccessContextManagerServicePerimeterDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerServicePerimeterEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -4525,6 +4625,9 @@ func ResourceAccessContextManagerServicePerimeterFlatten(d *schema.ResourceData,
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
 	if err = d.Set("update_time", flattenAccessContextManagerServicePerimeterUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
+	}
+	if err = d.Set("etag", flattenAccessContextManagerServicePerimeterEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServicePerimeter: %s", err)
 	}
 	if err = d.Set("perimeter_type", flattenAccessContextManagerServicePerimeterPerimeterType(res["perimeterType"], d, config)); err != nil {

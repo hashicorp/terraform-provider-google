@@ -1,0 +1,12 @@
+```release-note:enhancement
+accesscontextmanager: added `etag` field to `google_access_context_manager_service_perimeter`
+```
+
+
+```release-note:bug
+accesscontextmanager: fixed sending of `etag` on update requests for `google_access_context_manager_service_perimeter_egress_policy` and `google_access_context_manager_service_perimeter_ingress_policy` to prevent concurrent requests from impacting each other
+```
+
+```release-note:bug
+accesscontextmanager: fixed bug in `google_access_context_manager_service_perimeter` where changes to the status / spec fields could cause updates to related ingress/egress policies even if those fields weren't specified on `google_access_context_manager_service_perimeter`
+```

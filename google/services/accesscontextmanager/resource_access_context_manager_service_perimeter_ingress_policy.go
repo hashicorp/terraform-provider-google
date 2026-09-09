@@ -479,7 +479,7 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyCreate(d *schema.R
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}?updateMask=status.ingressPolicies")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}")
 	if err != nil {
 		return err
 	}
@@ -701,7 +701,7 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyUpdate(d *schema.R
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}?updateMask=status.ingressPolicies")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}")
 	if err != nil {
 		return err
 	}
@@ -710,6 +710,21 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyUpdate(d *schema.R
 	headers := make(http.Header)
 
 	obj, err = resourceAccessContextManagerServicePerimeterIngressPolicyPatchUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
+	}
+	etag := d.Get("etag").(string)
+
+	if etag == "" {
+		log.Printf("[ERROR] Unable to get etag: %s", err)
+		return nil
+	}
+	obj["etag"] = etag
+
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	updateMask := []string{"status.ingressPolicies", "etag"}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
 	}
@@ -769,7 +784,7 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyDelete(d *schema.R
 	}
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}?updateMask=status.ingressPolicies")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}")
 	if err != nil {
 		return err
 	}
