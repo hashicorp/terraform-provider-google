@@ -54,6 +54,11 @@ func init() {
 		Type:        registry.SchemaTypeIAMResource,
 		Schema:      NewPubsubTopicIamMemberResource(),
 	}.Register()
+	registry.FrameworkListResource{
+		Name:        "google_pubsub_topic_iam_member",
+		ProductName: "Pubsub",
+		Func:        NewPubsubTopicIamMemberListResource,
+	}.Register()
 	registry.Schema{
 		Name:        "google_pubsub_topic_iam_policy",
 		ProductName: "Pubsub",
