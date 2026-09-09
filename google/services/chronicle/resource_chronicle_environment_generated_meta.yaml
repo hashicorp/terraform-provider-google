@@ -10,6 +10,7 @@ autogen_status: true
 autogen_version: 1
 fields:
     - api_field: aliasesJson
+    - api_field: base64Image
     - api_field: contact
     - api_field: contactEmails
     - api_field: contactPhone
@@ -18,12 +19,17 @@ fields:
       provider_only: true
     - api_field: description
     - api_field: displayName
+    - api_field: dynamicParameters.dynamicParameterId
+    - api_field: dynamicParameters.environmentId
+    - api_field: dynamicParameters.value
     - api_field: environmentId
     - field: instance
       provider_only: true
+    - api_field: instanceUri
     - field: location
       provider_only: true
     - api_field: name
     - api_field: retentionDuration
+    - api_field: weight
     - field: deletion_policy
       provider_only: true
