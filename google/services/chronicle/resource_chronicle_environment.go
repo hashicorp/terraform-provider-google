@@ -199,10 +199,52 @@ MAX_NAME_LENGTH = 256`,
 				Optional:    true,
 				Description: `Environment nicknames.`,
 			},
+			"base64_image": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Environment icon.`,
+			},
 			"data_access_scopes_json": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `data access scopes.`,
+			},
+			"dynamic_parameters": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Additional custom properties for enriching the environment.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dynamic_parameter_id": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `The ID of the dynamic parameter.`,
+						},
+						"value": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The value of the dynamic parameter.`,
+						},
+						"environment_id": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The ID of the environment.`,
+						},
+					},
+				},
+			},
+			"instance_uri": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `URL of the environment. Used to route UI links to the correct SIEM instance
+when making cross-SecOps requests from SOAR.`,
+			},
+			"weight": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Description: `The weight of the environment, enabling customers to control distribution
+of resources between the separate environments in a single instance of
+Chronicle SOAR.`,
 			},
 			"environment_id": {
 				Type:        schema.TypeString,
@@ -300,6 +342,30 @@ func resourceChronicleEnvironmentCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("retention_duration"); !tpgresource.IsEmptyValue(reflect.ValueOf(retentionDurationProp)) && (ok || !reflect.DeepEqual(v, retentionDurationProp)) {
 		obj["retentionDuration"] = retentionDurationProp
+	}
+	base64ImageProp, err := expandChronicleEnvironmentBase64Image(d.Get("base64_image"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("base64_image"); !tpgresource.IsEmptyValue(reflect.ValueOf(base64ImageProp)) && (ok || !reflect.DeepEqual(v, base64ImageProp)) {
+		obj["base64Image"] = base64ImageProp
+	}
+	dynamicParametersProp, err := expandChronicleEnvironmentDynamicParameters(d.Get("dynamic_parameters"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dynamic_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(dynamicParametersProp)) && (ok || !reflect.DeepEqual(v, dynamicParametersProp)) {
+		obj["dynamicParameters"] = dynamicParametersProp
+	}
+	instanceUriProp, err := expandChronicleEnvironmentInstanceUri(d.Get("instance_uri"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(instanceUriProp)) && (ok || !reflect.DeepEqual(v, instanceUriProp)) {
+		obj["instanceUri"] = instanceUriProp
+	}
+	weightProp, err := expandChronicleEnvironmentWeight(d.Get("weight"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("weight"); !tpgresource.IsEmptyValue(reflect.ValueOf(weightProp)) && (ok || !reflect.DeepEqual(v, weightProp)) {
+		obj["weight"] = weightProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/environments")
@@ -570,6 +636,30 @@ func resourceChronicleEnvironmentUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("data_access_scopes_json"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dataAccessScopesJsonProp)) {
 		obj["dataAccessScopesJson"] = dataAccessScopesJsonProp
 	}
+	base64ImageProp, err := expandChronicleEnvironmentBase64Image(d.Get("base64_image"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("base64_image"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, base64ImageProp)) {
+		obj["base64Image"] = base64ImageProp
+	}
+	dynamicParametersProp, err := expandChronicleEnvironmentDynamicParameters(d.Get("dynamic_parameters"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dynamic_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dynamicParametersProp)) {
+		obj["dynamicParameters"] = dynamicParametersProp
+	}
+	instanceUriProp, err := expandChronicleEnvironmentInstanceUri(d.Get("instance_uri"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceUriProp)) {
+		obj["instanceUri"] = instanceUriProp
+	}
+	weightProp, err := expandChronicleEnvironmentWeight(d.Get("weight"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("weight"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, weightProp)) {
+		obj["weight"] = weightProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/environments/{{environment_id}}")
 	if err != nil {
@@ -602,6 +692,22 @@ func resourceChronicleEnvironmentUpdate(d *schema.ResourceData, meta interface{}
 
 	if d.HasChange("data_access_scopes_json") {
 		updateMask = append(updateMask, "dataAccessScopesJson")
+	}
+
+	if d.HasChange("base64_image") {
+		updateMask = append(updateMask, "base64Image")
+	}
+
+	if d.HasChange("dynamic_parameters") {
+		updateMask = append(updateMask, "dynamicParameters")
+	}
+
+	if d.HasChange("instance_uri") {
+		updateMask = append(updateMask, "instanceUri")
+	}
+
+	if d.HasChange("weight") {
+		updateMask = append(updateMask, "weight")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -771,6 +877,90 @@ func flattenChronicleEnvironmentRetentionDuration(v interface{}, d *schema.Resou
 	return v // let terraform core handle it otherwise
 }
 
+func flattenChronicleEnvironmentBase64Image(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenChronicleEnvironmentDynamicParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"value":                flattenChronicleEnvironmentDynamicParametersValue(original["value"], d, config),
+			"dynamic_parameter_id": flattenChronicleEnvironmentDynamicParametersDynamicParameterId(original["dynamicParameterId"], d, config),
+			"environment_id":       flattenChronicleEnvironmentDynamicParametersEnvironmentId(original["environmentId"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenChronicleEnvironmentDynamicParametersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenChronicleEnvironmentDynamicParametersDynamicParameterId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenChronicleEnvironmentDynamicParametersEnvironmentId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenChronicleEnvironmentInstanceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenChronicleEnvironmentWeight(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenChronicleEnvironmentEnvironmentId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	parts := strings.Split(d.Get("name").(string), "/")
 	return parts[len(parts)-1]
@@ -805,6 +995,69 @@ func expandChronicleEnvironmentDataAccessScopesJson(v interface{}, d tpgresource
 }
 
 func expandChronicleEnvironmentRetentionDuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandChronicleEnvironmentBase64Image(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandChronicleEnvironmentDynamicParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedValue, err := expandChronicleEnvironmentDynamicParametersValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		transformedDynamicParameterId, err := expandChronicleEnvironmentDynamicParametersDynamicParameterId(original["dynamic_parameter_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDynamicParameterId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dynamicParameterId"] = transformedDynamicParameterId
+		}
+
+		transformedEnvironmentId, err := expandChronicleEnvironmentDynamicParametersEnvironmentId(original["environment_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEnvironmentId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["environmentId"] = transformedEnvironmentId
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandChronicleEnvironmentDynamicParametersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandChronicleEnvironmentDynamicParametersDynamicParameterId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandChronicleEnvironmentDynamicParametersEnvironmentId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandChronicleEnvironmentInstanceUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandChronicleEnvironmentWeight(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -848,6 +1101,18 @@ func ResourceChronicleEnvironmentFlatten(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
 	if err = d.Set("retention_duration", flattenChronicleEnvironmentRetentionDuration(res["retentionDuration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err = d.Set("base64_image", flattenChronicleEnvironmentBase64Image(res["base64Image"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err = d.Set("dynamic_parameters", flattenChronicleEnvironmentDynamicParameters(res["dynamicParameters"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err = d.Set("instance_uri", flattenChronicleEnvironmentInstanceUri(res["instanceUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err = d.Set("weight", flattenChronicleEnvironmentWeight(res["weight"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
 	if err = d.Set("environment_id", flattenChronicleEnvironmentEnvironmentId(res["environmentId"], d, config)); err != nil {

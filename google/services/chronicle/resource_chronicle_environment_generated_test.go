@@ -129,6 +129,14 @@ resource "google_chronicle_environment" "sample" {
   data_access_scopes_json = jsonencode([])
   retention_duration = 3
 
+  base64_image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABHNCSVQICAgIfAhkiAAAAA1JREFUCJljYPjPUA8AA4EBf4abPZ0AAAAASUVORK5CYII="
+  dynamic_parameters {
+    dynamic_parameter_id = 123
+    value = "value1"
+  }
+  instance_uri = "https://test.backstory.chronicle.security?foo=bar"
+  weight = 1
+
   deletion_protection  = false
 }
 `, context)
@@ -148,6 +156,14 @@ resource "google_chronicle_environment" "sample" {
   aliases_json            = jsonencode([])
   data_access_scopes_json = jsonencode([])
   retention_duration = 3
+
+  base64_image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABHNCSVQICAgIfAhkiAAAAA1JREFUCJljYPjPUA8AA4EBf4abPZ0AAAAASUVORK5CYII="
+  dynamic_parameters {
+    dynamic_parameter_id = 123
+    value = "value2"
+  }
+  instance_uri = "https://test.backstory.chronicle.security?foo=baz"
+  weight = 2
 
   deletion_protection  = false
 }
