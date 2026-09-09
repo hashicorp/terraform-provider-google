@@ -1,0 +1,3 @@
+```release-note:bug
+provider: added validation to reject more than one `external_credentials` or `batching` block, matching the existing SDK behavior
+```
