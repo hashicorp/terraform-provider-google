@@ -92,10 +92,111 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/dataSources/{{data_source_id}}`
 
+* `name` -
+  The resource name of the data source.
+
 * `display_name` -
   User friendly name of the enrolled data source, for example
   `Google Cloud Carbon Footprint Exports`.
 
+* `description` -
+  User friendly data source description string.
+
+* `client_id` -
+  Data source client id which should be used to receive refresh token.
+
+* `scopes` -
+  Api auth scopes for which refresh token needs to be obtained.
+
+* `update_deadline_seconds` -
+  The number of seconds to wait for a transfer to start before declaring the failure.
+
+* `default_schedule` -
+  Default data transfer schedule.
+
+* `supports_custom_schedule` -
+  Specifies whether the data source supports a user defined schedule.
+
+* `parameters` -
+  Data source parameters.
+  Structure is [documented below](#nested_parameters).
+
+* `help_url` -
+  Url to the documentation about the data source.
+
+* `authorization_type` -
+  Indicates the type of authorization.
+
+* `data_refresh_type` -
+  Data refresh type.
+
+* `default_data_refresh_window_days` -
+  Default data refresh window on days.
+
+* `manual_runs_disabled` -
+  Disables support for manual transfer runs.
+
+* `minimum_schedule_interval` -
+  The minimum interval between two scheduled runs.
+
+
+<a name="nested_parameters"></a>The `parameters` block contains:
+
+* `param_id` -
+  (Output)
+  Parameter identifier.
+
+* `display_name` -
+  (Output)
+  User friendly parameter name.
+
+* `description` -
+  (Output)
+  Parameter description.
+
+* `type` -
+  (Output)
+  Parameter type.
+
+* `required` -
+  (Output)
+  Is parameter required.
+
+* `validation_regex` -
+  (Output)
+  Regular expression which can be used for parameter validation.
+
+* `allowed_values` -
+  (Output)
+  All possible values for parameters with fixed list of options.
+
+* `min_value` -
+  (Output)
+  For integer and double values specifies minimum allowed value.
+
+* `max_value` -
+  (Output)
+  For integer and double values specifies maximum allowed value.
+
+* `validation_description` -
+  (Output)
+  Description of the requirements for this field, in case the user input does not fulfill the regex.
+
+* `validation_help_url` -
+  (Output)
+  URL to a help document to further explain the naming requirements.
+
+* `immutable` -
+  (Output)
+  Cannot be changed after initial transfer config creation. Applies only to custom data sources.
+
+* `deprecated` -
+  (Output)
+  If true, it should not be used in new transfers, and it should not be visible to users.
+
+* `max_list_size` -
+  (Output)
+  For list parameters, the max size of the list.
 
 ## Timeouts
 
