@@ -235,6 +235,26 @@ resource "google_ces_agent" "ces_agent_basic" {
 
   child_agents = ["projects/${google_ces_app.ces_app_for_agent.project}/locations/us/apps/${google_ces_app.ces_app_for_agent.app_id}/agents/${google_ces_agent.ces_child_agent.agent_id}"]
 
+  transfer_rules {
+    child_agent = "projects/${google_ces_app.ces_app_for_agent.project}/locations/us/apps/${google_ces_app.ces_app_for_agent.app_id}/agents/${google_ces_agent.ces_child_agent.agent_id}"
+    direction   = "PARENT_TO_CHILD"
+    deterministic_transfer {
+      expression_condition {
+        expression = "true"
+      }
+    }
+  }
+
+  transfer_rules {
+    child_agent = "projects/${google_ces_app.ces_app_for_agent.project}/locations/us/apps/${google_ces_app.ces_app_for_agent.app_id}/agents/${google_ces_agent.ces_child_agent.agent_id}"
+    direction   = "PARENT_TO_CHILD"
+    disable_planner_transfer {
+      expression_condition {
+        expression = "false"
+      }
+    }
+  }
+
   llm_agent {}
 }
 `, context)
@@ -403,6 +423,16 @@ resource "google_ces_agent" "ces_agent_basic" {
   }
 
   child_agents = ["projects/${google_ces_app.ces_app_for_agent.project}/locations/us/apps/${google_ces_app.ces_app_for_agent.app_id}/agents/${google_ces_agent.ces_child_agent.agent_id}"]
+
+  transfer_rules {
+    child_agent = "projects/${google_ces_app.ces_app_for_agent.project}/locations/us/apps/${google_ces_app.ces_app_for_agent.app_id}/agents/${google_ces_agent.ces_child_agent.agent_id}"
+    direction   = "CHILD_TO_PARENT"
+    deterministic_transfer {
+      python_code_condition {
+        python_code = "def should_trigger_transfer_callback(callback_context): return True"
+      }
+    }
+  }
 
   llm_agent {}
 }

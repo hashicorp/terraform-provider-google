@@ -60,6 +60,11 @@ fields:
     - api_field: snapshot.agents.tools
     - api_field: snapshot.agents.toolsets.toolIds
     - api_field: snapshot.agents.toolsets.toolset
+    - api_field: snapshot.agents.transferRules.childAgent
+    - api_field: snapshot.agents.transferRules.deterministicTransfer.expressionCondition.expression
+    - api_field: snapshot.agents.transferRules.deterministicTransfer.pythonCodeCondition.pythonCode
+    - api_field: snapshot.agents.transferRules.direction
+    - api_field: snapshot.agents.transferRules.disablePlannerTransfer.expressionCondition.expression
     - api_field: snapshot.agents.updateTime
     - api_field: snapshot.app.audioProcessingConfig.ambientSoundConfig.gcsUri
     - api_field: snapshot.app.audioProcessingConfig.ambientSoundConfig.prebuiltAmbientSound
