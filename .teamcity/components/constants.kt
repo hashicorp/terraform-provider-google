@@ -39,6 +39,7 @@ const val SharedResourceNameVcr = "ci-test-project-188019 Service Lock"
 
 // Build configuration names referenced in multiple places
 const val ServiceSweeperName = "Service Sweeper"
+const val AllNightlyTestsName = "All Nightly Tests"
 const val ServiceSweeperCronName = "$ServiceSweeperName - Cron"
 const val ServiceSweeperManualName = "$ServiceSweeperName - Manual"
 const val GlobalSweepersProjectName = "Global Sweepers"
