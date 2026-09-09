@@ -59,19 +59,21 @@ func TestAccOSConfigV2PolicyOrchestrator_basic(t *testing.T) {
 				Config: testAccOSConfigV2PolicyOrchestrator_basic(context),
 			},
 			{
-				ResourceName:            "google_os_config_v2_policy_orchestrator.policy_orchestrator",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "policy_orchestrator_id", "terraform_labels"},
+				ResourceName:      "google_os_config_v2_policy_orchestrator.policy_orchestrator",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// orchestration_state contains dynamic status fields (e.g. performed_actions, progress) that advance asynchronously in the background as the orchestrator runs.
+				ImportStateVerifyIgnore: []string{"labels", "orchestration_state", "policy_orchestrator_id", "terraform_labels"},
 			},
 			{
 				Config: testAccOSConfigV2PolicyOrchestrator_update(context),
 			},
 			{
-				ResourceName:            "google_os_config_v2_policy_orchestrator.policy_orchestrator",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "policy_orchestrator_id", "terraform_labels"},
+				ResourceName:      "google_os_config_v2_policy_orchestrator.policy_orchestrator",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// orchestration_state contains dynamic status fields (e.g. performed_actions, progress) that advance asynchronously in the background as the orchestrator runs.
+				ImportStateVerifyIgnore: []string{"labels", "orchestration_state", "policy_orchestrator_id", "terraform_labels"},
 			},
 		},
 	})
