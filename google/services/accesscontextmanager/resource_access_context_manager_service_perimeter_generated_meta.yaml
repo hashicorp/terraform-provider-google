@@ -9,6 +9,7 @@ api_resource_type_kind: ServicePerimeter
 fields:
     - api_field: createTime
     - api_field: description
+    - api_field: etag
     - api_field: name
     - api_field: parent
     - api_field: perimeterType

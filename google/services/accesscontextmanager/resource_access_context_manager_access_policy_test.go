@@ -54,6 +54,7 @@ func TestAccAccessContextManager(t *testing.T) {
 		"service_perimeter_psc_endpoint":                  testAccAccessContextManagerServicePerimeter_pscEndpointTest,
 		"service_perimeter_egress_policy":                 testAccAccessContextManagerServicePerimeterEgressPolicy_basicTest,
 		"service_perimeter_egress_policy_update":          testAccAccessContextManagerServicePerimeterEgressPolicy_updateTest,
+		"service_perimeter_egress_policy_parent_update":   testAccAccessContextManagerServicePerimeterEgressPolicy_parentPerimeterUpdateTest,
 		"service_perimeter_dry_run_egress_policy":         testAccAccessContextManagerServicePerimeterDryRunEgressPolicy_basicTest,
 		"service_perimeter_dry_run_egress_policy_update":  testAccAccessContextManagerServicePerimeterDryRunEgressPolicy_updateTest,
 		"service_perimeter_egress_policy_psc_endpoint":    testAccAccessContextManagerServicePerimeterEgressPolicy_pscEndpointTest,

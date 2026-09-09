@@ -43,6 +43,9 @@ func testAccAccessContextManagerServicePerimeter_basicTest(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerServicePerimeter_basic(org, "my policy", "level", "perimeter"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_access_context_manager_service_perimeter.test-access", "etag"),
+				),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -64,6 +67,9 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAccessContextManagerServicePerimeter_basic(org, "my policy", "level", "perimeter"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_access_context_manager_service_perimeter.test-access", "etag"),
+				),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -72,6 +78,9 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 			},
 			{
 				Config: testAccAccessContextManagerServicePerimeter_update(org, "my policy", "level", "perimeter"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_access_context_manager_service_perimeter.test-access", "etag"),
+				),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
