@@ -149,19 +149,41 @@ type ListScopeCapture struct {
 	vars config.Variables
 }
 
+// ListScopeSource identifies where a list scope value is read from: an attribute
+// on a resource in state. Attr may differ from the scope name -  for example the
+// google_pubsub_topic_iam_member list scope "topic" reads googlee_pub_sub_topic.name
+type ListScopeSource struct {
+	Addr string
+	Attr string
+}
+
+// Capture reads each scope value from the attribute of the same name on the given
+// resource. Use CatureFrom when the attribute name differs from the scope name.
 func (c *ListScopeCapture) Capture(scopeToResource map[string]string) resource.TestCheckFunc {
+	sources := make(map[string]ListScopeSource, len(scopeToResource))
+	for scope, addr := range scopeToResource {
+		sources[scope] = ListScopeSource{
+			Addr: addr,
+			Attr: scope,
+		}
+	}
+	return c.CaptureFrom(sources)
+}
+
+// CaptureFrom reads each scope value from an explicitly named attribute.
+func (c *ListScopeCapture) CaptureFrom(scopeToSource map[string]ListScopeSource) resource.TestCheckFunc {
 	if c.vars == nil {
 		c.vars = config.Variables{}
 	}
 	return func(s *terraform.State) error {
-		for scope, addr := range scopeToResource {
-			rs, ok := s.RootModule().Resources[addr]
+		for scope, source := range scopeToSource {
+			rs, ok := s.RootModule().Resources[source.Addr]
 			if !ok {
-				return fmt.Errorf("list scope %q: resource %q not found in state", scope, addr)
+				return fmt.Errorf("list scope %q: resource %q not found in state", scope, source.Addr)
 			}
-			v, ok := rs.Primary.Attributes[scope]
+			v, ok := rs.Primary.Attributes[source.Attr]
 			if !ok || v == "" {
-				return fmt.Errorf("list scope %q: attribute %q on %s is empty", scope, scope, addr)
+				return fmt.Errorf("list scope %q: attribute %q on %s is empty", scope, source.Attr, source.Addr)
 			}
 			c.vars[scope] = config.StringVariable(v)
 		}
