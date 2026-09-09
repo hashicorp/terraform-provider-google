@@ -279,6 +279,12 @@ In addition to the arguments listed above, the following computed attributes are
   List of toolsets for the agent.
   Structure is [documented below](#nested_snapshot_agents_toolsets).
 
+* `transfer_rules` -
+  (Output)
+  List of transfer rules for the agent.
+  If multiple rules match, the first one in the list will be used.
+  Structure is [documented below](#nested_snapshot_agents_transfer_rules).
+
 * `update_time` -
   (Output)
   Timestamp when the agent was last updated.
@@ -433,6 +439,75 @@ In addition to the arguments listed above, the following computed attributes are
 * `tool_ids` -
   (Output)
   The tools IDs to filter the toolset.
+
+<a name="nested_snapshot_agents_transfer_rules"></a>The `transfer_rules` block contains:
+
+* `child_agent` -
+  (Output)
+  The resource name of the child agent the rule applies to.
+  Format: `projects/{project}/locations/{location}/apps/{app}/agents/{agent}`
+
+* `deterministic_transfer` -
+  (Output)
+  Deterministic transfer rule. When the condition evaluates to true, the
+  transfer occurs.
+  Structure is [documented below](#nested_snapshot_agents_transfer_rules_deterministic_transfer).
+
+* `direction` -
+  (Output)
+  The direction of the transfer.
+  Possible values:
+  * PARENT_TO_CHILD
+  * CHILD_TO_PARENT
+
+* `disable_planner_transfer` -
+  (Output)
+  A rule that prevents the planner from transferring to the target agent.
+  Structure is [documented below](#nested_snapshot_agents_transfer_rules_disable_planner_transfer).
+
+
+<a name="nested_snapshot_agents_transfer_rules_deterministic_transfer"></a>The `deterministic_transfer` block contains:
+
+* `expression_condition` -
+  (Output)
+  A rule that evaluates a session state condition. If the condition
+  evaluates to true, the transfer occurs.
+  Structure is [documented below](#nested_snapshot_agents_transfer_rules_deterministic_transfer_expression_condition).
+
+* `python_code_condition` -
+  (Output)
+  A rule that uses Python code block to evaluate the conditions. If the
+  condition evaluates to true, the transfer occurs.
+  Structure is [documented below](#nested_snapshot_agents_transfer_rules_deterministic_transfer_python_code_condition).
+
+
+<a name="nested_snapshot_agents_transfer_rules_deterministic_transfer_expression_condition"></a>The `expression_condition` block contains:
+
+* `expression` -
+  (Output)
+  The string representation of cloud.api.Expression condition.
+
+<a name="nested_snapshot_agents_transfer_rules_deterministic_transfer_python_code_condition"></a>The `python_code_condition` block contains:
+
+* `python_code` -
+  (Output)
+  The python code to execute. The function must be named
+  `should_trigger_transfer_callback`.
+
+<a name="nested_snapshot_agents_transfer_rules_disable_planner_transfer"></a>The `disable_planner_transfer` block contains:
+
+* `expression_condition` -
+  (Output)
+  If the condition evaluates to true, planner will not be allowed to
+  transfer to the target agent.
+  Structure is [documented below](#nested_snapshot_agents_transfer_rules_disable_planner_transfer_expression_condition).
+
+
+<a name="nested_snapshot_agents_transfer_rules_disable_planner_transfer_expression_condition"></a>The `expression_condition` block contains:
+
+* `expression` -
+  (Output)
+  The string representation of cloud.api.Expression condition.
 
 <a name="nested_snapshot_app"></a>The `app` block contains:
 

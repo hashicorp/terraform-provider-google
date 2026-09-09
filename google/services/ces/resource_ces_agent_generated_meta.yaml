@@ -53,6 +53,11 @@ fields:
     - api_field: tools
     - api_field: toolsets.toolIds
     - api_field: toolsets.toolset
+    - api_field: transferRules.childAgent
+    - api_field: transferRules.deterministicTransfer.expressionCondition.expression
+    - api_field: transferRules.deterministicTransfer.pythonCodeCondition.pythonCode
+    - api_field: transferRules.direction
+    - api_field: transferRules.disablePlannerTransfer.expressionCondition.expression
     - api_field: updateTime
     - field: deletion_policy
       provider_only: true

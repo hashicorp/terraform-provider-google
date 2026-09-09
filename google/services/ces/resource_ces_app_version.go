@@ -560,6 +560,95 @@ Format:
 											},
 										},
 									},
+									"transfer_rules": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Description: `List of transfer rules for the agent.
+If multiple rules match, the first one in the list will be used.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"child_agent": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The resource name of the child agent the rule applies to.
+Format: 'projects/{project}/locations/{location}/apps/{app}/agents/{agent}'`,
+												},
+												"deterministic_transfer": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Description: `Deterministic transfer rule. When the condition evaluates to true, the
+transfer occurs.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"expression_condition": {
+																Type:     schema.TypeList,
+																Computed: true,
+																Description: `A rule that evaluates a session state condition. If the condition
+evaluates to true, the transfer occurs.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"expression": {
+																			Type:        schema.TypeString,
+																			Computed:    true,
+																			Description: `The string representation of cloud.api.Expression condition.`,
+																		},
+																	},
+																},
+															},
+															"python_code_condition": {
+																Type:     schema.TypeList,
+																Computed: true,
+																Description: `A rule that uses Python code block to evaluate the conditions. If the
+condition evaluates to true, the transfer occurs.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"python_code": {
+																			Type:     schema.TypeString,
+																			Computed: true,
+																			Description: `The python code to execute. The function must be named
+'should_trigger_transfer_callback'.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"direction": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Description: `The direction of the transfer.
+Possible values:
+* PARENT_TO_CHILD
+* CHILD_TO_PARENT`,
+												},
+												"disable_planner_transfer": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `A rule that prevents the planner from transferring to the target agent.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"expression_condition": {
+																Type:     schema.TypeList,
+																Computed: true,
+																Description: `If the condition evaluates to true, planner will not be allowed to
+transfer to the target agent.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"expression": {
+																			Type:        schema.TypeString,
+																			Computed:    true,
+																			Description: `The string representation of cloud.api.Expression condition.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"update_time": {
 										Type:        schema.TypeString,
 										Computed:    true,
@@ -3859,6 +3948,7 @@ func flattenCESAppVersionSnapshotAgents(v interface{}, d *schema.ResourceData, c
 			"remote_dialogflow_agent": flattenCESAppVersionSnapshotAgentsRemoteDialogflowAgent(original["remoteDialogflowAgent"], d, config),
 			"tools":                   flattenCESAppVersionSnapshotAgentsTools(original["tools"], d, config),
 			"toolsets":                flattenCESAppVersionSnapshotAgentsToolsets(original["toolsets"], d, config),
+			"transfer_rules":          flattenCESAppVersionSnapshotAgentsTransferRules(original["transferRules"], d, config),
 			"update_time":             flattenCESAppVersionSnapshotAgentsUpdateTime(original["updateTime"], d, config),
 		})
 	}
@@ -4209,6 +4299,115 @@ func flattenCESAppVersionSnapshotAgentsToolsetsToolset(v interface{}, d *schema.
 }
 
 func flattenCESAppVersionSnapshotAgentsToolsetsToolIds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAgentsTransferRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"child_agent":              flattenCESAppVersionSnapshotAgentsTransferRulesChildAgent(original["childAgent"], d, config),
+			"deterministic_transfer":   flattenCESAppVersionSnapshotAgentsTransferRulesDeterministicTransfer(original["deterministicTransfer"], d, config),
+			"direction":                flattenCESAppVersionSnapshotAgentsTransferRulesDirection(original["direction"], d, config),
+			"disable_planner_transfer": flattenCESAppVersionSnapshotAgentsTransferRulesDisablePlannerTransfer(original["disablePlannerTransfer"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCESAppVersionSnapshotAgentsTransferRulesChildAgent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAgentsTransferRulesDeterministicTransfer(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expression_condition"] =
+		flattenCESAppVersionSnapshotAgentsTransferRulesDeterministicTransferExpressionCondition(original["expressionCondition"], d, config)
+	transformed["python_code_condition"] =
+		flattenCESAppVersionSnapshotAgentsTransferRulesDeterministicTransferPythonCodeCondition(original["pythonCodeCondition"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAgentsTransferRulesDeterministicTransferExpressionCondition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expression"] =
+		flattenCESAppVersionSnapshotAgentsTransferRulesDeterministicTransferExpressionConditionExpression(original["expression"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAgentsTransferRulesDeterministicTransferExpressionConditionExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAgentsTransferRulesDeterministicTransferPythonCodeCondition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["python_code"] =
+		flattenCESAppVersionSnapshotAgentsTransferRulesDeterministicTransferPythonCodeConditionPythonCode(original["pythonCode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAgentsTransferRulesDeterministicTransferPythonCodeConditionPythonCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAgentsTransferRulesDirection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppVersionSnapshotAgentsTransferRulesDisablePlannerTransfer(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expression_condition"] =
+		flattenCESAppVersionSnapshotAgentsTransferRulesDisablePlannerTransferExpressionCondition(original["expressionCondition"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAgentsTransferRulesDisablePlannerTransferExpressionCondition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expression"] =
+		flattenCESAppVersionSnapshotAgentsTransferRulesDisablePlannerTransferExpressionConditionExpression(original["expression"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESAppVersionSnapshotAgentsTransferRulesDisablePlannerTransferExpressionConditionExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
