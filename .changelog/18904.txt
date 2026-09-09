@@ -1,0 +1,11 @@
+```release-note:new-list-resource
+`google_firebase_android_app`
+```
+
+```release-note:new-list-resource
+`google_firebase_apple_app`
+```
+
+```release-note:new-list-resource
+`google_firebase_web_app`
+```
