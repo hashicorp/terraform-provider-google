@@ -545,6 +545,7 @@ resource "google_dataplex_datascan" "documentation" {
 
   data_documentation_spec {
     catalog_publishing_enabled = true
+    sql_dialect                = "GOOGLE_SQL"
   }
 
   project = "my-project-name"
@@ -1705,6 +1706,12 @@ The following arguments are supported:
 * `catalog_publishing_enabled` -
   (Optional)
   If set, the latest DataScan job result will be published to Knowledge Catalog.
+
+* `sql_dialect` -
+  (Optional)
+  The SQL dialect to use in the generated SQL queries.
+  If not specified, the default dialect is Google SQL.
+  Possible values are: `GOOGLE_SQL`, `SPARK_SQL`.
 
 ## Attributes Reference
 
