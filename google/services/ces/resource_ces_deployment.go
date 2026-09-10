@@ -178,7 +178,9 @@ TWILIO
 GOOGLE_TELEPHONY_PLATFORM
 CONTACT_CENTER_AS_A_SERVICE
 FIVE9
-CONTACT_CENTER_INTEGRATION`,
+CONTACT_CENTER_INTEGRATION
+WHATSAPP
+INSTAGRAM`,
 						},
 						"disable_barge_in_control": {
 							Type:     schema.TypeBool,
@@ -281,6 +283,46 @@ DARK`,
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: `The title of the web widget.`,
+									},
+								},
+							},
+						},
+						"whatsapp_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration specific to WhatsApp deployments.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"phone_number_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Required. The Meta phone number ID.`,
+									},
+									"waba_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Required. The WhatsApp Business Account ID.`,
+									},
+									"phone_number": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Optional. The phone number in E.164 format.`,
+									},
+									"description": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Output only. The description of the Meta business page or profile.`,
+									},
+									"display_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Output only. The fetched Meta business page name.`,
+									},
+									"thumbnail_url": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Output only. The fetched Meta business profile thumbnail URL.`,
 									},
 								},
 							},
@@ -910,6 +952,8 @@ func flattenCESDeploymentChannelProfile(v interface{}, d *schema.ResourceData, c
 		flattenCESDeploymentChannelProfileProfileId(original["profileId"], d, config)
 	transformed["web_widget_config"] =
 		flattenCESDeploymentChannelProfileWebWidgetConfig(original["webWidgetConfig"], d, config)
+	transformed["whatsapp_config"] =
+		flattenCESDeploymentChannelProfileWhatsappConfig(original["whatsappConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESDeploymentChannelProfileChannelType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1011,6 +1055,53 @@ func flattenCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableReca
 	return v
 }
 
+func flattenCESDeploymentChannelProfileWhatsappConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["description"] =
+		flattenCESDeploymentChannelProfileWhatsappConfigDescription(original["description"], d, config)
+	transformed["display_name"] =
+		flattenCESDeploymentChannelProfileWhatsappConfigDisplayName(original["displayName"], d, config)
+	transformed["phone_number"] =
+		flattenCESDeploymentChannelProfileWhatsappConfigPhoneNumber(original["phoneNumber"], d, config)
+	transformed["phone_number_id"] =
+		flattenCESDeploymentChannelProfileWhatsappConfigPhoneNumberId(original["phoneNumberId"], d, config)
+	transformed["thumbnail_url"] =
+		flattenCESDeploymentChannelProfileWhatsappConfigThumbnailUrl(original["thumbnailUrl"], d, config)
+	transformed["waba_id"] =
+		flattenCESDeploymentChannelProfileWhatsappConfigWabaId(original["wabaId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCESDeploymentChannelProfileWhatsappConfigDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESDeploymentChannelProfileWhatsappConfigDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESDeploymentChannelProfileWhatsappConfigPhoneNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESDeploymentChannelProfileWhatsappConfigPhoneNumberId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESDeploymentChannelProfileWhatsappConfigThumbnailUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESDeploymentChannelProfileWhatsappConfigWabaId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCESDeploymentCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1090,6 +1181,13 @@ func expandCESDeploymentChannelProfile(v interface{}, d tpgresource.TerraformRes
 		return nil, err
 	} else if val := reflect.ValueOf(transformedWebWidgetConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["webWidgetConfig"] = transformedWebWidgetConfig
+	}
+
+	transformedWhatsappConfig, err := expandCESDeploymentChannelProfileWhatsappConfig(original["whatsapp_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWhatsappConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["whatsappConfig"] = transformedWhatsappConfig
 	}
 
 	return transformed, nil
@@ -1248,6 +1346,87 @@ func expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsAllowedOrig
 }
 
 func expandCESDeploymentChannelProfileWebWidgetConfigSecuritySettingsEnableRecaptcha(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentChannelProfileWhatsappConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDescription, err := expandCESDeploymentChannelProfileWhatsappConfigDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedDisplayName, err := expandCESDeploymentChannelProfileWhatsappConfigDisplayName(original["display_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["displayName"] = transformedDisplayName
+	}
+
+	transformedPhoneNumber, err := expandCESDeploymentChannelProfileWhatsappConfigPhoneNumber(original["phone_number"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPhoneNumber); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["phoneNumber"] = transformedPhoneNumber
+	}
+
+	transformedPhoneNumberId, err := expandCESDeploymentChannelProfileWhatsappConfigPhoneNumberId(original["phone_number_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPhoneNumberId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["phoneNumberId"] = transformedPhoneNumberId
+	}
+
+	transformedThumbnailUrl, err := expandCESDeploymentChannelProfileWhatsappConfigThumbnailUrl(original["thumbnail_url"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedThumbnailUrl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["thumbnailUrl"] = transformedThumbnailUrl
+	}
+
+	transformedWabaId, err := expandCESDeploymentChannelProfileWhatsappConfigWabaId(original["waba_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWabaId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["wabaId"] = transformedWabaId
+	}
+
+	return transformed, nil
+}
+
+func expandCESDeploymentChannelProfileWhatsappConfigDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentChannelProfileWhatsappConfigDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentChannelProfileWhatsappConfigPhoneNumber(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentChannelProfileWhatsappConfigPhoneNumberId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentChannelProfileWhatsappConfigThumbnailUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESDeploymentChannelProfileWhatsappConfigWabaId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
