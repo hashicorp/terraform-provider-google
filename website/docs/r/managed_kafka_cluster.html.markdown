@@ -144,6 +144,40 @@ data "google_project" "project" {
   provider = google-beta
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=managedkafka_cluster_public&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Managedkafka Cluster Public
+
+
+```hcl
+resource "google_managed_kafka_cluster" "example" {
+  cluster_id = "my-cluster"
+  location = "us-central1"
+  capacity_config {
+    vcpu_count = 3
+    memory_bytes = 3221225472
+  }
+  gcp_config {
+    access_config {
+      network_configs {
+        subnet = "projects/${data.google_project.project.number}/regions/us-central1/subnetworks/default"
+      }
+      public_cluster_config {
+        allowed_source_ip_ranges = ["192.168.1.0/24"]
+      }
+    }
+  }
+  rebalance_config {
+    mode = "AUTO_REBALANCE_ON_SCALE_UP"
+  }
+}
+
+data "google_project" "project" {
+}
+```
 
 ## Argument Reference
 
@@ -220,12 +254,23 @@ The following arguments are supported:
   Virtual Private Cloud (VPC) subnets where IP addresses for the Kafka cluster are allocated. To make the cluster available in a VPC, you must specify at least one `network_configs` block. Max of 10 subnets per cluster. Additional subnets may be specified with additional `network_configs` blocks.
   Structure is [documented below](#nested_gcp_config_access_config_network_configs).
 
+* `public_cluster_config` -
+  (Optional)
+  Public connection configuration for the Kafka cluster.
+  Structure is [documented below](#nested_gcp_config_access_config_public_cluster_config).
+
 
 <a name="nested_gcp_config_access_config_network_configs"></a>The `network_configs` block supports:
 
 * `subnet` -
   (Required)
   Name of the VPC subnet from which the cluster is accessible. Both broker and bootstrap server IP addresses and DNS entries are automatically created in the subnet. There can only be one subnet per network, and the subnet must be located in the same region as the cluster. The project may differ. The name of the subnet must be in the format `projects/PROJECT_ID/regions/REGION/subnetworks/SUBNET`.
+
+<a name="nested_gcp_config_access_config_public_cluster_config"></a>The `public_cluster_config` block supports:
+
+* `allowed_source_ip_ranges` -
+  (Required)
+  A list of IPv4 addresses or CIDR ranges that are allowed to connect to the cluster.
 
 <a name="nested_capacity_config"></a>The `capacity_config` block supports:
 
@@ -293,6 +338,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `state` -
   The current state of the cluster. Possible values: `STATE_UNSPECIFIED`, `CREATING`, `ACTIVE`, `DELETING`.
 
+* `public_cluster_details` -
+  Details of the public cluster feature for the Kafka cluster.
+  Structure is [documented below](#nested_public_cluster_details).
+
+* `bootstrap_address` -
+  The bootstrap address of the Kafka cluster. Use port :9092 for SASL connection and :9192 for mTLS connection
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -300,6 +352,16 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_public_cluster_details"></a>The `public_cluster_details` block contains:
+
+* `discovery_dns_records` -
+  (Output)
+  DNS discovery records that resolve to all of the external IP addresses associated with the public cluster.
+
+* `external_ip_addresses` -
+  (Output)
+  All of the external IP addresses associated with the public cluster used for configuring egress firewall rules to a public cluster.
 
 ## Timeouts
 
