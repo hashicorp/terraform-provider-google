@@ -51,7 +51,7 @@ You can find the builds for nightly tests at:
 * [Google > Nightly Tests](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS?branch=refs%2Fheads%2Fnightly-test&mode=builds#all-projects)
 * [Google Beta > Nightly Tests](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_NIGHTLYTESTS?branch=refs%2Fheads%2Fnightly-test&mode=builds#all-projects)
 
-These projects contain a build configuration per service package, plus a composite **All Nightly Tests** build. The nightly cron triggers the composite at 4am UTC on `refs/heads/nightly-test`. Its snapshot dependencies schedule the package builds with a shared source snapshot; package builds no longer have individual nightly cron triggers. Each provider's Service Sweeper has a finish-build trigger watching its composite.
+These projects contain a build configuration per service package.
 
 To view all the failed tests for a given commit:
 
@@ -125,11 +125,7 @@ In REPLAYING mode the build will download VCR cassettes from a GCS Bucket and ru
 
 ### Sweeping the Nightly Test Projects
 
-The Service Sweeper builds in [`Google > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS?mode=builds#all-projects) and [`Google Beta > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_NIGHTLYTESTS#all-projects) use finish-build triggers, not a separate cron schedule. Each watches its own **All Nightly Tests** composite on the configured nightly branch. The finish trigger does not require success (`successfulOnly = false`), and the snapshot dependency allows the sweeper to run despite dependency failures or cancellations. The composite records package failures and cancellations as build problems; the service sweeper is a downstream build, not part of the composite itself.
-
-Package builds retain per-service shared-resource locks. Each Service Sweeper locks all values of its provider's shared resource, preventing it from overlapping with package builds that acquire those locks, including ad hoc runs. GA and Beta service sweepers use separate provider locks.
-
-Finish triggers explicitly set their branch filters. TeamCity's `+:<default>` selects the VCS default branch (`main` for these VCS roots), not the nightly cron configuration's `refs/heads/nightly-test` branch. Trigger source IDs are resolved using the current DSL project context rather than a hardcoded production project prefix.
+The Service Sweeper builds in [`Google > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS?mode=builds#all-projects) and [`Google Beta > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_NIGHTLYTESTS#all-projects) run every night via CRON. They are designed to not run until there are no builds testing any services in the GA or Beta nightly test GCP projects. No acceptance testing builds will start until the sweeper stops.
 
 ### Sweeping the VCR Project
 
@@ -139,8 +135,4 @@ The Service Sweeper builds in [`Google > Upstream MM Testing`](https://hashicorp
 
 When testing the GA and Beta providers we can run tests in parallel because those tests use separate GCP projects. This creates a boundary between the two test suites and ensures they don't clash. However if an acceptance test provisions `google_project` resources in the process then there is no longer a clear GA/Beta boundary based on which host project is in use. This makes sweeping up these resources tough, as there's potential to disrupt any other running build.
 
-The **Global Sweepers** project contains separate **Project Sweeper** and **Folder Sweeper** builds. Both use a finish-build trigger watching the GA Service Sweeper on `refs/heads/nightly-test`, without requiring success. Neither has its own nightly cron trigger. Each has four explicit snapshot dependencies: the GA and Beta **All Nightly Tests** composites and the GA and Beta **Service Sweeper** builds. Dependency failures and cancellations do not prevent cleanup from running.
-
-Both global sweepers acquire all values of the GA, Beta, and VCR shared resources. This prevents them from running concurrently with builds that acquire those locks, or with each other. Branch filters select the events that trigger cleanup; they do not restrict which GCP resources cleanup can affect.
-
-Snapshot dependencies are not passive waits for existing runs. TeamCity can reuse a suitable build or request a new dependency build if no suitable one exists. Failure/cancellation actions do not control build reuse; the DSL's default reuse policy is successful builds only. When investigating apparent duplicates, inspect the waiting build's identity, **Triggered by** information, and dependency build IDs. A lock message naming the Beta Service Sweeper identifies the lock holder, not the waiting build, and is not by itself evidence of a duplicate Beta sweeper.
+The `google_project` resource can be swept up safely if there are no other ongoing builds testing the GA/Beta Google providers. The `Project Sweeper` project contains a special build configuration for this sweeper that locks access to the GA/Beta/VCR GCP projects while it runs. This means the buid must wait for all other builds to stop before it starts, and while it is running no other Google-related builds can leave the queue and start running.
