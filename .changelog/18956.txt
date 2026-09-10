@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_gemini_gda_observability_setting`
+```
+```release-note:new-resource
+`google_gemini_gda_observability_setting_binding`
+```
