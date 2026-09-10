@@ -7,10 +7,8 @@
 
 package tests
 
-import AllNightlyTestsName
 import ServiceSweeperName
 import builds.UseTeamCityGoTest
-import jetbrains.buildServer.configs.kotlin.BuildTypeSettings
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -27,9 +25,6 @@ class BuildConfigurationFeatureTests {
 
         (gaProject.subProjects + betaProject.subProjects + globalSweepersProject.subProjects).forEach{p ->
             p.buildTypes.forEach{bt ->
-                if (bt.type == BuildTypeSettings.Type.COMPOSITE) {
-                    return@forEach
-                }
                 assertTrue("Build '${bt.id}' should fail on errors!", bt.failureConditions.errorMessage)
             }
         }
@@ -80,8 +75,8 @@ class BuildConfigurationFeatureTests {
                     break
                 }
             }
-            // service sweeper and composite builds do not contain push artifacts to GCS step
-            if (!bt.name.startsWith(ServiceSweeperName) && bt.name != AllNightlyTestsName) {
+            // service sweeper does not contain push artifacts to GCS step
+            if (!bt.name.startsWith(ServiceSweeperName)) {
                 assertTrue("Build configuration `${bt.name}` contains a build step that pushes artifacts to GCS", found)
             }
         }

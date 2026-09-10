@@ -7,7 +7,6 @@
 
 package projects.reused
 
-import AllNightlyTestsName
 import NightlyTestsProjectId
 import ProviderNameBeta
 import ProviderNameGa
@@ -18,12 +17,7 @@ import SharedResourceNameGa
 import builds.*
 import generated.SweepersListBeta
 import generated.SweepersListGa
-import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.BuildTypeSettings
-import jetbrains.buildServer.configs.kotlin.DslContext
-import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.Project
-import jetbrains.buildServer.configs.kotlin.triggers.finishBuildTrigger
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import replaceCharsId
 
@@ -44,32 +38,12 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
     }
 
     // Create build configs to run acceptance tests for each package defined in packages.kt and services.kt files
+    // and add cron trigger to them all
     val allPackages = getAllPackageInProviderVersion(providerName)
-    // Package builds use per-service shared-resource locks to avoid clashes with ad hoc builds.
     val packageBuildConfigs = BuildConfigurationsForPackages(allPackages, providerName, projectId, vcsRoot, sharedResources, config)
-
-    // Create a composite build that runs all package tests
-    val compositeId = replaceCharsId("${projectId}_all_tests")
-    val compositeConfig = BuildType {
-        id(compositeId)
-        name = AllNightlyTestsName
-        type = BuildTypeSettings.Type.COMPOSITE
-
-        vcs {
-            root(vcsRoot)
-            cleanCheckout = true
-        }
-
-        dependencies {
-            packageBuildConfigs.forEach { bc ->
-                snapshot(bc) {
-                    onDependencyFailure = FailureAction.ADD_PROBLEM
-                    onDependencyCancel = FailureAction.ADD_PROBLEM
-                }
-            }
-        }
+    packageBuildConfigs.forEach { buildConfiguration ->
+        buildConfiguration.addTrigger(cron)
     }
-    compositeConfig.addTrigger(cron)
 
     // Create build config for sweeping the nightly test project
     var sweepersList: Map<String,Map<String,String>>
@@ -79,31 +53,20 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
         ProviderNameBetaDiffTest -> sweepersList = SweepersListBeta
         else -> throw Exception("Provider name not supplied when generating a nightly test subproject")
     }
-    // We still allow locks in the service sweeper build configuration for adhoc triggers of services
     val serviceSweeperConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperName, sweepersList, projectId, vcsRoot, sharedResources, config)
-    serviceSweeperConfig.triggers {
-        finishBuildTrigger {
-            buildType = "${DslContext.projectId}_${compositeId}"
-            branchFilter = "+:${cron.branch}"
-            successfulOnly = false
-        }
-    }
-
-    // Add snapshot dependency on the composite config to run after tests finish
-    serviceSweeperConfig.dependencies {
-        snapshot(compositeConfig) {
-            onDependencyFailure = FailureAction.IGNORE
-            onDependencyCancel = FailureAction.IGNORE
-        }
-    }
+    val sweeperCron = cron.clone()
+    sweeperCron.startHour += 5  // Ensure triggered after the package test builds are triggered
+    serviceSweeperConfig.addTrigger(sweeperCron)
 
     return Project {
         id(projectId)
         name = "Nightly Tests"
         description = "A project connected to the hashicorp/terraform-provider-${providerName} repository, where scheduled nightly tests run and users can trigger ad-hoc builds"
 
-        buildType(compositeConfig)
-        packageBuildConfigs.forEach { buildType(it) }
+        // Register build configs in the project
+        packageBuildConfigs.forEach { buildConfiguration ->
+            buildType(buildConfiguration)
+        }
         buildType(serviceSweeperConfig)
 
         params{
