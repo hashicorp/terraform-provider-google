@@ -46,30 +46,80 @@ var IamPubsubSubscriptionSchema = map[string]*schema.Schema{
 }
 
 type PubsubSubscriptionIamUpdater struct {
+	project      string
 	subscription string
 	d            tpgresource.TerraformResourceData
 	Config       *transport_tpg.Config
 }
 
 func NewPubsubSubscriptionIamUpdater(d tpgresource.TerraformResourceData, config *transport_tpg.Config) (tpgiamresource.ResourceIamUpdater, error) {
-	project, err := tpgresource.GetProject(d, config)
+	values := make(map[string]string)
+
+	project, _ := tpgresource.GetProject(d, config)
+	if project != "" {
+		if err := d.Set("project", project); err != nil {
+			return nil, fmt.Errorf("Error setting project: %s", err)
+		}
+	}
+	values["project"] = project
+	if v, ok := d.GetOk("subscription"); ok {
+		values["subscription"] = v.(string)
+	}
+
+	// We may have gotten either a long or short name, so attempt to parse long name if possible
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/subscriptions/(?P<subscription>[^/]+)", "(?P<project>[^/]+)/(?P<subscription>[^/]+)", "(?P<subscription>[^/]+)"}, d, config, d.Get("subscription").(string))
 	if err != nil {
 		return nil, err
 	}
 
-	subscription := GetComputedSubscriptionName(project, d.Get("subscription").(string))
+	for k, v := range m {
+		values[k] = v
+	}
 
-	return &PubsubSubscriptionIamUpdater{
-		subscription: subscription,
+	u := &PubsubSubscriptionIamUpdater{
+		project:      values["project"],
+		subscription: values["subscription"],
 		d:            d,
 		Config:       config,
-	}, nil
+	}
+
+	if err := d.Set("project", u.project); err != nil {
+		return nil, fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("subscription", u.GetResourceId()); err != nil {
+		return nil, fmt.Errorf("Error setting subscription: %s", err)
+	}
+
+	return u, nil
 }
 
-func PubsubSubscriptionIdParseFunc(d *schema.ResourceData, _ *transport_tpg.Config) error {
-	if err := d.Set("subscription", d.Id()); err != nil {
+func PubsubSubscriptionIdParseFunc(d *schema.ResourceData, config *transport_tpg.Config) error {
+	values := make(map[string]string)
+
+	project, _ := tpgresource.GetProject(d, config)
+	if project != "" {
+		values["project"] = project
+	}
+
+	m, err := tpgresource.GetImportIdQualifiers([]string{"projects/(?P<project>[^/]+)/subscriptions/(?P<subscription>[^/]+)", "(?P<project>[^/]+)/(?P<subscription>[^/]+)", "(?P<subscription>[^/]+)"}, d, config, d.Id())
+	if err != nil {
+		return err
+	}
+
+	for k, v := range m {
+		values[k] = v
+	}
+
+	u := &PubsubSubscriptionIamUpdater{
+		project:      values["project"],
+		subscription: values["subscription"],
+		d:            d,
+		Config:       config,
+	}
+	if err := d.Set("subscription", u.GetResourceId()); err != nil {
 		return fmt.Errorf("Error setting subscription: %s", err)
 	}
+	d.SetId(u.GetResourceId())
 	return nil
 }
 
@@ -79,7 +129,7 @@ func (u *PubsubSubscriptionIamUpdater) GetResourceIamPolicy() (*cloudresourceman
 		return nil, err
 	}
 
-	p, err := NewClient(u.Config, userAgent).Projects.Subscriptions.GetIamPolicy(u.subscription).Do()
+	p, err := NewClient(u.Config, userAgent).Projects.Subscriptions.GetIamPolicy(u.GetResourceId()).Do()
 
 	if err != nil {
 		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
@@ -104,7 +154,7 @@ func (u *PubsubSubscriptionIamUpdater) SetResourceIamPolicy(policy *cloudresourc
 		return err
 	}
 
-	_, err = NewClient(u.Config, userAgent).Projects.Subscriptions.SetIamPolicy(u.subscription, &pubsub.SetIamPolicyRequest{
+	_, err = NewClient(u.Config, userAgent).Projects.Subscriptions.SetIamPolicy(u.GetResourceId(), &pubsub.SetIamPolicyRequest{
 		Policy: pubsubPolicy,
 	}).Do()
 
@@ -116,15 +166,15 @@ func (u *PubsubSubscriptionIamUpdater) SetResourceIamPolicy(policy *cloudresourc
 }
 
 func (u *PubsubSubscriptionIamUpdater) GetResourceId() string {
-	return u.subscription
+	return fmt.Sprintf("projects/%s/subscriptions/%s", u.project, u.subscription)
 }
 
 func (u *PubsubSubscriptionIamUpdater) GetMutexKey() string {
-	return fmt.Sprintf("iam-pubsub-subscription-%s", u.subscription)
+	return fmt.Sprintf("iam-pubsub-subscription-%s", u.GetResourceId())
 }
 
 func (u *PubsubSubscriptionIamUpdater) DescribeResource() string {
-	return fmt.Sprintf("pubsub subscription %q", u.subscription)
+	return fmt.Sprintf("pubsub subscription %q", u.GetResourceId())
 }
 
 // v1 and v2 policy are identical

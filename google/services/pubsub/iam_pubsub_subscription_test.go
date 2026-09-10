@@ -22,6 +22,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
@@ -29,6 +30,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccPubsubSubscriptionIamBinding(t *testing.T) {
@@ -271,4 +273,139 @@ data "google_pubsub_subscription_iam_policy" "foo" {
   subscription = google_pubsub_subscription.subscription.id
 }
 `, topic, subscription, account, role)
+}
+
+func TestPubsubSubscriptionIdParseFunc(t *testing.T) {
+	cases := map[string]struct {
+		importId     string
+		config       *transport_tpg.Config
+		expectedSub  string
+		expectedId   string
+		expectError  bool
+	}{
+		"full subscription path": {
+			importId:    "projects/my-project/subscriptions/my-subscription",
+			expectedSub: "projects/my-project/subscriptions/my-subscription",
+			expectedId:  "projects/my-project/subscriptions/my-subscription",
+		},
+		"full subscription path with special chars": {
+			importId:    "projects/test-project-123.domain/subscriptions/sub-abc_123.test",
+			expectedSub: "projects/test-project-123.domain/subscriptions/sub-abc_123.test",
+			expectedId:  "projects/test-project-123.domain/subscriptions/sub-abc_123.test",
+		},
+		"project slash subscription format": {
+			importId:    "my-project/my-subscription",
+			expectedSub: "projects/my-project/subscriptions/my-subscription",
+			expectedId:  "projects/my-project/subscriptions/my-subscription",
+		},
+		"short subscription name with default project": {
+			importId:    "my-subscription",
+			config:      &transport_tpg.Config{Project: "default-project"},
+			expectedSub: "projects/default-project/subscriptions/my-subscription",
+			expectedId:  "projects/default-project/subscriptions/my-subscription",
+		},
+		"short subscription name without project returns error": {
+			importId:    "my-subscription",
+			config:      nil,
+			expectError: true,
+		},
+		"invalid path with topics": {
+			importId:    "projects/my-project/topics/my-subscription",
+			expectError: true,
+		},
+		"incomplete path": {
+			importId:    "projects/my-project/subscriptions",
+			expectError: true,
+		},
+		"extra path segments": {
+			importId:    "projects/my-project/subscriptions/my-subscription/extra",
+			expectError: true,
+		},
+		"empty import id": {
+			importId:    "",
+			expectError: true,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			d := schema.TestResourceDataRaw(t, pubsub.IamPubsubSubscriptionSchema, map[string]interface{}{})
+			d.SetId(tc.importId)
+
+			err := pubsub.PubsubSubscriptionIdParseFunc(d, tc.config)
+			if (err != nil) != tc.expectError {
+				t.Fatalf("expected error: %v, got: %v", tc.expectError, err)
+			}
+
+			if !tc.expectError {
+				if v := d.Get("subscription").(string); v != tc.expectedSub {
+					t.Errorf("expected subscription %q, got %q", tc.expectedSub, v)
+				}
+				if d.Id() != tc.expectedId {
+					t.Errorf("expected id %q, got %q", tc.expectedId, d.Id())
+				}
+			}
+		})
+	}
+}
+
+func TestNewPubsubSubscriptionIamUpdater(t *testing.T) {
+	cases := map[string]struct {
+		schemaMap          map[string]interface{}
+		config             *transport_tpg.Config
+		expectedProject    string
+		expectedSub        string
+		expectedResourceId string
+		expectError        bool
+	}{
+		"imported full subscription path": {
+			schemaMap: map[string]interface{}{
+				"subscription": "projects/my-project/subscriptions/my-subscription",
+			},
+			expectedProject:    "my-project",
+			expectedSub:        "projects/my-project/subscriptions/my-subscription",
+			expectedResourceId: "projects/my-project/subscriptions/my-subscription",
+		},
+		"short subscription with project field set": {
+			schemaMap: map[string]interface{}{
+				"project":      "my-project",
+				"subscription": "my-subscription",
+			},
+			expectedProject:    "my-project",
+			expectedSub:        "projects/my-project/subscriptions/my-subscription",
+			expectedResourceId: "projects/my-project/subscriptions/my-subscription",
+		},
+		"short subscription with provider config project": {
+			schemaMap: map[string]interface{}{
+				"subscription": "my-subscription",
+			},
+			config:             &transport_tpg.Config{Project: "default-project"},
+			expectedProject:    "default-project",
+			expectedSub:        "projects/default-project/subscriptions/my-subscription",
+			expectedResourceId: "projects/default-project/subscriptions/my-subscription",
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			d := schema.TestResourceDataRaw(t, pubsub.IamPubsubSubscriptionSchema, tc.schemaMap)
+
+			updater, err := pubsub.NewPubsubSubscriptionIamUpdater(d, tc.config)
+			if (err != nil) != tc.expectError {
+				t.Fatalf("expected error: %v, got: %v", tc.expectError, err)
+			}
+
+			if !tc.expectError {
+				if v := d.Get("project").(string); v != tc.expectedProject {
+					t.Errorf("expected project %q, got %q", tc.expectedProject, v)
+				}
+				if v := d.Get("subscription").(string); v != tc.expectedSub {
+					t.Errorf("expected subscription %q, got %q", tc.expectedSub, v)
+				}
+				if updater.GetResourceId() != tc.expectedResourceId {
+					t.Errorf("expected resourceId %q, got %q", tc.expectedResourceId, updater.GetResourceId())
+				}
+			}
+		})
+	}
 }
