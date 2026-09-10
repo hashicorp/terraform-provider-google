@@ -1,0 +1,3 @@
+```release-note:enhancement
+alloydb: added `ALLOYDB_IAM_GROUP` as a possible value for `user_type` in `google_alloydb_user` (beta)
+```
