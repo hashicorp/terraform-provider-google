@@ -62,7 +62,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"internal_range_name": "basic" + randomSuffix,
+		"internal_range_name": "tf-test-basic" + randomSuffix,
 		"network_name":        "tf-test-internal-ranges" + randomSuffix,
 		"random_suffix":       randomSuffix,
 	}
@@ -298,7 +298,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"internal_range_name": "migration" + randomSuffix,
+		"internal_range_name": "tf-test-migration" + randomSuffix,
 		"network_name":        "tf-test-internal-ranges" + randomSuffix,
 		"source_subnet_name":  "tf-test-source-subnet" + randomSuffix,
 		"random_suffix":       randomSuffix,

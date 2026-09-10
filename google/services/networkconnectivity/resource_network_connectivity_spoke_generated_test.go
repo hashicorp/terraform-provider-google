@@ -62,9 +62,9 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkBas
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"hub_name":      "hub1" + randomSuffix,
-		"network_name":  "net" + randomSuffix,
-		"spoke_name":    "spoke1" + randomSuffix,
+		"hub_name":      "tf-test-hub1" + randomSuffix,
+		"network_name":  "tf-test-net" + randomSuffix,
+		"spoke_name":    "tf-test-spoke1" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -329,9 +329,9 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeVpnTunnelBasicExamp
 		"router_peer_1_name":      "tf-test-router-peer1" + randomSuffix,
 		"router_peer_2_name":      "tf-test-router-peer2" + randomSuffix,
 		"subnetwork_name":         "tf-test-basic-subnetwork" + randomSuffix,
-		"vpn_tunnel_1_name":       "tunnel1" + randomSuffix,
+		"vpn_tunnel_1_name":       "tf-test-tunnel1" + randomSuffix,
 		"vpn_tunnel_1_spoke_name": "tf-test-vpn-tunnel-1-spoke" + randomSuffix,
-		"vpn_tunnel_2_name":       "tunnel2" + randomSuffix,
+		"vpn_tunnel_2_name":       "tf-test-tunnel2" + randomSuffix,
 		"vpn_tunnel_2_spoke_name": "tf-test-vpn-tunnel-2-spoke" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}
@@ -683,9 +683,10 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeCenterGroupExample(
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"auto_accept_project_1_name": "foo" + randomSuffix,
-		"auto_accept_project_2_name": "bar" + randomSuffix,
+		"auto_accept_project_1_name": "tf-test-foo" + randomSuffix,
+		"auto_accept_project_2_name": "tf-test-bar" + randomSuffix,
 		"hub_name":                   "tf-test-hub-basic" + randomSuffix,
+		"network_name":               "tf-test-net" + randomSuffix,
 		"spoke_name":                 "tf-test-vpc-spoke" + randomSuffix,
 		"random_suffix":              randomSuffix,
 	}
@@ -717,7 +718,7 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeCenterGroupExample(
 func testAccNetworkConnectivitySpoke_networkConnectivitySpokeCenterGroupExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network" {
-  name                    = "tf-net"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
@@ -731,8 +732,8 @@ resource "google_network_connectivity_group" "center_group" {
   hub  = google_network_connectivity_hub.star_hub.id
   auto_accept {
     auto_accept_projects = [
-      "foo%{random_suffix}", 
-      "bar%{random_suffix}", 
+      "%{auto_accept_project_1_name}", 
+      "%{auto_accept_project_2_name}", 
     ]
   }
 }
@@ -760,8 +761,8 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeLinkedVpcNetworkIpv
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"hub_name":      "hub1" + randomSuffix,
-		"network_name":  "net" + randomSuffix,
+		"hub_name":      "tf-test-hub1" + randomSuffix,
+		"network_name":  "tf-test-net" + randomSuffix,
 		"spoke_name":    "tf-test-spoke1-ipv6" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
@@ -830,9 +831,9 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeGatewayExample(t *t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"hub_name":      "hub" + randomSuffix,
+		"hub_name":      "tf-test-hub" + randomSuffix,
 		"network_name":  "tf-test-net-spoke" + randomSuffix,
-		"spoke_name":    "gateway" + randomSuffix,
+		"spoke_name":    "tf-test-gateway" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

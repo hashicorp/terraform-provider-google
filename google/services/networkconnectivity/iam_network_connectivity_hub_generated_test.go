@@ -49,7 +49,7 @@ func TestAccNetworkConnectivityHubIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/networkconnectivity.hubViewer",
-		"resource_name": "basic" + randomSuffix,
+		"resource_name": "tf-test-basic" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -87,7 +87,7 @@ func TestAccNetworkConnectivityHubIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/networkconnectivity.hubViewer",
-		"resource_name": "basic" + randomSuffix,
+		"resource_name": "tf-test-basic" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -123,7 +123,7 @@ func TestAccNetworkConnectivityHubIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/networkconnectivity.hubViewer",
-		"resource_name": "basic" + randomSuffix,
+		"resource_name": "tf-test-basic" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
