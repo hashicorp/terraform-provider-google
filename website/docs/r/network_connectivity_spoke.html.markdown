@@ -457,7 +457,7 @@ resource "google_network_connectivity_spoke" "primary"  {
 
 ```hcl
 resource "google_compute_network" "network" {
-  name                    = "tf-net"
+  name                    = "net"
   auto_create_subnetworks = false
 }
 
@@ -471,8 +471,8 @@ resource "google_network_connectivity_group" "center_group" {
   hub  = google_network_connectivity_hub.star_hub.id
   auto_accept {
     auto_accept_projects = [
-      "foo%{random_suffix}", 
-      "bar%{random_suffix}", 
+      "foo", 
+      "bar", 
     ]
   }
 }

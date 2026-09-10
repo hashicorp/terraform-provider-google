@@ -60,8 +60,8 @@ func TestAccNetworkConnectivityGroup_networkConnectivityGroupBasicExample(t *tes
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"auto_accept_project_1_name": "foo" + randomSuffix,
-		"auto_accept_project_2_name": "bar" + randomSuffix,
+		"auto_accept_project_1_name": "tf-test-foo" + randomSuffix,
+		"auto_accept_project_2_name": "tf-test-bar" + randomSuffix,
 		"hub_name":                   "tf-test-network-connectivity-hub1" + randomSuffix,
 		"random_suffix":              randomSuffix,
 	}

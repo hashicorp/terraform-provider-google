@@ -91,7 +91,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBa
 func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBasicExample_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "basic%{random_suffix}"
+  name    = "tf-test-basic%{random_suffix}"
   description = "Test internal range"
   network = google_compute_network.default.name
   usage   = "FOR_VPC"
@@ -115,7 +115,7 @@ resource "google_compute_network" "default" {
 func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBasicExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "basic%{random_suffix}"
+  name    = "tf-test-basic%{random_suffix}"
   description = "Updated description"
   network = google_compute_network.default.name
   usage   = "FOR_VPC"
@@ -187,7 +187,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesEx
 func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesExternalRangesExample_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "basic%{random_suffix}"
+  name    = "tf-test-basic%{random_suffix}"
   description = "Test internal range for resources outside the VPC"
   network = google_compute_network.default.name
   usage   = "EXTERNAL_TO_VPC"
@@ -205,7 +205,7 @@ resource "google_compute_network" "default" {
 func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesExternalRangesExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "basic%{random_suffix}"
+  name    = "tf-test-basic%{random_suffix}"
   description = "Updated description"
   network = google_compute_network.default.name
   usage   = "EXTERNAL_TO_VPC"
@@ -274,7 +274,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesEx
 func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesExcludeCIDRExample_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "basic%{random_suffix}"
+  name    = "tf-test-basic%{random_suffix}"
   description = "Test internal range exclude CIDR"
   network = google_compute_network.default.name
 
@@ -342,7 +342,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesIP
 func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesIPv6Example_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "basic%{random_suffix}"
+  name    = "tf-test-basic%{random_suffix}"
   description = "Test internal range IPv6"
   network = google_compute_network.default.name
   ip_cidr_range = "1234:0:1:1::/64"
@@ -399,7 +399,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesIm
 func testAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesImmutableExample_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_network_connectivity_internal_range" "default" {
-  name    = "basic%{random_suffix}"
+  name    = "tf-test-basic%{random_suffix}"
   description = "Test internal range Immutable"
   network = google_compute_network.default.name
   ip_cidr_range = "11.11.20.0/24"
