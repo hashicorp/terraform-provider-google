@@ -197,6 +197,24 @@ func ResourceManagedKafkaCluster() *schema.Resource {
 											},
 										},
 									},
+									"public_cluster_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Public connection configuration for the Kafka cluster.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"allowed_source_ip_ranges": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `A list of IPv4 addresses or CIDR ranges that are allowed to connect to the cluster.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -296,6 +314,11 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 					},
 				},
 			},
+			"bootstrap_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The bootstrap address of the Kafka cluster. Use port :9092 for SASL connection and :9192 for mTLS connection`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -311,6 +334,31 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The name of the cluster. Structured like: 'projects/PROJECT_ID/locations/LOCATION/clusters/CLUSTER_ID'.`,
+			},
+			"public_cluster_details": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Details of the public cluster feature for the Kafka cluster.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"discovery_dns_records": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `DNS discovery records that resolve to all of the external IP addresses associated with the public cluster.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"external_ip_addresses": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `All of the external IP addresses associated with the public cluster used for configuring egress firewall rules to a public cluster.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 			"state": {
 				Type:        schema.TypeString,
@@ -832,6 +880,8 @@ func flattenManagedKafkaClusterGcpConfigAccessConfig(v interface{}, d *schema.Re
 	transformed := make(map[string]interface{})
 	transformed["network_configs"] =
 		flattenManagedKafkaClusterGcpConfigAccessConfigNetworkConfigs(original["networkConfigs"], d, config)
+	transformed["public_cluster_config"] =
+		flattenManagedKafkaClusterGcpConfigAccessConfigPublicClusterConfig(original["publicClusterConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenManagedKafkaClusterGcpConfigAccessConfigNetworkConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -854,6 +904,23 @@ func flattenManagedKafkaClusterGcpConfigAccessConfigNetworkConfigs(v interface{}
 	return transformed
 }
 func flattenManagedKafkaClusterGcpConfigAccessConfigNetworkConfigsSubnet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenManagedKafkaClusterGcpConfigAccessConfigPublicClusterConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["allowed_source_ip_ranges"] =
+		flattenManagedKafkaClusterGcpConfigAccessConfigPublicClusterConfigAllowedSourceIpRanges(original["allowedSourceIpRanges"], d, config)
+	return []interface{}{transformed}
+}
+func flattenManagedKafkaClusterGcpConfigAccessConfigPublicClusterConfigAllowedSourceIpRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -946,6 +1013,33 @@ func flattenManagedKafkaClusterRebalanceConfigMode(v interface{}, d *schema.Reso
 }
 
 func flattenManagedKafkaClusterState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenManagedKafkaClusterPublicClusterDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["discovery_dns_records"] =
+		flattenManagedKafkaClusterPublicClusterDetailsDiscoveryDnsRecords(original["discoveryDnsRecords"], d, config)
+	transformed["external_ip_addresses"] =
+		flattenManagedKafkaClusterPublicClusterDetailsExternalIpAddresses(original["externalIpAddresses"], d, config)
+	return []interface{}{transformed}
+}
+func flattenManagedKafkaClusterPublicClusterDetailsDiscoveryDnsRecords(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenManagedKafkaClusterPublicClusterDetailsExternalIpAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenManagedKafkaClusterBootstrapAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1068,6 +1162,13 @@ func expandManagedKafkaClusterGcpConfigAccessConfig(v interface{}, d tpgresource
 		transformed["networkConfigs"] = transformedNetworkConfigs
 	}
 
+	transformedPublicClusterConfig, err := expandManagedKafkaClusterGcpConfigAccessConfigPublicClusterConfig(original["public_cluster_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPublicClusterConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["publicClusterConfig"] = transformedPublicClusterConfig
+	}
+
 	return transformed, nil
 }
 
@@ -1097,6 +1198,32 @@ func expandManagedKafkaClusterGcpConfigAccessConfigNetworkConfigs(v interface{},
 }
 
 func expandManagedKafkaClusterGcpConfigAccessConfigNetworkConfigsSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandManagedKafkaClusterGcpConfigAccessConfigPublicClusterConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAllowedSourceIpRanges, err := expandManagedKafkaClusterGcpConfigAccessConfigPublicClusterConfigAllowedSourceIpRanges(original["allowed_source_ip_ranges"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedSourceIpRanges); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowedSourceIpRanges"] = transformedAllowedSourceIpRanges
+	}
+
+	return transformed, nil
+}
+
+func expandManagedKafkaClusterGcpConfigAccessConfigPublicClusterConfigAllowedSourceIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1321,6 +1448,12 @@ func ResourceManagedKafkaClusterFlatten(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err = d.Set("state", flattenManagedKafkaClusterState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("public_cluster_details", flattenManagedKafkaClusterPublicClusterDetails(res["publicClusterDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("bootstrap_address", flattenManagedKafkaClusterBootstrapAddress(res["bootstrapAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err = d.Set("tls_config", flattenManagedKafkaClusterTlsConfig(res["tlsConfig"], d, config)); err != nil {
