@@ -508,6 +508,9 @@ func flattenParameterManagerRegionalRegionalParameterVersionPayload(v interface{
 		return err
 	}
 	transformed["parameter_data"] = string(data)
+	if val, ok := original["dataCrc32c"]; ok && val != nil {
+		transformed["data_crc32c"] = fmt.Sprintf("%v", val)
+	}
 	return []interface{}{transformed}
 }
 

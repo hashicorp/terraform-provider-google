@@ -133,6 +133,13 @@ func ResourceParameterManagerParameterVersion() *schema.Resource {
 				Description: `The Parameter data.`,
 				Sensitive:   true,
 			},
+			"data_crc32c": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The integrity checksum of the payload.`,
+			},
 
 			"disabled": {
 				Type:        schema.TypeBool,
@@ -482,6 +489,9 @@ func flattenParameterManagerParameterVersionPayload(v interface{}, d *schema.Res
 		return err
 	}
 	transformed["parameter_data"] = string(data)
+	if val, ok := original["dataCrc32c"]; ok && val != nil {
+		transformed["data_crc32c"] = fmt.Sprintf("%v", val)
+	}
 	return []interface{}{transformed}
 }
 
@@ -502,6 +512,13 @@ func expandParameterManagerParameterVersionPayload(v interface{}, d tpgresource.
 		transformed["data"] = transformedParameterData
 	}
 
+	transformedDataCrc32c, err := expandParameterManagerParameterVersionPayloadDataCrc32c(d.Get("data_crc32c"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDataCrc32c); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dataCrc32c"] = transformedDataCrc32c
+	}
+
 	return transformed, nil
 }
 
@@ -511,6 +528,10 @@ func expandParameterManagerParameterVersionPayloadParameterData(v interface{}, d
 	}
 
 	return base64.StdEncoding.EncodeToString([]byte(v.(string))), nil
+}
+
+func expandParameterManagerParameterVersionPayloadDataCrc32c(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func ResourceParameterManagerParameterVersionFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
