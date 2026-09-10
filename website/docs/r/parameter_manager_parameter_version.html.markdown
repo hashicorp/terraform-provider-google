@@ -159,6 +159,26 @@ resource "google_parameter_manager_parameter_version" "parameter-version-with-ya
   parameter_data = file("parameter-yaml-data.yaml")
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=parameter_version_with_data_crc32c&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Parameter Version With Data Crc32c
+
+
+```hcl
+resource "google_parameter_manager_parameter" "parameter-basic" {
+  parameter_id = "parameter"
+}
+
+resource "google_parameter_manager_parameter_version" "parameter-version-with-data-crc32c" {
+  parameter = google_parameter_manager_parameter.parameter-basic.id
+  parameter_version_id = "parameter_version"
+  parameter_data = "app-parameter-version-data"
+  data_crc32c = "3931523681"
+}
+```
 
 ## Argument Reference
 
@@ -182,6 +202,10 @@ The following arguments are supported:
 * `disabled` -
   (Optional)
   The current state of Parameter Version. This field is only applicable for updating Parameter Version.
+
+* `data_crc32c` -
+  (Optional)
+  The integrity checksum of the payload.
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
