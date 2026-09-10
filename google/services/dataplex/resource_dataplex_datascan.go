@@ -384,6 +384,14 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 							Optional:    true,
 							Description: `If set, the latest DataScan job result will be published to Knowledge Catalog.`,
 						},
+						"sql_dialect": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"GOOGLE_SQL", "SPARK_SQL", ""}),
+							Description: `The SQL dialect to use in the generated SQL queries.
+If not specified, the default dialect is Google SQL. Possible values: ["GOOGLE_SQL", "SPARK_SQL"]`,
+						},
 					},
 				},
 				ExactlyOneOf: []string{"data_discovery_spec", "data_documentation_spec", "data_profile_spec", "data_quality_spec"},
@@ -2424,9 +2432,15 @@ func flattenDataplexDatascanDataDocumentationSpec(v interface{}, d *schema.Resou
 	transformed := make(map[string]interface{})
 	transformed["catalog_publishing_enabled"] =
 		flattenDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(original["catalogPublishingEnabled"], d, config)
+	transformed["sql_dialect"] =
+		flattenDataplexDatascanDataDocumentationSpecSqlDialect(original["sqlDialect"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDocumentationSpecSqlDialect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3995,10 +4009,21 @@ func expandDataplexDatascanDataDocumentationSpec(v interface{}, d tpgresource.Te
 		transformed["catalogPublishingEnabled"] = transformedCatalogPublishingEnabled
 	}
 
+	transformedSqlDialect, err := expandDataplexDatascanDataDocumentationSpecSqlDialect(original["sql_dialect"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSqlDialect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sqlDialect"] = transformedSqlDialect
+	}
+
 	return transformed, nil
 }
 
 func expandDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDocumentationSpecSqlDialect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
