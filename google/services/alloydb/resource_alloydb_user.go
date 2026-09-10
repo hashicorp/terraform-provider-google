@@ -131,8 +131,11 @@ func ResourceAlloydbUser() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"ALLOYDB_BUILT_IN", "ALLOYDB_IAM_USER"}),
-				Description:  `The type of this user. Possible values: ["ALLOYDB_BUILT_IN", "ALLOYDB_IAM_USER"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"ALLOYDB_BUILT_IN", "ALLOYDB_IAM_USER", "ALLOYDB_IAM_GROUP"}),
+				Description: `The type of this user. Note that 'ALLOYDB_IAM_GROUP' is currently only supported by
+the google-beta provider (which uses the v1beta alloydb API). Only new or Google-whitelisted
+AlloyDB clusters support IAM group authentication. See
+https://docs.cloud.google.com/alloydb/docs/database-users/manage-iam-auth for details. Possible values: ["ALLOYDB_BUILT_IN", "ALLOYDB_IAM_USER", "ALLOYDB_IAM_GROUP"]`,
 			},
 			"database_roles": {
 				Type:        schema.TypeList,
