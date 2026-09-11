@@ -6,6 +6,8 @@ source_file: products/discoveryengine/WidgetConfig.yaml
 api_service_name: discoveryengine.googleapis.com
 api_version: v1
 api_resource_type_kind: WidgetConfig
+api_variant_patterns:
+    - projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/widgetConfigs/{widgetConfig}
 fields:
     - api_field: accessSettings.allowPublicAccess
     - api_field: accessSettings.allowlistedDomains
