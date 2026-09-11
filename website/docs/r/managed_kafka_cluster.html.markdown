@@ -270,7 +270,7 @@ The following arguments are supported:
 
 * `allowed_source_ip_ranges` -
   (Required)
-  A list of IPv4 addresses or CIDR ranges that are allowed to connect to the cluster.
+  A list of IPv4 addresses or CIDR ranges that are allowed to connect to the cluster. To protect your cluster, allow access from only trusted external IP ranges. Don't expose your cluster to untrusted ranges.
 
 <a name="nested_capacity_config"></a>The `capacity_config` block supports:
 
