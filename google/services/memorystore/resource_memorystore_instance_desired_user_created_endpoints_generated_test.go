@@ -72,8 +72,8 @@ func TestAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDe
 		"ip1_network2_name":              "tf-test-ip1-net2" + randomSuffix,
 		"ip2_network1_name":              "tf-test-ip2-net1" + randomSuffix,
 		"ip2_network2_name":              "tf-test-ip2-net2" + randomSuffix,
-		"network1_name":                  "net1" + randomSuffix,
-		"network2_name":                  "network2" + randomSuffix,
+		"network1_name":                  "tf-test-net1" + randomSuffix,
+		"network2_name":                  "tf-test-network2" + randomSuffix,
 		"subnet_network1_name":           "tf-test-subnet-net1" + randomSuffix,
 		"subnet_network2_name":           "tf-test-subnet-net2" + randomSuffix,
 		"random_suffix":                  randomSuffix,
@@ -107,7 +107,7 @@ func testAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDe
 	return acctest.Nprintf(`
 resource "google_memorystore_instance_desired_user_created_endpoints" "instance-user-conn" {
   name                        = "%{instance_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   desired_user_created_endpoints {
     connections {
       psc_connection {
@@ -152,7 +152,7 @@ resource "google_memorystore_instance_desired_user_created_endpoints" "instance-
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
   name                        = "%{forwarding_rule1_network1_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   ip_address                  = google_compute_address.ip1_network1.id
   load_balancing_scheme       = ""
   network                     = google_compute_network.network1.id
@@ -161,7 +161,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {
   name                        = "%{forwarding_rule2_network1_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   ip_address                  = google_compute_address.ip2_network1.id
   load_balancing_scheme       = ""
   network                     = google_compute_network.network1.id
@@ -170,7 +170,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {
 
 resource "google_compute_address" "ip1_network1" {
   name                        = "%{ip1_network1_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   subnetwork                  = google_compute_subnetwork.subnet_network1.id
   address_type                = "INTERNAL"
   purpose                     = "GCE_ENDPOINT"
@@ -178,7 +178,7 @@ resource "google_compute_address" "ip1_network1" {
 
 resource "google_compute_address" "ip2_network1" {
   name                        = "%{ip2_network1_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   subnetwork                  = google_compute_subnetwork.subnet_network1.id
   address_type                = "INTERNAL"
   purpose                     = "GCE_ENDPOINT"
@@ -187,7 +187,7 @@ resource "google_compute_address" "ip2_network1" {
 resource "google_compute_subnetwork" "subnet_network1" {
   name                        = "%{subnet_network1_name}"
   ip_cidr_range               = "10.0.0.248/29"
-  region                      = "us-central1"
+  region                      = "us-west1"
   network                     = google_compute_network.network1.id
 }
 
@@ -198,7 +198,7 @@ resource "google_compute_network" "network1" {
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
   name                        = "%{forwarding_rule1_network2_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   ip_address                  = google_compute_address.ip1_network2.id
   load_balancing_scheme       = ""
   network                     = google_compute_network.network2.id
@@ -207,7 +207,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
   name                        = "%{forwarding_rule2_network2_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   ip_address                  = google_compute_address.ip2_network2.id
   load_balancing_scheme       = ""
   network                     = google_compute_network.network2.id
@@ -216,7 +216,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
 
 resource "google_compute_address" "ip1_network2" {
   name                        = "%{ip1_network2_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   subnetwork                  = google_compute_subnetwork.subnet_network2.id
   address_type                = "INTERNAL"
   purpose                     = "GCE_ENDPOINT"
@@ -224,7 +224,7 @@ resource "google_compute_address" "ip1_network2" {
 
 resource "google_compute_address" "ip2_network2" {
   name                        = "%{ip2_network2_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   subnetwork                  = google_compute_subnetwork.subnet_network2.id
   address_type                = "INTERNAL"
   purpose                     = "GCE_ENDPOINT"
@@ -234,14 +234,14 @@ resource "google_compute_address" "ip2_network2" {
 resource "google_memorystore_instance" "instance-user-conn" {
   instance_id                 =  "%{instance_name}"
   shard_count                 = 1
-  location                    = "us-central1"
+  location                    = "us-west1"
   deletion_protection_enabled = false
 }
 
 resource "google_compute_subnetwork" "subnet_network2" {
   name                        = "%{subnet_network2_name}"
   ip_cidr_range               = "10.0.0.248/29"
-  region                      = "us-central1"
+  region                      = "us-west1"
   network                     = google_compute_network.network2.id
 }
 
@@ -267,9 +267,9 @@ func TestAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDe
 		"instance_name":                  "tf-test-instance-user-auto-conn" + randomSuffix,
 		"ip1_network2_name":              "tf-test-ip1-net2" + randomSuffix,
 		"ip2_network2_name":              "tf-test-ip2-net2" + randomSuffix,
-		"network1_name":                  "net1" + randomSuffix,
-		"network2_name":                  "network2" + randomSuffix,
-		"policy_name":                    "scpolicy" + randomSuffix,
+		"network1_name":                  "tf-test-net1" + randomSuffix,
+		"network2_name":                  "tf-test-network2" + randomSuffix,
+		"policy_name":                    "tf-test-scpolicy" + randomSuffix,
 		"subnet_network1_name":           "tf-test-subnet-net1" + randomSuffix,
 		"subnet_network2_name":           "tf-test-subnet-net2" + randomSuffix,
 		"random_suffix":                  randomSuffix,
@@ -303,7 +303,7 @@ func testAccMemorystoreInstanceDesiredUserCreatedEndpoints_memorystoreInstanceDe
 	return acctest.Nprintf(`
 resource "google_memorystore_instance_desired_user_created_endpoints" "instance-user-auto-conn" {
   name                        = "%{instance_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   desired_user_created_endpoints {
     connections {
       psc_connection {
@@ -328,7 +328,7 @@ resource "google_memorystore_instance_desired_user_created_endpoints" "instance-
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
   name                        = "%{forwarding_rule1_network2_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   ip_address                  = google_compute_address.ip1_network2.id
   load_balancing_scheme       = ""
   network                     = google_compute_network.network2.id
@@ -337,7 +337,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
   name                        = "%{forwarding_rule2_network2_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   ip_address                  = google_compute_address.ip2_network2.id
   load_balancing_scheme       = ""
   network                     = google_compute_network.network2.id
@@ -346,7 +346,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
 
 resource "google_compute_address" "ip1_network2" {
   name                        = "%{ip1_network2_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   subnetwork                  = google_compute_subnetwork.subnet_network2.id
   address_type                = "INTERNAL"  
   purpose                     = "GCE_ENDPOINT"
@@ -354,7 +354,7 @@ resource "google_compute_address" "ip1_network2" {
 
 resource "google_compute_address" "ip2_network2" {
   name                        = "%{ip2_network2_name}"
-  region                      = "us-central1"
+  region                      = "us-west1"
   subnetwork                  = google_compute_subnetwork.subnet_network2.id
   address_type                = "INTERNAL"
   purpose                     = "GCE_ENDPOINT"
@@ -363,7 +363,7 @@ resource "google_compute_address" "ip2_network2" {
 resource "google_compute_subnetwork" "subnet_network2" {
   name                        = "%{subnet_network2_name}"
   ip_cidr_range               = "10.0.0.248/29"
-  region                      = "us-central1"
+  region                      = "us-west1"
   network                     = google_compute_network.network2.id
 }
 
@@ -380,7 +380,7 @@ resource "google_memorystore_instance" "instance-user-auto-conn" {
     network                   = google_compute_network.network1.id
     project_id                = data.google_project.project.project_id
   }
-  location                    = "us-central1"
+  location                    = "us-west1"
   deletion_protection_enabled = false
   depends_on                  = [google_network_connectivity_service_connection_policy.default]
 
@@ -388,7 +388,7 @@ resource "google_memorystore_instance" "instance-user-auto-conn" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name                        = "%{policy_name}"
-  location                    = "us-central1"
+  location                    = "us-west1"
   service_class               = "gcp-memorystore"
   description                 = "my basic service connection policy"
   network                     = google_compute_network.network1.id
@@ -400,7 +400,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "subnet_network1" {
   name                       = "%{subnet_network1_name}"
   ip_cidr_range              = "10.0.0.248/29"
-  region                     = "us-central1"
+  region                     = "us-west1"
   network                    = google_compute_network.network1.id
 }
 
