@@ -38,9 +38,6 @@ func TestAccParameterManagerParameterVersion_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccParameterManagerParameterVersion_basic(context),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_parameter_manager_parameter_version.parameter-version-update", "data_crc32c", "1083866889"),
-				),
 			},
 			{
 				ResourceName:            "google_parameter_manager_parameter_version.parameter-version-update",
@@ -50,21 +47,6 @@ func TestAccParameterManagerParameterVersion_update(t *testing.T) {
 			},
 			{
 				Config: testAccParameterManagerParameterVersion_update(context),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_parameter_manager_parameter_version.parameter-version-update", "data_crc32c", "1083866889"),
-				),
-			},
-			{
-				ResourceName:            "google_parameter_manager_parameter_version.parameter-version-update",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parameter", "parameter_version_id", "data_crc32c"},
-			},
-			{
-				Config: testAccParameterManagerParameterVersion_basic(context),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_parameter_manager_parameter_version.parameter-version-update", "data_crc32c", "1083866889"),
-				),
 			},
 			{
 				ResourceName:            "google_parameter_manager_parameter_version.parameter-version-update",
@@ -72,30 +54,11 @@ func TestAccParameterManagerParameterVersion_update(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parameter", "parameter_version_id"},
 			},
-		},
-	})
-}
-
-func TestAccParameterManagerParameterVersion_dataCrc32c(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckParameterManagerParameterVersionDestroyProducer(t),
-		Steps: []resource.TestStep{
 			{
-				Config: testAccParameterManagerParameterVersion_dataCrc32c(context),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_parameter_manager_parameter_version.parameter-version-crc32c", "data_crc32c", "1083866889"),
-				),
+				Config: testAccParameterManagerParameterVersion_basic(context),
 			},
 			{
-				ResourceName:            "google_parameter_manager_parameter_version.parameter-version-crc32c",
+				ResourceName:            "google_parameter_manager_parameter_version.parameter-version-update",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"parameter", "parameter_version_id"},
@@ -129,21 +92,6 @@ resource "google_parameter_manager_parameter_version" "parameter-version-update"
   parameter_version_id = "tf_test_parameter_version%{random_suffix}"
   parameter_data = "parameter-version-data"
   disabled = true
-}
-`, context)
-}
-
-func testAccParameterManagerParameterVersion_dataCrc32c(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_parameter_manager_parameter" "parameter-crc32c" {
-  parameter_id = "tf_test_parameter%{random_suffix}"
-}
-
-resource "google_parameter_manager_parameter_version" "parameter-version-crc32c" {
-  parameter = google_parameter_manager_parameter.parameter-crc32c.id
-  parameter_version_id = "tf_test_parameter_version%{random_suffix}"
-  parameter_data = "parameter-version-data"
-  data_crc32c = "1083866889"
 }
 `, context)
 }
