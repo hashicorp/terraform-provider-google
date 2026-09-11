@@ -1671,6 +1671,20 @@ func resourceBiglakeIcebergIcebergTableEncoder(d *schema.ResourceData, meta inte
 			wo["order-id"] = 1
 		}
 	}
+
+	// Iceberg PartitionSpec fields require a field-id (conventionally starting at 1000).
+	// Since field_id is output-only in the schema, inject defaults if omitted.
+	if ps, ok := obj["partition-spec"].(map[string]interface{}); ok {
+		if fields, ok := ps["fields"].([]interface{}); ok {
+			for i, field := range fields {
+				if f, ok := field.(map[string]interface{}); ok {
+					if _, hasId := f["field-id"]; !hasId {
+						f["field-id"] = 1000 + i
+					}
+				}
+			}
+		}
+	}
 	return obj, nil
 }
 
