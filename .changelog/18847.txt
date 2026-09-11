@@ -1,0 +1,3 @@
+```release-note:bug
+biglakeiceberg: fixed an issue where creating a partitioned `google_biglake_iceberg_table` failed due to missing `field-id`
+```
