@@ -22,9 +22,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/parametermanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccParameterManagerParameter_labelsUpdate(t *testing.T) {
@@ -230,6 +232,53 @@ resource "google_parameter_manager_parameter" "parameter-with-kms-key" {
   format = "JSON"
 
   kms_key = "%{kms_key_other}"
+}
+`, context)
+}
+
+func TestAccParameterManagerParameter_tags(t *testing.T) {
+	t.Parallel()
+
+	tagKey := tags.BootstrapSharedTestOrganizationTagKey(t, "parameter_manager_parameter-tagkey", map[string]interface{}{})
+
+	context := map[string]interface{}{
+		"org":           envvar.GetTestOrgFromEnv(t),
+		"tagKey":        tagKey,
+		"tagValue":      tags.BootstrapSharedTestOrganizationTagValue(t, "parameter_manager_parameter-tagvalue", tagKey),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckParameterManagerParameterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccParameterManagerParameter_tags(context),
+			},
+			{
+				ResourceName:            "google_parameter_manager_parameter.parameter-tags",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "terraform_labels", "tags"},
+			},
+		},
+	})
+}
+
+func testAccParameterManagerParameter_tags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_parameter_manager_parameter" "parameter-tags" {
+  parameter_id = "tf_test_parameter%{random_suffix}"
+  format = "JSON"
+
+  labels = {
+    environment = "test"
+  }
+
+  tags = {
+    "%{org}/%{tagKey}" = "%{tagValue}"
+  }
 }
 `, context)
 }
