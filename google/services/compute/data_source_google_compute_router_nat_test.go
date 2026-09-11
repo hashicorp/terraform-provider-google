@@ -49,18 +49,18 @@ func TestAccDataSourceGoogleComputeRouterNat_basic(t *testing.T) {
 func testAccDataSourceGoogleComputeRouterNat_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "net" {
-  name = "my-network%{random_suffix}"
+  name = "tf-test-my-network%{random_suffix}"
 }
 	  
 resource "google_compute_subnetwork" "subnet" {
-  name          = "my-subnetwork%{random_suffix}"
+  name          = "tf-test-my-subnetwork%{random_suffix}"
   network       = google_compute_network.net.id
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 	  
 resource "google_compute_router" "router" {
-  name    = "my-router%{random_suffix}"
+  name    = "tf-test-my-router%{random_suffix}"
   region  = google_compute_subnetwork.subnet.region
   network = google_compute_network.net.id
 
@@ -70,7 +70,7 @@ resource "google_compute_router" "router" {
 }
 	  
 resource "google_compute_router_nat" "nat" {
-  name                               = "my-router-nat%{random_suffix}"
+  name                               = "tf-test-my-router-nat%{random_suffix}"
   router                             = google_compute_router.router.name
   region                             = google_compute_router.router.region
   nat_ip_allocate_option             = "AUTO_ONLY"

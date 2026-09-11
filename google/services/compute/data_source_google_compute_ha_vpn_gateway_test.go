@@ -28,7 +28,7 @@ import (
 func TestAccDataSourceComputeHaVpnGateway(t *testing.T) {
 	t.Parallel()
 
-	gwName := fmt.Sprintf("tf-%s", acctest.RandString(t, 10))
+	gwName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	gatewayIpVersion := "IPV6"
 	stackType := "IPV6_ONLY"
 

@@ -167,7 +167,7 @@ func TestAccComputeNetwork_bgpBestPathSelectionModeAndUpdate(t *testing.T) {
 
 	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
-	networkName := fmt.Sprintf("tf-best-bgp-path-selection-mode-%s", suffixName)
+	networkName := fmt.Sprintf("tf-test-best-bgp-path-selection-mode-%s", suffixName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -201,7 +201,7 @@ func TestAccComputeNetwork_bgpAlwaysCompareMedAndUpdate(t *testing.T) {
 
 	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
-	networkName := fmt.Sprintf("tf-bgp-always-compare-med-%s", suffixName)
+	networkName := fmt.Sprintf("tf-test-bgp-always-compare-med-%s", suffixName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -242,7 +242,7 @@ func TestAccComputeNetwork_bgpInterRegionCostAndUpdate(t *testing.T) {
 
 	var network map[string]interface{}
 	suffixName := acctest.RandString(t, 10)
-	networkName := fmt.Sprintf("tf-bgp-inter-region-cost-%s", suffixName)
+	networkName := fmt.Sprintf("tf-test-bgp-inter-region-cost-%s", suffixName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -896,7 +896,7 @@ func TestAccComputeNetwork_bgpModeAndMedInteractions(t *testing.T) {
 	t.Parallel()
 
 	network := "google_compute_network.vpc_network"
-	netName := fmt.Sprintf("tf-bgp-int-%s", acctest.RandString(t, 10))
+	netName := fmt.Sprintf("tf-test-bgp-int-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -936,7 +936,7 @@ func TestAccComputeNetwork_networkBgpStandardModeDeleteMed(t *testing.T) {
 	t.Parallel()
 
 	network := "google_compute_network.vpc_network"
-	netName := fmt.Sprintf("tf-bgp-del-%s", acctest.RandString(t, 10))
+	netName := fmt.Sprintf("tf-test-bgp-del-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

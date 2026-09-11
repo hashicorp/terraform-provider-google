@@ -3194,7 +3194,7 @@ resource "google_compute_network" "network" {
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name          = "subnetwork-%s"
+  name          = "tf-test-subnetwork-%s"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.network.self_link
@@ -3286,7 +3286,7 @@ resource "google_compute_network" "network" {
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name          = "subnetwork-%s"
+  name          = "tf-test-subnetwork-%s"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.network.self_link
@@ -3395,7 +3395,7 @@ resource "google_compute_network" "inst-test-network" {
 }
 
 resource "google_compute_subnetwork" "inst-test-subnetwork" {
-  name          = "inst-test-subnetwork-%s"
+  name          = "tf-test-inst-test-subnetwork-%s"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.inst-test-network.self_link
@@ -4723,13 +4723,13 @@ func testAccComputeRegionInstanceTemplate_resourceManagerTags(context map[string
 	return acctest.Nprintf(`
 resource "google_tags_tag_key" "key" {
   parent = "projects/%{project}"
-  short_name = "foobarbaz%{random_suffix}"
+  short_name = "tf-test-foobarbaz%{random_suffix}"
   description = "For foo/bar resources."
 }
 
 resource "google_tags_tag_value" "value" {
   parent = google_tags_tag_key.key.id
-  short_name = "foo%{random_suffix}"
+  short_name = "tf-test-foo%{random_suffix}"
   description = "For foo resources."
 }
 

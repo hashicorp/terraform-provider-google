@@ -33,9 +33,9 @@ import (
 func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
 	t.Parallel()
 
-	bsName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(t, 10))
-	hcName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(t, 10))
-	umName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(t, 10))
+	bsName := fmt.Sprintf("tf-test-urlmap-%s", acctest.RandString(t, 10))
+	hcName := fmt.Sprintf("tf-test-urlmap-%s", acctest.RandString(t, 10))
+	umName := fmt.Sprintf("tf-test-urlmap-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -143,9 +143,9 @@ func TestAccComputeUrlMap_defaultRouteActionUrlRewrite(t *testing.T) {
 func TestAccComputeUrlMap_noPathRulesWithUpdate(t *testing.T) {
 	t.Parallel()
 
-	bsName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(t, 10))
-	hcName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(t, 10))
-	umName := fmt.Sprintf("urlmap-test-%s", acctest.RandString(t, 10))
+	bsName := fmt.Sprintf("tf-test-urlmap-%s", acctest.RandString(t, 10))
+	hcName := fmt.Sprintf("tf-test-urlmap-%s", acctest.RandString(t, 10))
+	umName := fmt.Sprintf("tf-test-urlmap-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -207,9 +207,9 @@ func TestAccComputeUrlMap_defaultRouteActionTrafficDirectorPathUpdate(t *testing
 
 	randString := acctest.RandString(t, 10)
 
-	bsName := fmt.Sprintf("urlmap-test-%s", randString)
-	hcName := fmt.Sprintf("urlmap-test-%s", randString)
-	umName := fmt.Sprintf("urlmap-test-%s", randString)
+	bsName := fmt.Sprintf("tf-test-urlmap-%s", randString)
+	hcName := fmt.Sprintf("tf-test-urlmap-%s", randString)
+	umName := fmt.Sprintf("tf-test-urlmap-%s", randString)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -240,9 +240,9 @@ func TestAccComputeUrlMap_defaultRouteActionTrafficDirectorUpdate(t *testing.T) 
 
 	randString := acctest.RandString(t, 10)
 
-	bsName := fmt.Sprintf("urlmap-test-%s", randString)
-	hcName := fmt.Sprintf("urlmap-test-%s", randString)
-	umName := fmt.Sprintf("urlmap-test-%s", randString)
+	bsName := fmt.Sprintf("tf-test-urlmap-%s", randString)
+	hcName := fmt.Sprintf("tf-test-urlmap-%s", randString)
+	umName := fmt.Sprintf("tf-test-urlmap-%s", randString)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -273,9 +273,9 @@ func TestAccComputeUrlMap_trafficDirectorUpdate(t *testing.T) {
 
 	randString := acctest.RandString(t, 10)
 
-	bsName := fmt.Sprintf("urlmap-test-%s", randString)
-	hcName := fmt.Sprintf("urlmap-test-%s", randString)
-	umName := fmt.Sprintf("urlmap-test-%s", randString)
+	bsName := fmt.Sprintf("tf-test-urlmap-%s", randString)
+	hcName := fmt.Sprintf("tf-test-urlmap-%s", randString)
+	umName := fmt.Sprintf("tf-test-urlmap-%s", randString)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -306,9 +306,9 @@ func TestAccComputeUrlMap_trafficDirectorPathUpdate(t *testing.T) {
 
 	randString := acctest.RandString(t, 10)
 
-	bsName := fmt.Sprintf("urlmap-test-%s", randString)
-	hcName := fmt.Sprintf("urlmap-test-%s", randString)
-	umName := fmt.Sprintf("urlmap-test-%s", randString)
+	bsName := fmt.Sprintf("tf-test-urlmap-%s", randString)
+	hcName := fmt.Sprintf("tf-test-urlmap-%s", randString)
+	umName := fmt.Sprintf("tf-test-urlmap-%s", randString)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -339,9 +339,9 @@ func TestAccComputeUrlMap_trafficDirectorRemoveRouteRule(t *testing.T) {
 
 	randString := acctest.RandString(t, 10)
 
-	bsName := fmt.Sprintf("urlmap-test-%s", randString)
-	hcName := fmt.Sprintf("urlmap-test-%s", randString)
-	umName := fmt.Sprintf("urlmap-test-%s", randString)
+	bsName := fmt.Sprintf("tf-test-urlmap-%s", randString)
+	hcName := fmt.Sprintf("tf-test-urlmap-%s", randString)
+	umName := fmt.Sprintf("tf-test-urlmap-%s", randString)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -426,19 +426,19 @@ func TestAccComputeUrlMap_cachePolicyMultiLevelUpdate(t *testing.T) {
 func testAccComputeUrlMap_regional(bsName, hcName, umName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_regional_backend_service" "foobar" {
-  name          = "urlmap-test-%s"
+  name          = "%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "urlmap-test-%s"
+  name               = "%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_regional_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "%s"
   default_service = google_compute_backend_service.foobar.self_link
 
   host_rule {
@@ -468,19 +468,19 @@ resource "google_compute_regional_url_map" "foobar" {
 func testAccComputeUrlMap_basic1(bsName, hcName, umName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-  name          = "urlmap-test-%s"
+  name          = "%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "urlmap-test-%s"
+  name               = "%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "%s"
   default_service = google_compute_backend_service.foobar.self_link
 
   host_rule {
@@ -510,19 +510,19 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_basic2(bsName, hcName, umName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-  name          = "urlmap-test-%s"
+  name          = "%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "urlmap-test-%s"
+  name               = "%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "%s"
   default_service = google_compute_backend_service.foobar.self_link
 
   host_rule {
@@ -552,19 +552,19 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_advanced1(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-  name          = "urlmap-test-%s"
+  name          = "tf-test-urlmap-%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "urlmap-test-%s"
+  name               = "tf-test-urlmap-%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "tf-test-urlmap-%s"
   default_service = google_compute_backend_service.foobar.self_link
 
   host_rule {
@@ -603,19 +603,19 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_advanced2(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-  name          = "urlmap-test-%s"
+  name          = "tf-test-urlmap-%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "urlmap-test-%s"
+  name               = "tf-test-urlmap-%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "tf-test-urlmap-%s"
   default_service = google_compute_backend_service.foobar.self_link
 
   host_rule {
@@ -674,19 +674,19 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_defaultRouteActionPathUrlRewrite(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-  name          = "urlmap-test-%s"
+  name          = "tf-test-urlmap-%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "urlmap-test-%s"
+  name               = "tf-test-urlmap-%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "tf-test-urlmap-%s"
   default_service = google_compute_backend_service.foobar.self_link
 
   host_rule {
@@ -722,19 +722,19 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_defaultRouteActionPathUrlRewrite_update(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-  name          = "urlmap-test-%s"
+  name          = "tf-test-urlmap-%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "urlmap-test-%s"
+  name               = "tf-test-urlmap-%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "tf-test-urlmap-%s"
   default_service = google_compute_backend_service.foobar.self_link
 
   host_rule {
@@ -770,19 +770,19 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_defaultRouteActionUrlRewrite(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-  name          = "urlmap-test-%s"
+  name          = "tf-test-urlmap-%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "urlmap-test-%s"
+  name               = "tf-test-urlmap-%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "tf-test-urlmap-%s"
   default_service = google_compute_backend_service.foobar.self_link
 
   default_route_action {
@@ -798,19 +798,19 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_defaultRouteActionUrlRewrite_update(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-  name          = "urlmap-test-%s"
+  name          = "tf-test-urlmap-%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "urlmap-test-%s"
+  name               = "tf-test-urlmap-%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "tf-test-urlmap-%s"
   default_service = google_compute_backend_service.foobar.self_link
 
   default_route_action {
@@ -826,19 +826,19 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_noPathRules(bsName, hcName, umName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
-  name          = "urlmap-test-%s"
+  name          = "%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "urlmap-test-%s"
+  name               = "%s"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
 }
 
 resource "google_compute_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "%s"
   default_service = google_compute_backend_service.foobar.self_link
 
   host_rule {
@@ -1779,7 +1779,7 @@ resource "google_compute_health_check" "default" {
 func testAccComputeUrlMap_defaultUrlRedirectConfig(randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_url_map" "foobar" {
-  name            = "urlmap-test-%s"
+  name            = "tf-test-urlmap-%s"
   default_url_redirect {
     https_redirect = true
     strip_query    = false
@@ -1791,7 +1791,7 @@ resource "google_compute_url_map" "foobar" {
 func testAccComputeUrlMap_cachePolicyMultiLevel(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name     = "urlmap-test-%s"
+  name     = "tf-test-urlmap-%s"
   
   default_service = google_compute_backend_service.default.id
 
@@ -1999,7 +1999,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name     = "backend-test-%s"
+  name     = "tf-test-backend-%s"
   
   protocol              = "HTTP"
   # Mandatory scheme for cache_policy
@@ -2008,7 +2008,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name     = "hc-test-%s"
+  name     = "tf-test-hc-%s"
   http_health_check {
     port = 80
   }
@@ -2019,7 +2019,7 @@ resource "google_compute_health_check" "default" {
 func testAccComputeUrlMap_cachePolicyMultiLevelUpdate(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_url_map" "urlmap" {
-  name     = "urlmap-test-%s"
+  name     = "tf-test-urlmap-%s"
   
   default_service = google_compute_backend_service.default.id
 
@@ -2142,7 +2142,7 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name     = "backend-test-%s"
+  name     = "tf-test-backend-%s"
   
   protocol              = "HTTP"
   # Mandatory scheme for cache_policy
@@ -2151,7 +2151,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name     = "hc-test-%s"
+  name     = "tf-test-hc-%s"
   http_health_check {
     port = 80
   }

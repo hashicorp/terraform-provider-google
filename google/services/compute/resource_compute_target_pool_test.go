@@ -188,7 +188,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_http_health_check" "foobar" {
-  name = "healthcheck-test-%s"
+  name = "tf-test-healthcheck-%s"
   host = "example.com"
 }
 
@@ -211,7 +211,7 @@ resource "google_compute_instance" "foobar" {
 resource "google_compute_target_pool" "foo" {
   description      = "Resource created for Terraform acceptance testing"
   instances        = [google_compute_instance.foobar.self_link, "us-central1-b/bar"]
-  name             = "tpool-test-%s"
+  name             = "tf-test-tpool-%s"
   session_affinity = "CLIENT_IP_PROTO"
   health_checks = [
     google_compute_http_health_check.foobar.name,
@@ -220,7 +220,7 @@ resource "google_compute_target_pool" "foo" {
 
 resource "google_compute_target_pool" "bar" {
   description = "Resource created for Terraform acceptance testing"
-  name        = "tpool-test-2-%s"
+  name        = "tf-test-tpool-test-2-%s"
   health_checks = [
     google_compute_http_health_check.foobar.self_link,
   ]
