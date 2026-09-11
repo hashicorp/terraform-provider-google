@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: added `instance_flexibility_policy` to `master_config`, `worker_config`, and `secondary_worker_config` in `google_dataproc_workflow_template`
+```
