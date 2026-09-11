@@ -19,6 +19,7 @@ package compute
 import (
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
 
@@ -147,5 +148,34 @@ func TestComputeInstance_networkIPCustomizedDiff(t *testing.T) {
 		if tc.ExpectedForceNew != d.IsForceNew {
 			t.Errorf("%v: expected d.IsForceNew to be %v, but was %v", tn, tc.ExpectedForceNew, d.IsForceNew)
 		}
+	}
+}
+
+func TestPerformanceMonitoringUnitDiffSuppress(t *testing.T) {
+	t.Parallel()
+
+	newResource := schema.TestResourceDataRaw(t, map[string]*schema.Schema{}, map[string]interface{}{})
+	existingResource := schema.TestResourceDataRaw(t, map[string]*schema.Schema{}, map[string]interface{}{})
+	existingResource.SetId("existing")
+
+	cases := map[string]struct {
+		old, new string
+		data     *schema.ResourceData
+		want     bool
+	}{
+		"new resource preserves standard":                       {old: "", new: "STANDARD", data: newResource, want: false},
+		"existing resource suppresses empty to standard":        {old: "", new: "STANDARD", data: existingResource, want: true},
+		"existing resource suppresses standard to empty":        {old: "STANDARD", new: "", data: existingResource, want: true},
+		"existing resource preserves empty to architectural":    {old: "", new: "ARCHITECTURAL", data: existingResource, want: false},
+		"existing resource preserves architectural to standard": {old: "ARCHITECTURAL", new: "STANDARD", data: existingResource, want: false},
+		"nil resource does not suppress":                        {old: "", new: "STANDARD", data: nil, want: false},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if got := performanceMonitoringUnitDiffSuppress("performance_monitoring_unit", tc.old, tc.new, tc.data); got != tc.want {
+				t.Fatalf("performanceMonitoringUnitDiffSuppress(%q, %q) = %t, want %t", tc.old, tc.new, got, tc.want)
+			}
+		})
 	}
 }

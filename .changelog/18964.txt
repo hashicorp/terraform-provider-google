@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a bug where an explicitly configured `advanced_machine_features.performance_monitoring_unit = "STANDARD"` was dropped on creation for `google_compute_instance`, `google_compute_instance_template`, and `google_compute_region_instance_template`
+```
