@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudsecuritycompliance: added `parameter_spec.sub_parameters.sub_parameters` and nested `oneof_value` fields to `google_cloud_security_compliance_cloud_control`
+```
