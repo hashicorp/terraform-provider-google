@@ -296,8 +296,8 @@ func TestAccComputeImage_resolveImage(t *testing.T) {
 
 	var image map[string]interface{}
 	rand := acctest.RandString(t, 10)
-	name := fmt.Sprintf("test-image-%s", rand)
-	fam := fmt.Sprintf("test-image-family-%s", rand)
+	name := fmt.Sprintf("tf-test-test-image-%s", rand)
+	fam := fmt.Sprintf("tf-test-test-image-family-%s", rand)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -665,7 +665,7 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_disk" "foobar" {
-  name  = "disk-test-%s"
+  name  = "%s"
   zone  = "us-central1-a"
   image = data.google_compute_image.my_image.self_link
 }
@@ -722,13 +722,13 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_disk" "foobar" {
-  name  = "disk-test-%s"
+  name  = "%s"
   zone  = "us-central1-a"
   image = data.google_compute_image.my_image.self_link
 }
 
 resource "google_compute_image" "foobar" {
-  name        = "image-test-%s"
+  name        = "%s"
   source_disk = google_compute_disk.foobar.self_link
 }
 `, diskName, imageName)
@@ -1165,19 +1165,19 @@ func testAccComputeImage_resourceManagerTags(context map[string]interface{}) str
 	return acctest.Nprintf(`
 resource "google_tags_tag_key" "tag_key" {
   parent      = "projects/%{project_id}"
-  short_name  = "image-tag-%{random_suffix}"
+  short_name  = "tf-test-image-tag-%{random_suffix}"
   description = "Tag key for image acceptance tests"
 }
 
 resource "google_tags_tag_value" "tag_value_1" {
   parent      = google_tags_tag_key.tag_key.id
-  short_name  = "value-one-%{random_suffix}"
+  short_name  = "tf-test-value-one-%{random_suffix}"
   description = "First tag value for image acceptance tests"
 }
 
 resource "google_tags_tag_value" "tag_value_2" {
   parent      = google_tags_tag_key.tag_key.id
-  short_name  = "value-two-%{random_suffix}"
+  short_name  = "tf-test-value-two-%{random_suffix}"
   description = "Second tag value for image acceptance tests"
 
   # Serialize value creation for stable VCR recordings.

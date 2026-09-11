@@ -38,8 +38,8 @@ func TestAccComputeBulkPerInstanceConfig_basic(t *testing.T) {
 	context := map[string]any{
 		"igm_name":       igmName,
 		"random_suffix":  suffix,
-		"instance_name1": fmt.Sprintf("instance-%s", acctest.RandString(t, 10)),
-		"instance_name2": fmt.Sprintf("instance-%s", acctest.RandString(t, 10)),
+		"instance_name1": fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10)),
+		"instance_name2": fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10)),
 	}
 
 	igmId := fmt.Sprintf("projects/%s/zones/%s/instanceGroupManagers/%s",
@@ -81,14 +81,14 @@ func TestAccComputeBulkPerInstanceConfig_allInstancesChanged(t *testing.T) {
 	context := map[string]any{
 		"igm_name":       igmName,
 		"random_suffix":  suffix,
-		"instance_name1": fmt.Sprintf("instance-%s", acctest.RandString(t, 10)),
-		"instance_name2": fmt.Sprintf("instance-%s", acctest.RandString(t, 10)),
+		"instance_name1": fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10)),
+		"instance_name2": fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10)),
 	}
 	contextUpdated := map[string]any{
 		"igm_name":       igmName,
 		"random_suffix":  suffix,
-		"instance_name1": fmt.Sprintf("instance-%s", acctest.RandString(t, 10)),
-		"instance_name2": fmt.Sprintf("instance-%s", acctest.RandString(t, 10)),
+		"instance_name1": fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10)),
+		"instance_name2": fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10)),
 	}
 
 	igmId := fmt.Sprintf("projects/%s/zones/%s/instanceGroupManagers/%s",
@@ -132,18 +132,18 @@ func TestAccComputeBulkPerInstanceConfig_oneInstanceChanged(t *testing.T) {
 
 	suffix := acctest.RandString(t, 10)
 	igmName := fmt.Sprintf("tf-test-igm-%s", suffix)
-	commonInstanceName := fmt.Sprintf("instance-%s", acctest.RandString(t, 10))
+	commonInstanceName := fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10))
 	context := map[string]any{
 		"igm_name":       igmName,
 		"random_suffix":  suffix,
 		"instance_name1": commonInstanceName,
-		"instance_name2": fmt.Sprintf("instance-%s", acctest.RandString(t, 10)),
+		"instance_name2": fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10)),
 	}
 	contextUpdated := map[string]any{
 		"igm_name":       igmName,
 		"random_suffix":  suffix,
 		"instance_name1": commonInstanceName,
-		"instance_name2": fmt.Sprintf("instance-%s", acctest.RandString(t, 10)),
+		"instance_name2": fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10)),
 	}
 
 	igmId := fmt.Sprintf("projects/%s/zones/%s/instanceGroupManagers/%s",

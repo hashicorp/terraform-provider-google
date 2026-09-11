@@ -84,7 +84,7 @@ resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
   }
 }
 resource "google_compute_network" "network1" {
-  name                    = "network1%s"
+  name                    = "tf-test-network1%s"
   auto_create_subnetworks = false
 }
 `, suffix, key, value, suffix)
@@ -136,7 +136,7 @@ resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
 }
 
 resource "google_compute_network" "network1" {
-  name                    = "network1%{suffix}"
+  name                    = "tf-test-network1%{suffix}"
   auto_create_subnetworks = false
 }
 `, context)

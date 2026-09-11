@@ -51,7 +51,7 @@ func TestAccDataSourceComputeSslCertificate(t *testing.T) {
 func testAccDataSourceComputeSslCertificateConfig(certName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_ssl_certificate" "foobar" {
-  name        = "cert-test-%s"
+  name        = "tf-test-cert-%s"
   description = "really descriptive"
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")

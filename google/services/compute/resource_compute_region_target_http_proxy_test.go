@@ -28,11 +28,11 @@ import (
 func TestAccComputeRegionTargetHttpProxy_update(t *testing.T) {
 	t.Parallel()
 
-	target := fmt.Sprintf("thttp-test-%s", acctest.RandString(t, 10))
-	backend := fmt.Sprintf("thttp-test-%s", acctest.RandString(t, 10))
-	hc := fmt.Sprintf("thttp-test-%s", acctest.RandString(t, 10))
-	urlmap1 := fmt.Sprintf("thttp-test-%s", acctest.RandString(t, 10))
-	urlmap2 := fmt.Sprintf("thttp-test-%s", acctest.RandString(t, 10))
+	target := fmt.Sprintf("tf-test-thttp-%s", acctest.RandString(t, 10))
+	backend := fmt.Sprintf("tf-test-thttp-%s", acctest.RandString(t, 10))
+	hc := fmt.Sprintf("tf-test-thttp-%s", acctest.RandString(t, 10))
+	urlmap1 := fmt.Sprintf("tf-test-thttp-%s", acctest.RandString(t, 10))
+	urlmap2 := fmt.Sprintf("tf-test-thttp-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

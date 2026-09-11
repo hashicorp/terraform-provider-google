@@ -172,7 +172,7 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 func TestAccComputeBackendService_withBackendAndPreferenceInternalManaged(t *testing.T) {
 	t.Parallel()
 
-	im_suffix := fmt.Sprintf("im-%s", acctest.RandString(t, 10))
+	im_suffix := fmt.Sprintf("tf-test-im-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -202,7 +202,7 @@ func TestAccComputeBackendService_withBackendAndPreferenceInternalManaged(t *tes
 func TestAccComputeBackendService_withBackendAndPreferenceInternalSelfManaged(t *testing.T) {
 	t.Parallel()
 
-	ism_suffix := fmt.Sprintf("ism-%s", acctest.RandString(t, 10))
+	ism_suffix := fmt.Sprintf("tf-test-ism-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -231,7 +231,7 @@ func TestAccComputeBackendService_withBackendAndPreferenceInternalSelfManaged(t 
 
 func TestAccComputeBackendService_withBackendAndPreferenceExternalManaged(t *testing.T) {
 	t.Parallel()
-	em_suffix := fmt.Sprintf("em-%s", acctest.RandString(t, 10))
+	em_suffix := fmt.Sprintf("tf-test-em-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -758,11 +758,11 @@ func TestAccComputeBackendService_internalLoadBalancing(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	fr := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	proxy := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	backend := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	hc := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	urlmap := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
+	fr := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	proxy := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	backend := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	hc := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	urlmap := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -909,8 +909,8 @@ func TestAccComputeBackendService_withLogConfigRequestResponseHeaders(t *testing
 func TestAccComputeBackendService_trafficDirectorUpdateBasic(t *testing.T) {
 	t.Parallel()
 
-	backendName := fmt.Sprintf("foo-%s", acctest.RandString(t, 10))
-	checkName := fmt.Sprintf("bar-%s", acctest.RandString(t, 10))
+	backendName := fmt.Sprintf("tf-test-foo-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-bar-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -940,8 +940,8 @@ func TestAccComputeBackendService_trafficDirectorUpdateBasic(t *testing.T) {
 func TestAccComputeBackendService_withCompressionMode(t *testing.T) {
 	t.Parallel()
 
-	backendName := fmt.Sprintf("foo-%s", acctest.RandString(t, 10))
-	checkName := fmt.Sprintf("bar-%s", acctest.RandString(t, 10))
+	backendName := fmt.Sprintf("tf-test-foo-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-bar-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -979,8 +979,8 @@ func TestAccComputeBackendService_withCompressionMode(t *testing.T) {
 func TestAccComputeBackendService_trafficDirectorUpdateLbPolicies(t *testing.T) {
 	t.Parallel()
 
-	backendName := fmt.Sprintf("foo-%s", acctest.RandString(t, 10))
-	checkName := fmt.Sprintf("bar-%s", acctest.RandString(t, 10))
+	backendName := fmt.Sprintf("tf-test-foo-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-bar-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -2541,7 +2541,7 @@ func TestAccComputeBackendService_backendServiceCustomMetrics_update(t *testing.
 func testAccComputeBackendService_backendServiceCustomMetrics_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "network%{random_suffix}"
+  name                    = "tf-test-network%{random_suffix}"
 }
 
 // Zonal NEG with GCE_VM_IP_PORT
@@ -2597,7 +2597,7 @@ resource "google_compute_health_check" "default" {
 func testAccComputeBackendService_backendServiceCustomMetrics_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
-  name                    = "network%{random_suffix}"
+  name                    = "tf-test-network%{random_suffix}"
 }
 
 // Zonal NEG with GCE_VM_IP_PORT

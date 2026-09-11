@@ -31,7 +31,7 @@ func TestAccComputeNetworkPeering_basic(t *testing.T) {
 	t.Parallel()
 
 	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", acctest.RandInt(t))
-	peeringName := fmt.Sprintf("peering-test-1-%d", acctest.RandInt(t))
+	peeringName := fmt.Sprintf("tf-test-peering-test-1-%d", acctest.RandInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -57,7 +57,7 @@ func TestAccComputeNetworkPeering_subnetRoutes(t *testing.T) {
 	t.Parallel()
 
 	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", acctest.RandInt(t))
-	peeringName := fmt.Sprintf("peering-test-%d", acctest.RandInt(t))
+	peeringName := fmt.Sprintf("tf-test-peering-%d", acctest.RandInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -82,7 +82,7 @@ func TestAccComputeNetworkPeering_customRoutesUpdate(t *testing.T) {
 	t.Parallel()
 
 	primaryNetworkName := fmt.Sprintf("tf-test-network-peering-1-%d", acctest.RandInt(t))
-	peeringName := fmt.Sprintf("peering-test-%d", acctest.RandInt(t))
+	peeringName := fmt.Sprintf("tf-test-peering-%d", acctest.RandInt(t))
 	importId := fmt.Sprintf("%s/%s/%s", envvar.GetTestProjectFromEnv(), primaryNetworkName, peeringName)
 	suffix := acctest.RandString(t, 10)
 
@@ -235,7 +235,7 @@ resource "google_compute_network" "network2" {
 resource "google_compute_network_peering" "bar" {
   network      = google_compute_network.network2.self_link
   peer_network = google_compute_network.network1.self_link
-  name         = "peering-test-2-%s"
+  name         = "tf-test-peering-test-2-%s"
   import_custom_routes = true
   export_custom_routes = true		
 }
@@ -285,7 +285,7 @@ resource "google_compute_network" "network2" {
 resource "google_compute_network_peering" "bar" {
   network      = google_compute_network.network2.self_link
   peer_network = google_compute_network.network1.self_link
-  name         = "peering-test-2-%s"
+  name         = "tf-test-peering-test-2-%s"
 }`
 	return fmt.Sprintf(s, primaryNetworkName, peeringName, suffix, suffix)
 }

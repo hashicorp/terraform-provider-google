@@ -199,7 +199,7 @@ resource "google_tags_tag_value" "basic_value" {
 }
 
 resource "google_compute_network" "network" {
-  name                    = "tf-network%{random_suffix}"
+  name                    = "tf-test-network%{random_suffix}"
   auto_create_subnetworks = false
 }
 

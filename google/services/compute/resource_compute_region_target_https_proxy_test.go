@@ -71,41 +71,41 @@ func testAccComputeRegionTargetHttpsProxy_basic1(id string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_target_https_proxy" "foobar" {
   description      = "Resource created for Terraform acceptance testing"
-  name             = "httpsproxy-test-%s"
+  name             = "tf-test-httpsproxy-%s"
   url_map          = google_compute_region_url_map.foobar1.self_link
   ssl_certificates = [google_compute_region_ssl_certificate.foobar1.self_link]
 }
 
 resource "google_compute_region_backend_service" "foobar1" {
-  name          = "httpsproxy-test-backend1-%s"
+  name          = "tf-test-httpsproxy-test-backend1-%s"
   health_checks = [google_compute_region_health_check.zero.self_link]
   protocol      = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_region_backend_service" "foobar2" {
-  name          = "httpsproxy-test-backend2-%s"
+  name          = "tf-test-httpsproxy-test-backend2-%s"
   health_checks = [google_compute_region_health_check.one.self_link]
   protocol      = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_region_health_check" "zero" {
-  name     = "httpsproxy-test-health-check1-%s"
+  name     = "tf-test-httpsproxy-test-health-check1-%s"
   http_health_check {
     port = 443
   }
 }
 
 resource "google_compute_region_health_check" "one" {
-  name     = "httpsproxy-test-health-check2-%s"
+  name     = "tf-test-httpsproxy-test-health-check2-%s"
   http_health_check {
     port = 443
   }
 }
 
 resource "google_compute_region_url_map" "foobar1" {
-  name            = "httpsproxy-test-url-map1-%s"
+  name            = "tf-test-httpsproxy-test-url-map1-%s"
   default_service = google_compute_region_backend_service.foobar1.self_link
   host_rule {
     hosts        = ["mysite.com", "myothersite.com"]
@@ -127,7 +127,7 @@ resource "google_compute_region_url_map" "foobar1" {
 }
 
 resource "google_compute_region_url_map" "foobar2" {
-  name            = "httpsproxy-test-url-map2-%s"
+  name            = "tf-test-httpsproxy-test-url-map2-%s"
   default_service = google_compute_region_backend_service.foobar2.self_link
   host_rule {
     hosts        = ["mysite2.com", "myothersite2.com"]
@@ -149,14 +149,14 @@ resource "google_compute_region_url_map" "foobar2" {
 }
 
 resource "google_compute_region_ssl_certificate" "foobar1" {
-  name        = "httpsproxy-test-cert1-%s"
+  name        = "tf-test-httpsproxy-test-cert1-%s"
   description = "very descriptive"
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")
 }
 
 resource "google_compute_region_ssl_certificate" "foobar2" {
-  name        = "httpsproxy-test-cert2-%s"
+  name        = "tf-test-httpsproxy-test-cert2-%s"
   description = "very descriptive"
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")
@@ -168,7 +168,7 @@ func testAccComputeRegionTargetHttpsProxy_basic2(id string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_target_https_proxy" "foobar" {
   description = "Resource created for Terraform acceptance testing"
-  name        = "httpsproxy-test-%s"
+  name        = "tf-test-httpsproxy-%s"
   url_map     = google_compute_region_url_map.foobar2.self_link
   ssl_certificates = [
     google_compute_region_ssl_certificate.foobar1.self_link,
@@ -177,35 +177,35 @@ resource "google_compute_region_target_https_proxy" "foobar" {
 }
 
 resource "google_compute_region_backend_service" "foobar1" {
-  name          = "httpsproxy-test-backend1-%s"
+  name          = "tf-test-httpsproxy-test-backend1-%s"
   health_checks = [google_compute_region_health_check.zero.self_link]
   protocol      = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_region_backend_service" "foobar2" {
-  name          = "httpsproxy-test-backend2-%s"
+  name          = "tf-test-httpsproxy-test-backend2-%s"
   health_checks = [google_compute_region_health_check.one.self_link]
   protocol      = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_region_health_check" "zero" {
-  name     = "httpsproxy-test-health-check1-%s"
+  name     = "tf-test-httpsproxy-test-health-check1-%s"
   http_health_check {
     port = 443
   }
 }
 
 resource "google_compute_region_health_check" "one" {
-  name     = "httpsproxy-test-health-check2-%s"
+  name     = "tf-test-httpsproxy-test-health-check2-%s"
   http_health_check {
     port = 443
   }
 }
 
 resource "google_compute_region_url_map" "foobar1" {
-  name            = "httpsproxy-test-url-map1-%s"
+  name            = "tf-test-httpsproxy-test-url-map1-%s"
   default_service = google_compute_region_backend_service.foobar1.self_link
   host_rule {
     hosts        = ["mysite.com", "myothersite.com"]
@@ -227,7 +227,7 @@ resource "google_compute_region_url_map" "foobar1" {
 }
 
 resource "google_compute_region_url_map" "foobar2" {
-  name            = "httpsproxy-test-url-map2-%s"
+  name            = "tf-test-httpsproxy-test-url-map2-%s"
   default_service = google_compute_region_backend_service.foobar2.self_link
   host_rule {
     hosts        = ["mysite2.com", "myothersite2.com"]
@@ -249,14 +249,14 @@ resource "google_compute_region_url_map" "foobar2" {
 }
 
 resource "google_compute_region_ssl_certificate" "foobar1" {
-  name        = "httpsproxy-test-cert1-%s"
+  name        = "tf-test-httpsproxy-test-cert1-%s"
   description = "very descriptive"
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")
 }
 
 resource "google_compute_region_ssl_certificate" "foobar2" {
-  name                   = "httpsproxy-test-cert2-%s"
+  name                   = "tf-test-httpsproxy-test-cert2-%s"
   description            = "very descriptive"
   private_key_wo         = file("test-fixtures/test.key")
   private_key_wo_version = parseint(filesha256("test-fixtures/test.key"),16) %% pow(2,32)
@@ -269,42 +269,42 @@ func testAccComputeRegionTargetHttpsProxy_basic3(id string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_target_https_proxy" "foobar" {
   description      = "Resource created for Terraform acceptance testing"
-  name             = "httpsproxy-test-%s"
+  name             = "tf-test-httpsproxy-%s"
   url_map          = google_compute_region_url_map.foobar2.self_link
   ssl_certificates = [google_compute_region_ssl_certificate.foobar2.self_link]
   ssl_policy       = google_compute_region_ssl_policy.foobar.self_link
 }
 
 resource "google_compute_region_backend_service" "foobar1" {
-  name          = "httpsproxy-test-backend1-%s"
+  name          = "tf-test-httpsproxy-test-backend1-%s"
   health_checks = [google_compute_region_health_check.zero.self_link]
   protocol      = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_region_backend_service" "foobar2" {
-  name          = "httpsproxy-test-backend2-%s"
+  name          = "tf-test-httpsproxy-test-backend2-%s"
   health_checks = [google_compute_region_health_check.one.self_link]
   protocol      = "HTTP"
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_region_health_check" "zero" {
-  name     = "httpsproxy-test-health-check1-%s"
+  name     = "tf-test-httpsproxy-test-health-check1-%s"
   http_health_check {
     port = 443
   }
 }
 
 resource "google_compute_region_health_check" "one" {
-  name     = "httpsproxy-test-health-check2-%s"
+  name     = "tf-test-httpsproxy-test-health-check2-%s"
   http_health_check {
     port = 443
   }
 }
 
 resource "google_compute_region_url_map" "foobar1" {
-  name            = "httpsproxy-test-url-map1-%s"
+  name            = "tf-test-httpsproxy-test-url-map1-%s"
   default_service = google_compute_region_backend_service.foobar1.self_link
   host_rule {
     hosts        = ["mysite.com", "myothersite.com"]
@@ -326,7 +326,7 @@ resource "google_compute_region_url_map" "foobar1" {
 }
 
 resource "google_compute_region_url_map" "foobar2" {
-  name            = "httpsproxy-test-url-map2-%s"
+  name            = "tf-test-httpsproxy-test-url-map2-%s"
   default_service = google_compute_region_backend_service.foobar2.self_link
   host_rule {
     hosts        = ["mysite2.com", "myothersite2.com"]
@@ -348,7 +348,7 @@ resource "google_compute_region_url_map" "foobar2" {
 }
 
 resource "google_compute_region_ssl_policy" "foobar" {
-  name            = "sslproxy-test-%s"
+  name            = "tf-test-sslproxy-%s"
   description     = "my-description"
   min_tls_version = "TLS_1_2"
   profile         = "MODERN"
@@ -356,14 +356,14 @@ resource "google_compute_region_ssl_policy" "foobar" {
 }
 
 resource "google_compute_region_ssl_certificate" "foobar1" {
-  name        = "httpsproxy-test-cert1-%s"
+  name        = "tf-test-httpsproxy-test-cert1-%s"
   description = "very descriptive"
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")
 }
 
 resource "google_compute_region_ssl_certificate" "foobar2" {
-  name                   = "httpsproxy-test-cert2-%s"
+  name                   = "tf-test-httpsproxy-test-cert2-%s"
   description            = "very descriptive"
   private_key_wo         = file("test-fixtures/test.key")
   private_key_wo_version = parseint(filesha256("test-fixtures/test.key"),16) %% pow(2,32)
@@ -410,7 +410,7 @@ func testAccComputeRegionTargetHttpsProxy_withForwardingRule(context map[string]
 resource "google_compute_forwarding_rule" "default-https" {
   project               = "%{project_id}"
   region                = "us-central1"
-  name                  = "https-frwd-rule-%{resource_suffix}"
+  name                  = "tf-test-https-frwd-rule-%{resource_suffix}"
   load_balancing_scheme = "INTERNAL_MANAGED"
   target                = google_compute_region_target_https_proxy.default-https.self_link
   network               = google_compute_network.ilb_network.name
@@ -425,7 +425,7 @@ resource "google_compute_forwarding_rule" "default-https" {
 resource "google_compute_region_backend_service" "default" {
   project               = "%{project_id}"
   region                = "us-central1"
-  name                  = "backend-service-%{resource_suffix}"
+  name                  = "tf-test-backend-service-%{resource_suffix}"
   protocol              = "HTTPS"
   port_name             = "https-server"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -459,7 +459,7 @@ resource "google_compute_region_backend_service" "default" {
 resource "google_compute_region_health_check" "default" {
   project             = "%{project_id}"
   region              = "us-central1"
-  name                = "hc-%{resource_suffix}"
+  name                = "tf-test-hc-%{resource_suffix}"
   timeout_sec         = 5
   check_interval_sec  = 30
   healthy_threshold   = 3
@@ -474,7 +474,7 @@ resource "google_compute_region_health_check" "default" {
 resource "google_compute_region_target_https_proxy" "default-https" {
   project          = "%{project_id}"
   region           = "us-central1"
-  name             = "https-proxy-%{resource_suffix}"
+  name             = "tf-test-https-proxy-%{resource_suffix}"
   url_map          = google_compute_region_url_map.default-https.self_link
   ssl_certificates = [google_compute_region_ssl_certificate.foobar0.self_link]
 }
@@ -482,12 +482,12 @@ resource "google_compute_region_target_https_proxy" "default-https" {
 resource "google_compute_region_url_map" "default-https" {
   project         = "%{project_id}"
   region          = "us-central1"
-  name            = "lb-%{resource_suffix}"
+  name            = "tf-test-lb-%{resource_suffix}"
   default_service = google_compute_region_backend_service.default.id
 }
 
 resource "google_compute_region_ssl_certificate" "foobar0" {
-  name        = "httpsproxy-test-cert0-%{resource_suffix}"
+  name        = "tf-test-httpsproxy-test-cert0-%{resource_suffix}"
   description = "very descriptive"
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")
@@ -528,7 +528,7 @@ func testAccComputeRegionTargetHttpsProxy_withForwardingRule_withSslPolicy(conte
 resource "google_compute_forwarding_rule" "default-https" {
   project               = "%{project_id}"
   region                = "us-central1"
-  name                  = "https-frwd-rule-%{resource_suffix}"
+  name                  = "tf-test-https-frwd-rule-%{resource_suffix}"
   load_balancing_scheme = "INTERNAL_MANAGED"
   target                = google_compute_region_target_https_proxy.default-https.self_link
   network               = google_compute_network.ilb_network.name
@@ -543,7 +543,7 @@ resource "google_compute_forwarding_rule" "default-https" {
 resource "google_compute_region_backend_service" "default" {
   project               = "%{project_id}"
   region                = "us-central1"
-  name                  = "backend-service-%{resource_suffix}"
+  name                  = "tf-test-backend-service-%{resource_suffix}"
   protocol              = "HTTPS"
   port_name             = "https-server"
   load_balancing_scheme = "INTERNAL_MANAGED"
@@ -577,7 +577,7 @@ resource "google_compute_region_backend_service" "default" {
 resource "google_compute_region_health_check" "default" {
   project             = "%{project_id}"
   region              = "us-central1"
-  name                = "hc-%{resource_suffix}"
+  name                = "tf-test-hc-%{resource_suffix}"
   timeout_sec         = 5
   check_interval_sec  = 30
   healthy_threshold   = 3
@@ -592,7 +592,7 @@ resource "google_compute_region_health_check" "default" {
 resource "google_compute_region_target_https_proxy" "default-https" {
   project          = "%{project_id}"
   region           = "us-central1"
-  name             = "https-proxy-%{resource_suffix}"
+  name             = "tf-test-https-proxy-%{resource_suffix}"
   url_map          = google_compute_region_url_map.default-https.self_link
   ssl_certificates = [google_compute_region_ssl_certificate.foobar0.self_link]
   ssl_policy       = google_compute_region_ssl_policy.default.id
@@ -601,21 +601,21 @@ resource "google_compute_region_target_https_proxy" "default-https" {
 resource "google_compute_region_url_map" "default-https" {
   project         = "%{project_id}"
   region          = "us-central1"
-  name            = "lb-%{resource_suffix}"
+  name            = "tf-test-lb-%{resource_suffix}"
   default_service = google_compute_region_backend_service.default.id
 }
 
 resource "google_compute_region_ssl_policy" "default" {
   project = "%{project_id}"
   region  = "us-central1"
-  name    = "ssl-policy-%{resource_suffix}"
+  name    = "tf-test-ssl-policy-%{resource_suffix}"
 
   profile         = "RESTRICTED"
   min_tls_version = "TLS_1_2"
 }
 
 resource "google_compute_region_ssl_certificate" "foobar0" {
-  name        = "httpsproxy-test-cert0-%{resource_suffix}"
+  name        = "tf-test-httpsproxy-test-cert0-%{resource_suffix}"
   description = "very descriptive"
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")

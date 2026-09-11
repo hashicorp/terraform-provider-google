@@ -47,7 +47,7 @@ func TestAccDataSourceComputeSecurityPolicy_basic(t *testing.T) {
 func testAccDataSourceComputeSecurityPolicy_basic(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {
-  name = "my-policy-%s"
+  name = "tf-test-my-policy-%s"
 
   rule {
     action      = "deny(403)"
