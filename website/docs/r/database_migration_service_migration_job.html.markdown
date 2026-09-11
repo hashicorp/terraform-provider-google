@@ -70,7 +70,7 @@ resource "google_sql_user" "source_sqldb_user" {
 resource "google_database_migration_service_connection_profile" "source_cp" {
   location              = "us-central1"
   connection_profile_id = "source-cp"
-  display_name          = "source-cp_display"
+  display_name          = "source-cp-display"
   labels = {
     foo = "bar"
   }
@@ -104,7 +104,7 @@ resource "google_sql_database_instance" "destination_csql" {
 resource "google_database_migration_service_connection_profile" "destination_cp" {
   location              = "us-central1"
   connection_profile_id = "destination-cp"
-  display_name          = "destination-cp_display"
+  display_name          = "destination-cp-display"
   labels = {
     foo = "bar"
   }
@@ -121,7 +121,7 @@ resource "google_compute_network" "default" {
 resource "google_database_migration_service_migration_job" "mysqltomysql" {
   location              = "us-central1"
   migration_job_id = "my-migrationid"
-  display_name = "my-migrationid_display"
+  display_name = "my-migrationid-display"
   labels = {
     foo = "bar"
   }
@@ -185,7 +185,7 @@ resource "google_sql_user" "source_sqldb_user" {
 resource "google_database_migration_service_connection_profile" "source_cp" {
   location              = "us-central1"
   connection_profile_id = "source-cp"
-  display_name          = "source-cp_display"
+  display_name          = "source-cp-display"
   labels = {
     foo = "bar"
   }
@@ -219,7 +219,7 @@ resource "google_sql_database_instance" "destination_csql" {
 resource "google_database_migration_service_connection_profile" "destination_cp" {
   location              = "us-central1"
   connection_profile_id = "destination-cp"
-  display_name          = "destination-cp_display"
+  display_name          = "destination-cp-display"
   labels = {
     foo = "bar"
   }
@@ -232,7 +232,7 @@ resource "google_database_migration_service_connection_profile" "destination_cp"
 resource "google_database_migration_service_migration_job" "psqltopsql" {
   location              = "us-central1"
   migration_job_id = "my-migrationid"
-  display_name = "my-migrationid_display"
+  display_name = "my-migrationid-display"
   labels = {
     foo = "bar"
   }
@@ -285,7 +285,7 @@ resource "google_sql_user" "source_sqldb_user" {
 resource "google_database_migration_service_connection_profile" "source_cp" {
   location              = "us-central1"
   connection_profile_id = "source-cp"
-  display_name          = "source-cp_display"
+  display_name          = "source-cp-display"
   labels = {
     foo = "bar"
   }
@@ -319,7 +319,7 @@ resource "google_sql_database_instance" "destination_csql" {
 resource "google_database_migration_service_connection_profile" "destination_cp" {
   location              = "us-central1"
   connection_profile_id = "destination-cp"
-  display_name          = "destination-cp_display"
+  display_name          = "destination-cp-display"
   labels = {
     foo = "bar"
   }
@@ -332,7 +332,7 @@ resource "google_database_migration_service_connection_profile" "destination_cp"
 resource "google_database_migration_service_migration_job" "psqltopsqlobjects" {
   location         = "us-central1"
   migration_job_id = "my-migrationid"
-  display_name     = "my-migrationid_display"
+  display_name     = "my-migrationid-display"
   labels = {
     foo = "bar"
   }
@@ -353,10 +353,8 @@ resource "google_database_migration_service_migration_job" "psqltopsqlobjects" {
       }
       object_configs {
         object_identifier {
-          type     = "TABLE"
+          type     = "DATABASE"
           database = "my_other_database"
-          schema   = "public"
-          table    = "users"
         }
       }
     }
@@ -403,7 +401,7 @@ resource "google_sql_user" "source_sqldb_user" {
 resource "google_database_migration_service_connection_profile" "source_cp" {
   location              = "us-central1"
   connection_profile_id = "source-cp"
-  display_name          = "source-cp_display"
+  display_name          = "source-cp-display"
   labels = {
     foo = "bar"
   }
@@ -469,7 +467,7 @@ resource "google_compute_network" "default" {
 resource "google_database_migration_service_connection_profile" "destination_cp" {
   location              = "us-central1"
   connection_profile_id = "destination-cp"
-  display_name          = "destination-cp_display"
+  display_name          = "destination-cp-display"
   labels = {
     foo = "bar"
   }
@@ -482,7 +480,7 @@ resource "google_database_migration_service_connection_profile" "destination_cp"
 resource "google_database_migration_service_migration_job" "psqltoalloydb" {
   location              = "us-central1"
   migration_job_id = "my-migrationid"
-  display_name = "my-migrationid_display"
+  display_name = "my-migrationid-display"
   labels = {
     foo = "bar"
   }

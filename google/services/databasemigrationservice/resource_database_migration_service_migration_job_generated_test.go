@@ -70,9 +70,9 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 		"migration_id":      "tf-test-my-migrationid" + randomSuffix,
 		"source_cp":         "tf-test-source-cp" + randomSuffix,
 		"source_csql":       "tf-test-source-csql" + randomSuffix,
-		"source_sqldb_cert": "cert" + randomSuffix,
-		"source_sqldb_pass": "password" + randomSuffix,
-		"source_sqldb_user": "username" + randomSuffix,
+		"source_sqldb_cert": "tf-test-cert" + randomSuffix,
+		"source_sqldb_pass": "tf-test-password" + randomSuffix,
+		"source_sqldb_user": "tf-test-username" + randomSuffix,
 		"random_suffix":     randomSuffix,
 	}
 
@@ -133,7 +133,7 @@ resource "google_sql_user" "source_sqldb_user" {
 resource "google_database_migration_service_connection_profile" "source_cp" {
   location              = "us-central1"
   connection_profile_id = "%{source_cp}"
-  display_name          = "%{source_cp}_display"
+  display_name          = "%{source_cp}-display"
   labels = {
     foo = "bar"
   }
@@ -167,7 +167,7 @@ resource "google_sql_database_instance" "destination_csql" {
 resource "google_database_migration_service_connection_profile" "destination_cp" {
   location              = "us-central1"
   connection_profile_id = "%{destination_cp}"
-  display_name          = "%{destination_cp}_display"
+  display_name          = "%{destination_cp}-display"
   labels = {
     foo = "bar"
   }
@@ -184,7 +184,7 @@ resource "google_compute_network" "default" {
 resource "google_database_migration_service_migration_job" "mysqltomysql" {
   location              = "us-central1"
   migration_job_id = "%{migration_id}"
-  display_name = "%{migration_id}_display"
+  display_name = "%{migration_id}-display"
   labels = {
     foo = "bar"
   }
@@ -221,9 +221,9 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 		"migration_id":      "tf-test-my-migrationid" + randomSuffix,
 		"source_cp":         "tf-test-source-cp" + randomSuffix,
 		"source_csql":       "tf-test-source-csql" + randomSuffix,
-		"source_sqldb_cert": "cert" + randomSuffix,
-		"source_sqldb_pass": "password" + randomSuffix,
-		"source_sqldb_user": "username" + randomSuffix,
+		"source_sqldb_cert": "tf-test-cert" + randomSuffix,
+		"source_sqldb_pass": "tf-test-password" + randomSuffix,
+		"source_sqldb_user": "tf-test-username" + randomSuffix,
 		"random_suffix":     randomSuffix,
 	}
 
@@ -284,7 +284,7 @@ resource "google_sql_user" "source_sqldb_user" {
 resource "google_database_migration_service_connection_profile" "source_cp" {
   location              = "us-central1"
   connection_profile_id = "%{source_cp}"
-  display_name          = "%{source_cp}_display"
+  display_name          = "%{source_cp}-display"
   labels = {
     foo = "bar"
   }
@@ -318,7 +318,7 @@ resource "google_sql_database_instance" "destination_csql" {
 resource "google_database_migration_service_connection_profile" "destination_cp" {
   location              = "us-central1"
   connection_profile_id = "%{destination_cp}"
-  display_name          = "%{destination_cp}_display"
+  display_name          = "%{destination_cp}-display"
   labels = {
     foo = "bar"
   }
@@ -331,7 +331,7 @@ resource "google_database_migration_service_connection_profile" "destination_cp"
 resource "google_database_migration_service_migration_job" "psqltopsql" {
   location              = "us-central1"
   migration_job_id = "%{migration_id}"
-  display_name = "%{migration_id}_display"
+  display_name = "%{migration_id}-display"
   labels = {
     foo = "bar"
   }
@@ -357,9 +357,9 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 		"migration_id":      "tf-test-my-migrationid" + randomSuffix,
 		"source_cp":         "tf-test-source-cp" + randomSuffix,
 		"source_csql":       "tf-test-source-csql" + randomSuffix,
-		"source_sqldb_cert": "cert" + randomSuffix,
-		"source_sqldb_pass": "password" + randomSuffix,
-		"source_sqldb_user": "username" + randomSuffix,
+		"source_sqldb_cert": "tf-test-cert" + randomSuffix,
+		"source_sqldb_pass": "tf-test-password" + randomSuffix,
+		"source_sqldb_user": "tf-test-username" + randomSuffix,
 		"random_suffix":     randomSuffix,
 	}
 
@@ -420,7 +420,7 @@ resource "google_sql_user" "source_sqldb_user" {
 resource "google_database_migration_service_connection_profile" "source_cp" {
   location              = "us-central1"
   connection_profile_id = "%{source_cp}"
-  display_name          = "%{source_cp}_display"
+  display_name          = "%{source_cp}-display"
   labels = {
     foo = "bar"
   }
@@ -454,7 +454,7 @@ resource "google_sql_database_instance" "destination_csql" {
 resource "google_database_migration_service_connection_profile" "destination_cp" {
   location              = "us-central1"
   connection_profile_id = "%{destination_cp}"
-  display_name          = "%{destination_cp}_display"
+  display_name          = "%{destination_cp}-display"
   labels = {
     foo = "bar"
   }
@@ -467,7 +467,7 @@ resource "google_database_migration_service_connection_profile" "destination_cp"
 resource "google_database_migration_service_migration_job" "psqltopsqlobjects" {
   location         = "us-central1"
   migration_job_id = "%{migration_id}"
-  display_name     = "%{migration_id}_display"
+  display_name     = "%{migration_id}-display"
   labels = {
     foo = "bar"
   }
@@ -488,10 +488,8 @@ resource "google_database_migration_service_migration_job" "psqltopsqlobjects" {
       }
       object_configs {
         object_identifier {
-          type     = "TABLE"
+          type     = "DATABASE"
           database = "my_other_database"
-          schema   = "public"
-          table    = "users"
         }
       }
     }
@@ -511,9 +509,9 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 		"migration_id":        "tf-test-my-migrationid" + randomSuffix,
 		"source_cp":           "tf-test-source-cp" + randomSuffix,
 		"source_csql":         "tf-test-source-csql" + randomSuffix,
-		"source_sqldb_cert":   "cert" + randomSuffix,
-		"source_sqldb_pass":   "password" + randomSuffix,
-		"source_sqldb_user":   "username" + randomSuffix,
+		"source_sqldb_cert":   "tf-test-cert" + randomSuffix,
+		"source_sqldb_pass":   "tf-test-password" + randomSuffix,
+		"source_sqldb_user":   "tf-test-username" + randomSuffix,
 		"random_suffix":       randomSuffix,
 	}
 
@@ -574,7 +572,7 @@ resource "google_sql_user" "source_sqldb_user" {
 resource "google_database_migration_service_connection_profile" "source_cp" {
   location              = "us-central1"
   connection_profile_id = "%{source_cp}"
-  display_name          = "%{source_cp}_display"
+  display_name          = "%{source_cp}-display"
   labels = {
     foo = "bar"
   }
@@ -640,7 +638,7 @@ resource "google_compute_network" "default" {
 resource "google_database_migration_service_connection_profile" "destination_cp" {
   location              = "us-central1"
   connection_profile_id = "%{destination_cp}"
-  display_name          = "%{destination_cp}_display"
+  display_name          = "%{destination_cp}-display"
   labels = {
     foo = "bar"
   }
@@ -653,7 +651,7 @@ resource "google_database_migration_service_connection_profile" "destination_cp"
 resource "google_database_migration_service_migration_job" "psqltoalloydb" {
   location              = "us-central1"
   migration_job_id = "%{migration_id}"
-  display_name = "%{migration_id}_display"
+  display_name = "%{migration_id}-display"
   labels = {
     foo = "bar"
   }
