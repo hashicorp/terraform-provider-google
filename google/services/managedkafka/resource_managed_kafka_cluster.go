@@ -207,7 +207,7 @@ func ResourceManagedKafkaCluster() *schema.Resource {
 												"allowed_source_ip_ranges": {
 													Type:        schema.TypeList,
 													Required:    true,
-													Description: `A list of IPv4 addresses or CIDR ranges that are allowed to connect to the cluster.`,
+													Description: `A list of IPv4 addresses or CIDR ranges that are allowed to connect to the cluster. To protect your cluster, allow access from only trusted external IP ranges. Don't expose your cluster to untrusted ranges.`,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
