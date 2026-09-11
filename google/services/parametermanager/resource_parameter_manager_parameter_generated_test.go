@@ -78,7 +78,7 @@ func TestAccParameterManagerParameter_parameterConfigBasicExample(t *testing.T) 
 				ResourceName:            "google_parameter_manager_parameter.parameter-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "tags", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_parameter_manager_parameter.parameter-basic",
@@ -120,7 +120,7 @@ func TestAccParameterManagerParameter_parameterWithFormatExample(t *testing.T) {
 				ResourceName:            "google_parameter_manager_parameter.parameter-with-format",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "tags", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_parameter_manager_parameter.parameter-with-format",
@@ -163,7 +163,7 @@ func TestAccParameterManagerParameter_parameterWithLabelsExample(t *testing.T) {
 				ResourceName:            "google_parameter_manager_parameter.parameter-with-labels",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "tags", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_parameter_manager_parameter.parameter-with-labels",
@@ -220,7 +220,7 @@ func TestAccParameterManagerParameter_parameterWithKmsKeyExample(t *testing.T) {
 				ResourceName:            "google_parameter_manager_parameter.parameter-with-kms-key",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "parameter_id", "tags", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_parameter_manager_parameter.parameter-with-kms-key",

@@ -16,17 +16,23 @@
 # ----------------------------------------------------------------------------
 subcategory: "Parameter Manager"
 description: |-
-  A Regional Parameter is a logical regional parameter.
+  A Regional Parameter is a configuration value stored in a specific region
+  through Parameter Manager.
 ---
 
 # google_parameter_manager_regional_parameter
 
-A Regional Parameter is a logical regional parameter.
+A Regional Parameter is a configuration value stored in a specific region
+through Parameter Manager. Regional parameters support labels, encryption
+via Cloud KMS, and resource manager tags for fine-grained access control,
+organization, and regional compliance.
 
 
 To get more information about RegionalParameter, see:
 
 * [API documentation](https://cloud.google.com/secret-manager/parameter-manager/docs/reference/rest/v1/projects.locations.parameters)
+* How-to Guides
+    * [Work with parameter tags](https://docs.cloud.google.com/secret-manager/parameter-manager/docs/create-and-manage-tags)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=regional_parameter_basic&open_in_editor=main.tf" target="_blank">
@@ -97,6 +103,19 @@ resource "google_parameter_manager_regional_parameter" "regional-parameter-with-
   kms_key = "kms-key"
 }
 ```
+## Example Usage - Regional Parameter With Tags
+
+
+```hcl
+resource "google_parameter_manager_regional_parameter" "regional-parameter-with-tags" {
+  location     = "us-central1"
+  parameter_id = "regional_parameter"
+
+  tags = {
+    "tagKeys/123456" = "tagValues/789012"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -136,6 +155,12 @@ The following arguments are supported:
   (Optional)
   The resource name of the Cloud KMS CryptoKey used to encrypt regional parameter version payload. Format
   `projects/{{project}}/locations/{{location}}/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}`
+
+* `tags` -
+  (Optional)
+  A map of resource manager tags.
+  Resource manager tag keys and values have the same definition as resource manager tags.
+  Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_value_id}.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

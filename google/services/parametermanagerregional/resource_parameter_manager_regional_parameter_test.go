@@ -22,9 +22,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/parametermanagerregional"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 )
 
 func TestAccParameterManagerRegionalRegionalParameter_import(t *testing.T) {
@@ -281,6 +283,54 @@ resource "google_parameter_manager_regional_parameter" "regional-parameter-with-
   format = "JSON"
 
   kms_key = "%{kms_key_other}"
+}
+`, context)
+}
+
+func TestAccParameterManagerRegionalRegionalParameter_tags(t *testing.T) {
+	t.Parallel()
+
+	tagKey := tags.BootstrapSharedTestOrganizationTagKey(t, "parameter_manager_regional_parameter-tagkey", map[string]interface{}{})
+
+	context := map[string]interface{}{
+		"org":           envvar.GetTestOrgFromEnv(t),
+		"tagKey":        tagKey,
+		"tagValue":      tags.BootstrapSharedTestOrganizationTagValue(t, "parameter_manager_regional_parameter-tagvalue", tagKey),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckParameterManagerRegionalRegionalParameterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccParameterManagerRegionalRegionalParameter_tags(context),
+			},
+			{
+				ResourceName:            "google_parameter_manager_regional_parameter.regional-parameter-tags",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels", "tags"},
+			},
+		},
+	})
+}
+
+func testAccParameterManagerRegionalRegionalParameter_tags(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_parameter_manager_regional_parameter" "regional-parameter-tags" {
+  parameter_id = "tf_test_parameter%{random_suffix}"
+  location = "us-central1"
+  format = "JSON"
+
+  labels = {
+    environment = "test"
+  }
+
+  tags = {
+    "%{org}/%{tagKey}" = "%{tagValue}"
+  }
 }
 `, context)
 }
