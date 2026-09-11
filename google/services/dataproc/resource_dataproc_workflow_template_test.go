@@ -146,6 +146,7 @@ resource "google_dataproc_workflow_template" "template" {
           num_instances = 3
           machine_type = "n1-standard-2"
           disk_config {
+            boot_disk_type = "pd-standard"
             boot_disk_size_gb = 10
             num_local_ssds = 2
           }
@@ -153,6 +154,10 @@ resource "google_dataproc_workflow_template" "template" {
 
         secondary_worker_config {
           num_instances = 2
+          disk_config {
+            boot_disk_type = "pd-standard"
+            boot_disk_size_gb = 15
+          }
         }
         software_config {
           image_version = "%{version}"
@@ -306,6 +311,140 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
   crypto_key_id = "%{kms_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member = "serviceAccount:service-${data.google_project.project.number}@dataproc-accounts.iam.gserviceaccount.com"
+}
+`, context)
+}
+
+func TestAccDataprocWorkflowTemplate_instanceFlexibilityPolicy(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+		"version":       "2.0.35-debian10",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             funcAccTestDataprocWorkflowTemplateCheckDestroy(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocWorkflowTemplate_instanceFlexibilityPolicy(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "e2-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.rank", "0"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_type", "pd-ssd"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_size_gb", "35"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.num_local_ssds", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "n2d-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.rank", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_type", "pd-ssd"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_size_gb", "35"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.num_local_ssds", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.machine_types.0", "e2-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.rank", "2"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.boot_disk_type", "pd-standard"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.boot_disk_size_gb", "35"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "n1-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.1", "n2-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.rank", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_type", "pd-ssd"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_size_gb", "35"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.num_local_ssds", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.provisioning_model_mix.0.standard_capacity_base", "0"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.provisioning_model_mix.0.standard_capacity_percent_above_base", "50"),
+				),
+			},
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ResourceName:            "google_dataproc_workflow_template.template",
+			},
+		},
+	})
+}
+
+func testAccDataprocWorkflowTemplate_instanceFlexibilityPolicy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataproc_workflow_template" "template" {
+  name          = "tf-test-workflow-%{random_suffix}"
+  location      = "us-central1"
+  placement {
+    managed_cluster {
+      cluster_name = "tf-test-cluster-%{random_suffix}"
+      config {
+        software_config {
+          image_version = "%{version}"
+        }
+        master_config {
+          num_instances = 1
+          instance_flexibility_policy {
+            instance_selection_list {
+              machine_types = ["e2-standard-2"]
+              rank          = 0
+              disk_config {
+                boot_disk_type    = "pd-ssd"
+                boot_disk_size_gb = 35
+                num_local_ssds    = 1
+              }
+            }
+          }
+        }
+        worker_config {
+          num_instances = 2
+          instance_flexibility_policy {
+            instance_selection_list {
+              machine_types = ["n2d-standard-2"]
+              rank          = 1
+              disk_config {
+                boot_disk_type    = "pd-ssd"
+                boot_disk_size_gb = 35
+                num_local_ssds    = 1
+              }
+            }
+            instance_selection_list {
+              machine_types = ["e2-standard-2"]
+              rank          = 2
+              disk_config {
+                boot_disk_type    = "pd-standard"
+                boot_disk_size_gb = 35
+              }
+            }
+          }
+        }
+        secondary_worker_config {
+          num_instances = 2
+          instance_flexibility_policy {
+            instance_selection_list {
+              machine_types = ["n1-standard-2", "n2-standard-2"]
+              rank          = 1
+              disk_config {
+                boot_disk_type    = "pd-ssd"
+                boot_disk_size_gb = 35
+                num_local_ssds    = 1
+              }
+            }
+            provisioning_model_mix {
+              standard_capacity_base               = 0
+              standard_capacity_percent_above_base = 50
+            }
+          }
+        }
+      }
+    }
+  }
+
+  jobs {
+    step_id = "someJob"
+    spark_job {
+      main_class = "SomeClass"
+    }
+  }
 }
 `, context)
 }
