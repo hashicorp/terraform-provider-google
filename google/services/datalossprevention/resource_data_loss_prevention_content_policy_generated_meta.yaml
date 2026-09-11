@@ -1,0 +1,82 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_data_loss_prevention_content_policy
+generation_type: mmv1
+source_file: products/dlp/ContentPolicy.yaml
+api_service_name: dlp.googleapis.com
+api_version: v2
+api_resource_type_kind: ContentPolicy
+fields:
+    - api_field: createTime
+    - api_field: defaultAction.returnVerdict
+    - api_field: displayName
+    - api_field: errors.details.code
+    - api_field: errors.details.details
+    - api_field: errors.details.message
+    - api_field: errors.extraInfo
+    - api_field: errors.timestamps
+    - api_field: failedToScanSupportedFileType.returnVerdict
+    - api_field: inputTooLarge.returnVerdict
+    - api_field: inspectConfig.contentOptions
+    - api_field: inspectConfig.customInfoTypes.dictionary.cloudStoragePath.path
+    - api_field: inspectConfig.customInfoTypes.dictionary.wordList.words
+    - api_field: inspectConfig.customInfoTypes.exclusionType
+    - api_field: inspectConfig.customInfoTypes.infoType.name
+    - api_field: inspectConfig.customInfoTypes.infoType.sensitivityScore.score
+    - api_field: inspectConfig.customInfoTypes.infoType.version
+    - api_field: inspectConfig.customInfoTypes.likelihood
+    - api_field: inspectConfig.customInfoTypes.regex.groupIndexes
+    - api_field: inspectConfig.customInfoTypes.regex.pattern
+    - api_field: inspectConfig.customInfoTypes.sensitivityScore.score
+    - api_field: inspectConfig.customInfoTypes.storedType.name
+    - api_field: inspectConfig.customInfoTypes.surrogateType
+    - api_field: inspectConfig.excludeInfoTypes
+    - api_field: inspectConfig.includeQuote
+    - api_field: inspectConfig.infoTypes.name
+    - api_field: inspectConfig.infoTypes.sensitivityScore.score
+    - api_field: inspectConfig.infoTypes.version
+    - api_field: inspectConfig.limits.maxFindingsPerInfoType.infoType.name
+    - api_field: inspectConfig.limits.maxFindingsPerInfoType.infoType.sensitivityScore.score
+    - api_field: inspectConfig.limits.maxFindingsPerInfoType.infoType.version
+    - api_field: inspectConfig.limits.maxFindingsPerInfoType.maxFindings
+    - api_field: inspectConfig.limits.maxFindingsPerItem
+    - api_field: inspectConfig.limits.maxFindingsPerRequest
+    - api_field: inspectConfig.minLikelihood
+    - api_field: inspectConfig.minLikelihoodPerInfoType.infoType.name
+    - api_field: inspectConfig.minLikelihoodPerInfoType.infoType.version
+    - api_field: inspectConfig.minLikelihoodPerInfoType.minLikelihood
+    - api_field: inspectConfig.ruleSet.infoTypes.name
+    - api_field: inspectConfig.ruleSet.infoTypes.sensitivityScore.score
+    - api_field: inspectConfig.ruleSet.infoTypes.version
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.dictionary.cloudStoragePath.path
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.dictionary.wordList.words
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByHotword.hotwordRegex.groupIndexes
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByHotword.hotwordRegex.pattern
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByHotword.proximity.windowAfter
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByHotword.proximity.windowBefore
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeInfoTypes.infoTypes.name
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeInfoTypes.infoTypes.sensitivityScore.score
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeInfoTypes.infoTypes.version
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.matchingType
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.regex.groupIndexes
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.regex.pattern
+    - api_field: inspectConfig.ruleSet.rules.hotwordRule.hotwordRegex.groupIndexes
+    - api_field: inspectConfig.ruleSet.rules.hotwordRule.hotwordRegex.pattern
+    - api_field: inspectConfig.ruleSet.rules.hotwordRule.likelihoodAdjustment.fixedLikelihood
+    - api_field: inspectConfig.ruleSet.rules.hotwordRule.likelihoodAdjustment.relativeLikelihood
+    - api_field: inspectConfig.ruleSet.rules.hotwordRule.proximity.windowAfter
+    - api_field: inspectConfig.ruleSet.rules.hotwordRule.proximity.windowBefore
+    - api_field: loggingConfigs.logToBigQuery.datasetId
+    - api_field: loggingConfigs.logToBigQuery.projectId
+    - api_field: loggingConfigs.logToBigQuery.tableId
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: rules.action.returnVerdict
+    - api_field: rules.conditions.infoTypeCondition.anyInfoType
+    - api_field: rules.conditions.infoTypeCondition.infoTypes.infoTypeNames
+    - api_field: rules.conditions.infoTypeCondition.minCount
+    - api_field: unsupportedFileType.returnVerdict
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
