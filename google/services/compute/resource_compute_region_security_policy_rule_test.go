@@ -311,7 +311,7 @@ resource "google_compute_region_security_policy_rule" "policy_rule" {
   security_policy = google_compute_region_security_policy.policy.name
   region          = "us-west2"
   description     = "Rule with preconfiguredWafConfig - create"
-  action   = "deny"
+  action   = "deny(403)"
   priority = "1000"
   match {
     versioned_expr = "SRC_IPS_V1"
@@ -372,7 +372,7 @@ resource "google_compute_region_security_policy_rule" "policy_rule" {
   security_policy = google_compute_region_security_policy.policy.name
   region          = "us-west2"
   description     = "Rule with preconfiguredWafConfig - update"
-  action   = "deny"
+  action   = "deny(403)"
   priority = "1000"
   match {
     versioned_expr = "SRC_IPS_V1"
@@ -430,7 +430,7 @@ resource "google_compute_region_security_policy_rule" "policy_rule" {
   security_policy = google_compute_region_security_policy.policy.name
   region          = "us-west2"
   description     = "Rule with preconfiguredWafConfig - clear"
-  action   = "deny"
+  action   = "deny(403)"
   priority = "1000"
   match {
     versioned_expr = "SRC_IPS_V1"
