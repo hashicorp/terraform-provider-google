@@ -128,6 +128,19 @@ resource "google_dialogflow_generator" "summarization_generator" {
             summary = "John"
           }
         }
+        tool_call_info {
+          tool_call {
+            tool   = "projects/example-project/locations/global/tools/initial-tool"
+            action = "initialAction"
+          }
+          tool_call_result {
+            action = "initialAction"
+            error {
+              message   = "test error"
+              retryable = true
+            }
+          }
+        }
       }
       summarization_section_list {
         summarization_sections {
@@ -186,6 +199,19 @@ resource "google_dialogflow_generator" "summarization_generator" {
           summary_sections {
             section = "Redaction"
             summary = "Jeff"
+          }
+        }
+        tool_call_info {
+          tool_call {
+            tool   = "projects/example-project/locations/global/tools/updated-tool"
+            action = "updatedAction"
+          }
+          tool_call_result {
+            action = "updatedAction"
+            error {
+              message   = "updated error"
+              retryable = false
+            }
           }
         }
       }

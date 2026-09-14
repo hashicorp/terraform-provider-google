@@ -24,6 +24,11 @@ fields:
     - api_field: summarizationContext.fewShotExamples.extraInfo
     - api_field: summarizationContext.fewShotExamples.output.summarySuggestion.summarySections.section
     - api_field: summarizationContext.fewShotExamples.output.summarySuggestion.summarySections.summary
+    - api_field: summarizationContext.fewShotExamples.output.toolCallInfo.toolCall.action
+    - api_field: summarizationContext.fewShotExamples.output.toolCallInfo.toolCall.tool
+    - api_field: summarizationContext.fewShotExamples.output.toolCallInfo.toolCallResult.action
+    - api_field: summarizationContext.fewShotExamples.output.toolCallInfo.toolCallResult.error.message
+    - api_field: summarizationContext.fewShotExamples.output.toolCallInfo.toolCallResult.error.retryable
     - api_field: summarizationContext.fewShotExamples.summarizationSectionList.summarizationSections.definition
     - api_field: summarizationContext.fewShotExamples.summarizationSectionList.summarizationSections.key
     - api_field: summarizationContext.fewShotExamples.summarizationSectionList.summarizationSections.type
