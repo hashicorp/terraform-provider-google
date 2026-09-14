@@ -17,6 +17,7 @@
 package resourcemanager
 
 import (
+	"log"
 	"strconv"
 	"strings"
 	"testing"
@@ -108,7 +109,7 @@ func applyProjectIamBindings(t *testing.T,
 		getPolicyRequest := &cloudresourcemanager.GetIamPolicyRequest{}
 		policy, err := client.Projects.GetIamPolicy(projectId, getPolicyRequest).Do()
 		if transport_tpg.IsGoogleApiErrorWithCode(err, 429) {
-			t.Logf("[DEBUG] 429 while attempting to read policy for project %s, waiting %v before attempting again", projectId, backoff)
+			log.Printf("[DEBUG] 429 while attempting to read policy for project %s, waiting %v before attempting again", projectId, backoff)
 			time.Sleep(backoff)
 			continue
 		} else if err != nil {
@@ -118,7 +119,7 @@ func applyProjectIamBindings(t *testing.T,
 		mergedBindings := tpgiamresource.MergeBindings(append(policy.Bindings, newBindings...))
 
 		if tpgiamresource.CompareBindings(policy.Bindings, mergedBindings) {
-			t.Logf("[DEBUG] All bindings already present for project %s", projectId)
+			log.Printf("[DEBUG] All bindings already present for project %s", projectId)
 			break
 		}
 		// The policy must change.
@@ -126,12 +127,12 @@ func applyProjectIamBindings(t *testing.T,
 		setPolicyRequest := &cloudresourcemanager.SetIamPolicyRequest{Policy: policy}
 		policy, err = client.Projects.SetIamPolicy(projectId, setPolicyRequest).Do()
 		if err == nil {
-			t.Logf("[DEBUG] Waiting for IAM bootstrapping to propagate for project %s.", projectId)
+			log.Printf("[DEBUG] Waiting for IAM bootstrapping to propagate for project %s.", projectId)
 			time.Sleep(3 * time.Minute)
 			break
 		}
 		if tpgresource.IsConflictError(err) {
-			t.Logf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s", backoff)
+			log.Printf("[DEBUG] Concurrent policy changes, restarting read-modify-write after %s", backoff)
 			time.Sleep(backoff)
 			backoff = backoff * 2
 			if backoff > 30*time.Second {
@@ -155,7 +156,7 @@ func applyOrgIamBindings(
 		getPolicyRequest := &cloudresourcemanager.GetIamPolicyRequest{}
 		policy, err := client.Organizations.GetIamPolicy(orgName, getPolicyRequest).Do()
 		if transport_tpg.IsGoogleApiErrorWithCode(err, 429) {
-			t.Logf("[DEBUG] 429 while attempting to read policy for org %s, waiting %v before attempting again", orgName, backoff)
+			log.Printf("[DEBUG] 429 while attempting to read policy for org %s, waiting %v before attempting again", orgName, backoff)
 			time.Sleep(backoff)
 			continue
 		} else if err != nil {
@@ -165,7 +166,7 @@ func applyOrgIamBindings(
 		mergedBindings := tpgiamresource.MergeBindings(append(policy.Bindings, newBindings...))
 
 		if tpgiamresource.CompareBindings(policy.Bindings, mergedBindings) {
-			t.Logf("[DEBUG] All bindings already present for org %s", orgName)
+			log.Printf("[DEBUG] All bindings already present for org %s", orgName)
 			break
 		}
 		// The policy must change.
@@ -173,12 +174,12 @@ func applyOrgIamBindings(
 		setPolicyRequest := &cloudresourcemanager.SetIamPolicyRequest{Policy: policy}
 		policy, err = client.Organizations.SetIamPolicy(orgName, setPolicyRequest).Do()
 		if err == nil {
-			t.Logf("[DEBUG] Waiting for IAM bootstrapping to propagate for org %s.", orgName)
+			log.Printf("[DEBUG] Waiting for IAM bootstrapping to propagate for org %s.", orgName)
 			time.Sleep(3 * time.Minute)
 			break
 		}
 		if tpgresource.IsConflictError(err) {
-			t.Logf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s", backoff)
+			log.Printf("[DEBUG] Concurrent policy changes, restarting read-modify-write after %s", backoff)
 			time.Sleep(backoff)
 			backoff = backoff * 2
 			if backoff > 30*time.Second {
