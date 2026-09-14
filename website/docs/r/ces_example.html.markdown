@@ -269,6 +269,11 @@ The following arguments are supported:
   agent.
   Structure is [documented below](#nested_messages_chunks_agent_transfer).
 
+* `blob` -
+  (Optional)
+  Represents a blob input or output in the conversation.
+  Structure is [documented below](#nested_messages_chunks_blob).
+
 * `image` -
   (Optional)
   Represents an image input or output in the conversation.
@@ -305,6 +310,16 @@ The following arguments are supported:
   The agent to which the conversation is being transferred. The agent will
   handle the conversation from this point forward.
   Format: `projects/{project}/locations/{location}/apps/{app}/agents/{agent}`
+
+<a name="nested_messages_chunks_blob"></a>The `blob` block supports:
+
+* `data` -
+  (Required)
+  Raw bytes of the blob.
+
+* `mime_type` -
+  (Required)
+  The IANA standard MIME type of the source data.
 
 <a name="nested_messages_chunks_image"></a>The `image` block supports:
 

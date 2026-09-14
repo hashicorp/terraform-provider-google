@@ -169,6 +169,12 @@ resource "google_ces_example" "my-example" {
             }
         }
         chunks {
+            blob {
+                mime_type = "text/plain"
+                data = base64encode("This is some sample plain text blob data.")
+            }
+        }
+        chunks {
             image {
                 mime_type = "image/png"
                 data = base64encode("This is some fake image binary data.")
@@ -335,6 +341,12 @@ resource "google_ces_example" "my-example" {
         chunks {
             agent_transfer {
                 target_agent = "projects/${google_ces_app.my-app.project}/locations/us/apps/${google_ces_app.my-app.app_id}/agents/${google_ces_agent.ces_child_agent.agent_id}"
+            }
+        }
+        chunks {
+            blob {
+                mime_type = "text/plain"
+                data = base64encode("This is some updated sample plain text blob data.")
             }
         }
         chunks {
