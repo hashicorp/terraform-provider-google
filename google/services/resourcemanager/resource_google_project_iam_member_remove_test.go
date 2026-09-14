@@ -64,6 +64,7 @@ func TestAccProjectIamMemberRemove_basic(t *testing.T) {
 
 func TestAccProjectIamMemberRemove_multipleMembersInBinding(t *testing.T) {
 	t.Parallel()
+	acctest.SkipIfVcr(t) // Multiple parallel members
 
 	org := envvar.GetTestOrgFromEnv(t)
 	randomSuffix := acctest.RandString(t, 10)
