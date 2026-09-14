@@ -195,6 +195,70 @@ func ResourceDialogflowGenerator() *schema.Resource {
 														},
 													},
 												},
+												"tool_call_info": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `List of request and response for tool calls executed.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"tool_call": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `Request for a tool call.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"action": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `The name of the tool's action associated with this call.`,
+																		},
+																		"tool": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `The tool associated with this call.`,
+																		},
+																	},
+																},
+															},
+															"tool_call_result": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `Response for a tool call.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"action": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `The name of the tool's action associated with this call.`,
+																		},
+																		"error": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `An error produced by the tool call.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"message": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The error message of the function.`,
+																					},
+																					"retryable": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Description: `Specifies whether the tool call is retryable.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
 											},
 										},
 									},
@@ -1069,6 +1133,8 @@ func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutput(v inter
 	transformed := make(map[string]interface{})
 	transformed["summary_suggestion"] =
 		flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputSummarySuggestion(original["summarySuggestion"], d, config)
+	transformed["tool_call_info"] =
+		flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfo(original["toolCallInfo"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputSummarySuggestion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1109,6 +1175,91 @@ func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputSummaryS
 }
 
 func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputSummarySuggestionSummarySectionsSummary(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"tool_call":        flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCall(original["toolCall"], d, config),
+			"tool_call_result": flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResult(original["toolCallResult"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCall(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["tool"] =
+		flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallTool(original["tool"], d, config)
+	transformed["action"] =
+		flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallAction(original["action"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallTool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResult(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["action"] =
+		flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultAction(original["action"], d, config)
+	transformed["error"] =
+		flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultError(original["error"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultError(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["message"] =
+		flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultErrorMessage(original["message"], d, config)
+	transformed["retryable"] =
+		flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultErrorRetryable(original["retryable"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultErrorMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultErrorRetryable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1498,6 +1649,13 @@ func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutput(v interf
 		transformed["summarySuggestion"] = transformedSummarySuggestion
 	}
 
+	transformedToolCallInfo, err := expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfo(original["tool_call_info"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedToolCallInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["toolCallInfo"] = transformedToolCallInfo
+	}
+
 	return transformed, nil
 }
 
@@ -1560,6 +1718,145 @@ func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputSummarySu
 }
 
 func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputSummarySuggestionSummarySectionsSummary(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedToolCall, err := expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCall(original["tool_call"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedToolCall); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["toolCall"] = transformedToolCall
+		}
+
+		transformedToolCallResult, err := expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResult(original["tool_call_result"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedToolCallResult); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["toolCallResult"] = transformedToolCallResult
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCall(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTool, err := expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallTool(original["tool"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTool); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tool"] = transformedTool
+	}
+
+	transformedAction, err := expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallAction(original["action"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["action"] = transformedAction
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallTool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResult(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAction, err := expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultAction(original["action"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["action"] = transformedAction
+	}
+
+	transformedError, err := expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultError(original["error"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedError); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["error"] = transformedError
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultError(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMessage, err := expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultErrorMessage(original["message"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMessage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["message"] = transformedMessage
+	}
+
+	transformedRetryable, err := expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultErrorRetryable(original["retryable"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["retryable"] = transformedRetryable
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultErrorMessage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowGeneratorSummarizationContextFewShotExamplesOutputToolCallInfoToolCallResultErrorRetryable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
