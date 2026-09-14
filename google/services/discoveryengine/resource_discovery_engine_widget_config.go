@@ -491,6 +491,13 @@ set to < 1, it will be set to 1 by default.`,
 							Description: `Controls whether result extract is display and how (snippet or extractive answer).
 Default to no result if unspecified. Possible values: ["SNIPPET", "EXTRACTIVE_ANSWER"]`,
 						},
+						"source_admin_display_name_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Whether to show the admin-configured display name for data connectors in
+the widget sources UI (instead of the connector kind). Opt-in; defaults
+to false.`,
+						},
 					},
 				},
 			},
@@ -989,6 +996,8 @@ func flattenDiscoveryEngineWidgetConfigUiSettings(v interface{}, d *schema.Resou
 		flattenDiscoveryEngineWidgetConfigUiSettingsEnablePeopleSearch(original["enablePeopleSearch"], d, config)
 	transformed["enable_create_agent_button"] =
 		flattenDiscoveryEngineWidgetConfigUiSettingsEnableCreateAgentButton(original["enableCreateAgentButton"], d, config)
+	transformed["source_admin_display_name_enabled"] =
+		flattenDiscoveryEngineWidgetConfigUiSettingsSourceAdminDisplayNameEnabled(original["sourceAdminDisplayNameEnabled"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDiscoveryEngineWidgetConfigUiSettingsInteractionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1211,6 +1220,10 @@ func flattenDiscoveryEngineWidgetConfigUiSettingsEnablePeopleSearch(v interface{
 }
 
 func flattenDiscoveryEngineWidgetConfigUiSettingsEnableCreateAgentButton(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineWidgetConfigUiSettingsSourceAdminDisplayNameEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1474,6 +1487,13 @@ func expandDiscoveryEngineWidgetConfigUiSettings(v interface{}, d tpgresource.Te
 		return nil, err
 	} else if val := reflect.ValueOf(transformedEnableCreateAgentButton); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enableCreateAgentButton"] = transformedEnableCreateAgentButton
+	}
+
+	transformedSourceAdminDisplayNameEnabled, err := expandDiscoveryEngineWidgetConfigUiSettingsSourceAdminDisplayNameEnabled(original["source_admin_display_name_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["sourceAdminDisplayNameEnabled"] = transformedSourceAdminDisplayNameEnabled
 	}
 
 	return transformed, nil
@@ -1779,6 +1799,10 @@ func expandDiscoveryEngineWidgetConfigUiSettingsEnablePeopleSearch(v interface{}
 }
 
 func expandDiscoveryEngineWidgetConfigUiSettingsEnableCreateAgentButton(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineWidgetConfigUiSettingsSourceAdminDisplayNameEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

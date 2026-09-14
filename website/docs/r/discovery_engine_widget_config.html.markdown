@@ -222,6 +222,12 @@ The following arguments are supported:
   (Optional)
   If set to true, the widget will enable the create agent button.
 
+* `source_admin_display_name_enabled` -
+  (Optional)
+  Whether to show the admin-configured display name for data connectors in
+  the widget sources UI (instead of the connector kind). Opt-in; defaults
+  to false.
+
 
 <a name="nested_ui_settings_generative_answer_config"></a>The `generative_answer_config` block supports:
 

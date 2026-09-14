@@ -58,5 +58,6 @@ fields:
     - api_field: uiSettings.generativeAnswerConfig.resultCount
     - api_field: uiSettings.interactionType
     - api_field: uiSettings.resultDescriptionType
+    - api_field: uiSettings.sourceAdminDisplayNameEnabled
     - field: widget_config_id
       provider_only: true

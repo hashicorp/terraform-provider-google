@@ -103,6 +103,7 @@ resource "google_discovery_engine_widget_config" "basic" {
     enable_safe_search                = false
     enable_search_as_you_type         = false
     enable_visual_content_summary     = false
+    source_admin_display_name_enabled = true
 		default_search_request_order_by   = "relevanceScore"
 		result_description_type           = "SNIPPET"
 		generative_answer_config {
@@ -197,6 +198,7 @@ resource "google_discovery_engine_widget_config" "basic" {
     enable_safe_search                = false
     enable_search_as_you_type         = false
     enable_visual_content_summary     = false
+    source_admin_display_name_enabled = false
 		default_search_request_order_by   = "relevanceScore"
 		result_description_type           = "SNIPPET"
 		generative_answer_config {
