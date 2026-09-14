@@ -23,6 +23,8 @@ fields:
       provider_only: true
     - api_field: messages.chunks.agentTransfer.displayName
     - api_field: messages.chunks.agentTransfer.targetAgent
+    - api_field: messages.chunks.blob.data
+    - api_field: messages.chunks.blob.mimeType
     - api_field: messages.chunks.image.data
     - api_field: messages.chunks.image.mimeType
     - api_field: messages.chunks.text

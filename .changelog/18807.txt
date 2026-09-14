@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `blob` field to `google_ces_example`
+```
