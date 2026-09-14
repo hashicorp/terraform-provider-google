@@ -36,7 +36,6 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerGcpUserAccessBinding_basicTest(t *testing.T) {
-	t.Parallel()
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
@@ -271,7 +270,6 @@ func testAccCheckAccessContextManagerGcpUserAccessBindingDestroyProducer(t *test
 }
 
 func testAccAccessContextManagerGcpUserAccessBinding_principalTest(t *testing.T) {
-	t.Parallel()
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
