@@ -67,7 +67,7 @@ func testAccLustreInstance_withMaintenancePolicy(context map[string]interface{})
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
   instance_id                 = "tf-test-my-instance%{random_suffix}"
-  location                    = "us-central1-a"
+  location                    = "us-central1-c"
   filesystem                  = "testfs"
   network                     = data.google_compute_network.lustre-network.id
   gke_support_enabled         = false
