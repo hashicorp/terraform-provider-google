@@ -496,7 +496,7 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   context_spec {
     memory_bank_config {
       generation_config {
-        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-3.5-flash"
         generation_trigger_config {
           generation_rule {
             idle_duration       = "300s"
@@ -679,7 +679,7 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   context_spec {
     memory_bank_config {
       generation_config {
-        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+        model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/gemini-3.5-flash"
       }
       similarity_search_config {
         embedding_model = "projects/${data.google_project.project.project_id}/locations/us-central1/publishers/google/models/text-embedding-005"
