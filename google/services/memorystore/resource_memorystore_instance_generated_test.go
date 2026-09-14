@@ -106,7 +106,7 @@ resource "google_memorystore_instance" "instance-basic" {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
-  location                    = "us-central1"
+  location                    = "us-west1"
   deletion_protection_enabled = false
   maintenance_policy {
     weekly_maintenance_window {
@@ -130,7 +130,7 @@ resource "google_memorystore_instance" "instance-basic" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name          = "%{policy_name}"
-  location      = "us-central1"
+  location      = "us-west1"
   service_class = "gcp-memorystore"
   description   = "my basic service connection policy"
   network       = google_compute_network.producer_net.id
@@ -142,7 +142,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "producer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.producer_net.id
 }
 
@@ -169,7 +169,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"instance_name":   "tf-test-full-instance" + randomSuffix,
-		"kms_key_name":    kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms_key_name":    kms.BootstrapKMSKeyInLocation(t, "us-west1").CryptoKey.Name,
 		"network_name":    "tf-test-my-network" + randomSuffix,
 		"policy_name":     "tf-test-my-policy" + randomSuffix,
 		"prevent_destroy": false,
@@ -210,7 +210,7 @@ resource "google_memorystore_instance" "instance-full" {
     network                    = google_compute_network.producer_net.id
     project_id                 = data.google_project.project.project_id
   }     
-  location                     = "us-central1"
+  location                     = "us-west1"
   replica_count                = 1
   node_type                    = "SHARED_CORE_NANO"
   transit_encryption_mode      = "TRANSIT_ENCRYPTION_DISABLED"
@@ -221,7 +221,7 @@ resource "google_memorystore_instance" "instance-full" {
   }
   zone_distribution_config {
     mode                       = "SINGLE_ZONE"
-    zone                       = "us-central1-b"
+    zone                       = "us-west1-b"
   }
   maintenance_policy {
     weekly_maintenance_window {
@@ -258,7 +258,7 @@ resource "google_memorystore_instance" "instance-full" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name          = "%{policy_name}"
-  location      = "us-central1"
+  location      = "us-west1"
   service_class = "gcp-memorystore"
   description   = "my basic service connection policy"
   network       = google_compute_network.producer_net.id
@@ -270,7 +270,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "producer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.producer_net.id
 }
 
@@ -331,7 +331,7 @@ resource "google_memorystore_instance" "instance-persistence-aof" {
     network    = google_compute_network.producer_net.id
     project_id = data.google_project.project.project_id
   }
-  location = "us-central1"
+  location = "us-west1"
   persistence_config {
     mode = "AOF"
     aof_config {
@@ -349,7 +349,7 @@ resource "google_memorystore_instance" "instance-persistence-aof" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name          = "%{policy_name}"
-  location      = "us-central1"
+  location      = "us-west1"
   service_class = "gcp-memorystore"
   description   = "my basic service connection policy"
   network       = google_compute_network.producer_net.id
@@ -361,7 +361,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "producer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.producer_net.id
 }
 
@@ -609,7 +609,7 @@ data "google_project" "project" {}
 resource "google_memorystore_instance" "test-instance" {
   instance_id  = "%{instance_name}"
   shard_count = 3
-  location     = "us-central1"
+  location     = "us-west1"
   
   desired_auto_created_endpoints {
     network    = google_compute_network.producer_net.id
@@ -632,7 +632,7 @@ resource "google_memorystore_instance" "test-instance" {
 
 resource "google_privateca_ca_pool" "default" {
   name     = "%{ca_pool_name}"
-  location = "us-central1"
+  location = "us-west1"
   tier     = "ENTERPRISE"
 }
 
@@ -645,7 +645,7 @@ resource "google_privateca_ca_pool_iam_member" "memorystore_p4sa_requester" {
 resource "google_privateca_certificate_authority" "default" {
   pool                     = google_privateca_ca_pool.default.name
   certificate_authority_id = "%{ca_auth_id}"
-  location                 = "us-central1"
+  location                 = "us-west1"
   config {
     subject_config {
       subject {
@@ -679,7 +679,7 @@ resource "google_privateca_certificate_authority" "default" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name           = "%{policy_name}"
-  location       = "us-central1"
+  location       = "us-west1"
   service_class  = "gcp-memorystore"
   network        = google_compute_network.producer_net.id
   psc_config {
@@ -690,7 +690,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "producer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.producer_net.id
 }
 
