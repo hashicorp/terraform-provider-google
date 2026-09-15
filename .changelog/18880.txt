@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `skip_node_pool_refresh` field to `google_container_cluster` data source. When set to true, the data source skips reading node pools from the API, resolving long read times on clusters with a large number of node pools. Note that this results in `node_pool` being set to an empty list
+```
