@@ -318,6 +318,7 @@ func ResourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			// Used internally for resumption after preemption; user-facing docs are intentionally omitted.
 			"operation": {
 				Type:     schema.TypeString,
 				Computed: true,
