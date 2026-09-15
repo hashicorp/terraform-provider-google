@@ -63,6 +63,14 @@ favour of `location`.
 * `region` (Optional) - The region this cluster has been created in. Deprecated
 in favour of `location`.
 
+* `skip_node_pool_refresh` (Optional) - Whether to skip refreshing the GKE
+cluster's node pool list during the data source read. Setting this to `true`
+prevents the provider from querying the GKE API for node pools, which resolves
+long read times on clusters with a large number of node pools. When enabled,
+the `node_pool` attribute will be empty (`[]`), even if node pools exist. See
+[the resource documentation](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_cluster)
+for details.
+
 - - -
 
 * `project` - (Optional) The project in which the resource belongs. If it

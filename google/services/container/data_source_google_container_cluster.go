@@ -34,6 +34,9 @@ func DataSourceGoogleContainerCluster() *schema.Resource {
 
 	// Set 'Optional' schema elements
 	tpgresource.AddOptionalFieldsToSchema(dsSchema, "project", "location")
+	// skip_node_pool_refresh is an input to the read path (flattenClusterNodePools),
+	// so it must be settable instead of computed-only. See resource_container_cluster.go.
+	tpgresource.AddOptionalFieldsToSchema(dsSchema, "skip_node_pool_refresh")
 
 	return &schema.Resource{
 		Read:   datasourceContainerClusterRead,
