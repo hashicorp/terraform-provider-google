@@ -305,7 +305,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-%{bucket_name}"  # Every bucket name must be globally unique
+  name     = "%{bucket_name}-${local.project}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }

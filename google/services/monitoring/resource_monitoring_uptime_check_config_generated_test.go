@@ -469,7 +469,7 @@ func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigSyntheticMonitorExample
 func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigSyntheticMonitorExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "%{project_id}-%{bucket_name}"  # Every bucket name must be globally unique
+  name     = "%{bucket_name}-%{project_id}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
