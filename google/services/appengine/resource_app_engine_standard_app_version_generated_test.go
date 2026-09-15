@@ -197,7 +197,7 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionBundledServic
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"bucket_name":   "tf-test-tf-test-gae-bkt-bundled" + randomSuffix,
+		"bucket_name":   "tf-test-gae-bkt-bundled" + randomSuffix,
 		"project_id":    "tf-test-tf-test-project" + randomSuffix,
 		"sa_email":      "tf-test-gae-sa" + randomSuffix,
 		"service_id":    "tf-test-bundled-service" + randomSuffix,
