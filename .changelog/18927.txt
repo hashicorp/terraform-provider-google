@@ -1,0 +1,3 @@
+```release-note:enhancement
+agenticapplications: added `artifacts_config.methodology_export_options` field to `google_agentic_applications_analyst_agent_persona`
+```

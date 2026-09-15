@@ -40,6 +40,9 @@ fields:
     - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.rawFileResource.mimeType
     - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.useRag
     - api_field: artifactsConfig.documentGenerationOptions.exportFormat
+    - api_field: artifactsConfig.methodologyExportOptions.appendMethodology
+    - api_field: artifactsConfig.methodologyExportOptions.exportFormat
+    - api_field: artifactsConfig.methodologyExportOptions.exportMethodologyArtifact
     - api_field: artifactsConfig.slideGenerationOptions.exportFormat
     - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.bigqueryResource.bigqueryDataset
     - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.bigqueryResource.bigqueryTable
