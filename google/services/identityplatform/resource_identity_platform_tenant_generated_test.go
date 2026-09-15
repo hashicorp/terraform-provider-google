@@ -60,6 +60,7 @@ func TestAccIdentityPlatformTenant_identityPlatformTenantBasicExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"display_name":  "tf-test-tenant",
 		"random_suffix": randomSuffix,
 	}
 
@@ -89,7 +90,7 @@ func TestAccIdentityPlatformTenant_identityPlatformTenantBasicExample(t *testing
 func testAccIdentityPlatformTenant_identityPlatformTenantBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
-  display_name          = "tenant"
+  display_name          = "%{display_name}"
   allow_password_signup = true
 }
 `, context)

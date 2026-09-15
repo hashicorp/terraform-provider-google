@@ -191,7 +191,10 @@ func deleteResourceIdentityPlatformInboundSamlConfig(config *transport_tpg.Confi
 	name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
 
 	// Skip resources that shouldn't be sweeped
-	if !sweeper.IsSweepableTestResource(name) {
+	prefixes := []string{
+		"saml.tf-config",
+	}
+	if !sweeper.IsSweepableTestResource(name) && !sweeper.HasAnyPrefix(name, prefixes) {
 		return nil
 	}
 
