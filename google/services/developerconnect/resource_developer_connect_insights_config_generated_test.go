@@ -83,7 +83,7 @@ func TestAccDeveloperConnectInsightsConfig_developerConnectInsightsConfigBasicEx
 				ResourceName:            "google_developer_connect_insights_config.insights_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "insights_config_id", "labels", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "insights_config_id", "labels", "labels", "location", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_developer_connect_insights_config.insights_config",
@@ -270,7 +270,7 @@ func TestAccDeveloperConnectInsightsConfig_developerConnectInsightsConfigProject
 				ResourceName:            "google_developer_connect_insights_config.insights_config_projects",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "insights_config_id", "labels", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "insights_config_id", "labels", "labels", "location", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_developer_connect_insights_config.insights_config_projects",
