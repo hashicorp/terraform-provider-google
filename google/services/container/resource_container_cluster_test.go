@@ -6975,7 +6975,7 @@ resource "google_privateca_ca_pool" "aggregation_ca" {
 }
 
 resource "google_privateca_certificate_authority" "cluster_ca" {
-  certificate_authority_id = "my-authority"
+  certificate_authority_id = "tf-test-my-authority"
   location                 = "us-central1"
   pool                     = google_privateca_ca_pool.cluster_ca.name
   type = "SELF_SIGNED"
@@ -7020,7 +7020,7 @@ resource "google_privateca_certificate_authority" "cluster_ca" {
 }
 
 resource "google_privateca_certificate_authority" "etcd_api_ca" {
-  certificate_authority_id = "my-authority"
+  certificate_authority_id = "tf-test-my-authority"
   location                 = "us-central1"
   pool                     = google_privateca_ca_pool.etcd_api_ca.name
   type = "SELF_SIGNED"
@@ -7064,7 +7064,7 @@ resource "google_privateca_certificate_authority" "etcd_api_ca" {
 }
 
 resource "google_privateca_certificate_authority" "etcd_peer_ca" {
-  certificate_authority_id = "my-authority"
+  certificate_authority_id = "tf-test-my-authority"
   location                 = "us-central1"
   pool                     = google_privateca_ca_pool.etcd_peer_ca.name
   type = "SELF_SIGNED"
@@ -7108,7 +7108,7 @@ resource "google_privateca_certificate_authority" "etcd_peer_ca" {
 }
 
 resource "google_privateca_certificate_authority" "aggregation_ca" {
-  certificate_authority_id = "my-authority"
+  certificate_authority_id = "tf-test-my-authority"
   location                 = "us-central1"
   pool                     = google_privateca_ca_pool.aggregation_ca.name
   type = "SELF_SIGNED"
@@ -12260,14 +12260,14 @@ resource "google_compute_subnetwork_iam_member" "service_network_gke_user" {
 }
 
 resource "google_compute_network" "shared_network" {
-  name    = "test-%s"
+  name    = "tf-test-%s"
   project = google_compute_shared_vpc_host_project.host_project.project
 
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "shared_subnetwork" {
-  name          = "test-%s"
+  name          = "tf-test-%s"
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.shared_network.self_link
@@ -14197,7 +14197,7 @@ data "google_project" "project" {
 
 resource "google_tags_tag_key" "key1" {
   parent      = data.google_project.project.id
-  short_name  = "foobarbaz-%[2]s"
+  short_name  = "tf-test-foobarbaz-%[2]s"
   description = "For foo/bar resources"
   purpose     = "GCE_FIREWALL"
   purpose_data = {
@@ -14207,14 +14207,14 @@ resource "google_tags_tag_key" "key1" {
 
 resource "google_tags_tag_value" "value1" {
   parent      = google_tags_tag_key.key1.id
-  short_name  = "foo-%[2]s"
+  short_name  = "tf-test-foo-%[2]s"
   description = "For foo resources"
 }
 
 # To test updates: create two key / value sets, and swap them for the update
 resource "google_tags_tag_key" "key2" {
   parent      = data.google_project.project.id
-  short_name  = "qux-%[2]s"
+  short_name  = "tf-test-qux-%[2]s"
   description = "For qux resources"
   purpose     = "GCE_FIREWALL"
   purpose_data = {
@@ -14224,7 +14224,7 @@ resource "google_tags_tag_key" "key2" {
 
 resource "google_tags_tag_value" "value2" {
   parent      = google_tags_tag_key.key2.id
-  short_name  = "qux-%[2]s"
+  short_name  = "tf-test-qux-%[2]s"
   description = "For qux resources"
 }
 
@@ -14261,7 +14261,7 @@ data "google_project" "project" {
 
 resource "google_tags_tag_key" "key1" {
   parent      = "projects/%[1]s"
-  short_name  = "foobarbaz1-%[2]s"
+  short_name  = "tf-test-foobarbaz1-%[2]s"
   description = "For foo/bar1 resources"
   purpose     = "GCE_FIREWALL"
   purpose_data = {
@@ -14273,13 +14273,13 @@ resource "google_tags_tag_key" "key1" {
 
 resource "google_tags_tag_value" "value1" {
   parent      = google_tags_tag_key.key1.id
-  short_name  = "foo1-%[2]s"
+  short_name  = "tf-test-foo1-%[2]s"
   description = "For foo1 resources"
 }
 
 resource "google_tags_tag_key" "key2" {
   parent      = "projects/%[1]s"
-  short_name  = "foobarbaz2-%[2]s"
+  short_name  = "tf-test-foobarbaz2-%[2]s"
   description = "For foo/bar2 resources"
   purpose     = "GCE_FIREWALL"
   purpose_data = {
@@ -14294,7 +14294,7 @@ resource "google_tags_tag_key" "key2" {
 
 resource "google_tags_tag_value" "value2" {
   parent      = google_tags_tag_key.key2.id
-  short_name  = "foo2-%[2]s"
+  short_name  = "tf-test-foo2-%[2]s"
   description = "For foo2 resources"
 }
 
@@ -14365,7 +14365,7 @@ data "google_project" "project" {
 
 resource "google_tags_tag_key" "key1" {
   parent      = "projects/%[1]s"
-  short_name  = "foobarbaz1-%[2]s"
+  short_name  = "tf-test-foobarbaz1-%[2]s"
   description = "For foo/bar1 resources"
   purpose     = "GCE_FIREWALL"
   purpose_data = {
@@ -14377,13 +14377,13 @@ resource "google_tags_tag_key" "key1" {
 
 resource "google_tags_tag_value" "value1" {
   parent      = google_tags_tag_key.key1.id
-  short_name  = "foo1-%[2]s"
+  short_name  = "tf-test-foo1-%[2]s"
   description = "For foo1 resources"
 }
 
 resource "google_tags_tag_key" "key2" {
   parent      = "projects/%[1]s"
-  short_name  = "foobarbaz2-%[2]s"
+  short_name  = "tf-test-foobarbaz2-%[2]s"
   description = "For foo/bar2 resources"
   purpose     = "GCE_FIREWALL"
   purpose_data = {
@@ -14398,7 +14398,7 @@ resource "google_tags_tag_key" "key2" {
 
 resource "google_tags_tag_value" "value2" {
   parent      = google_tags_tag_key.key2.id
-  short_name  = "foo2-%[2]s"
+  short_name  = "tf-test-foo2-%[2]s"
   description = "For foo2 resources"
 }
 
@@ -14470,7 +14470,7 @@ data "google_project" "project" {
 
 resource "google_tags_tag_key" "key1" {
   parent      = "projects/%[1]s"
-  short_name  = "foobarbaz1-%[2]s"
+  short_name  = "tf-test-foobarbaz1-%[2]s"
   description = "For foo/bar1 resources"
   purpose     = "GCE_FIREWALL"
   purpose_data = {
@@ -14482,13 +14482,13 @@ resource "google_tags_tag_key" "key1" {
 
 resource "google_tags_tag_value" "value1" {
   parent      = google_tags_tag_key.key1.id
-  short_name  = "foo1-%[2]s"
+  short_name  = "tf-test-foo1-%[2]s"
   description = "For foo1 resources"
 }
 
 resource "google_tags_tag_key" "key2" {
   parent      = "projects/%[1]s"
-  short_name  = "foobarbaz2-%[2]s"
+  short_name  = "tf-test-foobarbaz2-%[2]s"
   description = "For foo/bar2 resources"
   purpose     = "GCE_FIREWALL"
   purpose_data = {
@@ -14503,7 +14503,7 @@ resource "google_tags_tag_key" "key2" {
 
 resource "google_tags_tag_value" "value2" {
   parent      = google_tags_tag_key.key2.id
-  short_name  = "foo2-%[2]s"
+  short_name  = "tf-test-foo2-%[2]s"
   description = "For foo2 resources"
 }
 
@@ -16211,8 +16211,8 @@ func TestAccContainerCluster_withAdvancedMachineFeaturesPMU_Standard(t *testing.
 	suffix := acctest.RandString(t, 10)
 	clusterResourceName := "google_container_cluster.primary"
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
-	networkName := fmt.Sprintf("test-network-%s", suffix)
-	subnetworkName := fmt.Sprintf("test-subnetwork-%s", suffix)
+	networkName := fmt.Sprintf("tf-test-network-%s", suffix)
+	subnetworkName := fmt.Sprintf("tf-test-subnetwork-%s", suffix)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -16238,8 +16238,8 @@ func TestAccContainerCluster_withAdvancedMachineFeaturesPMU_Architectural(t *tes
 	suffix := acctest.RandString(t, 10)
 	clusterResourceName := "google_container_cluster.primary"
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
-	networkName := fmt.Sprintf("test-network-%s", suffix)
-	subnetworkName := fmt.Sprintf("test-subnetwork-%s", suffix)
+	networkName := fmt.Sprintf("tf-test-network-%s", suffix)
+	subnetworkName := fmt.Sprintf("tf-test-subnetwork-%s", suffix)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
