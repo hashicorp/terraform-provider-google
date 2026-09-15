@@ -588,7 +588,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbCustomMetricsExam
 	context := map[string]interface{}{
 		"default_neg_name":            "tf-test-network-endpoint" + randomSuffix,
 		"health_check_name":           "tf-test-rbs-health-check" + randomSuffix,
-		"network_name":                "network" + randomSuffix,
+		"network_name":                "tf-test-network" + randomSuffix,
 		"region_backend_service_name": "tf-test-region-service" + randomSuffix,
 		"random_suffix":               randomSuffix,
 	}
@@ -844,7 +844,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceTlsSettingsExample(t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"authentication_name":         "authentication" + randomSuffix,
+		"authentication_name":         "tf-test-authentication" + randomSuffix,
 		"health_check_name":           "tf-test-health-check" + randomSuffix,
 		"region_backend_service_name": "tf-test-region-service" + randomSuffix,
 		"random_suffix":               randomSuffix,

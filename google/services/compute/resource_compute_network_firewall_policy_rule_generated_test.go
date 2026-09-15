@@ -67,7 +67,7 @@ func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleExample(t 
 		"service_acct":  envvar.GetTestServiceAccountFromEnv(t),
 		"address_group": "tf-test-address-group" + randomSuffix,
 		"fw_policy":     "tf-test-fw-policy" + randomSuffix,
-		"network":       "network" + randomSuffix,
+		"network":       "tf-test-network" + randomSuffix,
 		"tag_key":       "tf-test-tag-key" + randomSuffix,
 		"tag_value":     "tf-test-tag-value" + randomSuffix,
 		"random_suffix": randomSuffix,
@@ -239,7 +239,7 @@ func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleNetworkCon
 	context := map[string]interface{}{
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"fw_policy":     "tf-test-fw-policy" + randomSuffix,
-		"network":       "network" + randomSuffix,
+		"network":       "tf-test-network" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

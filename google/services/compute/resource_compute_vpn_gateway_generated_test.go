@@ -65,11 +65,11 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 		"address_name":                 "tf-test-vpn-static-ip" + randomSuffix,
 		"esp_forwarding_rule_name":     "tf-test-fr-esp" + randomSuffix,
 		"network_name":                 "tf-test-network-1" + randomSuffix,
-		"route_name":                   "route1" + randomSuffix,
+		"route_name":                   "tf-test-route1" + randomSuffix,
 		"target_vpn_gateway_name":      "tf-test-vpn-1" + randomSuffix,
 		"udp4500_forwarding_rule_name": "tf-test-fr-udp4500" + randomSuffix,
 		"udp500_forwarding_rule_name":  "tf-test-fr-udp500" + randomSuffix,
-		"vpn_tunnel_name":              "tunnel1" + randomSuffix,
+		"vpn_tunnel_name":              "tf-test-tunnel1" + randomSuffix,
 		"random_suffix":                randomSuffix,
 	}
 
@@ -170,13 +170,13 @@ func TestAccComputeVpnGateway_targetVpnGatewayTagsExample(t *testing.T) {
 		"esp_forwarding_rule_name":     "tf-test-fr-esp" + randomSuffix,
 		"network_name":                 "tf-test-network-1" + randomSuffix,
 		"org_id":                       envvar.GetTestOrgFromEnv(t),
-		"route_name":                   "route1" + randomSuffix,
+		"route_name":                   "tf-test-route1" + randomSuffix,
 		"tag_key":                      "tf-test-key-" + acctest.RandString(t, 10),
 		"tag_value":                    "tf-test-value-" + acctest.RandString(t, 10),
 		"target_vpn_gateway_name":      "tf-test-vpn-1" + randomSuffix,
 		"udp4500_forwarding_rule_name": "tf-test-fr-udp4500" + randomSuffix,
 		"udp500_forwarding_rule_name":  "tf-test-fr-udp500" + randomSuffix,
-		"vpn_tunnel_name":              "tunnel1" + randomSuffix,
+		"vpn_tunnel_name":              "tf-test-tunnel1" + randomSuffix,
 		"random_suffix":                randomSuffix,
 	}
 

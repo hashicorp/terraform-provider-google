@@ -60,10 +60,10 @@ func TestAccComputeTargetGrpcProxy_targetGrpcProxyBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"backend_name":     "backend" + randomSuffix,
-		"healthcheck_name": "healthcheck" + randomSuffix,
-		"proxy_name":       "proxy" + randomSuffix,
-		"urlmap_name":      "urlmap" + randomSuffix,
+		"backend_name":     "tf-test-backend" + randomSuffix,
+		"healthcheck_name": "tf-test-healthcheck" + randomSuffix,
+		"proxy_name":       "tf-test-proxy" + randomSuffix,
+		"urlmap_name":      "tf-test-urlmap" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}
 
