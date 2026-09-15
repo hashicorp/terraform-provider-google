@@ -60,7 +60,7 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHttpExample(t *testi
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"backend_service_name": "backend" + randomSuffix,
+		"backend_service_name": "tf-test-backend" + randomSuffix,
 		"forwarding_rule_name": "tf-test-global-rule" + randomSuffix,
 		"http_proxy_name":      "tf-test-target-proxy" + randomSuffix,
 		"random_suffix":        randomSuffix,
@@ -152,7 +152,7 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleExternalManagedExamp
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"backend_service_name": "backend" + randomSuffix,
+		"backend_service_name": "tf-test-backend" + randomSuffix,
 		"forwarding_rule_name": "tf-test-global-rule" + randomSuffix,
 		"http_proxy_name":      "tf-test-target-proxy" + randomSuffix,
 		"random_suffix":        randomSuffix,

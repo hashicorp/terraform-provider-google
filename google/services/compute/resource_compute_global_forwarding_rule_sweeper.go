@@ -191,7 +191,10 @@ func deleteResourceComputeGlobalForwardingRule(config *transport_tpg.Config, d *
 	name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
 
 	// Skip resources that shouldn't be sweeped
-	if !sweeper.IsSweepableTestResource(name) {
+	prefixes := []string{
+		"frtest",
+	}
+	if !sweeper.IsSweepableTestResource(name) && !sweeper.HasAnyPrefix(name, prefixes) {
 		return nil
 	}
 
