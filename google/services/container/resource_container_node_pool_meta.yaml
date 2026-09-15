@@ -126,8 +126,6 @@ fields:
     api_field: 'config.accelerators.acceleratorType'
   - field: 'node_config.gvnic.enabled'
     api_field: 'config.gvnic.enabled'
-  - field: 'node_config.host_maintenance_policy.maintenance_interval'
-    api_field: 'config.hostMaintenancePolicy.maintenanceInterval'
   - field: 'node_config.image_type'
     api_field: 'config.imageType'
   - field: 'node_config.kubelet_config.allowed_unsafe_sysctls'

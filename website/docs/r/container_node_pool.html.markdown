@@ -258,7 +258,7 @@ cluster.
 
 * `subnetwork` - (Optional) The subnetwork path for the node pool. Format: `projects/{project}/regions/{region}/subnetworks/{subnetwork}`. If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable
 
-* `accelerator_network_profile` (Optional, (../guides/provider_versions.html.markdown)) - Specifies the accelerator network profile for nodes in this node pool. Setting to `"auto"` enables GKE to automatically configure high-performance networking settings for nodes with accelerators (like GPUs). GKE manages the underlying resources (like VPCs and subnets) for this configuration.
+* `accelerator_network_profile` - (Optional) Specifies the accelerator network profile for nodes in this node pool. Setting to `"auto"` enables GKE to automatically configure high-performance networking settings for nodes with accelerators (like GPUs). GKE manages the underlying resources (like VPCs and subnets) for this configuration.
 
 <a name="nested_additional_node_network_configs"></a>The `additional_node_network_configs` block supports:
 
@@ -324,7 +324,7 @@ cluster.
 * `standard_rollout_policy` - (Optional) Specifies the standard policy settings for blue-green upgrades.
     * `batch_percentage` - (Optional) Percentage of the blue pool nodes to drain in a batch.
     * `batch_node_count` - (Optional) Number of blue nodes to drain in a batch.
-    * `batch_soak_duration` - (Optionial) Soak time after each batch gets drained.
+    * `batch_soak_duration` - (Optional) Soak time after each batch gets drained.
 
 * `autoscaled_rollout_policy` - (Optional, [Beta](../guides/provider_versions.html.markdown)) Autoscaled rollout policy for blue-green upgrade.
     * `wait_for_drain_duration` - (Optional) Time in seconds to wait after cordoning the blue pool before draining the nodes.
@@ -367,6 +367,22 @@ cluster.
 
 * `taint_config` - (Optional) Taint configuration for the node pool. Structure is [documented below](#nested_node_config_taint_config).
 
+* `host_maintenance_policy` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The maintenance policy for the hosts on which the GKE VMs run on. Structure is [documented below](#nested_host_maintenance_policy).
+
+<a name="nested_host_maintenance_policy"></a>The `host_maintenance_policy` block supports:
+
+* `maintenance_interval` (Required) - Specifies the frequency of planned maintenance events. Possible values are `MAINTENANCE_INTERVAL_UNSPECIFIED`, `AS_NEEDED`, and `PERIODIC`.
+
+* `opportunistic_maintenance_strategy` (Optional) - Strategy that will trigger maintenance on behalf of the customer. Structure is [documented below](#nested_opportunistic_maintenance_strategy).
+
+<a name="nested_opportunistic_maintenance_strategy"></a>The `opportunistic_maintenance_strategy` block supports:
+
+* `node_idle_time_window` (Required) - The amount of time that a node can remain idle (no customer owned workloads running), before triggering maintenance. Format is a duration terminated by `s`, e.g. `"600s"`.
+
+* `maintenance_availability_window` (Required) - The window of time that opportunistic maintenance can run. Example: A setting of 14 days (`"1209600s"`) implies that opportunistic maintenance can only be ran in the 2 weeks leading up to the scheduled maintenance date. Setting 28 days (`"2419200s"`) allows opportunistic maintenance to run at any time in the scheduled maintenance window (all `PERIODIC` maintenance is set 28 days in advance).
+
+* `min_nodes_per_pool` (Required) - The minimum nodes required to be available in a pool. Blocks maintenance if it would cause the number of running nodes to dip below this value.
+
 <a name="nested_node_config_taint_config"></a>The `taint_config` block supports:
 
 * `architecture_taint_behavior` - (Optional) Specifies the behavior for applying architecture taints to node pool nodes. Valid values are `ARCHITECTURE_TAINT_BEHAVIOR_UNSPECIFIED`, `NONE`, or `ARM`.
@@ -388,6 +404,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `instance_group_urls` - The resource URLs of the managed instance groups associated with this node pool.
 
 * `managed_instance_group_urls` - List of instance group URLs which have been assigned to this node pool.
+
+* `node_config.0.effective_taints` - List of kubernetes taints applied to each node.
 
 <a id="timeouts"></a>
 ## Timeouts
