@@ -60,6 +60,7 @@ func TestAccIdentityPlatformTenantOauthIdpConfig_identityPlatformTenantOauthIdpC
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"display_name":  "tf-test-tenant",
 		"name":          "oidc.oauth-idp-config-" + acctest.RandString(t, 10),
 		"random_suffix": randomSuffix,
 	}
@@ -91,7 +92,7 @@ func TestAccIdentityPlatformTenantOauthIdpConfig_identityPlatformTenantOauthIdpC
 func testAccIdentityPlatformTenantOauthIdpConfig_identityPlatformTenantOauthIdpConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
-  display_name  = "tenant"
+  display_name  = "%{display_name}"
 }
 
 resource "google_identity_platform_tenant_oauth_idp_config" "tenant_oauth_idp_config" {

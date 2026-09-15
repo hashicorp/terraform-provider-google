@@ -60,6 +60,7 @@ func TestAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboun
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"display_name":  "tf-test-tenant",
 		"idp_entity_id": "tf-test-tf-idp" + randomSuffix,
 		"name":          "saml.tf-config-" + acctest.RandString(t, 10),
 		"sp_entity_id":  "tf-test-tf-sp" + randomSuffix,
@@ -93,7 +94,7 @@ func TestAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboun
 func testAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboundSamlConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
-  display_name  = "tenant"
+  display_name  = "%{display_name}"
 }
 
 resource "google_identity_platform_tenant_inbound_saml_config" "tenant_saml_config" {
