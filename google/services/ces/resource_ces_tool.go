@@ -1765,6 +1765,15 @@ CLIENT_CREDENTIAL`,
 										Description: `Configurations for authentication using a custom service account.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"scopes": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Description: `The OAuth scopes to grant. If not specified, the default scope
+'https://www.googleapis.com/auth/cloud-platform' is used.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
 												"service_account": {
 													Type:     schema.TypeString,
 													Computed: true,
@@ -2012,6 +2021,15 @@ CLIENT_CREDENTIAL`,
 										Description: `Configurations for authentication using a custom service account.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"scopes": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Description: `The OAuth scopes to grant. If not specified, the default scope
+'https://www.googleapis.com/auth/cloud-platform' is used.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
 												"service_account": {
 													Type:     schema.TypeString,
 													Computed: true,
@@ -4397,9 +4415,15 @@ func flattenCESToolMcpToolApiAuthenticationServiceAccountAuthConfig(v interface{
 	transformed := make(map[string]interface{})
 	transformed["service_account"] =
 		flattenCESToolMcpToolApiAuthenticationServiceAccountAuthConfigServiceAccount(original["serviceAccount"], d, config)
+	transformed["scopes"] =
+		flattenCESToolMcpToolApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolMcpToolApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolMcpToolApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4634,9 +4658,15 @@ func flattenCESToolOpenApiToolApiAuthenticationServiceAccountAuthConfig(v interf
 	transformed := make(map[string]interface{})
 	transformed["service_account"] =
 		flattenCESToolOpenApiToolApiAuthenticationServiceAccountAuthConfigServiceAccount(original["serviceAccount"], d, config)
+	transformed["scopes"] =
+		flattenCESToolOpenApiToolApiAuthenticationServiceAccountAuthConfigScopes(original["scopes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolOpenApiToolApiAuthenticationServiceAccountAuthConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolOpenApiToolApiAuthenticationServiceAccountAuthConfigScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
