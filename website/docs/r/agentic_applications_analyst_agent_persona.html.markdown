@@ -269,6 +269,32 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=analyst_agent_persona_methodology_export_options&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Analyst Agent Persona Methodology Export Options
+
+
+```hcl
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  location                 = "us"
+  analyst_agent_persona_id = "methodology"
+  display_name             = "Test Analyst Persona Methodology Export"
+  display_description      = "Sample analyst agent persona description"
+  model_description        = "Sample model description"
+  role                     = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+
+  artifacts_config {
+    methodology_export_options {
+      append_methodology          = true
+      export_format               = "MARKDOWN"
+      export_methodology_artifact = true
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -516,6 +542,11 @@ The following arguments are supported:
   Options for document generation.
   Structure is [documented below](#nested_artifacts_config_document_generation_options).
 
+* `methodology_export_options` -
+  (Optional)
+  Options for methodology export.
+  Structure is [documented below](#nested_artifacts_config_methodology_export_options).
+
 * `slide_generation_options` -
   (Optional)
   Options for slide generation.
@@ -662,6 +693,24 @@ The following arguments are supported:
 * `mime_type` -
   (Required)
   The mime type of the file.
+
+<a name="nested_artifacts_config_methodology_export_options"></a>The `methodology_export_options` block supports:
+
+* `append_methodology` -
+  (Optional)
+  If true, append the detailed methodology to the final response.
+
+* `export_format` -
+  (Optional)
+  Format for methodology export.
+  Possible values:
+  MARKDOWN
+  HTML
+  PDF
+
+* `export_methodology_artifact` -
+  (Optional)
+  If true, export the detailed methodology as a separate artifact.
 
 <a name="nested_artifacts_config_slide_generation_options"></a>The `slide_generation_options` block supports:
 

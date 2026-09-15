@@ -618,6 +618,107 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
 `, context)
 }
 
+func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodologyExportOptionsExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"persona_id":    "tf-test-methodology" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"persona_id":    "tf-test-methodology" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAgenticApplicationsAnalystAgentPersonaDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodologyExportOptionsExample(context),
+			},
+			{
+				ResourceName:            "google_agentic_applications_analyst_agent_persona.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"analyst_agent_persona_id", "location"},
+			},
+			{
+				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodologyExportOptionsUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_agentic_applications_analyst_agent_persona.example", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_agentic_applications_analyst_agent_persona.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"analyst_agent_persona_id", "location"},
+			},
+			{
+				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodologyExportOptionsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  location                 = "us"
+  analyst_agent_persona_id = "%{persona_id}"
+  display_name             = "Test Analyst Persona Methodology Export"
+  display_description      = "Sample analyst agent persona description"
+  model_description        = "Sample model description"
+  role                     = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+
+  artifacts_config {
+    methodology_export_options {
+      append_methodology          = true
+      export_format               = "MARKDOWN"
+      export_methodology_artifact = true
+    }
+  }
+}
+`, context)
+}
+
+func testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodologyExportOptionsUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  location                 = "us"
+  analyst_agent_persona_id = "%{persona_id}"
+  display_name             = "Test Analyst Persona Methodology Export Updated"
+  display_description      = "Updated analyst agent persona description"
+  model_description        = "Updated model description"
+  role                     = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+
+  artifacts_config {
+    methodology_export_options {
+      append_methodology          = false
+      export_format               = "HTML"
+      export_methodology_artifact = false
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckAgenticApplicationsAnalystAgentPersonaDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
