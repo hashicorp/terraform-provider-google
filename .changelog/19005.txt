@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `mcp_tool.api_authentication.service_account_auth_config.scopes` and `open_api_tool.api_authentication.service_account_auth_config.scopes` fields to `google_ces_tool`
+```
