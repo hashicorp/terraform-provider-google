@@ -190,6 +190,62 @@ created.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"api_auth": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Authentication config for the chosen Vector DB.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"api_key_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The API secret.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"api_key_secret_version": {
+													Type:     schema.TypeString,
+													Optional: true,
+													ForceNew: true,
+													Description: `The SecretManager secret version resource name storing API key.
+e.g. projects/{project}/secrets/{secret}/versions/{version}`,
+													ExactlyOneOf: []string{"vector_db_config.0.api_auth.0.api_key_config.0.api_key_secret_version", "vector_db_config.0.api_auth.0.api_key_config.0.api_key_string"},
+												},
+												"api_key_string": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ForceNew:     true,
+													Description:  `The API key string.`,
+													Sensitive:    true,
+													ExactlyOneOf: []string{"vector_db_config.0.api_auth.0.api_key_config.0.api_key_secret_version", "vector_db_config.0.api_auth.0.api_key_config.0.api_key_string"},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"pinecone": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The config for the Pinecone.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"index_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Pinecone index name. This value cannot be changed after it's set.`,
+									},
+								},
+							},
+							ConflictsWith: []string{"vector_db_config.0.rag_managed_db", "vector_db_config.0.vertex_vector_search"},
+						},
 						"rag_embedding_model_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -270,9 +326,58 @@ or projects/{project}/locations/{location}/endpoints/{endpoint}.`,
 									},
 								},
 							},
+							ConflictsWith: []string{"vector_db_config.0.pinecone", "vector_db_config.0.vertex_vector_search"},
+						},
+						"vertex_vector_search": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The config for the Vertex Vector Search.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"index": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The resource name of the Index.
+Format: projects/{project}/locations/{location}/indexes/{index}`,
+									},
+									"index_endpoint": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The resource name of the Index Endpoint.
+Format: projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}`,
+									},
+								},
+							},
+							ConflictsWith: []string{"vector_db_config.0.pinecone", "vector_db_config.0.rag_managed_db"},
 						},
 					},
 				},
+				ConflictsWith: []string{"vertex_ai_search_config"},
+			},
+			"vertex_ai_search_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Optional. Immutable. The config for the Vertex AI Search.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"serving_config": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Vertex AI Search Serving Config resource full name. For example,
+projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}
+or
+projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"vector_db_config"},
 			},
 			"corpus_status": {
 				Type:        schema.TypeList,
@@ -357,6 +462,12 @@ func resourceVertexAIRagCorpusCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("vector_db_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(vectorDbConfigProp)) && (ok || !reflect.DeepEqual(v, vectorDbConfigProp)) {
 		obj["vectorDbConfig"] = vectorDbConfigProp
+	}
+	vertexAiSearchConfigProp, err := expandVertexAIRagCorpusVertexAiSearchConfig(d.Get("vertex_ai_search_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("vertex_ai_search_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(vertexAiSearchConfigProp)) && (ok || !reflect.DeepEqual(v, vertexAiSearchConfigProp)) {
+		obj["vertexAiSearchConfig"] = vertexAiSearchConfigProp
 	}
 	encryptionSpecProp, err := expandVertexAIRagCorpusEncryptionSpec(d.Get("encryption_spec"), d, config)
 	if err != nil {
@@ -788,6 +899,12 @@ func flattenVertexAIRagCorpusVectorDbConfig(v interface{}, d *schema.ResourceDat
 	transformed := make(map[string]interface{})
 	transformed["rag_managed_db"] =
 		flattenVertexAIRagCorpusVectorDbConfigRagManagedDb(original["ragManagedDb"], d, config)
+	transformed["pinecone"] =
+		flattenVertexAIRagCorpusVectorDbConfigPinecone(original["pinecone"], d, config)
+	transformed["vertex_vector_search"] =
+		flattenVertexAIRagCorpusVectorDbConfigVertexVectorSearch(original["vertexVectorSearch"], d, config)
+	transformed["api_auth"] =
+		flattenVertexAIRagCorpusVectorDbConfigApiAuth(original["apiAuth"], d, config)
 	transformed["rag_embedding_model_config"] =
 		flattenVertexAIRagCorpusVectorDbConfigRagEmbeddingModelConfig(original["ragEmbeddingModelConfig"], d, config)
 	return []interface{}{transformed}
@@ -861,6 +978,76 @@ func flattenVertexAIRagCorpusVectorDbConfigRagManagedDbAnnLeafCount(v interface{
 	return v // let terraform core handle it otherwise
 }
 
+func flattenVertexAIRagCorpusVectorDbConfigPinecone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["index_name"] =
+		flattenVertexAIRagCorpusVectorDbConfigPineconeIndexName(original["indexName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIRagCorpusVectorDbConfigPineconeIndexName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIRagCorpusVectorDbConfigVertexVectorSearch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["index_endpoint"] =
+		flattenVertexAIRagCorpusVectorDbConfigVertexVectorSearchIndexEndpoint(original["indexEndpoint"], d, config)
+	transformed["index"] =
+		flattenVertexAIRagCorpusVectorDbConfigVertexVectorSearchIndex(original["index"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIRagCorpusVectorDbConfigVertexVectorSearchIndexEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIRagCorpusVectorDbConfigVertexVectorSearchIndex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIRagCorpusVectorDbConfigApiAuth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["api_key_config"] =
+		flattenVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfig(original["apiKeyConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["api_key_secret_version"] =
+		flattenVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfigApiKeySecretVersion(original["apiKeySecretVersion"], d, config)
+	transformed["api_key_string"] =
+		flattenVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfigApiKeyString(original["apiKeyString"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfigApiKeySecretVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfigApiKeyString(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("vector_db_config.0.api_auth.0.api_key_config.0.api_key_string")
+}
+
 func flattenVertexAIRagCorpusVectorDbConfigRagEmbeddingModelConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -900,6 +1087,23 @@ func flattenVertexAIRagCorpusVectorDbConfigRagEmbeddingModelConfigVertexPredicti
 }
 
 func flattenVertexAIRagCorpusVectorDbConfigRagEmbeddingModelConfigVertexPredictionEndpointModelVersionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIRagCorpusVertexAiSearchConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["serving_config"] =
+		flattenVertexAIRagCorpusVertexAiSearchConfigServingConfig(original["servingConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIRagCorpusVertexAiSearchConfigServingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -945,6 +1149,27 @@ func expandVertexAIRagCorpusVectorDbConfig(v interface{}, d tpgresource.Terrafor
 		return nil, err
 	} else {
 		transformed["ragManagedDb"] = transformedRagManagedDb
+	}
+
+	transformedPinecone, err := expandVertexAIRagCorpusVectorDbConfigPinecone(original["pinecone"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPinecone); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pinecone"] = transformedPinecone
+	}
+
+	transformedVertexVectorSearch, err := expandVertexAIRagCorpusVectorDbConfigVertexVectorSearch(original["vertex_vector_search"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVertexVectorSearch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["vertexVectorSearch"] = transformedVertexVectorSearch
+	}
+
+	transformedApiAuth, err := expandVertexAIRagCorpusVectorDbConfigApiAuth(original["api_auth"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApiAuth); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["apiAuth"] = transformedApiAuth
 	}
 
 	transformedRagEmbeddingModelConfig, err := expandVertexAIRagCorpusVectorDbConfigRagEmbeddingModelConfig(original["rag_embedding_model_config"], d, config)
@@ -1046,6 +1271,138 @@ func expandVertexAIRagCorpusVectorDbConfigRagManagedDbAnnLeafCount(v interface{}
 	return v, nil
 }
 
+func expandVertexAIRagCorpusVectorDbConfigPinecone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIndexName, err := expandVertexAIRagCorpusVectorDbConfigPineconeIndexName(original["index_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIndexName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["indexName"] = transformedIndexName
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIRagCorpusVectorDbConfigPineconeIndexName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIRagCorpusVectorDbConfigVertexVectorSearch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIndexEndpoint, err := expandVertexAIRagCorpusVectorDbConfigVertexVectorSearchIndexEndpoint(original["index_endpoint"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIndexEndpoint); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["indexEndpoint"] = transformedIndexEndpoint
+	}
+
+	transformedIndex, err := expandVertexAIRagCorpusVectorDbConfigVertexVectorSearchIndex(original["index"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIndex); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["index"] = transformedIndex
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIRagCorpusVectorDbConfigVertexVectorSearchIndexEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIRagCorpusVectorDbConfigVertexVectorSearchIndex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIRagCorpusVectorDbConfigApiAuth(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedApiKeyConfig, err := expandVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfig(original["api_key_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApiKeyConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["apiKeyConfig"] = transformedApiKeyConfig
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedApiKeySecretVersion, err := expandVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfigApiKeySecretVersion(original["api_key_secret_version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApiKeySecretVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["apiKeySecretVersion"] = transformedApiKeySecretVersion
+	}
+
+	transformedApiKeyString, err := expandVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfigApiKeyString(original["api_key_string"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApiKeyString); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["apiKeyString"] = transformedApiKeyString
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfigApiKeySecretVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIRagCorpusVectorDbConfigApiAuthApiKeyConfigApiKeyString(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandVertexAIRagCorpusVectorDbConfigRagEmbeddingModelConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1116,6 +1473,32 @@ func expandVertexAIRagCorpusVectorDbConfigRagEmbeddingModelConfigVertexPredictio
 	return v, nil
 }
 
+func expandVertexAIRagCorpusVertexAiSearchConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServingConfig, err := expandVertexAIRagCorpusVertexAiSearchConfigServingConfig(original["serving_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServingConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["servingConfig"] = transformedServingConfig
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIRagCorpusVertexAiSearchConfigServingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandVertexAIRagCorpusEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1164,6 +1547,9 @@ func ResourceVertexAIRagCorpusFlatten(d *schema.ResourceData, meta interface{}, 
 		return fmt.Errorf("Error reading RagCorpus: %s", err)
 	}
 	if err = d.Set("vector_db_config", flattenVertexAIRagCorpusVectorDbConfig(res["vectorDbConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RagCorpus: %s", err)
+	}
+	if err = d.Set("vertex_ai_search_config", flattenVertexAIRagCorpusVertexAiSearchConfig(res["vertexAiSearchConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RagCorpus: %s", err)
 	}
 	if err = d.Set("encryption_spec", flattenVertexAIRagCorpusEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
