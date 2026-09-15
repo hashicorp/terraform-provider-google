@@ -563,7 +563,7 @@ func TestAccComputeBackendService_backendServiceCustomMetricsExample(t *testing.
 		"backend_service_name": "tf-test-backend-service" + randomSuffix,
 		"default_neg_name":     "tf-test-network-endpoint" + randomSuffix,
 		"health_check_name":    "tf-test-health-check" + randomSuffix,
-		"network_name":         "network" + randomSuffix,
+		"network_name":         "tf-test-network" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
 
@@ -657,7 +657,7 @@ func TestAccComputeBackendService_backendServiceTlsSettingsExample(t *testing.T)
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"authentication_name":  "authentication" + randomSuffix,
+		"authentication_name":  "tf-test-authentication" + randomSuffix,
 		"backend_service_name": "tf-test-backend-service" + randomSuffix,
 		"health_check_name":    "tf-test-health-check" + randomSuffix,
 		"random_suffix":        randomSuffix,

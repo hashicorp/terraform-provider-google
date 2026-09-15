@@ -581,7 +581,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentCrossRegionIlbExample(t *t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"name":          "sa" + randomSuffix,
+		"name":          "tf-test-sa" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

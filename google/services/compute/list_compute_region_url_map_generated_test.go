@@ -46,10 +46,10 @@ func TestAccComputeRegionUrlMapListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"home_region_backend_service_name":  "home" + randomSuffix,
-		"login_region_backend_service_name": "login" + randomSuffix,
+		"home_region_backend_service_name":  "tf-test-home" + randomSuffix,
+		"login_region_backend_service_name": "tf-test-login" + randomSuffix,
 		"region_health_check_name":          "tf-test-health-check" + randomSuffix,
-		"region_url_map_name":               "regionurlmap" + randomSuffix,
+		"region_url_map_name":               "tf-test-regionurlmap" + randomSuffix,
 		"region":                            envvar.GetTestRegionFromEnv(),
 		"project":                           envvar.GetTestProjectFromEnv(),
 		"random_suffix":                     randomSuffix,

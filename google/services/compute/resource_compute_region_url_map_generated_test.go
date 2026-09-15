@@ -60,10 +60,10 @@ func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"home_region_backend_service_name":  "home" + randomSuffix,
-		"login_region_backend_service_name": "login" + randomSuffix,
+		"home_region_backend_service_name":  "tf-test-home" + randomSuffix,
+		"login_region_backend_service_name": "tf-test-login" + randomSuffix,
 		"region_health_check_name":          "tf-test-health-check" + randomSuffix,
-		"region_url_map_name":               "regionurlmap" + randomSuffix,
+		"region_url_map_name":               "tf-test-regionurlmap" + randomSuffix,
 		"random_suffix":                     randomSuffix,
 	}
 
@@ -170,10 +170,10 @@ func TestAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"home_region_backend_service_name":  "home" + randomSuffix,
-		"login_region_backend_service_name": "login" + randomSuffix,
+		"home_region_backend_service_name":  "tf-test-home" + randomSuffix,
+		"login_region_backend_service_name": "tf-test-login" + randomSuffix,
 		"region_health_check_name":          "tf-test-health-check" + randomSuffix,
-		"region_url_map_name":               "regionurlmap" + randomSuffix,
+		"region_url_map_name":               "tf-test-regionurlmap" + randomSuffix,
 		"random_suffix":                     randomSuffix,
 	}
 
@@ -381,9 +381,9 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"home_region_backend_service_name": "home" + randomSuffix,
+		"home_region_backend_service_name": "tf-test-home" + randomSuffix,
 		"region_health_check_name":         "tf-test-health-check" + randomSuffix,
-		"region_url_map_name":              "regionurlmap" + randomSuffix,
+		"region_url_map_name":              "tf-test-regionurlmap" + randomSuffix,
 		"random_suffix":                    randomSuffix,
 	}
 
@@ -523,9 +523,9 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(t *testing.T
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"home_region_backend_service_name": "home" + randomSuffix,
+		"home_region_backend_service_name": "tf-test-home" + randomSuffix,
 		"region_health_check_name":         "tf-test-health-check" + randomSuffix,
-		"region_url_map_name":              "regionurlmap" + randomSuffix,
+		"region_url_map_name":              "tf-test-regionurlmap" + randomSuffix,
 		"random_suffix":                    randomSuffix,
 	}
 
@@ -633,9 +633,9 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"home_region_backend_service_name": "home" + randomSuffix,
+		"home_region_backend_service_name": "tf-test-home" + randomSuffix,
 		"region_health_check_name":         "tf-test-health-check" + randomSuffix,
-		"region_url_map_name":              "regionurlmap" + randomSuffix,
+		"region_url_map_name":              "tf-test-regionurlmap" + randomSuffix,
 		"random_suffix":                    randomSuffix,
 	}
 
@@ -756,9 +756,9 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(t *testing.
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"home_region_backend_service_name": "home" + randomSuffix,
+		"home_region_backend_service_name": "tf-test-home" + randomSuffix,
 		"region_health_check_name":         "tf-test-health-check" + randomSuffix,
-		"region_url_map_name":              "regionurlmap" + randomSuffix,
+		"region_url_map_name":              "tf-test-regionurlmap" + randomSuffix,
 		"random_suffix":                    randomSuffix,
 	}
 
@@ -857,7 +857,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapPathTemplateMatchExample(t *testing.
 		"cart_backend_service_name": "tf-test-cart-service" + randomSuffix,
 		"health_check_name":         "tf-test-health-check" + randomSuffix,
 		"home_backend_service_name": "tf-test-home-service" + randomSuffix,
-		"url_map_name":              "urlmap" + randomSuffix,
+		"url_map_name":              "tf-test-urlmap" + randomSuffix,
 		"user_backend_service_name": "tf-test-user-service" + randomSuffix,
 		"random_suffix":             randomSuffix,
 	}
@@ -984,10 +984,10 @@ func TestAccComputeRegionUrlMap_regionUrlMapPathMatcherDefaultRouteActionExample
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"home_region_backend_service_name":  "home" + randomSuffix,
-		"login_region_backend_service_name": "login" + randomSuffix,
+		"home_region_backend_service_name":  "tf-test-home" + randomSuffix,
+		"login_region_backend_service_name": "tf-test-login" + randomSuffix,
 		"region_health_check_name":          "tf-test-health-check" + randomSuffix,
-		"region_url_map_name":               "regionurlmap" + randomSuffix,
+		"region_url_map_name":               "tf-test-regionurlmap" + randomSuffix,
 		"random_suffix":                     randomSuffix,
 	}
 
