@@ -768,11 +768,6 @@ func IsNetworkAttachmentConnectedEndpointsError(err error) (bool, string) {
 
 // Retry when waiting for an AgentConnectivityTemplate to be disassociated from dependent resources.
 func IsAgentConnectivityTemplateInUse(err error) (bool, string) {
-	if gerr, ok := err.(*googleapi.Error); ok {
-		if gerr.Code == 400 && strings.Contains(gerr.Body, "is already being used by resource(s)") {
-			return true, "waiting for AgentConnectivityTemplate to no longer be referenced"
-		}
-	}
 	if err != nil && strings.Contains(err.Error(), "is already being used by resource(s)") {
 		return true, "waiting for AgentConnectivityTemplate to no longer be referenced"
 	}
