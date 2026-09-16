@@ -493,7 +493,7 @@ func TestAccDatastreamStream_datastreamStreamPostgresqlBigqueryDatasetIdExample(
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"dataset_id":                   "postgres" + randomSuffix,
+		"dataset_id":                   "tf_test_postgres_dataset" + randomSuffix,
 		"dest_connection_profile_id":   "tf-test-dest-profile" + randomSuffix,
 		"instance_name":                "tf-test-instance-name" + randomSuffix,
 		"source_connection_profile_id": "tf-test-source-profile" + randomSuffix,
