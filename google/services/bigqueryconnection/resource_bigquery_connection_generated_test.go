@@ -710,7 +710,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionConnectorConfiguratio
 func testAccBigqueryConnectionConnection_bigqueryConnectionConnectorConfigurationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
-  cluster_id = "alloydb-cluster-${local.name_suffix}"
+  cluster_id = "${local.name_prefix}-alloydb-cluster"
   location   = "us-central1"
   network_config {
     network = google_compute_network.default.id
@@ -729,7 +729,7 @@ resource "google_alloydb_cluster" "default" {
 
 resource "google_alloydb_instance" "default" {
   cluster       = google_alloydb_cluster.default.name
-  instance_id   = "alloydb-instance-${local.name_suffix}"
+  instance_id   = "${local.name_prefix}-alloydb-instance"
   instance_type = "PRIMARY"
 
   machine_config {
@@ -740,11 +740,11 @@ resource "google_alloydb_instance" "default" {
 }
 
 resource "google_compute_network" "default" {
-  name = "alloydb-network-${local.name_suffix}"
+  name = "${local.name_prefix}-alloydb-network"
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "alloydb-ip-${local.name_suffix}"
+  name          = "${local.name_prefix}-alloydb-ip"
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
@@ -758,7 +758,7 @@ resource "google_service_networking_connection" "vpc_connection" {
 }
 
 locals {
-  name_suffix = "%{connection_id}"
+  name_prefix = "%{connection_id}"
 }
 
 resource "google_bigquery_connection" "connection" {
