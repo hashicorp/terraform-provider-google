@@ -744,10 +744,14 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfig) HashCode() s
 }
 
 type WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig struct {
-	empty          bool    `json:"-"`
-	BootDiskType   *string `json:"bootDiskType"`
-	BootDiskSizeGb *int64  `json:"bootDiskSizeGb"`
-	NumLocalSsds   *int64  `json:"numLocalSsds"`
+	empty                         bool                                                                                    `json:"-"`
+	BootDiskType                  *string                                                                                 `json:"bootDiskType"`
+	BootDiskSizeGb                *int64                                                                                  `json:"bootDiskSizeGb"`
+	NumLocalSsds                  *int64                                                                                  `json:"numLocalSsds"`
+	BootDiskProvisionedIops       *int64                                                                                  `json:"bootDiskProvisionedIops"`
+	BootDiskProvisionedThroughput *int64                                                                                  `json:"bootDiskProvisionedThroughput"`
+	LocalSsdInterface             *string                                                                                 `json:"localSsdInterface"`
+	AttachedDiskConfig            []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig `json:"attachedDiskConfigs"`
 }
 
 type jsonWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig
@@ -771,6 +775,14 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) Un
 
 		r.NumLocalSsds = res.NumLocalSsds
 
+		r.BootDiskProvisionedIops = res.BootDiskProvisionedIops
+
+		r.BootDiskProvisionedThroughput = res.BootDiskProvisionedThroughput
+
+		r.LocalSsdInterface = res.LocalSsdInterface
+
+		r.AttachedDiskConfig = res.AttachedDiskConfig
+
 	}
 	return nil
 }
@@ -789,6 +801,61 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) St
 }
 
 func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) HashCode() string {
+	// Placeholder for a more complex hash method that handles ordering, etc
+	// Hash resource body for easy comparison later
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig struct {
+	empty                 bool    `json:"-"`
+	DiskType              *string `json:"diskType"`
+	DiskSizeGb            *int64  `json:"diskSizeGb"`
+	ProvisionedIops       *int64  `json:"provisionedIops"`
+	ProvisionedThroughput *int64  `json:"provisionedThroughput"`
+}
+
+type jsonWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) UnmarshalJSON(data []byte) error {
+	var res jsonWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if len(m) == 0 {
+		*r = *EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig
+	} else {
+
+		r.DiskType = res.DiskType
+
+		r.DiskSizeGb = res.DiskSizeGb
+
+		r.ProvisionedIops = res.ProvisionedIops
+
+		r.ProvisionedThroughput = res.ProvisionedThroughput
+
+	}
+	return nil
+}
+
+// This object is used to assert a desired state where this WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig is
+// empty. Go lacks global const objects, but this object should be treated
+// as one. Modifying this object will have undesirable results.
+var EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig = &WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{empty: true}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) Empty() bool {
+	return r.empty
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) HashCode() string {
 	// Placeholder for a more complex hash method that handles ordering, etc
 	// Hash resource body for easy comparison later
 	hash := sha256.Sum256([]byte(r.String()))
@@ -1123,10 +1190,14 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) HashCode() s
 }
 
 type WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig struct {
-	empty          bool    `json:"-"`
-	BootDiskType   *string `json:"bootDiskType"`
-	BootDiskSizeGb *int64  `json:"bootDiskSizeGb"`
-	NumLocalSsds   *int64  `json:"numLocalSsds"`
+	empty                         bool                                                                                    `json:"-"`
+	BootDiskType                  *string                                                                                 `json:"bootDiskType"`
+	BootDiskSizeGb                *int64                                                                                  `json:"bootDiskSizeGb"`
+	NumLocalSsds                  *int64                                                                                  `json:"numLocalSsds"`
+	BootDiskProvisionedIops       *int64                                                                                  `json:"bootDiskProvisionedIops"`
+	BootDiskProvisionedThroughput *int64                                                                                  `json:"bootDiskProvisionedThroughput"`
+	LocalSsdInterface             *string                                                                                 `json:"localSsdInterface"`
+	AttachedDiskConfig            []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig `json:"attachedDiskConfigs"`
 }
 
 type jsonWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig
@@ -1150,6 +1221,14 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) Un
 
 		r.NumLocalSsds = res.NumLocalSsds
 
+		r.BootDiskProvisionedIops = res.BootDiskProvisionedIops
+
+		r.BootDiskProvisionedThroughput = res.BootDiskProvisionedThroughput
+
+		r.LocalSsdInterface = res.LocalSsdInterface
+
+		r.AttachedDiskConfig = res.AttachedDiskConfig
+
 	}
 	return nil
 }
@@ -1168,6 +1247,61 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) St
 }
 
 func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) HashCode() string {
+	// Placeholder for a more complex hash method that handles ordering, etc
+	// Hash resource body for easy comparison later
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig struct {
+	empty                 bool    `json:"-"`
+	DiskType              *string `json:"diskType"`
+	DiskSizeGb            *int64  `json:"diskSizeGb"`
+	ProvisionedIops       *int64  `json:"provisionedIops"`
+	ProvisionedThroughput *int64  `json:"provisionedThroughput"`
+}
+
+type jsonWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) UnmarshalJSON(data []byte) error {
+	var res jsonWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if len(m) == 0 {
+		*r = *EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig
+	} else {
+
+		r.DiskType = res.DiskType
+
+		r.DiskSizeGb = res.DiskSizeGb
+
+		r.ProvisionedIops = res.ProvisionedIops
+
+		r.ProvisionedThroughput = res.ProvisionedThroughput
+
+	}
+	return nil
+}
+
+// This object is used to assert a desired state where this WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig is
+// empty. Go lacks global const objects, but this object should be treated
+// as one. Modifying this object will have undesirable results.
+var EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig = &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{empty: true}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) Empty() bool {
+	return r.empty
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) HashCode() string {
 	// Placeholder for a more complex hash method that handles ordering, etc
 	// Hash resource body for easy comparison later
 	hash := sha256.Sum256([]byte(r.String()))
@@ -1502,10 +1636,14 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) Has
 }
 
 type WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig struct {
-	empty          bool    `json:"-"`
-	BootDiskType   *string `json:"bootDiskType"`
-	BootDiskSizeGb *int64  `json:"bootDiskSizeGb"`
-	NumLocalSsds   *int64  `json:"numLocalSsds"`
+	empty                         bool                                                                                             `json:"-"`
+	BootDiskType                  *string                                                                                          `json:"bootDiskType"`
+	BootDiskSizeGb                *int64                                                                                           `json:"bootDiskSizeGb"`
+	NumLocalSsds                  *int64                                                                                           `json:"numLocalSsds"`
+	BootDiskProvisionedIops       *int64                                                                                           `json:"bootDiskProvisionedIops"`
+	BootDiskProvisionedThroughput *int64                                                                                           `json:"bootDiskProvisionedThroughput"`
+	LocalSsdInterface             *string                                                                                          `json:"localSsdInterface"`
+	AttachedDiskConfig            []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig `json:"attachedDiskConfigs"`
 }
 
 type jsonWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig
@@ -1529,6 +1667,14 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskC
 
 		r.NumLocalSsds = res.NumLocalSsds
 
+		r.BootDiskProvisionedIops = res.BootDiskProvisionedIops
+
+		r.BootDiskProvisionedThroughput = res.BootDiskProvisionedThroughput
+
+		r.LocalSsdInterface = res.LocalSsdInterface
+
+		r.AttachedDiskConfig = res.AttachedDiskConfig
+
 	}
 	return nil
 }
@@ -1547,6 +1693,61 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskC
 }
 
 func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig) HashCode() string {
+	// Placeholder for a more complex hash method that handles ordering, etc
+	// Hash resource body for easy comparison later
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig struct {
+	empty                 bool    `json:"-"`
+	DiskType              *string `json:"diskType"`
+	DiskSizeGb            *int64  `json:"diskSizeGb"`
+	ProvisionedIops       *int64  `json:"provisionedIops"`
+	ProvisionedThroughput *int64  `json:"provisionedThroughput"`
+}
+
+type jsonWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) UnmarshalJSON(data []byte) error {
+	var res jsonWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if len(m) == 0 {
+		*r = *EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig
+	} else {
+
+		r.DiskType = res.DiskType
+
+		r.DiskSizeGb = res.DiskSizeGb
+
+		r.ProvisionedIops = res.ProvisionedIops
+
+		r.ProvisionedThroughput = res.ProvisionedThroughput
+
+	}
+	return nil
+}
+
+// This object is used to assert a desired state where this WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig is
+// empty. Go lacks global const objects, but this object should be treated
+// as one. Modifying this object will have undesirable results.
+var EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig = &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{empty: true}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) Empty() bool {
+	return r.empty
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) HashCode() string {
 	// Placeholder for a more complex hash method that handles ordering, etc
 	// Hash resource body for easy comparison later
 	hash := sha256.Sum256([]byte(r.String()))

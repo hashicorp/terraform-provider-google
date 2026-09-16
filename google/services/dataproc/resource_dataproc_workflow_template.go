@@ -1557,7 +1557,78 @@ func DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Number of attached SSDs, from 0 to 4 (default is 0). If SSDs are not attached, the boot disk is used to store runtime logs and [HDFS](https://hadoop.apache.org/docs/r1.2.1/hdfs_user_guide.html) data. If one or more SSDs are attached, this runtime bulk data is spread across them, and the boot disk contains only basic config and installed binaries.",
+				Description: "Optional. Number of attached SSDs, from 0 to 8 (default is 0). If SSDs are not attached, the boot disk is used to store runtime logs and [HDFS](https://hadoop.apache.org/docs/r1.2.1/hdfs_user_guide.html) data. If one or more SSDs are attached, this runtime bulk data is spread across them, and the boot disk contains only basic config and installed binaries.",
+			},
+
+			"boot_disk_provisioned_iops": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. This field is supported only if boot_disk_type is hyperdisk-balanced.",
+			},
+
+			"boot_disk_provisioned_throughput": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how much throughput to provision for the disk. This sets the number of throughput mb per second that the disk can handle. Values must be greater than or equal to 1. This field is supported only if boot_disk_type is hyperdisk-balanced.",
+			},
+
+			"local_ssd_interface": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Interface type of local SSDs (default is \"scsi\"). Valid values: \"scsi\" (Small Computer System Interface), \"nvme\" (Non-Volatile Memory Express).",
+			},
+
+			"attached_disk_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Attached disk configuration.",
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSchema(),
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"disk_size_gb": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Size of the attached disk, specified in GB.",
+			},
+
+			"disk_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The disk type of the attached disk. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.",
+			},
+
+			"provisioned_iops": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle.",
+			},
+
+			"provisioned_throughput": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how much throughput to provision for the disk. This sets the number of throughput mb per second that the disk can handle.",
 			},
 		},
 	}
@@ -1799,7 +1870,78 @@ func DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigD
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Number of attached SSDs, from 0 to 4 (default is 0). If SSDs are not attached, the boot disk is used to store runtime logs and [HDFS](https://hadoop.apache.org/docs/r1.2.1/hdfs_user_guide.html) data. If one or more SSDs are attached, this runtime bulk data is spread across them, and the boot disk contains only basic config and installed binaries.",
+				Description: "Optional. Number of attached SSDs, from 0 to 8 (default is 0). If SSDs are not attached, the boot disk is used to store runtime logs and [HDFS](https://hadoop.apache.org/docs/r1.2.1/hdfs_user_guide.html) data. If one or more SSDs are attached, this runtime bulk data is spread across them, and the boot disk contains only basic config and installed binaries.",
+			},
+
+			"boot_disk_provisioned_iops": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. This field is supported only if boot_disk_type is hyperdisk-balanced.",
+			},
+
+			"boot_disk_provisioned_throughput": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how much throughput to provision for the disk. This sets the number of throughput mb per second that the disk can handle. Values must be greater than or equal to 1. This field is supported only if boot_disk_type is hyperdisk-balanced.",
+			},
+
+			"local_ssd_interface": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Interface type of local SSDs (default is \"scsi\"). Valid values: \"scsi\" (Small Computer System Interface), \"nvme\" (Non-Volatile Memory Express).",
+			},
+
+			"attached_disk_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Attached disk configuration.",
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSchema(),
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"disk_size_gb": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Size of the attached disk, specified in GB.",
+			},
+
+			"disk_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The disk type of the attached disk. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.",
+			},
+
+			"provisioned_iops": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle.",
+			},
+
+			"provisioned_throughput": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how much throughput to provision for the disk. This sets the number of throughput mb per second that the disk can handle.",
 			},
 		},
 	}
@@ -2236,7 +2378,78 @@ func DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Number of attached SSDs, from 0 to 4 (default is 0). If SSDs are not attached, the boot disk is used to store runtime logs and [HDFS](https://hadoop.apache.org/docs/r1.2.1/hdfs_user_guide.html) data. If one or more SSDs are attached, this runtime bulk data is spread across them, and the boot disk contains only basic config and installed binaries.",
+				Description: "Optional. Number of attached SSDs, from 0 to 8 (default is 0). If SSDs are not attached, the boot disk is used to store runtime logs and [HDFS](https://hadoop.apache.org/docs/r1.2.1/hdfs_user_guide.html) data. If one or more SSDs are attached, this runtime bulk data is spread across them, and the boot disk contains only basic config and installed binaries.",
+			},
+
+			"boot_disk_provisioned_iops": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. This field is supported only if boot_disk_type is hyperdisk-balanced.",
+			},
+
+			"boot_disk_provisioned_throughput": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how much throughput to provision for the disk. This sets the number of throughput mb per second that the disk can handle. Values must be greater than or equal to 1. This field is supported only if boot_disk_type is hyperdisk-balanced.",
+			},
+
+			"local_ssd_interface": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Interface type of local SSDs (default is \"scsi\"). Valid values: \"scsi\" (Small Computer System Interface), \"nvme\" (Non-Volatile Memory Express).",
+			},
+
+			"attached_disk_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Attached disk configuration.",
+				Elem:        DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSchema(),
+			},
+		},
+	}
+}
+
+func DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"disk_size_gb": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Size of the attached disk, specified in GB.",
+			},
+
+			"disk_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The disk type of the attached disk. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.",
+			},
+
+			"provisioned_iops": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle.",
+			},
+
+			"provisioned_throughput": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Indicates how much throughput to provision for the disk. This sets the number of throughput mb per second that the disk can handle.",
 			},
 		},
 	}
@@ -3915,9 +4128,13 @@ func expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDisk
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig{
-		BootDiskSizeGb: dcl.Int64OrNil(int64(obj["boot_disk_size_gb"].(int))),
-		BootDiskType:   dcl.StringOrNil(obj["boot_disk_type"].(string)),
-		NumLocalSsds:   dcl.Int64OrNil(int64(obj["num_local_ssds"].(int))),
+		BootDiskSizeGb:                dcl.Int64OrNil(int64(obj["boot_disk_size_gb"].(int))),
+		BootDiskType:                  dcl.StringOrNil(obj["boot_disk_type"].(string)),
+		NumLocalSsds:                  dcl.Int64OrNil(int64(obj["num_local_ssds"].(int))),
+		BootDiskProvisionedIops:       dcl.Int64OrNil(int64(obj["boot_disk_provisioned_iops"].(int))),
+		BootDiskProvisionedThroughput: dcl.Int64OrNil(int64(obj["boot_disk_provisioned_throughput"].(int))),
+		LocalSsdInterface:             dcl.StringOrNil(obj["local_ssd_interface"].(string)),
+		AttachedDiskConfig:            expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigArray(obj["attached_disk_config"]),
 	}
 }
 
@@ -3926,12 +4143,78 @@ func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDis
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"boot_disk_size_gb": obj.BootDiskSizeGb,
-		"boot_disk_type":    obj.BootDiskType,
-		"num_local_ssds":    obj.NumLocalSsds,
+		"boot_disk_size_gb":                obj.BootDiskSizeGb,
+		"boot_disk_type":                   obj.BootDiskType,
+		"num_local_ssds":                   obj.NumLocalSsds,
+		"boot_disk_provisioned_iops":       obj.BootDiskProvisionedIops,
+		"boot_disk_provisioned_throughput": obj.BootDiskProvisionedThroughput,
+		"local_ssd_interface":              obj.LocalSsdInterface,
+		"attached_disk_config":             flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigArray(obj.AttachedDiskConfig),
 	}
 
 	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigArray(o interface{}) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	if o == nil {
+		return nil
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return nil
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, 0, len(objs))
+	for _, item := range objs {
+		i := expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(o interface{}) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	if o == nil {
+		return nil
+	}
+
+	obj := o.(map[string]interface{})
+	return &WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{
+		DiskSizeGb:            dcl.Int64OrNil(int64(obj["disk_size_gb"].(int))),
+		DiskType:              dcl.StringOrNil(obj["disk_type"].(string)),
+		ProvisionedIops:       dcl.Int64OrNil(int64(obj["provisioned_iops"].(int))),
+		ProvisionedThroughput: dcl.Int64OrNil(int64(obj["provisioned_throughput"].(int))),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigArray(objs []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(obj *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"disk_size_gb":           obj.DiskSizeGb,
+		"disk_type":              obj.DiskType,
+		"provisioned_iops":       obj.ProvisionedIops,
+		"provisioned_throughput": obj.ProvisionedThroughput,
+	}
+
+	return transformed
 
 }
 
@@ -4189,9 +4472,13 @@ func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerC
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig{
-		BootDiskSizeGb: dcl.Int64OrNil(int64(obj["boot_disk_size_gb"].(int))),
-		BootDiskType:   dcl.StringOrNil(obj["boot_disk_type"].(string)),
-		NumLocalSsds:   dcl.Int64OrNil(int64(obj["num_local_ssds"].(int))),
+		BootDiskSizeGb:                dcl.Int64OrNil(int64(obj["boot_disk_size_gb"].(int))),
+		BootDiskType:                  dcl.StringOrNil(obj["boot_disk_type"].(string)),
+		NumLocalSsds:                  dcl.Int64OrNil(int64(obj["num_local_ssds"].(int))),
+		BootDiskProvisionedIops:       dcl.Int64OrNil(int64(obj["boot_disk_provisioned_iops"].(int))),
+		BootDiskProvisionedThroughput: dcl.Int64OrNil(int64(obj["boot_disk_provisioned_throughput"].(int))),
+		LocalSsdInterface:             dcl.StringOrNil(obj["local_ssd_interface"].(string)),
+		AttachedDiskConfig:            expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigArray(obj["attached_disk_config"]),
 	}
 }
 
@@ -4200,12 +4487,78 @@ func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"boot_disk_size_gb": obj.BootDiskSizeGb,
-		"boot_disk_type":    obj.BootDiskType,
-		"num_local_ssds":    obj.NumLocalSsds,
+		"boot_disk_size_gb":                obj.BootDiskSizeGb,
+		"boot_disk_type":                   obj.BootDiskType,
+		"num_local_ssds":                   obj.NumLocalSsds,
+		"boot_disk_provisioned_iops":       obj.BootDiskProvisionedIops,
+		"boot_disk_provisioned_throughput": obj.BootDiskProvisionedThroughput,
+		"local_ssd_interface":              obj.LocalSsdInterface,
+		"attached_disk_config":             flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigArray(obj.AttachedDiskConfig),
 	}
 
 	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigArray(o interface{}) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	if o == nil {
+		return nil
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return nil
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, 0, len(objs))
+	for _, item := range objs {
+		i := expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(o interface{}) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	if o == nil {
+		return nil
+	}
+
+	obj := o.(map[string]interface{})
+	return &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{
+		DiskSizeGb:            dcl.Int64OrNil(int64(obj["disk_size_gb"].(int))),
+		DiskType:              dcl.StringOrNil(obj["disk_type"].(string)),
+		ProvisionedIops:       dcl.Int64OrNil(int64(obj["provisioned_iops"].(int))),
+		ProvisionedThroughput: dcl.Int64OrNil(int64(obj["provisioned_throughput"].(int))),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigArray(objs []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(obj *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"disk_size_gb":           obj.DiskSizeGb,
+		"disk_type":              obj.DiskType,
+		"provisioned_iops":       obj.ProvisionedIops,
+		"provisioned_throughput": obj.ProvisionedThroughput,
+	}
+
+	return transformed
 
 }
 
@@ -4603,9 +4956,13 @@ func expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDisk
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig{
-		BootDiskSizeGb: dcl.Int64OrNil(int64(obj["boot_disk_size_gb"].(int))),
-		BootDiskType:   dcl.StringOrNil(obj["boot_disk_type"].(string)),
-		NumLocalSsds:   dcl.Int64OrNil(int64(obj["num_local_ssds"].(int))),
+		BootDiskSizeGb:                dcl.Int64OrNil(int64(obj["boot_disk_size_gb"].(int))),
+		BootDiskType:                  dcl.StringOrNil(obj["boot_disk_type"].(string)),
+		NumLocalSsds:                  dcl.Int64OrNil(int64(obj["num_local_ssds"].(int))),
+		BootDiskProvisionedIops:       dcl.Int64OrNil(int64(obj["boot_disk_provisioned_iops"].(int))),
+		BootDiskProvisionedThroughput: dcl.Int64OrNil(int64(obj["boot_disk_provisioned_throughput"].(int))),
+		LocalSsdInterface:             dcl.StringOrNil(obj["local_ssd_interface"].(string)),
+		AttachedDiskConfig:            expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigArray(obj["attached_disk_config"]),
 	}
 }
 
@@ -4614,12 +4971,78 @@ func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDis
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"boot_disk_size_gb": obj.BootDiskSizeGb,
-		"boot_disk_type":    obj.BootDiskType,
-		"num_local_ssds":    obj.NumLocalSsds,
+		"boot_disk_size_gb":                obj.BootDiskSizeGb,
+		"boot_disk_type":                   obj.BootDiskType,
+		"num_local_ssds":                   obj.NumLocalSsds,
+		"boot_disk_provisioned_iops":       obj.BootDiskProvisionedIops,
+		"boot_disk_provisioned_throughput": obj.BootDiskProvisionedThroughput,
+		"local_ssd_interface":              obj.LocalSsdInterface,
+		"attached_disk_config":             flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigArray(obj.AttachedDiskConfig),
 	}
 
 	return []interface{}{transformed}
+
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigArray(o interface{}) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	if o == nil {
+		return nil
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return nil
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, 0, len(objs))
+	for _, item := range objs {
+		i := expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(o interface{}) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	if o == nil {
+		return nil
+	}
+
+	obj := o.(map[string]interface{})
+	return &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{
+		DiskSizeGb:            dcl.Int64OrNil(int64(obj["disk_size_gb"].(int))),
+		DiskType:              dcl.StringOrNil(obj["disk_type"].(string)),
+		ProvisionedIops:       dcl.Int64OrNil(int64(obj["provisioned_iops"].(int))),
+		ProvisionedThroughput: dcl.Int64OrNil(int64(obj["provisioned_throughput"].(int))),
+	}
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigArray(objs []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(obj *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"disk_size_gb":           obj.DiskSizeGb,
+		"disk_type":              obj.DiskType,
+		"provisioned_iops":       obj.ProvisionedIops,
+		"provisioned_throughput": obj.ProvisionedThroughput,
+	}
+
+	return transformed
 
 }
 

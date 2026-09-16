@@ -190,6 +190,9 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfig) validate() e
 func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) validate() error {
 	return nil
 }
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) validate() error {
+	return nil
+}
 func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig) validate() error {
 	return nil
 }
@@ -226,6 +229,9 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) validate() e
 func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) validate() error {
 	return nil
 }
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) validate() error {
+	return nil
+}
 func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig) validate() error {
 	return nil
 }
@@ -260,6 +266,9 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) val
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig) validate() error {
@@ -2201,6 +2210,24 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskCo
 	} else {
 		cDes.NumLocalSsds = des.NumLocalSsds
 	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedIops) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedIops) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedIops = initial.BootDiskProvisionedIops
+	} else {
+		cDes.BootDiskProvisionedIops = des.BootDiskProvisionedIops
+	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedThroughput = initial.BootDiskProvisionedThroughput
+	} else {
+		cDes.BootDiskProvisionedThroughput = des.BootDiskProvisionedThroughput
+	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, initial.LocalSsdInterface) || dcl.IsZeroValue(des.LocalSsdInterface) {
+		cDes.LocalSsdInterface = initial.LocalSsdInterface
+	} else {
+		cDes.LocalSsdInterface = des.LocalSsdInterface
+	}
+	cDes.AttachedDiskConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(des.AttachedDiskConfig, initial.AttachedDiskConfig, opts...)
 
 	return cDes
 }
@@ -2250,6 +2277,10 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDis
 	if dcl.StringCanonicalize(des.BootDiskType, nw.BootDiskType) {
 		nw.BootDiskType = des.BootDiskType
 	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, nw.LocalSsdInterface) {
+		nw.LocalSsdInterface = des.LocalSsdInterface
+	}
+	nw.AttachedDiskConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c, des.AttachedDiskConfig, nw.AttachedDiskConfig)
 
 	return nw
 }
@@ -2295,6 +2326,142 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDis
 	for i, d := range des {
 		n := nw[i]
 		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c, &d, &n))
+	}
+
+	return items
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.StringCanonicalize(des.DiskType, initial.DiskType) || dcl.IsZeroValue(des.DiskType) {
+		cDes.DiskType = initial.DiskType
+	} else {
+		cDes.DiskType = des.DiskType
+	}
+	if dcl.IsZeroValue(des.DiskSizeGb) || (dcl.IsEmptyValueIndirect(des.DiskSizeGb) && dcl.IsEmptyValueIndirect(initial.DiskSizeGb)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.DiskSizeGb = initial.DiskSizeGb
+	} else {
+		cDes.DiskSizeGb = des.DiskSizeGb
+	}
+	if dcl.IsZeroValue(des.ProvisionedIops) || (dcl.IsEmptyValueIndirect(des.ProvisionedIops) && dcl.IsEmptyValueIndirect(initial.ProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedIops = initial.ProvisionedIops
+	} else {
+		cDes.ProvisionedIops = des.ProvisionedIops
+	}
+	if dcl.IsZeroValue(des.ProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.ProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.ProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedThroughput = initial.ProvisionedThroughput
+	} else {
+		cDes.ProvisionedThroughput = des.ProvisionedThroughput
+	}
+
+	return cDes
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(des, initial []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+
+		items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.StringCanonicalize(des.DiskType, nw.DiskType) {
+		nw.DiskType = des.DiskType
+	}
+
+	return nw
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Find the elements in des that are also in nw and canonicalize them. Remove matched elements from nw.
+	var items []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig
+	for _, d := range des {
+		matchedIndex := -1
+		for i, n := range nw {
+			if diffs, _ := compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigNewStyle(&d, &n, dcl.FieldName{}); len(diffs) == 0 {
+				matchedIndex = i
+				break
+			}
+		}
+		if matchedIndex != -1 {
+			items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, &d, &nw[matchedIndex]))
+			nw = append(nw[:matchedIndex], nw[matchedIndex+1:]...)
+		}
+	}
+	// Also include elements in nw that are not matched in des.
+	items = append(items, nw...)
+
+	return items
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Lengths are unequal. A diff will occur later, so we shouldn't canonicalize.
+	// Return the original array.
+	if len(des) != len(nw) {
+		return nw
+	}
+
+	var items []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, &d, &n))
 	}
 
 	return items
@@ -2995,6 +3162,24 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskCo
 	} else {
 		cDes.NumLocalSsds = des.NumLocalSsds
 	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedIops) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedIops) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedIops = initial.BootDiskProvisionedIops
+	} else {
+		cDes.BootDiskProvisionedIops = des.BootDiskProvisionedIops
+	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedThroughput = initial.BootDiskProvisionedThroughput
+	} else {
+		cDes.BootDiskProvisionedThroughput = des.BootDiskProvisionedThroughput
+	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, initial.LocalSsdInterface) || dcl.IsZeroValue(des.LocalSsdInterface) {
+		cDes.LocalSsdInterface = initial.LocalSsdInterface
+	} else {
+		cDes.LocalSsdInterface = des.LocalSsdInterface
+	}
+	cDes.AttachedDiskConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(des.AttachedDiskConfig, initial.AttachedDiskConfig, opts...)
 
 	return cDes
 }
@@ -3044,6 +3229,10 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDis
 	if dcl.StringCanonicalize(des.BootDiskType, nw.BootDiskType) {
 		nw.BootDiskType = des.BootDiskType
 	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, nw.LocalSsdInterface) {
+		nw.LocalSsdInterface = des.LocalSsdInterface
+	}
+	nw.AttachedDiskConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c, des.AttachedDiskConfig, nw.AttachedDiskConfig)
 
 	return nw
 }
@@ -3089,6 +3278,142 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDis
 	for i, d := range des {
 		n := nw[i]
 		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c, &d, &n))
+	}
+
+	return items
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.StringCanonicalize(des.DiskType, initial.DiskType) || dcl.IsZeroValue(des.DiskType) {
+		cDes.DiskType = initial.DiskType
+	} else {
+		cDes.DiskType = des.DiskType
+	}
+	if dcl.IsZeroValue(des.DiskSizeGb) || (dcl.IsEmptyValueIndirect(des.DiskSizeGb) && dcl.IsEmptyValueIndirect(initial.DiskSizeGb)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.DiskSizeGb = initial.DiskSizeGb
+	} else {
+		cDes.DiskSizeGb = des.DiskSizeGb
+	}
+	if dcl.IsZeroValue(des.ProvisionedIops) || (dcl.IsEmptyValueIndirect(des.ProvisionedIops) && dcl.IsEmptyValueIndirect(initial.ProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedIops = initial.ProvisionedIops
+	} else {
+		cDes.ProvisionedIops = des.ProvisionedIops
+	}
+	if dcl.IsZeroValue(des.ProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.ProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.ProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedThroughput = initial.ProvisionedThroughput
+	} else {
+		cDes.ProvisionedThroughput = des.ProvisionedThroughput
+	}
+
+	return cDes
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(des, initial []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+
+		items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.StringCanonicalize(des.DiskType, nw.DiskType) {
+		nw.DiskType = des.DiskType
+	}
+
+	return nw
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Find the elements in des that are also in nw and canonicalize them. Remove matched elements from nw.
+	var items []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig
+	for _, d := range des {
+		matchedIndex := -1
+		for i, n := range nw {
+			if diffs, _ := compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigNewStyle(&d, &n, dcl.FieldName{}); len(diffs) == 0 {
+				matchedIndex = i
+				break
+			}
+		}
+		if matchedIndex != -1 {
+			items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, &d, &nw[matchedIndex]))
+			nw = append(nw[:matchedIndex], nw[matchedIndex+1:]...)
+		}
+	}
+	// Also include elements in nw that are not matched in des.
+	items = append(items, nw...)
+
+	return items
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Lengths are unequal. A diff will occur later, so we shouldn't canonicalize.
+	// Return the original array.
+	if len(des) != len(nw) {
+		return nw
+	}
+
+	var items []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, &d, &n))
 	}
 
 	return items
@@ -3702,6 +4027,24 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerCon
 	} else {
 		cDes.NumLocalSsds = des.NumLocalSsds
 	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedIops) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedIops) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedIops = initial.BootDiskProvisionedIops
+	} else {
+		cDes.BootDiskProvisionedIops = des.BootDiskProvisionedIops
+	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedThroughput = initial.BootDiskProvisionedThroughput
+	} else {
+		cDes.BootDiskProvisionedThroughput = des.BootDiskProvisionedThroughput
+	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, initial.LocalSsdInterface) || dcl.IsZeroValue(des.LocalSsdInterface) {
+		cDes.LocalSsdInterface = initial.LocalSsdInterface
+	} else {
+		cDes.LocalSsdInterface = des.LocalSsdInterface
+	}
+	cDes.AttachedDiskConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(des.AttachedDiskConfig, initial.AttachedDiskConfig, opts...)
 
 	return cDes
 }
@@ -3751,6 +4094,10 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	if dcl.StringCanonicalize(des.BootDiskType, nw.BootDiskType) {
 		nw.BootDiskType = des.BootDiskType
 	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, nw.LocalSsdInterface) {
+		nw.LocalSsdInterface = des.LocalSsdInterface
+	}
+	nw.AttachedDiskConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c, des.AttachedDiskConfig, nw.AttachedDiskConfig)
 
 	return nw
 }
@@ -3796,6 +4143,142 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	for i, d := range des {
 		n := nw[i]
 		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c, &d, &n))
+	}
+
+	return items
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.StringCanonicalize(des.DiskType, initial.DiskType) || dcl.IsZeroValue(des.DiskType) {
+		cDes.DiskType = initial.DiskType
+	} else {
+		cDes.DiskType = des.DiskType
+	}
+	if dcl.IsZeroValue(des.DiskSizeGb) || (dcl.IsEmptyValueIndirect(des.DiskSizeGb) && dcl.IsEmptyValueIndirect(initial.DiskSizeGb)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.DiskSizeGb = initial.DiskSizeGb
+	} else {
+		cDes.DiskSizeGb = des.DiskSizeGb
+	}
+	if dcl.IsZeroValue(des.ProvisionedIops) || (dcl.IsEmptyValueIndirect(des.ProvisionedIops) && dcl.IsEmptyValueIndirect(initial.ProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedIops = initial.ProvisionedIops
+	} else {
+		cDes.ProvisionedIops = des.ProvisionedIops
+	}
+	if dcl.IsZeroValue(des.ProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.ProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.ProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedThroughput = initial.ProvisionedThroughput
+	} else {
+		cDes.ProvisionedThroughput = des.ProvisionedThroughput
+	}
+
+	return cDes
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(des, initial []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+
+		items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.StringCanonicalize(des.DiskType, nw.DiskType) {
+		nw.DiskType = des.DiskType
+	}
+
+	return nw
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Find the elements in des that are also in nw and canonicalize them. Remove matched elements from nw.
+	var items []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig
+	for _, d := range des {
+		matchedIndex := -1
+		for i, n := range nw {
+			if diffs, _ := compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigNewStyle(&d, &n, dcl.FieldName{}); len(diffs) == 0 {
+				matchedIndex = i
+				break
+			}
+		}
+		if matchedIndex != -1 {
+			items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, &d, &nw[matchedIndex]))
+			nw = append(nw[:matchedIndex], nw[matchedIndex+1:]...)
+		}
+	}
+	// Also include elements in nw that are not matched in des.
+	items = append(items, nw...)
+
+	return items
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Lengths are unequal. A diff will occur later, so we shouldn't canonicalize.
+	// Return the original array.
+	if len(des) != len(nw) {
+		return nw
+	}
+
+	var items []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, &d, &n))
 	}
 
 	return items
@@ -9200,6 +9683,85 @@ func compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigN
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedIops, actual.BootDiskProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedThroughput, actual.BootDiskProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.LocalSsdInterface, actual.LocalSsdInterface, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("LocalSsdInterface")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.AttachedDiskConfig, actual.AttachedDiskConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("AttachedDiskConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig or *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.DiskType, actual.DiskType, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskType")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.DiskSizeGb, actual.DiskSizeGb, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskSizeGb")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedIops, actual.ProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedThroughput, actual.ProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
 	return diffs, nil
 }
 
@@ -9664,6 +10226,85 @@ func compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigN
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedIops, actual.BootDiskProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedThroughput, actual.BootDiskProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.LocalSsdInterface, actual.LocalSsdInterface, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("LocalSsdInterface")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.AttachedDiskConfig, actual.AttachedDiskConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("AttachedDiskConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig or *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.DiskType, actual.DiskType, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskType")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.DiskSizeGb, actual.DiskSizeGb, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskSizeGb")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedIops, actual.ProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedThroughput, actual.ProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
 	return diffs, nil
 }
 
@@ -10047,6 +10688,85 @@ func compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDi
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedIops, actual.BootDiskProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedThroughput, actual.BootDiskProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.LocalSsdInterface, actual.LocalSsdInterface, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("LocalSsdInterface")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.AttachedDiskConfig, actual.AttachedDiskConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("AttachedDiskConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig or *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.DiskType, actual.DiskType, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskType")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.DiskSizeGb, actual.DiskSizeGb, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskSizeGb")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedIops, actual.ProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedThroughput, actual.ProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
 	return diffs, nil
 }
 
@@ -13149,6 +13869,20 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c
 	if v := f.NumLocalSsds; !dcl.IsEmptyValueIndirect(v) {
 		m["numLocalSsds"] = v
 	}
+	if v := f.BootDiskProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedIops"] = v
+	}
+	if v := f.BootDiskProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedThroughput"] = v
+	}
+	if v := f.LocalSsdInterface; !dcl.IsEmptyValueIndirect(v) {
+		m["localSsdInterface"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c, f.AttachedDiskConfig, res); err != nil {
+		return nil, err
+	} else if v != nil {
+		m["attachedDiskConfigs"] = v
+	}
 
 	return m, nil
 }
@@ -13169,6 +13903,140 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(
 	r.BootDiskType = dcl.FlattenString(m["bootDiskType"])
 	r.BootDiskSizeGb = dcl.FlattenInteger(m["bootDiskSizeGb"])
 	r.NumLocalSsds = dcl.FlattenInteger(m["numLocalSsds"])
+	r.BootDiskProvisionedIops = dcl.FlattenInteger(m["bootDiskProvisionedIops"])
+	r.BootDiskProvisionedThroughput = dcl.FlattenInteger(m["bootDiskProvisionedThroughput"])
+	r.LocalSsdInterface = dcl.FlattenString(m["localSsdInterface"])
+	attachedDiskConfigs := m["attachedDiskConfigs"]
+	if attachedDiskConfigs == nil {
+		attachedDiskConfigs = m["attachedDiskConfig"]
+	}
+	r.AttachedDiskConfig = flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c, attachedDiskConfigs, res)
+
+	return r
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := make(map[string]interface{})
+	for k, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items[k] = i
+		}
+	}
+
+	return items, nil
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.(map[string]interface{})
+	if !ok {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make(map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig)
+	for k, item := range a {
+		items[k] = *flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res)
+	}
+
+	return items
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.DiskType; !dcl.IsEmptyValueIndirect(v) {
+		m["diskType"] = v
+	}
+	if v := f.DiskSizeGb; !dcl.IsEmptyValueIndirect(v) {
+		m["diskSizeGb"] = v
+	}
+	if v := f.ProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedIops"] = v
+	}
+	if v := f.ProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedThroughput"] = v
+	}
+
+	return m, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig
+	}
+	r.DiskType = dcl.FlattenString(m["diskType"])
+	r.DiskSizeGb = dcl.FlattenInteger(m["diskSizeGb"])
+	r.ProvisionedIops = dcl.FlattenInteger(m["provisionedIops"])
+	r.ProvisionedThroughput = dcl.FlattenInteger(m["provisionedThroughput"])
 
 	return r
 }
@@ -14038,6 +14906,20 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c
 	if v := f.NumLocalSsds; !dcl.IsEmptyValueIndirect(v) {
 		m["numLocalSsds"] = v
 	}
+	if v := f.BootDiskProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedIops"] = v
+	}
+	if v := f.BootDiskProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedThroughput"] = v
+	}
+	if v := f.LocalSsdInterface; !dcl.IsEmptyValueIndirect(v) {
+		m["localSsdInterface"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c, f.AttachedDiskConfig, res); err != nil {
+		return nil, err
+	} else if v != nil {
+		m["attachedDiskConfigs"] = v
+	}
 
 	return m, nil
 }
@@ -14058,6 +14940,140 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(
 	r.BootDiskType = dcl.FlattenString(m["bootDiskType"])
 	r.BootDiskSizeGb = dcl.FlattenInteger(m["bootDiskSizeGb"])
 	r.NumLocalSsds = dcl.FlattenInteger(m["numLocalSsds"])
+	r.BootDiskProvisionedIops = dcl.FlattenInteger(m["bootDiskProvisionedIops"])
+	r.BootDiskProvisionedThroughput = dcl.FlattenInteger(m["bootDiskProvisionedThroughput"])
+	r.LocalSsdInterface = dcl.FlattenString(m["localSsdInterface"])
+	attachedDiskConfigs := m["attachedDiskConfigs"]
+	if attachedDiskConfigs == nil {
+		attachedDiskConfigs = m["attachedDiskConfig"]
+	}
+	r.AttachedDiskConfig = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c, attachedDiskConfigs, res)
+
+	return r
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := make(map[string]interface{})
+	for k, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items[k] = i
+		}
+	}
+
+	return items, nil
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.(map[string]interface{})
+	if !ok {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make(map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig)
+	for k, item := range a {
+		items[k] = *flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res)
+	}
+
+	return items
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.DiskType; !dcl.IsEmptyValueIndirect(v) {
+		m["diskType"] = v
+	}
+	if v := f.DiskSizeGb; !dcl.IsEmptyValueIndirect(v) {
+		m["diskSizeGb"] = v
+	}
+	if v := f.ProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedIops"] = v
+	}
+	if v := f.ProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedThroughput"] = v
+	}
+
+	return m, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig
+	}
+	r.DiskType = dcl.FlattenString(m["diskType"])
+	r.DiskSizeGb = dcl.FlattenInteger(m["diskSizeGb"])
+	r.ProvisionedIops = dcl.FlattenInteger(m["provisionedIops"])
+	r.ProvisionedThroughput = dcl.FlattenInteger(m["provisionedThroughput"])
 
 	return r
 }
@@ -14763,6 +15779,20 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDis
 	if v := f.NumLocalSsds; !dcl.IsEmptyValueIndirect(v) {
 		m["numLocalSsds"] = v
 	}
+	if v := f.BootDiskProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedIops"] = v
+	}
+	if v := f.BootDiskProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedThroughput"] = v
+	}
+	if v := f.LocalSsdInterface; !dcl.IsEmptyValueIndirect(v) {
+		m["localSsdInterface"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c, f.AttachedDiskConfig, res); err != nil {
+		return nil, err
+	} else if v != nil {
+		m["attachedDiskConfigs"] = v
+	}
 
 	return m, nil
 }
@@ -14783,6 +15813,140 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDi
 	r.BootDiskType = dcl.FlattenString(m["bootDiskType"])
 	r.BootDiskSizeGb = dcl.FlattenInteger(m["bootDiskSizeGb"])
 	r.NumLocalSsds = dcl.FlattenInteger(m["numLocalSsds"])
+	r.BootDiskProvisionedIops = dcl.FlattenInteger(m["bootDiskProvisionedIops"])
+	r.BootDiskProvisionedThroughput = dcl.FlattenInteger(m["bootDiskProvisionedThroughput"])
+	r.LocalSsdInterface = dcl.FlattenString(m["localSsdInterface"])
+	attachedDiskConfigs := m["attachedDiskConfigs"]
+	if attachedDiskConfigs == nil {
+		attachedDiskConfigs = m["attachedDiskConfig"]
+	}
+	r.AttachedDiskConfig = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c, attachedDiskConfigs, res)
+
+	return r
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := make(map[string]interface{})
+	for k, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items[k] = i
+		}
+	}
+
+	return items, nil
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.(map[string]interface{})
+	if !ok {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make(map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig)
+	for k, item := range a {
+		items[k] = *flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res)
+	}
+
+	return items
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.DiskType; !dcl.IsEmptyValueIndirect(v) {
+		m["diskType"] = v
+	}
+	if v := f.DiskSizeGb; !dcl.IsEmptyValueIndirect(v) {
+		m["diskSizeGb"] = v
+	}
+	if v := f.ProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedIops"] = v
+	}
+	if v := f.ProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedThroughput"] = v
+	}
+
+	return m, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig
+	}
+	r.DiskType = dcl.FlattenString(m["diskType"])
+	r.DiskSizeGb = dcl.FlattenInteger(m["diskSizeGb"])
+	r.ProvisionedIops = dcl.FlattenInteger(m["provisionedIops"])
+	r.ProvisionedThroughput = dcl.FlattenInteger(m["provisionedThroughput"])
 
 	return r
 }
