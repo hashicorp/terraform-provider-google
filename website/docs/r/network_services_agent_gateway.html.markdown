@@ -48,21 +48,11 @@ resource "google_network_services_agent_gateway" "default" {
     governed_access_path = "AGENT_TO_ANYWHERE"
   }
 
+  agent_connectivity_template = "projects/${data.google_project.project.number}/locations/us-central1/agentConnectivityTemplates/${google_network_services_agent_connectivity_template.default.agent_connectivity_template_id}"
+
   registries = [
     "//agentregistry.googleapis.com/projects/my-project-name/locations/us-central1"
   ]
-
-  network_config {
-    egress {
-      network_attachment = google_compute_network_attachment.default.id
-    }
-
-    dns_peering_config {
-      domains        = [google_dns_managed_zone.default.dns_name]
-      target_project = data.google_project.project.project_id
-      target_network = google_compute_network.default.id
-    }
-  }
 
   depends_on = [google_project_service.agent_registry]
 }
@@ -70,6 +60,26 @@ resource "google_network_services_agent_gateway" "default" {
 resource "google_project_service" "agent_registry" {
   service            = "agentregistry.googleapis.com"
   disable_on_destroy = false
+}
+
+resource "google_network_services_agent_connectivity_template" "default" {
+  agent_connectivity_template_id = "my-full-agent-gateway-template"
+  location = "us-central1"
+  description = "A basic configuration for Agent Connectivity Template"
+  labels = {
+    env  = "test"
+    tier = "gold"
+  }
+
+  access_path = "AGENT_TO_ANYWHERE"
+
+  egress_network_config {
+    network_attachment = google_compute_network_attachment.default.id
+    dns_peering_config {
+      domain         = google_dns_managed_zone.default.dns_name
+      target_network = google_compute_network.default.id
+    }
+  }
 }
 
 resource "google_compute_network" "default" {
@@ -87,7 +97,7 @@ resource "google_compute_subnetwork" "default" {
 resource "google_compute_network_attachment" "default" {
   name                  = "my-gateway-attachment"
   region                = "us-central1"
-  connection_preference = "ACCEPT_MANUAL"
+  connection_preference = "ACCEPT_AUTOMATIC"
 
   subnetworks = [
     google_compute_subnetwork.default.id,
@@ -198,6 +208,12 @@ The following arguments are supported:
   A list of Agent registries containing the agents, MCP servers and tools governed by the Agent Gateway.
   Note: Currently limited to project-scoped registries Must be of format
   `//agentregistry.googleapis.com/{version}/projects/{{project}}/locations/{{location}}`
+
+* `agent_connectivity_template` -
+  (Optional)
+  The resource name of the AgentConnectivityTemplate.
+  Must be of format
+  `projects/{{project}}/locations/{{location}}/agentConnectivityTemplates/{{agent_connectivity_template}}`
 
 * `network_config` -
   (Optional)

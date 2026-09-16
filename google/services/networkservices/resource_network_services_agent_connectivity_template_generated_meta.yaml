@@ -1,0 +1,31 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_network_services_agent_connectivity_template
+generation_type: mmv1
+source_file: products/networkservices/AgentConnectivityTemplate.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: AgentConnectivityTemplate
+fields:
+    - api_field: accessPath
+    - api_field: accessTypes
+    - field: agent_connectivity_template_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: egressNetworkConfig.dnsPeeringConfig.domain
+    - api_field: egressNetworkConfig.dnsPeeringConfig.targetNetwork
+    - api_field: egressNetworkConfig.networkAttachment
+    - api_field: egressNetworkConfig.vpcEgress
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

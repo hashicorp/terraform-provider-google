@@ -152,6 +152,14 @@ func ResourceNetworkServicesAgentGateway() *schema.Resource {
 				Required:    true,
 				Description: `Name of the AgentGateway resource.`,
 			},
+			"agent_connectivity_template": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+				Description: `The resource name of the AgentConnectivityTemplate.
+Must be of format
+'projects/{{project}}/locations/{{location}}/agentConnectivityTemplates/{{agent_connectivity_template}}'`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -416,6 +424,12 @@ func resourceNetworkServicesAgentGatewayCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("registries"); !tpgresource.IsEmptyValue(reflect.ValueOf(registriesProp)) && (ok || !reflect.DeepEqual(v, registriesProp)) {
 		obj["registries"] = registriesProp
 	}
+	agentConnectivityTemplateProp, err := expandNetworkServicesAgentGatewayAgentConnectivityTemplate(d.Get("agent_connectivity_template"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("agent_connectivity_template"); !tpgresource.IsEmptyValue(reflect.ValueOf(agentConnectivityTemplateProp)) && (ok || !reflect.DeepEqual(v, agentConnectivityTemplateProp)) {
+		obj["agentConnectivityTemplate"] = agentConnectivityTemplateProp
+	}
 	networkConfigProp, err := expandNetworkServicesAgentGatewayNetworkConfig(d.Get("network_config"), d, config)
 	if err != nil {
 		return err
@@ -676,6 +690,12 @@ func resourceNetworkServicesAgentGatewayUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("registries"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, registriesProp)) {
 		obj["registries"] = registriesProp
 	}
+	agentConnectivityTemplateProp, err := expandNetworkServicesAgentGatewayAgentConnectivityTemplate(d.Get("agent_connectivity_template"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("agent_connectivity_template"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, agentConnectivityTemplateProp)) {
+		obj["agentConnectivityTemplate"] = agentConnectivityTemplateProp
+	}
 	networkConfigProp, err := expandNetworkServicesAgentGatewayNetworkConfig(d.Get("network_config"), d, config)
 	if err != nil {
 		return err
@@ -718,6 +738,10 @@ func resourceNetworkServicesAgentGatewayUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("registries") {
 		updateMask = append(updateMask, "registries")
+	}
+
+	if d.HasChange("agent_connectivity_template") {
+		updateMask = append(updateMask, "agentConnectivityTemplate")
 	}
 
 	if d.HasChange("network_config") {
@@ -931,6 +955,10 @@ func flattenNetworkServicesAgentGatewayRegistries(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenNetworkServicesAgentGatewayAgentConnectivityTemplate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkServicesAgentGatewayNetworkConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1108,6 +1136,10 @@ func expandNetworkServicesAgentGatewayRegistries(v interface{}, d tpgresource.Te
 	return v, nil
 }
 
+func expandNetworkServicesAgentGatewayAgentConnectivityTemplate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkServicesAgentGatewayNetworkConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1271,6 +1303,9 @@ func ResourceNetworkServicesAgentGatewayFlatten(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading AgentGateway: %s", err)
 	}
 	if err = d.Set("registries", flattenNetworkServicesAgentGatewayRegistries(res["registries"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AgentGateway: %s", err)
+	}
+	if err = d.Set("agent_connectivity_template", flattenNetworkServicesAgentGatewayAgentConnectivityTemplate(res["agentConnectivityTemplate"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AgentGateway: %s", err)
 	}
 	if err = d.Set("network_config", flattenNetworkServicesAgentGatewayNetworkConfig(res["networkConfig"], d, config)); err != nil {

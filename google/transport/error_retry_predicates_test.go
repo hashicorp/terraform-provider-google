@@ -292,3 +292,23 @@ func TestExternalIpServiceNotActive(t *testing.T) {
 		t.Errorf("Error not detected as retryable")
 	}
 }
+
+func TestIsAgentConnectivityTemplateInUse(t *testing.T) {
+	err := googleapi.Error{
+		Code: 400,
+		Body: "Resource '\"projects/ci-test-project-188019/locations/us-central1/agentConnectivityTemplates/tf-test-my-full-agent-gateway6sn0ed1rvk-template\"' is already being used by resource(s) '\"//networkservices.googleapis.com/projects/1067888929963/locations/us-central1/agentGateways/tf-test-my-full-agent-gateway6sn0ed1rvk\"'",
+	}
+	isRetryable, _ := IsAgentConnectivityTemplateInUse(&err)
+	if !isRetryable {
+		t.Errorf("Error not detected as retryable")
+	}
+
+	errOther := googleapi.Error{
+		Code: 400,
+		Body: "Some other 400 error",
+	}
+	isRetryable, _ = IsAgentConnectivityTemplateInUse(&errOther)
+	if isRetryable {
+		t.Errorf("Error incorrectly detected as retryable")
+	}
+}
