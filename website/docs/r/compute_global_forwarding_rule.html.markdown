@@ -560,7 +560,7 @@ resource "google_compute_target_http_proxy" "default" {
 }
 
 resource "google_compute_url_map" "default" {
-  name            = "url-map-target-proxy"
+  name            = "target-proxy-url-map"
   description     = "a description"
   default_service = google_compute_backend_service.default.id
 
@@ -590,7 +590,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "check-backend"
+  name               = "backend-check"
   check_interval_sec = 1
   timeout_sec        = 1
   http_health_check {
@@ -633,7 +633,7 @@ resource "google_compute_target_http_proxy" "default" {
 
 resource "google_compute_url_map" "default" {
   provider        = google-beta
-  name            = "url-map-target-proxy"
+  name            = "target-proxy-url-map"
   description     = "a description"
   default_service = google_compute_backend_service.default.id
 
@@ -691,7 +691,7 @@ resource "google_compute_instance_group_manager" "igm" {
 
 resource "google_compute_instance_template" "instance_template" {
   provider     = google-beta
-  name         = "template-backend"
+  name         = "backend-template"
   machine_type = "e2-medium"
 
   network_interface {
@@ -707,7 +707,7 @@ resource "google_compute_instance_template" "instance_template" {
 
 resource "google_compute_health_check" "default" {
   provider           = google-beta
-  name               = "check-backend"
+  name               = "backend-check"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -740,7 +740,7 @@ resource "google_compute_target_http_proxy" "default" {
 }
 
 resource "google_compute_url_map" "default" {
-  name            = "url-map-target-proxy"
+  name            = "target-proxy-url-map"
   description     = "a description"
   default_service = google_compute_backend_service.default.id
 
@@ -871,7 +871,7 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_compute_url_map" "default" {
-  name            = "url-map-target-proxy"
+  name            = "target-proxy-url-map"
   description     = "a description"
   default_service = google_compute_backend_service.default.id
 

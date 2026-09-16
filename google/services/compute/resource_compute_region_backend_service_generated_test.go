@@ -418,7 +418,7 @@ resource "google_compute_region_instance_group_manager" "rigm" {
 }
 
 resource "google_compute_instance_template" "instance_template" {
-  name         = "template-%{region_backend_service_name}"
+  name         = "%{region_backend_service_name}-template"
   machine_type = "e2-medium"
 
   network_interface {
