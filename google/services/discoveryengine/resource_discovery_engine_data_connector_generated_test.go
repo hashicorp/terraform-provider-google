@@ -164,7 +164,7 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithAct
 				ResourceName:            "google_discovery_engine_data_connector.jira-with-actions",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "sync_mode"},
+				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "action_state", "auto_run_disabled", "collection_display_name", "collection_id", "errors", "incremental_sync_disabled", "json_params", "location", "params", "state", "sync_mode", "update_time"},
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_connector.jira-with-actions",
@@ -183,10 +183,9 @@ resource "google_discovery_engine_data_connector" "jira-with-actions" {
   collection_id                = "%{collection_id}"
   collection_display_name      = "Jira Federated"
   data_source                  = "jira"
-  data_source_version          = 3
   params = {
     instance_uri               = "https://example.atlassian.net"
-    instance_id                = "SECRET_MANAGER_RESOURCE_NAME"
+    instance_id                = "12345678-1234-1234-1234-123456789abc"
     client_id                  = "SECRET_MANAGER_RESOURCE_NAME"
     client_secret              = "SECRET_MANAGER_RESOURCE_NAME"
     refresh_token              = "SECRET_MANAGER_RESOURCE_NAME"
@@ -223,7 +222,7 @@ resource "google_discovery_engine_data_connector" "jira-with-actions" {
   action_config {
     action_params = {
       instance_uri             = "https://example.atlassian.net"
-      instance_id              = "SECRET_MANAGER_RESOURCE_NAME"
+      instance_id              = "12345678-1234-1234-1234-123456789abc"
       client_id                = "SECRET_MANAGER_RESOURCE_NAME"
       client_secret            = "SECRET_MANAGER_RESOURCE_NAME"
       auth_type                = "OAUTH"
@@ -240,6 +239,14 @@ resource "google_discovery_engine_data_connector" "jira-with-actions" {
       "update_comment",
       "upload_attachment",
     ]
+  }
+  tag                          = "sample-tag"
+  metadata {
+    title             = "Jira Connector"
+    description       = "Jira Connector Description"
+    short_description = "Jira Connector Short Description"
+    author            = "Google"
+    note              = "Sample Note"
   }
 }
 `, context)
