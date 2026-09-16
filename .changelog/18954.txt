@@ -1,0 +1,3 @@
+```release-note:bug
+cloudscheduler: fixed `google_cloud_scheduler_job` staying paused when the `paused` field is removed from configuration
+```
