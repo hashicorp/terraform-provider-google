@@ -91,7 +91,7 @@ data "google_apphub_discovered_service" "catalog-service" {
 
 # VPC network
 resource "google_compute_network" "ilb_network" {
-  name                    = "ilb-network-%{random_suffix}"
+  name                    = "tf-test-ilb-network-%{random_suffix}"
   project                 = google_project.service_project.project_id
   auto_create_subnetworks = false
   depends_on = [time_sleep.wait_120s]
@@ -99,7 +99,7 @@ resource "google_compute_network" "ilb_network" {
 
 # backend subnet
 resource "google_compute_subnetwork" "ilb_subnet" {
-  name          			 = "ilb-subnet-%{random_suffix}"
+  name          			 = "tf-test-ilb-subnet-%{random_suffix}"
   project       			 = google_project.service_project.project_id
   ip_cidr_range 			 = "10.0.1.0/24"
   region        			 = "us-central1"
@@ -108,7 +108,7 @@ resource "google_compute_subnetwork" "ilb_subnet" {
 
 # forwarding rule
 resource "google_compute_forwarding_rule" "forwarding_rule" {
-  name                  = "forwarding-rule-%{random_suffix}"
+  name                  = "tf-test-forwarding-rule-%{random_suffix}"
   project               = google_project.service_project.project_id
   region                = "us-central1"
   ip_version            = "IPV4"
@@ -126,7 +126,7 @@ resource "time_sleep" "wait_120s_for_resource_ingestion" {
 
 # backend service
 resource "google_compute_region_backend_service" "backend" {
-  name                  = "backend-service-%{random_suffix}"
+  name                  = "tf-test-backend-service-%{random_suffix}"
   project               = google_project.service_project.project_id
   region                = "us-central1"
   health_checks         = [google_compute_health_check.default.id]
@@ -134,7 +134,7 @@ resource "google_compute_region_backend_service" "backend" {
     
 # health check
 resource "google_compute_health_check" "default" {
-  name     					 		= "health-check-%{random_suffix}"
+  name     					 		= "tf-test-health-check-%{random_suffix}"
   project  					 		= google_project.service_project.project_id
   check_interval_sec 		= 1
   timeout_sec        		= 1
