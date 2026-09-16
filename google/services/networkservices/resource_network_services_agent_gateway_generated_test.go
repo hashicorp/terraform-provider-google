@@ -185,6 +185,123 @@ resource "google_dns_managed_zone" "default" {
 `, context)
 }
 
+func TestAccNetworkServicesAgentGateway_networkServicesAgentGatewayDnsPeeringExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":                 envvar.GetTestProjectFromEnv(),
+		"dns_zone_name":           "tf-test-my-dns-gateway-zone" + randomSuffix,
+		"name":                    "tf-test-my-dns-agent-gateway" + randomSuffix,
+		"network_attachment_name": "tf-test-my-dns-gateway-attachment" + randomSuffix,
+		"network_name":            "tf-test-my-dns-gateway-network" + randomSuffix,
+		"subnetwork_name":         "tf-test-my-dns-gateway-subnetwork" + randomSuffix,
+		"random_suffix":           randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesAgentGatewayDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesAgentGateway_networkServicesAgentGatewayDnsPeeringExample(context),
+			},
+			{
+				ResourceName:            "google_network_services_agent_gateway.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_services_agent_gateway.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesAgentGateway_networkServicesAgentGatewayDnsPeeringExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_network_services_agent_gateway" "default" {
+  name        = "%{name}"
+  location    = "us-central1"
+  description = "Agent Gateway with inline network_config and DNS peering"
+  labels = {
+    env  = "test"
+    tier = "gold"
+  }
+
+  google_managed {
+    governed_access_path = "AGENT_TO_ANYWHERE"
+  }
+
+  registries = [
+    "//agentregistry.googleapis.com/projects/%{project}/locations/us-central1"
+  ]
+
+  network_config {
+    egress {
+      network_attachment = google_compute_network_attachment.default.id
+    }
+
+    dns_peering_config {
+      domains        = [google_dns_managed_zone.default.dns_name]
+      target_project = data.google_project.project.project_id
+      target_network = google_compute_network.default.id
+    }
+  }
+
+  depends_on = [google_project_service.agent_registry]
+}
+
+resource "google_project_service" "agent_registry" {
+  service            = "agentregistry.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_compute_network" "default" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%{subnetwork_name}"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_network_attachment" "default" {
+  name                  = "%{network_attachment_name}"
+  region                = "us-central1"
+  connection_preference = "ACCEPT_AUTOMATIC"
+
+  subnetworks = [
+    google_compute_subnetwork.default.id,
+  ]
+}
+
+resource "google_dns_managed_zone" "default" {
+  name        = "%{dns_zone_name}"
+  dns_name    = "example.com."
+  description = "Private zone used by AgentGateway DNS peering"
+  visibility  = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.default.id
+    }
+  }
+}
+`, context)
+}
+
 func TestAccNetworkServicesAgentGateway_networkServicesAgentGatewayClientToAgentExample(t *testing.T) {
 	t.Parallel()
 

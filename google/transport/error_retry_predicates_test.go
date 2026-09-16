@@ -17,6 +17,7 @@
 package transport
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -294,21 +295,77 @@ func TestExternalIpServiceNotActive(t *testing.T) {
 }
 
 func TestIsAgentConnectivityTemplateInUse(t *testing.T) {
-	err := googleapi.Error{
-		Code: 400,
-		Body: "Resource '\"projects/ci-test-project-188019/locations/us-central1/agentConnectivityTemplates/tf-test-my-full-agent-gateway6sn0ed1rvk-template\"' is already being used by resource(s) '\"//networkservices.googleapis.com/projects/1067888929963/locations/us-central1/agentGateways/tf-test-my-full-agent-gateway6sn0ed1rvk\"'",
-	}
-	isRetryable, _ := IsAgentConnectivityTemplateInUse(&err)
-	if !isRetryable {
-		t.Errorf("Error not detected as retryable")
+	inUseMessage := "Resource '\"projects/ci-test-project-188019/locations/us-central1/agentConnectivityTemplates/tf-test-my-full-agent-gateway6sn0ed1rvk-template\"' is already being used by resource(s) '\"//networkservices.googleapis.com/projects/1067888929963/locations/us-central1/agentGateways/tf-test-my-full-agent-gateway6sn0ed1rvk\"'"
+	expectedRetryReason := "waiting for AgentConnectivityTemplate to no longer be referenced"
+
+	cases := map[string]struct {
+		err            error
+		expected       bool
+		expectedReason string
+	}{
+		"nil error": {
+			err:            nil,
+			expected:       false,
+			expectedReason: "",
+		},
+		// The shape networkservices actually returns: the JSON error.message is
+		// decoded into Message, so Error() renders "googleapi: Error 400: <Message>".
+		"googleapi 400 in use with message": {
+			err: &googleapi.Error{
+				Code:    400,
+				Message: inUseMessage,
+				Body:    fmt.Sprintf(`{"error":{"code":400,"message":%q,"status":"FAILED_PRECONDITION"}}`, inUseMessage),
+			},
+			expected:       true,
+			expectedReason: expectedRetryReason,
+		},
+		// Body-only errors have an empty Message, so Error() falls back to
+		// "googleapi: got HTTP response code 400 with body: <Body>".
+		"googleapi 400 in use with body only": {
+			err: &googleapi.Error{
+				Code: 400,
+				Body: inUseMessage,
+			},
+			expected:       true,
+			expectedReason: expectedRetryReason,
+		},
+		// Not retryable: Error() renders Message only, so a marker confined to Body
+		// is unreachable. Retrying these would require inspecting gerr.Body directly.
+		"googleapi 400 in use with marker only in body": {
+			err: &googleapi.Error{
+				Code:    400,
+				Message: "Precondition check failed.",
+				Body:    fmt.Sprintf(`{"error":{"code":400,"message":%q,"status":"FAILED_PRECONDITION"}}`, inUseMessage),
+			},
+			expected:       false,
+			expectedReason: "",
+		},
+		"googleapi 400 other error": {
+			err: &googleapi.Error{
+				Code:    400,
+				Message: "Some other 400 error",
+			},
+			expected:       false,
+			expectedReason: "",
+		},
+		"wrapped standard error in use": {
+			err:            fmt.Errorf("Error when reading or editing AgentConnectivityTemplate: googleapi: Error 400: %s", inUseMessage),
+			expected:       true,
+			expectedReason: expectedRetryReason,
+		},
+		"other standard error": {
+			err:            fmt.Errorf("Some other error"),
+			expected:       false,
+			expectedReason: "",
+		},
 	}
 
-	errOther := googleapi.Error{
-		Code: 400,
-		Body: "Some other 400 error",
-	}
-	isRetryable, _ = IsAgentConnectivityTemplateInUse(&errOther)
-	if isRetryable {
-		t.Errorf("Error incorrectly detected as retryable")
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			isRetryable, reason := IsAgentConnectivityTemplateInUse(tc.err)
+			if isRetryable != tc.expected || reason != tc.expectedReason {
+				t.Errorf("IsAgentConnectivityTemplateInUse(%v) = (%v, %q), want (%v, %q)", tc.err, isRetryable, reason, tc.expected, tc.expectedReason)
+			}
+		})
 	}
 }
