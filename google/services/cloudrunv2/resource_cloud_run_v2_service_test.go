@@ -67,19 +67,19 @@ func TestAccCloudRunV2WorkerPool_vpcAccess_basic(t *testing.T) {
 func testAccCloudRunV2WorkerPool_vpcAccess_basicConfig(ctx map[string]interface{}) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "primary" {
-  name                    = "tf-crwp-vpc-%[1]s"
+  name                    = "tf-test-crwp-vpc-%[1]s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "primary" {
-  name          = "tf-crwp-subnet-%[1]s"
+  name          = "tf-test-crwp-subnet-%[1]s"
   ip_cidr_range = "10.0.0.0/16"
   region        = "%[2]s"
   network       = google_compute_network.primary.id
 }
 
 resource "google_vpc_access_connector" "primary" {
-  name          = "tf-crwp-conn-%[1]s"
+  name          = "tf-test-crwp-c-%[1]s"
   region        = "%[2]s"
   network       = google_compute_network.primary.name
   ip_cidr_range = "10.8.0.0/28"
@@ -90,7 +90,7 @@ resource "google_vpc_access_connector" "primary" {
 }
 
 resource "google_cloud_run_v2_worker_pool" "primary" {
-  name                = "tf-crwp-%[1]s"
+  name                = "tf-test-crwp-%[1]s"
   location            = "%[2]s"
   deletion_protection = false
 
@@ -1516,7 +1516,7 @@ data "google_project" "project" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${data.google_project.project.project_id}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "tf-test-gcf-source%{random_suffix}-${data.google_project.project.project_id}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -1581,7 +1581,7 @@ data "google_project" "project" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${data.google_project.project.project_id}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "tf-test-gcf-source%{random_suffix}-${data.google_project.project.project_id}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
