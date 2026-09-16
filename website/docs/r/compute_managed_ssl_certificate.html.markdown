@@ -130,7 +130,7 @@ resource "google_compute_global_forwarding_rule" "default" {
 // recreate the ssl certificate and update the target https proxy correctly
 
 resource "google_compute_target_https_proxy" "default" {
-  name             = "test-proxy"
+  name             = "https-proxy"
   url_map          = google_compute_url_map.default.id
   ssl_certificates = [google_compute_managed_ssl_certificate.cert.id]
 }

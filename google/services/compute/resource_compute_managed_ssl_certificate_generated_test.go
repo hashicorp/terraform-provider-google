@@ -164,7 +164,11 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
+		"backend_service_name":   "tf-test-backend-service" + randomSuffix,
+		"http_health_check_name": "tf-test-http-health-check" + randomSuffix,
+		"proxy_name":             "tf-test-https-proxy" + randomSuffix,
+		"url_map_name":           "tf-test-url-map" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -200,7 +204,7 @@ func testAccComputeManagedSslCertificate_managedSslCertificateRecreationExample(
 // recreate the ssl certificate and update the target https proxy correctly
 
 resource "google_compute_target_https_proxy" "default" {
-  name             = "test-proxy"
+  name             = "%{proxy_name}"
   url_map          = google_compute_url_map.default.id
   ssl_certificates = [google_compute_managed_ssl_certificate.cert.id]
 }
@@ -231,7 +235,7 @@ resource "google_compute_managed_ssl_certificate" "cert" {
 }
 
 resource "google_compute_url_map" "default" {
-  name            = "url-map"
+  name            = "%{url_map_name}"
   description     = "a description"
   default_service = google_compute_backend_service.default.id
   host_rule {
@@ -249,7 +253,7 @@ resource "google_compute_url_map" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  name                  = "backend-service"
+  name                  = "%{backend_service_name}"
   port_name             = "http"
   protocol              = "HTTP"
   timeout_sec           = 10
@@ -258,7 +262,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_http_health_check" "default" {
-  name               = "http-health-check"
+  name               = "%{http_health_check_name}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
