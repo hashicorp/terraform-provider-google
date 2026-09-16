@@ -92,7 +92,7 @@ func TestAccVertexAIIndexEndpoint_psc_automation_config(t *testing.T) {
 func testAccVertexAIIndexEndpoint_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_index_endpoint" "index_endpoint" {
-  display_name = "sample-endpoint"
+  display_name = "tf-test-sample-endpoint%{random_suffix}"
   description  = "A sample vertex endpoint"
   region       = "us-central1"
   labels       = {
@@ -118,7 +118,7 @@ data "google_project" "project" {}
 func testAccVertexAIIndexEndpoint_updated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_index_endpoint" "index_endpoint" {
-  display_name = "sample-endpoint-updated"
+  display_name = "tf-test-sample-endpoint-updated%{random_suffix}"
   description  = "A sample vertex endpoint (updated)"
   region       = "us-central1"
   labels       = {

@@ -111,7 +111,7 @@ resource "google_compute_network" "default" {
 }
 
 resource "google_vertex_ai_endpoint" "endpoint" {
-  name         = "endpoint-name%{random_suffix}"
+  name         = "endpoint-name"
   display_name = "sample-endpoint"
   description  = "A sample vertex endpoint"
   location     = "us-central1"
@@ -144,7 +144,7 @@ data "google_project" "project" {}
 
 ```hcl
 resource "google_vertex_ai_endpoint" "endpoint" {
-  name         = "endpoint-name%{random_suffix}"
+  name         = "endpoint-name"
   display_name = "sample-endpoint"
   description  = "A sample vertex endpoint"
   location     = "us-central1"

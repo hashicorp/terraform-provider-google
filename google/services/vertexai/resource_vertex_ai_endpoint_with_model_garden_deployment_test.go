@@ -291,14 +291,14 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "test" {
 }
 
 resource "google_compute_subnetwork" "subnetwork" {
-  name          = "subnetwork"
+  name          = "tf-test-subnetwork-%{random_suffix}"
   ip_cidr_range = "192.168.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.network.id
 }
 
 resource "google_compute_network" "network" {
-  name                    = "network"
+  name                    = "tf-test-network-%{random_suffix}"
   auto_create_subnetworks = false
 }
 
