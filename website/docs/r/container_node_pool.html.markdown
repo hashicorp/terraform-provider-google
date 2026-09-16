@@ -266,6 +266,8 @@ cluster.
 
 * `subnetwork` - Name of the subnetwork where the additional interface belongs.
 
+* `stack_type` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The IP stack type of the additional node interface. Possible values are `IPV4`, `IPV4_IPV6` and `IPV6`. If unset, the value is inferred from the additional subnetwork.
+
 <a name="nested_additional_pod_network_configs"></a>The `additional_pod_network_configs` block supports:
 
 * `subnetwork` - Name of the subnetwork where the additional pod network belongs.
