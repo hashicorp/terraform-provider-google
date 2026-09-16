@@ -73,7 +73,7 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_certificate_manager_certificate_map" "default" {
-  name        = "certificate-map-test"
+  name        = "certificate-map"
   description = "My acceptance test certificate map"
 }
 ```

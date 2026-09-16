@@ -66,6 +66,10 @@ func TestAccComputeExternalVpnGateway_externalVpnGatewayExample(t *testing.T) {
 		"ha_vpn_gateway_name":   "tf-test-ha-vpn" + randomSuffix,
 		"network_name":          "tf-test-network-1" + randomSuffix,
 		"router_name":           "tf-test-ha-vpn-router1" + randomSuffix,
+		"subnetwork1_name":      "tf-test-ha-vpn-subnet-1" + randomSuffix,
+		"subnetwork2_name":      "tf-test-ha-vpn-subnet-2" + randomSuffix,
+		"vpn_tunnel1_name":      "tf-test-ha-vpn-tunnel1" + randomSuffix,
+		"vpn_tunnel2_name":      "tf-test-ha-vpn-tunnel2" + randomSuffix,
 		"random_suffix":         randomSuffix,
 	}
 
@@ -118,14 +122,14 @@ resource "google_compute_network" "network" {
 }
 
 resource "google_compute_subnetwork" "network_subnet1" {
-  name          = "ha-vpn-subnet-1"
+  name          = "%{subnetwork1_name}"
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
   network       = google_compute_network.network.id
 }
 
 resource "google_compute_subnetwork" "network_subnet2" {
-  name          = "ha-vpn-subnet-2"
+  name          = "%{subnetwork2_name}"
   ip_cidr_range = "10.0.2.0/24"
   region        = "us-west1"
   network       = google_compute_network.network.id
@@ -140,7 +144,7 @@ resource "google_compute_router" "router1" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
-  name                            = "ha-vpn-tunnel1"
+  name                            = "%{vpn_tunnel1_name}"
   region                          = "us-central1"
   vpn_gateway                     = google_compute_ha_vpn_gateway.ha_gateway.id
   peer_external_gateway           = google_compute_external_vpn_gateway.external_gateway.id
@@ -151,7 +155,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel2" {
-  name                            = "ha-vpn-tunnel2"
+  name                            = "%{vpn_tunnel2_name}"
   region                          = "us-central1"
   vpn_gateway                     = google_compute_ha_vpn_gateway.ha_gateway.id
   peer_external_gateway           = google_compute_external_vpn_gateway.external_gateway.id

@@ -243,7 +243,7 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
 ```hcl
 resource "google_compute_network" "net" {
   provider                = google-beta
-  name                    = "test-net"
+  name                    = "fw-policy-net"
   auto_create_subnetworks = false
 }
 

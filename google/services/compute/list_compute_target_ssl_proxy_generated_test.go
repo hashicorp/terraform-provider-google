@@ -48,6 +48,7 @@ func TestAccComputeTargetSslProxyListQuery_generated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"backend_service_name":  "tf-test-backend-service" + randomSuffix,
+		"certificate_map_name":  "tf-test-certificate-map" + randomSuffix,
 		"health_check_name":     "tf-test-health-check" + randomSuffix,
 		"ssl_certificate_name":  "tf-test-default-cert" + randomSuffix,
 		"target_ssl_proxy_name": "tf-test-test-proxy" + randomSuffix,

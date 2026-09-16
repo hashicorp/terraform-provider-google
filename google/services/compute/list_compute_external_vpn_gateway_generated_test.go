@@ -52,6 +52,10 @@ func TestAccComputeExternalVpnGatewayListQuery_generated(t *testing.T) {
 		"ha_vpn_gateway_name":   "tf-test-ha-vpn" + randomSuffix,
 		"network_name":          "tf-test-network-1" + randomSuffix,
 		"router_name":           "tf-test-ha-vpn-router1" + randomSuffix,
+		"subnetwork1_name":      "tf-test-ha-vpn-subnet-1" + randomSuffix,
+		"subnetwork2_name":      "tf-test-ha-vpn-subnet-2" + randomSuffix,
+		"vpn_tunnel1_name":      "tf-test-ha-vpn-tunnel1" + randomSuffix,
+		"vpn_tunnel2_name":      "tf-test-ha-vpn-tunnel2" + randomSuffix,
 		"project":               envvar.GetTestProjectFromEnv(),
 		"random_suffix":         randomSuffix,
 	}
