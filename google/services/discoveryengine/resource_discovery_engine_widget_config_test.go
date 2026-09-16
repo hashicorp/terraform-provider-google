@@ -38,6 +38,11 @@ func TestAccDiscoveryEngineWidgetConfig_discoveryengineWidgetconfigBasicExample_
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDiscoveryEngineWidgetConfig_discoveryengineWidgetconfigBasicExample_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_discovery_engine_widget_config.basic", "ui_settings.0.search_addon_spec.0.semantic_add_on_disabled", "true"),
+					resource.TestCheckResourceAttr("google_discovery_engine_widget_config.basic", "ui_settings.0.search_addon_spec.0.kpi_personalization_add_on_disabled", "false"),
+					resource.TestCheckResourceAttr("google_discovery_engine_widget_config.basic", "ui_settings.0.search_addon_spec.0.generative_answer_add_on_disabled", "true"),
+				),
 			},
 			{
 				ResourceName:      "google_discovery_engine_widget_config.basic",
@@ -46,6 +51,19 @@ func TestAccDiscoveryEngineWidgetConfig_discoveryengineWidgetconfigBasicExample_
 			},
 			{
 				Config: testAccDiscoveryEngineWidgetConfig_discoveryengineWidgetconfigBasicExample_update(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_discovery_engine_widget_config.basic", "ui_settings.0.search_addon_spec.0.semantic_add_on_disabled", "false"),
+					resource.TestCheckResourceAttr("google_discovery_engine_widget_config.basic", "ui_settings.0.search_addon_spec.0.kpi_personalization_add_on_disabled", "true"),
+					resource.TestCheckResourceAttr("google_discovery_engine_widget_config.basic", "ui_settings.0.search_addon_spec.0.generative_answer_add_on_disabled", "false"),
+				),
+			},
+			{
+				ResourceName:      "google_discovery_engine_widget_config.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDiscoveryEngineWidgetConfig_discoveryengineWidgetconfigBasicExample_allFalse(context),
 			},
 			{
 				ResourceName:      "google_discovery_engine_widget_config.basic",
@@ -130,6 +148,11 @@ resource "google_discovery_engine_widget_config" "basic" {
         field                 = "name"
         display_template      = "Name: {name}"
       }
+    }
+    search_addon_spec {
+      semantic_add_on_disabled            = true
+      kpi_personalization_add_on_disabled = false
+      generative_answer_add_on_disabled   = true
     }
   }
   ui_branding {
@@ -225,6 +248,110 @@ resource "google_discovery_engine_widget_config" "basic" {
         field                 = "name"
         display_template      = "Name: {name}"
       }
+    }
+    search_addon_spec {
+      semantic_add_on_disabled            = false
+      kpi_personalization_add_on_disabled = true
+      generative_answer_add_on_disabled   = false
+    }
+  }
+  ui_branding {
+    logo {
+      url = "https://example.com/new-logo.png"
+    }
+  }
+  homepage_setting {
+    shortcuts {
+      destination_uri = "https://example.com/new-destination"
+      icon {
+        url           = "https://example.com/new-logo.png"
+      }
+      title           = "Name"
+    }
+  }
+}
+`, context)
+}
+
+func testAccDiscoveryEngineWidgetConfig_discoveryengineWidgetconfigBasicExample_allFalse(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_discovery_engine_data_store" "basic" {
+  location                    = "global"
+  data_store_id               = "tf-test-data-store-id%{random_suffix}"
+  display_name                = "tf-test-datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "NO_CONTENT"
+  solution_types              = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search = false
+}
+
+resource "google_discovery_engine_search_engine" "basic" {
+  engine_id                   = "tf-test-engine-id%{random_suffix}"
+  collection_id               = "default_collection"
+  location                    = google_discovery_engine_data_store.basic.location
+  display_name                = "tf-test-engine"
+  data_store_ids              = [google_discovery_engine_data_store.basic.data_store_id]
+  industry_vertical           = "GENERIC"
+  app_type                    = "APP_TYPE_INTRANET"
+  search_engine_config {
+  }
+}
+
+resource "google_discovery_engine_widget_config" "basic" {
+  location                            = google_discovery_engine_search_engine.basic.location
+	collection_id                       = "default_collection"
+	engine_id                           = google_discovery_engine_search_engine.basic.engine_id
+	widget_config_id                    = "default_search_widget_config"
+	access_settings {
+    enable_web_app                    = true
+    workforce_identity_pool_provider  = "locations/global/workforcePools/workforce-pool-id/providers/workforce-pool-provider"
+    allow_public_access               = false
+    allowlisted_domains               = []
+    language_code                     = "en-US"
+  }
+  ui_settings {
+    interaction_type                  = "SEARCH_WITH_ANSWER"
+    enable_autocomplete               = true
+    enable_quality_feedback           = true
+    disable_user_events_collection    = false
+    enable_create_agent_button        = false
+    enable_people_search              = false
+    enable_safe_search                = false
+    enable_search_as_you_type         = false
+    enable_visual_content_summary     = false
+		default_search_request_order_by   = "relevanceScore"
+		result_description_type           = "SNIPPET"
+		generative_answer_config {
+      disable_related_questions       = false
+      ignore_adversarial_query        = false
+      ignore_low_relevant_content     = false
+      ignore_non_answer_seeking_query = false
+      language_code                   = "en-US"
+      max_rephrase_steps              = 1
+      result_count                    = 5
+      model_version                   = "stable"
+      model_prompt_preamble           = "You are a helpful assistant."
+      image_source                    = "ALL_AVAILABLE_SOURCES"
+    }
+    data_store_ui_configs {
+      name                       = "projects/${data.google_project.project.number}/locations/${google_discovery_engine_data_store.basic.location}/collections/default_collection/dataStores/${google_discovery_engine_data_store.basic.data_store_id}"
+      facet_field {
+        field                    = "name"
+        display_name             = "Name"
+      }
+      fields_ui_components_map {
+        ui_component          = "title"
+        device_visibility     = ["DESKTOP"]
+        field                 = "name"
+        display_template      = "Name: {name}"
+      }
+    }
+    search_addon_spec {
+      semantic_add_on_disabled            = false
+      kpi_personalization_add_on_disabled = false
+      generative_answer_add_on_disabled   = false
     }
   }
   ui_branding {
