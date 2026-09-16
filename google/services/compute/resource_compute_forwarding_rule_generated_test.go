@@ -184,7 +184,7 @@ resource "google_compute_region_backend_service" "backend" {
   health_checks         = [google_compute_health_check.hc.id]
 }
 resource "google_compute_health_check" "hc" {
-  name               = "check-%{backend_name}"
+  name               = "%{backend_name}-check"
   check_interval_sec = 1
   timeout_sec        = 1
   tcp_health_check {
@@ -311,7 +311,7 @@ resource "google_compute_region_backend_service" "backend" {
 }
 
 resource "google_compute_health_check" "hc" {
-  name               = "check-%{backend_name}"
+  name               = "%{backend_name}-check"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -741,7 +741,7 @@ resource "google_compute_region_backend_service" "backend" {
 }
 
 resource "google_compute_health_check" "hc" {
-  name               = "check-%{backend_name}"
+  name               = "%{backend_name}-check"
   check_interval_sec = 1
   timeout_sec        = 1
 

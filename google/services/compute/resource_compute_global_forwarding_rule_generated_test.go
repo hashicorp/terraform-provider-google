@@ -105,7 +105,7 @@ resource "google_compute_target_http_proxy" "default" {
 }
 
 resource "google_compute_url_map" "default" {
-  name            = "url-map-%{http_proxy_name}"
+  name            = "%{http_proxy_name}-url-map"
   description     = "a description"
   default_service = google_compute_backend_service.default.id
 
@@ -135,7 +135,7 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  name               = "check-%{backend_service_name}"
+  name               = "%{backend_service_name}-check"
   check_interval_sec = 1
   timeout_sec        = 1
   http_health_check {
@@ -199,7 +199,7 @@ resource "google_compute_target_http_proxy" "default" {
 }
 
 resource "google_compute_url_map" "default" {
-  name            = "url-map-%{http_proxy_name}"
+  name            = "%{http_proxy_name}-url-map"
   description     = "a description"
   default_service = google_compute_backend_service.default.id
 
@@ -370,7 +370,7 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_compute_url_map" "default" {
-  name            = "url-map-%{http_proxy_name}"
+  name            = "%{http_proxy_name}-url-map"
   description     = "a description"
   default_service = google_compute_backend_service.default.id
 
