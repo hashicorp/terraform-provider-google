@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_network_services_agent_connectivity_template`
+```
+
+```release-note:enhancement
+networkservices: added `agent_connectivity_template` field to `google_network_services_agent_gateway`
+```

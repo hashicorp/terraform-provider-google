@@ -7,6 +7,7 @@ api_service_name: networkservices.googleapis.com
 api_version: v1
 api_resource_type_kind: AgentGateway
 fields:
+    - api_field: agentConnectivityTemplate
     - api_field: agentGatewayCard.mtlsEndpoint
     - api_field: agentGatewayCard.rootCertificates
     - api_field: agentGatewayCard.serviceExtensionsServiceAccount
