@@ -62,7 +62,7 @@ func TestAccVertexAITensorboard_vertexAiTensorboardExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"display_name":  "terraform" + randomSuffix,
+		"display_name":  "tf-test-terraform" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -110,7 +110,7 @@ func TestAccVertexAITensorboard_vertexAiTensorboardFullExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"display_name":  "terraform" + randomSuffix,
+		"display_name":  "tf-test-terraform" + randomSuffix,
 		"kms_key_name":  kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix": randomSuffix,
 	}

@@ -46,7 +46,7 @@ func TestAccDataSourceVertexAIReasoningEngineQuery_basic(t *testing.T) {
 func testAccDataSourceVertexAIReasoningEngineQuery_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_reasoning_engine" "default" {
-  display_name = "vertex-mds-%{random_suffix}"
+  display_name = "tf-test-vertex-mds-%{random_suffix}"
   description  = "Retrieves tenant project number"
   region       = "us-central1"
 

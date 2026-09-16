@@ -64,15 +64,16 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"address_name":       compute.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", compute.AddressWithPrefixLength(8)),
-		"bucket_name":        "tf-test-bucket-name" + randomSuffix,
-		"deployed_index_id":  "tf_test_deployed_index_id" + randomSuffix,
-		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
-		"display_name_index": "tf-test-test-index" + randomSuffix,
-		"endpoint_name":      "tf-test-endpoint-name" + randomSuffix,
-		"network_name":       servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
-		"service_account_id": "tf-test-vertex-sa" + randomSuffix,
-		"random_suffix":      randomSuffix,
+		"address_name":                compute.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", compute.AddressWithPrefixLength(8)),
+		"bucket_name":                 "tf-test-bucket-name" + randomSuffix,
+		"deployed_index_id":           "tf_test_deployed_index_id" + randomSuffix,
+		"display_name":                "tf-test-vertex-deployed-index" + randomSuffix,
+		"display_name_index":          "tf-test-test-index" + randomSuffix,
+		"endpoint_name":               "tf-test-endpoint-name" + randomSuffix,
+		"index_endpoint_display_name": "tf-test-sample-endpoint" + randomSuffix,
+		"network_name":                servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"service_account_id":          "tf-test-vertex-sa" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -143,7 +144,7 @@ resource "google_vertex_ai_index" "index" {
 }
 
 resource "google_vertex_ai_index_endpoint" "vertex_index_endpoint_deployed" {
-  display_name = "sample-endpoint"
+  display_name = "%{index_endpoint_display_name}"
   description  = "A sample vertex endpoint"
   region       = "us-central1"
   network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
@@ -187,15 +188,16 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"address_name":       compute.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", compute.AddressWithPrefixLength(8)),
-		"bucket_name":        "tf-test-bucket-name" + randomSuffix,
-		"deployed_index_id":  "tf_test_deployed_index_id" + randomSuffix,
-		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
-		"display_name_index": "tf-test-test-index" + randomSuffix,
-		"endpoint_name":      "tf-test-endpoint-name" + randomSuffix,
-		"network_name":       servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
-		"service_account_id": "tf-test-vertex-sa" + randomSuffix,
-		"random_suffix":      randomSuffix,
+		"address_name":                compute.BootstrapSharedTestGlobalAddress(t, "vpc-network-1", compute.AddressWithPrefixLength(8)),
+		"bucket_name":                 "tf-test-bucket-name" + randomSuffix,
+		"deployed_index_id":           "tf_test_deployed_index_id" + randomSuffix,
+		"display_name":                "tf-test-vertex-deployed-index" + randomSuffix,
+		"display_name_index":          "tf-test-test-index" + randomSuffix,
+		"endpoint_name":               "tf-test-endpoint-name" + randomSuffix,
+		"index_endpoint_display_name": "tf-test-sample-endpoint" + randomSuffix,
+		"network_name":                servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"service_account_id":          "tf-test-vertex-sa" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -274,7 +276,7 @@ resource "google_vertex_ai_index" "index" {
 }
 
 resource "google_vertex_ai_index_endpoint" "vertex_index_endpoint_deployed" {
-  display_name = "sample-endpoint"
+  display_name = "%{index_endpoint_display_name}"
   description  = "A sample vertex endpoint"
   region       = "us-central1"
   network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
@@ -314,11 +316,12 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"bucket_name":        "tf-test-bucket-name" + randomSuffix,
-		"deployed_index_id":  "tf_test_deployed_index_id" + randomSuffix,
-		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
-		"display_name_index": "tf-test-test-index" + randomSuffix,
-		"random_suffix":      randomSuffix,
+		"bucket_name":                 "tf-test-bucket-name" + randomSuffix,
+		"deployed_index_id":           "tf_test_deployed_index_id" + randomSuffix,
+		"display_name":                "tf-test-vertex-deployed-index" + randomSuffix,
+		"display_name_index":          "tf-test-test-index" + randomSuffix,
+		"index_endpoint_display_name": "tf-test-sample-endpoint" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -389,7 +392,7 @@ resource "google_vertex_ai_index" "index" {
 
 
 resource "google_vertex_ai_index_endpoint" "vertex_endpoint" {
-  display_name            = "sample-endpoint"
+  display_name            = "%{index_endpoint_display_name}"
   description             = "A sample vertex endpoint"
   region                  = "us-central1"
   public_endpoint_enabled = true
@@ -425,11 +428,12 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"bucket_name":        "tf-test-bucket-name" + randomSuffix,
-		"deployed_index_id":  "tf_test_deployed_index_id" + randomSuffix,
-		"display_name":       "tf-test-vertex-deployed-index" + randomSuffix,
-		"display_name_index": "tf-test-test-index" + randomSuffix,
-		"random_suffix":      randomSuffix,
+		"bucket_name":                 "tf-test-bucket-name" + randomSuffix,
+		"deployed_index_id":           "tf_test_deployed_index_id" + randomSuffix,
+		"display_name":                "tf-test-vertex-deployed-index" + randomSuffix,
+		"display_name_index":          "tf-test-test-index" + randomSuffix,
+		"index_endpoint_display_name": "tf-test-sample-endpoint" + randomSuffix,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -496,7 +500,7 @@ resource "google_vertex_ai_index" "index" {
 }
 
 resource "google_vertex_ai_index_endpoint" "vertex_endpoint" {
-  display_name            = "sample-endpoint"
+  display_name            = "%{index_endpoint_display_name}"
   description             = "A sample vertex endpoint"
   region                  = "us-central1"
   public_endpoint_enabled = true

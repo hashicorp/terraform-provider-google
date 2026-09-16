@@ -35,7 +35,7 @@ To get more information about Featurestore, see:
 
 ```hcl
 resource "google_vertex_ai_featurestore" "featurestore" {
-  name     = "terraform"
+  name     = "terraform_featurestore"
   labels = {
     foo = "bar"
   }
@@ -55,7 +55,7 @@ resource "google_vertex_ai_featurestore" "featurestore" {
 ```hcl
 resource "google_vertex_ai_featurestore" "featurestore" {
   provider = google-beta
-  name     = "terraform2"
+  name     = "terraform_featurestore_2"
   labels = {
     foo = "bar"
   }
@@ -75,7 +75,7 @@ resource "google_vertex_ai_featurestore" "featurestore" {
 
 ```hcl
 resource "google_vertex_ai_featurestore" "featurestore" {
-  name     = "terraform3"
+  name     = "terraform_featurestore_3"
   labels = {
     foo = "bar"
   }

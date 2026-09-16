@@ -436,8 +436,8 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineFullExample(t *testin
 		"bucket_name":        "tf-test-reasoning-engine" + randomSuffix,
 		"kms_key_name":       kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-re-key1").CryptoKey.Name,
 		"name":               "tf-test-reasoning-engine" + randomSuffix,
-		"secret_name":        "secret" + randomSuffix,
-		"service_account_id": "sa" + randomSuffix,
+		"secret_name":        "tf-test-secret" + randomSuffix,
+		"service_account_id": "tf-test-sa" + randomSuffix,
 		"random_suffix":      randomSuffix,
 	}
 

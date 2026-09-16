@@ -61,7 +61,7 @@ func TestAccVertexAIFeaturestoreEntitytypeFeature_vertexAiFeaturestoreEntitytype
 
 	context := map[string]interface{}{
 		"kms_key_name":  "tf-test-kms-name" + randomSuffix,
-		"name":          "terraform" + randomSuffix,
+		"name":          "tf_test_terraform_feature" + randomSuffix,
 		"project":       "tf-test-vertex-ai" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
