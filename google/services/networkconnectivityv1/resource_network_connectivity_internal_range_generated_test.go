@@ -232,6 +232,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 	context := map[string]interface{}{
 		"internal_range_name": "tf-test-overlap-range" + randomSuffix,
 		"network_name":        "tf-test-internal-ranges" + randomSuffix,
+		"subnetwork_name":     "tf-test-overlapping-subnet" + randomSuffix,
 		"random_suffix":       randomSuffix,
 	}
 
@@ -284,7 +285,7 @@ resource "google_compute_network" "default" {
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "overlapping-subnet"
+  name          = "%{subnetwork_name}"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.default.id
