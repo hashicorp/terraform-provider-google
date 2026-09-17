@@ -600,6 +600,10 @@ When the field is set to false, deleting the job is allowed.
   (Optional)
   Specifies the desired number of tasks the execution should run. Setting to 1 means that parallelism is limited to 1 and the success of that task signals the success of the execution. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
 
+* `delay_execution` -
+  (Optional)
+  If true, the system will start the execution within the next 12 hours depending on available capacity.
+
 * `template` -
   (Required)
   Describes the task(s) that will be created when executing an execution
