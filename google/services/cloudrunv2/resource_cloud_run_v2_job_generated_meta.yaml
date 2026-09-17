@@ -50,6 +50,7 @@ fields:
     - api_field: startExecutionToken
     - api_field: tags
     - api_field: template.annotations
+    - api_field: template.delayExecution
     - api_field: template.labels
     - api_field: template.parallelism
     - api_field: template.taskCount
