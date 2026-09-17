@@ -290,6 +290,8 @@ resource "google_secret_manager_regional_secret" "regional-secret-with-ttl" {
   }
 
   ttl = "36000s"
+
+  secret_type = "ACCESS_KEY"
 }
 `, context)
 }

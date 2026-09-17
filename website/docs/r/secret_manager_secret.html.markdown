@@ -86,6 +86,8 @@ resource "google_secret_manager_secret" "secret-with-annotations" {
   replication {
     auto {}
   }
+
+  secret_type = "ACCESS_KEY"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -230,6 +232,11 @@ The following arguments are supported:
   A map of resource manager tags.
   Resource manager tag keys and values have the same definition as resource manager tags.
   Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/{tag_value_id}.
+
+* `secret_type` -
+  (Optional)
+  This defines the type of the secret. Enforces certain structural requirements on the SecretVersions.
+  For secret of type UNSPECIFIED, the SecretVersions can be of any type.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

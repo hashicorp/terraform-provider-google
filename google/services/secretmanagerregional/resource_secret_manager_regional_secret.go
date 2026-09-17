@@ -252,6 +252,13 @@ automatically sends rotation notifications.`,
 				},
 				RequiredWith: []string{"topics"},
 			},
+			"secret_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `This defines the type of the secret. Enforces certain structural requirements on the SecretVersions.
+For secret of type UNSPECIFIED, the SecretVersions can be of any type.`,
+			},
 			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -423,6 +430,12 @@ func resourceSecretManagerRegionalRegionalSecretCreate(d *schema.ResourceData, m
 		return err
 	} else if v, ok := d.GetOkExists("tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(tagsProp)) && (ok || !reflect.DeepEqual(v, tagsProp)) {
 		obj["tags"] = tagsProp
+	}
+	secretTypeProp, err := expandSecretManagerRegionalRegionalSecretSecretType(d.Get("secret_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("secret_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(secretTypeProp)) && (ok || !reflect.DeepEqual(v, secretTypeProp)) {
+		obj["secretType"] = secretTypeProp
 	}
 	effectiveLabelsProp, err := expandSecretManagerRegionalRegionalSecretEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -982,6 +995,10 @@ func flattenSecretManagerRegionalRegionalSecretVersionDestroyTtl(v interface{}, 
 	return v
 }
 
+func flattenSecretManagerRegionalRegionalSecretSecretType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenSecretManagerRegionalRegionalSecretTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1131,6 +1148,10 @@ func expandSecretManagerRegionalRegionalSecretTags(v interface{}, d tpgresource.
 	return m, nil
 }
 
+func expandSecretManagerRegionalRegionalSecretSecretType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandSecretManagerRegionalRegionalSecretEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1184,6 +1205,9 @@ func ResourceSecretManagerRegionalRegionalSecretFlatten(d *schema.ResourceData, 
 		return fmt.Errorf("Error reading RegionalSecret: %s", err)
 	}
 	if err = d.Set("version_destroy_ttl", flattenSecretManagerRegionalRegionalSecretVersionDestroyTtl(res["versionDestroyTtl"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionalSecret: %s", err)
+	}
+	if err = d.Set("secret_type", flattenSecretManagerRegionalRegionalSecretSecretType(res["secretType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionalSecret: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenSecretManagerRegionalRegionalSecretTerraformLabels(res["labels"], d, config)); err != nil {
