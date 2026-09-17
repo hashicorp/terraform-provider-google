@@ -1078,6 +1078,11 @@ When the field is set to false, deleting the service is allowed.
   Configuration for sandboxes.
   Structure is [documented below](#nested_template_sandboxes).
 
+* `workload_identity_config` -
+  (Optional)
+  Workload identity settings for this Revision.
+  Structure is [documented below](#nested_template_workload_identity_config).
+
 
 <a name="nested_template_scaling"></a>The `scaling` block supports:
 
@@ -1724,6 +1729,21 @@ When the field is set to false, deleting the service is allowed.
 * `sub_path` -
   (Optional)
   Path within the volume from which the container's volume should be mounted.
+
+<a name="nested_template_workload_identity_config"></a>The `workload_identity_config` block supports:
+
+* `identity` -
+  (Optional)
+  The Revision's SPIFFE workload identity. Enables provisioning of SPIFFE workload certificates.
+
+* `identity_certificate_enabled` -
+  (Optional)
+  Controls whether an instance receives a MWLID certificate.
+
+* `identity_type` -
+  (Optional)
+  The type of identity to use.
+  Possible values are: `IDENTITY_TYPE_SERVICE_ACCOUNT`, `IDENTITY_TYPE_WORKLOAD_IDENTITY`, `IDENTITY_TYPE_AGENT_IDENTITY`.
 
 <a name="nested_binary_authorization"></a>The `binary_authorization` block supports:
 

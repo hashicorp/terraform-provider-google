@@ -162,6 +162,9 @@ fields:
     - api_field: template.vpcAccess.networkInterfaces.network
     - api_field: template.vpcAccess.networkInterfaces.subnetwork
     - api_field: template.vpcAccess.networkInterfaces.tags
+    - api_field: template.workloadIdentityConfig.identity
+    - api_field: template.workloadIdentityConfig.identityCertificateEnabled
+    - api_field: template.workloadIdentityConfig.identityType
     - api_field: terminalCondition.executionReason
     - api_field: terminalCondition.lastTransitionTime
     - api_field: terminalCondition.message
