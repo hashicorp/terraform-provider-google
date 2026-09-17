@@ -66,6 +66,7 @@ fields:
     - api_field: template.template.containers.ports.containerPort
     - api_field: template.template.containers.ports.name
     - api_field: template.template.containers.resources.limits
+    - api_field: template.template.containers.sandboxLauncher
     - api_field: template.template.containers.startupProbe.failureThreshold
     - api_field: template.template.containers.startupProbe.grpc.port
     - api_field: template.template.containers.startupProbe.grpc.service
