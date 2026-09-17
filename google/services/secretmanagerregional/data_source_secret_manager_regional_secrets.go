@@ -176,6 +176,7 @@ func flattenSecretManagerRegionalRegionalSecretsSecrets(v interface{}, d *schema
 			"topics":                      flattenSecretManagerRegionalRegionalSecretTopics(original["topics"], d, config),
 			"version_destroy_ttl":         flattenSecretManagerRegionalRegionalSecretVersionDestroyTtl(original["versionDestroyTtl"], d, config),
 			"customer_managed_encryption": flattenSecretManagerRegionalRegionalSecretCustomerManagedEncryption(original["customerManagedEncryption"], d, config),
+			"secret_type":                 flattenSecretManagerRegionalRegionalSecretSecretType(original["secretType"], d, config),
 			"create_time":                 flattenSecretManagerRegionalRegionalSecretCreateTime(original["createTime"], d, config),
 			"name":                        flattenSecretManagerRegionalRegionalSecretName(original["name"], d, config),
 			"project":                     getDataFromName(original["name"], 1),
