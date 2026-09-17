@@ -25,6 +25,7 @@ fields:
     - api_field: messages.chunks.agentTransfer.targetAgent
     - api_field: messages.chunks.blob.data
     - api_field: messages.chunks.blob.mimeType
+    - api_field: messages.chunks.image.altText
     - api_field: messages.chunks.image.data
     - api_field: messages.chunks.image.mimeType
     - api_field: messages.chunks.text

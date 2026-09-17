@@ -202,6 +202,7 @@ resource "google_ces_example" "my-example" {
             image {
                 mime_type = "image/png"
                 data = base64encode("This is some fake image binary data.")
+                alt_text = "alt text"
             }
         }
         chunks {

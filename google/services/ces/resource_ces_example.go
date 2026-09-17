@@ -257,6 +257,11 @@ Supported image types includes:
 * image/jpeg
 * image/webp`,
 												},
+												"alt_text": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The alternative text for the image.`,
+												},
 											},
 										},
 									},
@@ -1008,12 +1013,18 @@ func flattenCESExampleMessagesChunksImage(v interface{}, d *schema.ResourceData,
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["alt_text"] =
+		flattenCESExampleMessagesChunksImageAltText(original["altText"], d, config)
 	transformed["data"] =
 		flattenCESExampleMessagesChunksImageData(original["data"], d, config)
 	transformed["mime_type"] =
 		flattenCESExampleMessagesChunksImageMimeType(original["mimeType"], d, config)
 	return []interface{}{transformed}
 }
+func flattenCESExampleMessagesChunksImageAltText(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCESExampleMessagesChunksImageData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1390,6 +1401,13 @@ func expandCESExampleMessagesChunksImage(v interface{}, d tpgresource.TerraformR
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedAltText, err := expandCESExampleMessagesChunksImageAltText(original["alt_text"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAltText); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["altText"] = transformedAltText
+	}
+
 	transformedData, err := expandCESExampleMessagesChunksImageData(original["data"], d, config)
 	if err != nil {
 		return nil, err
@@ -1405,6 +1423,10 @@ func expandCESExampleMessagesChunksImage(v interface{}, d tpgresource.TerraformR
 	}
 
 	return transformed, nil
+}
+
+func expandCESExampleMessagesChunksImageAltText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandCESExampleMessagesChunksImageData(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
