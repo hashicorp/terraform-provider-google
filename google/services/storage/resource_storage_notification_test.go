@@ -43,7 +43,7 @@ func TestAccStorageNotification_basic(t *testing.T) {
 
 	var notification storage.Notification
 	bucketName := acctest.TestBucketName(t)
-	topicName := fmt.Sprintf("tf-pstopic-test-%d", acctest.RandInt(t))
+	topicName := fmt.Sprintf("tf-test-pstopic-%d", acctest.RandInt(t))
 	topic := fmt.Sprintf("projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -87,7 +87,7 @@ func TestAccStorageNotification_withEventsAndAttributes(t *testing.T) {
 
 	var notification storage.Notification
 	bucketName := acctest.TestBucketName(t)
-	topicName := fmt.Sprintf("tf-pstopic-test-%d", acctest.RandInt(t))
+	topicName := fmt.Sprintf("tf-test-pstopic-%d", acctest.RandInt(t))
 	topic := fmt.Sprintf("projects/%s/topics/%s", os.Getenv("GOOGLE_PROJECT"), topicName)
 	eventType1 := "OBJECT_FINALIZE"
 	eventType2 := "OBJECT_ARCHIVE"

@@ -30,7 +30,7 @@ import (
 func TestAccDataSourceGoogleStorageBuckets_basic(t *testing.T) {
 	t.Parallel()
 
-	static_prefix := "tf-bucket-test"
+	static_prefix := "tf-test-bucket"
 	random_suffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
@@ -115,7 +115,7 @@ data "google_storage_buckets" "all" {
 }
 
 data "google_storage_buckets" "one" {
-  prefix  = "tf-bucket-test-1"
+  prefix  = "tf-test-bucket-1"
   project = google_project.acceptance.project_id
 
   depends_on = [
@@ -124,7 +124,7 @@ data "google_storage_buckets" "one" {
 }
 
 data "google_storage_buckets" "two" {
-  prefix  = "tf-bucket-test-2"
+  prefix  = "tf-test-bucket-2"
   project = google_project.acceptance.project_id
 
   depends_on = [

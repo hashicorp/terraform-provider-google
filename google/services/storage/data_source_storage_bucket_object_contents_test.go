@@ -27,7 +27,7 @@ import (
 )
 
 func TestAccDataSourceStorageBucketObjectContents_Basic(t *testing.T) {
-	bucket := "tf-bucket-object-contents-" + acctest.RandString(t, 10)
+	bucket := "tf-test-bucket-object-contents-" + acctest.RandString(t, 10)
 
 	content1 := "hello world"
 	content2 := "goodbye world"
