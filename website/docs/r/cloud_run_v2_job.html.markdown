@@ -89,6 +89,31 @@ resource "google_cloud_run_v2_job" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_job_sandbox&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Job Sandbox
+
+
+```hcl
+resource "google_cloud_run_v2_job" "default" {
+  name                = "cloudrun-job"
+  location            = "us-central1"
+  deletion_protection = false
+  launch_stage        = "BETA"
+
+  template {
+    template {
+      containers {
+        image            = "us-docker.pkg.dev/cloudrun/container/job"
+        sandbox_launcher = true
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_job_sql&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -692,6 +717,10 @@ When the field is set to false, deleting the job is allowed.
   List of ports to expose from the container. Only a single port can be specified. The specified ports must be listening on all interfaces (0.0.0.0) within the container to be accessible.
   If omitted, a port number will be chosen and passed to the container through the PORT environment variable for the container to listen on
   Structure is [documented below](#nested_template_template_containers_ports).
+
+* `sandbox_launcher` -
+  (Optional)
+  Indicates that this container can act as a sandbox supervisor and launch sandboxes.
 
 * `volume_mounts` -
   (Optional)
