@@ -30,7 +30,7 @@ func TestAccDataSourceGoogleStorageBucketObjects_basic(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	bucket := "tf-bucket-object-test-" + acctest.RandString(t, 10)
+	bucket := "tf-test-bucket-object-test-" + acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
 		"bucket":        bucket,

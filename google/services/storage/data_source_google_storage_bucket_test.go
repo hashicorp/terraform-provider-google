@@ -29,7 +29,7 @@ func TestAccDataSourceGoogleStorageBucket_basic(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"bucket_name": "tf-bucket-" + acctest.RandString(t, 10),
+		"bucket_name": "tf-test-bucket-" + acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -55,7 +55,7 @@ func TestAccDataSourceGoogleStorageBucket_avoidComputeAPI(t *testing.T) {
 	project := envvar.GetTestProjectFromEnv()
 
 	context := map[string]interface{}{
-		"bucket_name":          "tf-bucket-" + acctest.RandString(t, 10),
+		"bucket_name":          "tf-test-bucket-" + acctest.RandString(t, 10),
 		"real_project_id":      project,
 		"incorrect_project_id": "foobar",
 	}

@@ -29,7 +29,7 @@ import (
 func TestAccStorageHmacKey_update(t *testing.T) {
 	t.Parallel()
 
-	saName := fmt.Sprintf("%v%v", "service-account", acctest.RandString(t, 10))
+	saName := fmt.Sprintf("%v%v", "tf-test-sa-", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
