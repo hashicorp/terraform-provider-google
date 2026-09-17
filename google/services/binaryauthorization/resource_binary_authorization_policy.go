@@ -56,12 +56,8 @@ import (
 
 func DefaultBinaryAuthorizationPolicy(project string) map[string]interface{} {
 	return map[string]interface{}{
-		"name": fmt.Sprintf("projects/%s/policy", project),
-		"admissionWhitelistPatterns": []interface{}{
-			map[string]interface{}{
-				"namePattern": "gcr.io/google_containers/*",
-			},
-		},
+		"name":                       fmt.Sprintf("projects/%s/policy", project),
+		"globalPolicyEvaluationMode": "ENABLE",
 		"defaultAdmissionRule": map[string]interface{}{
 			"evaluationMode":  "ALWAYS_ALLOW",
 			"enforcementMode": "ENFORCED_BLOCK_AND_AUDIT_LOG",
