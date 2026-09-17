@@ -140,6 +140,7 @@ resource "google_ces_example" "my-example" {
             image {
                 mime_type = "image/png"
                 data = base64encode("This is some fake image binary data.")
+                alt_text = "alt text"
             }
         }
         chunks {
@@ -322,6 +323,10 @@ The following arguments are supported:
   The IANA standard MIME type of the source data.
 
 <a name="nested_messages_chunks_image"></a>The `image` block supports:
+
+* `alt_text` -
+  (Optional)
+  The alternative text for the image.
 
 * `data` -
   (Required)
