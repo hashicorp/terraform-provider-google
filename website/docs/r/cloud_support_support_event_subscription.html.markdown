@@ -37,7 +37,7 @@ resource "google_project_service" "cloudsupport" {
 
 resource "google_pubsub_topic" "support_topic" {
   project = "my-project-name"
-  name    = "test-topic-%{random_suffix}"
+  name    = "test-topic"
 }
 
 resource "google_pubsub_topic_iam_member" "support_publisher" {
@@ -69,7 +69,7 @@ resource "google_project_service" "cloudsupport" {
 
 resource "google_pubsub_topic" "support_topic_2" {
   project = "my-project-name"
-  name    = "test-topic-2-%{random_suffix}"
+  name    = "test-topic-2"
 }
 
 resource "google_pubsub_topic_iam_member" "support_publisher_2" {

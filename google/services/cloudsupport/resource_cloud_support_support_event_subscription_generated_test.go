@@ -65,6 +65,7 @@ func TestAccCloudSupportSupportEventSubscription_cloudSupportEventSubscriptionBa
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"project_id":      envvar.GetTestProjectFromEnv(),
 		"subscription_id": "tf-test-my-subscription" + randomSuffix,
+		"topic_name":      "tf-test-test-topic" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}
 
@@ -102,7 +103,7 @@ resource "google_project_service" "cloudsupport" {
 
 resource "google_pubsub_topic" "support_topic" {
   project = "%{project_id}"
-  name    = "test-topic-%{random_suffix}"
+  name    = "%{topic_name}"
 }
 
 resource "google_pubsub_topic_iam_member" "support_publisher" {
@@ -133,6 +134,7 @@ func TestAccCloudSupportSupportEventSubscription_cloudSupportEventSubscriptionUp
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"project_id":      envvar.GetTestProjectFromEnv(),
 		"subscription_id": "tf-test-my-subscription" + randomSuffix,
+		"topic_name":      "tf-test-test-topic-2" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}
 
@@ -170,7 +172,7 @@ resource "google_project_service" "cloudsupport" {
 
 resource "google_pubsub_topic" "support_topic_2" {
   project = "%{project_id}"
-  name    = "test-topic-2-%{random_suffix}"
+  name    = "%{topic_name}"
 }
 
 resource "google_pubsub_topic_iam_member" "support_publisher_2" {

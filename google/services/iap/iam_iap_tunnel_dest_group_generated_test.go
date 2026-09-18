@@ -48,6 +48,7 @@ func TestAccIapTunnelDestGroupIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"group_name":              "tf-test-testgroup" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -82,6 +83,7 @@ func TestAccIapTunnelDestGroupIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"group_name":              "tf-test-testgroup" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -112,6 +114,7 @@ func TestAccIapTunnelDestGroupIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"group_name":              "tf-test-testgroup" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -146,6 +149,7 @@ func TestAccIapTunnelDestGroupIamBindingGenerated_withCondition(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"group_name":              "tf-test-testgroup" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -178,6 +182,7 @@ func TestAccIapTunnelDestGroupIamBindingGenerated_withAndWithoutCondition(t *tes
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"group_name":              "tf-test-testgroup" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -208,6 +213,7 @@ func TestAccIapTunnelDestGroupIamMemberGenerated_withCondition(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"group_name":              "tf-test-testgroup" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -240,6 +246,7 @@ func TestAccIapTunnelDestGroupIamMemberGenerated_withAndWithoutCondition(t *test
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"group_name":              "tf-test-testgroup" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -270,6 +277,7 @@ func TestAccIapTunnelDestGroupIamPolicyGenerated_withCondition(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.tunnelResourceAccessor",
+		"group_name":              "tf-test-testgroup" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -306,7 +314,7 @@ func testAccIapTunnelDestGroupIamMember_basicGenerated(context map[string]interf
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
@@ -327,7 +335,7 @@ func testAccIapTunnelDestGroupIamPolicy_basicGenerated(context map[string]interf
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
@@ -363,7 +371,7 @@ func testAccIapTunnelDestGroupIamPolicy_emptyBinding(context map[string]interfac
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
@@ -386,7 +394,7 @@ func testAccIapTunnelDestGroupIamBinding_basicGenerated(context map[string]inter
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
@@ -407,7 +415,7 @@ func testAccIapTunnelDestGroupIamBinding_updateGenerated(context map[string]inte
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
@@ -428,7 +436,7 @@ func testAccIapTunnelDestGroupIamBinding_withConditionGenerated(context map[stri
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
@@ -454,7 +462,7 @@ func testAccIapTunnelDestGroupIamBinding_withAndWithoutConditionGenerated(contex
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
@@ -502,7 +510,7 @@ func testAccIapTunnelDestGroupIamMember_withConditionGenerated(context map[strin
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
@@ -528,7 +536,7 @@ func testAccIapTunnelDestGroupIamMember_withAndWithoutConditionGenerated(context
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
@@ -576,7 +584,7 @@ func testAccIapTunnelDestGroupIamPolicy_withConditionGenerated(context map[strin
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
