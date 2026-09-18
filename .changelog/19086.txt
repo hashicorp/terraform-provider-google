@@ -1,0 +1,3 @@
+```release-note:enhancement
+chronicle: added `parallel_instance` field to `google_chronicle_environment`
+```

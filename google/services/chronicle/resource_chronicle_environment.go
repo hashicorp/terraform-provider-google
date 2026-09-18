@@ -239,6 +239,16 @@ MAX_NAME_LENGTH = 256`,
 				Description: `URL of the environment. Used to route UI links to the correct SIEM instance
 when making cross-SecOps requests from SOAR.`,
 			},
+			"parallel_instance": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The optional parallel SIEM instance used as a data source. Used to route
+API requests to the correct SIEM instance when making cross-SecOps requests
+from SOAR. For most customers, this is not required, since the parent
+instance is used as the data source by default.
+Format:
+projects/{project}/locations/{location}/instances/{instance}`,
+			},
 			"weight": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -360,6 +370,12 @@ func resourceChronicleEnvironmentCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("instance_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(instanceUriProp)) && (ok || !reflect.DeepEqual(v, instanceUriProp)) {
 		obj["instanceUri"] = instanceUriProp
+	}
+	parallelInstanceProp, err := expandChronicleEnvironmentParallelInstance(d.Get("parallel_instance"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("parallel_instance"); !tpgresource.IsEmptyValue(reflect.ValueOf(parallelInstanceProp)) && (ok || !reflect.DeepEqual(v, parallelInstanceProp)) {
+		obj["instance"] = parallelInstanceProp
 	}
 	weightProp, err := expandChronicleEnvironmentWeight(d.Get("weight"), d, config)
 	if err != nil {
@@ -654,6 +670,12 @@ func resourceChronicleEnvironmentUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("instance_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceUriProp)) {
 		obj["instanceUri"] = instanceUriProp
 	}
+	parallelInstanceProp, err := expandChronicleEnvironmentParallelInstance(d.Get("parallel_instance"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("parallel_instance"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, parallelInstanceProp)) {
+		obj["instance"] = parallelInstanceProp
+	}
 	weightProp, err := expandChronicleEnvironmentWeight(d.Get("weight"), d, config)
 	if err != nil {
 		return err
@@ -704,6 +726,10 @@ func resourceChronicleEnvironmentUpdate(d *schema.ResourceData, meta interface{}
 
 	if d.HasChange("instance_uri") {
 		updateMask = append(updateMask, "instanceUri")
+	}
+
+	if d.HasChange("parallel_instance") {
+		updateMask = append(updateMask, "instance")
 	}
 
 	if d.HasChange("weight") {
@@ -944,6 +970,10 @@ func flattenChronicleEnvironmentInstanceUri(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenChronicleEnvironmentParallelInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenChronicleEnvironmentWeight(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -1057,6 +1087,10 @@ func expandChronicleEnvironmentInstanceUri(v interface{}, d tpgresource.Terrafor
 	return v, nil
 }
 
+func expandChronicleEnvironmentParallelInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandChronicleEnvironmentWeight(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1110,6 +1144,9 @@ func ResourceChronicleEnvironmentFlatten(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
 	if err = d.Set("instance_uri", flattenChronicleEnvironmentInstanceUri(res["instanceUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err = d.Set("parallel_instance", flattenChronicleEnvironmentParallelInstance(res["instance"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
 	if err = d.Set("weight", flattenChronicleEnvironmentWeight(res["weight"], d, config)); err != nil {

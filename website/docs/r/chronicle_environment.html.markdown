@@ -53,6 +53,7 @@ resource "google_chronicle_environment" "sample" {
     value = "value1"
   }
   instance_uri = "https://test.backstory.chronicle.security?foo=bar"
+  parallel_instance = "projects/my-project-name/locations/us/instances/00000000-0000-0000-0000-000000000001"
   weight = 1
 
   deletion_protection  = false
@@ -123,6 +124,15 @@ The following arguments are supported:
   (Optional)
   URL of the environment. Used to route UI links to the correct SIEM instance
   when making cross-SecOps requests from SOAR.
+
+* `parallel_instance` -
+  (Optional)
+  The optional parallel SIEM instance used as a data source. Used to route
+  API requests to the correct SIEM instance when making cross-SecOps requests
+  from SOAR. For most customers, this is not required, since the parent
+  instance is used as the data source by default.
+  Format:
+  projects/{project}/locations/{location}/instances/{instance}
 
 * `weight` -
   (Optional)
