@@ -62,11 +62,13 @@ func TestAccChronicleEnvironment_chronicleEnvironmentUpdateExample(t *testing.T)
 
 	context := map[string]interface{}{
 		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
 		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"project_name":  envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
 
@@ -135,6 +137,7 @@ resource "google_chronicle_environment" "sample" {
     value = "value1"
   }
   instance_uri = "https://test.backstory.chronicle.security?foo=bar"
+  parallel_instance = "projects/%{project_name}/locations/us/instances/00000000-0000-0000-0000-000000000001"
   weight = 1
 
   deletion_protection  = false
@@ -163,6 +166,7 @@ resource "google_chronicle_environment" "sample" {
     value = "value2"
   }
   instance_uri = "https://test.backstory.chronicle.security?foo=baz"
+  parallel_instance = "projects/%{project_name}/locations/us/instances/00000000-0000-0000-0000-000000000002"
   weight = 2
 
   deletion_protection  = false
