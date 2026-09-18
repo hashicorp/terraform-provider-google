@@ -1,0 +1,27 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_resource_manager_capability_config
+generation_type: mmv1
+source_file: products/resourcemanagerv3/CapabilityConfig.yaml
+api_service_name: cloudresourcemanager.googleapis.com
+api_version: v3
+api_resource_type_kind: CapabilityConfig
+api_variant_patterns:
+    - folders/{folder}/capabilityConfigs/{capabilityConfig}
+    - organizations/{organization}/capabilityConfigs/{capabilityConfig}
+    - projects/{project}/capabilityConfigs/{capabilityConfig}
+fields:
+    - field: capability_config_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: displayName
+    - api_field: etag
+    - api_field: managementProject
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: state
+    - api_field: types
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
