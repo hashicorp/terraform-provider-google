@@ -145,16 +145,25 @@ var invalidPeerAddrs = []struct {
 func getVpnTunnelLink(config *transport_tpg.Config, project, region, tunnel, userAgent string) (string, error) {
 	if !strings.Contains(tunnel, "/") {
 		// Tunnel value provided is just the name, lookup the tunnel SelfLink
-		tunnelData, err := DEPRECATED_LegacyApiaryClient(config, userAgent).VpnTunnels.Get(
-			project, region, tunnel).Do()
+		url := fmt.Sprintf("%sprojects/%s/regions/%s/vpnTunnels/%s", transport_tpg.BaseUrl(Product, config), project, region, tunnel)
+		tunnelData, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
 		if err != nil {
 			return "", fmt.Errorf("Error reading tunnel: %s", err)
 		}
-		tunnel = tunnelData.SelfLink
+		selfLink, ok := tunnelData["selfLink"].(string)
+		if !ok {
+			return "", fmt.Errorf("Error reading tunnel: selfLink not found in response")
+		}
+		tunnel = selfLink
 	}
 
 	return tunnel, nil
-
 }
 
 var (
