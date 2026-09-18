@@ -157,7 +157,7 @@ func testAccDataprocAutoscalingPolicyIamMember_basicGenerated(context map[string
 	return acctest.Nprintf(`
 resource "google_dataproc_autoscaling_policy" "basic" {
   policy_id = "%{name}"
-  location  = "us-central1"
+  location  = "us-east1"
 
   worker_config {
     max_instances = 3
@@ -187,7 +187,7 @@ func testAccDataprocAutoscalingPolicyIamPolicy_basicGenerated(context map[string
 	return acctest.Nprintf(`
 resource "google_dataproc_autoscaling_policy" "basic" {
   policy_id = "%{name}"
-  location  = "us-central1"
+  location  = "us-east1"
 
   worker_config {
     max_instances = 3
@@ -232,7 +232,7 @@ func testAccDataprocAutoscalingPolicyIamPolicy_emptyBinding(context map[string]i
 	return acctest.Nprintf(`
 resource "google_dataproc_autoscaling_policy" "basic" {
   policy_id = "%{name}"
-  location  = "us-central1"
+  location  = "us-east1"
 
   worker_config {
     max_instances = 3
@@ -264,7 +264,7 @@ func testAccDataprocAutoscalingPolicyIamBinding_basicGenerated(context map[strin
 	return acctest.Nprintf(`
 resource "google_dataproc_autoscaling_policy" "basic" {
   policy_id = "%{name}"
-  location  = "us-central1"
+  location  = "us-east1"
 
   worker_config {
     max_instances = 3
@@ -294,7 +294,7 @@ func testAccDataprocAutoscalingPolicyIamBinding_updateGenerated(context map[stri
 	return acctest.Nprintf(`
 resource "google_dataproc_autoscaling_policy" "basic" {
   policy_id = "%{name}"
-  location  = "us-central1"
+  location  = "us-east1"
 
   worker_config {
     max_instances = 3

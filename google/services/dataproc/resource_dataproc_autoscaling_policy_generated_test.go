@@ -92,7 +92,7 @@ func testAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyBasicExample(cont
 	return acctest.Nprintf(`
 resource "google_dataproc_autoscaling_policy" "basic" {
   policy_id = "%{name}"
-  location  = "us-central1"
+  location  = "us-east1"
 
   worker_config {
     max_instances = 3
@@ -148,18 +148,36 @@ func testAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(context m
 	return acctest.Nprintf(`
 resource "google_dataproc_cluster" "basic" {
   name     = "%{name}"
-  region   = "us-central1"
+  region   = "us-east1"
 
   cluster_config {
     autoscaling_config {
       policy_uri = google_dataproc_autoscaling_policy.asp.name
+    }
+
+    master_config {
+      num_instances = 1
+      machine_type  = "n4-standard-2"
+      disk_config {
+        boot_disk_type    = "hyperdisk-balanced"
+        boot_disk_size_gb = 35
+      }
+    }
+
+    worker_config {
+      num_instances = 2
+      machine_type  = "n4-standard-2"
+      disk_config {
+        boot_disk_type    = "hyperdisk-balanced"
+        boot_disk_size_gb = 35
+      }
     }
   }
 }
 
 resource "google_dataproc_autoscaling_policy" "asp" {
   policy_id = "%{name}"
-  location  = "us-central1"
+  location  = "us-east1"
 
   worker_config {
     max_instances = 3
