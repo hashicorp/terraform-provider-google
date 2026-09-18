@@ -43,6 +43,36 @@ fields:
     - api_field: modelSettings.model
     - api_field: modelSettings.temperature
     - api_field: name
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.description
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.name
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.description
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.examples
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.id
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.inputModes
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.name
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.outputModes
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.tags
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.supportedInterfaces.protocolBinding
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.supportedInterfaces.protocolVersion
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.supportedInterfaces.tenant
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.supportedInterfaces.url
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.version
+    - api_field: remoteA2aAgent.a2aConfig.agentRegistry
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.apiKeyConfig.apiKeySecretVersion
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.apiKeyConfig.keyName
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.apiKeyConfig.requestLocation
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.bearerTokenConfig.token
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.oauthConfig.clientId
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.oauthConfig.clientSecretVersion
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.oauthConfig.oauthGrantType
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.oauthConfig.scopes
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.oauthConfig.tokenEndpoint
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.serviceAccountAuthConfig.scopes
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.serviceAccountAuthConfig.serviceAccount
+    - api_field: remoteA2aAgent.a2aConfig.contextId
+    - api_field: remoteA2aAgent.a2aConfig.inputVariableMapping
+    - api_field: remoteA2aAgent.a2aConfig.outputVariableMapping
+    - api_field: remoteA2aAgent.a2aConfig.streamingEnabled
     - api_field: remoteDialogflowAgent.agent
     - api_field: remoteDialogflowAgent.environmentId
     - api_field: remoteDialogflowAgent.flowId

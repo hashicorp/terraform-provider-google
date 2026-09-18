@@ -561,3 +561,618 @@ resource "google_ces_agent" "ces_agent_remote_dialogflow_agent" {
 }
 `, context)
 }
+
+func TestAccCESAgent_cesAgentRemoteA2aAgentExample_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESAgentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESAgent_cesAgentRemoteA2aAgentExample_full(context),
+			},
+			{
+				ResourceName:            "google_ces_agent.ces_agent_remote_a2a_agent",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
+			},
+			{
+				Config: testAccCESAgent_cesAgentRemoteA2aAgentExample_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_agent.ces_agent_remote_a2a_agent", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_agent.ces_agent_remote_a2a_agent",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
+			},
+		},
+	})
+}
+
+func testAccCESAgent_cesAgentRemoteA2aAgentExample_full(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Agent example"
+  display_name = "tf-test-my-app%{random_suffix}"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_a2a_agent" {
+  agent_id = "tf-test-agent-id%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_agent.app_id
+  display_name = "tf-test-my-agent%{random_suffix}"
+
+  remote_a2a_agent {
+    a2a_config {
+      agent_card {
+        name = "test-card"
+        description = "Test A2A Agent Card"
+        version = "1.0.0"
+        supported_interfaces {
+          url = "https://example.com/a2a"
+          protocol_binding = "HTTP+JSON"
+          protocol_version = "1.0"
+        }
+        skills {
+          id = "test-skill"
+          name = "test-skill-name"
+          description = "test-skill-desc"
+          tags = ["test", "skill"]
+          examples = ["example 1"]
+          input_modes = ["text/plain"]
+          output_modes = ["text/plain"]
+        }
+      }
+      api_authentication {
+        bearer_token_config {
+          token = "$context.variables.token"
+        }
+      }
+      context_id = "$context.variables.session_id"
+      input_variable_mapping = {
+        "remote_in" = "local_in"
+      }
+      output_variable_mapping = {
+        "remote_out" = "local_out"
+      }
+      streaming_enabled = false
+    }
+  }
+}
+`, context)
+}
+
+func testAccCESAgent_cesAgentRemoteA2aAgentExample_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Agent example"
+  display_name = "tf-test-my-app%{random_suffix}"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_a2a_agent" {
+  agent_id = "tf-test-agent-id%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_agent.app_id
+  display_name = "tf-test-my-agent%{random_suffix}"
+
+  remote_a2a_agent {
+    a2a_config {
+      agent_card {
+        name = "test-card-updated"
+        description = "Test A2A Agent Card Updated"
+        version = "2.0.0"
+        supported_interfaces {
+          url = "https://example.com/a2a/v2"
+          protocol_binding = "GRPC"
+          protocol_version = "2.0"
+          tenant = "tenant-1"
+        }
+        skills {
+          id = "test-skill-2"
+          name = "test-skill-name-updated"
+          description = "test-skill-desc-updated"
+          tags = ["test-updated", "skill-updated"]
+          examples = ["example 2"]
+          input_modes = ["application/json"]
+          output_modes = ["application/json"]
+        }
+      }
+      api_authentication {
+        bearer_token_config {
+          token = "$context.variables.token_updated"
+        }
+      }
+      context_id = "$context.variables.session_id_updated"
+      input_variable_mapping = {
+        "remote_in_2" = "local_in_2"
+      }
+      output_variable_mapping = {
+        "remote_out_2" = "local_out_2"
+      }
+      streaming_enabled = true
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCESAgent_cesAgentRemoteA2aAgentServiceAccountAuthExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESAgentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESAgent_cesAgentRemoteA2aAgentServiceAccountAuth(context),
+			},
+			{
+				ResourceName:            "google_ces_agent.ces_agent_remote_a2a_agent_sa",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
+			},
+			{
+				Config: testAccCESAgent_cesAgentRemoteA2aAgentServiceAccountAuth_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_agent.ces_agent_remote_a2a_agent_sa", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_agent.ces_agent_remote_a2a_agent_sa",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
+			},
+		},
+	})
+}
+
+func testAccCESAgent_cesAgentRemoteA2aAgentServiceAccountAuth(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Agent example"
+  display_name = "tf-test-my-app%{random_suffix}"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_a2a_agent_sa" {
+  agent_id = "tf-test-agent-id%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_agent.app_id
+  display_name = "tf-test-my-agent%{random_suffix}"
+
+  remote_a2a_agent {
+    a2a_config {
+      agent_card {
+        name = "test-card-sa"
+        description = "Test A2A Agent Card SA"
+        version = "1.0.0"
+        supported_interfaces {
+          url = "https://example.com/a2a"
+          protocol_binding = "HTTP+JSON"
+          protocol_version = "1.0"
+        }
+        skills {
+          id = "test-skill"
+          name = "test-skill-name"
+          description = "test-skill-desc"
+          tags = ["test", "skill"]
+          examples = ["example 1"]
+          input_modes = ["text/plain"]
+          output_modes = ["text/plain"]
+        }
+      }
+      api_authentication {
+        service_account_auth_config {
+          service_account = "test-sa@example.com"
+          scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCESAgent_cesAgentRemoteA2aAgentServiceAccountAuth_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Agent example"
+  display_name = "tf-test-my-app%{random_suffix}"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_a2a_agent_sa" {
+  agent_id = "tf-test-agent-id%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_agent.app_id
+  display_name = "tf-test-my-agent%{random_suffix}"
+
+  remote_a2a_agent {
+    a2a_config {
+      agent_card {
+        name = "test-card-sa-updated"
+        description = "Test A2A Agent Card SA Updated"
+        version = "2.0.0"
+        supported_interfaces {
+          url = "https://example.com/a2a/v2"
+          protocol_binding = "GRPC"
+          protocol_version = "2.0"
+        }
+        skills {
+          id = "test-skill-updated"
+          name = "test-skill-name-updated"
+          description = "test-skill-desc-updated"
+          tags = ["test", "skill", "updated"]
+          examples = ["example 1 updated"]
+          input_modes = ["text/plain", "application/json"]
+          output_modes = ["text/plain", "application/json"]
+        }
+      }
+      api_authentication {
+        service_account_auth_config {
+          service_account = "test-sa-updated@example.com"
+          scopes = ["https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/userinfo.email"]
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCESAgent_cesAgentRemoteA2aAgentAgentRegistryExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESAgentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESAgent_cesAgentRemoteA2aAgentAgentRegistry(context),
+			},
+			{
+				ResourceName:            "google_ces_agent.ces_agent_remote_a2a_agent_reg",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
+			},
+			{
+				Config: testAccCESAgent_cesAgentRemoteA2aAgentAgentRegistry_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_agent.ces_agent_remote_a2a_agent_reg", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_agent.ces_agent_remote_a2a_agent_reg",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
+			},
+		},
+	})
+}
+
+func testAccCESAgent_cesAgentRemoteA2aAgentAgentRegistry(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Agent example"
+  display_name = "tf-test-my-app%{random_suffix}"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_a2a_agent_reg" {
+  agent_id = "tf-test-agent-id%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_agent.app_id
+  display_name = "tf-test-my-agent%{random_suffix}"
+
+  remote_a2a_agent {
+    a2a_config {
+      agent_registry = "projects/example/locations/us/agents/example-agent"
+      api_authentication {
+        api_key_config {
+          key_name = "X-Api-Key"
+          api_key_secret_version = "projects/example/secrets/my-secret/versions/1"
+          request_location = "HEADER"
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCESAgent_cesAgentRemoteA2aAgentAgentRegistry_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Agent example"
+  display_name = "tf-test-my-app%{random_suffix}"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_a2a_agent_reg" {
+  agent_id = "tf-test-agent-id%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_agent.app_id
+  display_name = "tf-test-my-agent%{random_suffix}"
+
+  remote_a2a_agent {
+    a2a_config {
+      agent_registry = "projects/example/locations/us/agents/example-agent-updated"
+      api_authentication {
+        api_key_config {
+          key_name = "X-Api-Key-Updated"
+          api_key_secret_version = "projects/example/secrets/my-secret/versions/2"
+          request_location = "QUERY_STRING"
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCESAgent_cesAgentRemoteA2aAgentOauthConfigExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESAgentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESAgent_cesAgentRemoteA2aAgentOauthConfig(context),
+			},
+			{
+				ResourceName:            "google_ces_agent.ces_agent_remote_a2a_agent_oauth",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
+			},
+			{
+				Config: testAccCESAgent_cesAgentRemoteA2aAgentOauthConfig_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_agent.ces_agent_remote_a2a_agent_oauth", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_agent.ces_agent_remote_a2a_agent_oauth",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
+			},
+		},
+	})
+}
+
+func testAccCESAgent_cesAgentRemoteA2aAgentOauthConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Agent example"
+  display_name = "tf-test-my-app%{random_suffix}"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_a2a_agent_oauth" {
+  agent_id = "tf-test-agent-id%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_agent.app_id
+  display_name = "tf-test-my-agent%{random_suffix}"
+
+  remote_a2a_agent {
+    a2a_config {
+      agent_card {
+        name = "test-card-oauth"
+        description = "Test A2A Agent Card OAuth"
+        version = "1.0.0"
+        supported_interfaces {
+          url = "https://example.com/a2a"
+          protocol_binding = "HTTP+JSON"
+          protocol_version = "1.0"
+        }
+        skills {
+          id = "test-skill"
+          name = "test-skill-name"
+          description = "test-skill-desc"
+          tags = ["test", "skill"]
+          examples = ["example 1"]
+          input_modes = ["text/plain"]
+          output_modes = ["text/plain"]
+        }
+      }
+      api_authentication {
+        oauth_config {
+          client_id = "test-client-id"
+          client_secret_version = "projects/example/secrets/my-secret/versions/1"
+          oauth_grant_type = "CLIENT_CREDENTIAL"
+          token_endpoint = "https://example.com/oauth/token"
+          scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCESAgent_cesAgentRemoteA2aAgentOauthConfig_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "tf-test-app-id%{random_suffix}"
+  location = "us"
+  description = "App used as parent for CES Agent example"
+  display_name = "tf-test-my-app%{random_suffix}"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_a2a_agent_oauth" {
+  agent_id = "tf-test-agent-id%{random_suffix}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_agent.app_id
+  display_name = "tf-test-my-agent%{random_suffix}"
+
+  remote_a2a_agent {
+    a2a_config {
+      agent_card {
+        name = "test-card-oauth-updated"
+        description = "Test A2A Agent Card OAuth Updated"
+        version = "2.0.0"
+        supported_interfaces {
+          url = "https://example.com/a2a/v2"
+          protocol_binding = "GRPC"
+          protocol_version = "2.0"
+        }
+        skills {
+          id = "test-skill-updated"
+          name = "test-skill-name-updated"
+          description = "test-skill-desc-updated"
+          tags = ["test", "skill", "updated"]
+          examples = ["example 1 updated"]
+          input_modes = ["text/plain", "application/json"]
+          output_modes = ["text/plain", "application/json"]
+        }
+      }
+      api_authentication {
+        oauth_config {
+          client_id = "test-client-id-updated"
+          client_secret_version = "projects/example/secrets/my-secret/versions/2"
+          oauth_grant_type = "CLIENT_CREDENTIAL"
+          token_endpoint = "https://example.com/oauth/token/v2"
+          scopes = ["https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/userinfo.email"]
+        }
+      }
+    }
+  }
+}
+`, context)
+}

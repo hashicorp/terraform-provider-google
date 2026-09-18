@@ -221,6 +221,77 @@ resource "google_ces_agent" "ces_agent_basic" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_agent_remote_a2a_agent&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Agent Remote A2a Agent
+
+
+```hcl
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "app-id"
+  location = "us"
+  description = "App used as parent for CES Agent example"
+  display_name = "my-app"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_a2a_agent" {
+  agent_id = "agent-id"
+  location = "us"
+  app      = google_ces_app.ces_app_for_agent.app_id
+  display_name = "my-agent"
+
+  remote_a2a_agent {
+    a2a_config {
+      agent_card {
+        name = "test-card"
+        description = "Test A2A Agent Card"
+        version = "1.0.0"
+        supported_interfaces {
+          url = "https://example.com/a2a"
+          protocol_binding = "HTTP+JSON"
+          protocol_version = "1.0"
+        }
+        skills {
+          id = "test-skill"
+          name = "test-skill-name"
+          description = "test-skill-desc"
+          tags = ["test", "skill"]
+          examples = ["example 1"]
+          input_modes = ["text/plain"]
+          output_modes = ["text/plain"]
+        }
+      }
+      api_authentication {
+        bearer_token_config {
+          token = "$context.variables.token"
+        }
+      }
+      context_id = "$context.variables.session_id"
+      input_variable_mapping = {
+        "remote_in" = "local_in"
+      }
+      output_variable_mapping = {
+        "remote_out" = "local_out"
+      }
+      streaming_enabled = false
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_agent_remote_dialogflow_agent&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -424,6 +495,12 @@ The following arguments are supported:
   Default agent type. The agent uses instructions and callbacks specified in
   the agent to perform the task using a large language model.
 
+* `remote_a2a_agent` -
+  (Optional)
+  The agent which will transfer execution to a remote
+  [A2A](https://github.com/a2aproject/A2A) agent.
+  Structure is [documented below](#nested_remote_a2a_agent).
+
 * `remote_dialogflow_agent` -
   (Optional)
   The agent which will transfer execution to an existing remote
@@ -569,6 +646,229 @@ The following arguments are supported:
   controls the randomness of the model's responses. Lower temperatures
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
+
+<a name="nested_remote_a2a_agent"></a>The `remote_a2a_agent` block supports:
+
+* `a2a_config` -
+  (Required)
+  The A2A connection configuration.
+  Structure is [documented below](#nested_remote_a2a_agent_a2a_config).
+
+
+<a name="nested_remote_a2a_agent_a2a_config"></a>The `a2a_config` block supports:
+
+* `agent_card` -
+  (Optional)
+  The full agent card defined inline.
+  Structure is [documented below](#nested_remote_a2a_agent_a2a_config_agent_card).
+
+* `agent_registry` -
+  (Optional)
+  Reference to the agent in the Agent Registry.
+  Format: `projects/{project}/locations/{location}/agents/{agent}`
+
+* `api_authentication` -
+  (Optional)
+  Authentication configuration for calling the remote agent.
+  Optional if the registry reference already handles authentication.
+  Structure is [documented below](#nested_remote_a2a_agent_a2a_config_api_authentication).
+
+* `context_id` -
+  (Optional)
+  If not empty, interactions with the remote A2A agent will use this context
+  ID. This context_id field can refer to a session variable like
+  `$context.variables.order_agent_session_id`.
+
+* `input_variable_mapping` -
+  (Optional)
+  Mapping of input variable names of remote agent to GECX variable names.
+
+* `output_variable_mapping` -
+  (Optional)
+  Mapping of output variable names of remote agent to GECX variable names.
+
+* `streaming_enabled` -
+  (Optional)
+  Whether streaming is enabled for the remote agent.
+
+
+<a name="nested_remote_a2a_agent_a2a_config_agent_card"></a>The `agent_card` block supports:
+
+* `description` -
+  (Required)
+  A description of the agent's domain of action/solution space.
+
+* `name` -
+  (Required)
+  A human-readable name for the agent.
+
+* `skills` -
+  (Required)
+  Skills represent a unit of ability an agent can perform. This may
+  somewhat abstract but represents a more focused set of actions that the
+  agent is highly likely to succeed at.
+  Structure is [documented below](#nested_remote_a2a_agent_a2a_config_agent_card_skills).
+
+* `supported_interfaces` -
+  (Required)
+  Ordered list of supported interfaces. The first entry is preferred.
+  Structure is [documented below](#nested_remote_a2a_agent_a2a_config_agent_card_supported_interfaces).
+
+* `version` -
+  (Required)
+  The version of the agent.
+
+
+<a name="nested_remote_a2a_agent_a2a_config_agent_card_skills"></a>The `skills` block supports:
+
+* `description` -
+  (Required)
+  A detailed description of the skill.
+
+* `examples` -
+  (Optional)
+  Example prompts or scenarios that this skill can handle.
+
+* `id` -
+  (Required)
+  A unique identifier for the agent's skill.
+
+* `input_modes` -
+  (Optional)
+  The set of supported input media types for this skill, overriding the
+  agent's defaults.
+
+* `name` -
+  (Required)
+  A human-readable name for the skill.
+
+* `output_modes` -
+  (Optional)
+  The set of supported output media types for this skill, overriding the
+  agent's defaults.
+
+* `tags` -
+  (Required)
+  A set of keywords describing the skill's capabilities.
+
+<a name="nested_remote_a2a_agent_a2a_config_agent_card_supported_interfaces"></a>The `supported_interfaces` block supports:
+
+* `protocol_binding` -
+  (Required)
+  The protocol binding supported at this URL. The core ones officially
+  supported are JSONRPC, GRPC and HTTP+JSON.
+
+* `protocol_version` -
+  (Required)
+  The version of the A2A protocol this interface exposes.
+  Examples: "0.3", "1.0"
+
+* `tenant` -
+  (Optional)
+  Tenant ID to be used in the request when calling the agent.
+
+* `url` -
+  (Required)
+  The URL where this interface is available. Must be a valid absolute HTTPS
+  URL in production.
+
+<a name="nested_remote_a2a_agent_a2a_config_api_authentication"></a>The `api_authentication` block supports:
+
+* `api_key_config` -
+  (Optional)
+  Configurations for authentication with API key.
+  Structure is [documented below](#nested_remote_a2a_agent_a2a_config_api_authentication_api_key_config).
+
+* `bearer_token_config` -
+  (Optional)
+  Configurations for authentication with a bearer token.
+  Structure is [documented below](#nested_remote_a2a_agent_a2a_config_api_authentication_bearer_token_config).
+
+* `oauth_config` -
+  (Optional)
+  Configurations for authentication with OAuth.
+  Structure is [documented below](#nested_remote_a2a_agent_a2a_config_api_authentication_oauth_config).
+
+* `service_account_auth_config` -
+  (Optional)
+  Configurations for authentication using a custom service account.
+  Structure is [documented below](#nested_remote_a2a_agent_a2a_config_api_authentication_service_account_auth_config).
+
+
+<a name="nested_remote_a2a_agent_a2a_config_api_authentication_api_key_config"></a>The `api_key_config` block supports:
+
+* `api_key_secret_version` -
+  (Required)
+  The name of the SecretManager secret version resource storing the API key.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
+  Note: You should grant `roles/secretmanager.secretAccessor` role to the CES
+  service agent
+  `service-@gcp-sa-ces.iam.gserviceaccount.com`.
+
+* `key_name` -
+  (Required)
+  The parameter name or the header name of the API key.
+  E.g., If the API request is "https://example.com/act?X-Api-Key=", "X-Api-Key" would be the parameter name.
+
+* `request_location` -
+  (Required)
+  Key location in the request.
+  Possible values:
+  HEADER
+  QUERY_STRING
+
+<a name="nested_remote_a2a_agent_a2a_config_api_authentication_bearer_token_config"></a>The `bearer_token_config` block supports:
+
+* `token` -
+  (Required)
+  The bearer token.
+  Must be in the format `$context.variables.<name_of_variable>`.
+
+<a name="nested_remote_a2a_agent_a2a_config_api_authentication_oauth_config"></a>The `oauth_config` block supports:
+
+* `client_id` -
+  (Required)
+  The client ID from the OAuth provider.
+
+* `client_secret_version` -
+  (Required)
+  The name of the SecretManager secret version resource storing the
+  client secret.
+  Format: `projects/{project}/secrets/{secret}/versions/{version}`
+  Note: You should grant `roles/secretmanager.secretAccessor` role to the CES
+  service agent
+  `service-@gcp-sa-ces.iam.gserviceaccount.com`.
+
+* `oauth_grant_type` -
+  (Required)
+  OAuth grant types.
+  Possible values:
+  CLIENT_CREDENTIAL
+
+* `scopes` -
+  (Optional)
+  The OAuth scopes to grant.
+
+* `token_endpoint` -
+  (Required)
+  The token endpoint in the OAuth provider to exchange for an access token.
+
+<a name="nested_remote_a2a_agent_a2a_config_api_authentication_service_account_auth_config"></a>The `service_account_auth_config` block supports:
+
+* `scopes` -
+  (Optional)
+  The OAuth scopes to grant. If not specified, the default scope
+  `https://www.googleapis.com/auth/cloud-platform` is used.
+
+* `service_account` -
+  (Required)
+  The email address of the service account used for authenticatation. CES
+  uses this service account to exchange an access token and the access token
+  is then sent in the `Authorization` header of the request.
+  The service account must have the
+  `roles/iam.serviceAccountTokenCreator` role granted to the
+  CES service agent
+  `service-@gcp-sa-ces.iam.gserviceaccount.com`.
 
 <a name="nested_remote_dialogflow_agent"></a>The `remote_dialogflow_agent` block supports:
 
