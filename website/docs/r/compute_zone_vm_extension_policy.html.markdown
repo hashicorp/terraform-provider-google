@@ -35,7 +35,7 @@ A Zone VM Extension Policy.
 
 ```hcl
 resource "google_compute_zone_vm_extension_policy" "ops_agent_policy" {
-  name        = "zonal-ops-agent-vme-policy-%{random_suffix}"
+  name        = "zonal-ops-agent-policy"
   zone        = "us-central1-a"
 
   extension_policies {

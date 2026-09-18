@@ -35,7 +35,7 @@ A Global VM Extension Policy.
 
 ```hcl
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  name        = "global-ops-agent-vme-policy-%{random_suffix}"
+  name        = "global-ops-agent-policy"
   description = "A basic global VM extension policy"
   priority    = 10
 
@@ -69,7 +69,7 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
 
 ```hcl
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  name        = "global-ops-agent-vme-policy-%{random_suffix}"
+  name        = "global-ops-agent-policy"
   description = "A basic global VM extension policy"
   priority    = 10
 
@@ -103,7 +103,7 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
 
 ```hcl
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  name        = "global-ops-agent-vme-policy-%{random_suffix}"
+  name        = "global-ops-agent-policy"
   description = "A global VM extension policy with a custom rollout plan"
   priority    = 10
 
@@ -131,7 +131,7 @@ data "google_project" "project" {
 }
 
 resource "google_compute_rollout_plan" "custom_rollout" {
-  name           = "custom-rollout-plan-%{random_suffix}"
+  name           = "custom-rollout-plan"
   location_scope = "ZONAL"
 
   waves {

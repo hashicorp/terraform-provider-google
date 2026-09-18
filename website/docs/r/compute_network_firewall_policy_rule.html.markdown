@@ -339,7 +339,7 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
 
 resource "google_compute_network_firewall_policy_association" "global_assoc" {
   provider          = google-beta
-  name              = "global-policy-assoc-%{random_suffix}"
+  name              = "global-policy-assoc"
   firewall_policy   = google_compute_network_firewall_policy.fw_policy.id
   attachment_target = google_compute_network.net.id
 }
