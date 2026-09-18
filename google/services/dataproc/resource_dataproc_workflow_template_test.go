@@ -101,7 +101,7 @@ func TestAccDataprocWorkflowTemplate_encryptionConfig(t *testing.T) {
 		"random_suffix": acctest.RandString(t, 10),
 		"project":       envvar.GetTestProjectFromEnv(),
 		"version":       "2.0.35-debian10",
-		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-workflow").CryptoKey.Name,
+		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-bootstrap-dataproc-workflow").CryptoKey.Name,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -125,37 +125,36 @@ func testAccDataprocWorkflowTemplate_basic(context map[string]interface{}) strin
 	return acctest.Nprintf(`
 resource "google_dataproc_workflow_template" "template" {
   name = "template%{random_suffix}"
-  location = "us-central1"
+  location = "us-east1"
   placement {
     managed_cluster {
       cluster_name = "my-cluster"
       config {
         gce_cluster_config {
-          zone = "us-central1-a"
+          zone = "us-east1-b"
           tags = ["foo", "bar"]
         }
         master_config {
           num_instances = 1
-          machine_type = "n1-standard-1"
+          machine_type = "n4-standard-2"
           disk_config {
-            boot_disk_type = "pd-ssd"
+            boot_disk_type = "hyperdisk-balanced"
             boot_disk_size_gb = 15
           }
         }
         worker_config {
           num_instances = 3
-          machine_type = "n1-standard-2"
+          machine_type = "n4-standard-2"
           disk_config {
-            boot_disk_type = "pd-standard"
+            boot_disk_type = "hyperdisk-balanced"
             boot_disk_size_gb = 10
-            num_local_ssds = 2
           }
         }
 
         secondary_worker_config {
           num_instances = 2
           disk_config {
-            boot_disk_type = "pd-standard"
+            boot_disk_type = "hyperdisk-balanced"
             boot_disk_size_gb = 15
           }
         }
@@ -191,13 +190,13 @@ func testAccDataprocWorkflowTemplate_withShieldedVMs(context map[string]interfac
 	return acctest.Nprintf(`
 resource "google_dataproc_workflow_template" "shielded_vms_template" {
   name = "template%{random_suffix}"
-  location = "us-central1"
+  location = "us-east1"
   placement {
     managed_cluster {
       cluster_name = "my-shielded-cluster"
       config {
         gce_cluster_config {
-          zone = "us-central1-a"
+          zone = "us-east1-b"
           tags = ["foo", "bar"]
           shielded_instance_config {
             enable_secure_boot = true
@@ -207,18 +206,18 @@ resource "google_dataproc_workflow_template" "shielded_vms_template" {
         }
         master_config {
           num_instances = 1
-          machine_type = "n1-standard-1"
+          machine_type = "n4-standard-2"
           disk_config {
-            boot_disk_type = "pd-ssd"
+            boot_disk_type = "hyperdisk-balanced"
             boot_disk_size_gb = 15
           }
         }
         worker_config {
           num_instances = 3
-          machine_type = "n1-standard-2"
+          machine_type = "n4-standard-2"
           disk_config {
+            boot_disk_type = "hyperdisk-balanced"
             boot_disk_size_gb = 10
-            num_local_ssds = 2
           }
         }
 
@@ -252,7 +251,7 @@ func testAccDataprocWorkflowTemplate_encryptionConfig(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_dataproc_workflow_template" "template" {
   name = "template%{random_suffix}"
-  location = "us-central1"
+  location = "us-east1"
   encryption_config {
     kms_key = "%{kms_key_name}"
   }
@@ -261,23 +260,23 @@ resource "google_dataproc_workflow_template" "template" {
       cluster_name = "my-cluster"
       config {
         gce_cluster_config {
-          zone = "us-central1-a"
+          zone = "us-east1-b"
           tags = ["foo", "bar"]
         }
         master_config {
           num_instances = 1
-          machine_type = "n1-standard-1"
+          machine_type = "n4-standard-2"
           disk_config {
-            boot_disk_type = "pd-ssd"
+            boot_disk_type = "hyperdisk-balanced"
             boot_disk_size_gb = 15
           }
         }
         worker_config {
           num_instances = 3
-          machine_type = "n1-standard-2"
+          machine_type = "n4-standard-2"
           disk_config {
+            boot_disk_type = "hyperdisk-balanced"
             boot_disk_size_gb = 10
-            num_local_ssds = 2
           }
         }
 
@@ -355,12 +354,10 @@ func TestAccDataprocWorkflowTemplate_instanceFlexibilityPolicy(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_BALANCED"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.provisioned_throughput", "140"),
-					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.machine_types.0", "n2-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.machine_types.0", "n4-standard-4"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.rank", "2"),
-					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.boot_disk_type", "pd-standard"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.boot_disk_type", "hyperdisk-balanced"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.boot_disk_size_gb", "35"),
-					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.num_local_ssds", "1"),
-					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.local_ssd_interface", "scsi"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "n4-standard-2"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.rank", "1"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_type", "hyperdisk-balanced"),
@@ -389,7 +386,7 @@ func testAccDataprocWorkflowTemplate_instanceFlexibilityPolicy(context map[strin
 	return acctest.Nprintf(`
 resource "google_dataproc_workflow_template" "template" {
   name          = "tf-test-workflow-%{random_suffix}"
-  location      = "us-central1"
+  location      = "us-east1"
   placement {
     managed_cluster {
       cluster_name = "tf-test-cluster-%{random_suffix}"
@@ -438,13 +435,11 @@ resource "google_dataproc_workflow_template" "template" {
               }
             }
             instance_selection_list {
-              machine_types = ["n2-standard-2"]
+              machine_types = ["n4-standard-4"]
               rank          = 2
               disk_config {
-                boot_disk_type       = "pd-standard"
-                boot_disk_size_gb    = 35
-                num_local_ssds       = 1
-                local_ssd_interface = "scsi"
+                boot_disk_type    = "hyperdisk-balanced"
+                boot_disk_size_gb = 35
               }
             }
           }
@@ -548,7 +543,7 @@ func testAccDataprocWorkflowTemplate_diskConfig(context map[string]interface{}) 
 	return acctest.Nprintf(`
 resource "google_dataproc_workflow_template" "template" {
   name          = "tf-test-workflow-%{random_suffix}"
-  location      = "us-central1"
+  location      = "us-east1"
   placement {
     managed_cluster {
       cluster_name = "tf-test-cluster-%{random_suffix}"
