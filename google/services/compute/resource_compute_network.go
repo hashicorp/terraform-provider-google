@@ -451,33 +451,92 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.Get("delete_default_routes_on_create").(bool) {
+		networkUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
+		if err != nil {
+			return err
+		}
+		network, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    networkUrl,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return fmt.Errorf("Error finding network in proj: %s", err)
+		}
+
+		selfLink, ok := network["selfLink"].(string)
+		if !ok {
+			return fmt.Errorf("Error finding network in proj: selfLink not found in response")
+		}
+
 		token := ""
 		for paginate := true; paginate; {
-			network, err := DEPRECATED_LegacyApiaryClient(config, userAgent).Networks.Get(project, d.Get("name").(string)).Do()
-			if err != nil {
-				return fmt.Errorf("Error finding network in proj: %s", err)
-			}
-			filter := fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", network.SelfLink)
+			filter := fmt.Sprintf("(network=\"%s\") AND (destRange=\"0.0.0.0/0\")", selfLink)
 			log.Printf("[DEBUG] Getting routes for network %q with filter '%q'", d.Get("name").(string), filter)
-			resp, err := DEPRECATED_LegacyApiaryClient(config, userAgent).Routes.List(project).Filter(filter).Do()
+
+			params := map[string]string{
+				"filter": filter,
+			}
+			if token != "" {
+				params["pageToken"] = token
+			}
+			routesUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes")
+			if err != nil {
+				return err
+			}
+			routesUrl, err = transport_tpg.AddQueryParams(routesUrl, params)
+			if err != nil {
+				return err
+			}
+			resp, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    routesUrl,
+				UserAgent: userAgent,
+			})
 			if err != nil {
 				return fmt.Errorf("Error listing routes in proj: %s", err)
 			}
 
-			log.Printf("[DEBUG] Found %d routes rules in %q network", len(resp.Items), d.Get("name").(string))
+			var items []interface{}
+			if rawItems, ok := resp["items"].([]interface{}); ok {
+				items = rawItems
+			}
+			log.Printf("[DEBUG] Found %d routes rules in %q network", len(items), d.Get("name").(string))
 
-			for _, route := range resp.Items {
-				op, err := DEPRECATED_LegacyApiaryClient(config, userAgent).Routes.Delete(project, route.Name).Do()
+			for _, raw := range items {
+				route, ok := raw.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				routeName, ok := route["name"].(string)
+				if !ok || routeName == "" {
+					continue
+				}
+				routeUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/"+routeName)
+				if err != nil {
+					return err
+				}
+				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "DELETE",
+					Project:   project,
+					RawURL:    routeUrl,
+					UserAgent: userAgent,
+				})
 				if err != nil {
 					return fmt.Errorf("Error deleting route: %s", err)
 				}
-				err = ComputeOperationWaitTime(config, op, project, "Deleting Route", userAgent, d.Timeout(schema.TimeoutCreate))
+				err = ComputeOperationWaitTime(config, res, project, "Deleting Route", userAgent, d.Timeout(schema.TimeoutCreate))
 				if err != nil {
 					return err
 				}
 			}
 
-			token = resp.NextPageToken
+			token, _ = resp["nextPageToken"].(string)
 			paginate = token != ""
 		}
 	}
