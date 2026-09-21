@@ -1,12 +1,12 @@
 ## 8.4.0 (Unreleased)
 
 NOTES:
-* custom:  Migrate route_instance.tmpl file to use direct HTTP rather than a client library ([#29430](https://github.com/hashicorp/terraform-provider-google/pull/29430))
+* compute: migrated `google_compute_route` to use direct HTTP rather than a client library ([#29430](https://github.com/hashicorp/terraform-provider-google/pull/29430))
 
 FEATURES:
 * **New Data Source:** `google_cloudbuild_worker_pool` ([#29385](https://github.com/hashicorp/terraform-provider-google/pull/29385))
-* **New Resource:** `google_gemini_gibq_observability_setting_binding` ([#29381](https://github.com/hashicorp/terraform-provider-google/pull/29381))
 * **New Resource:** `google_gemini_gibq_observability_setting` ([#29381](https://github.com/hashicorp/terraform-provider-google/pull/29381))
+* **New Resource:** `google_gemini_gibq_observability_setting_binding` ([#29381](https://github.com/hashicorp/terraform-provider-google/pull/29381))
 * **New Resource:** `google_network_services_agent_connectivity_template` ([#29392](https://github.com/hashicorp/terraform-provider-google/pull/29392))
 
 IMPROVEMENTS:
@@ -14,11 +14,10 @@ IMPROVEMENTS:
 * ces: added `blob` field to `google_ces_example` ([#29365](https://github.com/hashicorp/terraform-provider-google/pull/29365))
 * ces: added `mcp_tool.api_authentication.service_account_auth_config.scopes` and `open_api_tool.api_authentication.service_account_auth_config.scopes` fields to `google_ces_tool` ([#29378](https://github.com/hashicorp/terraform-provider-google/pull/29378))
 * ces: added `messages.chunks.image.alt_text` field to `google_ces_example` ([#29432](https://github.com/hashicorp/terraform-provider-google/pull/29432))
-* cloudrunv2: added `sandbox_launcher` field to the containers of `google_cloud_run_v2_job` resource ([#29433](https://github.com/hashicorp/terraform-provider-google/pull/29433))
 * cloudrunv2: added `template.delay_execution` field to `google_cloud_run_v2_job` ([#29431](https://github.com/hashicorp/terraform-provider-google/pull/29431))
+* cloudrunv2: added `template.template.containers.sandbox_launcher` field to `google_cloud_run_v2_job` ([#29433](https://github.com/hashicorp/terraform-provider-google/pull/29433))
 * cloudrunv2: added `template.workload_identity_config` field to `google_cloud_run_v2_service` ([#29429](https://github.com/hashicorp/terraform-provider-google/pull/29429))
 * container: added `skip_node_pool_refresh` field to `google_container_cluster` data source. When set to true, the data source skips reading node pools from the API, resolving long read times on clusters with a large number of node pools. Note that this results in `node_pool` being set to an empty list ([#29384](https://github.com/hashicorp/terraform-provider-google/pull/29384))
-* container: added `stack_type` to `network_config.additional_node_network_configs` in `google_container_node_pool` (beta) ([#29404](https://github.com/hashicorp/terraform-provider-google/pull/29404))
 * dataproc: added `boot_disk_provisioned_iops`, `boot_disk_provisioned_throughput`, `local_ssd_interface`, and `attached_disk_config` fields to `google_dataproc_workflow_template` ([#29396](https://github.com/hashicorp/terraform-provider-google/pull/29396))
 * dialogflow: added `summarization_context.few_shot_examples.output.tool_call_info` field to `google_dialogflow_generator` ([#29353](https://github.com/hashicorp/terraform-provider-google/pull/29353))
 * discoveryengine: added `tag` and `metadata` fields to `google_discovery_engine_data_connector` ([#29399](https://github.com/hashicorp/terraform-provider-google/pull/29399))
@@ -29,14 +28,10 @@ IMPROVEMENTS:
 * vertexai: added `vector_db_config` and `vertex_ai_search_config` fields to `google_vertex_ai_rag_corpus` ([#29379](https://github.com/hashicorp/terraform-provider-google/pull/29379))
 
 BUG FIXES:
-* binaryauthorization: fixed `google_binary_authorization_policy `  where "deleting" (i.e. setting back to default) the policy would keep a custom list of `admissionWhitelistPatterns` ([#29427](https://github.com/hashicorp/terraform-provider-google/pull/29427))
+* binaryauthorization: fixed `google_binary_authorization_policy` where deleting (resetting to default) the policy retained `admission_whitelist_patterns` ([#29427](https://github.com/hashicorp/terraform-provider-google/pull/29427))
 * cloudscheduler: fixed `google_cloud_scheduler_job` staying paused when the `paused` field is removed from configuration ([#29400](https://github.com/hashicorp/terraform-provider-google/pull/29400))
-* compute: fixes pre configured waf tests in `google_compute_region_security_policy_rule` ([#29305](https://github.com/hashicorp/terraform-provider-google/pull/29305))
-* compute: fixes pre configured waf tests in `google_compute_region_security_policy` ([#29305](https://github.com/hashicorp/terraform-provider-google/pull/29305))
-* compute: fixes pre configured waf tests in `google_compute_security_policy_rule` ([#29305](https://github.com/hashicorp/terraform-provider-google/pull/29305))
-* compute: fixes pre configured waf tests in `google_compute_security_policy` ([#29305](https://github.com/hashicorp/terraform-provider-google/pull/29305))
-* container: corrected the `host_maintenance_policy` field appearing in the GA provider. Any usage of the field would fail as handlers were correctly in the beta provider & the v1 API does not support the field (GA only) ([#29369](https://github.com/hashicorp/terraform-provider-google/pull/29369))
-* container: fixed explicit `STANDARD` performance monitoring unit settings being omitted when creating GKE resources ([#29363](https://github.com/hashicorp/terraform-provider-google/pull/29363))
+* container: fixed `google_container_cluster` and `google_container_node_pool` by removing the unsupported `node_config.host_maintenance_policy` field from the GA provider ([#29369](https://github.com/hashicorp/terraform-provider-google/pull/29369))
+* container: fixed explicit `STANDARD` `node_config.advanced_machine_features.performance_monitoring_unit` values being omitted when creating `google_container_cluster` and `google_container_node_pool` ([#29363](https://github.com/hashicorp/terraform-provider-google/pull/29363))
 * storage: fixed `google_storage_bucket` `force_destroy` failing when parallel object deletes return transient 404/410 `No such object` ([#29374](https://github.com/hashicorp/terraform-provider-google/pull/29374))
 
 ## 8.3.0 (September 15, 2026)
