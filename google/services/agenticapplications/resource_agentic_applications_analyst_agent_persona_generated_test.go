@@ -63,23 +63,27 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaBasicExamp
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"additional_context": "Initial additional context",
-		"customer_context":   "Sample customer context for testing",
-		"display_name":       "Test Analyst Persona",
-		"file_title":         "financial_summary.txt",
-		"persona_id":         "tf-test-basic" + randomSuffix,
-		"skill_description":  "Skill for finance analysis",
-		"random_suffix":      randomSuffix,
+		"additional_context":  "Initial additional context",
+		"customer_context":    "Sample customer context for testing",
+		"display_name":        "Test Analyst Persona",
+		"excluded_domain":     "example.com",
+		"file_title":          "financial_summary.txt",
+		"math_rendering_mode": "MATH_RENDERING_MODE_LATEX",
+		"persona_id":          "tf-test-basic" + randomSuffix,
+		"skill_description":   "Skill for finance analysis",
+		"random_suffix":       randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"additional_context": "Updated additional context",
-		"customer_context":   "Updated customer context for testing",
-		"display_name":       "Updated Test Analyst Persona",
-		"file_title":         "financial_summary_updated.txt",
-		"persona_id":         "tf-test-basic" + randomSuffix,
-		"skill_description":  "Updated skill description for finance analysis",
-		"random_suffix":      randomSuffix,
+		"additional_context":  "Updated additional context",
+		"customer_context":    "Updated customer context for testing",
+		"display_name":        "Updated Test Analyst Persona",
+		"excluded_domain":     "updated-example.com",
+		"file_title":          "financial_summary_updated.txt",
+		"math_rendering_mode": "MATH_RENDERING_MODE_PLAIN_TEXT",
+		"persona_id":          "tf-test-basic" + randomSuffix,
+		"skill_description":   "Updated skill description for finance analysis",
+		"random_suffix":       randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -154,6 +158,12 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     skill_id    = "finance_analysis_skill"
     description = "%{skill_description}"
     content     = "# Finance Analysis\nAnalyze financial data."
+  }
+
+  math_rendering_mode = "%{math_rendering_mode}"
+
+  web_search_config {
+    excluded_domains = ["%{excluded_domain}"]
   }
 }
 `, context)
@@ -417,6 +427,12 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
       data_type   = "STRING"
     }
   }
+
+  math_rendering_mode = "MATH_RENDERING_MODE_LATEX"
+
+  web_search_config {
+    excluded_domains = ["example.com"]
+  }
 }
 `, context)
 }
@@ -613,6 +629,12 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
       description = "First column description updated"
       data_type   = "STRING"
     }
+  }
+
+  math_rendering_mode = "MATH_RENDERING_MODE_PLAIN_TEXT"
+
+  web_search_config {
+    excluded_domains = ["updated-example.com"]
   }
 }
 `, context)

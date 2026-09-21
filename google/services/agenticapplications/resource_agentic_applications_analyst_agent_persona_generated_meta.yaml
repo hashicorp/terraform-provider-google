@@ -90,6 +90,7 @@ fields:
     - api_field: geminiEnterpriseEngine
     - field: location
       provider_only: true
+    - api_field: mathRenderingMode
     - api_field: mcpDataSources.apiKey
     - api_field: mcpDataSources.apiKeyName
     - api_field: mcpDataSources.clientId
@@ -128,5 +129,6 @@ fields:
     - api_field: tables.description
     - api_field: tables.name
     - api_field: updateTime
+    - api_field: webSearchConfig.excludedDomains
     - field: deletion_policy
       provider_only: true

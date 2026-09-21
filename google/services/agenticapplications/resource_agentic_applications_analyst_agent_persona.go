@@ -1052,6 +1052,14 @@ persona.
 If not set, requests from GE will only be routed to this persona if its
 name ends in "/default".`,
 			},
+			"math_rendering_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The math rendering mode selected for this persona.
+Possible values:
+MATH_RENDERING_MODE_LATEX
+MATH_RENDERING_MODE_PLAIN_TEXT`,
+			},
 			"mcp_data_sources": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1404,6 +1412,25 @@ RANGE are not supported.`,
 					},
 				},
 			},
+			"web_search_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration for web search grounding for the analyst agent.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"excluded_domains": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `List of domains to be excluded from Google Search / Enterprise Web Search
+grounding.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1494,6 +1521,12 @@ func resourceAgenticApplicationsAnalystAgentPersonaCreate(d *schema.ResourceData
 	} else if v, ok := d.GetOkExists("gemini_enterprise_engine"); !tpgresource.IsEmptyValue(reflect.ValueOf(geminiEnterpriseEngineProp)) && (ok || !reflect.DeepEqual(v, geminiEnterpriseEngineProp)) {
 		obj["geminiEnterpriseEngine"] = geminiEnterpriseEngineProp
 	}
+	mathRenderingModeProp, err := expandAgenticApplicationsAnalystAgentPersonaMathRenderingMode(d.Get("math_rendering_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("math_rendering_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(mathRenderingModeProp)) && (ok || !reflect.DeepEqual(v, mathRenderingModeProp)) {
+		obj["mathRenderingMode"] = mathRenderingModeProp
+	}
 	mcpDataSourcesProp, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSources(d.Get("mcp_data_sources"), d, config)
 	if err != nil {
 		return err
@@ -1529,6 +1562,12 @@ func resourceAgenticApplicationsAnalystAgentPersonaCreate(d *schema.ResourceData
 		return err
 	} else if v, ok := d.GetOkExists("tables"); !tpgresource.IsEmptyValue(reflect.ValueOf(tablesProp)) && (ok || !reflect.DeepEqual(v, tablesProp)) {
 		obj["tables"] = tablesProp
+	}
+	webSearchConfigProp, err := expandAgenticApplicationsAnalystAgentPersonaWebSearchConfig(d.Get("web_search_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("web_search_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(webSearchConfigProp)) && (ok || !reflect.DeepEqual(v, webSearchConfigProp)) {
+		obj["webSearchConfig"] = webSearchConfigProp
 	}
 
 	obj, err = resourceAgenticApplicationsAnalystAgentPersonaEncoder(d, meta, obj)
@@ -1793,6 +1832,12 @@ func resourceAgenticApplicationsAnalystAgentPersonaUpdate(d *schema.ResourceData
 	} else if v, ok := d.GetOkExists("gemini_enterprise_engine"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, geminiEnterpriseEngineProp)) {
 		obj["geminiEnterpriseEngine"] = geminiEnterpriseEngineProp
 	}
+	mathRenderingModeProp, err := expandAgenticApplicationsAnalystAgentPersonaMathRenderingMode(d.Get("math_rendering_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("math_rendering_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mathRenderingModeProp)) {
+		obj["mathRenderingMode"] = mathRenderingModeProp
+	}
 	mcpDataSourcesProp, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSources(d.Get("mcp_data_sources"), d, config)
 	if err != nil {
 		return err
@@ -1828,6 +1873,12 @@ func resourceAgenticApplicationsAnalystAgentPersonaUpdate(d *schema.ResourceData
 		return err
 	} else if v, ok := d.GetOkExists("tables"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tablesProp)) {
 		obj["tables"] = tablesProp
+	}
+	webSearchConfigProp, err := expandAgenticApplicationsAnalystAgentPersonaWebSearchConfig(d.Get("web_search_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("web_search_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, webSearchConfigProp)) {
+		obj["webSearchConfig"] = webSearchConfigProp
 	}
 
 	obj, err = resourceAgenticApplicationsAnalystAgentPersonaEncoder(d, meta, obj)
@@ -1872,6 +1923,10 @@ func resourceAgenticApplicationsAnalystAgentPersonaUpdate(d *schema.ResourceData
 		updateMask = append(updateMask, "geminiEnterpriseEngine")
 	}
 
+	if d.HasChange("math_rendering_mode") {
+		updateMask = append(updateMask, "mathRenderingMode")
+	}
+
 	if d.HasChange("mcp_data_sources") {
 		updateMask = append(updateMask, "mcpDataSources")
 	}
@@ -1894,6 +1949,10 @@ func resourceAgenticApplicationsAnalystAgentPersonaUpdate(d *schema.ResourceData
 
 	if d.HasChange("tables") {
 		updateMask = append(updateMask, "tables")
+	}
+
+	if d.HasChange("web_search_config") {
+		updateMask = append(updateMask, "webSearchConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -2992,6 +3051,10 @@ func flattenAgenticApplicationsAnalystAgentPersonaGeminiEnterpriseEngine(v inter
 	return v
 }
 
+func flattenAgenticApplicationsAnalystAgentPersonaMathRenderingMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -3354,6 +3417,23 @@ func flattenAgenticApplicationsAnalystAgentPersonaTablesName(v interface{}, d *s
 }
 
 func flattenAgenticApplicationsAnalystAgentPersonaUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAgenticApplicationsAnalystAgentPersonaWebSearchConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["excluded_domains"] =
+		flattenAgenticApplicationsAnalystAgentPersonaWebSearchConfigExcludedDomains(original["excludedDomains"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAgenticApplicationsAnalystAgentPersonaWebSearchConfigExcludedDomains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4935,6 +5015,10 @@ func expandAgenticApplicationsAnalystAgentPersonaGeminiEnterpriseEngine(v interf
 	return v, nil
 }
 
+func expandAgenticApplicationsAnalystAgentPersonaMathRenderingMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -5556,6 +5640,32 @@ func expandAgenticApplicationsAnalystAgentPersonaTablesName(v interface{}, d tpg
 	return v, nil
 }
 
+func expandAgenticApplicationsAnalystAgentPersonaWebSearchConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExcludedDomains, err := expandAgenticApplicationsAnalystAgentPersonaWebSearchConfigExcludedDomains(original["excluded_domains"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludedDomains); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludedDomains"] = transformedExcludedDomains
+	}
+
+	return transformed, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaWebSearchConfigExcludedDomains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceAgenticApplicationsAnalystAgentPersonaEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	name, err := tpgresource.ReplaceVars(d, meta.(*transport_tpg.Config), "projects/{{project}}/locations/{{location}}/analystAgentPersonas/{{analyst_agent_persona_id}}")
 	if err != nil {
@@ -5592,6 +5702,9 @@ func ResourceAgenticApplicationsAnalystAgentPersonaFlatten(d *schema.ResourceDat
 	if err = d.Set("gemini_enterprise_engine", flattenAgenticApplicationsAnalystAgentPersonaGeminiEnterpriseEngine(res["geminiEnterpriseEngine"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AnalystAgentPersona: %s", err)
 	}
+	if err = d.Set("math_rendering_mode", flattenAgenticApplicationsAnalystAgentPersonaMathRenderingMode(res["mathRenderingMode"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalystAgentPersona: %s", err)
+	}
 	if err = d.Set("mcp_data_sources", flattenAgenticApplicationsAnalystAgentPersonaMcpDataSources(res["mcpDataSources"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AnalystAgentPersona: %s", err)
 	}
@@ -5614,6 +5727,9 @@ func ResourceAgenticApplicationsAnalystAgentPersonaFlatten(d *schema.ResourceDat
 		return fmt.Errorf("Error reading AnalystAgentPersona: %s", err)
 	}
 	if err = d.Set("update_time", flattenAgenticApplicationsAnalystAgentPersonaUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalystAgentPersona: %s", err)
+	}
+	if err = d.Set("web_search_config", flattenAgenticApplicationsAnalystAgentPersonaWebSearchConfig(res["webSearchConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AnalystAgentPersona: %s", err)
 	}
 
