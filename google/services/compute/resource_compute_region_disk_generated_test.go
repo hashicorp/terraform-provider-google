@@ -78,7 +78,7 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_region_disk.regiondisk",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "source_image_encryption_key", "terraform_labels", "type"},
+				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo", "disk_encryption_key.0.raw_key_wo_version", "disk_encryption_key.0.rsa_encrypted_key_wo", "disk_encryption_key.0.rsa_encrypted_key_wo_version", "labels", "region", "snapshot", "source_image_encryption_key", "terraform_labels", "type"},
 			},
 			{
 				ResourceName:       "google_compute_region_disk.regiondisk",
@@ -98,6 +98,142 @@ resource "google_compute_region_disk" "regiondisk" {
   type                      = "pd-ssd"
   region                    = "us-central1"
   physical_block_size_bytes = 4096
+
+  replica_zones = ["us-central1-a", "us-central1-f"]
+}
+
+resource "google_compute_disk" "disk" {
+  name  = "%{disk_name}"
+  image = "debian-cloud/debian-13"
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "snapdisk" {
+  name        = "%{snapshot_name}"
+  source_disk = google_compute_disk.disk.name
+  zone        = "us-central1-a"
+}
+`, context)
+}
+
+func TestAccComputeRegionDisk_regionDiskDiskEncryptionKeyWoExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"disk_name":        "tf-test-my-disk" + randomSuffix,
+		"region_disk_name": "tf-test-my-region-disk" + randomSuffix,
+		"snapshot_name":    "tf-test-my-snapshot" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_regionDiskDiskEncryptionKeyWoExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_disk.regiondisk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo", "disk_encryption_key.0.raw_key_wo_version", "disk_encryption_key.0.rsa_encrypted_key_wo", "disk_encryption_key.0.rsa_encrypted_key_wo_version", "labels", "region", "snapshot", "source_image_encryption_key", "terraform_labels", "type"},
+			},
+			{
+				ResourceName:       "google_compute_region_disk.regiondisk",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_regionDiskDiskEncryptionKeyWoExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_disk" "regiondisk" {
+  name                      = "%{region_disk_name}"
+  snapshot                  = google_compute_snapshot.snapdisk.id
+  type                      = "pd-ssd"
+  region                    = "us-central1"
+  physical_block_size_bytes = 4096
+  disk_encryption_key {
+    raw_key_wo         = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+    raw_key_wo_version = 1
+  }
+
+  replica_zones = ["us-central1-a", "us-central1-f"]
+}
+
+resource "google_compute_disk" "disk" {
+  name  = "%{disk_name}"
+  image = "debian-cloud/debian-13"
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "snapdisk" {
+  name        = "%{snapshot_name}"
+  source_disk = google_compute_disk.disk.name
+  zone        = "us-central1-a"
+}
+`, context)
+}
+
+func TestAccComputeRegionDisk_regionDiskRsaEncryptedKeyWoExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"disk_name":        "tf-test-my-disk" + randomSuffix,
+		"region_disk_name": "tf-test-my-region-disk" + randomSuffix,
+		"snapshot_name":    "tf-test-my-snapshot" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_regionDiskRsaEncryptedKeyWoExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_disk.regiondisk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo", "disk_encryption_key.0.raw_key_wo_version", "disk_encryption_key.0.rsa_encrypted_key_wo", "disk_encryption_key.0.rsa_encrypted_key_wo_version", "labels", "region", "snapshot", "source_image_encryption_key", "terraform_labels", "type"},
+			},
+			{
+				ResourceName:       "google_compute_region_disk.regiondisk",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDisk_regionDiskRsaEncryptedKeyWoExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_disk" "regiondisk" {
+  name                      = "%{region_disk_name}"
+  snapshot                  = google_compute_snapshot.snapdisk.id
+  type                      = "pd-ssd"
+  region                    = "us-central1"
+  physical_block_size_bytes = 4096
+  disk_encryption_key {
+    rsa_encrypted_key_wo         = "fB6BS8tJGhGVDZDjGt1pwUo2wyNbkzNxgH1avfOtiwB9X6oPG94gWgenygitnsYJyKjdOJ7DyXLmxwQOSmnCYCUBWdKCSssyLV5907HL2mb5TfqmgHk5JcArI/t6QADZWiuGtR+XVXqiLa5B9usxFT2BTmbHvSKfkpJ7McCNc/3U0PQR8euFRZ9i75o/w+pLHFMJ05IX3JB0zHbXMV173PjObiV3ItSJm2j3mp5XKabRGSA5rmfMnHIAMz6stGhcuom6+bMri2u/axmPsdxmC6MeWkCkCmPjaKsVz1+uQUNCJkAnzesluhoD+R6VjFDm4WI7yYabu4MOOAOTaQXdEg=="
+    rsa_encrypted_key_wo_version = 1
+  }
 
   replica_zones = ["us-central1-a", "us-central1-f"]
 }
@@ -141,7 +277,7 @@ func TestAccComputeRegionDisk_regionDiskAsyncExample(t *testing.T) {
 				ResourceName:            "google_compute_region_disk.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "source_image_encryption_key", "terraform_labels", "type"},
+				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo", "disk_encryption_key.0.raw_key_wo_version", "disk_encryption_key.0.rsa_encrypted_key_wo", "disk_encryption_key.0.rsa_encrypted_key_wo_version", "labels", "region", "snapshot", "source_image_encryption_key", "terraform_labels", "type"},
 			},
 			{
 				ResourceName:       "google_compute_region_disk.primary",
@@ -201,7 +337,7 @@ func TestAccComputeRegionDisk_regionDiskFeaturesExample(t *testing.T) {
 				ResourceName:            "google_compute_region_disk.regiondisk",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "source_image_encryption_key", "terraform_labels", "type"},
+				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo", "disk_encryption_key.0.raw_key_wo_version", "disk_encryption_key.0.rsa_encrypted_key_wo", "disk_encryption_key.0.rsa_encrypted_key_wo_version", "labels", "region", "snapshot", "source_image_encryption_key", "terraform_labels", "type"},
 			},
 			{
 				ResourceName:       "google_compute_region_disk.regiondisk",
@@ -262,7 +398,7 @@ func TestAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(t *t
 				ResourceName:            "google_compute_region_disk.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "region", "snapshot", "source_image_encryption_key", "terraform_labels", "type"},
+				ImportStateVerifyIgnore: []string{"disk_encryption_key.0.raw_key_wo", "disk_encryption_key.0.raw_key_wo_version", "disk_encryption_key.0.rsa_encrypted_key_wo", "disk_encryption_key.0.rsa_encrypted_key_wo_version", "labels", "region", "snapshot", "source_image_encryption_key", "terraform_labels", "type"},
 			},
 			{
 				ResourceName:       "google_compute_region_disk.primary",
