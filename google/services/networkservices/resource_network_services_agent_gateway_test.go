@@ -129,19 +129,19 @@ resource "google_project_service" "agent_registry" {
 }
 
 resource "google_compute_network" "default" {
-  name                    = "net-%{name}"
+  name                    = "%{name}-net"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "subnet-%{name}"
+  name          = "%{name}-subnet"
   region        = "us-central1"
   network       = google_compute_network.default.id
   ip_cidr_range = "10.0.0.0/16"
 }
 
 resource "google_compute_network_attachment" "default" {
-  name                  = "na-%{name}"
+  name                  = "%{name}-na"
   region                = "us-central1"
   connection_preference = "ACCEPT_AUTOMATIC"
   subnetworks           = [google_compute_subnetwork.default.self_link]
