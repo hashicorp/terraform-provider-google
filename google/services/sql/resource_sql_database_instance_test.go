@@ -2880,6 +2880,35 @@ func TestAccSqlDatabaseInstance_encryptionKey(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_confidentialHyperdisk(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-sql-database-instance-key1").CryptoKey.Name,
+		"instance_name": "tf-test-sql-" + acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_confidentialHyperdisk(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.master", "encryption_confidential_mode", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.master",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
 func TestAccSqlDatabaseInstance_encryptionKey_replicaInDifferentRegion(t *testing.T) {
 	t.Parallel()
 
@@ -8725,6 +8754,41 @@ func testGoogleSqlDatabaseInstance_insights_enhanced_postgres17(instanceName str
 	}
 }
 `, instanceName, enhanced)
+}
+
+func testGoogleSqlDatabaseInstance_confidentialHyperdisk(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{project_id}"
+}
+
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
+  crypto_key_id = "%{kms_key_name}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com"
+}
+
+resource "google_sql_database_instance" "master" {
+  name                         = "%{instance_name}-master"
+  database_version             = "POSTGRES_15"
+  region                       = "us-central1"
+  deletion_protection          = false
+  encryption_key_name          = "%{kms_key_name}"
+  encryption_confidential_mode = true
+
+  settings {
+    tier              = "db-c4a-highmem-2"
+    edition           = "ENTERPRISE_PLUS"
+    availability_type = "ZONAL"
+    disk_type         = "HYPERDISK_BALANCED"
+    location_preference {
+      zone = "us-central1-a"
+    }
+  }
+  depends_on = [google_kms_crypto_key_iam_member.crypto_key]
+}
+`, context)
 }
 
 var testGoogleSqlDatabaseInstance_encryptionKey = `

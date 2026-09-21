@@ -1159,6 +1159,13 @@ API (for read pools, effective_availability_type may differ from availability_ty
 				Computed: true,
 				ForceNew: true,
 			},
+			"encryption_confidential_mode": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Enables Confidential Mode on Hyperdisk storage for enhanced security. Only supported on Zonal C4A PG and MySQL instances.`,
+			},
 			"root_password": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -1781,9 +1788,16 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	if k, ok := d.GetOk("encryption_key_name"); ok {
-		instance.DiskEncryptionConfiguration = &sqladmin.DiskEncryptionConfiguration{
-			KmsKeyName: k.(string),
+		if instance.DiskEncryptionConfiguration == nil {
+			instance.DiskEncryptionConfiguration = &sqladmin.DiskEncryptionConfiguration{}
 		}
+		instance.DiskEncryptionConfiguration.KmsKeyName = k.(string)
+	}
+	if v, ok := d.GetOk("encryption_confidential_mode"); ok {
+		if instance.DiskEncryptionConfiguration == nil {
+			instance.DiskEncryptionConfiguration = &sqladmin.DiskEncryptionConfiguration{}
+		}
+		instance.DiskEncryptionConfiguration.ConfidentialMode = v.(bool)
 	}
 
 	var patchData *sqladmin.DatabaseInstance
@@ -2503,6 +2517,9 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if instance.DiskEncryptionConfiguration != nil {
 		if err := d.Set("encryption_key_name", instance.DiskEncryptionConfiguration.KmsKeyName); err != nil {
 			return fmt.Errorf("Error setting encryption_key_name: %s", err)
+		}
+		if err := d.Set("encryption_confidential_mode", instance.DiskEncryptionConfiguration.ConfidentialMode); err != nil {
+			return fmt.Errorf("Error setting encryption_confidential_mode: %s", err)
 		}
 	}
 

@@ -26,6 +26,8 @@ fields:
   - api_field: 'dnsNames.name'
   - api_field: 'diskEncryptionConfiguration.kmsKeyName'
     field: 'encryption_key_name'
+  - api_field: 'diskEncryptionConfiguration.confidentialMode'
+    field: 'encryption_confidential_mode'
   - field: 'final_backup_description'
   - api_field: 'ipAddresses.ipAddress'
     field: 'first_ip_address'
