@@ -174,7 +174,7 @@ data "google_project" "project" {
 }
 
 resource "google_network_management_vpc_flow_logs_config" "example" {
-  vpc_flow_logs_config_id = "id-example-%{random_suffix}"
+  vpc_flow_logs_config_id = "tf-test-id-example-%{random_suffix}"
   location                = "global"
   vpn_tunnel              = "projects/${data.google_project.project.number}/regions/us-central1/vpnTunnels/${google_compute_vpn_tunnel.tunnel.name}"
 }
@@ -188,7 +188,7 @@ data "google_project" "project" {
 }
 
 resource "google_network_management_vpc_flow_logs_config" "example" {
-  vpc_flow_logs_config_id = "id-example-%{random_suffix}"
+  vpc_flow_logs_config_id = "tf-test-id-example-%{random_suffix}"
   location                = "global"
   vpn_tunnel              = "projects/${data.google_project.project.number}/regions/us-central1/vpnTunnels/${google_compute_vpn_tunnel.tunnel.name}"
   state                   = "DISABLED"
