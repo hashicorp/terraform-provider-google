@@ -30,7 +30,9 @@ func init() {
 	sweeper.AddTestSweepersLegacy("BigqueryReservation", testSweepBigqueryReservation)
 }
 
-// At the time of writing, the CI only passes us-central1 as the region
+// At the time of writing, the CI only passes us-central1 as the region, but the
+// reservation tests and samples create reservations in us-west2 as well, so the
+// locations to sweep are listed here instead of relying on the CI's region.
 func testSweepBigqueryReservation(region string) error {
 	resourceName := "BigqueryReservation"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
@@ -46,7 +48,20 @@ func testSweepBigqueryReservation(region string) error {
 		log.Printf("[INFO][SWEEPER_LOG] error loading: %s", err)
 		return err
 	}
-	servicesUrl := transport_tpg.BaseUrl(Product, config) + "projects/" + config.Project + "/locations/" + region + "/reservations"
+
+	locations := []string{"us-central1", "us-west2"}
+	for _, location := range locations {
+		sweepBigqueryReservationsInLocation(config, location)
+	}
+
+	return nil
+}
+
+func sweepBigqueryReservationsInLocation(config *transport_tpg.Config, location string) {
+	resourceName := "BigqueryReservation"
+	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s in %s", resourceName, location)
+
+	servicesUrl := transport_tpg.BaseUrl(Product, config) + "projects/" + config.Project + "/locations/" + location + "/reservations"
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -56,13 +71,13 @@ func testSweepBigqueryReservation(region string) error {
 	})
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", servicesUrl, err)
-		return nil
+		return
 	}
 
 	resourceList, ok := res["reservations"]
 	if !ok {
 		log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-		return nil
+		return
 	}
 
 	rl := resourceList.([]interface{})
@@ -74,7 +89,7 @@ func testSweepBigqueryReservation(region string) error {
 		obj := ri.(map[string]interface{})
 		if obj["name"] == nil {
 			log.Printf("[INFO][SWEEPER_LOG] %s resource name was nil", resourceName)
-			return nil
+			return
 		}
 
 		reservationName := obj["name"].(string)
@@ -105,10 +120,8 @@ func testSweepBigqueryReservation(region string) error {
 	}
 
 	if nonPrefixCount > 0 {
-		log.Printf("[INFO][SWEEPER_LOG] %d items without tf-test prefix remain.", nonPrefixCount)
+		log.Printf("[INFO][SWEEPER_LOG] %d items without tf-test prefix remain in %s.", nonPrefixCount, location)
 	}
-
-	return nil
 }
 
 func deleteAllAssignments(config *transport_tpg.Config, reservationName string) {
