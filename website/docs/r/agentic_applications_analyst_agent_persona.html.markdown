@@ -65,6 +65,12 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     description = "Skill for finance analysis"
     content     = "# Finance Analysis\nAnalyze financial data."
   }
+
+  math_rendering_mode = "MATH_RENDERING_MODE_LATEX"
+
+  web_search_config {
+    excluded_domains = ["example.com"]
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -267,6 +273,12 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
       data_type   = "STRING"
     }
   }
+
+  math_rendering_mode = "MATH_RENDERING_MODE_LATEX"
+
+  web_search_config {
+    excluded_domains = ["example.com"]
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -347,6 +359,13 @@ The following arguments are supported:
   If not set, requests from GE will only be routed to this persona if its
   name ends in "/default".
 
+* `math_rendering_mode` -
+  (Optional)
+  The math rendering mode selected for this persona.
+  Possible values:
+  MATH_RENDERING_MODE_LATEX
+  MATH_RENDERING_MODE_PLAIN_TEXT
+
 * `mcp_data_sources` -
   (Optional)
   The MCP data source selections to be used by the agent.
@@ -403,6 +422,11 @@ The following arguments are supported:
   table in the customer's database, e.g. to provide additional context to the
   agent.
   Structure is [documented below](#nested_tables).
+
+* `web_search_config` -
+  (Optional)
+  Configuration for web search grounding for the analyst agent.
+  Structure is [documented below](#nested_web_search_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -1245,6 +1269,13 @@ The following arguments are supported:
 * `name` -
   (Required)
   The name of the column.
+
+<a name="nested_web_search_config"></a>The `web_search_config` block supports:
+
+* `excluded_domains` -
+  (Optional)
+  List of domains to be excluded from Google Search / Enterprise Web Search
+  grounding.
 
 ## Attributes Reference
 
