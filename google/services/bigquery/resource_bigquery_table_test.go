@@ -6059,8 +6059,8 @@ func TestAccBigQueryTable_DataGovernanceTags(t *testing.T) {
 	project := envvar.GetTestProjectFromEnv()
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
 	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
-	tagKeyShortName := fmt.Sprintf("tag_key_%s", acctest.RandString(t, 5))
-	tagValueShortName := fmt.Sprintf("tag_val_%s", acctest.RandString(t, 5))
+	tagKeyShortName := fmt.Sprintf("tf_test_tag_key_%s", acctest.RandString(t, 5))
+	tagValueShortName := fmt.Sprintf("tf_test_tag_val_%s", acctest.RandString(t, 5))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
