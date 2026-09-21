@@ -49,6 +49,9 @@ To get more information about Disk, see:
 values will be stored in the raw state as plain text: `source_image_encryption_key.raw_key`, `disk_encryption_key.raw_key`, `disk_encryption_key.rsa_encrypted_key`, `source_snapshot_encryption_key.raw_key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+~> **Note:**  All arguments marked as write-only values will not be stored in the state: `disk_encryption_key.raw_key_wo`, `disk_encryption_key.rsa_encrypted_key_wo`.
+[Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=disk_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -67,6 +70,50 @@ resource "google_compute_disk" "default" {
     environment = "dev"
   }
   physical_block_size_bytes = 4096
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=disk_basic_wo&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Disk Basic Wo
+
+
+```hcl
+resource "google_compute_disk" "default" {
+  name  = "test-disk"
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  image = "debian-13-trixie-v20260827"
+  labels = {
+    environment = "dev"
+  }
+  physical_block_size_bytes = 4096
+  disk_encryption_key {
+    raw_key_wo         = "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0="
+    raw_key_wo_version = 1
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=disk_rsa_encrypted_key_wo&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Disk Rsa Encrypted Key Wo
+
+
+```hcl
+resource "google_compute_disk" "default" {
+  name  = "test-disk"
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  image = "debian-13-trixie-v20260827"
+  disk_encryption_key {
+    rsa_encrypted_key_wo         = "fB6BS8tJGhGVDZDjGt1pwUo2wyNbkzNxgH1avfOtiwB9X6oPG94gWgenygitnsYJyKjdOJ7DyXLmxwQOSmnCYCUBWdKCSssyLV5907HL2mb5TfqmgHk5JcArI/t6QADZWiuGtR+XVXqiLa5B9usxFT2BTmbHvSKfkpJ7McCNc/3U0PQR8euFRZ9i75o/w+pLHFMJ05IX3JB0zHbXMV173PjObiV3ItSJm2j3mp5XKabRGSA5rmfMnHIAMz6stGhcuom6+bMri2u/axmPsdxmC6MeWkCkCmPjaKsVz1+uQUNCJkAnzesluhoD+R6VjFDm4WI7yYabu4MOOAOTaQXdEg=="
+    rsa_encrypted_key_wo_version = 1
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -425,6 +472,31 @@ The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
   (Optional)
   The service account used for the encryption request for the given KMS key.
   If absent, the Compute Engine Service Agent service account is used.
+
+* `raw_key_wo` -
+  (Optional, Write-Only)
+  Specifies a 256-bit customer-supplied encryption key, encoded in
+  RFC 4648 base64 to either encrypt or decrypt this resource.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `raw_key` or `raw_key_wo` can only be set.
+
+* `raw_key_wo_version` -
+  (Optional)
+  Triggers update of `raw_key_wo` write-only. Increment this value when an update to `raw_key_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+
+* `rsa_encrypted_key_wo` -
+  (Optional, Write-Only)
+  Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
+  customer-supplied encryption key to either encrypt or decrypt
+  this resource. You can provide either the rawKey or the rsaEncryptedKey.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `rsa_encrypted_key` or `rsa_encrypted_key_wo` can only be set.
+
+* `rsa_encrypted_key_wo_version` -
+  (Optional)
+  Triggers update of `rsa_encrypted_key_wo` write-only. Increment this value when an update to `rsa_encrypted_key_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 <a name="nested_source_snapshot_encryption_key"></a>The `source_snapshot_encryption_key` block supports:
 

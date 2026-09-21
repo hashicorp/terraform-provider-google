@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: add `rsa_encryption_wo` and `raw_key_wo` fields to `google_compute_disk` resource
+```
+
+```release-note:enhancement
+compute: add `rsa_encryption_wo` and `raw_key_wo` fields to `google_compute_region_disk` resource
+```
