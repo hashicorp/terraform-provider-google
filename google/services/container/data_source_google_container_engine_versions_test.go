@@ -150,13 +150,13 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 
 var testAccCheckGoogleContainerEngineVersionsConfig = `
 data "google_container_engine_versions" "location" {
-  location = "us-central1-b"
+  location = "us-east1-b"
 }
 `
 
 var testAccCheckGoogleContainerEngineVersions_filtered = `
 data "google_container_engine_versions" "versions" {
-  location       = "us-central1-b"
+  location       = "us-east1-b"
   version_prefix = "1.1."
 }
 `
