@@ -805,6 +805,16 @@ If not specified or 0, defaults to 80 when requested CPU >= 1 and defaults to 1 
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"concurrency_utilization": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Determines a threshold for concurrency utilization before scaling begins. Accepted values are between 0.1 and 0.95 (inclusive) or 0.0 to disable concurrency utilization as threshold for scaling. CPU and concurrency scaling cannot both be disabled.`,
+									},
+									"cpu_utilization": {
+										Type:        schema.TypeFloat,
+										Optional:    true,
+										Description: `Determines a threshold for CPU utilization before scaling begins. Accepted values are between 0.1 and 0.95 (inclusive) or 0.0 to disable CPU utilization as threshold for scaling. CPU and concurrency scaling cannot both be disabled.`,
+									},
 									"max_instance_count": {
 										Type:     schema.TypeInt,
 										Computed: true,
@@ -2517,6 +2527,10 @@ func flattenCloudRunV2ServiceTemplateScaling(v interface{}, d *schema.ResourceDa
 		flattenCloudRunV2ServiceTemplateScalingMinInstanceCount(original["minInstanceCount"], d, config)
 	transformed["max_instance_count"] =
 		flattenCloudRunV2ServiceTemplateScalingMaxInstanceCount(original["maxInstanceCount"], d, config)
+	transformed["cpu_utilization"] =
+		flattenCloudRunV2ServiceTemplateScalingCpuUtilization(original["cpuUtilization"], d, config)
+	transformed["concurrency_utilization"] =
+		flattenCloudRunV2ServiceTemplateScalingConcurrencyUtilization(original["concurrencyUtilization"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2ServiceTemplateScalingMinInstanceCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2551,6 +2565,14 @@ func flattenCloudRunV2ServiceTemplateScalingMaxInstanceCount(v interface{}, d *s
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunV2ServiceTemplateScalingCpuUtilization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateScalingConcurrencyUtilization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCloudRunV2ServiceTemplateVpcAccess(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4590,6 +4612,16 @@ func expandCloudRunV2ServiceTemplateScaling(v interface{}, d tpgresource.Terrafo
 	}
 	if max, ok := original["max_instance_count"].(int); ok && max > 0 {
 		transformed["maxInstanceCount"] = max
+	}
+	if rd, ok := d.(*schema.ResourceData); ok {
+		cpuPath := cty.GetAttrPath("template").IndexInt(0).GetAttr("scaling").IndexInt(0).GetAttr("cpu_utilization")
+		if val, _ := rd.GetRawConfigAt(cpuPath); !val.IsNull() && val.IsKnown() {
+			transformed["cpuUtilization"] = original["cpu_utilization"]
+		}
+		concurrencyPath := cty.GetAttrPath("template").IndexInt(0).GetAttr("scaling").IndexInt(0).GetAttr("concurrency_utilization")
+		if val, _ := rd.GetRawConfigAt(concurrencyPath); !val.IsNull() && val.IsKnown() {
+			transformed["concurrencyUtilization"] = original["concurrency_utilization"]
+		}
 	}
 
 	return transformed, nil

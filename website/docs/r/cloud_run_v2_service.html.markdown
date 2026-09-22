@@ -66,12 +66,10 @@ resource "google_cloud_run_v2_service" "default" {
 
 ```hcl
 resource "google_cloud_run_v2_service" "default" {
-  provider = google-beta
   name     = "cloudrun-service"
   location = "us-central1"
   deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
-  launch_stage = "BETA"
 
   template {
     scaling {
@@ -1096,11 +1094,11 @@ When the field is set to false, deleting the service is allowed.
   a default value based on the project's available container instances quota in the region and specified instance size.
 
 * `cpu_utilization` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Determines a threshold for CPU utilization before scaling begins. Accepted values are between 0.1 and 0.95 (inclusive) or 0.0 to disable CPU utilization as threshold for scaling. CPU and concurrency scaling cannot both be disabled.
 
 * `concurrency_utilization` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Determines a threshold for concurrency utilization before scaling begins. Accepted values are between 0.1 and 0.95 (inclusive) or 0.0 to disable concurrency utilization as threshold for scaling. CPU and concurrency scaling cannot both be disabled.
 
 <a name="nested_template_vpc_access"></a>The `vpc_access` block supports:
