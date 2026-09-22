@@ -137,6 +137,8 @@ fields:
     - api_field: template.sandboxes.templates.volumeMounts.name
     - api_field: template.sandboxes.templates.volumeMounts.subPath
     - api_field: template.sandboxes.templates.workingDir
+    - api_field: template.scaling.concurrencyUtilization
+    - api_field: template.scaling.cpuUtilization
     - api_field: template.scaling.maxInstanceCount
     - api_field: template.scaling.minInstanceCount
     - api_field: template.serviceAccount
