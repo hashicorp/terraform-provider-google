@@ -230,7 +230,7 @@ func (r *IamListCore) discoverPolicyTargets(ctx context.Context, req list.ListRe
 	return targets, nil
 }
 
-func (r *IamMemberListResource) readFilters(ctx context.Context, req list.ListRequest) (string, string, diag.Diagnostics) {
+func (r *IamListCore) readFilters(ctx context.Context, req list.ListRequest) (string, string, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	roleFilter := ""
 	memberFilter := ""
