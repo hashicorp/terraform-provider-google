@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: added `inspect_config` subfields (`custom_info_types`, `min_likelihood_per_info_type.info_type.sensitivity_score`, and `rule_set.rules.adjustment_rule`) to `google_data_loss_prevention_content_policy`
+```
