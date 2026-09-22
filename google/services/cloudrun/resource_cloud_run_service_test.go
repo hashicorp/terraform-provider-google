@@ -32,7 +32,7 @@ func TestAccCloudRunService_cloudRunServiceUpdate(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -65,7 +65,7 @@ func TestAccCloudRunService_cloudRunServiceCreateHasStatus(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -90,7 +90,7 @@ func TestAccCloudRunService_foregroundDeletion(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -170,14 +170,14 @@ func TestAccCloudRunService_secretVolume(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretVolume(name, project, "secret-"+acctest.RandString(t, 5), "secret-"+acctest.RandString(t, 6), "google_secret_manager_secret.secret1.secret_id"),
+				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretVolume(name, project, "tf-test-secret-"+acctest.RandString(t, 5), "tf-test-secret-"+acctest.RandString(t, 6), "google_secret_manager_secret.secret1.secret_id"),
 			},
 			{
 				ResourceName:            "google_cloud_run_service.default",
@@ -186,7 +186,7 @@ func TestAccCloudRunService_secretVolume(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
 			},
 			{
-				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretVolume(name, project, "secret-"+acctest.RandString(t, 10), "secret-"+acctest.RandString(t, 11), "google_secret_manager_secret.secret2.secret_id"),
+				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretVolume(name, project, "tf-test-secret-"+acctest.RandString(t, 10), "tf-test-secret-"+acctest.RandString(t, 11), "google_secret_manager_secret.secret2.secret_id"),
 			},
 			{
 				ResourceName:            "google_cloud_run_service.default",
@@ -294,14 +294,14 @@ func TestAccCloudRunService_secretEnvironmentVariable(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretEnvVar(name, project, "secret-"+acctest.RandString(t, 5), "secret-"+acctest.RandString(t, 6), "google_secret_manager_secret.secret1.secret_id"),
+				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretEnvVar(name, project, "tf-test-secret-"+acctest.RandString(t, 5), "tf-test-secret-"+acctest.RandString(t, 6), "google_secret_manager_secret.secret1.secret_id"),
 			},
 			{
 				ResourceName:            "google_cloud_run_service.default",
@@ -310,7 +310,7 @@ func TestAccCloudRunService_secretEnvironmentVariable(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
 			},
 			{
-				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretEnvVar(name, project, "secret-"+acctest.RandString(t, 10), "secret-"+acctest.RandString(t, 11), "google_secret_manager_secret.secret2.secret_id"),
+				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretEnvVar(name, project, "tf-test-secret-"+acctest.RandString(t, 10), "tf-test-secret-"+acctest.RandString(t, 11), "google_secret_manager_secret.secret2.secret_id"),
 			},
 			{
 				ResourceName:            "google_cloud_run_service.default",
@@ -539,7 +539,7 @@ func TestAccCloudRunServiceMigration_withLabels(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 	project := envvar.GetTestProjectFromEnv()
 	oldVersion := map[string]resource.ExternalProvider{
 		"google": {
@@ -578,7 +578,7 @@ func TestAccCloudRunService_withComputedLabels(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 	project := envvar.GetTestProjectFromEnv()
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -794,7 +794,7 @@ func TestAccCloudRunService_readinessProbe(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1182,7 +1182,7 @@ func TestAccCloudRunService_csiVolume(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1289,7 +1289,7 @@ func TestAccCloudRunService_emptyDirVolume(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1345,7 +1345,7 @@ func TestAccCloudRunService_resourcesRequirements(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1458,7 +1458,7 @@ func TestAccCloudRunService_cloudRunServiceWithMinInstance(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1541,7 +1541,7 @@ func TestAccCloudRunService_cloudRunServiceWithManualScaling(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	name := "tf-test-cloudrun-" + acctest.RandString(t, 6)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
