@@ -79,7 +79,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"gce_setup.0.boot_disk.0.disk_type", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
@@ -95,7 +95,14 @@ func testAccWorkbenchInstance_workbenchInstanceBasicExample(context map[string]i
 	return acctest.Nprintf(`
 resource "google_workbench_instance" "instance" {
   name = "%{instance_name}"
-  location = "us-west1-a"
+  location = "us-east1-b"
+
+  gce_setup {
+    machine_type = "n4-standard-2"
+    boot_disk {
+      disk_type = "HYPERDISK_BALANCED"
+    }
+  }
 }
 `, context)
 }
@@ -122,7 +129,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicContainerExample(t *testing.
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"gce_setup.0.boot_disk.0.disk_type", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
@@ -138,9 +145,13 @@ func testAccWorkbenchInstance_workbenchInstanceBasicContainerExample(context map
 	return acctest.Nprintf(`
 resource "google_workbench_instance" "instance" {
   name = "%{instance_name}"
-  location = "us-west1-a"
+  location = "us-east1-b"
 
   gce_setup {
+    machine_type = "n4-standard-2"
+    boot_disk {
+      disk_type = "HYPERDISK_BALANCED"
+    }
     container_image {
       repository = "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/base-cu113.py310"
       tag = "latest"
@@ -173,7 +184,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicGpuExample(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"gce_setup.0.vm_image", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"gce_setup.0.boot_disk.0.disk_type", "gce_setup.0.data_disks.0.disk_type", "gce_setup.0.vm_image", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
@@ -189,16 +200,16 @@ func testAccWorkbenchInstance_workbenchInstanceBasicGpuExample(context map[strin
 	return acctest.Nprintf(`
 resource "google_compute_reservation" "gpu_reservation" {
   name     = "%{reservation_name}"
-  zone     = "us-central1-a"
+  zone     = "us-east1-b"
 
   specific_reservation {
     count = 1
     
     instance_properties {
-      machine_type = "n1-standard-1"
+      machine_type = "g2-standard-4"
       
       guest_accelerators {
-        accelerator_type  = "nvidia-tesla-t4"
+        accelerator_type  = "nvidia-l4"
         accelerator_count = 1
       }
     }
@@ -209,12 +220,18 @@ resource "google_compute_reservation" "gpu_reservation" {
 
 resource "google_workbench_instance" "instance" {
   name = "%{instance_name}"
-  location = "us-central1-a"
+  location = "us-east1-b"
   gce_setup {
-    machine_type = "n1-standard-1" // cant be e2 because of accelerator
+    machine_type = "g2-standard-4"
     accelerator_configs {
-      type         = "NVIDIA_TESLA_T4"
+      type         = "NVIDIA_L4"
       core_count   = 1
+    }
+    boot_disk {
+      disk_type = "PD_SSD"
+    }
+    data_disks {
+      disk_type = "PD_SSD"
     }
     vm_image {
       project      = "cloud-notebooks-managed"
@@ -257,7 +274,7 @@ func TestAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(t *testing.T
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"desired_state", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"desired_state", "gce_setup.0.boot_disk.0.disk_type", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
@@ -273,10 +290,13 @@ func testAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(context map[
 	return acctest.Nprintf(`
 resource "google_workbench_instance" "instance" {
   name = "%{instance_name}"
-  location = "us-central1-a"
+  location = "us-east1-b"
 
   gce_setup {
-    machine_type = "e2-standard-4"
+    machine_type = "n4-standard-4"
+    boot_disk {
+      disk_type = "HYPERDISK_BALANCED"
+    }
 
     shielded_instance_config {
       enable_secure_boot = false
@@ -313,7 +333,7 @@ func TestAccWorkbenchInstance_workbenchInstanceFullExample(t *testing.T) {
 		"project_id":           envvar.GetTestProjectFromEnv(),
 		"service_account":      envvar.GetTestServiceAccountFromEnv(t),
 		"instance_name":        "tf-test-workbench-instance" + randomSuffix,
-		"key_name":             kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"key_name":             kms.BootstrapKMSKeyInLocation(t, "us-east1").CryptoKey.Name,
 		"network_name":         "tf-test-wbi-test-default" + randomSuffix,
 		"reservation_name":     "tf-test-wbi-reservation" + randomSuffix,
 		"resource_policy_name": "tf-test-wbi-policy" + randomSuffix,
@@ -354,12 +374,13 @@ resource "google_compute_network" "my_network" {
 resource "google_compute_subnetwork" "my_subnetwork" {
   name   = "%{network_name}"
   network = google_compute_network.my_network.id
-  region = "us-central1"
+  region = "us-east1"
   ip_cidr_range = "10.0.1.0/24"
 }
 
 resource "google_compute_address" "static" {
-  name = "%{network_name}"
+  name   = "%{network_name}"
+  region = "us-east1"
 }
 
 resource "google_service_account_iam_member" "act_as_permission" {
@@ -370,17 +391,17 @@ resource "google_service_account_iam_member" "act_as_permission" {
 
 resource "google_compute_reservation" "gpu_reservation" {
   name     = "%{reservation_name}"
-  zone     = "us-central1-a"
+  zone     = "us-east1-b"
 
   specific_reservation {
     count = 1
     
     instance_properties {
-      machine_type = "n1-standard-4"
-      min_cpu_platform = "Intel Broadwell"
+      machine_type = "g2-standard-4"
+      min_cpu_platform = "Intel Cascade Lake"
 
       guest_accelerators {
-        accelerator_type  = "nvidia-tesla-t4"
+        accelerator_type  = "nvidia-l4"
         accelerator_count = 1
       }
     }
@@ -391,7 +412,7 @@ resource "google_compute_reservation" "gpu_reservation" {
 
 resource "google_compute_resource_policy" "my_policy" {
   name   = "%{resource_policy_name}"
-  region = "us-central1"
+  region = "us-east1"
   snapshot_schedule_policy {
     schedule {
       daily_schedule {
@@ -404,15 +425,15 @@ resource "google_compute_resource_policy" "my_policy" {
 
 resource "google_workbench_instance" "instance" {
   name = "%{instance_name}"
-  location = "us-central1-a"
+  location = "us-east1-b"
 
   enable_deletion_protection = false
 
   gce_setup {
-    machine_type = "n1-standard-4" // cant be e2 because of accelerator
-    min_cpu_platform = "Intel Broadwell"
+    machine_type = "g2-standard-4"
+    min_cpu_platform = "Intel Cascade Lake"
     accelerator_configs {
-      type         = "NVIDIA_TESLA_T4"
+      type         = "NVIDIA_L4"
       core_count   = 1
     }
 
@@ -532,7 +553,7 @@ func testAccWorkbenchInstance_workbenchInstanceConfidentialComputeExample(contex
 	return acctest.Nprintf(`
 resource "google_workbench_instance" "instance" {
   name = "%{instance_name}"
-  location = "us-central1-a"
+  location = "us-east1-b"
 
   gce_setup {
     machine_type = "n2d-standard-2" // cant be e2 because of accelerator
@@ -580,7 +601,7 @@ func TestAccWorkbenchInstance_workbenchInstanceEucExample(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"gce_setup.0.boot_disk.0.disk_type", "instance_id", "instance_owners", "labels", "location", "name", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
@@ -604,10 +625,13 @@ resource "google_service_account_iam_binding" "act_as_permission" {
 
 resource "google_workbench_instance" "instance" {
   name = "%{instance_name}"
-  location = "us-central1-a"
+  location = "us-east1-b"
 
   gce_setup {
-    machine_type = "e2-standard-4"
+    machine_type = "n4-standard-4"
+    boot_disk {
+      disk_type = "HYPERDISK_BALANCED"
+    }
     
     metadata = {
       terraform = "true"
