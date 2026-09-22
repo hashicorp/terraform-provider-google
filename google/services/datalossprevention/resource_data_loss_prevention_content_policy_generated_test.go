@@ -229,10 +229,21 @@ resource "google_data_loss_prevention_content_policy" "full" {
       name = "LAST_NAME"
     }
 
+    info_types {
+      name = "OBJECT_TYPE/PERSON"
+    }
+
+    info_types {
+      name = "OBJECT_TYPE/PERSON/PASSPORT"
+    }
+
     min_likelihood_per_info_type {
       info_type {
         name    = "PERSON_NAME"
         version = "latest"
+        sensitivity_score {
+          score = "SENSITIVITY_LOW"
+        }
       }
       min_likelihood = "LIKELY"
     }
@@ -253,6 +264,60 @@ resource "google_data_loss_prevention_content_policy" "full" {
       regex {
         pattern       = "test.*"
         group_indexes = [0]
+      }
+      detection_rules {
+        hotword_rule {
+          hotword_regex {
+            pattern       = "password"
+            group_indexes = [0]
+          }
+          proximity {
+            window_before = 10
+            window_after  = 10
+          }
+          likelihood_adjustment {
+            fixed_likelihood = "VERY_LIKELY"
+          }
+        }
+      }
+    }
+
+    custom_info_types {
+      info_type {
+        name = "MY_GDRIVE_LABEL_TYPE"
+      }
+      likelihood = "POSSIBLE"
+      file_label_info_type {
+        google_drive_label {
+          label_id = "testLabelId"
+          label_fields_to_match {
+            id    = "field1"
+            value = "val1"
+          }
+        }
+      }
+    }
+
+    custom_info_types {
+      info_type {
+        name = "MY_SENSITIVITY_LABEL_TYPE"
+      }
+      likelihood = "POSSIBLE"
+      file_label_info_type {
+        sensitivity_label {
+          guid = "11111111-2222-3333-4444-555555555555"
+        }
+      }
+    }
+
+    custom_info_types {
+      info_type {
+        name = "MY_METADATA_KV_TYPE"
+      }
+      likelihood = "POSSIBLE"
+      metadata_key_value_expression {
+        key_regex   = "key.*"
+        value_regex = "val.*"
       }
     }
 
@@ -338,6 +403,67 @@ resource "google_data_loss_prevention_content_policy" "full" {
           regex {
             pattern       = ".*@example\\.com"
             group_indexes = [0]
+          }
+        }
+      }
+      rules {
+        adjustment_rule {
+          adjust_by_matching_info_types {
+            info_types {
+              name = "PERSON_NAME"
+              version = "latest"
+              sensitivity_score {
+                score = "SENSITIVITY_LOW"
+              }
+            }
+            min_likelihood = "LIKELY"
+            matching_type  = "MATCHING_TYPE_PARTIAL_MATCH"
+          }
+          likelihood_adjustment {
+            fixed_likelihood = "VERY_LIKELY"
+          }
+        }
+      }
+    }
+
+    rule_set {
+      info_types {
+        name = "OBJECT_TYPE/PERSON"
+      }
+      rules {
+        adjustment_rule {
+          adjust_by_image_findings {
+            info_types {
+              name    = "OBJECT_TYPE/PERSON/PASSPORT"
+              version = "latest"
+              sensitivity_score {
+                score = "SENSITIVITY_LOW"
+              }
+            }
+            min_likelihood = "LIKELY"
+            image_containment_type {
+              encloses {}
+            }
+          }
+          likelihood_adjustment {
+            fixed_likelihood = "VERY_LIKELY"
+          }
+        }
+      }
+      rules {
+        exclusion_rule {
+          matching_type = "MATCHING_TYPE_RULE_SPECIFIC"
+          exclude_by_image_findings {
+            info_types {
+              name    = "OBJECT_TYPE/PERSON/PASSPORT"
+              version = "latest"
+              sensitivity_score {
+                score = "SENSITIVITY_LOW"
+              }
+            }
+            image_containment_type {
+              fully_inside {}
+            }
           }
         }
       }
@@ -538,10 +664,21 @@ resource "google_data_loss_prevention_content_policy" "full" {
       name = "LAST_NAME"
     }
 
+    info_types {
+      name = "OBJECT_TYPE/PERSON"
+    }
+
+    info_types {
+      name = "OBJECT_TYPE/PERSON/PASSPORT"
+    }
+
     min_likelihood_per_info_type {
       info_type {
         name    = "PERSON_NAME"
         version = "latest"
+        sensitivity_score {
+          score = "SENSITIVITY_HIGH"
+        }
       }
       min_likelihood = "POSSIBLE"
     }
@@ -562,6 +699,60 @@ resource "google_data_loss_prevention_content_policy" "full" {
       regex {
         pattern       = "test*"
         group_indexes = [0]
+      }
+      detection_rules {
+        hotword_rule {
+          hotword_regex {
+            pattern       = "(secret)"
+            group_indexes = [1]
+          }
+          proximity {
+            window_before = 5
+            window_after  = 5
+          }
+          likelihood_adjustment {
+            relative_likelihood = 1
+          }
+        }
+      }
+    }
+
+    custom_info_types {
+      info_type {
+        name = "MY_GDRIVE_LABEL_TYPE"
+      }
+      likelihood = "POSSIBLE"
+      file_label_info_type {
+        google_drive_label {
+          label_id = "testLabelIdUpdated"
+          label_fields_to_match {
+            id    = "field2"
+            value = "val2"
+          }
+        }
+      }
+    }
+
+    custom_info_types {
+      info_type {
+        name = "MY_SENSITIVITY_LABEL_TYPE"
+      }
+      likelihood = "POSSIBLE"
+      file_label_info_type {
+        sensitivity_label {
+          guid = "22222222-3333-4444-5555-666666666666"
+        }
+      }
+    }
+
+    custom_info_types {
+      info_type {
+        name = "MY_METADATA_KV_TYPE"
+      }
+      likelihood = "POSSIBLE"
+      metadata_key_value_expression {
+        key_regex   = "newkey.*"
+        value_regex = "newval.*"
       }
     }
 
@@ -631,6 +822,67 @@ resource "google_data_loss_prevention_content_policy" "full" {
               sensitivity_score {
                 score = "SENSITIVITY_HIGH"
               }
+            }
+          }
+        }
+      }
+      rules {
+        adjustment_rule {
+          adjust_by_matching_info_types {
+            info_types {
+              name    = "PERSON_NAME"
+              version = "stable"
+              sensitivity_score {
+                score = "SENSITIVITY_HIGH"
+              }
+            }
+            min_likelihood = "POSSIBLE"
+            matching_type  = "MATCHING_TYPE_PARTIAL_MATCH"
+          }
+          likelihood_adjustment {
+            fixed_likelihood = "LIKELY"
+          }
+        }
+      }
+    }
+
+    rule_set {
+      info_types {
+        name = "OBJECT_TYPE/PERSON"
+      }
+      rules {
+        adjustment_rule {
+          adjust_by_image_findings {
+            info_types {
+              name    = "OBJECT_TYPE/PERSON/PASSPORT"
+              version = "latest"
+              sensitivity_score {
+                score = "SENSITIVITY_HIGH"
+              }
+            }
+            min_likelihood = "POSSIBLE"
+            image_containment_type {
+              overlaps {}
+            }
+          }
+          likelihood_adjustment {
+            fixed_likelihood = "LIKELY"
+          }
+        }
+      }
+      rules {
+        exclusion_rule {
+          matching_type = "MATCHING_TYPE_RULE_SPECIFIC"
+          exclude_by_image_findings {
+            info_types {
+              name    = "OBJECT_TYPE/PERSON/PASSPORT"
+              version = "latest"
+              sensitivity_score {
+                score = "SENSITIVITY_HIGH"
+              }
+            }
+            image_containment_type {
+              encloses {}
             }
           }
         }

@@ -335,6 +335,93 @@ listed at https://cloud.google.com/dlp/docs/infotypes-reference when specifying 
 											},
 										},
 									},
+									"detection_rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Set of detection rules to apply to all findings of this CustomInfoType. Rules are applied in order
+that they are specified. Only supported for the dictionary, regex, and storedType CustomInfoTypes.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hotword_rule": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Hotword-based detection rule.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"hotword_regex": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `Regular expression pattern defining what qualifies as a hotword.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"pattern": {
+																			Type:     schema.TypeString,
+																			Required: true,
+																			Description: `Pattern defining the regular expression. Its syntax
+(https://github.com/google/re2/wiki/Syntax) can be found under the google/re2 repository on GitHub.`,
+																		},
+																		"group_indexes": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `The index of the submatch to extract as findings. When not specified,
+the entire match is returned. No more than 3 may be included.`,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeInt,
+																			},
+																		},
+																	},
+																},
+															},
+															"likelihood_adjustment": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `Likelihood adjustment to apply to all matching findings.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"fixed_likelihood": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: verify.ValidateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY", ""}),
+																			Description:  `Set the likelihood of a finding to a fixed value. Either this or relative_likelihood can be set. Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
+																		},
+																		"relative_likelihood": {
+																			Type:        schema.TypeInt,
+																			Optional:    true,
+																			Description: `Increase or decrease the likelihood by the specified number of levels.`,
+																		},
+																	},
+																},
+															},
+															"proximity": {
+																Type:     schema.TypeList,
+																Required: true,
+																Description: `Proximity of the finding within which the entire hotword must reside. The total length of the window cannot
+exceed 1000 characters.`,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"window_after": {
+																			Type:        schema.TypeInt,
+																			Optional:    true,
+																			Description: `Number of characters after the finding to consider.`,
+																		},
+																		"window_before": {
+																			Type:        schema.TypeInt,
+																			Optional:    true,
+																			Description: `Number of characters before the finding to consider.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"dictionary": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -386,6 +473,65 @@ phrase and every phrase must contain at least 2 characters that are letters or d
 										ValidateFunc: verify.ValidateEnum([]string{"EXCLUSION_TYPE_EXCLUDE", ""}),
 										Description:  `If set to EXCLUSION_TYPE_EXCLUDE this infoType will not cause a finding to be returned. It still can be used for rules matching. Possible values: ["EXCLUSION_TYPE_EXCLUDE"]`,
 									},
+									"file_label_info_type": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for a custom infoType that detects file labels.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"google_drive_label": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Google Drive labels published by Google.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"label_id": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The label ID of the Google Drive label.`,
+															},
+															"label_fields_to_match": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `The field values of the Google Drive label to match.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `The identifier of the Label Field.`,
+																		},
+																		"value": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `The value of the Label Field to match.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"sensitivity_label": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Sensitivity labels published by Microsoft.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"guid": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The GUID of the sensitivity label.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"likelihood": {
 										Type:         schema.TypeString,
 										Optional:     true,
@@ -393,6 +539,26 @@ phrase and every phrase must contain at least 2 characters that are letters or d
 										Description: `Likelihood to return for this CustomInfoType. This base value can be altered by a detection rule if the finding meets the criteria
 specified by the rule. Default value: "VERY_LIKELY" Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
 										Default: "VERY_LIKELY",
+									},
+									"metadata_key_value_expression": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for a custom infoType that detects key-value pairs in the metadata matching the specified regular expressions.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"key_regex": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The regular expression for the key.`,
+												},
+												"value_regex": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The regular expression for the value.`,
+												},
+											},
+										},
 									},
 									"regex": {
 										Type:        schema.TypeList,
@@ -448,6 +614,11 @@ Its syntax (https://github.com/google/re2/wiki/Syntax) can be found under the go
 													Required: true,
 													Description: `Resource name of the requested StoredInfoType, for example 'organizations/433245324/storedInfoTypes/432452342'
 or 'projects/project-id/storedInfoTypes/432452342'.`,
+												},
+												"create_time": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `Output only. Timestamp indicating when the version of the StoredInfoType used for inspection was created.`,
 												},
 											},
 										},
@@ -623,6 +794,22 @@ If InfoTypeLikelihood does not have an info_type, the configuration fails.`,
 													Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
 at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.`,
 												},
+												"sensitivity_score": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional custom sensitivity for this InfoType. This only applies to data profiling.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"score": {
+																Type:         schema.TypeString,
+																Required:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+																Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+															},
+														},
+													},
+												},
 												"version": {
 													Type:        schema.TypeString,
 													Optional:    true,
@@ -683,6 +870,177 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 										Description: `Set of rules to be applied to infoTypes. The rules are applied in order.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"adjustment_rule": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Rule that specifies conditions when a certain infoType's finding details should be adjusted.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"likelihood_adjustment": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `Likelihood adjustment to apply to all matching findings.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"fixed_likelihood": {
+																			Type:         schema.TypeString,
+																			Required:     true,
+																			ValidateFunc: verify.ValidateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"}),
+																			Description:  `Set the likelihood of a finding to a fixed value. Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
+																		},
+																	},
+																},
+															},
+															"adjust_by_image_findings": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `AdjustmentRule condition for image findings.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"info_types": {
+																			Type:        schema.TypeList,
+																			Required:    true,
+																			Description: `A list of image-supported infoTypes to be used as context for the adjustment rule.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Required:    true,
+																						Description: `Name of the information type.`,
+																					},
+																					"sensitivity_score": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional custom sensitivity for this InfoType.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"score": {
+																									Type:         schema.TypeString,
+																									Required:     true,
+																									ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+																									Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+																								},
+																							},
+																						},
+																					},
+																					"version": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Version name for this InfoType.`,
+																					},
+																				},
+																			},
+																		},
+																		"min_likelihood": {
+																			Type:         schema.TypeString,
+																			Required:     true,
+																			ValidateFunc: verify.ValidateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"}),
+																			Description:  `Minimum likelihood of the adjustByImageFindings infoTypes finding. Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
+																		},
+																		"image_containment_type": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Specifies the required spatial relationship between the bounding boxes of the target finding and the context infoType findings.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"encloses": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Defines a condition where one bounding box encloses another.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																					},
+																					"fully_inside": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Defines a condition where one bounding box is fully inside another.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																					},
+																					"overlaps": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Defines a condition for overlapping bounding boxes.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"adjust_by_matching_info_types": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `AdjustmentRule condition for matching infoTypes.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"info_types": {
+																			Type:        schema.TypeList,
+																			Required:    true,
+																			Description: `Sensitive Data Protection adjusts the likelihood of a finding if that finding also matches one of these infoTypes.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Required:    true,
+																						Description: `Name of the information type.`,
+																					},
+																					"sensitivity_score": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional custom sensitivity for this InfoType.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"score": {
+																									Type:         schema.TypeString,
+																									Required:     true,
+																									ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+																									Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+																								},
+																							},
+																						},
+																					},
+																					"version": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Version name for this InfoType.`,
+																					},
+																				},
+																			},
+																		},
+																		"matching_type": {
+																			Type:         schema.TypeString,
+																			Required:     true,
+																			ValidateFunc: verify.ValidateEnum([]string{"MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"}),
+																			Description:  `How the adjustment rule is applied. Possible values: ["MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"]`,
+																		},
+																		"min_likelihood": {
+																			Type:         schema.TypeString,
+																			Required:     true,
+																			ValidateFunc: verify.ValidateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"}),
+																			Description:  `Minimum likelihood of the adjustByMatchingInfoTypes infoTypes finding. Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
 												"exclusion_rule": {
 													Type:        schema.TypeList,
 													Optional:    true,
@@ -693,8 +1051,8 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 															"matching_type": {
 																Type:         schema.TypeString,
 																Required:     true,
-																ValidateFunc: verify.ValidateEnum([]string{"MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"}),
-																Description:  `How the rule is applied. See the documentation for more information: https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#MatchingType Possible values: ["MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"]`,
+																ValidateFunc: verify.ValidateEnum([]string{"MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH", "MATCHING_TYPE_RULE_SPECIFIC"}),
+																Description:  `How the rule is applied. See the documentation for more information: https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#MatchingType Possible values: ["MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH", "MATCHING_TYPE_RULE_SPECIFIC"]`,
 															},
 															"dictionary": {
 																Type:        schema.TypeList,
@@ -793,6 +1151,88 @@ office using the hotword regex '(xxx)', where 'xxx' is the area code in question
 																						Type:        schema.TypeInt,
 																						Optional:    true,
 																						Description: `Number of characters before the finding to consider.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"exclude_by_image_findings": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `The rule to exclude image findings based on spatial relationships with other image findings.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"info_types": {
+																			Type:        schema.TypeList,
+																			Required:    true,
+																			Description: `A list of image-supported infoTypes to be used as context for the exclusion rule.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Required:    true,
+																						Description: `Name of the information type.`,
+																					},
+																					"sensitivity_score": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional custom sensitivity for this InfoType.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"score": {
+																									Type:         schema.TypeString,
+																									Required:     true,
+																									ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+																									Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+																								},
+																							},
+																						},
+																					},
+																					"version": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Version name for this InfoType.`,
+																					},
+																				},
+																			},
+																		},
+																		"image_containment_type": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Specifies the required spatial relationship between the bounding boxes of the target finding and the context infoType findings.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"encloses": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Defines a condition where one bounding box encloses another.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																					},
+																					"fully_inside": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Defines a condition where one bounding box is fully inside another.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																					},
+																					"overlaps": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Defines a condition for overlapping bounding boxes.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
 																					},
 																				},
 																			},
@@ -1643,6 +2083,8 @@ func flattenDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoType
 		flattenDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeName(original["name"], d, config)
 	transformed["version"] =
 		flattenDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(original["version"], d, config)
+	transformed["sensitivity_score"] =
+		flattenDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScore(original["sensitivityScore"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1650,6 +2092,23 @@ func flattenDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoType
 }
 
 func flattenDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1917,8 +2376,9 @@ func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRules(v interface
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"hotword_rule":   flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesHotwordRule(original["hotwordRule"], d, config),
-			"exclusion_rule": flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRule(original["exclusionRule"], d, config),
+			"hotword_rule":    flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesHotwordRule(original["hotwordRule"], d, config),
+			"exclusion_rule":  flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRule(original["exclusionRule"], d, config),
+			"adjustment_rule": flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRule(original["adjustmentRule"], d, config),
 		})
 	}
 	return transformed
@@ -2067,6 +2527,8 @@ func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRul
 		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypes(original["excludeInfoTypes"], d, config)
 	transformed["exclude_by_hotword"] =
 		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByHotword(original["excludeByHotword"], d, config)
+	transformed["exclude_by_image_findings"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindings(original["excludeByImageFindings"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleMatchingType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2291,6 +2753,321 @@ func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRul
 	return v // let terraform core handle it otherwise
 }
 
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["info_types"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypes(original["infoTypes"], d, config)
+	transformed["image_containment_type"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentType(original["imageContainmentType"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":              flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesName(original["name"], d, config),
+			"version":           flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesVersion(original["version"], d, config),
+			"sensitivity_score": flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["encloses"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeEncloses(original["encloses"], d, config)
+	transformed["fully_inside"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeFullyInside(original["fullyInside"], d, config)
+	transformed["overlaps"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeOverlaps(original["overlaps"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeEncloses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeFullyInside(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeOverlaps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["adjust_by_matching_info_types"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypes(original["adjustByMatchingInfoTypes"], d, config)
+	transformed["adjust_by_image_findings"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindings(original["adjustByImageFindings"], d, config)
+	transformed["likelihood_adjustment"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleLikelihoodAdjustment(original["likelihoodAdjustment"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["info_types"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypes(original["infoTypes"], d, config)
+	transformed["min_likelihood"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesMinLikelihood(original["minLikelihood"], d, config)
+	transformed["matching_type"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesMatchingType(original["matchingType"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":              flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesName(original["name"], d, config),
+			"version":           flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesVersion(original["version"], d, config),
+			"sensitivity_score": flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesMinLikelihood(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesMatchingType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["info_types"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypes(original["infoTypes"], d, config)
+	transformed["min_likelihood"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsMinLikelihood(original["minLikelihood"], d, config)
+	transformed["image_containment_type"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentType(original["imageContainmentType"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":              flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesName(original["name"], d, config),
+			"version":           flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesVersion(original["version"], d, config),
+			"sensitivity_score": flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsMinLikelihood(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["encloses"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeEncloses(original["encloses"], d, config)
+	transformed["fully_inside"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeFullyInside(original["fullyInside"], d, config)
+	transformed["overlaps"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeOverlaps(original["overlaps"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeEncloses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeFullyInside(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeOverlaps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleLikelihoodAdjustment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["fixed_likelihood"] =
+		flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleLikelihoodAdjustmentFixedLikelihood(original["fixedLikelihood"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleLikelihoodAdjustmentFixedLikelihood(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2305,14 +3082,17 @@ func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypes(v interf
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"info_type":         flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesInfoType(original["infoType"], d, config),
-			"likelihood":        flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesLikelihood(original["likelihood"], d, config),
-			"exclusion_type":    flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesExclusionType(original["exclusionType"], d, config),
-			"sensitivity_score": flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
-			"regex":             flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesRegex(original["regex"], d, config),
-			"dictionary":        flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDictionary(original["dictionary"], d, config),
-			"surrogate_type":    flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesSurrogateType(original["surrogateType"], d, config),
-			"stored_type":       flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredType(original["storedType"], d, config),
+			"info_type":                     flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesInfoType(original["infoType"], d, config),
+			"likelihood":                    flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesLikelihood(original["likelihood"], d, config),
+			"exclusion_type":                flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesExclusionType(original["exclusionType"], d, config),
+			"sensitivity_score":             flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
+			"regex":                         flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesRegex(original["regex"], d, config),
+			"dictionary":                    flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDictionary(original["dictionary"], d, config),
+			"surrogate_type":                flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesSurrogateType(original["surrogateType"], d, config),
+			"stored_type":                   flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredType(original["storedType"], d, config),
+			"detection_rules":               flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRules(original["detectionRules"], d, config),
+			"file_label_info_type":          flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoType(original["fileLabelInfoType"], d, config),
+			"metadata_key_value_expression": flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpression(original["metadataKeyValueExpression"], d, config),
 		})
 	}
 	return transformed
@@ -2475,9 +3255,261 @@ func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredTyp
 	transformed := make(map[string]interface{})
 	transformed["name"] =
 		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredTypeName(original["name"], d, config)
+	transformed["create_time"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredTypeCreateTime(original["createTime"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredTypeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredTypeCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"hotword_rule": flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRule(original["hotwordRule"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hotword_regex"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegex(original["hotwordRegex"], d, config)
+	transformed["proximity"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximity(original["proximity"], d, config)
+	transformed["likelihood_adjustment"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustment(original["likelihoodAdjustment"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["pattern"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegexPattern(original["pattern"], d, config)
+	transformed["group_indexes"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegexGroupIndexes(original["groupIndexes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegexPattern(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegexGroupIndexes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["window_before"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximityWindowBefore(original["windowBefore"], d, config)
+	transformed["window_after"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximityWindowAfter(original["windowAfter"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximityWindowBefore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximityWindowAfter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["fixed_likelihood"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustmentFixedLikelihood(original["fixedLikelihood"], d, config)
+	transformed["relative_likelihood"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustmentRelativeLikelihood(original["relativeLikelihood"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustmentFixedLikelihood(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustmentRelativeLikelihood(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["google_drive_label"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabel(original["googleDriveLabel"], d, config)
+	transformed["sensitivity_label"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeSensitivityLabel(original["sensitivityLabel"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["label_id"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelId(original["labelId"], d, config)
+	transformed["label_fields_to_match"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatch(original["labelFieldsToMatch"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"id":    flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatchId(original["id"], d, config),
+			"value": flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatchValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatchId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatchValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeSensitivityLabel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["guid"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeSensitivityLabelGuid(original["guid"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeSensitivityLabelGuid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key_regex"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpressionKeyRegex(original["keyRegex"], d, config)
+	transformed["value_regex"] =
+		flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpressionValueRegex(original["valueRegex"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpressionKeyRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpressionValueRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2964,6 +3996,13 @@ func expandDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeI
 		transformed["version"] = transformedVersion
 	}
 
+	transformedSensitivityScore, err := expandDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScore(original["sensitivity_score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sensitivityScore"] = transformedSensitivityScore
+	}
+
 	return transformed, nil
 }
 
@@ -2972,6 +4011,32 @@ func expandDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeI
 }
 
 func expandDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3338,6 +4403,13 @@ func expandDataLossPreventionContentPolicyInspectConfigRuleSetRules(v interface{
 			transformed["exclusionRule"] = transformedExclusionRule
 		}
 
+		transformedAdjustmentRule, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRule(original["adjustment_rule"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAdjustmentRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["adjustmentRule"] = transformedAdjustmentRule
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -3535,6 +4607,13 @@ func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRule
 		return nil, err
 	} else if val := reflect.ValueOf(transformedExcludeByHotword); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["excludeByHotword"] = transformedExcludeByHotword
+	}
+
+	transformedExcludeByImageFindings, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindings(original["exclude_by_image_findings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeByImageFindings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludeByImageFindings"] = transformedExcludeByImageFindings
 	}
 
 	return transformed, nil
@@ -3860,6 +4939,580 @@ func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRule
 	return v, nil
 }
 
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInfoTypes, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypes(original["info_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInfoTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["infoTypes"] = transformedInfoTypes
+	}
+
+	transformedImageContainmentType, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentType(original["image_containment_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedImageContainmentType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["imageContainmentType"] = transformedImageContainmentType
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedVersion, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesVersion(original["version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["version"] = transformedVersion
+		}
+
+		transformedSensitivityScore, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScore(original["sensitivity_score"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sensitivityScore"] = transformedSensitivityScore
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEncloses, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeEncloses(original["encloses"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["encloses"] = transformedEncloses
+	}
+
+	transformedFullyInside, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeFullyInside(original["fully_inside"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["fullyInside"] = transformedFullyInside
+	}
+
+	transformedOverlaps, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeOverlaps(original["overlaps"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["overlaps"] = transformedOverlaps
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeEncloses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeFullyInside(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeOverlaps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAdjustByMatchingInfoTypes, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypes(original["adjust_by_matching_info_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAdjustByMatchingInfoTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["adjustByMatchingInfoTypes"] = transformedAdjustByMatchingInfoTypes
+	}
+
+	transformedAdjustByImageFindings, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindings(original["adjust_by_image_findings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAdjustByImageFindings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["adjustByImageFindings"] = transformedAdjustByImageFindings
+	}
+
+	transformedLikelihoodAdjustment, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleLikelihoodAdjustment(original["likelihood_adjustment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLikelihoodAdjustment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["likelihoodAdjustment"] = transformedLikelihoodAdjustment
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInfoTypes, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypes(original["info_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInfoTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["infoTypes"] = transformedInfoTypes
+	}
+
+	transformedMinLikelihood, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesMinLikelihood(original["min_likelihood"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinLikelihood); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minLikelihood"] = transformedMinLikelihood
+	}
+
+	transformedMatchingType, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesMatchingType(original["matching_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMatchingType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["matchingType"] = transformedMatchingType
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedVersion, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesVersion(original["version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["version"] = transformedVersion
+		}
+
+		transformedSensitivityScore, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesSensitivityScore(original["sensitivity_score"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sensitivityScore"] = transformedSensitivityScore
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesInfoTypesSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesMinLikelihood(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByMatchingInfoTypesMatchingType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInfoTypes, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypes(original["info_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInfoTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["infoTypes"] = transformedInfoTypes
+	}
+
+	transformedMinLikelihood, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsMinLikelihood(original["min_likelihood"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinLikelihood); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minLikelihood"] = transformedMinLikelihood
+	}
+
+	transformedImageContainmentType, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentType(original["image_containment_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedImageContainmentType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["imageContainmentType"] = transformedImageContainmentType
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedVersion, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesVersion(original["version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["version"] = transformedVersion
+		}
+
+		transformedSensitivityScore, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesSensitivityScore(original["sensitivity_score"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sensitivityScore"] = transformedSensitivityScore
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsInfoTypesSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsMinLikelihood(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEncloses, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeEncloses(original["encloses"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["encloses"] = transformedEncloses
+	}
+
+	transformedFullyInside, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeFullyInside(original["fully_inside"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["fullyInside"] = transformedFullyInside
+	}
+
+	transformedOverlaps, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeOverlaps(original["overlaps"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["overlaps"] = transformedOverlaps
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeEncloses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeFullyInside(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleAdjustByImageFindingsImageContainmentTypeOverlaps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleLikelihoodAdjustment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFixedLikelihood, err := expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleLikelihoodAdjustmentFixedLikelihood(original["fixed_likelihood"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFixedLikelihood); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fixedLikelihood"] = transformedFixedLikelihood
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigRuleSetRulesAdjustmentRuleLikelihoodAdjustmentFixedLikelihood(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -3927,6 +5580,27 @@ func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypes(v interfa
 			return nil, err
 		} else if val := reflect.ValueOf(transformedStoredType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["storedType"] = transformedStoredType
+		}
+
+		transformedDetectionRules, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRules(original["detection_rules"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDetectionRules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["detectionRules"] = transformedDetectionRules
+		}
+
+		transformedFileLabelInfoType, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoType(original["file_label_info_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFileLabelInfoType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["fileLabelInfoType"] = transformedFileLabelInfoType
+		}
+
+		transformedMetadataKeyValueExpression, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpression(original["metadata_key_value_expression"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMetadataKeyValueExpression); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["metadataKeyValueExpression"] = transformedMetadataKeyValueExpression
 		}
 
 		req = append(req, transformed)
@@ -4193,10 +5867,358 @@ func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredType
 		transformed["name"] = transformedName
 	}
 
+	transformedCreateTime, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredTypeCreateTime(original["create_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCreateTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["createTime"] = transformedCreateTime
+	}
+
 	return transformed, nil
 }
 
 func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredTypeName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesStoredTypeCreateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedHotwordRule, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRule(original["hotword_rule"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHotwordRule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["hotwordRule"] = transformedHotwordRule
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHotwordRegex, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegex(original["hotword_regex"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHotwordRegex); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hotwordRegex"] = transformedHotwordRegex
+	}
+
+	transformedProximity, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximity(original["proximity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProximity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["proximity"] = transformedProximity
+	}
+
+	transformedLikelihoodAdjustment, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustment(original["likelihood_adjustment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLikelihoodAdjustment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["likelihoodAdjustment"] = transformedLikelihoodAdjustment
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPattern, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegexPattern(original["pattern"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPattern); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pattern"] = transformedPattern
+	}
+
+	transformedGroupIndexes, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegexGroupIndexes(original["group_indexes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGroupIndexes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["groupIndexes"] = transformedGroupIndexes
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegexPattern(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleHotwordRegexGroupIndexes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedWindowBefore, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximityWindowBefore(original["window_before"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWindowBefore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["windowBefore"] = transformedWindowBefore
+	}
+
+	transformedWindowAfter, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximityWindowAfter(original["window_after"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWindowAfter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["windowAfter"] = transformedWindowAfter
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximityWindowBefore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleProximityWindowAfter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFixedLikelihood, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustmentFixedLikelihood(original["fixed_likelihood"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFixedLikelihood); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fixedLikelihood"] = transformedFixedLikelihood
+	}
+
+	transformedRelativeLikelihood, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustmentRelativeLikelihood(original["relative_likelihood"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRelativeLikelihood); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["relativeLikelihood"] = transformedRelativeLikelihood
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustmentFixedLikelihood(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesDetectionRulesHotwordRuleLikelihoodAdjustmentRelativeLikelihood(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedGoogleDriveLabel, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabel(original["google_drive_label"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGoogleDriveLabel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["googleDriveLabel"] = transformedGoogleDriveLabel
+	}
+
+	transformedSensitivityLabel, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeSensitivityLabel(original["sensitivity_label"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSensitivityLabel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sensitivityLabel"] = transformedSensitivityLabel
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLabelId, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelId(original["label_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLabelId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["labelId"] = transformedLabelId
+	}
+
+	transformedLabelFieldsToMatch, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatch(original["label_fields_to_match"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLabelFieldsToMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["labelFieldsToMatch"] = transformedLabelFieldsToMatch
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedId, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatchId(original["id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["id"] = transformedId
+		}
+
+		transformedValue, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatchValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatchId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeGoogleDriveLabelLabelFieldsToMatchValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeSensitivityLabel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedGuid, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeSensitivityLabelGuid(original["guid"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGuid); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["guid"] = transformedGuid
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesFileLabelInfoTypeSensitivityLabelGuid(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKeyRegex, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpressionKeyRegex(original["key_regex"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKeyRegex); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["keyRegex"] = transformedKeyRegex
+	}
+
+	transformedValueRegex, err := expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpressionValueRegex(original["value_regex"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValueRegex); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["valueRegex"] = transformedValueRegex
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpressionKeyRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionContentPolicyInspectConfigCustomInfoTypesMetadataKeyValueExpressionValueRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
