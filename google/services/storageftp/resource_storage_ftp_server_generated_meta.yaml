@@ -12,14 +12,18 @@ fields:
     - field: effective_labels
       provider_only: true
     - api_field: externalConfig.allowedCidrBlocks
+    - api_field: externalConfig.ipAddress
     - api_field: internalConfig.consumerAcceptList.connectionLimit
     - api_field: internalConfig.consumerAcceptList.project
     - api_field: internalConfig.consumerRejectList.project
+    - api_field: internalConfig.serviceAttachment
     - api_field: labels
     - field: location
       provider_only: true
     - field: server_id
       provider_only: true
+    - api_field: serviceAgent
+    - api_field: state
     - field: terraform_labels
       provider_only: true
     - field: deletion_policy

@@ -212,7 +212,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: `The credentials associated with the user.`,
-				MaxItems:    1,
+				MaxItems:    10,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"credential_name": {
@@ -240,12 +240,22 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The provisioning status of the user.`,
+			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"username": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The SFTP login username for the user.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -826,6 +836,14 @@ func flattenStorageFtpUserLabels(v interface{}, d *schema.ResourceData, config *
 	return transformed
 }
 
+func flattenStorageFtpUserUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenStorageFtpUserState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenStorageFtpUserTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -987,6 +1005,12 @@ func ResourceStorageFtpUserFlatten(d *schema.ResourceData, meta interface{}, res
 		return fmt.Errorf("Error reading User: %s", err)
 	}
 	if err = d.Set("labels", flattenStorageFtpUserLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading User: %s", err)
+	}
+	if err = d.Set("username", flattenStorageFtpUserUsername(res["username"], d, config)); err != nil {
+		return fmt.Errorf("Error reading User: %s", err)
+	}
+	if err = d.Set("state", flattenStorageFtpUserState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading User: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenStorageFtpUserTerraformLabels(res["labels"], d, config)); err != nil {
