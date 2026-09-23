@@ -52,11 +52,13 @@ func TestAccDataSourceGoogleStorageBucketObjects_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_objects.my_insects", "bucket_objects.0.name"),
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_objects.my_insects", "bucket_objects.0.self_link"),
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_objects.my_insects", "bucket_objects.0.storage_class"),
+					resource.TestCheckResourceAttrSet("data.google_storage_bucket_objects.my_insects", "bucket_objects.0.updated"),
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_objects.my_insects", "bucket_objects.1.content_type"),
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_objects.my_insects", "bucket_objects.1.media_link"),
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_objects.my_insects", "bucket_objects.1.name"),
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_objects.my_insects", "bucket_objects.1.self_link"),
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_objects.my_insects", "bucket_objects.1.storage_class"),
+					resource.TestCheckResourceAttrSet("data.google_storage_bucket_objects.my_insects", "bucket_objects.1.updated"),
 					// Test content
 					resource.TestCheckResourceAttr("data.google_storage_bucket_objects.my_insects", "bucket", context["bucket"].(string)),
 					resource.TestCheckResourceAttr("data.google_storage_bucket_objects.my_insects", "bucket_objects.0.name", context["object_0_name"].(string)),

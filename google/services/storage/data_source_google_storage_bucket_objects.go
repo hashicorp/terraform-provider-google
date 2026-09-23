@@ -66,6 +66,10 @@ func DataSourceGoogleStorageBucketObjects() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"updated": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -143,7 +147,7 @@ func flattenDatasourceGoogleBucketObjectsList(v interface{}) []map[string]interf
 	for _, raw := range ls {
 		o := raw.(map[string]interface{})
 
-		var mContentType, mMediaLink, mName, mSelfLink, mStorageClass interface{}
+		var mContentType, mMediaLink, mName, mSelfLink, mStorageClass, mUpdated interface{}
 		if oContentType, ok := o["contentType"]; ok {
 			mContentType = oContentType
 		}
@@ -159,12 +163,16 @@ func flattenDatasourceGoogleBucketObjectsList(v interface{}) []map[string]interf
 		if oStorageClass, ok := o["storageClass"]; ok {
 			mStorageClass = oStorageClass
 		}
+		if oUpdated, ok := o["updated"]; ok {
+			mUpdated = oUpdated
+		}
 		bucketObjects = append(bucketObjects, map[string]interface{}{
 			"content_type":  mContentType,
 			"media_link":    mMediaLink,
 			"name":          mName,
 			"self_link":     mSelfLink,
 			"storage_class": mStorageClass,
+			"updated":       mUpdated,
 		})
 	}
 
