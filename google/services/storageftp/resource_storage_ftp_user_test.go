@@ -44,6 +44,10 @@ func TestAccStorageFtpUser_updateMappingsAndCredentials(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageFtpUser_initial(bucketName, saName, serverId, userId),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_storage_ftp_user.user_ftp", "username"),
+					resource.TestCheckResourceAttrSet("google_storage_ftp_user.user_ftp", "state"),
+				),
 			},
 			{
 				ResourceName:      "google_storage_ftp_user.user_ftp",
