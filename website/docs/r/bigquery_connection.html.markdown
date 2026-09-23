@@ -34,6 +34,9 @@ To get more information about Connection, see:
 values will be stored in the raw state as plain text: `cloud_sql.credential.password`, `configuration.authentication.username_password.password.plaintext`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+~> **Note:**  All arguments marked as write-only values will not be stored in the state: `cloud_sql.credential.password_wo`.
+[Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_connection_cloud_resource&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -329,6 +332,55 @@ resource "google_bigquery_connection" "bq-connection-cmek" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_connection_sql_with_cmek_password_wo&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Connection Sql With Cmek Password Wo
+
+
+```hcl
+resource "google_sql_database_instance" "instance" {
+  name             = "my-database-instance"
+  region           = "us-central1"
+
+  database_version = "POSTGRES_11"
+  settings {
+    tier = "db-f1-micro"
+  }
+
+  deletion_protection  = true
+}
+
+resource "google_sql_database" "db" {
+  instance = google_sql_database_instance.instance.name
+  name     = "db"
+}
+
+resource "google_sql_user" "user" {
+  name = "user"
+  instance = google_sql_database_instance.instance.name
+  password = "tf-test-my-password%{random_suffix}"
+}
+
+resource "google_bigquery_connection" "bq-connection-cmek" {
+  friendly_name = "👋"
+  description   = "a riveting description"
+  location      = "US"
+  kms_key_name  = "projects/project/locations/us-central1/keyRings/us-central1/cryptoKeys/bq-key"
+  cloud_sql {
+    instance_id = google_sql_database_instance.instance.connection_name
+    database    = google_sql_database.db.name
+    type        = "POSTGRES"
+    credential {
+      username             = google_sql_user.user.name
+      password_wo          = google_sql_user.user.password
+      password_wo_version  = "1"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_connection_connector_configuration&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -526,9 +578,20 @@ The following arguments are supported:
   Username for database.
 
 * `password` -
-  (Required)
+  (Optional)
   Password for database.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `password_wo` -
+  (Optional, Write-Only)
+  Password for database.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** One of `password` or `password_wo` can only be set.
+
+* `password_wo_version` -
+  (Optional)
+  Triggers update of `password_wo` write-only. Increment this value when an update to `password_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 <a name="nested_aws"></a>The `aws` block supports:
 

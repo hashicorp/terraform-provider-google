@@ -24,6 +24,10 @@ fields:
     - api_field: cloudSpanner.useParallelism
     - api_field: cloudSpanner.useServerlessAnalytics
     - api_field: cloudSql.credential.password
+    - api_field: cloudSql.credential.password
+      field: cloud_sql.credential.password_wo
+    - field: cloud_sql.credential.password_wo_version
+      provider_only: true
     - api_field: cloudSql.credential.username
     - api_field: cloudSql.database
     - api_field: cloudSql.instanceId

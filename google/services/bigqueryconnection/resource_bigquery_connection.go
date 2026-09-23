@@ -293,16 +293,31 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"password": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `Password for database.`,
-										Sensitive:   true,
-									},
 									"username": {
 										Type:        schema.TypeString,
 										Required:    true,
 										Description: `Username for database.`,
+									},
+									"password": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `Password for database.`,
+										Sensitive:    true,
+										ExactlyOneOf: []string{"cloud_sql.0.credential.0.password", "cloud_sql.0.credential.0.password_wo"},
+									},
+									"password_wo": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `Password for database.`,
+										WriteOnly:    true,
+										ExactlyOneOf: []string{"cloud_sql.0.credential.0.password", "cloud_sql.0.credential.0.password_wo"},
+										RequiredWith: []string{"cloud_sql.0.credential.0.password_wo_version"},
+									},
+									"password_wo_version": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  `Triggers update of 'password_wo' write-only. Increment this value when an update to 'password_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+										RequiredWith: []string{"cloud_sql.0.credential.0.password_wo"},
 									},
 								},
 							},
@@ -1155,8 +1170,9 @@ func flattenBigqueryConnectionConnectionCloudSqlDatabase(v interface{}, d *schem
 func flattenBigqueryConnectionConnectionCloudSqlCredential(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return []interface{}{
 		map[string]interface{}{
-			"username": d.Get("cloud_sql.0.credential.0.username"),
-			"password": d.Get("cloud_sql.0.credential.0.password"),
+			"username":            d.Get("cloud_sql.0.credential.0.username"),
+			"password":            d.Get("cloud_sql.0.credential.0.password"),
+			"password_wo_version": d.Get("cloud_sql.0.credential.0.password_wo_version"),
 		},
 	}
 }
@@ -1632,6 +1648,13 @@ func expandBigqueryConnectionConnectionCloudSqlCredential(v interface{}, d tpgre
 		transformed["password"] = transformedPassword
 	}
 
+	transformedPasswordWo, err := expandBigqueryConnectionConnectionCloudSqlCredentialPasswordWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "cloud_sql.0.credential.0.password_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPasswordWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["password"] = transformedPasswordWo
+	}
+
 	return transformed, nil
 }
 
@@ -1640,6 +1663,14 @@ func expandBigqueryConnectionConnectionCloudSqlCredentialUsername(v interface{},
 }
 
 func expandBigqueryConnectionConnectionCloudSqlCredentialPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionCloudSqlCredentialPasswordWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionCloudSqlCredentialPasswordWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

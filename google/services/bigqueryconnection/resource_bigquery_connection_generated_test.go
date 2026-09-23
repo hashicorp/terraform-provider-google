@@ -87,7 +87,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(
 				ResourceName:            "google_bigquery_connection.connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
@@ -120,7 +120,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(t *testi
 	context := map[string]interface{}{
 		"database_instance_name": "tf-test-my-database-instance" + randomSuffix,
 		"deletion_protection":    false,
-		"username":               "user" + randomSuffix,
+		"username":               "tf-test-user" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}
 
@@ -140,7 +140,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(t *testi
 				ResourceName:            "google_bigquery_connection.connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "location"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
@@ -228,7 +228,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionFullExample(t *testin
 				ResourceName:            "google_bigquery_connection.connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "location"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
@@ -314,7 +314,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAwsExample(t *testing
 				ResourceName:            "google_bigquery_connection.connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
@@ -370,7 +370,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAzureExample(t *testi
 				ResourceName:            "google_bigquery_connection.connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
@@ -425,7 +425,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerExample(t
 				ResourceName:            "google_bigquery_connection.connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
@@ -479,7 +479,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerDataboost
 				ResourceName:            "google_bigquery_connection.connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
@@ -530,7 +530,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSparkExample(t *testi
 				ResourceName:            "google_bigquery_connection.connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
@@ -611,7 +611,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(t 
 				ResourceName:            "google_bigquery_connection.bq-connection-cmek",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "location"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.bq-connection-cmek",
@@ -666,6 +666,93 @@ resource "google_bigquery_connection" "bq-connection-cmek" {
 `, context)
 }
 
+func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekPasswordWoExample(t *testing.T) {
+	t.Parallel()
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
+		{
+			Member: "serviceAccount:bq-{project_number}@bigquery-encryption.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"database_instance_name": "tf-test-my-database-instance" + randomSuffix,
+		"deletion_protection":    false,
+		"kms_key_name":           kms.BootstrapKMSKey(t).CryptoKey.Name,
+		"username":               "user" + randomSuffix,
+		"random_suffix":          randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekPasswordWoExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.bq-connection-cmek",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential", "cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_connection.bq-connection-cmek",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekPasswordWoExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%{database_instance_name}"
+  region           = "us-central1"
+
+  database_version = "POSTGRES_11"
+  settings {
+    tier = "db-f1-micro"
+  }
+
+  deletion_protection  = %{deletion_protection}
+}
+
+resource "google_sql_database" "db" {
+  instance = google_sql_database_instance.instance.name
+  name     = "db"
+}
+
+resource "google_sql_user" "user" {
+  name = "%{username}"
+  instance = google_sql_database_instance.instance.name
+  password = "tf-test-my-password%{random_suffix}"
+}
+
+resource "google_bigquery_connection" "bq-connection-cmek" {
+  friendly_name = "👋"
+  description   = "a riveting description"
+  location      = "US"
+  kms_key_name  = "%{kms_key_name}"
+  cloud_sql {
+    instance_id = google_sql_database_instance.instance.connection_name
+    database    = google_sql_database.db.name
+    type        = "POSTGRES"
+    credential {
+      username             = google_sql_user.user.name
+      password_wo          = google_sql_user.user.password
+      password_wo_version  = "1"
+    }
+  }
+}
+`, context)
+}
+
 func TestAccBigqueryConnectionConnection_bigqueryConnectionConnectorConfigurationExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
@@ -695,7 +782,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionConnectorConfiguratio
 				ResourceName:            "google_bigquery_connection.connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"configuration.0.authentication.0.username_password.0.password", "location"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "configuration.0.authentication.0.username_password.0.password", "location"},
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
