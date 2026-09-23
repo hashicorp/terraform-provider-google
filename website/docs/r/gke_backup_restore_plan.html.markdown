@@ -36,8 +36,11 @@ To get more information about RestorePlan, see:
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "restore-all-ns-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -54,7 +57,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "restore-all-ns"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -64,7 +67,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "all_ns" {
   name = "restore-all-ns"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -84,8 +87,11 @@ resource "google_gke_backup_restore_plan" "all_ns" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "rollback-ns-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -102,7 +108,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "rollback-ns"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -112,7 +118,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "rollback_ns" {
   name = "rollback-ns-rp"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -141,8 +147,11 @@ resource "google_gke_backup_restore_plan" "rollback_ns" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "rollback-app-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -159,7 +168,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "rollback-app"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -169,7 +178,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "rollback_app" {
   name = "rollback-app-rp"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -193,8 +202,11 @@ resource "google_gke_backup_restore_plan" "rollback_app" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "all-groupkinds-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -211,7 +223,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "all-groupkinds"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -221,7 +233,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "all_cluster_resources" {
   name = "all-groupkinds-rp"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -240,8 +252,11 @@ resource "google_gke_backup_restore_plan" "all_cluster_resources" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "rename-ns-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -258,7 +273,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "rename-ns"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -268,7 +283,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "rename_ns" {
   name = "rename-ns-rp"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -314,8 +329,11 @@ resource "google_gke_backup_restore_plan" "rename_ns" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "transform-rule-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -332,7 +350,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "transform-rule"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -346,7 +364,7 @@ resource "google_gke_backup_restore_plan" "transform_rule" {
   labels = {
     "app" = "nginx"
   }
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -386,8 +404,11 @@ resource "google_gke_backup_restore_plan" "transform_rule" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "gitops-mode-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -404,7 +425,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "gitops-mode"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -414,7 +435,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "gitops_mode" {
   name = "gitops-mode"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -434,8 +455,11 @@ resource "google_gke_backup_restore_plan" "gitops_mode" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "restore-order-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -452,7 +476,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "restore-order"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -462,7 +486,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "restore_order" {
   name = "restore-order"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -504,8 +528,11 @@ resource "google_gke_backup_restore_plan" "restore_order" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "volume-res-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -522,7 +549,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "volume-res"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -532,7 +559,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "volume_res" {
   name = "volume-res"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
