@@ -57,7 +57,7 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 		"deletion_protection": false,
 		"name":                "tf-test-basic-plan" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -101,7 +101,7 @@ func TestAccGKEBackupBackupPlanIamMemberGenerated(t *testing.T) {
 		"deletion_protection": false,
 		"name":                "tf-test-basic-plan" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -143,7 +143,7 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 		"deletion_protection": false,
 		"name":                "tf-test-basic-plan" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -177,8 +177,11 @@ func testAccGKEBackupBackupPlanIamMember_basicGenerated(context map[string]inter
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -195,7 +198,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -217,8 +220,11 @@ func testAccGKEBackupBackupPlanIamPolicy_basicGenerated(context map[string]inter
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -235,7 +241,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -272,8 +278,11 @@ func testAccGKEBackupBackupPlanIamPolicy_emptyBinding(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -290,7 +299,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -314,8 +323,11 @@ func testAccGKEBackupBackupPlanIamBinding_basicGenerated(context map[string]inte
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -332,7 +344,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -354,8 +366,11 @@ func testAccGKEBackupBackupPlanIamBinding_updateGenerated(context map[string]int
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -372,7 +387,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true

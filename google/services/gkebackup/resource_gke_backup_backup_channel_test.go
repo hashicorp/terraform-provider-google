@@ -57,7 +57,7 @@ func testAccGKEBackupBackupChannel_basic(context map[string]interface{}) string 
 	return acctest.Nprintf(`
 resource "google_gke_backup_backup_channel" "basic" {
   name = "tf-test-basic-channel%{random_suffix}"
-  location = "us-central1"
+  location = "us-east1"
   description = ""
   destination_project = "%{destination_project}"
   labels = { "key": "some-value" }
