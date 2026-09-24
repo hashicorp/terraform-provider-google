@@ -172,6 +172,16 @@ func ListComputeRegionCompositeHealthChecks(config *transport_tpg.Config,
 			if err = ResourceComputeRegionCompositeHealthCheckFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if region != "" {
+				if err := d.Set("region", region); err != nil {
+					return fmt.Errorf("error setting region: %w", err)
+				}
+			}
+			if project != "" {
+				if err := d.Set("project", project); err != nil {
+					return fmt.Errorf("error setting project: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/regions/{{region}}/compositeHealthChecks/{{name}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

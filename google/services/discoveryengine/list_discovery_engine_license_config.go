@@ -175,6 +175,16 @@ func ListDiscoveryEngineLicenseConfigs(config *transport_tpg.Config,
 			if err = ResourceDiscoveryEngineLicenseConfigFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if location != "" {
+				if err := d.Set("location", location); err != nil {
+					return fmt.Errorf("error setting location: %w", err)
+				}
+			}
+			if project != "" {
+				if err := d.Set("project", project); err != nil {
+					return fmt.Errorf("error setting project: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/licenseConfigs/{{license_config_id}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

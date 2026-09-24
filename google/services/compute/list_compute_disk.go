@@ -177,6 +177,16 @@ func ListComputeDisks(config *transport_tpg.Config,
 			if err = ResourceComputeDiskFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if zone != "" {
+				if err := d.Set("zone", zone); err != nil {
+					return fmt.Errorf("error setting zone: %w", err)
+				}
+			}
+			if project != "" {
+				if err := d.Set("project", project); err != nil {
+					return fmt.Errorf("error setting project: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/zones/{{zone}}/disks/{{name}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

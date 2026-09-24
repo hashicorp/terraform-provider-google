@@ -157,6 +157,11 @@ func ListSecretManagerSecrets(config *transport_tpg.Config,
 			if err = ResourceSecretManagerSecretFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if project != "" {
+				if err := d.Set("project", project); err != nil {
+					return fmt.Errorf("error setting project: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/secrets/{{secret_id}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

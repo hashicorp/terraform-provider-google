@@ -169,6 +169,11 @@ func ListApigeeDatastores(config *transport_tpg.Config,
 			if err = ResourceApigeeDatastoreFlatten(d, config, res, config, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if orgId != "" {
+				if err := d.Set("org_id", orgId); err != nil {
+					return fmt.Errorf("error setting org_id: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "{{org_id}}/analytics/datastores/{{name}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

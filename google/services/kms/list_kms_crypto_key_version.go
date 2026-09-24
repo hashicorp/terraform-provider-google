@@ -154,6 +154,11 @@ func ListKMSCryptoKeyVersions(config *transport_tpg.Config,
 			if err = ResourceKMSCryptoKeyVersionFlatten(d, config, res, config, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if cryptoKey != "" {
+				if err := d.Set("crypto_key", cryptoKey); err != nil {
+					return fmt.Errorf("error setting crypto_key: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)
