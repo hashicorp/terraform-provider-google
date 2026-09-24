@@ -16,6 +16,7 @@ fields:
     - field: effective_labels
       provider_only: true
     - api_field: egressNetworkConfig.dnsPeeringConfig.domain
+    - api_field: egressNetworkConfig.dnsPeeringConfig.domains
     - api_field: egressNetworkConfig.dnsPeeringConfig.targetNetwork
     - api_field: egressNetworkConfig.networkAttachment
     - api_field: egressNetworkConfig.vpcEgress

@@ -125,7 +125,7 @@ data "google_project" "project" {}
 
 resource "google_network_services_agent_connectivity_template" "default" {
   agent_connectivity_template_id = "%{agent_connectivity_template_id}"
-  location                       = "us-central1"
+  location                       = "us-west2"
   description                    = "A basic configuration for Agent Connectivity Template"
   labels = {
     env  = "test"
@@ -143,7 +143,7 @@ data "google_project" "project" {}
 
 resource "google_network_services_agent_connectivity_template" "default" {
   agent_connectivity_template_id = "%{agent_connectivity_template_id}"
-  location                       = "us-central1"
+  location                       = "us-west2"
   description                    = "An updated configuration for Agent Connectivity Template"
   labels = {
     env  = "prod"
@@ -235,14 +235,14 @@ resource "google_compute_network" "default" {
 
 resource "google_compute_subnetwork" "default" {
   name          = "%{subnetwork_name}"
-  region        = "us-central1"
+  region        = "us-west2"
   network       = google_compute_network.default.id
   ip_cidr_range = "10.0.0.0/16"
 }
 
 resource "google_compute_network_attachment" "default" {
   name                  = "%{network_attachment_name}"
-  region                = "us-central1"
+  region                = "us-west2"
   connection_preference = "ACCEPT_AUTOMATIC"
   subnetworks           = [google_compute_subnetwork.default.id]
 }
@@ -262,7 +262,7 @@ resource "google_dns_managed_zone" "default" {
 
 resource "google_network_services_agent_connectivity_template" "default" {
   agent_connectivity_template_id = "%{agent_connectivity_template_id}"
-  location                       = "us-central1"
+  location                       = "us-west2"
   description                    = "An advanced configuration for Agent Connectivity Template"
 
   access_types = ["PRIVATE"]
@@ -272,7 +272,7 @@ resource "google_network_services_agent_connectivity_template" "default" {
     vpc_egress = "ALL_TRAFFIC"
     network_attachment = google_compute_network_attachment.default.id
     dns_peering_config {
-      domain         = google_dns_managed_zone.default.dns_name
+      domains        = [google_dns_managed_zone.default.dns_name]
       target_network = google_compute_network.default.id
     }
   }
@@ -291,14 +291,14 @@ resource "google_compute_network" "default" {
 
 resource "google_compute_subnetwork" "default" {
   name          = "%{subnetwork_name}"
-  region        = "us-central1"
+  region        = "us-west2"
   network       = google_compute_network.default.id
   ip_cidr_range = "10.0.0.0/16"
 }
 
 resource "google_compute_network_attachment" "default" {
   name                  = "%{network_attachment_name}"
-  region                = "us-central1"
+  region                = "us-west2"
   connection_preference = "ACCEPT_AUTOMATIC"
   subnetworks           = [google_compute_subnetwork.default.id]
 }
@@ -318,7 +318,7 @@ resource "google_dns_managed_zone" "default" {
 
 resource "google_network_services_agent_connectivity_template" "default" {
   agent_connectivity_template_id = "%{agent_connectivity_template_id}"
-  location                       = "us-central1"
+  location                       = "us-west2"
   description                    = "An updated advanced configuration for Agent Connectivity Template"
 
   access_types = ["PUBLIC"]
@@ -332,7 +332,9 @@ resource "google_network_services_agent_connectivity_template" "default" {
     vpc_egress = "PRIVATE_RANGES_ONLY"
     network_attachment = google_compute_network_attachment.default.id
     dns_peering_config {
+      # domain is deprecated but still supported; the API merges it with domains.
       domain         = google_dns_managed_zone.default.dns_name
+      domains        = ["sub.example.com."]
       target_network = google_compute_network.default.id
     }
   }

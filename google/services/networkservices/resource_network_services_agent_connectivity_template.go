@@ -189,22 +189,34 @@ Both PUBLIC and PRIVATE can be configured. Possible values: ["PUBLIC", "PRIVATE"
 							Optional: true,
 							Description: `DNS peering configuration for the AgentConnectivityTemplate.
 When set, the gateway will resolve queries for the configured
-'domain' via Cloud DNS in the specified 'targetNetwork'.`,
+'domains' via Cloud DNS in the specified 'targetNetwork'.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"domain": {
-										Type:     schema.TypeString,
-										Required: true,
-										Description: `The domain name to peer for DNS resolution. Must be a fully
-qualified domain name ending with a dot (for example, 'example.com.').`,
-									},
 									"target_network": {
 										Type:             schema.TypeString,
 										Required:         true,
 										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 										Description: `The URI of the target VPC network for DNS peering. Must be of the
 form 'projects/{project}/global/networks/{network}'.`,
+									},
+									"domain": {
+										Type:       schema.TypeString,
+										Optional:   true,
+										Deprecated: "`domain` is deprecated and will be removed in a future major release. Use `domains` instead.",
+										Description: `The domain name to peer for DNS resolution. Must be a fully
+qualified domain name ending with a dot (for example, 'example.com.').`,
+									},
+									"domains": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `The list of domain names to peer for DNS resolution. Each entry
+must be a fully qualified domain name ending with a dot
+(for example, 'example.com.'). At least one domain must be
+specified between 'domain' and 'domains'.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 									},
 								},
 							},
@@ -818,11 +830,17 @@ func flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeerin
 	transformed := make(map[string]interface{})
 	transformed["domain"] =
 		flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeeringConfigDomain(original["domain"], d, config)
+	transformed["domains"] =
+		flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeeringConfigDomains(original["domains"], d, config)
 	transformed["target_network"] =
 		flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeeringConfigTargetNetwork(original["targetNetwork"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeeringConfigDomain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeeringConfigDomains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -928,6 +946,13 @@ func expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeering
 		transformed["domain"] = transformedDomain
 	}
 
+	transformedDomains, err := expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeeringConfigDomains(original["domains"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDomains); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["domains"] = transformedDomains
+	}
+
 	transformedTargetNetwork, err := expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeeringConfigTargetNetwork(original["target_network"], d, config)
 	if err != nil {
 		return nil, err
@@ -939,6 +964,10 @@ func expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeering
 }
 
 func expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeeringConfigDomain(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeeringConfigDomains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
