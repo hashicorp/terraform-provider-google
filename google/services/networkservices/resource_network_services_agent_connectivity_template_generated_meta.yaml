@@ -19,6 +19,8 @@ fields:
     - api_field: egressNetworkConfig.dnsPeeringConfig.domains
     - api_field: egressNetworkConfig.dnsPeeringConfig.targetNetwork
     - api_field: egressNetworkConfig.networkAttachment
+    - api_field: egressNetworkConfig.tlsConfig.additionalRoots
+    - api_field: egressNetworkConfig.tlsConfig.trustConfig
     - api_field: egressNetworkConfig.vpcEgress
     - api_field: etag
     - api_field: labels
