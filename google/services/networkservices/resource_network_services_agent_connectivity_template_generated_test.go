@@ -32,6 +32,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/certificatemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dns"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkservices"
@@ -167,6 +168,7 @@ func TestAccNetworkServicesAgentConnectivityTemplate_networkServicesAgentConnect
 		"network_attachment_name":        "tf-test-my-attachment" + randomSuffix,
 		"network_name":                   "tf-test-my-network" + randomSuffix,
 		"subnetwork_name":                "tf-test-my-subnetwork" + randomSuffix,
+		"trust_config_name":              "tf-test-my-trust-config" + randomSuffix,
 		"random_suffix":                  randomSuffix,
 	}
 
@@ -177,6 +179,7 @@ func TestAccNetworkServicesAgentConnectivityTemplate_networkServicesAgentConnect
 		"network_attachment_name":        "tf-test-my-attachment" + randomSuffix,
 		"network_name":                   "tf-test-my-network" + randomSuffix,
 		"subnetwork_name":                "tf-test-my-subnetwork" + randomSuffix,
+		"trust_config_name":              "tf-test-my-trust-config" + randomSuffix,
 		"random_suffix":                  randomSuffix,
 	}
 
@@ -260,6 +263,20 @@ resource "google_dns_managed_zone" "default" {
   }
 }
 
+resource "google_certificate_manager_trust_config" "default" {
+  name        = "%{trust_config_name}"
+  location    = "us-west2"
+
+  trust_stores {
+    trust_anchors { 
+      pem_certificate = file("test-fixtures/cert.pem")
+    }
+    intermediate_cas { 
+      pem_certificate = file("test-fixtures/cert.pem")
+    }
+  }
+}
+
 resource "google_network_services_agent_connectivity_template" "default" {
   agent_connectivity_template_id = "%{agent_connectivity_template_id}"
   location                       = "us-west2"
@@ -274,6 +291,10 @@ resource "google_network_services_agent_connectivity_template" "default" {
     dns_peering_config {
       domains        = [google_dns_managed_zone.default.dns_name]
       target_network = google_compute_network.default.id
+    }
+    tls_config {
+      trust_config = "projects/${data.google_project.project.number}/locations/us-west2/trustConfigs/${google_certificate_manager_trust_config.default.name}"
+      additional_roots = "NO_ADDITIONAL_ROOTS"
     }
   }
 }
@@ -316,6 +337,20 @@ resource "google_dns_managed_zone" "default" {
   }
 }
 
+resource "google_certificate_manager_trust_config" "default" {
+  name        = "%{trust_config_name}"
+  location    = "us-west2"
+
+  trust_stores {
+    trust_anchors { 
+      pem_certificate = file("test-fixtures/cert.pem")
+    }
+    intermediate_cas { 
+      pem_certificate = file("test-fixtures/cert.pem")
+    }
+  }
+}
+
 resource "google_network_services_agent_connectivity_template" "default" {
   agent_connectivity_template_id = "%{agent_connectivity_template_id}"
   location                       = "us-west2"
@@ -336,6 +371,10 @@ resource "google_network_services_agent_connectivity_template" "default" {
       domain         = google_dns_managed_zone.default.dns_name
       domains        = ["sub.example.com."]
       target_network = google_compute_network.default.id
+    }
+    tls_config {
+      trust_config = "projects/${data.google_project.project.number}/locations/us-west2/trustConfigs/${google_certificate_manager_trust_config.default.name}"
+      additional_roots = "NO_ADDITIONAL_ROOTS"
     }
   }
 }

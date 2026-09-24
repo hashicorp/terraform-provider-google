@@ -84,6 +84,20 @@ resource "google_dns_managed_zone" "default" {
   }
 }
 
+resource "google_certificate_manager_trust_config" "default" {
+  name        = "my-trust-config"
+  location    = "us-west2"
+
+  trust_stores {
+    trust_anchors { 
+      pem_certificate = file("test-fixtures/cert.pem")
+    }
+    intermediate_cas { 
+      pem_certificate = file("test-fixtures/cert.pem")
+    }
+  }
+}
+
 resource "google_network_services_agent_connectivity_template" "default" {
   agent_connectivity_template_id = "my-connectivity-template"
   location                       = "us-west2"
@@ -98,6 +112,10 @@ resource "google_network_services_agent_connectivity_template" "default" {
     dns_peering_config {
       domains        = [google_dns_managed_zone.default.dns_name]
       target_network = google_compute_network.default.id
+    }
+    tls_config {
+      trust_config = "projects/${data.google_project.project.number}/locations/us-west2/trustConfigs/${google_certificate_manager_trust_config.default.name}"
+      additional_roots = "NO_ADDITIONAL_ROOTS"
     }
   }
 }
@@ -175,6 +193,11 @@ The following arguments are supported:
   The VPC egress setting.
   Possible values are: `ALL_TRAFFIC`, `PRIVATE_RANGES_ONLY`.
 
+* `tls_config` -
+  (Optional)
+  The TLS configuration for the egress traffic.
+  Structure is [documented below](#nested_egress_network_config_tls_config).
+
 
 <a name="nested_egress_network_config_dns_peering_config"></a>The `dns_peering_config` block supports:
 
@@ -196,6 +219,18 @@ The following arguments are supported:
   (Required)
   The URI of the target VPC network for DNS peering. Must be of the
   form `projects/{project}/global/networks/{network}`.
+
+<a name="nested_egress_network_config_tls_config"></a>The `tls_config` block supports:
+
+* `trust_config` -
+  (Optional)
+  The trust config resource name.
+  Format: projects/{project}/locations/{location}/trustConfigs/{trust_config}
+
+* `additional_roots` -
+  (Required)
+  Defines whether additional roots should be trusted.
+  Possible values are: `NO_ADDITIONAL_ROOTS`, `PUBLICLY_TRUSTED_ROOTS`.
 
 ## Attributes Reference
 

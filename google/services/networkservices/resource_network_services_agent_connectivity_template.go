@@ -229,6 +229,31 @@ specified between 'domain' and 'domains'.`,
 							Description: `The network attachment resource name.
 Format: projects/{project}/regions/{region}/networkAttachments/{network_attachment_id}`,
 						},
+						"tls_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The TLS configuration for the egress traffic.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"additional_roots": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ForceNew:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"NO_ADDITIONAL_ROOTS", "PUBLICLY_TRUSTED_ROOTS"}),
+										Description:  `Defines whether additional roots should be trusted. Possible values: ["NO_ADDITIONAL_ROOTS", "PUBLICLY_TRUSTED_ROOTS"]`,
+									},
+									"trust_config": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `The trust config resource name.
+Format: projects/{project}/locations/{location}/trustConfigs/{trust_config}`,
+									},
+								},
+							},
+						},
 						"vpc_egress": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -813,6 +838,8 @@ func flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfig(v interf
 		flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeeringConfig(original["dnsPeeringConfig"], d, config)
 	transformed["vpc_egress"] =
 		flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigVpcEgress(original["vpcEgress"], d, config)
+	transformed["tls_config"] =
+		flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfig(original["tlsConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigNetworkAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -849,6 +876,29 @@ func flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeerin
 }
 
 func flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigVpcEgress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["trust_config"] =
+		flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfigTrustConfig(original["trustConfig"], d, config)
+	transformed["additional_roots"] =
+		flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfigAdditionalRoots(original["additionalRoots"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfigTrustConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfigAdditionalRoots(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -920,6 +970,13 @@ func expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfig(v interfa
 		transformed["vpcEgress"] = transformedVpcEgress
 	}
 
+	transformedTlsConfig, err := expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfig(original["tls_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTlsConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tlsConfig"] = transformedTlsConfig
+	}
+
 	return transformed, nil
 }
 
@@ -976,6 +1033,43 @@ func expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigDnsPeering
 }
 
 func expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigVpcEgress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTrustConfig, err := expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfigTrustConfig(original["trust_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTrustConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["trustConfig"] = transformedTrustConfig
+	}
+
+	transformedAdditionalRoots, err := expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfigAdditionalRoots(original["additional_roots"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAdditionalRoots); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["additionalRoots"] = transformedAdditionalRoots
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfigTrustConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesAgentConnectivityTemplateEgressNetworkConfigTlsConfigAdditionalRoots(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
