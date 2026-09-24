@@ -244,7 +244,7 @@ resource "google_discovery_engine_data_connector" "servicenow-basic" {
 `, context)
 }
 
-func TestAccDiscoveryEngineDataConnector_DataConnectorEntitiesParamsDiffSuppress(t *testing.T) {
+func TestDiscoveryEngineDataConnector_DataConnectorEntitiesParamsDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Old, New           string
 		ExpectDiffSuppress bool
