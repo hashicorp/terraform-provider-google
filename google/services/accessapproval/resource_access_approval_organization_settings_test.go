@@ -33,19 +33,16 @@ import (
 // Since access approval settings are hierarchical, and only one can exist per folder/project/org,
 // and all refer to the same organization, they need to be run serially
 func TestAccAccessApprovalSettings(t *testing.T) {
-	testCases := []struct {
-		name string
-		fn   func(t *testing.T)
-	}{
-		{"organization", testAccAccessApprovalOrganizationSettings},
-		{"folder", testAccAccessApprovalFolderSettings},
-		{"project", testAccAccessApprovalProjectSettings},
+	testCases := map[string]func(t *testing.T){
+		"organization": testAccAccessApprovalOrganizationSettings,
+		"folder":       testAccAccessApprovalFolderSettings,
+		"project":      testAccAccessApprovalProjectSettings,
 	}
 
-	for _, tc := range testCases {
+	for name, tc := range testCases {
 		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			tc.fn(t)
+		t.Run(name, func(t *testing.T) {
+			tc(t)
 		})
 	}
 }

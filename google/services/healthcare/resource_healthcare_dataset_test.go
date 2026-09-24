@@ -28,7 +28,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccHealthcareDatasetIdParsing(t *testing.T) {
+func TestHealthcareDatasetIdParsing(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]struct {
