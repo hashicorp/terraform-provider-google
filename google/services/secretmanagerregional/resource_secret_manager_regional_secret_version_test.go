@@ -17,6 +17,7 @@
 package secretmanagerregional_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -42,9 +43,10 @@ func TestAccSecretManagerRegionalRegionalSecretVersion_update(t *testing.T) {
 				Config: testAccSecretManagerRegionalRegionalSecretVersion_basic(context),
 			},
 			{
-				ResourceName:      "google_secret_manager_regional_secret_version.secret-version-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_secret_manager_regional_secret_version.secret-version-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"secret_data_wo_version"},
 			},
 			{
 				Config: testAccSecretManagerRegionalRegionalSecretVersion_disable(context),
@@ -55,15 +57,16 @@ func TestAccSecretManagerRegionalRegionalSecretVersion_update(t *testing.T) {
 				ImportStateVerify: true,
 				// at this point the secret data is disabled and so reading the data on import will
 				// give an empty string
-				ImportStateVerifyIgnore: []string{"secret_data"},
+				ImportStateVerifyIgnore: []string{"secret_data", "secret_data_wo_version"},
 			},
 			{
 				Config: testAccSecretManagerRegionalRegionalSecretVersion_basic(context),
 			},
 			{
-				ResourceName:      "google_secret_manager_regional_secret_version.secret-version-basic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_secret_manager_regional_secret_version.secret-version-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"secret_data_wo_version"},
 			},
 		},
 	})
@@ -86,12 +89,47 @@ func TestAccSecretManagerRegionalRegionalSecretVersion_cmekOutputOnly(t *testing
 				Config: testAccSecretManagerRegionalRegionalSecretVersion_cmekOutputOnly(context),
 			},
 			{
-				ResourceName:      "google_secret_manager_regional_secret_version.secret-version-cmek",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_secret_manager_regional_secret_version.secret-version-cmek",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"secret_data_wo_version"},
 			},
 		},
 	})
+}
+
+func TestAccSecretManagerRegionalRegionalSecretVersion_neitherSecretDataSet(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccSecretManagerRegionalRegionalSecretVersion_noSecretData(context),
+				ExpectError: regexp.MustCompile(`Invalid combination of arguments`),
+			},
+		},
+	})
+}
+
+func testAccSecretManagerRegionalRegionalSecretVersion_noSecretData(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "secret-basic" {
+  secret_id = "tf-test-secret-version-%{random_suffix}"
+  location = "us-central1"
+}
+
+resource "google_secret_manager_regional_secret_version" "secret-version-basic" {
+  secret = google_secret_manager_regional_secret.secret-basic.name
+  secret_data_wo_version = 3
+}
+`, context)
 }
 
 func testAccSecretManagerRegionalRegionalSecretVersion_basic(context map[string]interface{}) string {
