@@ -1,0 +1,27 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_semantic_governance_policy
+generation_type: mmv1
+source_file: products/vertexai/SemanticGovernancePolicy.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: SemanticGovernancePolicy
+fields:
+    - api_field: agent
+    - api_field: agentIdentity
+    - api_field: agentResponseCustomization.denialMessage
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: etag
+    - api_field: mcpTools.mcpServer
+    - api_field: mcpTools.tools
+    - api_field: name
+    - api_field: naturalLanguageConstraint
+    - field: region
+      provider_only: true
+    - field: semantic_governance_policy_id
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
