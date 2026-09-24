@@ -36,7 +36,7 @@ data "google_project" "project" {}
 
 resource "google_network_services_agent_connectivity_template" "default" {
   agent_connectivity_template_id = "my-connectivity-template"
-  location                       = "us-central1"
+  location                       = "us-west2"
   description                    = "A basic configuration for Agent Connectivity Template"
   labels = {
     env  = "test"
@@ -59,14 +59,14 @@ resource "google_compute_network" "default" {
 
 resource "google_compute_subnetwork" "default" {
   name          = "my-subnetwork"
-  region        = "us-central1"
+  region        = "us-west2"
   network       = google_compute_network.default.id
   ip_cidr_range = "10.0.0.0/16"
 }
 
 resource "google_compute_network_attachment" "default" {
   name                  = "my-attachment"
-  region                = "us-central1"
+  region                = "us-west2"
   connection_preference = "ACCEPT_AUTOMATIC"
   subnetworks           = [google_compute_subnetwork.default.id]
 }
@@ -86,7 +86,7 @@ resource "google_dns_managed_zone" "default" {
 
 resource "google_network_services_agent_connectivity_template" "default" {
   agent_connectivity_template_id = "my-connectivity-template"
-  location                       = "us-central1"
+  location                       = "us-west2"
   description                    = "An advanced configuration for Agent Connectivity Template"
 
   access_types = ["PRIVATE"]
@@ -96,7 +96,7 @@ resource "google_network_services_agent_connectivity_template" "default" {
     vpc_egress = "ALL_TRAFFIC"
     network_attachment = google_compute_network_attachment.default.id
     dns_peering_config {
-      domain         = google_dns_managed_zone.default.dns_name
+      domains        = [google_dns_managed_zone.default.dns_name]
       target_network = google_compute_network.default.id
     }
   }
@@ -167,7 +167,7 @@ The following arguments are supported:
   (Optional)
   DNS peering configuration for the AgentConnectivityTemplate.
   When set, the gateway will resolve queries for the configured
-  `domain` via Cloud DNS in the specified `targetNetwork`.
+  `domains` via Cloud DNS in the specified `targetNetwork`.
   Structure is [documented below](#nested_egress_network_config_dns_peering_config).
 
 * `vpc_egress` -
@@ -179,9 +179,18 @@ The following arguments are supported:
 <a name="nested_egress_network_config_dns_peering_config"></a>The `dns_peering_config` block supports:
 
 * `domain` -
-  (Required)
+  (Optional, Deprecated)
   The domain name to peer for DNS resolution. Must be a fully
   qualified domain name ending with a dot (for example, `example.com.`).
+
+  ~> **Warning:** `domain` is deprecated and will be removed in a future major release. Use `domains` instead.
+
+* `domains` -
+  (Optional)
+  The list of domain names to peer for DNS resolution. Each entry
+  must be a fully qualified domain name ending with a dot
+  (for example, `example.com.`). At least one domain must be
+  specified between `domain` and `domains`.
 
 * `target_network` -
   (Required)

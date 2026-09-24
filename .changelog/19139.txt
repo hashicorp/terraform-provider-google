@@ -1,0 +1,7 @@
+```release-note:enhancement
+networkservices: added `domains` field to `egress_network_config.dns_peering_config` in `google_network_services_agent_connectivity_template`
+```
+
+```release-note:deprecation
+networkservices: `egress_network_config.dns_peering_config.domain` field in `google_network_services_agent_connectivity_template` is deprecated. Use `egress_network_config.dns_peering_config.domains`
+```
