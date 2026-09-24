@@ -1,0 +1,3 @@
+```release-note:deprecation
+firebaseailogic: deprecated `generative_language_config` and `generative_language_config.api_key` in `google_firebase_ai_logic_config` resource
+```
