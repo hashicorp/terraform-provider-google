@@ -9,12 +9,15 @@ api_resource_type_kind: Agent
 fields:
     - api_field: afterAgentCallbacks.description
     - api_field: afterAgentCallbacks.disabled
+    - api_field: afterAgentCallbacks.proactiveExecutionEnabled
     - api_field: afterAgentCallbacks.pythonCode
     - api_field: afterModelCallbacks.description
     - api_field: afterModelCallbacks.disabled
+    - api_field: afterModelCallbacks.proactiveExecutionEnabled
     - api_field: afterModelCallbacks.pythonCode
     - api_field: afterToolCallbacks.description
     - api_field: afterToolCallbacks.disabled
+    - api_field: afterToolCallbacks.proactiveExecutionEnabled
     - api_field: afterToolCallbacks.pythonCode
     - field: agent_id
       provider_only: true
@@ -22,12 +25,15 @@ fields:
       provider_only: true
     - api_field: beforeAgentCallbacks.description
     - api_field: beforeAgentCallbacks.disabled
+    - api_field: beforeAgentCallbacks.proactiveExecutionEnabled
     - api_field: beforeAgentCallbacks.pythonCode
     - api_field: beforeModelCallbacks.description
     - api_field: beforeModelCallbacks.disabled
+    - api_field: beforeModelCallbacks.proactiveExecutionEnabled
     - api_field: beforeModelCallbacks.pythonCode
     - api_field: beforeToolCallbacks.description
     - api_field: beforeToolCallbacks.disabled
+    - api_field: beforeToolCallbacks.proactiveExecutionEnabled
     - api_field: beforeToolCallbacks.pythonCode
     - api_field: childAgents
     - api_field: createTime
