@@ -23,21 +23,27 @@ fields:
     - api_field: name
     - api_field: snapshot.agents.afterAgentCallbacks.description
     - api_field: snapshot.agents.afterAgentCallbacks.disabled
+    - api_field: snapshot.agents.afterAgentCallbacks.proactiveExecutionEnabled
     - api_field: snapshot.agents.afterAgentCallbacks.pythonCode
     - api_field: snapshot.agents.afterModelCallbacks.description
     - api_field: snapshot.agents.afterModelCallbacks.disabled
+    - api_field: snapshot.agents.afterModelCallbacks.proactiveExecutionEnabled
     - api_field: snapshot.agents.afterModelCallbacks.pythonCode
     - api_field: snapshot.agents.afterToolCallbacks.description
     - api_field: snapshot.agents.afterToolCallbacks.disabled
+    - api_field: snapshot.agents.afterToolCallbacks.proactiveExecutionEnabled
     - api_field: snapshot.agents.afterToolCallbacks.pythonCode
     - api_field: snapshot.agents.beforeAgentCallbacks.description
     - api_field: snapshot.agents.beforeAgentCallbacks.disabled
+    - api_field: snapshot.agents.beforeAgentCallbacks.proactiveExecutionEnabled
     - api_field: snapshot.agents.beforeAgentCallbacks.pythonCode
     - api_field: snapshot.agents.beforeModelCallbacks.description
     - api_field: snapshot.agents.beforeModelCallbacks.disabled
+    - api_field: snapshot.agents.beforeModelCallbacks.proactiveExecutionEnabled
     - api_field: snapshot.agents.beforeModelCallbacks.pythonCode
     - api_field: snapshot.agents.beforeToolCallbacks.description
     - api_field: snapshot.agents.beforeToolCallbacks.disabled
+    - api_field: snapshot.agents.beforeToolCallbacks.proactiveExecutionEnabled
     - api_field: snapshot.agents.beforeToolCallbacks.pythonCode
     - api_field: snapshot.agents.childAgents
     - api_field: snapshot.agents.createTime
@@ -196,15 +202,19 @@ fields:
     - api_field: snapshot.guardrails.action.transferAgent.agent
     - api_field: snapshot.guardrails.codeCallback.afterAgentCallback.description
     - api_field: snapshot.guardrails.codeCallback.afterAgentCallback.disabled
+    - api_field: snapshot.guardrails.codeCallback.afterAgentCallback.proactiveExecutionEnabled
     - api_field: snapshot.guardrails.codeCallback.afterAgentCallback.pythonCode
     - api_field: snapshot.guardrails.codeCallback.afterModelCallback.description
     - api_field: snapshot.guardrails.codeCallback.afterModelCallback.disabled
+    - api_field: snapshot.guardrails.codeCallback.afterModelCallback.proactiveExecutionEnabled
     - api_field: snapshot.guardrails.codeCallback.afterModelCallback.pythonCode
     - api_field: snapshot.guardrails.codeCallback.beforeAgentCallback.description
     - api_field: snapshot.guardrails.codeCallback.beforeAgentCallback.disabled
+    - api_field: snapshot.guardrails.codeCallback.beforeAgentCallback.proactiveExecutionEnabled
     - api_field: snapshot.guardrails.codeCallback.beforeAgentCallback.pythonCode
     - api_field: snapshot.guardrails.codeCallback.beforeModelCallback.description
     - api_field: snapshot.guardrails.codeCallback.beforeModelCallback.disabled
+    - api_field: snapshot.guardrails.codeCallback.beforeModelCallback.proactiveExecutionEnabled
     - api_field: snapshot.guardrails.codeCallback.beforeModelCallback.pythonCode
     - api_field: snapshot.guardrails.contentFilter.bannedContents
     - api_field: snapshot.guardrails.contentFilter.bannedContentsInAgentResponse

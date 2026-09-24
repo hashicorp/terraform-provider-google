@@ -1,0 +1,7 @@
+```release-note:enhancement
+ces: added `proactive_execution_enabled` field to callbacks in `google_ces_agent`
+```
+
+```release-note:enhancement
+ces: added `proactive_execution_enabled` output fields to snapshot.agents callbacks in `google_ces_app_version`
+```

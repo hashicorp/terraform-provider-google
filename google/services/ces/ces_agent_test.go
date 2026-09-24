@@ -188,36 +188,42 @@ resource "google_ces_agent" "ces_agent_basic" {
     description = "Example callback"
     disabled    = true
     python_code = "def before_agent_callback(callback_context): return None"
+    proactive_execution_enabled = false
   }
 
   after_agent_callbacks {
     description = "Example callback"
     disabled    = true
     python_code = "def after_agent_callback(callback_context): return None"
+    proactive_execution_enabled = false
   }
 
   before_model_callbacks {
     description = "Example callback"
     disabled    = true
     python_code = "def before_model_callback(callback_context, llm_request): return None"
+    proactive_execution_enabled = false
   }
 
   after_model_callbacks {
     description = "Example callback"
     disabled    = true
     python_code = "def after_model_callback(callback_context, llm_response): return None"
+    proactive_execution_enabled = false
   }
 
   before_tool_callbacks {
     description = "Example callback"
     disabled    = true
     python_code = "def before_tool_callback(tool, input, callback_context): return None"
+    proactive_execution_enabled = false
   }
 
   after_tool_callbacks {
     description = "Example callback"
     disabled    = true
     python_code = "def after_tool_callback(tool, input, callback_context, tool_response): return None"
+    proactive_execution_enabled = false
   }
 
   tools = [
@@ -377,36 +383,42 @@ resource "google_ces_agent" "ces_agent_basic" {
     description = "Example callback"
     disabled    = false
     python_code = "def before_agent_callback(callback_context): return None"
+    proactive_execution_enabled = true
   }
 
   after_agent_callbacks {
     description = "Example callback"
     disabled    = false
     python_code = "def after_agent_callback(callback_context): return None"
+    proactive_execution_enabled = true
   }
 
   before_model_callbacks {
     description = "Example callback"
     disabled    = false
     python_code = "def before_model_callback(callback_context, llm_request): return None"
+    proactive_execution_enabled = true
   }
 
   after_model_callbacks {
     description = "Example callback"
     disabled    = false
     python_code = "def after_model_callback(callback_context, llm_response): return None"
+    proactive_execution_enabled = true
   }
 
   before_tool_callbacks {
     description = "Example callback"
     disabled    = false
     python_code = "def before_tool_callback(tool, input, callback_context): return None"
+    proactive_execution_enabled = true
   }
 
   after_tool_callbacks {
     description = "Example callback"
     disabled    = false
     python_code = "def after_tool_callback(tool, input, callback_context, tool_response): return None"
+    proactive_execution_enabled = true
   }
 
   // tools = [
