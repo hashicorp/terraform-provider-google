@@ -120,6 +120,78 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=service_attachment_nat_ips&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Service Attachment Nat Ips
+
+
+```hcl
+resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
+  name        = "my-psc-ilb"
+  region      = "us-central1"
+  description = "A service attachment configured with Terraform"
+
+  enable_proxy_protocol    = true
+  nat_ips_per_endpoint     = 2
+  connection_preference    = "ACCEPT_AUTOMATIC"
+  nat_subnets              = [google_compute_subnetwork.psc_ilb_nat.id]
+  target_service           = google_compute_forwarding_rule.psc_ilb_target_service.id
+}
+
+
+resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
+  name   = "producer-forwarding-rule"
+  region = "us-central1"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.psc_ilb_network.name
+  subnetwork            = google_compute_subnetwork.psc_ilb_producer_subnetwork.name
+}
+
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  name   = "producer-service"
+  region = "us-central1"
+
+  health_checks = [google_compute_health_check.producer_service_health_check.id]
+}
+
+resource "google_compute_health_check" "producer_service_health_check" {
+  name = "producer-service-health-check"
+
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_network" "psc_ilb_network" {
+  name = "psc-ilb-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
+  name   = "psc-ilb-producer-subnetwork"
+  region = "us-central1"
+
+  network       = google_compute_network.psc_ilb_network.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_subnetwork" "psc_ilb_nat" {
+  name   = "psc-ilb-nat"
+  region = "us-central1"
+
+  network       = google_compute_network.psc_ilb_network.id
+  purpose       =  "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.1.0.0/16"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=service_attachment_explicit_projects&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -625,6 +697,10 @@ The following arguments are supported:
   NOTE: This field is temporarily non-functional due to an underlying API issue.
   Any value provided here will be ignored until the API issue is resolved, expected around 2026-03.
   [If true, show NAT IPs of all connected endpoints.]
+
+* `nat_ips_per_endpoint` -
+  (Optional)
+  The number of NAT IPs allocated per connected endpoint.
 
 * `domain_names` -
   (Optional)
