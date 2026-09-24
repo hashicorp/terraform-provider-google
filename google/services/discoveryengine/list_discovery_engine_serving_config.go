@@ -215,6 +215,26 @@ func ListDiscoveryEngineServingConfigs(config *transport_tpg.Config,
 			if err = ResourceDiscoveryEngineServingConfigFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if location != "" {
+				if err := d.Set("location", location); err != nil {
+					return fmt.Errorf("error setting location: %w", err)
+				}
+			}
+			if collectionId != "" {
+				if err := d.Set("collection_id", collectionId); err != nil {
+					return fmt.Errorf("error setting collection_id: %w", err)
+				}
+			}
+			if engineId != "" {
+				if err := d.Set("engine_id", engineId); err != nil {
+					return fmt.Errorf("error setting engine_id: %w", err)
+				}
+			}
+			if project != "" {
+				if err := d.Set("project", project); err != nil {
+					return fmt.Errorf("error setting project: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/servingConfigs/{{serving_config_id}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

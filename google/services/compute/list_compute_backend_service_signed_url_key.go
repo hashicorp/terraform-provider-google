@@ -176,6 +176,16 @@ func ListComputeBackendServiceSignedUrlKeys(config *transport_tpg.Config,
 			if err = ResourceComputeBackendServiceSignedUrlKeyFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if backendService != "" {
+				if err := d.Set("backend_service", backendService); err != nil {
+					return fmt.Errorf("error setting backend_service: %w", err)
+				}
+			}
+			if project != "" {
+				if err := d.Set("project", project); err != nil {
+					return fmt.Errorf("error setting project: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/global/backendServices/{{backend_service}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

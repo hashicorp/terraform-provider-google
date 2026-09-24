@@ -198,11 +198,23 @@ func SetResourceIdentityAttributes(d *schema.ResourceData, attrs map[string]inte
 // It panics if SDKv2Resource, Identity, or the identity schema is empty (wiring error).
 func (listR *ListResourceMetadata) setResourceIdentity(rd *schema.ResourceData) error {
 	idSchema := listR.SDKv2Resource.Identity.SchemaMap()
-	attrs := make(map[string]interface{}, len(idSchema))
-	for attr := range idSchema {
-		attrs[attr] = rd.Get(attr)
+	identity, err := rd.Identity()
+	if err != nil {
+		return fmt.Errorf("error getting resource identity: %w", err)
 	}
-	return SetResourceIdentityAttributes(rd, attrs)
+	if identity == nil {
+		return fmt.Errorf("resource identity is unavailable")
+	}
+
+	for attr := range idSchema {
+		if value, ok := identity.GetOk(attr); ok && value != "" {
+			continue
+		}
+		if err := identity.Set(attr, rd.Get(attr)); err != nil {
+			return fmt.Errorf("error setting resource identity field %q: %w", attr, err)
+		}
+	}
+	return nil
 }
 
 // ListResultDisplayName returns the first non-empty label from rd for keys in order. Use a
@@ -232,14 +244,23 @@ func ListResultDisplayName(rd *schema.ResourceData, keys ...string) (string, err
 // via ListResultDisplayName when it is still empty; omit or pass no keys to skip. Non-empty keys
 // produce an error if no key yields a non-empty display label.
 func (listR *ListResourceMetadata) SetResult(ctx context.Context, includeResource bool, result *list.ListResult, rd *schema.ResourceData, displayNameKeys ...string) error {
-	if err := listR.setResourceIdentity(rd); err != nil {
+	identityRD := rd
+	identity, identityErr := rd.Identity()
+	if identityErr != nil || identity == nil {
+		identityRD = listR.SDKv2Resource.TestResourceData()
+		identityRD.SetId(rd.Id())
+		if err := listR.setResourceIdentityFrom(identityRD, rd); err != nil {
+			return err
+		}
+	} else if err := listR.setResourceIdentity(rd); err != nil {
 		return err
 	}
 
-	tfTypeIdentity, err := rd.TfTypeIdentityState()
+	tfTypeIdentity, err := identityRD.TfTypeIdentityState()
 	if err != nil {
 		return fmt.Errorf("error converting identity state: %w", err)
 	}
+
 	if err := result.Identity.Set(ctx, *tfTypeIdentity); err != nil {
 		return errors.New("error setting identity on list result")
 	}
@@ -263,4 +284,13 @@ func (listR *ListResourceMetadata) SetResult(ctx context.Context, includeResourc
 	}
 
 	return nil
+}
+
+func (listR *ListResourceMetadata) setResourceIdentityFrom(identityRD, sourceRD *schema.ResourceData) error {
+	idSchema := listR.SDKv2Resource.Identity.SchemaMap()
+	attrs := make(map[string]interface{}, len(idSchema))
+	for attr := range idSchema {
+		attrs[attr] = sourceRD.Get(attr)
+	}
+	return SetResourceIdentityAttributes(identityRD, attrs)
 }
