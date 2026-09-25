@@ -311,6 +311,35 @@ resource "google_compute_security_policy_rule" "policy_rule_one" {
   ]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=security_policy_rule_request_body_expression&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Security Policy Rule Request Body Expression
+
+
+```hcl
+resource "google_compute_security_policy" "default" {
+  provider    = google-beta
+  name        = "policyruletest"
+  description = "basic global security policy"
+  type        = "CLOUD_ARMOR"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule" {
+  provider        = google-beta
+  security_policy = google_compute_security_policy.default.name
+  description     = "Deny requests containing specific body string"
+  action          = "deny(403)"
+  priority        = 1000
+  match {
+    expr {
+      expression = "request.body.contains('my-match-string')"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -466,7 +495,7 @@ The following arguments are supported:
 
 * `request_body` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
-  A list of request body fields to be excluded from inspection during\npreconfigured WAF evaluation.
+  A list of request body fields to be excluded from inspection during preconfigured WAF evaluation.
   Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_body).
 
 * `request_query_param` -
