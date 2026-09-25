@@ -8,6 +8,8 @@ api_version: v1
 api_resource_type_kind: ParameterVersion
 fields:
     - api_field: createTime
+    - api_field: payload.dataCrc32c
+      field: data_crc32c
     - api_field: disabled
     - api_field: kmsKeyVersion
     - api_field: name
