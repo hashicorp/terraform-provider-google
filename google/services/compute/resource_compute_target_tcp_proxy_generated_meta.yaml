@@ -11,6 +11,7 @@ fields:
       field: backend_service
     - api_field: creationTimestamp
     - api_field: description
+    - api_field: loadBalancingScheme
     - api_field: name
     - api_field: proxyBind
     - api_field: proxyHeader

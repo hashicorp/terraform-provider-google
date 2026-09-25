@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networkservices"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -93,14 +94,16 @@ func TestAccComputeTargetTcpProxy_targetTcpProxyBasicExample(t *testing.T) {
 func testAccComputeTargetTcpProxy_targetTcpProxyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_target_tcp_proxy" "default" {
-  name            = "%{target_tcp_proxy_name}"
-  backend_service = google_compute_backend_service.default.id
+  name                  = "%{target_tcp_proxy_name}"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  backend_service       = google_compute_backend_service.default.id
 }
 
 resource "google_compute_backend_service" "default" {
-  name        = "%{backend_service_name}"
-  protocol    = "TCP"
-  timeout_sec = 10
+  name                  = "%{backend_service_name}"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol              = "TCP"
+  timeout_sec           = 10
 
   health_checks = [google_compute_health_check.default.id]
 }
@@ -112,6 +115,129 @@ resource "google_compute_health_check" "default" {
 
   tcp_health_check {
     port = "443"
+  }
+}
+`, context)
+}
+
+func TestAccComputeTargetTcpProxy_targetTcpProxyBackendlessExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"target_tcp_proxy_name": "tf-test-test-proxy" + randomSuffix,
+		"random_suffix":         randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeTargetTcpProxyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeTargetTcpProxy_targetTcpProxyBackendlessExample(context),
+			},
+			{
+				ResourceName:            "google_compute_target_tcp_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service"},
+			},
+			{
+				ResourceName:       "google_compute_target_tcp_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeTargetTcpProxy_targetTcpProxyBackendlessExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_target_tcp_proxy" "default" {
+  name                  = "%{target_tcp_proxy_name}"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+}
+`, context)
+}
+
+func TestAccComputeTargetTcpProxy_targetTcpProxyTlsRouteExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"backend_service_name":  "tf-test-backend-service" + randomSuffix,
+		"health_check_name":     "tf-test-health-check" + randomSuffix,
+		"target_tcp_proxy_name": "tf-test-test-proxy" + randomSuffix,
+		"tls_route_name":        "tf-test-tls-route-check" + randomSuffix,
+		"random_suffix":         randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeTargetTcpProxyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeTargetTcpProxy_targetTcpProxyTlsRouteExample(context),
+			},
+			{
+				ResourceName:            "google_compute_target_tcp_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service"},
+			},
+			{
+				ResourceName:       "google_compute_target_tcp_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeTargetTcpProxy_targetTcpProxyTlsRouteExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_target_tcp_proxy" "default" {
+  name                  = "%{target_tcp_proxy_name}"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+}
+
+resource "google_compute_backend_service" "default" {
+  name                  = "%{backend_service_name}"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  protocol              = "TCP"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name     = "%{health_check_name}"
+
+  https_health_check {
+    port = 443
+  }
+}
+
+resource "google_network_services_tls_route" "default" {
+  name     = "%{tls_route_name}"
+
+  target_proxies = [
+    google_compute_target_tcp_proxy.default.id
+  ]
+
+  rules {
+    matches {
+      sni_host = ["example.com"]
+    }
+    action {
+      destinations {
+        service_name = google_compute_backend_service.default.id
+      }
+    }
   }
 }
 `, context)
