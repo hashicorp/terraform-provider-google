@@ -265,6 +265,163 @@ resource "google_compute_region_security_policy_rule" "policy_rule_network_match
   preview         = true
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_security_policy_rule_with_body_exclude&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Security Policy Rule With Body Exclude
+
+
+```hcl
+
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "test-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "test-network-subnet"
+  region        = "us-west2"
+  network       = google_compute_network.default.id
+  ip_cidr_range = "10.10.0.0/24"
+}
+
+resource "google_compute_region_health_check" "default" {
+  provider = google-beta
+  name     = "test-health-check"
+	region   = "us-west2"
+
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_compute_region_security_policy" "default" {
+  provider    = google-beta
+  name        = "policyruletest"
+  description = "regional security policy with body inspection"
+  region      = "us-west2"
+  type        = "CLOUD_ARMOR"
+
+  advanced_options_config {
+    json_parsing = "STANDARD"
+    log_level    = "VERBOSE"
+  }
+}
+
+resource "google_compute_instance_template" "default" {
+  provider     = google-beta
+  name         = "backendpolicy"
+  machine_type = "e2-micro"
+
+  disk {
+    source_image = "projects/debian-cloud/global/images/family/debian-11"
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {}
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "default" {
+  provider           = google-beta
+  name               = "backendpolicy"
+  region             = "us-west2"
+  base_instance_name = "backend"
+
+  version {
+    instance_template = google_compute_instance_template.default.id
+  }
+
+  target_size = 1
+}
+
+resource "google_compute_region_backend_service" "default" {
+  provider              = google-beta
+  name                  = "backendpolicy"
+  region                = "us-west2"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  timeout_sec           = 30
+
+  health_checks = [google_compute_region_health_check.default.id]
+
+  backend {
+    group = google_compute_region_instance_group_manager.default.instance_group
+    capacity_scaler = 1.0
+  }
+
+  security_policy = google_compute_region_security_policy.default.id
+}
+
+resource "google_compute_region_security_policy_rule" "policy_rule_one" {
+  provider        = google-beta
+  security_policy = google_compute_region_security_policy.default.name
+  description     = "waf body rule"
+  region          = "us-west2"
+  action          = "deny(403)"
+  priority        = 100
+  preview         = true
+
+  match {
+    expr {
+      expression = "evaluatePreconfiguredWaf('sqli-v33-stable')"
+    }
+  }
+
+  preconfigured_waf_config {
+    exclusion {
+      target_rule_set = "sqli-v33-stable"
+
+      request_body {
+        operator = "EQUALS"
+        value    = "safe-field"
+      }
+    }
+  }
+
+  depends_on = [
+    google_compute_region_backend_service.default
+  ]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_security_policy_rule_request_body_expression&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Security Policy Rule Request Body Expression
+
+
+```hcl
+resource "google_compute_region_security_policy" "default" {
+  provider    = google-beta
+  name        = "policyruletest"
+  region      = "us-west2"
+  description = "basic global security policy"
+  type        = "CLOUD_ARMOR"
+}
+
+resource "google_compute_region_security_policy_rule" "policy_rule" {
+  provider        = google-beta
+  security_policy = google_compute_region_security_policy.default.name
+  region          = "us-west2"
+  description     = "Deny requests containing specific body string"
+  action          = "deny(403)"
+  priority        = 1000
+  match {
+    expr {
+      expression = "request.body.contains('my-match-string')"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -410,6 +567,11 @@ The following arguments are supported:
   When specifying this field, the query or fragment part should be excluded.
   Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_uri).
 
+* `request_body` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  A list of request body fields to be excluded from inspection during preconfigured WAF evaluation.
+  Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_body).
+
 * `request_query_param` -
   (Optional)
   Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation.
@@ -465,6 +627,23 @@ The following arguments are supported:
   CONTAINS: The operator matches if the field value contains the specified value.
   EQUALS_ANY: The operator matches if the field value is any value.
   Possible values are: `CONTAINS`, `ENDS_WITH`, `EQUALS`, `EQUALS_ANY`, `STARTS_WITH`.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_preconfigured_waf_config_exclusion_request_body"></a>The `request_body` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
 
 * `value` -
   (Optional)
