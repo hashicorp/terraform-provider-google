@@ -1,0 +1,3 @@
+```release-note:new-list-resource
+`google_storage_bucket_iam_member`
+```
