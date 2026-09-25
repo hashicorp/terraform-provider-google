@@ -1,0 +1,3 @@
+```release-note:bug
+google_service_directory_endpoint: prevent recreation when the network project ID is canonicalized to a project number
+```
