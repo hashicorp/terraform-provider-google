@@ -41,6 +41,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -176,9 +177,14 @@ func (r *IamListCore) RawV5Schemas(ctx context.Context, _ list.RawV5SchemaReques
 	}
 }
 
+func iamListResourceData(r *schema.Resource) *schema.ResourceData {
+	// Resource.Data retains timeout fields so SDK state matches the list schema.
+	return r.Data(&terraform.InstanceState{})
+}
+
 // discoverPolicyTargets returns one ResourceData per GCP resource whose IAM policy should be read.
 func (r *IamListCore) discoverPolicyTargets(ctx context.Context, req list.ListRequest) ([]*schema.ResourceData, error) {
-	baseRd := r.iamResource.TestResourceData()
+	baseRd := iamListResourceData(r.iamResource)
 
 	// Set every target-identifying field (parent + scope dimensions like project/region/
 	// zone/location) from the list config onto the ResourceData the updater reads.
@@ -219,7 +225,7 @@ func (r *IamListCore) discoverPolicyTargets(ctx context.Context, req list.ListRe
 	}
 
 	listOpts.Callback = func(rd *schema.ResourceData) error {
-		targetRd := r.iamResource.TestResourceData()
+		targetRd := iamListResourceData(r.iamResource)
 		targets = append(targets, targetRd)
 		return nil
 	}
