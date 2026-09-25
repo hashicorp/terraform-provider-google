@@ -174,11 +174,11 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 				Computed:     true,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"AVAILABILITY_TYPE_UNSPECIFIED", "ZONAL", "REGIONAL", ""}),
-				Description: `'Availability type of an Instance. Defaults to REGIONAL for both primary and read instances.
-Note that primary and read instances can have different availability types.
-Primary instances can be either ZONAL or REGIONAL. Read Pool instances can also be either ZONAL or REGIONAL.
-Read pools of size 1 can only have zonal availability. Read pools with a node count of 2 or more
-can have regional availability (nodes are present in 2 or more zones in a region).
+				Description: `'Availability type of a primary Instance. Defaults to REGIONAL.
+Primary instances can be either ZONAL or REGIONAL. Read Pool instances
+derive their availability from 'read_pool_config.node_count': a pool
+with one node is ZONAL, while a pool with two or more nodes is REGIONAL.
+Read Pool instances do not support setting this field directly.
 Possible values are: 'AVAILABILITY_TYPE_UNSPECIFIED', 'ZONAL', 'REGIONAL'.' Possible values: ["AVAILABILITY_TYPE_UNSPECIFIED", "ZONAL", "REGIONAL"]`,
 			},
 			"client_connection_config": {
@@ -284,10 +284,12 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cpu_count": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Optional:    true,
-							Description: `The number of CPU's in the VM instance.`,
+							Type:     schema.TypeInt,
+							Computed: true,
+							Optional: true,
+							Description: `The number of CPUs in the VM instance. For read pool instances, this
+value is applied to the instances in the pool and is not replaced by
+a fixed default.`,
 						},
 						"machine_type": {
 							Type:     schema.TypeString,
