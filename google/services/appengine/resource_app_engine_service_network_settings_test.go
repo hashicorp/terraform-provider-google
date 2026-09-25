@@ -71,7 +71,7 @@ resource "google_storage_bucket_object" "object" {
 
 resource "google_app_engine_standard_app_version" "app" {
   version_id = "v1"
-  service = "app-%{random_suffix}"
+  service = "tf-test-app-%{random_suffix}"
   delete_service_on_destroy = true
 
   runtime = "nodejs22"
@@ -111,7 +111,7 @@ resource "google_storage_bucket_object" "object" {
 
 resource "google_app_engine_standard_app_version" "app" {
   version_id = "v1"
-  service = "app-%{random_suffix}"
+  service = "tf-test-app-%{random_suffix}"
   delete_service_on_destroy = true
 
   runtime = "nodejs22"
