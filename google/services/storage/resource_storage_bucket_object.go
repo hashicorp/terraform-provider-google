@@ -25,7 +25,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -224,10 +223,15 @@ func ResourceStorageBucketObject() *schema.Resource {
 				// 3. Don't suppress the diff iff they don't match
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					localMd5Hash := ""
-					if d.GetRawConfig().GetAttr("source_md5hash") == cty.UnknownVal(cty.String) {
+					if !d.GetRawConfig().GetAttr("source_md5hash").IsKnown() ||
+						!d.GetRawConfig().GetAttr("source").IsKnown() ||
+						!d.GetRawConfig().GetAttr("content").IsKnown() {
 						return true
 					}
 					if v, ok := d.GetOk("source_md5hash"); ok && v != "" {
+						return true
+					}
+					if d.HasChange("source") || d.HasChange("content") || d.HasChange("source_md5hash") {
 						return true
 					}
 					if source, ok := d.GetOkExists("source"); ok {
@@ -829,7 +833,9 @@ func flattenContexts(d *schema.ResourceData, contexts *storage.ObjectContexts) i
 func resourceStorageBucketObjectCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	localMd5Hash := ""
 
-	if (d.GetRawConfig().GetAttr("source_md5hash") == cty.UnknownVal(cty.String)) || d.HasChange("source_md5hash") {
+	if (!d.GetRawConfig().GetAttr("source_md5hash").IsKnown() || d.HasChange("source_md5hash")) ||
+		(!d.GetRawConfig().GetAttr("source").IsKnown() || d.HasChange("source")) ||
+		(!d.GetRawConfig().GetAttr("content").IsKnown() || d.HasChange("content")) {
 		return showDiff(d)
 	}
 
