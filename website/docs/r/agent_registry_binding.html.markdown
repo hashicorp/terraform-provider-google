@@ -44,25 +44,66 @@ resource "google_agent_registry_binding" "default" {
   }
 
   auth_provider_binding {
-    auth_provider = google_iam_connectors_connector.default.id
+    auth_provider = google_agent_identity_auth_provider.default.id
     scopes        = ["https://www.googleapis.com/auth/cloud-platform"]
     continue_uri  = "https://example.com/continue"
   }
 
-  depends_on = [google_iam_connectors_connector.default]
+  depends_on = [google_agent_identity_auth_provider.default]
 }
 
 data "google_agent_registry_agent" "default" {
-  location = "global"
+  location = "us-central1"
   filter   = "displayName:Workspace Agent"
 }
 
-resource "google_iam_connectors_connector" "default" {
-  location       = "us-central1"
-  connector_id   = "ar-binding"
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "ar-binding"
 
-  connector_type_params {
-    connector_version = "projects/my-project-name/locations/global/providers/gcp/connectors/pubsub/versions/1"
+  auth_provider_type_params {
+    api_key {
+      api_key = "test-api-key-value"
+    }
+  }
+}
+```
+## Example Usage - Agent Registry Binding Target Only
+
+
+```hcl
+resource "google_agent_registry_binding" "default" {
+  location     = "us-central1"
+  binding_id   = "ar-binding"
+  display_name = "Target Only Binding"
+  description  = "Agent registry binding without source"
+
+  target {
+    identifier = data.google_agent_registry_agent.default.urn
+  }
+
+  auth_provider_binding {
+    auth_provider = google_agent_identity_auth_provider.default.id
+    scopes        = ["https://www.googleapis.com/auth/cloud-platform"]
+    continue_uri  = "https://example.com/continue"
+  }
+
+  depends_on = [google_agent_identity_auth_provider.default]
+}
+
+data "google_agent_registry_agent" "default" {
+  location = "us-central1"
+  filter   = "displayName:Workspace Agent"
+}
+
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "ar-binding"
+
+  auth_provider_type_params {
+    api_key {
+      api_key = "test-api-key-value"
+    }
   }
 }
 ```
@@ -71,11 +112,6 @@ resource "google_iam_connectors_connector" "default" {
 
 The following arguments are supported:
 
-
-* `source` -
-  (Required)
-  The source of the Binding.
-  Structure is [documented below](#nested_source).
 
 * `target` -
   (Required)
@@ -104,6 +140,11 @@ The following arguments are supported:
   (Optional)
   The description of the Binding.
 
+* `source` -
+  (Optional)
+  The source of the Binding.
+  Structure is [documented below](#nested_source).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -114,12 +155,6 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
-
-<a name="nested_source"></a>The `source` block supports:
-
-* `identifier` -
-  (Required)
-  The identifier of the source Agent. Format: `urn:agent:{publisher}:{namespace}:{name}`
 
 <a name="nested_target"></a>The `target` block supports:
 
@@ -143,6 +178,12 @@ The following arguments are supported:
 * `continue_uri` -
   (Optional)
   The continue URI of the auth provider.
+
+<a name="nested_source"></a>The `source` block supports:
+
+* `identifier` -
+  (Required)
+  The identifier of the source Agent. Format: `urn:agent:{publisher}:{namespace}:{name}`
 
 ## Attributes Reference
 

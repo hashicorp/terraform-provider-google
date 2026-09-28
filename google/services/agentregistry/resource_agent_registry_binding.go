@@ -179,21 +179,6 @@ func ResourceAgentRegistryBinding() *schema.Resource {
 				Required:    true,
 				Description: `The location of the resource.`,
 			},
-			"source": {
-				Type:        schema.TypeList,
-				Required:    true,
-				Description: `The source of the Binding.`,
-				MaxItems:    1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"identifier": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `The identifier of the source Agent. Format: 'urn:agent:{publisher}:{namespace}:{name}'`,
-						},
-					},
-				},
-			},
 			"target": {
 				Type:        schema.TypeList,
 				Required:    true,
@@ -221,6 +206,21 @@ func ResourceAgentRegistryBinding() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `User-defined display name for the Binding.`,
+			},
+			"source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The source of the Binding.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"identifier": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The identifier of the source Agent. Format: 'urn:agent:{publisher}:{namespace}:{name}'`,
+						},
+					},
+				},
 			},
 			"create_time": {
 				Type:        schema.TypeString,

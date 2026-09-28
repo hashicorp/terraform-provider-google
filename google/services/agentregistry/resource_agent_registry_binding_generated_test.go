@@ -31,6 +31,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/agentidentity"
 	"github.com/hashicorp/terraform-provider-google/google/services/agentregistry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -55,7 +56,6 @@ var (
 )
 
 func TestAccAgentRegistryBinding_agentRegistryBindingBasicExample(t *testing.T) {
-	acctest.SkipTestUntil(t, "2026-09-30")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -107,25 +107,101 @@ resource "google_agent_registry_binding" "default" {
   }
 
   auth_provider_binding {
-    auth_provider = google_iam_connectors_connector.default.id
+    auth_provider = google_agent_identity_auth_provider.default.id
     scopes        = ["https://www.googleapis.com/auth/cloud-platform"]
     continue_uri  = "https://example.com/continue"
   }
 
-  depends_on = [google_iam_connectors_connector.default]
+  depends_on = [google_agent_identity_auth_provider.default]
 }
 
 data "google_agent_registry_agent" "default" {
-  location = "global"
+  location = "us-central1"
   filter   = "displayName:Workspace Agent"
 }
 
-resource "google_iam_connectors_connector" "default" {
-  location       = "us-central1"
-  connector_id   = "%{binding}"
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "%{binding}"
 
-  connector_type_params {
-    connector_version = "projects/%{project}/locations/global/providers/gcp/connectors/pubsub/versions/1"
+  auth_provider_type_params {
+    api_key {
+      api_key = "test-api-key-value"
+    }
+  }
+}
+`, context)
+}
+
+func TestAccAgentRegistryBinding_agentRegistryBindingTargetOnlyExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"binding":       "tf-test-ar-binding" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAgentRegistryBindingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAgentRegistryBinding_agentRegistryBindingTargetOnlyExample(context),
+			},
+			{
+				ResourceName:            "google_agent_registry_binding.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"binding_id", "location"},
+			},
+			{
+				ResourceName:       "google_agent_registry_binding.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccAgentRegistryBinding_agentRegistryBindingTargetOnlyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agent_registry_binding" "default" {
+  location     = "us-central1"
+  binding_id   = "%{binding}"
+  display_name = "Target Only Binding"
+  description  = "Agent registry binding without source"
+
+  target {
+    identifier = data.google_agent_registry_agent.default.urn
+  }
+
+  auth_provider_binding {
+    auth_provider = google_agent_identity_auth_provider.default.id
+    scopes        = ["https://www.googleapis.com/auth/cloud-platform"]
+    continue_uri  = "https://example.com/continue"
+  }
+
+  depends_on = [google_agent_identity_auth_provider.default]
+}
+
+data "google_agent_registry_agent" "default" {
+  location = "us-central1"
+  filter   = "displayName:Workspace Agent"
+}
+
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "%{binding}"
+
+  auth_provider_type_params {
+    api_key {
+      api_key = "test-api-key-value"
+    }
   }
 }
 `, context)
