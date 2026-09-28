@@ -51,7 +51,7 @@ You can find the builds for nightly tests at:
 * [Google > Nightly Tests](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS?branch=refs%2Fheads%2Fnightly-test&mode=builds#all-projects)
 * [Google Beta > Nightly Tests](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_NIGHTLYTESTS?branch=refs%2Fheads%2Fnightly-test&mode=builds#all-projects)
 
-These projects contain a build configuration per service package.
+These projects contain one build per service package and an **All Nightly Tests** composite. At 4am UTC, **All Providers Nightly Tests** starts both provider composites on `refs/heads/nightly-test`; those composites run their package builds. Service Sweepers run after the root composite.
 
 To view all the failed tests for a given commit:
 
@@ -125,7 +125,11 @@ In REPLAYING mode the build will download VCR cassettes from a GCS Bucket and ru
 
 ### Sweeping the Nightly Test Projects
 
-The Service Sweeper builds in [`Google > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS?mode=builds#all-projects) and [`Google Beta > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_NIGHTLYTESTS#all-projects) run every night via CRON. They are designed to not run until there are no builds testing any services in the GA or Beta nightly test GCP projects. No acceptance testing builds will start until the sweeper stops.
+The Service Sweepers in [`Google > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS?mode=builds#all-projects) and [`Google Beta > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_NIGHTLYTESTS#all-projects) run from the global nightly sweeper gate after testing completes. They have no snapshot dependencies, so manual runs remain independent.
+
+Package builds retain per-service shared-resource locks. Each Service Sweeper locks all values of its provider's shared resource, preventing it from overlapping with package builds that acquire those locks, including ad hoc runs. GA and Beta service sweepers use separate provider locks.
+
+For ad hoc cleanup, manually run **Service Sweeper** in the corresponding Nightly Tests project; no separate manual build configuration is needed. Nightly tests and service sweepers use dedicated VCS roots whose default branch is `refs/heads/nightly-test`.
 
 ### Sweeping the VCR Project
 
@@ -135,4 +139,6 @@ The Service Sweeper builds in [`Google > Upstream MM Testing`](https://hashicorp
 
 When testing the GA and Beta providers we can run tests in parallel because those tests use separate GCP projects. This creates a boundary between the two test suites and ensures they don't clash. However if an acceptance test provisions `google_project` resources in the process then there is no longer a clear GA/Beta boundary based on which host project is in use. This makes sweeping up these resources tough, as there's potential to disrupt any other running build.
 
-The `google_project` resource can be swept up safely if there are no other ongoing builds testing the GA/Beta Google providers. The `Project Sweeper` project contains a special build configuration for this sweeper that locks access to the GA/Beta/VCR GCP projects while it runs. This means the buid must wait for all other builds to stop before it starts, and while it is running no other Google-related builds can leave the queue and start running.
+The **Global Sweepers** project contains a **Nightly Sweeper Gate**, a Project Sweeper, and a Folder Sweeper. The gate starts after **All Providers Nightly Tests**, runs fresh GA and Beta Service Sweepers, and then starts the Project and Folder Sweepers. Manual sweeper runs do not start the test chain.
+
+All sweepers use shared-resource locks to avoid running cleanup alongside tests or another sweeper.

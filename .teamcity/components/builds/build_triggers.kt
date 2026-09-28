@@ -41,6 +41,7 @@ fun Triggers.runNightly(config: NightlyTriggerConfiguration) {
         triggerBuild = always() // Run build even if no new commits/pending changes
         withPendingChangesOnly = false
         enforceCleanCheckout = true
+        enforceCleanCheckoutForDependencies = true
 
         schedulingPolicy = cron {
             hours = config.startHour.toString()

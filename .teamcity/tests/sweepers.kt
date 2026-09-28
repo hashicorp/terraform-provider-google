@@ -7,13 +7,21 @@
 
 package tests
 
-import GlobalSweepersProjectName
+import AllNightlyTestsName
+import AllProvidersNightlyTestsName
+import DefaultBranchName
 import ServiceSweeperCronName
 import ServiceSweeperManualName
 import ServiceSweeperName
+import SharedResourceNameBeta
+import SharedResourceNameGa
+import SharedResourceNameVcr
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.Project
-import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
+import jetbrains.buildServer.configs.kotlin.BuildTypeSettings
+import jetbrains.buildServer.configs.kotlin.ReuseBuilds
+import jetbrains.buildServer.configs.kotlin.FailureAction
+import jetbrains.buildServer.configs.kotlin.SharedResources
+import jetbrains.buildServer.configs.kotlin.triggers.FinishBuildTrigger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -27,7 +35,9 @@ class SweeperTests {
         // Find Global sweepers project
         val globalSweepersProject = getSubProject(root, globalSweepersProjectName)
 
-        globalSweepersProject.buildTypes.forEach{bt ->
+        // The composite gate has no sweeper steps or environment parameters.
+        listOf("Project Sweeper", "Folder Sweeper").forEach { name ->
+            val bt = getBuildFromProject(globalSweepersProject, name)
             val skipProjectSweeper = bt.params.findRawParam("env.SKIP_PROJECT_SWEEPER")!!.value
             assertTrue("env.SKIP_PROJECT_SWEEPER should be set to an empty value in the ${globalSweepersProject.name} project. Value = `${skipProjectSweeper}` ", skipProjectSweeper == "")
 
@@ -131,44 +141,45 @@ class SweeperTests {
     }
 
     @Test
-    fun globalSweepersRunAfterServiceSweepers() {
-        val root = googleCloudRootProject(testContextParameters())
+    fun globalSweepersUseFinishTriggersWithoutDependencies() {
+        listOf("TeamCityTests", "Experimental_NightlyTests").forEach { projectId ->
+            val root = googleCloudRootProject(testContextParameters(projectId))
+            val globalSweepers = getSubProject(root, globalSweepersProjectName)
+            val gate = getBuildFromProject(globalSweepers, "Nightly Sweeper Gate")
+            assertEquals(BuildTypeSettings.Type.COMPOSITE, gate.type)
+            assertTrue("Gate should not execute sweeper steps", gate.steps.items.isEmpty())
+            assertTrue("Gate should not hold locks needed by service sweepers", gate.features.items.filterIsInstance<SharedResources>().isEmpty())
+            val betaNightly = getNestedProjectFromRoot(root, betaProjectName, nightlyTestsProjectName)
+            val gaNightly = getNestedProjectFromRoot(root, gaProjectName, nightlyTestsProjectName)
+            val sweeperBeta = getBuildFromProject(betaNightly, ServiceSweeperName)
+            val sweeperGa = getBuildFromProject(gaNightly, ServiceSweeperName)
+            val allProvidersComposite = getBuildFromProject(root, AllProvidersNightlyTestsName)
+            assertFinishTrigger(gate, allProvidersComposite, DefaultBranchName)
+            assertSnapshotDependencies(gate, listOf(sweeperGa, sweeperBeta), FailureAction.IGNORE)
+            gate.dependencies.items.forEach { dependency ->
+                assertEquals("Gate service sweeper dependencies should always run a new build", ReuseBuilds.NO, dependency.snapshot!!.reuseBuilds)
+            }
+            listOf("Project Sweeper", "Folder Sweeper").forEach { name ->
+                val sweeper = getBuildFromProject(globalSweepers, name)
+                assertFinishTriggerWithoutBranchFilter(sweeper, gate)
+                assertTrue("Global sweeper should not have snapshot dependencies", sweeper.dependencies.items.isEmpty())
+                assertSharedResourceLocks(sweeper, SharedResources {
+                    lockAllValues(SharedResourceNameGa)
+                    lockAllValues(SharedResourceNameBeta)
+                    lockAllValues(SharedResourceNameVcr)
+                })
+            }
 
-        // Find GA nightly test project's service sweeper
-        val gaNightlyTests: Project = getNestedProjectFromRoot(root, gaProjectName, nightlyTestsProjectName)
-        val sweeperGa: BuildType = getBuildFromProject(gaNightlyTests, ServiceSweeperName)
+        }
+    }
 
-        // Find Beta nightly test project's service sweeper
-        val betaNightlyTests : Project = getNestedProjectFromRoot(root, betaProjectName, nightlyTestsProjectName)
-        val sweeperBeta: BuildType = getBuildFromProject(betaNightlyTests, ServiceSweeperName)
-
-        // Find Global sweepers project's builds
-        val globalSweepersProject = getSubProject(root, globalSweepersProjectName)
-        val projectSweeper: BuildType = getBuildFromProject(globalSweepersProject, "Project Sweeper")
-        val folderSweeper: BuildType = getBuildFromProject(globalSweepersProject, "Folder Sweeper")
-        
-        // Check only one schedule trigger is on the builds in question
-        assertTrue(sweeperGa.triggers.items.size == 1)
-        assertTrue(sweeperBeta.triggers.items.size == 1)
-        assertTrue(projectSweeper.triggers.items.size == 1)
-        assertTrue(folderSweeper.triggers.items.size == 1)
-
-        // Assert that the hour value that sweeper builds are triggered at is less than the hour value that project/folder sweeper builds are triggered at
-        val stGa = sweeperGa.triggers.items[0] as ScheduleTrigger
-        val cronGa = stGa.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
-        val stBeta = sweeperBeta.triggers.items[0] as ScheduleTrigger
-        val cronBeta = stBeta.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
-        
-        val stProject = projectSweeper.triggers.items[0] as ScheduleTrigger
-        val cronProject = stProject.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
-        
-        val stFolder = folderSweeper.triggers.items[0] as ScheduleTrigger
-        val cronFolder = stFolder.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
-        
-        assertTrue("Service sweeper for the GA Nightly Test project should be triggered at an earlier hour than the project sweeper", cronGa.hours.toString().toInt() < cronProject.hours.toString().toInt())
-        assertTrue("Service sweeper for the Beta Nightly Test project should be triggered at an earlier hour than the project sweeper", cronBeta.hours.toString().toInt() < cronProject.hours.toString().toInt())
-        
-        assertTrue("Service sweeper for the GA Nightly Test project should be triggered at an earlier hour than the folder sweeper", cronGa.hours.toString().toInt() < cronFolder.hours.toString().toInt())
-        assertTrue("Service sweeper for the Beta Nightly Test project should be triggered at an earlier hour than the folder sweeper", cronBeta.hours.toString().toInt() < cronFolder.hours.toString().toInt())
+    private fun assertFinishTriggerWithoutBranchFilter(build: BuildType, source: BuildType) {
+        assertEquals("${build.name} should have exactly one trigger", 1, build.triggers.items.size)
+        val trigger = build.triggers.items.single()
+        assertTrue("${build.name} should use a finish-build trigger", trigger is FinishBuildTrigger)
+        trigger as FinishBuildTrigger
+        assertEquals("${build.name} should watch the source build's resolved ID", source.id!!.value, trigger.buildType)
+        assertTrue("${build.name} should not filter the composite gate branch", trigger.branchFilter.isNullOrEmpty())
+        assertEquals("${build.name} should not require a successful source build", false, trigger.successfulOnly)
     }
 }

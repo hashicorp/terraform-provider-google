@@ -16,6 +16,7 @@ import projects.reused.weeklyDiffTests
 import projects.reused.vcrRecording
 import replaceCharsId
 import vcs_roots.HashiCorpVCSRootBeta
+import vcs_roots.HashiCorpVCSRootBetaNightly
 import vcs_roots.ModularMagicianVCSRootBeta
 
 // googleSubProjectBeta returns a subproject that is used for testing terraform-provider-google-beta (Beta)
@@ -33,7 +34,7 @@ fun googleSubProjectBeta(allConfig: AllContextParameters): Project {
         description = "Subproject containing builds for testing the Beta version of the Google provider"
 
         // Nightly Test project that uses hashicorp/terraform-provider-google-beta
-        subProject(nightlyTests(betaId, ProviderNameBeta, HashiCorpVCSRootBeta, betaConfig, NightlyTriggerConfiguration()))
+        subProject(nightlyTests(betaId, ProviderNameBeta, HashiCorpVCSRootBetaNightly, betaConfig, NightlyTriggerConfiguration(nightlyTestsEnabled = false)))
 
         // MM Upstream project that uses modular-magician/terraform-provider-google-beta
         subProject(mmUpstream(betaId, ProviderNameBeta, ModularMagicianVCSRootBeta, HashiCorpVCSRootBeta, vcrConfig, NightlyTriggerConfiguration()))
