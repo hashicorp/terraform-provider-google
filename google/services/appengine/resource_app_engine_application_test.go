@@ -65,6 +65,53 @@ func TestAccAppEngineApplication_basic(t *testing.T) {
 	})
 }
 
+func TestAccAppEngineApplication_withIAPWriteOnly(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	billingAccount := envvar.GetTestBillingAccountFromEnv(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAppEngineApplication_withIAPWriteOnly(pid, org, billingAccount),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_app_engine_application.acceptance", "iap.0.oauth2_client_secret_wo"),
+					resource.TestCheckResourceAttr("google_app_engine_application.acceptance", "iap.0.oauth2_client_secret_wo_version", "1"),
+					resource.TestCheckResourceAttrSet("google_app_engine_application.acceptance", "iap.0.oauth2_client_secret_sha256"),
+				),
+			},
+			{
+				ResourceName:      "google_app_engine_application.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// oauth2_client_secret is never returned by the API (only the SHA-256 hash is).
+				// oauth2_client_secret_wo_version is client-side and is not returned by the API.
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "iap.0.oauth2_client_secret_wo_version"},
+			},
+			{
+				Config: testAccAppEngineApplication_withIAPWriteOnlyUpdate(pid, org, billingAccount),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_app_engine_application.acceptance", "iap.0.oauth2_client_secret_wo"),
+					resource.TestCheckResourceAttr("google_app_engine_application.acceptance", "iap.0.oauth2_client_secret_wo_version", "2"),
+					resource.TestCheckResourceAttrSet("google_app_engine_application.acceptance", "iap.0.oauth2_client_secret_sha256"),
+				),
+			},
+			{
+				ResourceName:      "google_app_engine_application.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// oauth2_client_secret is never returned by the API (only the SHA-256 hash is).
+				// oauth2_client_secret_wo_version is client-side and is not returned by the API.
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "iap.0.oauth2_client_secret_wo_version"},
+			},
+		},
+	})
+}
+
 func TestAccAppEngineApplication_withIAP(t *testing.T) {
 	t.Parallel()
 
@@ -80,9 +127,10 @@ func TestAccAppEngineApplication_withIAP(t *testing.T) {
 				Config: testAccAppEngineApplication_withIAP(pid, org, billingAccount),
 			},
 			{
-				ResourceName:            "google_app_engine_application.acceptance",
-				ImportState:             true,
-				ImportStateVerify:       true,
+				ResourceName:      "google_app_engine_application.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// oauth2_client_secret is never returned by the API (only the SHA-256 hash is).
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
 		},
@@ -157,6 +205,58 @@ resource "google_app_engine_application" "acceptance" {
   location_id    = "us-central"
   database_type  = "CLOUD_DATASTORE_COMPATIBILITY"
   serving_status = "SERVING"
+}
+`, pid, pid, org, billingAccount)
+}
+
+func testAccAppEngineApplication_withIAPWriteOnly(pid, org, billingAccount string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+  deletion_policy = "DELETE"
+}
+
+resource "google_app_engine_application" "acceptance" {
+  project        = google_project.acceptance.project_id
+  auth_domain    = "hashicorptest.com"
+  location_id    = "us-central"
+  serving_status = "SERVING"
+
+  iap {
+    enabled                         = false
+    oauth2_client_id                = "test"
+    oauth2_client_secret_wo         = "test"
+    oauth2_client_secret_wo_version = "1"
+  }
+}
+`, pid, pid, org, billingAccount)
+}
+
+func testAccAppEngineApplication_withIAPWriteOnlyUpdate(pid, org, billingAccount string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id      = "%s"
+  name            = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+  deletion_policy = "DELETE"
+}
+
+resource "google_app_engine_application" "acceptance" {
+  project        = google_project.acceptance.project_id
+  auth_domain    = "hashicorptest.com"
+  location_id    = "us-central"
+  serving_status = "SERVING"
+
+  iap {
+    enabled                         = false
+    oauth2_client_id                = "test"
+    oauth2_client_secret_wo         = "test_2"
+    oauth2_client_secret_wo_version = "2"
+  }
 }
 `, pid, pid, org, billingAccount)
 }
