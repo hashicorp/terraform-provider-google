@@ -347,6 +347,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
       }
     }
     visualization_options {
+      visualization_mode = "VISUALIZATION_MODE_WHEN_NECESSARY"
       visualization_examples {
         visualization_type = "VISUALIZATION_TYPE_UNSPECIFIED"
         resource {
@@ -374,6 +375,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     enabled         = true
     prompt          = "Use this server for queries"
     api_key_name    = "x-api-key"
+    api_key_header  = "x-api-key-header"
     client_id       = "sample-client-id"
     oauth_token_url = "https://example.com/oauth/token"
   }
@@ -431,6 +433,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
   math_rendering_mode = "MATH_RENDERING_MODE_LATEX"
 
   web_search_config {
+    disabled         = false
     excluded_domains = ["example.com"]
   }
 }
@@ -550,6 +553,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
       }
     }
     visualization_options {
+      visualization_mode = "VISUALIZATION_MODE_ALWAYS"
       visualization_examples {
         visualization_type = "VISUALIZATION_TYPE_UNSPECIFIED"
         resource {
@@ -577,6 +581,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     enabled         = true
     prompt          = "Use this server for updated queries"
     api_key_name    = "x-api-key"
+    api_key_header  = "x-api-key-header-updated"
     client_id       = "sample-client-id"
     oauth_token_url = "https://example.com/oauth/token"
   }
@@ -634,6 +639,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
   math_rendering_mode = "MATH_RENDERING_MODE_PLAIN_TEXT"
 
   web_search_config {
+    disabled         = true
     excluded_domains = ["updated-example.com"]
   }
 }
