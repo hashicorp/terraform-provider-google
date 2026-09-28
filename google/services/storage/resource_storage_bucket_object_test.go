@@ -652,6 +652,34 @@ func TestAccStorageObject_addUpdateObjectContexts(t *testing.T) {
 	})
 }
 
+func TestAccStorageObject_dynamicJsonContent(t *testing.T) {
+	t.Parallel()
+
+	bucketName := acctest.TestBucketName(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleStorageBucketObjectDynamicJsonContent(bucketName, "upstream content"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_storage_bucket_object.dynamic_content", "crc32c"),
+					resource.TestCheckResourceAttrSet("google_storage_bucket_object.dynamic_content", "md5hash"),
+				),
+			},
+			{
+				Config: testGoogleStorageBucketObjectDynamicJsonContent(bucketName, "updated upstream content"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_storage_bucket_object.dynamic_content", "crc32c"),
+					resource.TestCheckResourceAttrSet("google_storage_bucket_object.dynamic_content", "md5hash"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleStorageObjectCrc32cHash(t *testing.T, bucket, object, crc32 string) resource.TestCheckFunc {
 	return testAccCheckGoogleStorageObjectCrc32cWithEncryption(t, bucket, object, crc32, "")
 }
@@ -1239,4 +1267,27 @@ resource "google_storage_bucket_object" "object" {
   }
 }
 `, bucketName, objectName, content)
+}
+
+func testGoogleStorageBucketObjectDynamicJsonContent(bucketName, upstreamContent string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+}
+
+resource "google_storage_bucket_object" "upstream" {
+  name    = "tf-test-upstream-object"
+  bucket  = google_storage_bucket.bucket.name
+  content = "%s"
+}
+
+resource "google_storage_bucket_object" "dynamic_content" {
+  name   = "tf-test-object.json"
+  bucket = google_storage_bucket.bucket.name
+  content = jsonencode({
+    upstream_generation = google_storage_bucket_object.upstream.generation
+  })
+}
+`, bucketName, upstreamContent)
 }
