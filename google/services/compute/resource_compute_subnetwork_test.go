@@ -742,6 +742,77 @@ func TestAccComputeSubnetwork_ipv6UpdateWithPdp(t *testing.T) {
 	})
 }
 
+func TestAccComputeSubnetwork_ipv6UpdateWithExternalPdpAndVm(t *testing.T) {
+	t.Parallel()
+
+	randSuffix := acctest.RandString(t, 10)
+	networkName := fmt.Sprintf("tf-test-net-%s", randSuffix)
+	subnetName := fmt.Sprintf("tf-test-sub-%s", randSuffix)
+	vm1Name := fmt.Sprintf("tf-test-vm1-%s", randSuffix)
+	vm2Name := fmt.Sprintf("tf-test-vm2-%s", randSuffix)
+
+	subnetResName := "google_compute_subnetwork.test_subnet"
+	vm1ResName := "google_compute_instance.vm1"
+	vm2ResName := "google_compute_instance.vm2"
+
+	subPdpId := "projects/tf-static-byoip/regions/us-east1/publicDelegatedPrefixes/terraform-acceptance-test-sub-pdp"
+	pdpRange := fmt.Sprintf("2600:1901:4464:%x::/64", acctest.RandIntRange(t, 0, 255))
+
+	context := map[string]interface{}{
+		"network_name":         networkName,
+		"subnet_name":          subnetName,
+		"sub_pdp_id":           subPdpId,
+		"external_ipv6_prefix": pdpRange,
+		"vm1_name":             vm1Name,
+		"vm2_name":             vm2Name,
+		"region":               "us-east1",
+		"zone":                 "us-east1-b",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckComputeSubnetworkDestroyProducer(t),
+			testAccCheckComputeInstanceDestroyProducer(t),
+		),
+		Steps: []resource.TestStep{
+			// Step 1: Create IPv4 Network, Subnetwork and VM1
+			{
+				Config: testAccComputeSubnetwork_ipv6ExternalPdpSetup(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, subnetResName, new(map[string]interface{})),
+					resource.TestCheckResourceAttr(subnetResName, "name", subnetName),
+					resource.TestCheckResourceAttr(subnetResName, "stack_type", "IPV4_ONLY"),
+					testAccCheckComputeInstanceExists(t, vm1ResName, new(map[string]interface{})),
+				),
+			},
+			// Step 2: Update Subnetwork to Dual Stack with IP Collection and Add VM2 (dual-stack)
+			{
+				Config: testAccComputeSubnetwork_ipv6ExternalPdpUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(subnetResName, plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, subnetResName, new(map[string]interface{})),
+					resource.TestCheckResourceAttr(subnetResName, "stack_type", "IPV4_IPV6"),
+					resource.TestCheckResourceAttr(subnetResName, "ipv6_access_type", "EXTERNAL"),
+					testAccCheckComputeInstanceExists(t, vm1ResName, new(map[string]interface{})),
+					testAccCheckComputeInstanceExists(t, vm2ResName, new(map[string]interface{})),
+				),
+			},
+			// Import Check
+			{
+				ResourceName:      subnetResName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeSubnetwork_resourceManagerTags(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "custom-test" {
@@ -1718,6 +1789,97 @@ resource "google_compute_subnetwork" "test_subnet" {
   stack_type       = "IPV4_IPV6"
   ipv6_access_type = "INTERNAL"
   ip_collection    = google_compute_public_delegated_prefix.test_sub_pdp.id
+}
+`, context)
+}
+
+func testAccComputeSubnetwork_ipv6ExternalPdpSetup(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "custom_test" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test_subnet" {
+  name                     = "%{subnet_name}"
+  ip_cidr_range            = "10.5.4.0/24"
+  region                   = "%{region}"
+  network                  = google_compute_network.custom_test.id
+  private_ip_google_access = true
+  stack_type               = "IPV4_ONLY"
+}
+
+resource "google_compute_instance" "vm1" {
+  name         = "%{vm1_name}"
+  machine_type = "e2-medium"
+  zone         = "%{zone}"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-13"
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.test_subnet.id
+  }
+}
+`, context)
+}
+
+func testAccComputeSubnetwork_ipv6ExternalPdpUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "custom_test" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test_subnet" {
+  name                     = "%{subnet_name}"
+  ip_cidr_range            = "10.5.4.0/24"
+  region                   = "%{region}"
+  network                  = google_compute_network.custom_test.id
+  private_ip_google_access = true
+  stack_type               = "IPV4_IPV6"
+  ipv6_access_type         = "EXTERNAL"
+  ip_collection            = "%{sub_pdp_id}"
+  external_ipv6_prefix     = "%{external_ipv6_prefix}"
+}
+
+resource "google_compute_instance" "vm1" {
+  name         = "%{vm1_name}"
+  machine_type = "e2-medium"
+  zone         = "%{zone}"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-13"
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.test_subnet.id
+  }
+}
+
+resource "google_compute_instance" "vm2" {
+  name         = "%{vm2_name}"
+  machine_type = "e2-medium"
+  zone         = "%{zone}"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-13"
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.test_subnet.id
+    stack_type = "IPV4_IPV6"
+    ipv6_access_config {
+      network_tier = "PREMIUM"
+    }
+  }
 }
 `, context)
 }

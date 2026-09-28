@@ -453,11 +453,12 @@ you create the resource. This field can be set only at resource
 creation time.`,
 			},
 			"external_ipv6_prefix": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The range of external IPv6 addresses that are owned by this subnetwork.`,
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ValidateFunc:     verify.ValidateIpCidrRange,
+				DiffSuppressFunc: IpDiffSuppress,
+				Description:      `The range of external IPv6 addresses that are owned by this subnetwork.`,
 			},
 			"internal_ipv6_prefix": {
 				Type:             schema.TypeString,
@@ -1203,7 +1204,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 	}
-	if d.HasChange("private_ipv6_google_access") || d.HasChange("stack_type") || d.HasChange("ipv6_access_type") || d.HasChange("ip_collection") || d.HasChange("allow_subnet_cidr_routes_overlap") {
+	if d.HasChange("private_ipv6_google_access") || d.HasChange("stack_type") || d.HasChange("ipv6_access_type") || d.HasChange("external_ipv6_prefix") || d.HasChange("ip_collection") || d.HasChange("allow_subnet_cidr_routes_overlap") {
 		obj := make(map[string]interface{})
 
 		getUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
@@ -1246,6 +1247,12 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		} else if v, ok := d.GetOkExists("ipv6_access_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ipv6AccessTypeProp)) {
 			obj["ipv6AccessType"] = ipv6AccessTypeProp
+		}
+		externalIpv6PrefixProp, err := expandComputeSubnetworkExternalIpv6Prefix(d.Get("external_ipv6_prefix"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("external_ipv6_prefix"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, externalIpv6PrefixProp)) {
+			obj["externalIpv6Prefix"] = externalIpv6PrefixProp
 		}
 		ipCollectionProp, err := expandComputeSubnetworkIpCollection(d.Get("ip_collection"), d, config)
 		if err != nil {

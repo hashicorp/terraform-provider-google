@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: supported in-place updates for `external_ipv6_prefix` in `google_compute_subnetwork`
+```
