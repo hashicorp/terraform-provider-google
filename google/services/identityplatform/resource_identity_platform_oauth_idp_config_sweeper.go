@@ -191,7 +191,10 @@ func deleteResourceIdentityPlatformOauthIdpConfig(config *transport_tpg.Config, 
 	name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
 
 	// Skip resources that shouldn't be sweeped
-	if !sweeper.IsSweepableTestResource(name) {
+	prefixes := []string{
+		"oidc.oauth-idp-config",
+	}
+	if !sweeper.IsSweepableTestResource(name) && !sweeper.HasAnyPrefix(name, prefixes) {
 		return nil
 	}
 

@@ -257,6 +257,11 @@ If omitted, a port number will be chosen and passed to the container through the
 														},
 													},
 												},
+												"sandbox_launcher": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Indicates that this container can act as a sandbox supervisor and launch sandboxes.`,
+												},
 												"startup_probe": {
 													Type:     schema.TypeList,
 													Computed: true,
@@ -691,6 +696,11 @@ All system annotations in v1 now have a corresponding field in v2 ExecutionTempl
 
 This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+						"delay_execution": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, the system will start the execution within the next 12 hours depending on available capacity.`,
 						},
 						"labels": {
 							Type:     schema.TypeMap,
@@ -1714,6 +1724,8 @@ func flattenCloudRunV2JobTemplate(v interface{}, d *schema.ResourceData, config 
 		flattenCloudRunV2JobTemplateParallelism(original["parallelism"], d, config)
 	transformed["task_count"] =
 		flattenCloudRunV2JobTemplateTaskCount(original["taskCount"], d, config)
+	transformed["delay_execution"] =
+		flattenCloudRunV2JobTemplateDelayExecution(original["delayExecution"], d, config)
 	transformed["template"] =
 		flattenCloudRunV2JobTemplateTemplate(original["template"], d, config)
 	return []interface{}{transformed}
@@ -1758,6 +1770,10 @@ func flattenCloudRunV2JobTemplateTaskCount(v interface{}, d *schema.ResourceData
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunV2JobTemplateDelayExecution(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCloudRunV2JobTemplateTemplate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1805,17 +1821,18 @@ func flattenCloudRunV2JobTemplateTemplateContainers(v interface{}, d *schema.Res
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":          flattenCloudRunV2JobTemplateTemplateContainersName(original["name"], d, config),
-			"image":         flattenCloudRunV2JobTemplateTemplateContainersImage(original["image"], d, config),
-			"command":       flattenCloudRunV2JobTemplateTemplateContainersCommand(original["command"], d, config),
-			"args":          flattenCloudRunV2JobTemplateTemplateContainersArgs(original["args"], d, config),
-			"env":           flattenCloudRunV2JobTemplateTemplateContainersEnv(original["env"], d, config),
-			"resources":     flattenCloudRunV2JobTemplateTemplateContainersResources(original["resources"], d, config),
-			"ports":         flattenCloudRunV2JobTemplateTemplateContainersPorts(original["ports"], d, config),
-			"volume_mounts": flattenCloudRunV2JobTemplateTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
-			"working_dir":   flattenCloudRunV2JobTemplateTemplateContainersWorkingDir(original["workingDir"], d, config),
-			"depends_on":    flattenCloudRunV2JobTemplateTemplateContainersDependsOn(original["dependsOn"], d, config),
-			"startup_probe": flattenCloudRunV2JobTemplateTemplateContainersStartupProbe(original["startupProbe"], d, config),
+			"name":             flattenCloudRunV2JobTemplateTemplateContainersName(original["name"], d, config),
+			"image":            flattenCloudRunV2JobTemplateTemplateContainersImage(original["image"], d, config),
+			"command":          flattenCloudRunV2JobTemplateTemplateContainersCommand(original["command"], d, config),
+			"args":             flattenCloudRunV2JobTemplateTemplateContainersArgs(original["args"], d, config),
+			"env":              flattenCloudRunV2JobTemplateTemplateContainersEnv(original["env"], d, config),
+			"resources":        flattenCloudRunV2JobTemplateTemplateContainersResources(original["resources"], d, config),
+			"ports":            flattenCloudRunV2JobTemplateTemplateContainersPorts(original["ports"], d, config),
+			"sandbox_launcher": flattenCloudRunV2JobTemplateTemplateContainersSandboxLauncher(original["sandboxLauncher"], d, config),
+			"volume_mounts":    flattenCloudRunV2JobTemplateTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
+			"working_dir":      flattenCloudRunV2JobTemplateTemplateContainersWorkingDir(original["workingDir"], d, config),
+			"depends_on":       flattenCloudRunV2JobTemplateTemplateContainersDependsOn(original["dependsOn"], d, config),
+			"startup_probe":    flattenCloudRunV2JobTemplateTemplateContainersStartupProbe(original["startupProbe"], d, config),
 		})
 	}
 	return transformed
@@ -1957,6 +1974,10 @@ func flattenCloudRunV2JobTemplateTemplateContainersPortsContainerPort(v interfac
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenCloudRunV2JobTemplateTemplateContainersSandboxLauncher(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCloudRunV2JobTemplateTemplateContainersVolumeMounts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2844,6 +2865,13 @@ func expandCloudRunV2JobTemplate(v interface{}, d tpgresource.TerraformResourceD
 		transformed["taskCount"] = transformedTaskCount
 	}
 
+	transformedDelayExecution, err := expandCloudRunV2JobTemplateDelayExecution(original["delay_execution"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDelayExecution); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["delayExecution"] = transformedDelayExecution
+	}
+
 	transformedTemplate, err := expandCloudRunV2JobTemplateTemplate(original["template"], d, config)
 	if err != nil {
 		return nil, err
@@ -2881,6 +2909,10 @@ func expandCloudRunV2JobTemplateParallelism(v interface{}, d tpgresource.Terrafo
 }
 
 func expandCloudRunV2JobTemplateTaskCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobTemplateDelayExecution(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3029,6 +3061,13 @@ func expandCloudRunV2JobTemplateTemplateContainers(v interface{}, d tpgresource.
 			return nil, err
 		} else if val := reflect.ValueOf(transformedPorts); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["ports"] = transformedPorts
+		}
+
+		transformedSandboxLauncher, err := expandCloudRunV2JobTemplateTemplateContainersSandboxLauncher(original["sandbox_launcher"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSandboxLauncher); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sandboxLauncher"] = transformedSandboxLauncher
 		}
 
 		transformedVolumeMounts, err := expandCloudRunV2JobTemplateTemplateContainersVolumeMounts(original["volume_mounts"], d, config)
@@ -3257,6 +3296,10 @@ func expandCloudRunV2JobTemplateTemplateContainersPortsName(v interface{}, d tpg
 }
 
 func expandCloudRunV2JobTemplateTemplateContainersPortsContainerPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobTemplateTemplateContainersSandboxLauncher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -48,7 +48,7 @@ func testAccMemorystoreAclPolicyDatasourceConfig(context map[string]interface{})
 	return acctest.Nprintf(`
 resource "google_memorystore_acl_policy" "test" {
   acl_policy_id               = "tf-test-policy-%{random_suffix}"
-  location                    = "europe-west4"
+  location                    = "us-west1"
   rules {
     rule                      = "on allkeys +get"
     username                  = "default"
@@ -58,7 +58,7 @@ resource "google_memorystore_acl_policy" "test" {
 
 data "google_memorystore_acl_policy" "default" {
   acl_policy_id               = google_memorystore_acl_policy.test.acl_policy_id
-  location                    = "europe-west4"
+  location                    = "us-west1"
 }
 `, context)
 }

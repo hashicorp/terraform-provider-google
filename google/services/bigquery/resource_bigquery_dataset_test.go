@@ -1025,7 +1025,7 @@ resource "google_tags_tag_value" "tag_value2" {
 }
 
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "dataset%{random_suffix}"
+  dataset_id                  = "tf_test_dataset%{random_suffix}"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "EU"
@@ -1064,7 +1064,7 @@ resource "google_tags_tag_value" "tag_value2" {
 }
 
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "dataset%{random_suffix}"
+  dataset_id                  = "tf_test_dataset%{random_suffix}"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "EU"
@@ -1078,7 +1078,7 @@ resource "google_bigquery_dataset" "dataset" {
 func testAccBigQueryDataset_externalCatalogDatasetOptions_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id    = "dataset%{random_suffix}"
+  dataset_id    = "tf_test_dataset%{random_suffix}"
   friendly_name = "test"
   description   = "This is a test description"
   location      = "US"
@@ -1096,7 +1096,7 @@ resource "google_bigquery_dataset" "dataset" {
 func testAccBigQueryDataset_externalCatalogDatasetOptions_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id    = "dataset%{random_suffix}"
+  dataset_id    = "tf_test_dataset%{random_suffix}"
   friendly_name = "test"
   description   = "This is a test description"
   location      = "US"
@@ -1114,7 +1114,7 @@ resource "google_bigquery_dataset" "dataset" {
 func testAccBigQueryDataset_bigqueryDatasetExternalReferenceAws(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "dataset%{random_suffix}"
+  dataset_id                  = "tf_test_dataset%{random_suffix}"
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "aws-us-east-1"

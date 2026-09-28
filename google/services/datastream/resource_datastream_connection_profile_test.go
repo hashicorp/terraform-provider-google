@@ -489,7 +489,7 @@ resource "google_compute_firewall" "ssh" {
 }
 
 resource "google_compute_firewall" "datastream_sql_access" {
-    name    	= "datastream-to-cloudsql-%{random_suffix}"
+    name    	= "tf-test-datastream-to-cloudsql-%{random_suffix}"
     network 	=  google_compute_network.default.name
 
     allow {
@@ -605,7 +605,7 @@ data "google_project" "project" {}
 
 resource "google_secret_manager_secret" "password_secret" {
   project   = data.google_project.project.project_id
-  secret_id = "tf-mongo-pw-secret-%{random_suffix}"
+  secret_id = "tf-test-mongo-pw-secret-%{random_suffix}"
   replication {
     auto {}
   }
@@ -618,7 +618,7 @@ resource "google_secret_manager_secret_version" "password_secret_version" {
 
 resource "google_secret_manager_secret" "client_key_secret" {
   project   = data.google_project.project.project_id
-  secret_id = "tf-mongo-key-secret-%{random_suffix}"
+  secret_id = "tf-test-mongo-key-secret-%{random_suffix}"
   replication {
     auto {}
   }
@@ -634,7 +634,7 @@ resource "google_datastream_connection_profile" "default" {
   project                 = data.google_project.project.project_id
   display_name            = "tf-mongodb-profile"
   location                = "us-central1"
-  connection_profile_id   = "tf-mongo-cp-%{random_suffix}"
+  connection_profile_id   = "tf-test-mongo-cp-%{random_suffix}"
   create_without_validation = true // Set to true for tests to bypass actual connectivity checks.
 
   mongodb_profile {
@@ -674,7 +674,7 @@ resource "google_datastream_connection_profile" "default2" {
 	project                 = data.google_project.project.project_id
 	display_name            = "tf-mongodb-profile"
 	location                = "us-central1"
-	connection_profile_id   = "tf-mongo-cp-%{random_suffix}-2"
+	connection_profile_id   = "tf-test-mongo-cp-%{random_suffix}-2"
 	create_without_validation = true // Set to true for tests to bypass actual connectivity checks.
 
 	mongodb_profile {
@@ -700,7 +700,7 @@ data "google_project" "project" {}
 
 resource "google_secret_manager_secret" "password_secret" {
   project   = data.google_project.project.project_id
-  secret_id = "tf-mongo-pw-secret-%{random_suffix}"
+  secret_id = "tf-test-mongo-pw-secret-%{random_suffix}"
   replication {
     auto {}
   }
@@ -713,7 +713,7 @@ resource "google_secret_manager_secret_version" "password_secret_version" {
 
 resource "google_secret_manager_secret" "client_key_secret" {
   project   = data.google_project.project.project_id
-  secret_id = "tf-mongo-key-secret-%{random_suffix}"
+  secret_id = "tf-test-mongo-key-secret-%{random_suffix}"
   replication {
     auto {}
   }
@@ -729,7 +729,7 @@ resource "google_datastream_connection_profile" "default" {
   project                 = data.google_project.project.project_id
   display_name            = "tf-mongodb-profile-updated" // <-- Changed
   location                = "us-central1"
-  connection_profile_id   = "tf-mongo-cp-%{random_suffix}"
+  connection_profile_id   = "tf-test-mongo-cp-%{random_suffix}"
   create_without_validation = true // Set to true for tests to bypass actual connectivity checks.
 
   mongodb_profile {

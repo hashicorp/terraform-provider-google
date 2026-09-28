@@ -15,7 +15,7 @@
 //
 // ----------------------------------------------------------------------------
 
-package parallelstore_test
+package chronicle_test
 
 import (
 	"fmt"
@@ -31,9 +31,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
-	"github.com/hashicorp/terraform-provider-google/google/services/parallelstore"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+	"github.com/hashicorp/terraform-provider-google/google/services/chronicle"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -53,37 +51,36 @@ var (
 	_ = tpgresource.SetLabels
 	_ = transport_tpg.Config{}
 	_ = googleapi.Error{}
-	_ = parallelstore.Product
+	_ = chronicle.Product
 )
 
-func TestAccParallelstoreInstance_parallelstoreInstanceBasicExample(t *testing.T) {
+func TestAccChronicleCaseStageDefinition_chronicleCasestagedefinitionBasicExample(t *testing.T) {
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"address_name":  "address" + randomSuffix,
-		"name":          "instance" + randomSuffix,
-		"network_name":  "network" + randomSuffix,
+		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"display_name":  "tf_test_my_stage" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckParallelstoreInstanceDestroyProducer(t),
+		CheckDestroy:             testAccCheckChronicleCaseStageDefinitionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccParallelstoreInstance_parallelstoreInstanceBasicExample(context),
+				Config: testAccChronicleCaseStageDefinition_chronicleCasestagedefinitionBasicExample(context),
 			},
 			{
-				ResourceName:            "google_parallelstore_instance.instance",
+				ResourceName:            "google_chronicle_case_stage_definition.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"instance", "location"},
 			},
 			{
-				ResourceName:       "google_parallelstore_instance.instance",
+				ResourceName:       "google_chronicle_case_stage_definition.example",
 				RefreshState:       true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
@@ -92,51 +89,22 @@ func TestAccParallelstoreInstance_parallelstoreInstanceBasicExample(t *testing.T
 	})
 }
 
-func testAccParallelstoreInstance_parallelstoreInstanceBasicExample(context map[string]interface{}) string {
+func testAccChronicleCaseStageDefinition_chronicleCasestagedefinitionBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_parallelstore_instance" "instance" {
-  instance_id = "%{name}"
-  location = "us-central1-a"
-  description = "test instance"
-  capacity_gib = 12000
-  network = google_compute_network.network.name
-  file_stripe_level = "FILE_STRIPE_LEVEL_MIN"
-  directory_stripe_level = "DIRECTORY_STRIPE_LEVEL_MIN"
-deployment_type = "SCRATCH"
-  labels = {
-    test = "value"
-  }
-  depends_on = [google_service_networking_connection.default]
-}
+resource "google_chronicle_case_stage_definition" "example" {
+  location = "us"
+  instance = "%{chronicle_id}"
 
-resource "google_compute_network" "network" {
-  name                    = "%{network_name}"
-  auto_create_subnetworks = true
-  mtu = 8896
-}
-
-# Create an IP address
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "%{address_name}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 24
-  network       = google_compute_network.network.id
-}
-
-# Create a private connection
-resource "google_service_networking_connection" "default" {
-  network                 = google_compute_network.network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+  display_name = "%{display_name}"
+  order = 100
 }
 `, context)
 }
 
-func testAccCheckParallelstoreInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckChronicleCaseStageDefinitionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_parallelstore_instance" {
+			if rs.Type != "google_chronicle_case_stage_definition" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -144,7 +112,7 @@ func testAccCheckParallelstoreInstanceDestroyProducer(t *testing.T) func(s *terr
 			}
 
 			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(parallelstore.Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(chronicle.Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/caseStageDefinitions/{{case_stage_definition_id}}")
 			if err != nil {
 				return err
 			}
@@ -163,7 +131,7 @@ func testAccCheckParallelstoreInstanceDestroyProducer(t *testing.T) func(s *terr
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("ParallelstoreInstance still exists at %s", url)
+				return fmt.Errorf("ChronicleCaseStageDefinition still exists at %s", url)
 			}
 		}
 

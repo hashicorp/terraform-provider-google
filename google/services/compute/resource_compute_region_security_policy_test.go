@@ -229,7 +229,7 @@ func testAccComputeRegionSecurityPolicy_withRules(context map[string]interface{}
 		type        = "CLOUD_ARMOR"
 
 		rules {
-			action   = "deny"
+			action   = "deny(403)"
 			priority = "1000"
 			match {
 				expr {
@@ -240,7 +240,7 @@ func testAccComputeRegionSecurityPolicy_withRules(context map[string]interface{}
 
 
 		rules {
-			action   = "deny"
+			action   = "deny(403)"
 			priority = "2147483647"
 			match {
 				versioned_expr = "SRC_IPS_V1"
@@ -321,7 +321,7 @@ func testAccComputeRegionSecurityPolicy_withPreconfiguredWafConfig(context map[s
 			type	= "CLOUD_ARMOR"
 
 			rules {
-				action   = "deny"
+				action   = "deny(403)"
 				priority = "1000"
 				match {
 					expr {
@@ -389,7 +389,7 @@ func testAccComputeRegionSecurityPolicy_withPreconfiguredWafConfig_update(contex
 			type	= "CLOUD_ARMOR"
 
 			rules {
-				action   = "deny"
+				action   = "deny(403)"
 				priority = "1000"
 				match {
 					expr {
@@ -836,7 +836,7 @@ resource "google_compute_region_security_policy" "policy" {
 	region      = "us-central1"
 
 	rules {
-		action   = "deny"
+		action   = "deny(403)"
 		priority = "3000"
 		match {
 			expr {
@@ -846,7 +846,7 @@ resource "google_compute_region_security_policy" "policy" {
 	}
 
 	rules {
-		action   = "deny"
+		action   = "deny(403)"
 		priority = "2147483647"
 		match {
 			versioned_expr = "SRC_IPS_V1"
@@ -892,7 +892,7 @@ resource "google_compute_region_security_policy" "policy" {
 	}
 
 	rules {
-		action   = "deny"
+		action   = "deny(403)"
 		priority = "2147483647"
 		match {
 			versioned_expr = "SRC_IPS_V1"

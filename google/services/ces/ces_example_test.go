@@ -169,9 +169,16 @@ resource "google_ces_example" "my-example" {
             }
         }
         chunks {
+            blob {
+                mime_type = "text/plain"
+                data = base64encode("This is some sample plain text blob data.")
+            }
+        }
+        chunks {
             image {
                 mime_type = "image/png"
                 data = base64encode("This is some fake image binary data.")
+                alt_text = "alt text"
             }
         }
         chunks {
@@ -338,9 +345,16 @@ resource "google_ces_example" "my-example" {
             }
         }
         chunks {
+            blob {
+                mime_type = "text/plain"
+                data = base64encode("This is some updated sample plain text blob data.")
+            }
+        }
+        chunks {
             image {
                 mime_type = "image/png"
                 data = base64encode("This is some fake image binary data.")
+                alt_text = "updated alt text"
             }
         }
         chunks {

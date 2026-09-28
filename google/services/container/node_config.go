@@ -276,6 +276,19 @@ func schemaTaintConfig() *schema.Schema {
 	}
 }
 
+func containerPerformanceMonitoringUnitDiffSuppress(_ string, old, new string, d *schema.ResourceData) bool {
+	// DiffSuppressFunc runs during planning, before IsNewResource is marked during apply.
+	// An empty ID identifies a resource that does not exist in state yet.
+	if d == nil || d.Id() == "" {
+		return false
+	}
+
+	// Existing resources may have recorded an empty value after the suppressor from
+	// https://github.com/GoogleCloudPlatform/magic-modules/pull/17887 omitted an
+	// explicitly configured STANDARD value during creation.
+	return (old == "" && new == "STANDARD") || (old == "STANDARD" && new == "")
+}
+
 func schemaNodeConfig() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
@@ -1300,9 +1313,9 @@ func schemaNodeConfig() *schema.Schema {
 							"performance_monitoring_unit": {
 								Type:             schema.TypeString,
 								Optional:         true,
-								DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("STANDARD"),
 								ValidateFunc:     verify.ValidateEnum([]string{"ARCHITECTURAL", "STANDARD", "ENHANCED"}),
-								Description:      `Level of Performance Monitoring Unit (PMU) requested. If unset, no access to the PMU is assumed.`,
+								DiffSuppressFunc: containerPerformanceMonitoringUnitDiffSuppress,
+								Description:      `Level of Performance Monitoring Unit (PMU) requested. If unset, no access to the PMU is assumed. For existing node pools with no PMU, setting STANDARD may not produce a diff; recreate the node pool to apply it.`,
 							},
 						},
 					},
@@ -1353,24 +1366,7 @@ func schemaNodeConfig() *schema.Schema {
 						},
 					},
 				},
-				"host_maintenance_policy": {
-					Type:        schema.TypeList,
-					Optional:    true,
-					Description: `The maintenance policy for the hosts on which the GKE VMs run on.`,
-					ForceNew:    true,
-					MaxItems:    1,
-					Elem: &schema.Resource{
-						Schema: map[string]*schema.Schema{
-							"maintenance_interval": {
-								Type:         schema.TypeString,
-								Required:     true,
-								ForceNew:     true,
-								Description:  `.`,
-								ValidateFunc: validation.StringInSlice([]string{"MAINTENANCE_INTERVAL_UNSPECIFIED", "AS_NEEDED", "PERIODIC"}, false),
-							},
-						},
-					},
-				},
+
 				"confidential_nodes": {
 					Type:        schema.TypeList,
 					Optional:    true,

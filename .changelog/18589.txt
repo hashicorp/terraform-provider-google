@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudrunv2: added `sandbox_launcher` field to the containers of `google_cloud_run_v2_job` resource
+```

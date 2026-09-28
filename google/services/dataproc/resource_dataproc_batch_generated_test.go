@@ -99,7 +99,7 @@ func testAccDataprocBatch_dataprocBatchSparkExample(context map[string]interface
 resource "google_dataproc_batch" "example_batch_spark" {
 
     batch_id      = "tf-test-batch%{random_suffix}"
-    location      = "us-central1"
+    location      = "us-east1"
     labels        = {"batch_test": "terraform"}
 
     runtime_config {
@@ -132,7 +132,7 @@ func TestAccDataprocBatch_dataprocBatchSparkFullExample(t *testing.T) {
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"bucket_name":     "tf-test-dataproc-bucket" + randomSuffix,
 		"dataproc_batch":  "tf-test-dataproc-batch" + randomSuffix,
-		"kms_key_name":    kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-dataproc-batch-key1").CryptoKey.Name,
+		"kms_key_name":    kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-bootstrap-dataproc-batch-key1").CryptoKey.Name,
 		"prevent_destroy": false,
 		"random_suffix":   randomSuffix,
 	}
@@ -171,7 +171,7 @@ data "google_storage_project_service_account" "gcs_account" {
 
 resource "google_dataproc_batch" "example_batch_spark" {
     batch_id      = "%{dataproc_batch}"
-    location      = "us-central1"
+    location      = "us-east1"
     labels        = {"batch_test": "terraform"}
 
     runtime_config {
@@ -225,7 +225,7 @@ resource "google_kms_crypto_key_iam_member" "crypto_key_member_1" {
 
 resource "google_dataproc_cluster" "basic" {
   name   = "%{dataproc_batch}"
-  region = "us-central1"
+  region = "us-east1"
 
   cluster_config {
     # Keep the costs down with smallest config we can get away with
@@ -242,8 +242,9 @@ resource "google_dataproc_cluster" "basic" {
 
     master_config {
       num_instances = 1
-      machine_type  = "e2-standard-2"
+      machine_type  = "n4-standard-2"
       disk_config {
+        boot_disk_type    = "hyperdisk-balanced"
         boot_disk_size_gb = 35
       }
     }
@@ -256,7 +257,7 @@ resource "google_dataproc_cluster" "basic" {
 
  resource "google_dataproc_metastore_service" "ms" {
   service_id = "%{dataproc_batch}"
-  location   = "us-central1"
+  location   = "us-east1"
   port       = 9080
   tier       = "DEVELOPER"
 
@@ -313,7 +314,7 @@ func testAccDataprocBatch_dataprocBatchSparksqlExample(context map[string]interf
 resource "google_dataproc_batch" "example_batch_sparsql" {
 
     batch_id      = "tf-test-batch%{random_suffix}"
-    location      = "us-central1"
+    location      = "us-east1"
 
     runtime_config {
       properties    = { "spark.dynamicAllocation.enabled": "false", "spark.executor.instances": "2" }
@@ -376,7 +377,7 @@ func testAccDataprocBatch_dataprocBatchPysparkExample(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_dataproc_batch" "example_batch_pyspark" {
     batch_id      = "tf-test-batch%{random_suffix}"
-    location      = "us-central1"
+    location      = "us-east1"
 
     runtime_config {
       properties    = { "spark.dynamicAllocation.enabled": "false", "spark.executor.instances": "2" }
@@ -389,16 +390,16 @@ resource "google_dataproc_batch" "example_batch_pyspark" {
     }
 
     pyspark_batch {
-      main_python_file_uri = "https://storage.googleapis.com/terraform-batches/test_util.py"
+      main_python_file_uri = "https://storage.googleapis.com/terraform-serverless/test_util.py"
       args                 = ["10"]
       jar_file_uris        = ["file:///usr/lib/spark/examples/jars/spark-examples.jar"]
       python_file_uris     = ["gs://dataproc-examples/pyspark/hello-world/hello-world.py"]
       archive_uris         = [
-        "https://storage.googleapis.com/terraform-batches/animals.txt.tar.gz#unpacked",
-        "https://storage.googleapis.com/terraform-batches/animals.txt.jar",
-        "https://storage.googleapis.com/terraform-batches/animals.txt"
+        "https://storage.googleapis.com/terraform-serverless/animals.txt.tar.gz#unpacked",
+        "https://storage.googleapis.com/terraform-serverless/animals.txt.jar",
+        "https://storage.googleapis.com/terraform-serverless/animals.txt"
       ]
-      file_uris            = ["https://storage.googleapis.com/terraform-batches/people.txt"]
+      file_uris            = ["https://storage.googleapis.com/terraform-serverless/people.txt"]
     }
 }
 `, context)
@@ -445,7 +446,7 @@ func testAccDataprocBatch_dataprocBatchSparkrExample(context map[string]interfac
 resource "google_dataproc_batch" "example_batch_sparkr" {
 
     batch_id      = "tf-test-batch%{random_suffix}"
-    location      = "us-central1"
+    location      = "us-east1"
     labels        = {"batch_test": "terraform"}
 
     runtime_config {
@@ -461,8 +462,8 @@ resource "google_dataproc_batch" "example_batch_sparkr" {
     }
 
     spark_r_batch {
-      main_r_file_uri  = "https://storage.googleapis.com/terraform-batches/spark-r-flights.r"
-      args             = ["https://storage.googleapis.com/terraform-batches/flights.csv"]
+      main_r_file_uri  = "https://storage.googleapis.com/terraform-serverless/spark-r-flights.r"
+      args             = ["https://storage.googleapis.com/terraform-serverless/flights.csv"]
     }
 }
 `, context)
@@ -509,7 +510,7 @@ func testAccDataprocBatch_dataprocBatchAutotuningExample(context map[string]inte
 resource "google_dataproc_batch" "example_batch_autotuning" {
 
     batch_id      = "tf-test-batch%{random_suffix}"
-    location      = "us-central1"
+    location      = "us-east1"
     labels        = {"batch_test": "terraform"}
 
     runtime_config {

@@ -44,46 +44,12 @@ To get more information about TargetTcpProxy, see:
 
 ```hcl
 resource "google_compute_target_tcp_proxy" "default" {
-  name            = "test-proxy"
-  backend_service = google_compute_backend_service.default.id
-}
-
-resource "google_compute_backend_service" "default" {
-  name        = "backend-service"
-  protocol    = "TCP"
-  timeout_sec = 10
-
-  health_checks = [google_compute_health_check.default.id]
-}
-
-resource "google_compute_health_check" "default" {
-  name               = "health-check"
-  timeout_sec        = 1
-  check_interval_sec = 1
-
-  tcp_health_check {
-    port = "443"
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=target_tcp_proxy_basic_beta&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Target Tcp Proxy Basic Beta
-
-
-```hcl
-resource "google_compute_target_tcp_proxy" "default" {
-  provider              = google-beta
   name                  = "test-proxy"
   load_balancing_scheme = "EXTERNAL_MANAGED"
   backend_service       = google_compute_backend_service.default.id
 }
 
 resource "google_compute_backend_service" "default" {
-  provider              = google-beta
   name                  = "backend-service"
   load_balancing_scheme = "EXTERNAL_MANAGED"
   protocol              = "TCP"
@@ -93,7 +59,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider           = google-beta
   name               = "health-check"
   timeout_sec        = 1
   check_interval_sec = 1
@@ -113,7 +78,6 @@ resource "google_compute_health_check" "default" {
 
 ```hcl
 resource "google_compute_target_tcp_proxy" "default" {
-  provider              = google-beta
   name                  = "test-proxy"
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
@@ -128,13 +92,11 @@ resource "google_compute_target_tcp_proxy" "default" {
 
 ```hcl
 resource "google_compute_target_tcp_proxy" "default" {
-  provider              = google-beta
   name                  = "test-proxy"
   load_balancing_scheme = "INTERNAL_MANAGED"
 }
 
 resource "google_compute_backend_service" "default" {
-  provider              = google-beta
   name                  = "backend-service"
   load_balancing_scheme = "INTERNAL_MANAGED"
   protocol              = "TCP"
@@ -142,7 +104,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
   name     = "health-check"
 
   https_health_check {
@@ -151,7 +112,6 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_network_services_tls_route" "default" {
-  provider = google-beta
   name     = "tls-route-check"
 
   target_proxies = [
@@ -201,7 +161,7 @@ The following arguments are supported:
 * `backend_service` -
   (Optional)
   A reference to the BackendService resource. This field is optional when
-  the loadBalancingScheme (available in beta) is set to INTERNAL_MANAGED.
+  the loadBalancingScheme is set to INTERNAL_MANAGED.
 
 * `proxy_bind` -
   (Optional)
@@ -209,7 +169,7 @@ The following arguments are supported:
   this target proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.
 
 * `load_balancing_scheme` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Specifies the load balancer type. A target TCP proxy created for one type
   of load balancer cannot be used with another. For more information, refer
   to [Summary of types of Google Cloud load balancers](https://docs.cloud.google.com/load-balancing/docs/load-balancing-overview#summary-gclb).

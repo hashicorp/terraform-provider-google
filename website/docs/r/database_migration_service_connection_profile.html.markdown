@@ -76,7 +76,7 @@ resource "google_sql_user" "sqldb_user" {
 resource "google_database_migration_service_connection_profile" "cloudsqlprofile" {
   location              = "us-central1"
   connection_profile_id = "my-fromprofileid"
-  display_name          = "my-fromprofileid_display"
+  display_name          = "my-fromprofileid-display"
   labels = { 
     foo = "bar"
   }
@@ -101,7 +101,7 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
 resource "google_database_migration_service_connection_profile" "cloudsqlprofile_destination" {
   location              = "us-central1"
   connection_profile_id = "my-toprofileid"
-  display_name          = "my-toprofileid_displayname"
+  display_name          = "my-toprofileid-displayname"
   labels = { 
     foo = "bar"
   }
@@ -167,7 +167,7 @@ resource "google_sql_user" "sqldb_user" {
 resource "google_database_migration_service_connection_profile" "postgresprofile" {
   location = "us-central1"
   connection_profile_id = "my-profileid"
-  display_name = "my-profileid_display"
+  display_name = "my-profileid-display"
   labels = { 
     foo = "bar" 
   }
@@ -224,7 +224,7 @@ resource "google_sql_user" "sqldb_user" {
 resource "google_database_migration_service_connection_profile" "postgresprofile" {
   location = "us-central1"
   connection_profile_id = "my-profileid"
-  display_name = "my-profileid_display"
+  display_name = "my-profileid-display"
   labels = { 
     foo = "bar" 
   }
@@ -278,7 +278,7 @@ resource "google_sql_user" "sqldb_user" {
 resource "google_database_migration_service_connection_profile" "postgresprofile" {
   location = "us-central1"
   connection_profile_id = "my-profileid"
-  display_name = "my-profileid_display"
+  display_name = "my-profileid-display"
   labels = { 
     foo = "bar" 
   }
@@ -302,7 +302,7 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
 resource "google_database_migration_service_connection_profile" "oracleprofile" {
   location = "us-central1"
   connection_profile_id = "my-profileid"
-  display_name = "my-profileid_display"
+  display_name = "my-profileid-display"
   labels = { 
     foo = "bar" 
   }
@@ -345,7 +345,7 @@ resource "google_service_networking_connection" "vpc_connection" {
 resource "google_database_migration_service_connection_profile" "alloydbprofile" {
   location = "us-central1"
   connection_profile_id = "my-profileid"
-  display_name = "my-profileid_display"
+  display_name = "my-profileid-display"
   labels = { 
     foo = "bar" 
   }
@@ -402,7 +402,7 @@ resource "google_sql_database_instance" "destination_csql" {
 resource "google_database_migration_service_connection_profile" "existing-mysql" {
   location              = "us-central1"
   connection_profile_id = "destination-cp"
-  display_name          = "destination-cp_display"
+  display_name          = "destination-cp-display"
   labels = {
     foo = "bar"
   }
@@ -437,7 +437,7 @@ resource "google_sql_database_instance" "destination_csql" {
 resource "google_database_migration_service_connection_profile" "existing-psql" {
   location              = "us-central1"
   connection_profile_id = "destination-cp"
-  display_name          = "destination-cp_display"
+  display_name          = "destination-cp-display"
   labels = {
     foo = "bar"
   }
@@ -504,7 +504,7 @@ resource "google_compute_network" "default" {
 resource "google_database_migration_service_connection_profile" "existing-alloydb" {
   location              = "us-central1"
   connection_profile_id = "destination-cp"
-  display_name          = "destination-cp_display"
+  display_name          = "destination-cp-display"
   labels = {
     foo = "bar"
   }

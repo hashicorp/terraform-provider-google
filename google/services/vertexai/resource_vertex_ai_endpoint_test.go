@@ -104,7 +104,7 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
 }
 
 resource "google_bigquery_dataset" "bq_dataset" {
-  dataset_id                 = "some_dataset%{endpoint_name}"
+  dataset_id                 = "tf_test_some_dataset%{endpoint_name}"
   friendly_name              = "logging dataset"
   description                = "This is a dataset that requests are logged to"
   location                   = "US"

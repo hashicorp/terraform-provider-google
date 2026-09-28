@@ -974,6 +974,20 @@ func flattenConfidentialInstanceConfig(ConfidentialInstanceConfig map[string]int
 	}}
 }
 
+func performanceMonitoringUnitDiffSuppress(_ string, old, new string, d *schema.ResourceData) bool {
+	// DiffSuppressFunc runs during planning, before IsNewResource is marked during apply.
+	// An empty ID identifies a resource that does not exist in state yet, so a new resource
+	// must send an explicitly configured STANDARD value to the API.
+	if d == nil || d.Id() == "" {
+		return false
+	}
+
+	// Existing resources may have recorded an empty value after the suppressor from
+	// https://github.com/GoogleCloudPlatform/magic-modules/pull/17887 omitted an
+	// explicitly configured STANDARD value during creation.
+	return (old == "" && new == "STANDARD") || (old == "STANDARD" && new == "")
+}
+
 func expandAdvancedMachineFeatures(d tpgresource.TerraformResourceData) map[string]interface{} {
 	if _, ok := d.GetOk("advanced_machine_features"); !ok {
 		return nil

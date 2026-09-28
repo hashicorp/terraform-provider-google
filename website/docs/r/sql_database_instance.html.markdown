@@ -410,6 +410,9 @@ includes an up-to-date reference of supported versions.
     That service account needs the `Cloud KMS > Cloud KMS CryptoKey Encrypter/Decrypter` role on your
     key - please see [this step](https://cloud.google.com/sql/docs/mysql/configure-cmek#grantkey).
 
+* `encryption_confidential_mode` - (Optional)
+    Enables Confidential Mode on Hyperdisk storage for enhanced security. Only supported on C4A instances.
+
 * `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the instance.
     When the field is set to true or unset in Terraform state, a `terraform apply`
     or `terraform destroy` that would delete the instance will fail.

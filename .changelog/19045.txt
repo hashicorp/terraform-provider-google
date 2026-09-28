@@ -1,0 +1,3 @@
+```release-note:note
+custom:  Migrate route_instance.tmpl file to use direct HTTP rather than a client library
+```

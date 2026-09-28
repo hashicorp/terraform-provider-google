@@ -62,12 +62,12 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyBasicEx
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"policy_name":   "global-ops-agent-policy",
+		"policy_name":   "tf-test-global-ops-agent-policy" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"policy_name":   "global-ops-agent-policy",
+		"policy_name":   "tf-test-global-ops-agent-policy" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -118,7 +118,7 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyBasicEx
 func testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  name        = "global-ops-agent-vme-policy-%{random_suffix}"
+  name        = "%{policy_name}"
   description = "A basic global VM extension policy"
   priority    = 10
 
@@ -147,7 +147,7 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
 func testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyUpdateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  name        = "global-ops-agent-vme-policy-%{random_suffix}"
+  name        = "%{policy_name}"
   description = "A basic global VM extension policy"
   priority    = 20
 
@@ -180,12 +180,12 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyRollout
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"policy_name":   "global-ops-agent-policy",
+		"policy_name":   "tf-test-global-ops-agent-policy" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"policy_name":   "global-ops-agent-policy",
+		"policy_name":   "tf-test-global-ops-agent-policy" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -236,7 +236,7 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyRollout
 func testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyUpdateRolloutExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  name        = "global-ops-agent-vme-policy-%{random_suffix}"
+  name        = "%{policy_name}"
   description = "A basic global VM extension policy"
   priority    = 10
 
@@ -270,8 +270,9 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyCustomR
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"policy_name":   "global-ops-agent-policy",
-		"random_suffix": randomSuffix,
+		"policy_name":       "tf-test-global-ops-agent-policy" + randomSuffix,
+		"rollout_plan_name": "tf-test-custom-rollout-plan" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -301,7 +302,7 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyCustomR
 func testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyCustomRolloutExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  name        = "global-ops-agent-vme-policy-%{random_suffix}"
+  name        = "%{policy_name}"
   description = "A global VM extension policy with a custom rollout plan"
   priority    = 10
 
@@ -329,7 +330,7 @@ data "google_project" "project" {
 }
 
 resource "google_compute_rollout_plan" "custom_rollout" {
-  name           = "custom-rollout-plan-%{random_suffix}"
+  name           = "%{rollout_plan_name}"
   location_scope = "ZONAL"
 
   waves {

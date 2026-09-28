@@ -216,6 +216,79 @@ resource "google_ces_deployment" "my-deployment" {
 `, context)
 }
 
+func TestAccCESDeployment_cesDeploymentWhatsappExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"app_display_name":         "tf-test-my-app" + randomSuffix,
+		"app_id":                   "tf-test-app-id" + randomSuffix,
+		"app_version_display_name": "tf-test-my-app-version" + randomSuffix,
+		"app_version_id":           "tf-test-app-version-id" + randomSuffix,
+		"deployment_display_name":  "tf-test-my-deployment" + randomSuffix,
+		"random_suffix":            randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESDeployment_cesDeploymentWhatsappExample(context),
+			},
+			{
+				ResourceName:            "google_ces_deployment.my-deployment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "app_version", "instagram_credentials", "location", "whatsapp_credentials"},
+			},
+			{
+				ResourceName:       "google_ces_deployment.my-deployment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCESDeployment_cesDeploymentWhatsappExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "%{app_display_name}"
+    app_id       = "%{app_id}"
+    time_zone_settings {
+        time_zone = "America/Los_Angeles"
+    }
+}
+resource "google_ces_app_version" "my-app-version" {
+    location       = "us"
+    display_name   = "%{app_version_display_name}"
+    app            = google_ces_app.my-app.name
+    app_version_id = "%{app_version_id}"
+    description    = "example-app-version"
+}
+resource "google_ces_deployment" "my-deployment" {
+    location     = "us"
+    display_name = "%{deployment_display_name}"
+    app          = google_ces_app.my-app.name
+    app_version  = google_ces_app_version.my-app-version.id
+    channel_profile {
+        channel_type = "API"
+        profile_id = "temp_profile_id"
+        whatsapp_config {
+            phone_number = "+15551234567"
+            phone_number_id = "1234567890"
+            waba_id = "9876543210"
+        }
+    }
+}
+`, context)
+}
+
 func testAccCheckCESDeploymentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

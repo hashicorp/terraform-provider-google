@@ -6,6 +6,8 @@ source_file: products/discoveryengine/WidgetConfig.yaml
 api_service_name: discoveryengine.googleapis.com
 api_version: v1
 api_resource_type_kind: WidgetConfig
+api_variant_patterns:
+    - projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/widgetConfigs/{widgetConfig}
 fields:
     - api_field: accessSettings.allowPublicAccess
     - api_field: accessSettings.allowlistedDomains
@@ -56,5 +58,9 @@ fields:
     - api_field: uiSettings.generativeAnswerConfig.resultCount
     - api_field: uiSettings.interactionType
     - api_field: uiSettings.resultDescriptionType
+    - api_field: uiSettings.searchAddonSpec.generativeAnswerAddOnDisabled
+    - api_field: uiSettings.searchAddonSpec.kpiPersonalizationAddOnDisabled
+    - api_field: uiSettings.searchAddonSpec.semanticAddOnDisabled
+    - api_field: uiSettings.sourceAdminDisplayNameEnabled
     - field: widget_config_id
       provider_only: true

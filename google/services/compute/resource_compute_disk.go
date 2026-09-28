@@ -581,7 +581,24 @@ If absent, the Compute Engine Service Agent service account is used.`,
 							ForceNew: true,
 							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
 RFC 4648 base64 to either encrypt or decrypt this resource.`,
-							Sensitive: true,
+							Sensitive:     true,
+							ConflictsWith: []string{"disk_encryption_key.0.raw_key_wo"},
+						},
+						"raw_key_wo": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Specifies a 256-bit customer-supplied encryption key, encoded in
+RFC 4648 base64 to either encrypt or decrypt this resource.`,
+							WriteOnly:     true,
+							ConflictsWith: []string{"disk_encryption_key.0.raw_key"},
+							RequiredWith:  []string{"disk_encryption_key.0.raw_key_wo_version"},
+						},
+						"raw_key_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Description:  `Triggers update of 'raw_key_wo' write-only. Increment this value when an update to 'raw_key_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"disk_encryption_key.0.raw_key_wo"},
 						},
 						"rsa_encrypted_key": {
 							Type:     schema.TypeString,
@@ -590,7 +607,25 @@ RFC 4648 base64 to either encrypt or decrypt this resource.`,
 							Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
 customer-supplied encryption key to either encrypt or decrypt
 this resource. You can provide either the rawKey or the rsaEncryptedKey.`,
-							Sensitive: true,
+							Sensitive:     true,
+							ConflictsWith: []string{"disk_encryption_key.0.rsa_encrypted_key_wo"},
+						},
+						"rsa_encrypted_key_wo": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit
+customer-supplied encryption key to either encrypt or decrypt
+this resource. You can provide either the rawKey or the rsaEncryptedKey.`,
+							WriteOnly:     true,
+							ConflictsWith: []string{"disk_encryption_key.0.rsa_encrypted_key"},
+							RequiredWith:  []string{"disk_encryption_key.0.rsa_encrypted_key_wo_version"},
+						},
+						"rsa_encrypted_key_wo_version": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Description:  `Triggers update of 'rsa_encrypted_key_wo' write-only. Increment this value when an update to 'rsa_encrypted_key_wo' is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)`,
+							RequiredWith: []string{"disk_encryption_key.0.rsa_encrypted_key_wo"},
 						},
 						"sha256": {
 							Type:     schema.TypeString,
@@ -1829,6 +1864,10 @@ func flattenComputeDiskDiskEncryptionKey(v interface{}, d *schema.ResourceData, 
 		flattenComputeDiskDiskEncryptionKeyKmsKeySelfLink(original["kmsKeyName"], d, config)
 	transformed["kms_key_service_account"] =
 		flattenComputeDiskDiskEncryptionKeyKmsKeyServiceAccount(original["kmsKeyServiceAccount"], d, config)
+	transformed["raw_key_wo_version"] =
+		flattenComputeDiskDiskEncryptionKeyRawKeyWoVersion(original["rawKeyWoVersion"], d, config)
+	transformed["rsa_encrypted_key_wo_version"] =
+		flattenComputeDiskDiskEncryptionKeyRsaEncryptedKeyWoVersion(original["rsaEncryptedKeyWoVersion"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeDiskDiskEncryptionKeyRawKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1849,6 +1888,14 @@ func flattenComputeDiskDiskEncryptionKeyKmsKeySelfLink(v interface{}, d *schema.
 
 func flattenComputeDiskDiskEncryptionKeyKmsKeyServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeDiskDiskEncryptionKeyRawKeyWoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("disk_encryption_key.0.raw_key_wo_version")
+}
+
+func flattenComputeDiskDiskEncryptionKeyRsaEncryptedKeyWoVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("disk_encryption_key.0.rsa_encrypted_key_wo_version")
 }
 
 func flattenComputeDiskSourceSnapshotEncryptionKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2232,6 +2279,20 @@ func expandComputeDiskDiskEncryptionKey(v interface{}, d tpgresource.TerraformRe
 		transformed["kmsKeyServiceAccount"] = transformedKmsKeyServiceAccount
 	}
 
+	transformedRawKeyWo, err := expandComputeDiskDiskEncryptionKeyRawKeyWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "disk_encryption_key.0.raw_key_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRawKeyWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rawKey"] = transformedRawKeyWo
+	}
+
+	transformedRsaEncryptedKeyWo, err := expandComputeDiskDiskEncryptionKeyRsaEncryptedKeyWo(tpgresource.GetRawConfigAttributeAsString(d.(*schema.ResourceData), "disk_encryption_key.0.rsa_encrypted_key_wo"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRsaEncryptedKeyWo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rsaEncryptedKey"] = transformedRsaEncryptedKeyWo
+	}
+
 	return transformed, nil
 }
 
@@ -2252,6 +2313,22 @@ func expandComputeDiskDiskEncryptionKeyKmsKeySelfLink(v interface{}, d tpgresour
 }
 
 func expandComputeDiskDiskEncryptionKeyKmsKeyServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskDiskEncryptionKeyRawKeyWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskDiskEncryptionKeyRawKeyWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskDiskEncryptionKeyRsaEncryptedKeyWo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskDiskEncryptionKeyRsaEncryptedKeyWoVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

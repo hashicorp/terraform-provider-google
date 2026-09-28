@@ -24,6 +24,7 @@ fields:
     - api_field: dataDiscoverySpec.storageConfig.jsonOptions.encoding
     - api_field: dataDiscoverySpec.storageConfig.jsonOptions.typeInferenceDisabled
     - api_field: dataDocumentationSpec.catalogPublishingEnabled
+    - api_field: dataDocumentationSpec.sqlDialect
     - api_field: dataProfileSpec.catalogPublishingEnabled
     - api_field: dataProfileSpec.excludeFields.fieldNames
     - api_field: dataProfileSpec.includeFields.fieldNames

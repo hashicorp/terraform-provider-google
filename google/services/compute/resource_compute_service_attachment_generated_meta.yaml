@@ -24,6 +24,7 @@ fields:
     - api_field: enableProxyProtocol
     - api_field: fingerprint
     - api_field: name
+    - api_field: natIpsPerEndpoint
     - api_field: natSubnets
     - api_field: propagatedConnectionLimit
     - api_field: pscServiceAttachmentId.high

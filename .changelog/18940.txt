@@ -1,0 +1,3 @@
+```release-note:enhancement
+parametermanager: added `data_crc32c` field to `google_parameter_manager_parameter_version`
+```

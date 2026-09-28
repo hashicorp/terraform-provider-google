@@ -76,7 +76,7 @@ func testAccIapTunnelDestGroup_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "tf-test-testgroup%{random_suffix}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",
@@ -89,7 +89,7 @@ func testAccIapTunnelDestGroup_updated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "tf-test-testgroup%{random_suffix}"
   cidrs = [
     "10.1.0.0/16",
   ]
@@ -101,7 +101,7 @@ func testAccIapTunnelDestGroup_updated_fqdns(context map[string]interface{}) str
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "tf-test-testgroup%{random_suffix}"
   cidrs = [
     "10.1.0.0/16",
   ]

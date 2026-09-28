@@ -193,7 +193,7 @@ func TestAccNetworkSecurityBackendAuthenticationConfig_backendServiceTlsSettings
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"authentication_name":  "authentication" + randomSuffix,
+		"authentication_name":  "tf-test-authentication" + randomSuffix,
 		"backend_service_name": "tf-test-backend-service" + randomSuffix,
 		"health_check_name":    "tf-test-health-check" + randomSuffix,
 		"random_suffix":        randomSuffix,

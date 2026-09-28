@@ -53,18 +53,18 @@ func TestAccComputeBackendServiceSignedUrlKey_basic(t *testing.T) {
 func testAccComputeBackendServiceSignedUrlKey_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_backend_service_signed_url_key" "backend_key" {
-  name            = "testkey-%{random_suffix}"
+  name            = "tf-test-testkey-%{random_suffix}"
   key_value       = "iAmAFakeKeyRandomBytes=="
   backend_service = google_compute_backend_service.test_bs.name
 }
 
 resource "google_compute_backend_service" "test_bs" {
-  name          = "testbs-%{random_suffix}"
+  name          = "tf-test-testbs-%{random_suffix}"
   health_checks = [google_compute_http_health_check.zero.self_link]
 }
 
 resource "google_compute_http_health_check" "zero" {
-  name               = "test-check-%{random_suffix}"
+  name               = "tf-test-test-check-%{random_suffix}"
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1

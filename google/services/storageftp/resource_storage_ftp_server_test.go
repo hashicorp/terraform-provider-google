@@ -49,6 +49,9 @@ func TestAccStorageFtpServer_updateInternal(t *testing.T) {
 					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "effective_labels.%", "2"),
 					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "effective_labels.goog-terraform-provisioned", "true"),
 					resource.TestCheckResourceAttr("google_storage_ftp_server.internal_server", "effective_labels.env", "default"),
+					resource.TestCheckResourceAttrSet("google_storage_ftp_server.internal_server", "service_agent"),
+					resource.TestCheckResourceAttrSet("google_storage_ftp_server.internal_server", "state"),
+					resource.TestCheckResourceAttrSet("google_storage_ftp_server.internal_server", "internal_config.0.service_attachment"),
 				),
 			},
 			{
@@ -122,6 +125,9 @@ func TestAccStorageFtpServer_updateExternal(t *testing.T) {
 					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "terraform_labels.goog-terraform-provisioned", "true"),
 					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "effective_labels.%", "1"),
 					resource.TestCheckResourceAttr("google_storage_ftp_server.external_server", "effective_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttrSet("google_storage_ftp_server.external_server", "service_agent"),
+					resource.TestCheckResourceAttrSet("google_storage_ftp_server.external_server", "state"),
+					resource.TestCheckResourceAttrSet("google_storage_ftp_server.external_server", "external_config.0.ip_address"),
 				),
 			},
 			{

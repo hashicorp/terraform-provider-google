@@ -765,3 +765,11 @@ func IsNetworkAttachmentConnectedEndpointsError(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+// Retry when waiting for an AgentConnectivityTemplate to be disassociated from dependent resources.
+func IsAgentConnectivityTemplateInUse(err error) (bool, string) {
+	if err != nil && strings.Contains(err.Error(), "is already being used by resource(s)") {
+		return true, "waiting for AgentConnectivityTemplate to no longer be referenced"
+	}
+	return false, ""
+}

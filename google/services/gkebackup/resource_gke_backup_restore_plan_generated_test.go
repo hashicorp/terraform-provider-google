@@ -66,7 +66,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllNamespacesExample(t *tes
 		"deletion_protection": false,
 		"name":                "tf-test-restore-all-ns" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -98,8 +98,11 @@ func testAccGKEBackupRestorePlan_gkebackupRestoreplanAllNamespacesExample(contex
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{name}-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -116,7 +119,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -126,7 +129,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "all_ns" {
   name = "%{name}"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -152,7 +155,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRollbackNamespaceExample(t 
 		"deletion_protection": false,
 		"name":                "tf-test-rollback-ns" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -184,8 +187,11 @@ func testAccGKEBackupRestorePlan_gkebackupRestoreplanRollbackNamespaceExample(co
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{name}-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -202,7 +208,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -212,7 +218,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "rollback_ns" {
   name = "%{name}-rp"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -247,7 +253,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanProtectedApplicationExample
 		"deletion_protection": false,
 		"name":                "tf-test-rollback-app" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -279,8 +285,11 @@ func testAccGKEBackupRestorePlan_gkebackupRestoreplanProtectedApplicationExample
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{name}-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -297,7 +306,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -307,7 +316,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "rollback_app" {
   name = "%{name}-rp"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -337,7 +346,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllClusterResourcesExample(
 		"deletion_protection": false,
 		"name":                "tf-test-all-groupkinds" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -369,8 +378,11 @@ func testAccGKEBackupRestorePlan_gkebackupRestoreplanAllClusterResourcesExample(
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{name}-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -387,7 +399,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -397,7 +409,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "all_cluster_resources" {
   name = "%{name}-rp"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -422,7 +434,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRenameNamespaceExample(t *t
 		"deletion_protection": false,
 		"name":                "tf-test-rename-ns" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -454,8 +466,11 @@ func testAccGKEBackupRestorePlan_gkebackupRestoreplanRenameNamespaceExample(cont
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{name}-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -472,7 +487,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -482,7 +497,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "rename_ns" {
   name = "%{name}-rp"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -534,7 +549,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanSecondTransformationExample
 		"deletion_protection": false,
 		"name":                "tf-test-transform-rule" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -566,8 +581,11 @@ func testAccGKEBackupRestorePlan_gkebackupRestoreplanSecondTransformationExample
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{name}-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -584,7 +602,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -598,7 +616,7 @@ resource "google_gke_backup_restore_plan" "transform_rule" {
   labels = {
     "app" = "nginx"
   }
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -644,7 +662,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanGitopsModeExample(t *testin
 		"deletion_protection": false,
 		"name":                "tf-test-gitops-mode" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -676,8 +694,11 @@ func testAccGKEBackupRestorePlan_gkebackupRestoreplanGitopsModeExample(context m
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{name}-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -694,7 +715,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -704,7 +725,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "gitops_mode" {
   name = "%{name}"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -730,7 +751,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRestoreOrderExample(t *test
 		"deletion_protection": false,
 		"name":                "tf-test-restore-order" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -762,8 +783,11 @@ func testAccGKEBackupRestorePlan_gkebackupRestoreplanRestoreOrderExample(context
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{name}-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -780,7 +804,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -790,7 +814,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "restore_order" {
   name = "%{name}"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {
@@ -838,7 +862,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanVolumeResExample(t *testing
 		"deletion_protection": false,
 		"name":                "tf-test-volume-res" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -870,8 +894,11 @@ func testAccGKEBackupRestorePlan_gkebackupRestoreplanVolumeResExample(context ma
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{name}-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -888,7 +915,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -898,7 +925,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 
 resource "google_gke_backup_restore_plan" "volume_res" {
   name = "%{name}"
-  location = "us-central1"
+  location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
   cluster = google_container_cluster.primary.id
   restore_config {

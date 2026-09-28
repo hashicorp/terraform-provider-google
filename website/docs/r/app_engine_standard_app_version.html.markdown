@@ -157,7 +157,7 @@ resource "google_project_iam_member" "storage_viewer" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "tf-test-gae-bkt-bundled"
+  name     = "gae-bkt-bundled"
   location = "US"
 }
 
@@ -236,13 +236,13 @@ resource "google_project_iam_member" "storage_viewer" {
 
 resource "google_compute_network" "custom" {
   provider                = google-beta
-  name                    = "custom-net-vpc-service"
+  name                    = "vpc-service-net"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "custom" {
   provider      = google-beta
-  name          = "custom-sub-vpc-service"
+  name          = "vpc-service-sub"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
   network       = google_compute_network.custom.id
@@ -250,7 +250,7 @@ resource "google_compute_subnetwork" "custom" {
 
 resource "google_storage_bucket" "bucket" {
   provider                    = google-beta
-  name                        = "tf-test-gae-bkt-vpc-access"
+  name                        = "gae-bkt-vpc-access"
   location                    = "US"
   uniform_bucket_level_access = true
 }

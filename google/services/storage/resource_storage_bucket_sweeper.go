@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"strings"
 
 	"github.com/gammazero/workerpool"
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
@@ -181,7 +182,11 @@ func testSweepStorageBucket(region string) error {
 
 		id := obj["name"].(string)
 		// Increment count and skip if resource is not sweepable.
-		if !sweeper.IsSweepableTestResource(id) {
+		// The bucket in TestAccStorageBucketListResource_queryIdentity is deliberately
+		// named "0-tf-test-..." so that it sorts first in the alphabetically-ordered
+		// list query the test asserts against. Accept that prefix too, so the bucket is
+		// still swept.
+		if !sweeper.IsSweepableTestResource(id) && !strings.HasPrefix(id, "0-tf-test") {
 			nonPrefixCount++
 			continue
 		}

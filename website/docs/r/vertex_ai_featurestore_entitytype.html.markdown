@@ -35,7 +35,7 @@ To get more information about FeaturestoreEntitytype, see:
 
 ```hcl
 resource "google_vertex_ai_featurestore" "featurestore" {
-  name     = "terraform"
+  name     = "terraform_entitytype"
   labels = {
     foo = "bar"
   }
@@ -49,7 +49,7 @@ resource "google_vertex_ai_featurestore" "featurestore" {
 }
 
 resource "google_vertex_ai_featurestore_entitytype" "entity" {
-  name     = "terraform"
+  name     = "terraform_entitytype"
   labels = {
     foo = "bar"
   }
@@ -80,7 +80,7 @@ resource "google_vertex_ai_featurestore_entitytype" "entity" {
 ```hcl
 resource "google_vertex_ai_featurestore" "featurestore" {
   provider = google-beta
-  name     = "terraform2"
+  name     = "terraform_entitytype_2"
   labels = {
     foo = "bar"
   }
@@ -95,7 +95,7 @@ resource "google_vertex_ai_featurestore" "featurestore" {
 
 resource "google_vertex_ai_featurestore_entitytype" "entity" {
   provider = google-beta
-  name     = "terraform2"
+  name     = "terraform_entitytype_2"
   labels = {
     foo = "bar"
   }

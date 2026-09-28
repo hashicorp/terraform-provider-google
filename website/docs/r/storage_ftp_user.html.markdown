@@ -175,6 +175,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/servers/{{server_id}}/users/{{user_id}}`
 
+* `username` -
+  The SFTP login username for the user.
+
+* `state` -
+  The provisioning status of the user.
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.

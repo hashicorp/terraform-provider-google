@@ -1,0 +1,3 @@
+```release-note:bug
+binaryauthorization: fixed `google_binary_authorization_policy `  where "deleting" (i.e. setting back to default) the policy would keep a custom list of `admissionWhitelistPatterns`
+```

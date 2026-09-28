@@ -87,7 +87,7 @@ data "google_apphub_discovered_workload" "catalog-workload" {
 
 # VPC network
 resource "google_compute_network" "ilb_network" {
-  name                    = "l7-ilb-network-%{random_suffix}"
+  name                    = "tf-test-l7-ilb-network-%{random_suffix}"
   project                 = google_project.service_project.project_id
   auto_create_subnetworks = false
   depends_on = [time_sleep.wait_120s]
@@ -95,7 +95,7 @@ resource "google_compute_network" "ilb_network" {
 
 # backend subnet
 resource "google_compute_subnetwork" "ilb_subnet" {
-  name          = "l7-ilb-subnetwork-%{random_suffix}"
+  name          = "tf-test-l7-ilb-subnetwork-%{random_suffix}"
   project       = google_project.service_project.project_id
   ip_cidr_range = "10.0.1.0/24"
   region        = "us-central1"
@@ -109,7 +109,7 @@ resource "time_sleep" "wait_120s_for_resource_ingestion" {
 
 # instance template
 resource "google_compute_instance_template" "instance_template" {
-  name         = "l7-ilb-mig-template-%{random_suffix}"
+  name         = "tf-test-l7-ilb-mig-template-%{random_suffix}"
   project               = google_project.service_project.project_id
   machine_type = "e2-small"
   tags         = ["http-server"]
@@ -151,7 +151,7 @@ resource "google_compute_instance_template" "instance_template" {
 }
 
 resource "google_compute_region_instance_group_manager" "mig" {
-  name     = "l7-ilb-mig1-%{random_suffix}"
+  name     = "tf-test-l7-ilb-mig1-%{random_suffix}"
   project               = google_project.service_project.project_id
   region   = "us-central1"
   version {

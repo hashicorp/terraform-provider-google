@@ -41,7 +41,14 @@ To get more information about Instance, see:
 ```hcl
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
-  location = "us-west1-a"
+  location = "us-east1-b"
+
+  gce_setup {
+    machine_type = "n4-standard-2"
+    boot_disk {
+      disk_type = "HYPERDISK_BALANCED"
+    }
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -55,9 +62,13 @@ resource "google_workbench_instance" "instance" {
 ```hcl
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
-  location = "us-west1-a"
+  location = "us-east1-b"
 
   gce_setup {
+    machine_type = "n4-standard-2"
+    boot_disk {
+      disk_type = "HYPERDISK_BALANCED"
+    }
     container_image {
       repository = "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/base-cu113.py310"
       tag = "latest"
@@ -76,16 +87,16 @@ resource "google_workbench_instance" "instance" {
 ```hcl
 resource "google_compute_reservation" "gpu_reservation" {
   name     = "wbi-reservation"
-  zone     = "us-central1-a"
+  zone     = "us-east1-b"
 
   specific_reservation {
     count = 1
     
     instance_properties {
-      machine_type = "n1-standard-1"
+      machine_type = "g2-standard-4"
       
       guest_accelerators {
-        accelerator_type  = "nvidia-tesla-t4"
+        accelerator_type  = "nvidia-l4"
         accelerator_count = 1
       }
     }
@@ -96,12 +107,18 @@ resource "google_compute_reservation" "gpu_reservation" {
 
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
-  location = "us-central1-a"
+  location = "us-east1-b"
   gce_setup {
-    machine_type = "n1-standard-1" // cant be e2 because of accelerator
+    machine_type = "g2-standard-4"
     accelerator_configs {
-      type         = "NVIDIA_TESLA_T4"
+      type         = "NVIDIA_L4"
       core_count   = 1
+    }
+    boot_disk {
+      disk_type = "PD_SSD"
+    }
+    data_disks {
+      disk_type = "PD_SSD"
     }
     vm_image {
       project      = "cloud-notebooks-managed"
@@ -124,10 +141,13 @@ resource "google_workbench_instance" "instance" {
 ```hcl
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
-  location = "us-central1-a"
+  location = "us-east1-b"
 
   gce_setup {
-    machine_type = "e2-standard-4"
+    machine_type = "n4-standard-4"
+    boot_disk {
+      disk_type = "HYPERDISK_BALANCED"
+    }
 
     shielded_instance_config {
       enable_secure_boot = false
@@ -165,12 +185,13 @@ resource "google_compute_network" "my_network" {
 resource "google_compute_subnetwork" "my_subnetwork" {
   name   = "wbi-test-default"
   network = google_compute_network.my_network.id
-  region = "us-central1"
+  region = "us-east1"
   ip_cidr_range = "10.0.1.0/24"
 }
 
 resource "google_compute_address" "static" {
-  name = "wbi-test-default"
+  name   = "wbi-test-default"
+  region = "us-east1"
 }
 
 resource "google_service_account_iam_member" "act_as_permission" {
@@ -181,17 +202,17 @@ resource "google_service_account_iam_member" "act_as_permission" {
 
 resource "google_compute_reservation" "gpu_reservation" {
   name     = "wbi-reservation"
-  zone     = "us-central1-a"
+  zone     = "us-east1-b"
 
   specific_reservation {
     count = 1
     
     instance_properties {
-      machine_type = "n1-standard-4"
-      min_cpu_platform = "Intel Broadwell"
+      machine_type = "g2-standard-4"
+      min_cpu_platform = "Intel Cascade Lake"
 
       guest_accelerators {
-        accelerator_type  = "nvidia-tesla-t4"
+        accelerator_type  = "nvidia-l4"
         accelerator_count = 1
       }
     }
@@ -202,7 +223,7 @@ resource "google_compute_reservation" "gpu_reservation" {
 
 resource "google_compute_resource_policy" "my_policy" {
   name   = "wbi-policy"
-  region = "us-central1"
+  region = "us-east1"
   snapshot_schedule_policy {
     schedule {
       daily_schedule {
@@ -215,15 +236,15 @@ resource "google_compute_resource_policy" "my_policy" {
 
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
-  location = "us-central1-a"
+  location = "us-east1-b"
 
   enable_deletion_protection = false
 
   gce_setup {
-    machine_type = "n1-standard-4" // cant be e2 because of accelerator
-    min_cpu_platform = "Intel Broadwell"
+    machine_type = "g2-standard-4"
+    min_cpu_platform = "Intel Cascade Lake"
     accelerator_configs {
-      type         = "NVIDIA_TESLA_T4"
+      type         = "NVIDIA_L4"
       core_count   = 1
     }
 
@@ -314,7 +335,7 @@ resource "google_workbench_instance" "instance" {
 ```hcl
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
-  location = "us-central1-a"
+  location = "us-east1-b"
 
   gce_setup {
     machine_type = "n2d-standard-2" // cant be e2 because of accelerator
@@ -350,10 +371,13 @@ resource "google_service_account_iam_binding" "act_as_permission" {
 
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
-  location = "us-central1-a"
+  location = "us-east1-b"
 
   gce_setup {
-    machine_type = "e2-standard-4"
+    machine_type = "n4-standard-4"
+    boot_disk {
+      disk_type = "HYPERDISK_BALANCED"
+    }
     
     metadata = {
       terraform = "true"

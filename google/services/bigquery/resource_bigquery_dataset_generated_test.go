@@ -62,7 +62,7 @@ func TestAccBigQueryDataset_bigqueryDatasetBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"account_name":  "bqowner" + randomSuffix,
+		"account_name":  "tf-test-bqowner" + randomSuffix,
 		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
@@ -127,7 +127,7 @@ func TestAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(t *test
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"account_name":  "bqowner" + randomSuffix,
+		"account_name":  "tf-test-bqowner" + randomSuffix,
 		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
@@ -193,9 +193,9 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(t *testing.T
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"account_name":  "bqowner" + randomSuffix,
-		"private":       "private" + randomSuffix,
-		"public":        "public" + randomSuffix,
+		"account_name":  "tf-test-bqowner" + randomSuffix,
+		"private":       "tf_test_private" + randomSuffix,
+		"public":        "tf_test_public" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -371,7 +371,7 @@ func TestAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(t *testin
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"account_name":  "bqowner" + randomSuffix,
+		"account_name":  "tf-test-bqowner" + randomSuffix,
 		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
@@ -437,7 +437,7 @@ func TestAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"account_name":  "bqowner" + randomSuffix,
+		"account_name":  "tf-test-bqowner" + randomSuffix,
 		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
@@ -555,7 +555,7 @@ func TestAccBigQueryDataset_bigqueryDatasetResourceTagsExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"dataset_id":    "dataset" + randomSuffix,
+		"dataset_id":    "tf_test_dataset" + randomSuffix,
 		"tag_key1":      "tf_test_tag_key1" + randomSuffix,
 		"tag_key2":      "tf_test_tag_key2" + randomSuffix,
 		"tag_value1":    "tf_test_tag_value1" + randomSuffix,

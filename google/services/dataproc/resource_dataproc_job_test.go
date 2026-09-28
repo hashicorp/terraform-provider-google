@@ -68,7 +68,7 @@ func TestAccDataprocJob_updatable(t *testing.T) {
 	rnd := acctest.RandString(t, 10)
 	jobId := fmt.Sprintf("tf-test-dproc-update-job-id-%s", rnd)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -101,7 +101,7 @@ func TestAccDataprocJob_PySpark(t *testing.T) {
 	rnd := acctest.RandString(t, 10)
 	jobId := fmt.Sprintf("tf-test-dproc-custom-job-id-%s", rnd)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -143,7 +143,7 @@ func TestAccDataprocJob_Spark(t *testing.T) {
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -179,7 +179,7 @@ func TestAccDataprocJob_Hadoop(t *testing.T) {
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -215,7 +215,7 @@ func TestAccDataprocJob_Hive(t *testing.T) {
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -251,7 +251,7 @@ func TestAccDataprocJob_Pig(t *testing.T) {
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -315,14 +315,14 @@ func testAccDataprocJobSparkSql(t *testing.T, config string) {
 func TestAccDataprocJob_SparkSql_QueryList(t *testing.T) {
 	rnd := acctest.RandString(t, 10)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	testAccDataprocJobSparkSql(t, testAccDataprocJob_SparkSql_QueryList(rnd, subnetworkName))
 }
 
 func TestAccDataprocJob_SparkSql_QueryFile(t *testing.T) {
 	rnd := acctest.RandString(t, 10)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	testAccDataprocJobSparkSql(t, testAccDataprocJob_SparkSql_QueryFile(rnd, subnetworkName))
 }
 
@@ -332,7 +332,7 @@ func TestAccDataprocJob_Presto(t *testing.T) {
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -678,7 +678,7 @@ func matchError(attr, tf interface{}, gcp interface{}) string {
 var singleNodeClusterConfig = `
 resource "google_dataproc_cluster" "basic" {
   name   = "tf-test-dproc-job-%s"
-  region = "us-central1"
+  region = "us-east1"
 
   cluster_config {
     # Keep the costs down with smallest config we can get away with
@@ -690,8 +690,9 @@ resource "google_dataproc_cluster" "basic" {
 
     master_config {
       num_instances = 1
-      machine_type  = "e2-standard-2"
+      machine_type  = "n4-standard-2"
       disk_config {
+        boot_disk_type    = "hyperdisk-balanced"
         boot_disk_size_gb = 35
       }
     }
@@ -904,7 +905,7 @@ func testAccDataprocJob_presto(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
   name   = "tf-test-dproc-job-%s"
-  region = "us-central1"
+  region = "us-east1"
 
   cluster_config {
     # Keep the costs down with smallest config we can get away with

@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: `google_sql_database_instance` now performs an in-place storage shrink when `disk_size` is reduced with `disk_autoresize` disabled, instead of forcing instance recreation
+```

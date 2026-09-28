@@ -369,6 +369,86 @@ resource "google_network_services_tls_route" "default" {
 `, context)
 }
 
+func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteTargetTcpProxyBasicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"backend_service_name":  "tf-test-my-backend-service" + randomSuffix,
+		"health_check_name":     "tf-test-my-health-check" + randomSuffix,
+		"resource_name":         "tf-test-my-tls-route" + randomSuffix,
+		"target_tcp_proxy_name": "tf-test-my-target-tcp-proxy" + randomSuffix,
+		"random_suffix":         randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesTlsRouteDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesTlsRoute_networkServicesTlsRouteTargetTcpProxyBasicExample(context),
+			},
+			{
+				ResourceName:            "google_network_services_tls_route.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name"},
+			},
+			{
+				ResourceName:       "google_network_services_tls_route.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesTlsRoute_networkServicesTlsRouteTargetTcpProxyBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name                  = "%{backend_service_name}"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  protocol              = "TCP"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name     = "%{health_check_name}"
+
+  https_health_check {
+    port = 443
+  }
+}
+
+resource "google_compute_target_tcp_proxy" "default" {
+  name                  = "%{target_tcp_proxy_name}"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+}
+
+resource "google_network_services_tls_route" "default" {
+  name     = "%{resource_name}"
+
+  target_proxies = [
+    google_compute_target_tcp_proxy.default.id
+  ]
+
+  rules {
+    matches {
+      sni_host = ["example.com"]
+    }
+    action {
+      destinations {
+        service_name = google_compute_backend_service.default.id
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckNetworkServicesTlsRouteDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

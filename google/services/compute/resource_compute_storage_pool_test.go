@@ -271,19 +271,19 @@ func testAccComputeStoragePool_resourceManagerTags(context map[string]interface{
 	return acctest.Nprintf(`
 resource "google_tags_tag_key" "tag_key" {
   parent      = "projects/%{project_id}"
-  short_name  = "storage-pool-tag-%{random_suffix}"
+  short_name  = "tf-test-storage-pool-tag-%{random_suffix}"
   description = "Tag key for storage pool acceptance tests"
 }
 
 resource "google_tags_tag_value" "tag_value_1" {
   parent      = google_tags_tag_key.tag_key.id
-  short_name  = "value-one-%{random_suffix}"
+  short_name  = "tf-test-value-one-%{random_suffix}"
   description = "First tag value for storage pool acceptance tests"
 }
 
 resource "google_tags_tag_value" "tag_value_2" {
   parent      = google_tags_tag_key.tag_key.id
-  short_name  = "value-two-%{random_suffix}"
+  short_name  = "tf-test-value-two-%{random_suffix}"
   description = "Second tag value for storage pool acceptance tests"
 
   # Serialize value creation for stable VCR recordings.

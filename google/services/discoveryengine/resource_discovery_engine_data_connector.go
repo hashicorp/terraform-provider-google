@@ -456,6 +456,53 @@ protections.
 If this field is set and processed successfully, the DataStores created by
 this connector will be protected by the KMS key.`,
 			},
+			"metadata": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `User-facing metadata for the connector.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"author": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The party that authored the connector, e.g. "Google" or a third-party provider name.`,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Human-readable description of the connector.`,
+						},
+						"note": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Free-form, multi-line note about the connector's capabilities.`,
+						},
+						"short_description": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Short, subtitle-length description of the connector.`,
+						},
+						"title": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Display title of the connector.`,
+						},
+					},
+				},
+			},
 			"params": {
 				Type:         schema.TypeMap,
 				Optional:     true,
@@ -474,6 +521,12 @@ this connector will be protected by the KMS key.`,
 				Optional: true,
 				Description: `The data synchronization mode supported by the data connector. The possible value can be:
 'PERIODIC', 'STREAMING'.`,
+			},
+			"tag": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `User-facing, version-independent label for this connector.`,
 			},
 			"action_state": {
 				Type:     schema.TypeString,
@@ -707,6 +760,18 @@ func resourceDiscoveryEngineDataConnectorCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("incremental_sync_disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(incrementalSyncDisabledProp)) && (ok || !reflect.DeepEqual(v, incrementalSyncDisabledProp)) {
 		obj["incrementalSyncDisabled"] = incrementalSyncDisabledProp
+	}
+	tagProp, err := expandDiscoveryEngineDataConnectorTag(d.Get("tag"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tag"); !tpgresource.IsEmptyValue(reflect.ValueOf(tagProp)) && (ok || !reflect.DeepEqual(v, tagProp)) {
+		obj["tag"] = tagProp
+	}
+	metadataProp, err := expandDiscoveryEngineDataConnectorMetadata(d.Get("metadata"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("metadata"); !tpgresource.IsEmptyValue(reflect.ValueOf(metadataProp)) && (ok || !reflect.DeepEqual(v, metadataProp)) {
+		obj["metadata"] = metadataProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}:setUpDataConnectorV2?collectionId={{collection_id}}&collectionDisplayName={{collection_display_name}}")
@@ -1488,6 +1553,51 @@ func flattenDiscoveryEngineDataConnectorIncrementalRefreshInterval(v interface{}
 	return v
 }
 
+func flattenDiscoveryEngineDataConnectorTag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["title"] =
+		flattenDiscoveryEngineDataConnectorMetadataTitle(original["title"], d, config)
+	transformed["description"] =
+		flattenDiscoveryEngineDataConnectorMetadataDescription(original["description"], d, config)
+	transformed["short_description"] =
+		flattenDiscoveryEngineDataConnectorMetadataShortDescription(original["shortDescription"], d, config)
+	transformed["author"] =
+		flattenDiscoveryEngineDataConnectorMetadataAuthor(original["author"], d, config)
+	transformed["note"] =
+		flattenDiscoveryEngineDataConnectorMetadataNote(original["note"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataConnectorMetadataTitle(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorMetadataDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorMetadataShortDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorMetadataAuthor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataConnectorMetadataNote(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandDiscoveryEngineDataConnectorDataSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1804,6 +1914,80 @@ func expandDiscoveryEngineDataConnectorAutoRunDisabled(v interface{}, d tpgresou
 }
 
 func expandDiscoveryEngineDataConnectorIncrementalSyncDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorTag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTitle, err := expandDiscoveryEngineDataConnectorMetadataTitle(original["title"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTitle); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["title"] = transformedTitle
+	}
+
+	transformedDescription, err := expandDiscoveryEngineDataConnectorMetadataDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedShortDescription, err := expandDiscoveryEngineDataConnectorMetadataShortDescription(original["short_description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedShortDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["shortDescription"] = transformedShortDescription
+	}
+
+	transformedAuthor, err := expandDiscoveryEngineDataConnectorMetadataAuthor(original["author"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuthor); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["author"] = transformedAuthor
+	}
+
+	transformedNote, err := expandDiscoveryEngineDataConnectorMetadataNote(original["note"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNote); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["note"] = transformedNote
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataConnectorMetadataTitle(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorMetadataDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorMetadataShortDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorMetadataAuthor(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataConnectorMetadataNote(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2249,6 +2433,12 @@ func ResourceDiscoveryEngineDataConnectorFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading DataConnector: %s", err)
 	}
 	if err = d.Set("incremental_refresh_interval", flattenDiscoveryEngineDataConnectorIncrementalRefreshInterval(res["incrementalRefreshInterval"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("tag", flattenDiscoveryEngineDataConnectorTag(res["tag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataConnector: %s", err)
+	}
+	if err = d.Set("metadata", flattenDiscoveryEngineDataConnectorMetadata(res["metadata"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataConnector: %s", err)
 	}
 

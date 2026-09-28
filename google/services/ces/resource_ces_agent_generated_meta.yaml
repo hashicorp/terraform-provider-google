@@ -9,12 +9,15 @@ api_resource_type_kind: Agent
 fields:
     - api_field: afterAgentCallbacks.description
     - api_field: afterAgentCallbacks.disabled
+    - api_field: afterAgentCallbacks.proactiveExecutionEnabled
     - api_field: afterAgentCallbacks.pythonCode
     - api_field: afterModelCallbacks.description
     - api_field: afterModelCallbacks.disabled
+    - api_field: afterModelCallbacks.proactiveExecutionEnabled
     - api_field: afterModelCallbacks.pythonCode
     - api_field: afterToolCallbacks.description
     - api_field: afterToolCallbacks.disabled
+    - api_field: afterToolCallbacks.proactiveExecutionEnabled
     - api_field: afterToolCallbacks.pythonCode
     - field: agent_id
       provider_only: true
@@ -22,12 +25,15 @@ fields:
       provider_only: true
     - api_field: beforeAgentCallbacks.description
     - api_field: beforeAgentCallbacks.disabled
+    - api_field: beforeAgentCallbacks.proactiveExecutionEnabled
     - api_field: beforeAgentCallbacks.pythonCode
     - api_field: beforeModelCallbacks.description
     - api_field: beforeModelCallbacks.disabled
+    - api_field: beforeModelCallbacks.proactiveExecutionEnabled
     - api_field: beforeModelCallbacks.pythonCode
     - api_field: beforeToolCallbacks.description
     - api_field: beforeToolCallbacks.disabled
+    - api_field: beforeToolCallbacks.proactiveExecutionEnabled
     - api_field: beforeToolCallbacks.pythonCode
     - api_field: childAgents
     - api_field: createTime
@@ -43,6 +49,36 @@ fields:
     - api_field: modelSettings.model
     - api_field: modelSettings.temperature
     - api_field: name
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.description
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.name
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.description
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.examples
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.id
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.inputModes
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.name
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.outputModes
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.skills.tags
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.supportedInterfaces.protocolBinding
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.supportedInterfaces.protocolVersion
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.supportedInterfaces.tenant
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.supportedInterfaces.url
+    - api_field: remoteA2aAgent.a2aConfig.agentCard.version
+    - api_field: remoteA2aAgent.a2aConfig.agentRegistry
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.apiKeyConfig.apiKeySecretVersion
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.apiKeyConfig.keyName
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.apiKeyConfig.requestLocation
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.bearerTokenConfig.token
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.oauthConfig.clientId
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.oauthConfig.clientSecretVersion
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.oauthConfig.oauthGrantType
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.oauthConfig.scopes
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.oauthConfig.tokenEndpoint
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.serviceAccountAuthConfig.scopes
+    - api_field: remoteA2aAgent.a2aConfig.apiAuthentication.serviceAccountAuthConfig.serviceAccount
+    - api_field: remoteA2aAgent.a2aConfig.contextId
+    - api_field: remoteA2aAgent.a2aConfig.inputVariableMapping
+    - api_field: remoteA2aAgent.a2aConfig.outputVariableMapping
+    - api_field: remoteA2aAgent.a2aConfig.streamingEnabled
     - api_field: remoteDialogflowAgent.agent
     - api_field: remoteDialogflowAgent.environmentId
     - api_field: remoteDialogflowAgent.flowId

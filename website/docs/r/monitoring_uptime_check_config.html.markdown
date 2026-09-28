@@ -244,7 +244,7 @@ resource "google_monitoring_group" "check" {
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
-  name     = "my-project-name-gcf-source"  # Every bucket name must be globally unique
+  name     = "gcf-source-my-project-name"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }

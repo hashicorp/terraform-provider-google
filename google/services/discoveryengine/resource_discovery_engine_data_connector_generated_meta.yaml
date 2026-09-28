@@ -46,6 +46,11 @@ fields:
     - api_field: latestPauseTime
     - field: location
       provider_only: true
+    - api_field: metadata.author
+    - api_field: metadata.description
+    - api_field: metadata.note
+    - api_field: metadata.shortDescription
+    - api_field: metadata.title
     - api_field: name
     - api_field: params
     - api_field: privateConnectivityProjectId
@@ -55,6 +60,7 @@ fields:
     - api_field: staticIpAddresses
     - api_field: staticIpEnabled
     - api_field: syncMode
+    - api_field: tag
     - api_field: updateTime
     - field: deletion_policy
       provider_only: true

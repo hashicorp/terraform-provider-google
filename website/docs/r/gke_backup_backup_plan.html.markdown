@@ -36,8 +36,11 @@ To get more information about BackupPlan, see:
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "basic-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -54,7 +57,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "basic-plan"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -73,7 +76,7 @@ resource "google_gke_backup_backup_plan" "basic" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "autopilot-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   enable_autopilot = true
   ip_allocation_policy {   
   }
@@ -93,7 +96,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "autopilot" {
   name = "autopilot-plan"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -107,8 +110,11 @@ resource "google_gke_backup_backup_plan" "autopilot" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "cmek-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -125,7 +131,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "cmek" {
   name = "cmek-plan"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -145,7 +151,7 @@ resource "google_kms_crypto_key" "crypto_key" {
 
 resource "google_kms_key_ring" "key_ring" {
   name     = "backup-key"
-  location = "us-central1"
+  location = "us-east1"
 }
 ```
 ## Example Usage - Gkebackup Backupplan Nslabels
@@ -154,8 +160,11 @@ resource "google_kms_key_ring" "key_ring" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "nslabels-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -172,7 +181,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "nslabels" {
   name = "nslabels-plan"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -191,8 +200,11 @@ resource "google_gke_backup_backup_plan" "nslabels" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "full-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -209,7 +221,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "full" {
   name = "full-plan"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
     backup_retain_days = 180
@@ -239,8 +251,11 @@ resource "google_gke_backup_backup_plan" "full" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "permissive-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -257,7 +272,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "permissive" {
   name = "permissive-plan"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
     backup_retain_days = 180
@@ -288,8 +303,11 @@ resource "google_gke_backup_backup_plan" "permissive" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "rpo-daily-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -306,7 +324,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "rpo_daily_window" {
   name = "rpo-daily-window"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
     backup_retain_days = 180
@@ -351,8 +369,11 @@ resource "google_gke_backup_backup_plan" "rpo_daily_window" {
 ```hcl
 resource "google_container_cluster" "primary" {
   name               = "rpo-weekly-cluster"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
@@ -369,7 +390,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "rpo_weekly_window" {
   name = "rpo-weekly-window"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
     backup_retain_days = 180

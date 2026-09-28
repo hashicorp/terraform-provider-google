@@ -24,6 +24,12 @@ fields:
     - api_field: channelProfile.webWidgetConfig.securitySettings.enableRecaptcha
     - api_field: channelProfile.webWidgetConfig.theme
     - api_field: channelProfile.webWidgetConfig.webWidgetTitle
+    - api_field: channelProfile.whatsappConfig.description
+    - api_field: channelProfile.whatsappConfig.displayName
+    - api_field: channelProfile.whatsappConfig.phoneNumber
+    - api_field: channelProfile.whatsappConfig.phoneNumberId
+    - api_field: channelProfile.whatsappConfig.thumbnailUrl
+    - api_field: channelProfile.whatsappConfig.wabaId
     - api_field: createTime
     - api_field: displayName
     - api_field: etag

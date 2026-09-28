@@ -61,7 +61,7 @@ func TestAccHypercomputeclusterCluster_hypercomputeclusterClusterBasicExample(t 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"cluster_id":    fmt.Sprintf("tf%s", acctest.RandString(t, 8)),
+		"cluster_id":    fmt.Sprintf("tfgen%s", acctest.RandString(t, 5)),
 		"network_id":    fmt.Sprintf("cluster-net1-%s", acctest.RandString(t, 10)),
 		"random_suffix": randomSuffix,
 	}

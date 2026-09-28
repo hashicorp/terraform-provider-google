@@ -61,7 +61,7 @@ func TestAccNetworkConnectivityGatewayAdvertisedRoute_networkConnectivityGateway
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"hub_name":      "hub" + randomSuffix,
+		"hub_name":      "tf-test-hub" + randomSuffix,
 		"network_name":  "tf-test-net-spoke" + randomSuffix,
 		"resource_name": "tf-test-gateway-advertised-route-name" + randomSuffix,
 		"spoke_name":    "tf-test-spoke-name" + randomSuffix,

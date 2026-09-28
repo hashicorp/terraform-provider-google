@@ -30,8 +30,8 @@ import (
 func TestAccComputeForwardingRule_update(t *testing.T) {
 	t.Parallel()
 
-	poolName := fmt.Sprintf("tf-%s", acctest.RandString(t, 10))
-	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(t, 10))
+	poolName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	ruleName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -98,8 +98,8 @@ func TestAccComputeForwardingRule_ip(t *testing.T) {
 func TestAccComputeForwardingRule_networkTier(t *testing.T) {
 	t.Parallel()
 
-	poolName := fmt.Sprintf("tf-%s", acctest.RandString(t, 10))
-	ruleName := fmt.Sprintf("tf-%s", acctest.RandString(t, 10))
+	poolName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	ruleName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -323,7 +323,7 @@ func testAccComputeForwardingRule_basic(poolName, ruleName string) string {
 resource "google_compute_target_pool" "foo-tp" {
   description = "Resource created for Terraform acceptance testing"
   instances   = ["us-central1-a/foo", "us-central1-b/bar"]
-  name        = "foo-%s"
+  name        = "%s-foo"
 }
 
 resource "google_compute_forwarding_rule" "foobar" {
@@ -341,13 +341,13 @@ func testAccComputeForwardingRule_update(poolName, ruleName string) string {
 resource "google_compute_target_pool" "foo-tp" {
   description = "Resource created for Terraform acceptance testing"
   instances   = ["us-central1-a/foo", "us-central1-b/bar"]
-  name        = "foo-%s"
+  name        = "%s-foo"
 }
 
 resource "google_compute_target_pool" "bar-tp" {
   description = "Resource created for Terraform acceptance testing"
   instances   = ["us-central1-a/foo", "us-central1-b/bar"]
-  name        = "bar-%s"
+  name        = "%s-bar"
 }
 
 resource "google_compute_forwarding_rule" "foobar" {

@@ -119,7 +119,7 @@ func testAccMemorystoreInstance_automatedBackupConfig(context map[string]interfa
 resource "google_memorystore_instance" "test_abc" {
   instance_id                    = "tf-test-instance-abc-%{random_suffix}"
   shard_count                    = 1
-  location                       = "us-central1"
+  location                       = "us-west1"
   replica_count                  = 0
   node_type                      = "SHARED_CORE_NANO"
   deletion_protection_enabled    = false
@@ -140,7 +140,7 @@ resource "google_memorystore_instance" "test_abc" {
 
 resource "google_network_connectivity_service_connection_policy" "primary_policy" {
   name                           = "tf-test-abc-policy-%{random_suffix}"
-  location                       = "us-central1"
+  location                       = "us-west1"
   service_class                  = "gcp-memorystore"
   description                    = "my basic service connection policy"
   network                        = google_compute_network.primary_producer_net.id
@@ -152,7 +152,7 @@ resource "google_network_connectivity_service_connection_policy" "primary_policy
 resource "google_compute_subnetwork" "primary_producer_subnet" {
   name                           = "tf-test-abc-%{random_suffix}"
   ip_cidr_range                  = "10.0.4.0/29"
-  region                         = "us-central1"
+  region                         = "us-west1"
   network                        = google_compute_network.primary_producer_net.id
 }
 
@@ -172,7 +172,7 @@ func testAccMemorystoreInstance_automatedBackupConfigWithout(context map[string]
 resource "google_memorystore_instance" "test_abc" {
   instance_id                    = "tf-test-instance-abc-%{random_suffix}"
   shard_count                    = 1
-  location                       = "us-central1"
+  location                       = "us-west1"
   replica_count                  = 0
   node_type                      = "SHARED_CORE_NANO"
   deletion_protection_enabled    = false
@@ -185,7 +185,7 @@ resource "google_memorystore_instance" "test_abc" {
 
 resource "google_network_connectivity_service_connection_policy" "primary_policy" {
   name                           = "tf-test-abc-policy-%{random_suffix}"
-  location                       = "us-central1"
+  location                       = "us-west1"
   service_class                  = "gcp-memorystore"
   description                    = "my basic service connection policy"
   network                        = google_compute_network.primary_producer_net.id
@@ -197,7 +197,7 @@ resource "google_network_connectivity_service_connection_policy" "primary_policy
 resource "google_compute_subnetwork" "primary_producer_subnet" {
   name                           = "tf-test-abc-%{random_suffix}"
   ip_cidr_range                  = "10.0.4.0/29"
-  region                         = "us-central1"
+  region                         = "us-west1"
   network                        = google_compute_network.primary_producer_net.id
 }
 
@@ -241,7 +241,7 @@ func testAccMemorystoreInstance_deprecatedDesiredPscAutoConnections(context map[
 resource "google_memorystore_instance" "test_abc" {
   instance_id                    = "tf-test-instance-abc-%{random_suffix}"
   shard_count                    = 1
-  location                       = "us-central1"
+  location                       = "us-west1"
   replica_count                  = 0
   node_type                      = "SHARED_CORE_NANO"
   deletion_protection_enabled    = false
@@ -254,7 +254,7 @@ resource "google_memorystore_instance" "test_abc" {
 
 resource "google_network_connectivity_service_connection_policy" "primary_policy" {
   name                           = "tf-test-abc-policy-%{random_suffix}"
-  location                       = "us-central1"
+  location                       = "us-west1"
   service_class                  = "gcp-memorystore"
   description                    = "my basic service connection policy"
   network                        = google_compute_network.primary_producer_net.id
@@ -266,7 +266,7 @@ resource "google_network_connectivity_service_connection_policy" "primary_policy
 resource "google_compute_subnetwork" "primary_producer_subnet" {
   name                           = "tf-test-abc-%{random_suffix}"
   ip_cidr_range                  = "10.0.4.0/29"
-  region                         = "us-central1"
+  region                         = "us-west1"
   network                        = google_compute_network.primary_producer_net.id
 }
 
@@ -741,7 +741,7 @@ func testAccMemorystoreInstance_managedBackupSourceSetup(context map[string]inte
 resource "google_memorystore_instance" "instance_mbs_main" {
   instance_id                    = "tf-test-mbs-main-%{random_suffix}"
   shard_count                    = 1
-  location                       = "us-central1"
+  location                       = "us-west1"
   deletion_protection_enabled    = false
 }
 `, context)
@@ -752,14 +752,14 @@ func testAccMemorystoreInstance_managedBackupSourceImport(context map[string]int
 resource "google_memorystore_instance" "instance_mbs_main" {
   instance_id                    = "tf-test-mbs-main-%{random_suffix}"
   shard_count                    = 1
-  location                       = "us-central1"
+  location                       = "us-west1"
   deletion_protection_enabled    = false
 }
 
 resource "google_memorystore_instance" "instance_mb_copy" {
   instance_id                    = "tf-test-mbs-copy-%{random_suffix}"
   shard_count                    = 1
-  location                       = "us-central1"
+  location                       = "us-west1"
   deletion_protection_enabled    = false
    managed_backup_source {
     backup                       = join("", [google_memorystore_instance.instance_mbs_main.backup_collection , "/backups/%{back_up}"])
@@ -876,14 +876,14 @@ func testAccMemorystoreInstance_gcsSourceSetup(context map[string]interface{}) s
 resource "google_memorystore_instance" "instance_gbs_main" {
   instance_id                    =  "tf-test-gbs-main-%{random_suffix}"
   shard_count                    = 1
-  location                       = "us-central1"
+  location                       = "us-west1"
   deletion_protection_enabled    = false
 }
 
 # Create a GCS bucket for exporting Memorystore backups
 resource "google_storage_bucket" "memorystore_backup_bucket" {
   name                           = "%{gcs_bucket}"
-  location                       = "us-central1"
+  location                       = "us-west1"
   uniform_bucket_level_access    = true
   force_destroy                  = true
 }
@@ -906,14 +906,14 @@ func testAccMemorystoreInstance_gcsSource(context map[string]interface{}) string
 resource "google_memorystore_instance" "instance_gbs_main" {
   instance_id                    = "tf-test-gbs-main-%{random_suffix}"
   shard_count                    = 1
-  location                       = "us-central1"
+  location                       = "us-west1"
   deletion_protection_enabled    = false
 }
 
 # Reference the bucket created in the setup
 resource "google_storage_bucket" "memorystore_backup_bucket" {
   name                           = "tf-test-memorystore-backup-%{random_suffix}"
-  location                       = "us-central1"
+  location                       = "us-west1"
   uniform_bucket_level_access    = true
   force_destroy                  = true
 }
@@ -937,7 +937,7 @@ resource "google_storage_bucket_iam_member" "memorystore_backup_writer" {
 resource "google_memorystore_instance" "instance_gbs_copy" {
   instance_id                    = "tf-test-gbs-copy-%{random_suffix}"
   shard_count                    = 1
-  location                       = "us-central1"
+  location                       = "us-west1"
   deletion_protection_enabled    = false
   gcs_source {
     uris                         = [join("", ["gs://%{gcs_bucket}/" , data.google_storage_bucket_objects.backup.bucket_objects[0]["name"]])]
@@ -1133,7 +1133,7 @@ resource "google_memorystore_instance" "test_secondary" {
 	replica_count = %d
 	shard_count = %d
 	node_type = "%s"
-	location         = "us-west2"
+	location         = "us-west1"
 	desired_auto_created_endpoints  {
 			network = google_compute_network.producer_net.id
             project_id = data.google_project.project.project_id
@@ -1164,7 +1164,7 @@ func createMemorystoreInstanceEndpointsWithOneUserCreatedConnections(params *Ins
 		resource "google_memorystore_instance_desired_user_created_endpoints" "default" {
 
 		name                           = "%s"
-		region                         = "europe-west1"
+		region                         = "us-west1"
 		desired_user_created_endpoints {
 			connections {
 				psc_connection {
@@ -1199,7 +1199,7 @@ func createMemorystoreInstanceEndpointsWithTwoUserCreatedConnections(params *Ins
 	return fmt.Sprintf(`
 		resource "google_memorystore_instance_desired_user_created_endpoints" "default" {
 		name                           = "%s"
-		region                         = "europe-west1"
+		region                         = "us-west1"
 		desired_user_created_endpoints {
 			connections {
 				psc_connection {
@@ -1254,7 +1254,7 @@ func createMemorystoreUserCreatedConnection1(params *InstanceParams) string {
 	return fmt.Sprintf(`
 		resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
 		name                          = "%s"
-		region                        = "europe-west1"
+		region                        = "us-west1"
 		ip_address                    = google_compute_address.ip1_network1.id
 		load_balancing_scheme         = ""
 		network                       = google_compute_network.network1.id
@@ -1263,7 +1263,7 @@ func createMemorystoreUserCreatedConnection1(params *InstanceParams) string {
 
 		resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {
 		name                          = "%s"
-		region                        = "europe-west1"
+		region                        = "us-west1"
 		ip_address                    = google_compute_address.ip2_network1.id
 		load_balancing_scheme         = ""
 		network                       = google_compute_network.network1.id
@@ -1272,7 +1272,7 @@ func createMemorystoreUserCreatedConnection1(params *InstanceParams) string {
 
 		resource "google_compute_address" "ip1_network1" {
 		name                          = "%s"
-		region                        = "europe-west1"
+		region                        = "us-west1"
 		subnetwork                    = google_compute_subnetwork.subnet_network1.id
 		address_type                  = "INTERNAL"
 		purpose                       = "GCE_ENDPOINT"
@@ -1280,7 +1280,7 @@ func createMemorystoreUserCreatedConnection1(params *InstanceParams) string {
 
 		resource "google_compute_address" "ip2_network1" {
 		name                         = "%s"
-		region                       = "europe-west1"
+		region                       = "us-west1"
 		subnetwork                   = google_compute_subnetwork.subnet_network1.id
 		address_type                 = "INTERNAL"
 		purpose                      = "GCE_ENDPOINT"
@@ -1289,7 +1289,7 @@ func createMemorystoreUserCreatedConnection1(params *InstanceParams) string {
 		resource "google_compute_subnetwork" "subnet_network1" {
 		name                         = "%s"
 		ip_cidr_range                = "10.0.0.248/29"
-		region                       = "europe-west1"
+		region                       = "us-west1"
 		network                      = google_compute_network.network1.id
 		}
 
@@ -1311,7 +1311,7 @@ func createMemorystoreUserCreatedConnection2(params *InstanceParams) string {
 	return fmt.Sprintf(`
 		resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
 		name                         = "%s"
-		region                       = "europe-west1"
+		region                       = "us-west1"
 		ip_address                   = google_compute_address.ip1_network2.id
 		load_balancing_scheme        = ""
 		network                      = google_compute_network.network2.id
@@ -1320,7 +1320,7 @@ func createMemorystoreUserCreatedConnection2(params *InstanceParams) string {
 
 		resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
 		name                         = "%s"
-		region                       = "europe-west1"
+		region                       = "us-west1"
 		ip_address                   = google_compute_address.ip2_network2.id
 		load_balancing_scheme        = ""
 		network                      = google_compute_network.network2.id
@@ -1329,7 +1329,7 @@ func createMemorystoreUserCreatedConnection2(params *InstanceParams) string {
 
 		resource "google_compute_address" "ip1_network2" {
 		name                         = "%s"
-		region                       = "europe-west1"
+		region                       = "us-west1"
 		subnetwork                   = google_compute_subnetwork.subnet_network2.id
 		address_type                 = "INTERNAL"     
 		purpose                      = "GCE_ENDPOINT"
@@ -1337,7 +1337,7 @@ func createMemorystoreUserCreatedConnection2(params *InstanceParams) string {
 
 		resource "google_compute_address" "ip2_network2" {
 		name                         = "%s"
-		region                       = "europe-west1"
+		region                       = "us-west1"
 		subnetwork                   = google_compute_subnetwork.subnet_network2.id
 		address_type                 = "INTERNAL"
 		purpose                      = "GCE_ENDPOINT"
@@ -1346,7 +1346,7 @@ func createMemorystoreUserCreatedConnection2(params *InstanceParams) string {
 		resource "google_compute_subnetwork" "subnet_network2" {
 		name                         = "%s"
 		ip_cidr_range                = "10.0.0.248/29"
-		region                       = "europe-west1"
+		region                       = "us-west1"
 		network                      = google_compute_network.network2.id
 		}
 
@@ -1428,7 +1428,7 @@ resource "google_memorystore_instance" "test" {
 	replica_count = %d
 	shard_count = %d
 	node_type = "%s"
-	location         = "us-west2"
+	location         = "us-west1"
 	desired_auto_created_endpoints  {
 			network = google_compute_network.producer_net.id
             project_id = data.google_project.project.project_id
@@ -1451,7 +1451,7 @@ resource "google_memorystore_instance" "test" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
 	name = "%s"
-	location = "us-west2"
+	location = "us-west1"
 	service_class = "gcp-memorystore"
 	description   = "my basic service connection policy"
 	network = google_compute_network.producer_net.id
@@ -1463,7 +1463,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "producer_subnet" {
 	name          = "%s"
 	ip_cidr_range = "10.0.0.248/29"
-	region        = "us-west2"
+	region        = "us-west1"
 	network       = google_compute_network.producer_net.id
 }
 
@@ -1483,7 +1483,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceTlsEnabled(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		// Until https://github.com/hashicorp/terraform-provider-google/issues/23619 is fixed, use regions other than us-central1 to prevent issues like https://github.com/hashicorp/terraform-provider-google/issues/23543
-		"location": "us-east1",
+		"location": "us-west1",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1566,7 +1566,7 @@ func TestAccMemorystoreInstance_memorystorePscAutoInstanceClusterDisabled(t *tes
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"location":      "us-central1",
+		"location":      "us-west1",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1799,7 +1799,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceMaintenanceVersion(t *testing
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"location":      "us-central1",
+		"location":      "us-west1",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1860,7 +1860,7 @@ func TestAccMemorystoreInstance_customerManagedCas(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"location":      "us-central1",
+		"location":      "us-west1",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1995,7 +1995,7 @@ func TestAccMemorystoreInstance_withAclPolicy(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"location":      "us-central1",
+		"location":      "us-west1",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

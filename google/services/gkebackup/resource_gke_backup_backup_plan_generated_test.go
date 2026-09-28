@@ -68,7 +68,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanBasicExample(t *testing.T) {
 		"deletion_protection": false,
 		"name":                "tf-test-basic-plan" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -100,8 +100,11 @@ func testAccGKEBackupBackupPlan_gkebackupBackupplanBasicExample(context map[stri
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -118,7 +121,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -138,7 +141,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanAutopilotExample(t *testing.T
 		"deletion_protection": false,
 		"name":                "tf-test-autopilot-plan" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -170,7 +173,7 @@ func testAccGKEBackupBackupPlan_gkebackupBackupplanAutopilotExample(context map[
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   enable_autopilot = true
   ip_allocation_policy {   
   }
@@ -190,7 +193,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "autopilot" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -212,7 +215,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanCmekExample(t *testing.T) {
 		"key_name":            "tf-test-backup-key" + randomSuffix,
 		"name":                "tf-test-cmek-plan" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -244,8 +247,11 @@ func testAccGKEBackupBackupPlan_gkebackupBackupplanCmekExample(context map[strin
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -262,7 +268,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "cmek" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -282,7 +288,7 @@ resource "google_kms_crypto_key" "crypto_key" {
 
 resource "google_kms_key_ring" "key_ring" {
   name     = "%{key_name}"
-  location = "us-central1"
+  location = "us-east1"
 }
 `, context)
 }
@@ -298,7 +304,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanNslabelsExample(t *testing.T)
 		"deletion_protection": false,
 		"name":                "tf-test-nslabels-plan" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -330,8 +336,11 @@ func testAccGKEBackupBackupPlan_gkebackupBackupplanNslabelsExample(context map[s
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -348,7 +357,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "nslabels" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   backup_config {
     include_volume_data = true
     include_secrets = true
@@ -374,7 +383,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(t *testing.T) {
 		"deletion_protection": false,
 		"name":                "tf-test-full-plan" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -406,8 +415,11 @@ func testAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(context map[strin
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -424,7 +436,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "full" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
     backup_retain_days = 180
@@ -461,7 +473,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanPermissiveExample(t *testing.
 		"deletion_protection": false,
 		"name":                "tf-test-permissive-plan" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -493,8 +505,11 @@ func testAccGKEBackupBackupPlan_gkebackupBackupplanPermissiveExample(context map
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -511,7 +526,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "permissive" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
     backup_retain_days = 180
@@ -549,7 +564,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoDailyWindowExample(t *test
 		"deletion_protection": false,
 		"name":                "tf-test-rpo-daily-window" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -581,8 +596,11 @@ func testAccGKEBackupBackupPlan_gkebackupBackupplanRpoDailyWindowExample(context
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -599,7 +617,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "rpo_daily_window" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
     backup_retain_days = 180
@@ -651,7 +669,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoWeeklyWindowExample(t *tes
 		"deletion_protection": false,
 		"name":                "tf-test-rpo-weekly-window" + randomSuffix,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnet(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
 		"random_suffix":       randomSuffix,
 	}
 
@@ -683,8 +701,11 @@ func testAccGKEBackupBackupPlan_gkebackupBackupplanRpoWeeklyWindowExample(contex
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%{cluster_name}"
-  location           = "us-central1"
+  location           = "us-east1"
   initial_node_count = 1
+  node_config {
+    machine_type = "n4-standard-2"
+  }
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
@@ -701,7 +722,7 @@ resource "google_container_cluster" "primary" {
 resource "google_gke_backup_backup_plan" "rpo_weekly_window" {
   name = "%{name}"
   cluster = google_container_cluster.primary.id
-  location = "us-central1"
+  location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
     backup_retain_days = 180

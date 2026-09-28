@@ -40,7 +40,7 @@ To get more information about PrivateConnection, see:
 
 ```hcl
 resource "google_database_migration_service_private_connection" "default" {
-	display_name          = "dbms_pc"
+	display_name          = "dbms-pc"
 	location              = "us-west1"
 	private_connection_id = "my-connection"
 
@@ -71,7 +71,7 @@ resource "google_compute_network" "default" {
 
 ```hcl
 resource "google_database_migration_service_private_connection" "default" {
-	display_name          = "dbms_pc"
+	display_name          = "dbms-pc"
 	location              = "us-west1"
 	private_connection_id = "my-connection"
 

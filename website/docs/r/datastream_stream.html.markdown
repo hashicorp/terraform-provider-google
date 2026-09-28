@@ -753,7 +753,7 @@ resource "google_datastream_stream" "default" {
 ```hcl
 
 resource "google_bigquery_dataset" "postgres" {
-  dataset_id    = "postgres"
+  dataset_id    = "postgres_dataset"
   friendly_name = "postgres"
   description   = "Database of postgres"
   location      = "us-central1"

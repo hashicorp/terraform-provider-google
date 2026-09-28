@@ -2880,6 +2880,35 @@ func TestAccSqlDatabaseInstance_encryptionKey(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_confidentialHyperdisk(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-sql-database-instance-key1").CryptoKey.Name,
+		"instance_name": "tf-test-sql-" + acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_confidentialHyperdisk(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.master", "encryption_confidential_mode", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.master",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
 func TestAccSqlDatabaseInstance_encryptionKey_replicaInDifferentRegion(t *testing.T) {
 	t.Parallel()
 
@@ -4887,9 +4916,12 @@ func TestAccSqlDatabaseInstance_DiskSizeAutoResizeWithDiskSize(t *testing.T) {
 				Check:  testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 15),
 			},
 			{
-				// Disk size is now 15gb - requested 14gb, but disabled auto resize - should error because it can't be deleted for replacement.
-				Config:      testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 14, 104, &falseVar, false, false),
-				ExpectError: regexp.MustCompile("Instance cannot be destroyed"),
+				// Disk size is now 15gb - requested 14gb with auto resize disabled. A shrink is now an
+				// in-place storage shrink (an update), not a destroy/recreate, so prevent_destroy no
+				// longer blocks the plan and the plan is a non-empty (update) diff.
+				Config:             testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 14, 104, &falseVar, false, false),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				// Disk size is now 15gb - requested 14gb, but ignore changes is set - so should ignore the configuration change.
@@ -4899,6 +4931,39 @@ func TestAccSqlDatabaseInstance_DiskSizeAutoResizeWithDiskSize(t *testing.T) {
 			{
 				// Allow destroy
 				Config: testGoogleSqlDatabaseInstance_diskSizeAutoResize(project, databaseName, 14, 105, &falseVar, true, true),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_storageShrink(t *testing.T) {
+	t.Parallel()
+
+	databaseName := "tf-test-" + acctest.RandString(t, 10)
+	var instanceID string
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create a non-shared-core instance with a 100GB disk and auto resize disabled
+				// (storage shrink is not supported on shared-core machine types). The starting
+				// size is well above the instance's minimum shrinkable size.
+				Config: testGoogleSqlDatabaseInstance_storageShrink(databaseName, 100),
+				Check: resource.ComposeTestCheckFunc(
+					testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 100),
+					testAccSqlDatabaseInstanceCaptureID(&instanceID),
+				),
+			},
+			{
+				// Reduce disk_size to 90GB. This must be an in-place storage shrink (no recreate).
+				Config: testGoogleSqlDatabaseInstance_storageShrink(databaseName, 90),
+				Check: resource.ComposeTestCheckFunc(
+					testGoogleSqlDatabaseInstanceCheckDiskSize(t, databaseName, 90),
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+				),
 			},
 		},
 	})
@@ -8727,6 +8792,41 @@ func testGoogleSqlDatabaseInstance_insights_enhanced_postgres17(instanceName str
 `, instanceName, enhanced)
 }
 
+func testGoogleSqlDatabaseInstance_confidentialHyperdisk(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{project_id}"
+}
+
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
+  crypto_key_id = "%{kms_key_name}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com"
+}
+
+resource "google_sql_database_instance" "master" {
+  name                         = "%{instance_name}-master"
+  database_version             = "POSTGRES_15"
+  region                       = "us-central1"
+  deletion_protection          = false
+  encryption_key_name          = "%{kms_key_name}"
+  encryption_confidential_mode = true
+
+  settings {
+    tier              = "db-c4a-highmem-2"
+    edition           = "ENTERPRISE_PLUS"
+    availability_type = "ZONAL"
+    disk_type         = "HYPERDISK_BALANCED"
+    location_preference {
+      zone = "us-central1-a"
+    }
+  }
+  depends_on = [google_kms_crypto_key_iam_member.crypto_key]
+}
+`, context)
+}
+
 var testGoogleSqlDatabaseInstance_encryptionKey = `
 data "google_project" "project" {
   project_id = "%{project_id}"
@@ -10252,6 +10352,47 @@ func testGoogleSqlDatabaseInstanceResizeDisk(t *testing.T, instance string, addG
 			return fmt.Errorf("Could not wait for operation to complete: %s", err)
 		}
 
+		return nil
+	}
+}
+
+func testGoogleSqlDatabaseInstance_storageShrink(dbName string, diskSize int) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_15"
+  deletion_protection = false
+  settings {
+    tier            = "db-custom-2-8192"
+    disk_type       = "PD_SSD"
+    disk_size       = %d
+    disk_autoresize = false
+  }
+}
+`, dbName, diskSize)
+}
+
+func testAccSqlDatabaseInstanceCaptureID(id *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources["google_sql_database_instance.instance"]
+		if !ok {
+			return fmt.Errorf("resource google_sql_database_instance.instance not found in state")
+		}
+		*id = rs.Primary.ID
+		return nil
+	}
+}
+
+func testAccSqlDatabaseInstanceCheckSameID(id *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources["google_sql_database_instance.instance"]
+		if !ok {
+			return fmt.Errorf("resource google_sql_database_instance.instance not found in state")
+		}
+		if rs.Primary.ID != *id {
+			return fmt.Errorf("instance was recreated during storage shrink: id changed from %q to %q", *id, rs.Primary.ID)
+		}
 		return nil
 	}
 }

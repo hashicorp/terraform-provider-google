@@ -1040,11 +1040,22 @@ func expandComputeRouteNextHopInstance(v interface{}, d tpgresource.TerraformRes
 		return nil, err
 	}
 
-	nextInstance, err := DEPRECATED_LegacyApiaryClient(config, userAgent).Instances.Get(val.Project, val.Zone, val.Name).Do()
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/instances/%s", transport_tpg.BaseUrl(Product, config), val.Project, val.Zone, val.Name)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   val.Project,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
 	if err != nil {
 		return nil, err
 	}
-	return nextInstance.SelfLink, nil
+	selfLink, ok := res["selfLink"].(string)
+	if !ok {
+		return nil, fmt.Errorf("Error reading instance %s: selfLink not found in response", val.Name)
+	}
+	return selfLink, nil
 }
 
 func expandComputeRouteNextHopIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

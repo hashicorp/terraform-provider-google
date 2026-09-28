@@ -1,0 +1,12 @@
+```release-note:bug
+compute: fixes pre configured waf tests in `google_compute_region_security_policy`
+```
+```release-note:bug
+compute: fixes pre configured waf tests in `google_compute_region_security_policy_rule`
+```
+```release-note:bug
+compute: fixes pre configured waf tests in `google_compute_security_policy`
+```
+```release-note:bug
+compute: fixes pre configured waf tests in `google_compute_security_policy_rule`
+```

@@ -292,6 +292,7 @@ func ResourceContainerNodePool() *schema.Resource {
 					ForceNew:    true,
 					Description: `The location (region or zone) of the cluster.`,
 				},
+				// Used internally for resumption after preemption; user-facing docs are intentionally omitted.
 				"operation": {
 					Type:     schema.TypeString,
 					Computed: true,

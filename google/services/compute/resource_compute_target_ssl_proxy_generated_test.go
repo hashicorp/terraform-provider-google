@@ -62,6 +62,7 @@ func TestAccComputeTargetSslProxy_targetSslProxyBasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"backend_service_name":  "tf-test-backend-service" + randomSuffix,
+		"certificate_map_name":  "tf-test-certificate-map" + randomSuffix,
 		"health_check_name":     "tf-test-health-check" + randomSuffix,
 		"ssl_certificate_name":  "tf-test-default-cert" + randomSuffix,
 		"target_ssl_proxy_name": "tf-test-test-proxy" + randomSuffix,
@@ -124,7 +125,7 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_certificate_manager_certificate_map" "default" {
-  name        = "certificate-map-test"
+  name        = "%{certificate_map_name}"
   description = "My acceptance test certificate map"
 }
 `, context)

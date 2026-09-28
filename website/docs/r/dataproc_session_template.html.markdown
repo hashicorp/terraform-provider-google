@@ -37,8 +37,8 @@ To get more information about SessionTemplate, see:
 
 ```hcl
 resource "google_dataproc_session_template" "example_session_templates_jupyter" {
-    name     = "projects/my-project-name/locations/us-central1/sessionTemplates/jupyter-session-template"
-    location = "us-central1"
+    name     = "projects/my-project-name/locations/us-east1/sessionTemplates/jupyter-session-template"
+    location = "us-east1"
     labels   = {"session_template_test": "terraform"}
 
     runtime_config {
@@ -73,8 +73,8 @@ data "google_storage_project_service_account" "gcs_account" {
 }
 
 resource "google_dataproc_session_template" "dataproc_session_templates_jupyter_full" {
-    name     = "projects/my-project-name/locations/us-central1/sessionTemplates/jupyter-session-template"
-    location      = "us-central1"
+    name     = "projects/my-project-name/locations/us-east1/sessionTemplates/jupyter-session-template"
+    location      = "us-east1"
     labels        = {"session_template_test": "terraform"}
 
     runtime_config {
@@ -128,7 +128,7 @@ resource "google_kms_crypto_key_iam_member" "crypto_key_member_1" {
 
 resource "google_dataproc_cluster" "basic" {
   name   = "jupyter-session-template"
-  region = "us-central1"
+  region = "us-east1"
 
   cluster_config {
     # Keep the costs down with smallest config we can get away with
@@ -149,8 +149,9 @@ resource "google_dataproc_cluster" "basic" {
 
     master_config {
       num_instances = 1
-      machine_type  = "e2-standard-2"
+      machine_type  = "n4-standard-2"
       disk_config {
+        boot_disk_type    = "hyperdisk-balanced"
         boot_disk_size_gb = 35
       }
     }
@@ -163,7 +164,7 @@ resource "google_dataproc_cluster" "basic" {
 
 resource "google_dataproc_metastore_service" "ms" {
   service_id = "jupyter-session-template"
-  location   = "us-central1"
+  location   = "us-east1"
   port       = 9080
   tier       = "DEVELOPER"
 
@@ -178,7 +179,7 @@ resource "google_dataproc_metastore_service" "ms" {
 
   network_config {
     consumers {
-      subnetwork = "projects/my-project-name/regions/us-central1/subnetworks/default"
+      subnetwork = "projects/my-project-name/regions/us-east1/subnetworks/default"
     }
   }
 }
@@ -188,8 +189,8 @@ resource "google_dataproc_metastore_service" "ms" {
 
 ```hcl
 resource "google_dataproc_session_template" "example_session_templates_spark_connect" {
-    name     = "projects/my-project-name/locations/us-central1/sessionTemplates/sc-session-template"
-    location      = "us-central1"
+    name     = "projects/my-project-name/locations/us-east1/sessionTemplates/sc-session-template"
+    location      = "us-east1"
     labels        = {"session_template_test": "terraform"}
 
     runtime_config {

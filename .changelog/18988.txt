@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed `google_storage_bucket` `force_destroy` failing when parallel object deletes return transient 404/410 `No such object`
+```

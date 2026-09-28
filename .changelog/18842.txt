@@ -1,0 +1,10 @@
+```release-note:enhancement
+sql: added `encryption_confidential_mode` to `google_sql_database_instance`
+```
+
+The CI failure is because ConfidentialMode is not yet in the published google.golang.org/api client. The field is already live in the public Discovery doc at https://sqladmin.googleapis.com/$discovery/rest?version=v1beta4, and we are waiting on the next google-api-go-client release to bump the dependency.
+
+### Tests
+Ran `TestAccSqlDatabaseInstance_confidentialHyperdisk`:
+
+```

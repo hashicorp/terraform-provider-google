@@ -126,7 +126,7 @@ func TestAccCloudbuildWorkerPool_basic(t *testing.T) {
 func testAccCloudbuildWorkerPool_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_worker_pool" "pool" {
-	name = "pool%{random_suffix}"
+	name = "tf-test-pool%{random_suffix}"
 	location = "europe-west1"
 	worker_config {
 		disk_size_gb = 100
@@ -146,7 +146,7 @@ resource "google_cloudbuild_worker_pool" "pool" {
 func testAccCloudbuildWorkerPool_updated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_worker_pool" "pool" {
-	name = "pool%{random_suffix}"
+	name = "tf-test-pool%{random_suffix}"
 	location = "europe-west1"
 	worker_config {
 		disk_size_gb = 101
@@ -169,7 +169,7 @@ resource "random_uuid" "test" {
 }
 
 resource "google_cloudbuild_worker_pool" "pool" {
-  name = "pool%{random_suffix}"
+  name = "tf-test-pool%{random_suffix}"
   location = "europe-west1"
   worker_config {
   disk_size_gb = 101
@@ -188,7 +188,7 @@ resource "google_cloudbuild_worker_pool" "pool" {
 func testAccCloudbuildWorkerPool_noWorkerConfig(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_worker_pool" "pool" {
-	name = "pool%{random_suffix}"
+	name = "tf-test-pool%{random_suffix}"
 	location = "europe-west1"
 }
 `, context)
@@ -228,7 +228,7 @@ data "google_compute_network" "network" {
 }
 
 resource "google_cloudbuild_worker_pool" "pool" {
-	name = "pool%{random_suffix}"
+	name = "tf-test-pool%{random_suffix}"
 	location = "europe-west1"
 	worker_config {
 		disk_size_gb = 101

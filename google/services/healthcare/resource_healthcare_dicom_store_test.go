@@ -31,7 +31,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-func TestAccHealthcareDicomStoreIdParsing(t *testing.T) {
+func TestHealthcareDicomStoreIdParsing(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]struct {

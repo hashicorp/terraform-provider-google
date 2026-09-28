@@ -50,6 +50,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"bucket_name":             "tf-test-appengine-static-content" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -92,6 +93,7 @@ func TestAccIapAppEngineVersionIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"bucket_name":             "tf-test-appengine-static-content" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -132,6 +134,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"bucket_name":             "tf-test-appengine-static-content" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -174,6 +177,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated_withCondition(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"bucket_name":             "tf-test-appengine-static-content" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -208,6 +212,7 @@ func TestAccIapAppEngineVersionIamBindingGenerated_withAndWithoutCondition(t *te
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"bucket_name":             "tf-test-appengine-static-content" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -252,6 +257,7 @@ func TestAccIapAppEngineVersionIamMemberGenerated_withCondition(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"bucket_name":             "tf-test-appengine-static-content" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -286,6 +292,7 @@ func TestAccIapAppEngineVersionIamMemberGenerated_withAndWithoutCondition(t *tes
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"bucket_name":             "tf-test-appengine-static-content" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -330,6 +337,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated_withCondition(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":           randomSuffix,
 		"role":                    "roles/iap.httpsResourceAccessor",
+		"bucket_name":             "tf-test-appengine-static-content" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -367,7 +375,7 @@ func TestAccIapAppEngineVersionIamPolicyGenerated_withCondition(t *testing.T) {
 func testAccIapAppEngineVersionIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "appengine-static-content-%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
@@ -410,7 +418,7 @@ resource "google_iap_app_engine_version_iam_member" "foo" {
 func testAccIapAppEngineVersionIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "appengine-static-content-%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
@@ -469,7 +477,7 @@ data "google_iap_app_engine_version_iam_policy" "foo" {
 func testAccIapAppEngineVersionIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "appengine-static-content-%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
@@ -514,7 +522,7 @@ resource "google_iap_app_engine_version_iam_policy" "foo" {
 func testAccIapAppEngineVersionIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "appengine-static-content-%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
@@ -557,7 +565,7 @@ resource "google_iap_app_engine_version_iam_binding" "foo" {
 func testAccIapAppEngineVersionIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "appengine-static-content-%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
@@ -600,7 +608,7 @@ resource "google_iap_app_engine_version_iam_binding" "foo" {
 func testAccIapAppEngineVersionIamBinding_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "appengine-static-content-%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
@@ -648,7 +656,7 @@ resource "google_iap_app_engine_version_iam_binding" "foo" {
 func testAccIapAppEngineVersionIamBinding_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "appengine-static-content-%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
@@ -720,7 +728,7 @@ resource "google_iap_app_engine_version_iam_binding" "foo3" {
 func testAccIapAppEngineVersionIamMember_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "appengine-static-content-%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
@@ -768,7 +776,7 @@ resource "google_iap_app_engine_version_iam_member" "foo" {
 func testAccIapAppEngineVersionIamMember_withAndWithoutConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "appengine-static-content-%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 
@@ -840,7 +848,7 @@ resource "google_iap_app_engine_version_iam_member" "foo3" {
 func testAccIapAppEngineVersionIamPolicy_withConditionGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "bucket" {
-  name     = "appengine-static-content-%{random_suffix}"
+  name     = "%{bucket_name}"
   location = "US"
 }
 

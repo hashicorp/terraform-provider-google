@@ -30,12 +30,12 @@ import (
 func TestAccComputeGlobalForwardingRule_updateTarget(t *testing.T) {
 	t.Parallel()
 
-	fr := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	proxy := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	proxyUpdated := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	backend := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	hc := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	urlmap := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
+	fr := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	proxy := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	proxyUpdated := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	backend := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	hc := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	urlmap := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -76,11 +76,11 @@ func TestAccComputeGlobalForwardingRule_updateTarget(t *testing.T) {
 func TestAccComputeGlobalForwardingRule_ipv6(t *testing.T) {
 	t.Parallel()
 
-	fr := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	proxy := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	backend := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	hc := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	urlmap := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
+	fr := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	proxy := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	backend := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	hc := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	urlmap := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -107,11 +107,11 @@ func TestAccComputeGlobalForwardingRule_ipv6(t *testing.T) {
 func TestAccComputeGlobalForwardingRule_labels(t *testing.T) {
 	t.Parallel()
 
-	fr := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	proxy := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	backend := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	hc := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
-	urlmap := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
+	fr := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	proxy := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	backend := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	hc := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
+	urlmap := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -143,8 +143,11 @@ func TestAccComputeGlobalForwardingRule_labels(t *testing.T) {
 func TestAccComputeGlobalForwardingRule_allApisLabels(t *testing.T) {
 	t.Parallel()
 
+	// NOTE: no tf-test prefix. PSC Google APIs forwarding rule names must match
+	// ^[a-z][a-z0-9]{0,19}$ (no hyphens or underscores), so neither "tf-test" nor
+	// "tf_test" is a legal prefix for this resource.
 	fr := fmt.Sprintf("frtest%s", acctest.RandString(t, 10))
-	address := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
+	address := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -176,8 +179,11 @@ func TestAccComputeGlobalForwardingRule_allApisLabels(t *testing.T) {
 func TestAccComputeGlobalForwardingRule_vpcscLabels(t *testing.T) {
 	t.Parallel()
 
+	// NOTE: no tf-test prefix. PSC Google APIs forwarding rule names must match
+	// ^[a-z][a-z0-9]{0,19}$ (no hyphens or underscores), so neither "tf-test" nor
+	// "tf_test" is a legal prefix for this resource.
 	fr := fmt.Sprintf("frtest%s", acctest.RandString(t, 10))
-	address := fmt.Sprintf("forwardrule-test-%s", acctest.RandString(t, 10))
+	address := fmt.Sprintf("tf-test-forwardrule-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -347,11 +353,11 @@ func TestUnitComputeGlobalForwardingRule_InternalIpDiffSuppress(t *testing.T) {
 func TestAccComputeGlobalForwardingRule_updateCanaryMigration(t *testing.T) {
 	t.Parallel()
 
-	fr := fmt.Sprintf("fr-canary-mgiration-%s", acctest.RandString(t, 10))
-	proxy := fmt.Sprintf("pr-canary-mgiration-%s", acctest.RandString(t, 10))
-	urlmap := fmt.Sprintf("um-canary-mgiration-%s", acctest.RandString(t, 10))
-	backendservice := fmt.Sprintf("bs-canary-mgiration-%s", acctest.RandString(t, 10))
-	address := fmt.Sprintf("addr-canary-mgiration-%s", acctest.RandString(t, 10))
+	fr := fmt.Sprintf("tf-test-fr-canary-mgiration-%s", acctest.RandString(t, 10))
+	proxy := fmt.Sprintf("tf-test-pr-canary-mgiration-%s", acctest.RandString(t, 10))
+	urlmap := fmt.Sprintf("tf-test-um-canary-mgiration-%s", acctest.RandString(t, 10))
+	backendservice := fmt.Sprintf("tf-test-bs-canary-mgiration-%s", acctest.RandString(t, 10))
+	address := fmt.Sprintf("tf-test-addr-canary-mgiration-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

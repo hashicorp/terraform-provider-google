@@ -343,6 +343,51 @@ resource "google_parameter_manager_regional_parameter_version" "regional-paramet
 `, context)
 }
 
+func TestAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithDataCrc32cExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"parameter_id":         "tf_test_regional_parameter" + randomSuffix,
+		"parameter_version_id": "tf_test_regional_parameter_version" + randomSuffix,
+		"random_suffix":        randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckParameterManagerRegionalRegionalParameterVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithDataCrc32cExample(context),
+			},
+			{
+				ResourceName:            "google_parameter_manager_regional_parameter_version.regional-parameter-version-with-data-crc32c",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "parameter", "parameter_version_id"},
+			},
+		},
+	})
+}
+
+func testAccParameterManagerRegionalRegionalParameterVersion_regionalParameterVersionWithDataCrc32cExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_parameter_manager_regional_parameter" "regional-parameter-basic" {
+  parameter_id = "%{parameter_id}"
+  location = "us-central1"
+}
+
+resource "google_parameter_manager_regional_parameter_version" "regional-parameter-version-with-data-crc32c" {
+  parameter = google_parameter_manager_regional_parameter.regional-parameter-basic.id
+  parameter_version_id = "%{parameter_version_id}"
+  parameter_data = "regional-parameter-version-data"
+  data_crc32c = "4019737965"
+}
+`, context)
+}
+
 func testAccCheckParameterManagerRegionalRegionalParameterVersionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

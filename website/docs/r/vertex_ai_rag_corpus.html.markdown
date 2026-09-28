@@ -30,6 +30,10 @@ To get more information about RagCorpus, see:
 * How-to Guides
     * [Manage your RAG corpus](https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/rag-engine/manage-your-rag-corpus)
 
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `vector_db_config.api_auth.api_key_config.api_key_string`.
+[Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_rag_corpus_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -97,6 +101,189 @@ resource "google_vertex_ai_rag_corpus" "example" {
 data "google_project" "project" {
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_rag_corpus_search&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Rag Corpus Search
+
+
+```hcl
+resource "google_vertex_ai_rag_corpus" "example" {
+  display_name = "rag-corpus-search"
+  description  = "A RAG corpus with Vertex AI Search"
+  region       = "europe-west4"
+
+  vertex_ai_search_config {
+    serving_config = "projects/${data.google_project.project.number}/locations/global/collections/default_collection/engines/test/servingConfigs/default_serving_config"
+  }
+}
+
+data "google_project" "project" {
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_rag_corpus_pinecone&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Rag Corpus Pinecone
+
+
+```hcl
+resource "google_vertex_ai_rag_corpus" "example" {
+  display_name = "rag-corpus-pinecone"
+  description  = "A RAG corpus with Pinecone"
+  region       = "europe-west4"
+
+  vector_db_config {
+    pinecone {
+      index_name = "test-index"
+    }
+
+    api_auth {
+      api_key_config {
+        api_key_string = "secret-api-key"
+      }
+    }
+
+    rag_embedding_model_config {
+      vertex_prediction_endpoint {
+        endpoint = "projects/${data.google_project.project.number}/locations/europe-west4/publishers/google/models/text-embedding-005"
+      }
+    }
+  }
+}
+
+data "google_project" "project" {
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_rag_corpus_vertex_vector_search&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Rag Corpus Vertex Vector Search
+
+
+```hcl
+resource "google_vertex_ai_rag_corpus" "example" {
+  display_name = "rag-corpus-vector-search"
+  description  = "A RAG corpus with Vertex Vector Search"
+  region       = "europe-west4"
+
+  vector_db_config {
+    vertex_vector_search {
+      index_endpoint = "projects/${data.google_project.project.number}/locations/europe-west4/indexEndpoints/${google_vertex_ai_index_endpoint.index_endpoint.name}"
+      index          = "projects/${data.google_project.project.number}/locations/europe-west4/indexes/${google_vertex_ai_index.index.name}"
+    }
+
+    rag_embedding_model_config {
+      vertex_prediction_endpoint {
+        endpoint = "projects/${data.google_project.project.number}/locations/europe-west4/publishers/google/models/text-embedding-005"
+      }
+    }
+  }
+
+  depends_on = [google_vertex_ai_index_endpoint_deployed_index.deployed_index]
+}
+
+resource "google_vertex_ai_index" "index" {
+  region              = "europe-west4"
+  display_name        = "index-test"
+  description         = "test index"
+  index_update_method = "STREAM_UPDATE"
+  metadata {
+    config {
+      dimensions            = 768
+      distance_measure_type = "COSINE_DISTANCE"
+      feature_norm_type     = "UNIT_L2_NORM"
+      algorithm_config {
+        brute_force_config {}
+      }
+    }
+  }
+}
+
+resource "google_vertex_ai_index_endpoint" "index_endpoint" {
+  display_name            = "endpoint-test"
+  description             = "test endpoint"
+  region                  = "europe-west4"
+  public_endpoint_enabled = true
+}
+
+resource "google_vertex_ai_index_endpoint_deployed_index" "deployed_index" {
+  deployed_index_id = "deployed_index"
+  display_name      = "deployed_index"
+  region            = "europe-west4"
+  index             = google_vertex_ai_index.index.id
+  index_endpoint    = google_vertex_ai_index_endpoint.index_endpoint.id
+  automatic_resources {
+    min_replica_count = 1
+    max_replica_count = 1
+  }
+}
+
+data "google_project" "project" {
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_rag_corpus_secret_manager&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Rag Corpus Secret Manager
+
+
+```hcl
+resource "google_vertex_ai_rag_corpus" "example" {
+  display_name = "rag-corpus-secret"
+  description  = "A RAG corpus with Secret Manager"
+  region       = "europe-west4"
+
+  vector_db_config {
+    rag_managed_db {
+      knn {}
+    }
+
+    api_auth {
+      api_key_config {
+        api_key_secret_version = google_secret_manager_secret_version.secret_version.name
+      }
+    }
+
+    rag_embedding_model_config {
+      vertex_prediction_endpoint {
+        endpoint = "projects/${data.google_project.project.number}/locations/europe-west4/publishers/google/models/text-embedding-005"
+      }
+    }
+  }
+
+  depends_on = [google_secret_manager_secret_iam_member.secret_accessor]
+}
+
+resource "google_secret_manager_secret" "secret" {
+  secret_id = "secret-key"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret_version" {
+  secret      = google_secret_manager_secret.secret.id
+  secret_data = "secret-api-key"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_accessor" {
+  secret_id = google_secret_manager_secret.secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-vertex-rag.iam.gserviceaccount.com"
+}
+
+data "google_project" "project" {
+}
+```
 
 ## Argument Reference
 
@@ -121,6 +308,11 @@ The following arguments are supported:
   (Optional)
   Optional. Immutable. The config for the RAG-managed Vector DB.
   Structure is [documented below](#nested_vector_db_config).
+
+* `vertex_ai_search_config` -
+  (Optional)
+  Optional. Immutable. The config for the Vertex AI Search.
+  Structure is [documented below](#nested_vertex_ai_search_config).
 
 * `encryption_spec` -
   (Optional)
@@ -147,6 +339,21 @@ The following arguments are supported:
   (Optional)
   The config for the default RAG-managed Vector DB.
   Structure is [documented below](#nested_vector_db_config_rag_managed_db).
+
+* `pinecone` -
+  (Optional)
+  The config for the Pinecone.
+  Structure is [documented below](#nested_vector_db_config_pinecone).
+
+* `vertex_vector_search` -
+  (Optional)
+  The config for the Vertex Vector Search.
+  Structure is [documented below](#nested_vector_db_config_vertex_vector_search).
+
+* `api_auth` -
+  (Optional)
+  Authentication config for the chosen Vector DB.
+  Structure is [documented below](#nested_vector_db_config_api_auth).
 
 * `rag_embedding_model_config` -
   (Optional)
@@ -176,6 +383,44 @@ The following arguments are supported:
   (Optional)
   Number of leaf nodes in the tree-based structure. Default value is 500.
 
+<a name="nested_vector_db_config_pinecone"></a>The `pinecone` block supports:
+
+* `index_name` -
+  (Required)
+  Pinecone index name. This value cannot be changed after it's set.
+
+<a name="nested_vector_db_config_vertex_vector_search"></a>The `vertex_vector_search` block supports:
+
+* `index_endpoint` -
+  (Required)
+  The resource name of the Index Endpoint.
+  Format: projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}
+
+* `index` -
+  (Required)
+  The resource name of the Index.
+  Format: projects/{project}/locations/{location}/indexes/{index}
+
+<a name="nested_vector_db_config_api_auth"></a>The `api_auth` block supports:
+
+* `api_key_config` -
+  (Optional)
+  The API secret.
+  Structure is [documented below](#nested_vector_db_config_api_auth_api_key_config).
+
+
+<a name="nested_vector_db_config_api_auth_api_key_config"></a>The `api_key_config` block supports:
+
+* `api_key_secret_version` -
+  (Optional)
+  The SecretManager secret version resource name storing API key.
+  e.g. projects/{project}/secrets/{secret}/versions/{version}
+
+* `api_key_string` -
+  (Optional)
+  The API key string.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
 <a name="nested_vector_db_config_rag_embedding_model_config"></a>The `rag_embedding_model_config` block supports:
 
 * `vertex_prediction_endpoint` -
@@ -199,6 +444,15 @@ The following arguments are supported:
 * `model_version_id` -
   (Output)
   Output only. Version ID of the model that is deployed on the endpoint.
+
+<a name="nested_vertex_ai_search_config"></a>The `vertex_ai_search_config` block supports:
+
+* `serving_config` -
+  (Required)
+  Vertex AI Search Serving Config resource full name. For example,
+  projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}
+  or
+  projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}.
 
 <a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
 

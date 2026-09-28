@@ -61,9 +61,11 @@ func TestAccVmwareengineNetworkPeering_vmwareEngineNetworkPeeringVenExample(t *t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"region":        envvar.GetTestRegionFromEnv(),
-		"name":          "tf-test-sample-network-peering" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"region":            envvar.GetTestRegionFromEnv(),
+		"name":              "tf-test-sample-network-peering" + randomSuffix,
+		"network_name":      "tf-test-default-np-nw" + randomSuffix,
+		"peer_network_name": "tf-test-peer-np-nw" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -93,12 +95,12 @@ func TestAccVmwareengineNetworkPeering_vmwareEngineNetworkPeeringVenExample(t *t
 func testAccVmwareengineNetworkPeering_vmwareEngineNetworkPeeringVenExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vmwareengine_network" "network-peering-nw" {
-   name              = "default-np-nw"
+   name              = "%{network_name}"
    location          = "global"
    type              = "STANDARD"
 }
 resource "google_vmwareengine_network" "network-peering-peer-nw" {
-   name              = "peer-np-nw"
+   name              = "%{peer_network_name}"
    location          = "global"
    type              = "STANDARD"
 }
@@ -124,6 +126,8 @@ func TestAccVmwareengineNetworkPeering_vmwareEngineNetworkPeeringStandardExample
 	context := map[string]interface{}{
 		"region":        envvar.GetTestRegionFromEnv(),
 		"name":          "tf-test-sample-network-peering" + randomSuffix,
+		"network_name":  "tf-test-default-standard-nw-np" + randomSuffix,
+		"vpc_name":      "tf-test-default-vpc" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -154,10 +158,10 @@ func TestAccVmwareengineNetworkPeering_vmwareEngineNetworkPeeringStandardExample
 func testAccVmwareengineNetworkPeering_vmwareEngineNetworkPeeringStandardExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network-peering-vpc" {
-  name = "default-vpc"
+  name = "%{vpc_name}"
 }
 resource "google_vmwareengine_network" "network-peering-standard-nw" {
-   name              = "default-standard-nw-np"
+   name              = "%{network_name}"
    location          = "global"
    type              = "STANDARD"
 }

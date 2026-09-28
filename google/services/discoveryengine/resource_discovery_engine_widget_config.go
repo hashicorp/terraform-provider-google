@@ -491,6 +491,47 @@ set to < 1, it will be set to 1 by default.`,
 							Description: `Controls whether result extract is display and how (snippet or extractive answer).
 Default to no result if unspecified. Possible values: ["SNIPPET", "EXTRACTIVE_ANSWER"]`,
 						},
+						"search_addon_spec": {
+							Type:             schema.TypeList,
+							Optional:         true,
+							DiffSuppressFunc: tpgresource.EmptyOrUnsetBlockDiffSuppress,
+							Description: `SearchAddonSpec is used to disable add-ons for search. By default, if this
+field is not specified, add-ons are enabled wherever applicable.
+This field is only supported for search requests.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"generative_answer_add_on_disabled": {
+										Type:             schema.TypeBool,
+										Optional:         true,
+										DiffSuppressFunc: tpgresource.EmptyOrFalseSuppressBoolean,
+										Description: `If true, generative answer add-on is disabled. Generative answer
+add-on includes natural language to filters and simple answers.`,
+									},
+									"kpi_personalization_add_on_disabled": {
+										Type:             schema.TypeBool,
+										Optional:         true,
+										DiffSuppressFunc: tpgresource.EmptyOrFalseSuppressBoolean,
+										Description: `If true, disables event re-ranking and personalization to optimize KPIs
+& personalize results.`,
+									},
+									"semantic_add_on_disabled": {
+										Type:             schema.TypeBool,
+										Optional:         true,
+										DiffSuppressFunc: tpgresource.EmptyOrFalseSuppressBoolean,
+										Description: `If true, semantic add-on is disabled. Semantic add-on includes
+embeddings and jetstream.`,
+									},
+								},
+							},
+						},
+						"source_admin_display_name_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Whether to show the admin-configured display name for data connectors in
+the widget sources UI (instead of the connector kind). Opt-in; defaults
+to false.`,
+						},
 					},
 				},
 			},
@@ -989,6 +1030,10 @@ func flattenDiscoveryEngineWidgetConfigUiSettings(v interface{}, d *schema.Resou
 		flattenDiscoveryEngineWidgetConfigUiSettingsEnablePeopleSearch(original["enablePeopleSearch"], d, config)
 	transformed["enable_create_agent_button"] =
 		flattenDiscoveryEngineWidgetConfigUiSettingsEnableCreateAgentButton(original["enableCreateAgentButton"], d, config)
+	transformed["source_admin_display_name_enabled"] =
+		flattenDiscoveryEngineWidgetConfigUiSettingsSourceAdminDisplayNameEnabled(original["sourceAdminDisplayNameEnabled"], d, config)
+	transformed["search_addon_spec"] =
+		flattenDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpec(original["searchAddonSpec"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDiscoveryEngineWidgetConfigUiSettingsInteractionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1211,6 +1256,39 @@ func flattenDiscoveryEngineWidgetConfigUiSettingsEnablePeopleSearch(v interface{
 }
 
 func flattenDiscoveryEngineWidgetConfigUiSettingsEnableCreateAgentButton(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineWidgetConfigUiSettingsSourceAdminDisplayNameEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["semantic_add_on_disabled"] =
+		flattenDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecSemanticAddOnDisabled(original["semanticAddOnDisabled"], d, config)
+	transformed["kpi_personalization_add_on_disabled"] =
+		flattenDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecKpiPersonalizationAddOnDisabled(original["kpiPersonalizationAddOnDisabled"], d, config)
+	transformed["generative_answer_add_on_disabled"] =
+		flattenDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecGenerativeAnswerAddOnDisabled(original["generativeAnswerAddOnDisabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecSemanticAddOnDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecKpiPersonalizationAddOnDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecGenerativeAnswerAddOnDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1474,6 +1552,20 @@ func expandDiscoveryEngineWidgetConfigUiSettings(v interface{}, d tpgresource.Te
 		return nil, err
 	} else if val := reflect.ValueOf(transformedEnableCreateAgentButton); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enableCreateAgentButton"] = transformedEnableCreateAgentButton
+	}
+
+	transformedSourceAdminDisplayNameEnabled, err := expandDiscoveryEngineWidgetConfigUiSettingsSourceAdminDisplayNameEnabled(original["source_admin_display_name_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["sourceAdminDisplayNameEnabled"] = transformedSourceAdminDisplayNameEnabled
+	}
+
+	transformedSearchAddonSpec, err := expandDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpec(original["search_addon_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSearchAddonSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["searchAddonSpec"] = transformedSearchAddonSpec
 	}
 
 	return transformed, nil
@@ -1779,6 +1871,58 @@ func expandDiscoveryEngineWidgetConfigUiSettingsEnablePeopleSearch(v interface{}
 }
 
 func expandDiscoveryEngineWidgetConfigUiSettingsEnableCreateAgentButton(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineWidgetConfigUiSettingsSourceAdminDisplayNameEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSemanticAddOnDisabled, err := expandDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecSemanticAddOnDisabled(original["semantic_add_on_disabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["semanticAddOnDisabled"] = transformedSemanticAddOnDisabled
+	}
+
+	transformedKpiPersonalizationAddOnDisabled, err := expandDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecKpiPersonalizationAddOnDisabled(original["kpi_personalization_add_on_disabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["kpiPersonalizationAddOnDisabled"] = transformedKpiPersonalizationAddOnDisabled
+	}
+
+	transformedGenerativeAnswerAddOnDisabled, err := expandDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecGenerativeAnswerAddOnDisabled(original["generative_answer_add_on_disabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["generativeAnswerAddOnDisabled"] = transformedGenerativeAnswerAddOnDisabled
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecSemanticAddOnDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecKpiPersonalizationAddOnDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineWidgetConfigUiSettingsSearchAddonSpecGenerativeAnswerAddOnDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

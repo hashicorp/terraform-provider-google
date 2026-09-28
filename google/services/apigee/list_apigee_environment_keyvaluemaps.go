@@ -168,6 +168,11 @@ func ListApigeeEnvironmentKeyvaluemapss(config *transport_tpg.Config,
 			if err = ResourceApigeeEnvironmentKeyvaluemapsFlatten(d, config, res, config, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if envId != "" {
+				if err := d.Set("env_id", envId); err != nil {
+					return fmt.Errorf("error setting env_id: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "{{env_id}}/keyvaluemaps/{{name}}/entries")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

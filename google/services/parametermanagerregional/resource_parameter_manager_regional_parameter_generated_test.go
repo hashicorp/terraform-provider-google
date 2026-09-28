@@ -78,7 +78,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterBasicExam
 				ResourceName:            "google_parameter_manager_regional_parameter.regional-parameter-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "tags", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-basic",
@@ -121,7 +121,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithForma
 				ResourceName:            "google_parameter_manager_regional_parameter.regional-parameter-with-format",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "tags", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-with-format",
@@ -165,7 +165,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithLabel
 				ResourceName:            "google_parameter_manager_regional_parameter.regional-parameter-with-labels",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "tags", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-with-labels",
@@ -223,7 +223,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithKmsKe
 				ResourceName:            "google_parameter_manager_regional_parameter.regional-parameter-with-kms-key",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "parameter_id", "tags", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-with-kms-key",

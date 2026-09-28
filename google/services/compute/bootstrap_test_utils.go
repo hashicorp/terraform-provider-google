@@ -186,9 +186,19 @@ func BootstrapSubnet(t *testing.T, subnetName string, networkName string) string
 	return BootstrapSubnetWithOverrides(t, subnetName, networkName, make(map[string]interface{}))
 }
 
+func BootstrapSubnetInRegion(t *testing.T, subnetName string, networkName string, region string, ipCidrRange string) string {
+	return BootstrapSubnetWithOverrides(t, subnetName, networkName, map[string]interface{}{
+		"region":      region,
+		"ipCidrRange": ipCidrRange,
+	})
+}
+
 func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName string, subnetOptions map[string]interface{}) string {
 	projectID := envvar.GetTestProjectFromEnv()
 	region := envvar.GetTestRegionFromEnv()
+	if r, ok := subnetOptions["region"].(string); ok && r != "" {
+		region = r
+	}
 
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
@@ -210,7 +220,7 @@ func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName s
 
 		defaultSubnetObj := map[string]interface{}{
 			"name":        subnetName,
-			"region ":     region,
+			"region":      region,
 			"network":     networkUrl,
 			"ipCidrRange": "10.77.0.0/20",
 		}
@@ -229,7 +239,7 @@ func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName s
 			Timeout:   4 * time.Minute,
 		})
 
-		log.Printf("Response is, %s", res)
+		log.Printf("[DEBUG] Response is, %s", res)
 		if err != nil {
 			t.Fatalf("Error bootstrapping test subnet %s: %s", subnetName, err)
 		}
@@ -317,8 +327,11 @@ func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subn
 const SharedStoragePoolPrefix = "tf-bootstrap-storage-pool-"
 
 func BootstrapComputeStoragePool(t *testing.T, storagePoolName, storagePoolType string) string {
+	return BootstrapComputeStoragePoolInZone(t, storagePoolName, storagePoolType, envvar.GetTestZoneFromEnv())
+}
+
+func BootstrapComputeStoragePoolInZone(t *testing.T, storagePoolName, storagePoolType, zone string) string {
 	projectID := envvar.GetTestProjectFromEnv()
-	zone := envvar.GetTestZoneFromEnv()
 
 	storagePoolName = SharedStoragePoolPrefix + storagePoolType + "-" + storagePoolName
 
@@ -362,7 +375,7 @@ func BootstrapComputeStoragePool(t *testing.T, storagePoolName, storagePoolType 
 			Timeout:   20 * time.Minute,
 		})
 
-		log.Printf("Response is, %s", res)
+		log.Printf("[DEBUG] Response is, %s", res)
 		if err != nil {
 			t.Fatalf("Error bootstrapping storage pool %s: %s", storagePoolName, err)
 		}

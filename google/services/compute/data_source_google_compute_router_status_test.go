@@ -59,26 +59,26 @@ func TestAccDataSourceComputeRouterStatus(t *testing.T) {
 func testAccDataSourceComputeRouterStatusConfig(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "network1" {
-  name                    = "network1-%{suffix}"
+  name                    = "tf-test-network1-%{suffix}"
   routing_mode            = "GLOBAL"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_network" "network2" {
-  name                    = "network2-%{suffix}"
+  name                    = "tf-test-network2-%{suffix}"
   routing_mode            = "GLOBAL"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "network2_subnet1" {
-  name          = "ha-vpn-subnet-1-%{suffix}"
+  name          = "tf-test-ha-vpn-subnet-1-%{suffix}"
   ip_cidr_range = "192.168.1.0/24"
   region        = "%{region}"
   network       = google_compute_network.network2.id
 }
 
 resource "google_compute_subnetwork" "network2_subnet2" {
-  name          = "ha-vpn-subnet-2-%{suffix}"
+  name          = "tf-test-ha-vpn-subnet-2-%{suffix}"
   ip_cidr_range = "192.168.2.0/24"
   region        = "us-east1"
   network       = google_compute_network.network2.id
@@ -115,7 +115,7 @@ resource "google_compute_ha_vpn_gateway" "ha_gateway2" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel1" {
-  name                  = "ha-vpn-tunnel1-%{suffix}"
+  name                  = "tf-test-ha-vpn-tunnel1-%{suffix}"
   region                = "%{region}"
   vpn_gateway           = google_compute_ha_vpn_gateway.ha_gateway1.id
   peer_gcp_gateway      = google_compute_ha_vpn_gateway.ha_gateway2.id
@@ -125,7 +125,7 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
 }
 
 resource "google_compute_vpn_tunnel" "tunnel2" {
-  name                  = "ha-vpn-tunnel2-%{suffix}"
+  name                  = "tf-test-ha-vpn-tunnel2-%{suffix}"
   region                = "%{region}"
   vpn_gateway           = google_compute_ha_vpn_gateway.ha_gateway2.id
   peer_gcp_gateway      = google_compute_ha_vpn_gateway.ha_gateway1.id
@@ -135,7 +135,7 @@ resource "google_compute_vpn_tunnel" "tunnel2" {
 }
 
 resource "google_compute_router_interface" "router1_interface1" {
-  name       = "router1-interface1-%{suffix}"
+  name       = "tf-test-router1-interface1-%{suffix}"
   router     = google_compute_router.router1.name
   region     = "%{region}"
   ip_range   = "169.254.0.1/30"
@@ -143,7 +143,7 @@ resource "google_compute_router_interface" "router1_interface1" {
 }
 
 resource "google_compute_router_peer" "router1_peer1" {
-  name                      = "router1-peer1-%{suffix}"
+  name                      = "tf-test-router1-peer1-%{suffix}"
   router                    = google_compute_router.router1.name
   region                    = "%{region}"
   peer_ip_address           = "169.254.0.2"
@@ -153,7 +153,7 @@ resource "google_compute_router_peer" "router1_peer1" {
 }
 
 resource "google_compute_router_interface" "router2_interface1" {
-  name       = "router2-interface1-%{suffix}"
+  name       = "tf-test-router2-interface1-%{suffix}"
   router     = google_compute_router.router2.name
   region     = "%{region}"
   ip_range   = "169.254.0.2/30"
@@ -161,7 +161,7 @@ resource "google_compute_router_interface" "router2_interface1" {
 }
 
 resource "google_compute_router_peer" "router2_peer1" {
-  name                      = "router2-peer1-%{suffix}"
+  name                      = "tf-test-router2-peer1-%{suffix}"
   router                    = google_compute_router.router2.name
   region                    = "%{region}"
   peer_ip_address           = "169.254.0.1"

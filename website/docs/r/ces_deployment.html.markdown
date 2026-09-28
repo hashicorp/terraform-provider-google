@@ -128,6 +128,46 @@ resource "google_ces_deployment" "my-deployment" {
     }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=ces_deployment_whatsapp&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Ces Deployment Whatsapp
+
+
+```hcl
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "my-app"
+    app_id       = "app-id"
+    time_zone_settings {
+        time_zone = "America/Los_Angeles"
+    }
+}
+resource "google_ces_app_version" "my-app-version" {
+    location       = "us"
+    display_name   = "my-app-version"
+    app            = google_ces_app.my-app.name
+    app_version_id = "app-version-id"
+    description    = "example-app-version"
+}
+resource "google_ces_deployment" "my-deployment" {
+    location     = "us"
+    display_name = "my-deployment"
+    app          = google_ces_app.my-app.name
+    app_version  = google_ces_app_version.my-app-version.id
+    channel_profile {
+        channel_type = "API"
+        profile_id = "temp_profile_id"
+        whatsapp_config {
+            phone_number = "+15551234567"
+            phone_number_id = "1234567890"
+            waba_id = "9876543210"
+        }
+    }
+}
+```
 
 ## Argument Reference
 
@@ -194,6 +234,8 @@ The following arguments are supported:
   CONTACT_CENTER_AS_A_SERVICE
   FIVE9
   CONTACT_CENTER_INTEGRATION
+  WHATSAPP
+  INSTAGRAM
 
 * `disable_barge_in_control` -
   (Optional)
@@ -219,6 +261,11 @@ The following arguments are supported:
   (Optional)
   Message for configuration for the web widget.
   Structure is [documented below](#nested_channel_profile_web_widget_config).
+
+* `whatsapp_config` -
+  (Optional)
+  Configuration specific to WhatsApp deployments.
+  Structure is [documented below](#nested_channel_profile_whatsapp_config).
 
 
 <a name="nested_channel_profile_persona_property"></a>The `persona_property` block supports:
@@ -278,6 +325,32 @@ The following arguments are supported:
 * `enable_recaptcha` -
   (Optional)
   Indicates whether reCAPTCHA verification for the web widget is enabled.
+
+<a name="nested_channel_profile_whatsapp_config"></a>The `whatsapp_config` block supports:
+
+* `description` -
+  (Output)
+  Output only. The description of the Meta business page or profile.
+
+* `display_name` -
+  (Output)
+  Output only. The fetched Meta business page name.
+
+* `phone_number` -
+  (Optional)
+  Optional. The phone number in E.164 format.
+
+* `phone_number_id` -
+  (Required)
+  Required. The Meta phone number ID.
+
+* `thumbnail_url` -
+  (Output)
+  Output only. The fetched Meta business profile thumbnail URL.
+
+* `waba_id` -
+  (Required)
+  Required. The WhatsApp Business Account ID.
 
 <a name="nested_instagram_credentials"></a>The `instagram_credentials` block supports:
 

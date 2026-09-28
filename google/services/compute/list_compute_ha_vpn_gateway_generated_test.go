@@ -47,7 +47,7 @@ func TestAccComputeHaVpnGatewayListQuery_generated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"ha_vpn_gateway1_name": "tf-test-ha-vpn-1" + randomSuffix,
-		"network1_name":        "network1" + randomSuffix,
+		"network1_name":        "tf-test-network1" + randomSuffix,
 		"region":               envvar.GetTestRegionFromEnv(),
 		"project":              envvar.GetTestProjectFromEnv(),
 		"random_suffix":        randomSuffix,

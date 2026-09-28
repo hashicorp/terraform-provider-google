@@ -40,6 +40,9 @@ fields:
     - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.rawFileResource.mimeType
     - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.useRag
     - api_field: artifactsConfig.documentGenerationOptions.exportFormat
+    - api_field: artifactsConfig.methodologyExportOptions.appendMethodology
+    - api_field: artifactsConfig.methodologyExportOptions.exportFormat
+    - api_field: artifactsConfig.methodologyExportOptions.exportMethodologyArtifact
     - api_field: artifactsConfig.slideGenerationOptions.exportFormat
     - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.bigqueryResource.bigqueryDataset
     - api_field: artifactsConfig.slideGenerationOptions.slideExamples.resource.bigqueryResource.bigqueryTable
@@ -70,6 +73,7 @@ fields:
     - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.rawFileResource.mimeType
     - api_field: artifactsConfig.visualizationOptions.visualizationExamples.resource.useRag
     - api_field: artifactsConfig.visualizationOptions.visualizationExamples.visualizationType
+    - api_field: artifactsConfig.visualizationOptions.visualizationMode
     - api_field: createTime
     - api_field: customerContext
     - api_field: displayDescription
@@ -87,7 +91,9 @@ fields:
     - api_field: geminiEnterpriseEngine
     - field: location
       provider_only: true
+    - api_field: mathRenderingMode
     - api_field: mcpDataSources.apiKey
+    - api_field: mcpDataSources.apiKeyHeader
     - api_field: mcpDataSources.apiKeyName
     - api_field: mcpDataSources.clientId
     - api_field: mcpDataSources.clientSecret
@@ -125,5 +131,7 @@ fields:
     - api_field: tables.description
     - api_field: tables.name
     - api_field: updateTime
+    - api_field: webSearchConfig.disabled
+    - api_field: webSearchConfig.excludedDomains
     - field: deletion_policy
       provider_only: true

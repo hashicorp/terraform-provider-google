@@ -29,7 +29,7 @@ func TestAccComputeRouterRoutePolicy_PriorityZero(t *testing.T) {
 	t.Parallel()
 
 	routerName := fmt.Sprintf("tf-test-router-%s", acctest.RandString(t, 10))
-	routePolicyName := fmt.Sprintf("route-policy-%s", acctest.RandString(t, 5))
+	routePolicyName := fmt.Sprintf("tf-test-route-policy-%s", acctest.RandString(t, 5))
 	resourceName := "google_compute_router_route_policy.route_policy"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,7 +50,7 @@ func TestAccComputeRouterRoutePolicy_PriorityZero(t *testing.T) {
 func testAccComputeRouterRoutePolicyPriorityZero(routerName, routePolicyName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "vpc" {
-  name                    = "vpc-%[1]s"
+  name                    = "%[1]s"
   auto_create_subnetworks = false
 }
 

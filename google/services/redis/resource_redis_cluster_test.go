@@ -88,7 +88,7 @@ func TestAccRedisCluster_createClusterWithZoneDistribution(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// create cluster with replica count 1
-				Config: createOrUpdateRedisCluster(&ClusterParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: false, zoneDistributionMode: "SINGLE_ZONE", zone: "us-central1-b"}),
+				Config: createOrUpdateRedisCluster(&ClusterParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: false, zoneDistributionMode: "SINGLE_ZONE", zone: "us-west1-a"}),
 			},
 			{
 				ResourceName:            "google_redis_cluster.test",
@@ -98,7 +98,7 @@ func TestAccRedisCluster_createClusterWithZoneDistribution(t *testing.T) {
 			},
 			{
 				// clean up the resource
-				Config: createOrUpdateRedisCluster(&ClusterParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: false, zoneDistributionMode: "SINGLE_ZONE", zone: "us-central1-b"}),
+				Config: createOrUpdateRedisCluster(&ClusterParams{name: name, replicaCount: 0, shardCount: 3, deletionProtectionEnabled: false, zoneDistributionMode: "SINGLE_ZONE", zone: "us-west1-a"}),
 			},
 		},
 	})
@@ -329,7 +329,7 @@ func testAccRedisCluster_automatedBackupConfig(context map[string]interface{}) s
 resource "google_redis_cluster" "cluster_abc" {
   name                           = "tf-test-redis-abc-%{random_suffix}"
   shard_count                    = 1
-  region                         = "us-central1"
+  region                         = "us-west1"
   deletion_protection_enabled    = false
   automated_backup_config {
    retention                     = "259200s"
@@ -349,7 +349,7 @@ func testAccRedisCluster_automatedBackupConfigWithout(context map[string]interfa
 resource "google_redis_cluster" "cluster_abc" {
   name                           = "tf-test-redis-abc-%{random_suffix}"
   shard_count                    = 1
-  region                         = "us-central1"
+  region                         = "us-west1"
   deletion_protection_enabled    = false 
   
 }   
@@ -398,7 +398,7 @@ func testAccRedisCluster_managedBackupSourceSetup(context map[string]interface{}
 resource "google_redis_cluster" "cluster_mbs_main" {
   name                           = "tf-test-mbs-main-%{random_suffix}"
   shard_count                    = 1
-  region                         = "us-central1"
+  region                         = "us-west1"
   deletion_protection_enabled    = false
 }
 `, context)
@@ -409,14 +409,14 @@ func testAccRedisCluster_managedBackupSourceImport(context map[string]interface{
 resource "google_redis_cluster" "cluster_mbs_main" {
   name                           = "tf-test-mbs-main-%{random_suffix}"
   shard_count                    = 1
-  region                         = "us-central1"
+  region                         = "us-west1"
   deletion_protection_enabled    = false
 }
 
 resource "google_redis_cluster" "cluster_mb_copy" {
   name                           = "tf-test-mbs-copy-%{random_suffix}"
   shard_count                    = 1
-  region                         = "us-central1"
+  region                         = "us-west1"
   deletion_protection_enabled    = false
    managed_backup_source {
     backup                       = join("", [google_redis_cluster.cluster_mbs_main.backup_collection , "/backups/%{back_up}"])
@@ -530,14 +530,14 @@ func testAccRedisCluster_gcsSourceSetup(context map[string]interface{}) string {
 resource "google_redis_cluster" "cluster_gbs_main" {
   name                           = "tf-test-gbs-main-%{random_suffix}"
   shard_count                    = 1
-  region                         = "us-central1"
+  region                         = "us-west1"
   deletion_protection_enabled    = false
 }
 
 # Create a GCS bucket for exporting Redis backups
 resource "google_storage_bucket" "redis_backup_bucket" {
   name                           = "%{gcs_bucket}"
-  location                       = "us-central1"
+  location                       = "us-west1"
   uniform_bucket_level_access    = true
   force_destroy                  = true
 }
@@ -560,14 +560,14 @@ func testAccRedisCluster_gcsSource(context map[string]interface{}) string {
 resource "google_redis_cluster" "cluster_gbs_main" {
   name                            = "tf-test-gbs-main-%{random_suffix}"
   shard_count                     = 1
-  region                          = "us-central1"
+  region                          = "us-west1"
   deletion_protection_enabled     = false
 }
 
 # Reference the bucket created in the setup
 resource "google_storage_bucket" "redis_backup_bucket" {
   name                        	  = "%{gcs_bucket}"
-  location                    	  = "us-central1"
+  location                    	  = "us-west1"
   uniform_bucket_level_access 	  = true
   force_destroy               	  = true
 }
@@ -589,7 +589,7 @@ resource "google_storage_bucket_iam_member" "redis_backup_writer" {
 resource "google_redis_cluster" "cluster_gbs" {
   name                           = "tf-test-gbs-copy-%{random_suffix}"
   shard_count                    = 1
-  region                         = "us-central1"
+  region                         = "us-west1"
   deletion_protection_enabled    = false
   gcs_source {
     uris                         = [join("", ["gs://%{gcs_bucket}/" , data.google_storage_bucket_objects.backup.bucket_objects[0]["name"]])]
@@ -918,7 +918,7 @@ func createRedisClusterEndpointsWithOneUserCreatedConnections(params *ClusterPar
 		resource "google_redis_cluster_user_created_connections" "default" {
 		
 		name = "%s"
-		region = "us-central1"
+		region = "us-west1"
 		cluster_endpoints {
 			connections {
 				psc_connection {
@@ -955,7 +955,7 @@ func createRedisClusterEndpointsWithTwoUserCreatedConnections(params *ClusterPar
 	return fmt.Sprintf(`
 		resource "google_redis_cluster_user_created_connections" "default" {
 		name = "%s"
-		region = "us-central1"
+		region = "us-west1"
 		cluster_endpoints {
 			connections {
 				psc_connection {
@@ -1013,7 +1013,7 @@ func createRedisClusterUserCreatedConnection1(params *ClusterParams) string {
 	return fmt.Sprintf(`
 		resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
 		name                   = "%s"
-		region                 = "us-central1"
+		region                 = "us-west1"
 		ip_address             = google_compute_address.ip1_network1.id
 		load_balancing_scheme  = ""
 		network                = google_compute_network.network1.id
@@ -1022,7 +1022,7 @@ func createRedisClusterUserCreatedConnection1(params *ClusterParams) string {
 
 		resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {	
 		name                   = "%s"
-		region                 = "us-central1"
+		region                 = "us-west1"
 		ip_address             = google_compute_address.ip2_network1.id
 		load_balancing_scheme  = ""
 		network                = google_compute_network.network1.id
@@ -1031,7 +1031,7 @@ func createRedisClusterUserCreatedConnection1(params *ClusterParams) string {
 
 		resource "google_compute_address" "ip1_network1" {
 		name         = "%s"
-		region       = "us-central1"
+		region       = "us-west1"
 		subnetwork   = google_compute_subnetwork.subnet_network1.id
 		address_type = "INTERNAL"
 		purpose      = "GCE_ENDPOINT"
@@ -1039,7 +1039,7 @@ func createRedisClusterUserCreatedConnection1(params *ClusterParams) string {
 
 		resource "google_compute_address" "ip2_network1" {
 		name         = "%s"
-		region       = "us-central1"
+		region       = "us-west1"
 		subnetwork   = google_compute_subnetwork.subnet_network1.id
 		address_type = "INTERNAL"
 		purpose      = "GCE_ENDPOINT"
@@ -1048,7 +1048,7 @@ func createRedisClusterUserCreatedConnection1(params *ClusterParams) string {
 		resource "google_compute_subnetwork" "subnet_network1" {
 		name          = "%s"
 		ip_cidr_range = "10.0.0.248/29"
-		region        = "us-central1"
+		region        = "us-west1"
 		network       = google_compute_network.network1.id
 		}
 
@@ -1070,7 +1070,7 @@ func createRedisClusterUserCreatedConnection2(params *ClusterParams) string {
 	return fmt.Sprintf(`
 		resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
 		name                   = "%s"
-		region                 = "us-central1"
+		region                 = "us-west1"
 		ip_address             = google_compute_address.ip1_network2.id
 		load_balancing_scheme  = ""
 		network                = google_compute_network.network2.id
@@ -1079,7 +1079,7 @@ func createRedisClusterUserCreatedConnection2(params *ClusterParams) string {
 
 		resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
 		name                   = "%s"
-		region                 = "us-central1"
+		region                 = "us-west1"
 		ip_address             = google_compute_address.ip2_network2.id
 		load_balancing_scheme  = ""
 		network                = google_compute_network.network2.id
@@ -1088,7 +1088,7 @@ func createRedisClusterUserCreatedConnection2(params *ClusterParams) string {
 
 		resource "google_compute_address" "ip1_network2" {
 		name         = "%s"
-		region       = "us-central1"
+		region       = "us-west1"
 		subnetwork   = google_compute_subnetwork.subnet_network2.id
 		address_type = "INTERNAL"
 		purpose      = "GCE_ENDPOINT"
@@ -1096,7 +1096,7 @@ func createRedisClusterUserCreatedConnection2(params *ClusterParams) string {
 
 		resource "google_compute_address" "ip2_network2" {
 		name         = "%s"
-		region       = "us-central1"
+		region       = "us-west1"
 		subnetwork   = google_compute_subnetwork.subnet_network2.id
 		address_type = "INTERNAL"
 		purpose      = "GCE_ENDPOINT"
@@ -1105,7 +1105,7 @@ func createRedisClusterUserCreatedConnection2(params *ClusterParams) string {
 		resource "google_compute_subnetwork" "subnet_network2" {
 		name          = "%s"
 		ip_cidr_range = "10.0.0.248/29"
-		region        = "us-central1"
+		region        = "us-west1"
 		network       = google_compute_network.network2.id
 		}
 
@@ -1139,7 +1139,7 @@ func createOrUpdateRedisCluster(params *ClusterParams) string {
 		%s
 		resource "google_network_connectivity_service_connection_policy" "default" {
 			name = "%s"
-			location = "us-central1"
+			location = "us-west1"
 			service_class = "gcp-memorystore-redis"
 			description   = "my basic service connection policy"
 			network = google_compute_network.producer_net.id
@@ -1151,7 +1151,7 @@ func createOrUpdateRedisCluster(params *ClusterParams) string {
 		resource "google_compute_subnetwork" "producer_subnet" {
 			name          = "%s"
 			ip_cidr_range = "10.0.0.16/28"
-			region        = "us-central1"
+			region        = "us-west1"
 			network       = google_compute_network.producer_net.id
 		}
 
@@ -1243,7 +1243,7 @@ func createRedisClusterResourceConfig(params *ClusterParams, isSecondaryCluster 
 		shard_count = %d
 		node_type = "%s"
 		deletion_protection_enabled = %v
-		region         = "us-central1"
+		region         = "us-west1"
 		psc_configs {
 				network = google_compute_network.producer_net.id
 		}
@@ -1310,7 +1310,7 @@ resource "google_redis_cluster" "cluster-tls" {
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
-  region = "us-central1"
+  region = "us-west1"
   replica_count = 1
   node_type = "REDIS_SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION"
@@ -1341,7 +1341,7 @@ resource "google_redis_cluster" "cluster-tls" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name = "tf-test-my-policy%{random_suffix}"
-  location = "us-central1"
+  location = "us-west1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
   network = google_compute_network.consumer_net.id
@@ -1353,7 +1353,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "consumer_subnet" {
   name          = "tf-test-my-subnet%{random_suffix}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 
@@ -1422,7 +1422,7 @@ resource "google_redis_cluster" "cluster-ha-with-labels" {
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
-  region = "us-central1"
+  region = "us-west1"
   replica_count = 1
   node_type = "REDIS_SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
@@ -1453,7 +1453,7 @@ resource "google_redis_cluster" "cluster-ha-with-labels" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name = "%{policy_name}"
-  location = "us-central1"
+  location = "us-west1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
   network = google_compute_network.consumer_net.id
@@ -1465,7 +1465,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "consumer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 
@@ -1514,7 +1514,7 @@ data "google_project" "project" {}
 # 1. Create the CA Pool
 resource "google_privateca_ca_pool" "default" {
   name     = "tf-test-ca-pool-%{random_suffix}"
-  location = "us-central1"
+  location = "us-west1"
   tier     = "ENTERPRISE"
 }
 
@@ -1522,7 +1522,7 @@ resource "google_privateca_ca_pool" "default" {
 resource "google_privateca_certificate_authority" "default" {
   pool                     = google_privateca_ca_pool.default.name
   certificate_authority_id = "tf-test-ca-%{random_suffix}"
-  location                 = "us-central1"
+  location                 = "us-west1"
   config {
     subject_config {
       subject {
@@ -1563,7 +1563,7 @@ resource "google_privateca_ca_pool_iam_member" "redis_p4sa_requester" {
 # 4. Networking Policy
 resource "google_network_connectivity_service_connection_policy" "default" {
   name          = "tf-test-policy-%{random_suffix}"
-  location      = "us-central1"
+  location      = "us-west1"
   service_class = "gcp-memorystore-redis"
   network       = google_compute_network.consumer_net.id
   psc_config {
@@ -1574,7 +1574,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "consumer_subnet" {
   name          = "tf-test-subnet-%{random_suffix}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 
@@ -1587,7 +1587,7 @@ resource "google_compute_network" "consumer_net" {
 resource "google_redis_cluster" "cluster_cas" {
   name                        = "tf-test-cas-%{random_suffix}"
   shard_count                 = 3
-  region                      = "us-central1"
+  region                      = "us-west1"
   deletion_protection_enabled = false
 
   psc_configs {
@@ -1639,7 +1639,7 @@ func testAccRedisCluster_withAclPolicy(context map[string]interface{}) string {
 resource "google_redis_cluster" "test" {
   name                        = "tf-test-redis-%{random_suffix}"
   shard_count                 = 1
-  region                      = "europe-west4"
+  region                      = "us-west1"
   deletion_protection_enabled = false
   
   acl_policy                  = google_redis_cluster_acl_policy.acl_policy.id
@@ -1647,7 +1647,7 @@ resource "google_redis_cluster" "test" {
 
 resource "google_redis_cluster_acl_policy" "acl_policy" {
   acl_policy_id               = "tf-test-policy-%{random_suffix}"
-  location                    = "europe-west4"
+  location                    = "us-west1"
   rules {
     rule                      = "on allkeys +get"
     username                  = "default"

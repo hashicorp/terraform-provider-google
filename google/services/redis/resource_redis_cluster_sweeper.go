@@ -61,13 +61,15 @@ func listAndActionRedisCluster(action sweeper.ResourceAction) error {
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	// Build URL substitution maps individually to ensure proper formatting
-	intermediateValues := make([]map[string]string, 3)
+	intermediateValues := make([]map[string]string, 4)
 	intermediateValues[0] = map[string]string{}
 	intermediateValues[0]["region"] = "us-central1"
 	intermediateValues[1] = map[string]string{}
-	intermediateValues[1]["region"] = "us-east1"
+	intermediateValues[1]["region"] = "us-west1"
 	intermediateValues[2] = map[string]string{}
-	intermediateValues[2]["region"] = "europe-west1"
+	intermediateValues[2]["region"] = "us-east1"
+	intermediateValues[3] = map[string]string{}
+	intermediateValues[3]["region"] = "europe-west1"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {

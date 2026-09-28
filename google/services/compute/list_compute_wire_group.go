@@ -172,6 +172,16 @@ func ListComputeWireGroups(config *transport_tpg.Config,
 			if err = ResourceComputeWireGroupFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if crossSiteNetwork != "" {
+				if err := d.Set("cross_site_network", crossSiteNetwork); err != nil {
+					return fmt.Errorf("error setting cross_site_network: %w", err)
+				}
+			}
+			if project != "" {
+				if err := d.Set("project", project); err != nil {
+					return fmt.Errorf("error setting project: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups/{{name}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

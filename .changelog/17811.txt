@@ -1,0 +1,9 @@
+```release-note:enhancement
+compute: added `request_body` field  to `google_compute_security_policy` resource
+```
+```release-note:enhancement
+compute: added `request_body` field  to `google_compute_region_security_policy` resource
+```
+```release-note:enhancement
+compute: added `request_body` field  to `google_compute_region_security_policy_rules` resource
+```

@@ -62,6 +62,7 @@ func TestAccVertexAIEndpoint_vertexAiEndpointPrivateServiceConnectExample(t *tes
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"endpoint_name": "tf-test-endpoint-name" + randomSuffix,
 		"network_name":  "tf-test-psc-network" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
@@ -97,7 +98,7 @@ resource "google_compute_network" "default" {
 }
 
 resource "google_vertex_ai_endpoint" "endpoint" {
-  name         = "endpoint-name%{random_suffix}"
+  name         = "%{endpoint_name}"
   display_name = "sample-endpoint"
   description  = "A sample vertex endpoint"
   location     = "us-central1"
@@ -128,6 +129,7 @@ func TestAccVertexAIEndpoint_vertexAiEndpointDedicatedEndpointExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"endpoint_name": "tf-test-endpoint-name" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -158,7 +160,7 @@ func TestAccVertexAIEndpoint_vertexAiEndpointDedicatedEndpointExample(t *testing
 func testAccVertexAIEndpoint_vertexAiEndpointDedicatedEndpointExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_endpoint" "endpoint" {
-  name         = "endpoint-name%{random_suffix}"
+  name         = "%{endpoint_name}"
   display_name = "sample-endpoint"
   description  = "A sample vertex endpoint"
   location     = "us-central1"

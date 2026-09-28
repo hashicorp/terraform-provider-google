@@ -48,7 +48,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasic(t *testing.T) {
 			{
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password", "cloud_sql.0.credential.0.username"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password", "cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "cloud_sql.0.credential.0.username"},
 				ResourceName:            "google_bigquery_connection.connection",
 			},
 			{
@@ -57,7 +57,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasic(t *testing.T) {
 			{
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password", "cloud_sql.0.credential.0.username"},
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password", "cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "cloud_sql.0.credential.0.username"},
 				ResourceName:            "google_bigquery_connection.connection",
 			},
 		},
@@ -152,6 +152,128 @@ resource "google_bigquery_connection" "connection" {
         credential {
             username = google_sql_user.user.name
             password = google_sql_user.user.password
+        }
+    }
+}
+`, context)
+}
+
+func TestAccBigqueryConnectionConnection_bigqueryConnectionBasic_cmek_wo(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":    acctest.RandString(t, 10),
+		"password":         acctest.RandString(t, 16),
+		"updated_password": acctest.RandString(t, 16),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionBasic_cmek_wo(context),
+			},
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password", "cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "cloud_sql.0.credential.0.username"},
+				ResourceName:            "google_bigquery_connection.connection",
+			},
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionBasicUpdate_cmek_wo(context),
+			},
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password", "cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "cloud_sql.0.credential.0.username"},
+				ResourceName:            "google_bigquery_connection.connection",
+			},
+		},
+	})
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionBasic_cmek_wo(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_sql_database_instance" "instance" {
+    name             = "tf-test-pg-database-instance%{random_suffix}"
+    database_version = "POSTGRES_11"
+    region           = "us-central1"
+    settings {
+		tier = "db-f1-micro"
+	}
+
+    deletion_protection = false
+}
+
+resource "google_sql_database" "db" {
+    instance = google_sql_database_instance.instance.name
+    name     = "db"
+}
+
+resource "google_sql_user" "user" {
+    name = "username"
+    instance = google_sql_database_instance.instance.name
+    password = "%{password}"
+}
+
+resource "google_bigquery_connection" "connection" {
+    connection_id = "tf-test-my-connection%{random_suffix}"
+    location      = "US"
+    friendly_name = "👋"
+    description   = "a riveting description"
+    cloud_sql {
+        instance_id = google_sql_database_instance.instance.connection_name
+        database    = google_sql_database.db.name
+        type        = "POSTGRES"
+        credential {
+            username = google_sql_user.user.name
+            password_wo         = google_sql_user.user.password
+            password_wo_version = "1"
+        }
+    }
+}
+`, context)
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionBasicUpdate_cmek_wo(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_sql_database_instance" "instance" {
+    name             = "tf-test-mysql-database-instance%{random_suffix}"
+    database_version = "MYSQL_5_6"
+    region           = "us-central1"
+    settings {
+		tier = "db-f1-micro"
+	}
+
+    deletion_protection = false
+}
+
+resource "google_sql_database" "db" {
+    instance = google_sql_database_instance.instance.name
+    name     = "db2"
+}
+
+resource "google_sql_user" "user" {
+    name = "username"
+    instance = google_sql_database_instance.instance.name
+    password = "%{updated_password}"
+}
+
+resource "google_bigquery_connection" "connection" {
+    connection_id = "tf-test-my-connection%{random_suffix}"
+    location      = "US"
+    friendly_name = "👋👋"
+    description   = "a very riveting description"
+    cloud_sql {
+        instance_id = google_sql_database_instance.instance.connection_name
+        database    = google_sql_database.db.name
+        type        = "MYSQL"
+        credential {
+            username = google_sql_user.user.name
+            password_wo         = google_sql_user.user.password
+            password_wo_version = "2"
         }
     }
 }

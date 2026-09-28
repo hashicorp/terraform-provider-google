@@ -1820,6 +1820,11 @@ In addition to the arguments listed above, the following computed attributes are
   CES service agent
   `service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com`.
 
+* `scopes` -
+  (Output)
+  The OAuth scopes to grant. If not specified, the default scope
+  `https://www.googleapis.com/auth/cloud-platform` is used.
+
 <a name="nested_mcp_tool_tls_config"></a>The `tls_config` block contains:
 
 * `ca_certs` -
@@ -2000,6 +2005,11 @@ In addition to the arguments listed above, the following computed attributes are
   `roles/iam.serviceAccountTokenCreator` role granted to the
   CES service agent
   `service-<PROJECT-NUMBER>@gcp-sa-ces.iam.gserviceaccount.com`.
+
+* `scopes` -
+  (Output)
+  The OAuth scopes to grant. If not specified, the default scope
+  `https://www.googleapis.com/auth/cloud-platform` is used.
 
 <a name="nested_open_api_tool_service_directory_config"></a>The `service_directory_config` block contains:
 

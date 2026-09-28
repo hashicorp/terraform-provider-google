@@ -49,7 +49,7 @@ func TestAccDataSourceRegionNetworkEndpointGroup_basic(t *testing.T) {
 func testAccDataSourceRegionNetworkEndpointGroup_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
   resource "google_compute_region_network_endpoint_group" "cloudrun_neg" {
-    name                  = "cloud-run-rneg-%{random_suffix}"
+    name                  = "tf-test-cloud-run-rneg-%{random_suffix}"
     network_endpoint_type = "SERVERLESS"
     region                = "%{region}"
     project     = "%{project}"

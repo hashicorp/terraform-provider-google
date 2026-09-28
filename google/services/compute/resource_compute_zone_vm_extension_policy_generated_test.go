@@ -61,12 +61,12 @@ func TestAccComputeZoneVmExtensionPolicy_computeZoneVmExtensionPolicyBasicExampl
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"policy_name":   "zonal-ops-agent-policy",
+		"policy_name":   "tf-test-zonal-ops-agent-policy" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"policy_name":   "zonal-ops-agent-policy",
+		"policy_name":   "tf-test-zonal-ops-agent-policy" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -117,7 +117,7 @@ func TestAccComputeZoneVmExtensionPolicy_computeZoneVmExtensionPolicyBasicExampl
 func testAccComputeZoneVmExtensionPolicy_computeZoneVmExtensionPolicyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_zone_vm_extension_policy" "ops_agent_policy" {
-  name        = "zonal-ops-agent-vme-policy-%{random_suffix}"
+  name        = "%{policy_name}"
   zone        = "us-central1-a"
 
   extension_policies {
@@ -131,7 +131,7 @@ resource "google_compute_zone_vm_extension_policy" "ops_agent_policy" {
 func testAccComputeZoneVmExtensionPolicy_computeZoneVmExtensionPolicyUpdateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_zone_vm_extension_policy" "ops_agent_policy" {
-  name        = "zonal-ops-agent-vme-policy-%{random_suffix}"
+  name        = "%{policy_name}"
   zone        = "us-central1-a"
   description = "A basic zonal VM extension policy"
   priority    = 20

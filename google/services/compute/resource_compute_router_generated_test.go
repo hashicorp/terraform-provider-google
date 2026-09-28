@@ -238,7 +238,7 @@ func TestAccComputeRouter_routerNccGwExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"hub_name":      "hub" + randomSuffix,
+		"hub_name":      "tf-test-hub" + randomSuffix,
 		"ncc_gw_name":   "tf-test-my-ncc-gw" + randomSuffix,
 		"network_name":  "tf-test-net-spoke" + randomSuffix,
 		"router_name":   "tf-test-my-router" + randomSuffix,

@@ -60,7 +60,7 @@ func TestAccNetworkConnectivityHub_networkConnectivityHubBasicExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"resource_name": "basic" + randomSuffix,
+		"resource_name": "tf-test-basic" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -100,7 +100,7 @@ func TestAccNetworkConnectivityHub_networkConnectivityHubWithExportPscExample(t 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"resource_name": "basic" + randomSuffix,
+		"resource_name": "tf-test-basic" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -138,7 +138,7 @@ func TestAccNetworkConnectivityHub_networkConnectivityHubMeshTopologyExample(t *
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"resource_name": "mesh" + randomSuffix,
+		"resource_name": "tf-test-mesh" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -178,7 +178,7 @@ func TestAccNetworkConnectivityHub_networkConnectivityHubStarTopologyExample(t *
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"resource_name": "star" + randomSuffix,
+		"resource_name": "tf-test-star" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -220,7 +220,7 @@ func TestAccNetworkConnectivityHub_networkConnectivityHubPolicyModeExample(t *te
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"resource_name": "policy" + randomSuffix,
+		"resource_name": "tf-test-policy" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

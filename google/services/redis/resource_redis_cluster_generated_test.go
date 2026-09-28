@@ -109,7 +109,7 @@ resource "google_redis_cluster" "cluster-ha-with-labels" {
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
-  region = "us-central1"
+  region = "us-west1"
   replica_count = 1
   node_type = "REDIS_SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
@@ -140,7 +140,7 @@ resource "google_redis_cluster" "cluster-ha-with-labels" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name = "%{policy_name}"
-  location = "us-central1"
+  location = "us-west1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
   network = google_compute_network.consumer_net.id
@@ -152,7 +152,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "consumer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 
@@ -209,7 +209,7 @@ resource "google_redis_cluster" "cluster-ha" {
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
-  region = "us-central1"
+  region = "us-west1"
   replica_count = 1
   node_type = "REDIS_SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
@@ -240,7 +240,7 @@ resource "google_redis_cluster" "cluster-ha" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name = "%{policy_name}"
-  location = "us-central1"
+  location = "us-west1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
   network = google_compute_network.consumer_net.id
@@ -252,7 +252,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "consumer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 
@@ -309,10 +309,10 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
-  region = "us-central1"
+  region = "us-west1"
   zone_distribution_config {
     mode = "SINGLE_ZONE"
-    zone = "us-central1-f"
+    zone = "us-west1-a"
   }
   maintenance_policy {
     weekly_maintenance_window {
@@ -334,7 +334,7 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name = "%{policy_name}"
-  location = "us-central1"
+  location = "us-west1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
   network = google_compute_network.consumer_net.id
@@ -346,7 +346,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "consumer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 
@@ -404,7 +404,7 @@ func testAccRedisCluster_redisClusterSecondaryExample(context map[string]interfa
 // Primary cluster
 resource "google_redis_cluster" "primary_cluster" {
   name          = "%{primary_cluster_name}"
-  region        = "us-east1"
+  region        = "us-west1"
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
@@ -513,7 +513,7 @@ resource "google_redis_cluster" "secondary_cluster" {
 
 resource "google_network_connectivity_service_connection_policy" "primary_cluster_region_scp" {
   name = "%{primary_cluster_policy_name}"
-  location = "us-east1"
+  location = "us-west1"
   service_class = "gcp-memorystore-redis"
   description   = "Primary cluster service connection policy"
   network = google_compute_network.consumer_net.id
@@ -525,7 +525,7 @@ resource "google_network_connectivity_service_connection_policy" "primary_cluste
 resource "google_compute_subnetwork" "primary_cluster_consumer_subnet" {
   name          = "%{primary_cluster_subnet_name}"
   ip_cidr_range = "10.0.1.0/29"
-  region        = "us-east1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 
@@ -601,7 +601,7 @@ resource "google_redis_cluster" "cluster-rdb" {
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
-  region = "us-central1"
+  region = "us-west1"
   replica_count = 0
   node_type = "REDIS_SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
@@ -639,7 +639,7 @@ resource "google_redis_cluster" "cluster-rdb" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name = "%{policy_name}"
-  location = "us-central1"
+  location = "us-west1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
   network = google_compute_network.consumer_net.id
@@ -651,7 +651,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "consumer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 
@@ -708,7 +708,7 @@ resource "google_redis_cluster" "cluster-aof" {
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
-  region = "us-central1"
+  region = "us-west1"
   replica_count = 0
   node_type = "REDIS_SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
@@ -744,7 +744,7 @@ resource "google_redis_cluster" "cluster-aof" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name = "%{policy_name}"
-  location = "us-central1"
+  location = "us-west1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
   network = google_compute_network.consumer_net.id
@@ -756,7 +756,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "consumer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 
@@ -781,7 +781,7 @@ func TestAccRedisCluster_redisClusterCmekExample(t *testing.T) {
 	context := map[string]interface{}{
 		"cluster_name":                "tf-test-cmek-cluster" + randomSuffix,
 		"deletion_protection_enabled": false,
-		"kms_key_name":                kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms_key_name":                kms.BootstrapKMSKeyInLocation(t, "us-west1").CryptoKey.Name,
 		"kms_ring_name":               "tf-test-my-key-ring" + randomSuffix,
 		"network_name":                "tf-test-my-network" + randomSuffix,
 		"policy_name":                 "tf-test-my-policy" + randomSuffix,
@@ -822,7 +822,7 @@ resource "google_redis_cluster" "cluster-cmek" {
     network = google_compute_network.consumer_net.id
   }
   kms_key = "%{kms_key_name}"
-  region = "us-central1"
+  region = "us-west1"
   deletion_protection_enabled = %{deletion_protection_enabled}
   depends_on = [
     google_network_connectivity_service_connection_policy.default
@@ -835,7 +835,7 @@ data "google_project" "project" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name = "%{policy_name}"
-  location = "us-central1"
+  location = "us-west1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
   network = google_compute_network.consumer_net.id
@@ -847,7 +847,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "consumer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 
@@ -909,7 +909,7 @@ func testAccRedisCluster_redisClusterFlexibleCaExample(context map[string]interf
 resource "google_redis_cluster" "test-cluster" {
   name           = "%{cluster_name}"
   shard_count    = 3
-  region         = "us-central1"
+  region         = "us-west1"
   
   psc_configs {
     network = google_compute_network.consumer_net.id
@@ -930,14 +930,14 @@ resource "google_redis_cluster" "test-cluster" {
 
 resource "google_privateca_ca_pool" "default" {
   name     = "%{ca_pool_name}"
-  location = "us-central1"
+  location = "us-west1"
   tier     = "ENTERPRISE"
 }
 
 resource "google_privateca_certificate_authority" "default" {
   pool                     = google_privateca_ca_pool.default.name
   certificate_authority_id = "%{ca_auth_id}"
-  location                 = "us-central1"
+  location                 = "us-west1"
   config {
     subject_config {
       subject {
@@ -972,7 +972,7 @@ resource "google_privateca_certificate_authority" "default" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name           = "%{policy_name}"
-  location       = "us-central1"
+  location       = "us-west1"
   service_class  = "gcp-memorystore-redis"
   network        = google_compute_network.consumer_net.id
   psc_config {
@@ -983,7 +983,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "consumer_subnet" {
   name          = "%{subnet_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-central1"
+  region        = "us-west1"
   network       = google_compute_network.consumer_net.id
 }
 

@@ -83,7 +83,7 @@ func TestAccDeveloperConnectInsightsConfig_developerConnectInsightsConfigBasicEx
 				ResourceName:            "google_developer_connect_insights_config.insights_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "insights_config_id", "labels", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "insights_config_id", "labels", "labels", "location", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_developer_connect_insights_config.insights_config",
@@ -182,10 +182,18 @@ resource "google_project_service" "devconnect_api" {
 }
 
 # Wait delay after enabling APIs and granting permissions
+resource "google_project_iam_member" "devconnect_apphub_viewer" {
+  project = google_project.project.project_id
+  role    = "roles/apphub.viewer"
+  member  = "serviceAccount:service-${google_project.project.number}@gcp-sa-devconnect.iam.gserviceaccount.com"
+  depends_on = [google_project_service.devconnect_api]
+}
+
 resource "time_sleep" "wait_for_propagation" {
   depends_on = [
     google_project_iam_member.apphub_permissions,
     google_project_iam_member.insights_agent,
+    google_project_iam_member.devconnect_apphub_viewer,
     google_project_service.apphub_api_service,
     google_project_service.containeranalysis_api,
     google_project_service.containerscanning_api,
@@ -262,7 +270,7 @@ func TestAccDeveloperConnectInsightsConfig_developerConnectInsightsConfigProject
 				ResourceName:            "google_developer_connect_insights_config.insights_config_projects",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "insights_config_id", "labels", "labels", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "insights_config_id", "labels", "labels", "location", "terraform_labels", "update_time"},
 			},
 			{
 				ResourceName:       "google_developer_connect_insights_config.insights_config_projects",

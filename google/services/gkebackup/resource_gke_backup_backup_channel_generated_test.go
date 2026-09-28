@@ -94,7 +94,7 @@ func testAccGKEBackupBackupChannel_gkebackupBackupchannelBasicExample(context ma
 	return acctest.Nprintf(`
 resource "google_gke_backup_backup_channel" "basic" {
   name = "%{name}"
-  location = "us-central1"
+  location = "us-east1"
   description = "Description"
   destination_project = "%{destination_project}"
   labels = { "key": "some-value" }

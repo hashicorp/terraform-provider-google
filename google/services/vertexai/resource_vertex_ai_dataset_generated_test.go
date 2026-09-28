@@ -60,7 +60,7 @@ func TestAccVertexAIDataset_vertexAiDatasetExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"display_name":  "terraform" + randomSuffix,
+		"display_name":  "tf-test-terraform" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

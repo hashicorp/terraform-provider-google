@@ -47,7 +47,7 @@ func TestAccBigQueryDatasetListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"account_name":  "bqowner" + randomSuffix,
+		"account_name":  "tf-test-bqowner" + randomSuffix,
 		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
 		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,

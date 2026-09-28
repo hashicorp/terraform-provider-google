@@ -261,6 +261,12 @@ supported is 1.`,
 					Type: schema.TypeString,
 				},
 			},
+			"nat_ips_per_endpoint": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The number of NAT IPs allocated per connected endpoint.`,
+				Default:     1,
+			},
 			"propagated_connection_limit": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -489,6 +495,12 @@ func resourceComputeServiceAttachmentCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("enable_proxy_protocol"); ok || !reflect.DeepEqual(v, enableProxyProtocolProp) {
 		obj["enableProxyProtocol"] = enableProxyProtocolProp
+	}
+	natIpsPerEndpointProp, err := expandComputeServiceAttachmentNatIpsPerEndpoint(d.Get("nat_ips_per_endpoint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("nat_ips_per_endpoint"); ok || !reflect.DeepEqual(v, natIpsPerEndpointProp) {
+		obj["natIpsPerEndpoint"] = natIpsPerEndpointProp
 	}
 	domainNamesProp, err := expandComputeServiceAttachmentDomainNames(d.Get("domain_names"), d, config)
 	if err != nil {
@@ -796,6 +808,12 @@ func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("enable_proxy_protocol"); ok || !reflect.DeepEqual(v, enableProxyProtocolProp) {
 		obj["enableProxyProtocol"] = enableProxyProtocolProp
 	}
+	natIpsPerEndpointProp, err := expandComputeServiceAttachmentNatIpsPerEndpoint(d.Get("nat_ips_per_endpoint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("nat_ips_per_endpoint"); ok || !reflect.DeepEqual(v, natIpsPerEndpointProp) {
+		obj["natIpsPerEndpoint"] = natIpsPerEndpointProp
+	}
 	consumerRejectListsProp, err := expandComputeServiceAttachmentConsumerRejectLists(d.Get("consumer_reject_lists"), d, config)
 	if err != nil {
 		return err
@@ -1070,6 +1088,23 @@ func flattenComputeServiceAttachmentEnableProxyProtocol(v interface{}, d *schema
 	return v
 }
 
+func flattenComputeServiceAttachmentNatIpsPerEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeServiceAttachmentDomainNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1196,6 +1231,10 @@ func expandComputeServiceAttachmentNatSubnets(v interface{}, d tpgresource.Terra
 }
 
 func expandComputeServiceAttachmentEnableProxyProtocol(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeServiceAttachmentNatIpsPerEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1349,6 +1388,9 @@ func ResourceComputeServiceAttachmentFlatten(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err = d.Set("enable_proxy_protocol", flattenComputeServiceAttachmentEnableProxyProtocol(res["enableProxyProtocol"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("nat_ips_per_endpoint", flattenComputeServiceAttachmentNatIpsPerEndpoint(res["natIpsPerEndpoint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err = d.Set("domain_names", flattenComputeServiceAttachmentDomainNames(res["domainNames"], d, config)); err != nil {

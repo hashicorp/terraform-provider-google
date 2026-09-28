@@ -100,7 +100,7 @@ func testAccTagsTagKey_tagKeyBasicExample(context map[string]interface{}) string
 resource "google_tags_tag_key" "key" {
 
   parent = "organizations/%{org_id}"
-  short_name = "foo%{random_suffix}"
+  short_name = "tf-test-foo%{random_suffix}"
   description = "For foo%{random_suffix} resources."
 }
 `, context)
@@ -127,13 +127,13 @@ func testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewall(t *testing.T) {
 func testAccTagsTagKey_tagKeyBasicWithPurposeGceFirewallExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "tag_network" {
-	name = "vpc-%{random_suffix}"
+	name = "tf-test-vpc-%{random_suffix}"
 	auto_create_subnetworks = false
 }
 
 resource "google_tags_tag_key" "key" {
 	  parent = "organizations/%{org_id}"
-	  short_name = "foo%{random_suffix}"
+	  short_name = "tf-test-foo%{random_suffix}"
 	  description = "For foo%{random_suffix} resources."
 	  purpose = "GCE_FIREWALL"
 	  # purpose_data expects either a selfLinkWithId (not a property of google_compute_network) or the format <project-name>/<vpc-name>.
@@ -166,7 +166,7 @@ func testAccTagsTagKey_tagKeyBasicWithPurposeDataGovernanceExample(context map[s
 	return acctest.Nprintf(`
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/%{org_id}"
-	short_name = "data-gov-%{random_suffix}"
+	short_name = "tf-test-data-gov-%{random_suffix}"
 	description = "For data governance purposes."
 	purpose = "DATA_GOVERNANCE"
 }
@@ -196,7 +196,7 @@ func testAccTagsTagKey_tagKeyBasicWithAllowedValuesRegexExample(context map[stri
 resource "google_tags_tag_key" "key" {
 
   parent = "organizations/%{org_id}"
-  short_name = "foo%{random_suffix}"
+  short_name = "tf-test-foo%{random_suffix}"
   description = "For foo%{random_suffix} resources."
   allowed_values_regex = "^[a-z]+$"
 }
@@ -239,7 +239,7 @@ func testAccTagsTagKey_basic(context map[string]interface{}) string {
 resource "google_tags_tag_key" "key" {
 
   parent = "organizations/%{org_id}"
-  short_name = "foo%{random_suffix}"
+  short_name = "tf-test-foo%{random_suffix}"
   description = "For foo%{random_suffix} resources."
 }
 `, context)
@@ -250,7 +250,7 @@ func testAccTagsTagKey_basicUpdated(context map[string]interface{}) string {
 resource "google_tags_tag_key" "key" {
 
   parent = "organizations/%{org_id}"
-  short_name = "foo%{random_suffix}"
+  short_name = "tf-test-foo%{random_suffix}"
   description = "Anything related to foo%{random_suffix}"
 }
 `, context)
@@ -292,7 +292,7 @@ func testAccTagsTagKey_basicWithAllowedValuesRegex(context map[string]interface{
 resource "google_tags_tag_key" "key" {
 
   parent = "organizations/%{org_id}"
-  short_name = "foo%{random_suffix}"
+  short_name = "tf-test-foo%{random_suffix}"
   description = "For foo%{random_suffix} resources."
   allowed_values_regex = "^[a-z]+$"
 }
@@ -304,7 +304,7 @@ func testAccTagsTagKey_basicWithAllowedValuesRegexUpdated(context map[string]int
 resource "google_tags_tag_key" "key" {
 
   parent = "organizations/%{org_id}"
-  short_name = "foo%{random_suffix}"
+  short_name = "tf-test-foo%{random_suffix}"
   description = "For foo%{random_suffix} resources."
   allowed_values_regex = ".*"
 }
@@ -373,14 +373,14 @@ func testAccTagsTagValue_tagValueBasicExample(context map[string]interface{}) st
 resource "google_tags_tag_key" "key" {
 
   parent = "organizations/%{org_id}"
-  short_name = "foobarbaz%{random_suffix}"
+  short_name = "tf-test-foobarbaz%{random_suffix}"
   description = "For foo/bar/baz resources."
 }
 
 resource "google_tags_tag_value" "value" {
 
   parent      = google_tags_tag_key.key.id
-  short_name  = "foo%{random_suffix}"
+  short_name  = "tf-test-foo%{random_suffix}"
   description = "For foo resources."
 }
 `, context)
@@ -422,14 +422,14 @@ func testAccTagsTagValue_basic(context map[string]interface{}) string {
 resource "google_tags_tag_key" "key" {
 
   parent = "organizations/%{org_id}"
-  short_name = "foobarbaz%{random_suffix}"
+  short_name = "tf-test-foobarbaz%{random_suffix}"
   description = "For foo/bar/baz resources."
 }
 
 resource "google_tags_tag_value" "value" {
 
   parent      = google_tags_tag_key.key.id
-  short_name  = "foo%{random_suffix}"
+  short_name  = "tf-test-foo%{random_suffix}"
   description = "For foo resources."
 }
 `, context)
@@ -440,14 +440,14 @@ func testAccTagsTagValue_basicUpdated(context map[string]interface{}) string {
 resource "google_tags_tag_key" "key" {
 
   parent = "organizations/%{org_id}"
-  short_name = "foobarbaz%{random_suffix}"
+  short_name = "tf-test-foobarbaz%{random_suffix}"
   description = "For foo/bar/baz resources."
 }
 
 resource "google_tags_tag_value" "value" {
 
   parent      = google_tags_tag_key.key.id
-  short_name  = "foo%{random_suffix}"
+  short_name  = "tf-test-foo%{random_suffix}"
   description = "For any foo resources."
 }
 `, context)
@@ -527,13 +527,13 @@ resource "google_project" "project" {
 
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/%{org_id}"
-	short_name = "keyname%{random_suffix}"
+	short_name = "tf-test-keyname%{random_suffix}"
 	description = "For a certain set of resources."
 }
 
 resource "google_tags_tag_value" "value" {
 	parent      = google_tags_tag_key.key.id
-	short_name  = "foo%{random_suffix}"
+	short_name  = "tf-test-foo%{random_suffix}"
 	description = "For foo%{random_suffix} resources."
 }
 
@@ -583,7 +583,7 @@ resource "google_project" "project" {
 
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/%{org_id}"
-	short_name = "keyname%{random_suffix}"
+	short_name = "tf-test-keyname%{random_suffix}"
 	description = "For a certain set of resources."
 	allowed_values_regex = "test-.*"
 }
@@ -635,13 +635,13 @@ resource "google_project" "project" {
 
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/%{org_id}"
-	short_name = "key-%{random_suffix}"
+	short_name = "tf-test-key-%{random_suffix}"
 	description = "Key for namespaced test."
 }
 
 resource "google_tags_tag_value" "value" {
 	parent      = google_tags_tag_key.key.id
-	short_name  = "val-%{random_suffix}"
+	short_name  = "tf-test-val-%{random_suffix}"
 	description = "Value for namespaced test."
 }
 
@@ -1265,7 +1265,7 @@ data "google_project" "project" {
 }
 
 resource "google_compute_instance" "vm" {
-  name         = "tagbinding-repro"
+  name         = "tf-test-tagbinding-repro%{random_suffix}"
   machine_type = "e2-small"
   zone         = "us-east4-a"
   boot_disk {
@@ -1280,7 +1280,7 @@ resource "google_compute_instance" "vm" {
 
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/${data.google_project.project.org_id}"
-	short_name = "keyname%{random_suffix}"
+	short_name = "tf-test-keyname%{random_suffix}"
 	description = "For a certain set of resources."
 
 	# Setting purpose of GCE_FIREWALL exercises creation LRO logic
@@ -1292,7 +1292,7 @@ resource "google_tags_tag_key" "key" {
 
 resource "google_tags_tag_value" "value" {
 	parent      = google_tags_tag_key.key.id
-	short_name  = "foo%{random_suffix}"
+	short_name  = "tf-test-foo%{random_suffix}"
 	description = "For foo%{random_suffix} resources."
 }
   
@@ -1338,7 +1338,7 @@ data "google_project" "project" {
 
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/${data.google_project.project.org_id}"
-	short_name = "keyname%{random_suffix}"
+	short_name = "tf-test-keyname%{random_suffix}"
 	description = "For a certain set of resources."
 	allowed_values_regex = "test-.*"
 }
@@ -1403,13 +1403,13 @@ data "google_project" "project" {
 
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/${data.google_project.project.org_id}"
-	short_name = "keyname%{random_suffix}"
+	short_name = "tf-test-keyname%{random_suffix}"
 	description = "For a certain set of resources."
 }
 
 resource "google_tags_tag_value" "value" {
 	parent      = google_tags_tag_key.key.id
-	short_name  = "foo%{random_suffix}"
+	short_name  = "tf-test-foo%{random_suffix}"
 	description = "For foo%{random_suffix} resources."
 }
 
@@ -1473,16 +1473,16 @@ data "google_project" "project" {
 }
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/%{org_id}"
-	short_name = "keyname%{random_suffix}"
+	short_name = "tf-test-keyname%{random_suffix}"
 	description = "For a certain set of resources."
 }
 resource "google_tags_tag_value" "value" {
 	parent      = google_tags_tag_key.key.id
-	short_name  = "foo%{random_suffix}"
+	short_name  = "tf-test-foo%{random_suffix}"
 	description = "For foo%{random_suffix} resources."
 }
 resource "google_compute_instance" "default" {
-	name         = "test-%{random_suffix}"
+	name         = "tf-test-%{random_suffix}"
 	machine_type = "e2-medium"
 	zone         = "us-central1-a"
   boot_disk {
@@ -1537,13 +1537,13 @@ data "google_project" "project" {
 
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/%{org_id}"
-	short_name = "keyname%{random_suffix}"
+	short_name = "tf-test-keyname%{random_suffix}"
 	description = "For a certain set of resources."
 	allowed_values_regex = "test-.*"
 }
 
 resource "google_compute_instance" "default" {
-	name         = "test-%{random_suffix}"
+	name         = "tf-test-%{random_suffix}"
 	machine_type = "e2-medium"
 	zone         = "us-central1-a"
   boot_disk {
@@ -1599,18 +1599,18 @@ data "google_project" "project" {
 
 resource "google_tags_tag_key" "key" {
 	parent = "organizations/%{org_id}"
-	short_name = "keyname%{random_suffix}"
+	short_name = "tf-test-keyname%{random_suffix}"
 	description = "For a certain set of resources."
 }
 
 resource "google_tags_tag_value" "value" {
 	parent      = google_tags_tag_key.key.id
-	short_name  = "foo%{random_suffix}"
+	short_name  = "tf-test-foo%{random_suffix}"
 	description = "For foo%{random_suffix} resources."
 }
 
 resource "google_compute_instance" "default" {
-	name         = "test-%{random_suffix}"
+	name         = "tf-test-%{random_suffix}"
 	machine_type = "e2-medium"
 	zone         = "us-central1-a"
   boot_disk {

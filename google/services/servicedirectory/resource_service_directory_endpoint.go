@@ -54,6 +54,95 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
+)
+
+// serviceDirectoryEndpointCustomizeDiff prevents recreation when Service Directory
+// canonicalizes a network's project ID to its project number. Resource Manager is
+// consulted when possible; if the lookup is unavailable, retain the existing
+// project ID/number fallback behavior.
+func serviceDirectoryEndpointCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	if !diff.HasChange("network") {
+		return nil
+	}
+
+	oldValue, newValue := diff.GetChange("network")
+	oldNetwork, oldOk := oldValue.(string)
+	newNetwork, newOk := newValue.(string)
+	if !oldOk || !newOk || oldNetwork == newNetwork {
+		return nil
+	}
+
+	oldProject, oldOk := serviceDirectoryEndpointNetworkProject(oldNetwork)
+	newProject, newOk := serviceDirectoryEndpointNetworkProject(newNetwork)
+	if !oldOk || !newOk {
+		return nil
+	}
+
+	oldNumber, oldNumberErr := tpgresource.StringToFixed64(oldProject)
+	newNumber, newNumberErr := tpgresource.StringToFixed64(newProject)
+	if (oldNumberErr == nil) == (newNumberErr == nil) {
+		return nil
+	}
+	if !ServiceDirectoryEndpointNetworkProjectIDNumberEquivalent(oldNetwork, newNetwork) {
+		return nil
+	}
+
+	projectID := oldProject
+	projectNumber := newNumber
+	if oldNumberErr == nil {
+		projectID = newProject
+		projectNumber = oldNumber
+	}
+
+	config := meta.(*transport_tpg.Config)
+	project, err := rmClient.NewClient(config, config.UserAgent).Projects.Get(projectID).Do()
+	if err == nil {
+		if project.ProjectNumber != projectNumber {
+			return nil
+		}
+	}
+
+	return diff.SetNew("network", oldNetwork)
+}
+
+func serviceDirectoryEndpointNetworkProject(network string) (string, bool) {
+	relativePath, err := tpgresource.GetRelativePath(network)
+	if err != nil {
+		return "", false
+	}
+
+	parts := strings.Split(relativePath, "/")
+	if len(parts) < 2 || parts[0] != "projects" || parts[1] == "" {
+		return "", false
+	}
+	return parts[1], true
+}
+
+func ServiceDirectoryEndpointNetworkProjectIDNumberEquivalent(oldNetwork, newNetwork string) bool {
+	oldProject, oldOk := serviceDirectoryEndpointNetworkProject(oldNetwork)
+	newProject, newOk := serviceDirectoryEndpointNetworkProject(newNetwork)
+	if !oldOk || !newOk {
+		return false
+	}
+
+	oldPath, _ := tpgresource.GetRelativePath(oldNetwork)
+	newPath, _ := tpgresource.GetRelativePath(newNetwork)
+	oldParts := strings.Split(oldPath, "/")
+	newParts := strings.Split(newPath, "/")
+	if oldProject != newProject {
+		_, oldErr := tpgresource.StringToFixed64(oldProject)
+		_, newErr := tpgresource.StringToFixed64(newProject)
+		if (oldErr == nil) == (newErr == nil) {
+			return false
+		}
+	}
+	oldParts[1] = "project"
+	newParts[1] = "project"
+	return strings.Join(oldParts, "/") == strings.Join(newParts, "/")
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -112,6 +201,11 @@ func ResourceServiceDirectoryEndpoint() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.All(
+			serviceDirectoryEndpointCustomizeDiff,
+			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+		),
+
 		Schema: map[string]*schema.Schema{
 			"endpoint_id": {
 				Type:         schema.TypeString,
@@ -144,6 +238,7 @@ Metadata that goes beyond any these limits will be rejected.`,
 			},
 			"network": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The URL to the network, such as projects/PROJECT_NUMBER/locations/global/networks/NETWORK_NAME.`,

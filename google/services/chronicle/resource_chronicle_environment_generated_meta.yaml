@@ -29,6 +29,8 @@ fields:
     - field: location
       provider_only: true
     - api_field: name
+    - api_field: instance
+      field: parallel_instance
     - api_field: retentionDuration
     - api_field: weight
     - field: deletion_policy

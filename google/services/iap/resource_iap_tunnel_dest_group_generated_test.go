@@ -60,6 +60,7 @@ func TestAccIapTunnelDestGroup_iapDestgroupExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"group_name":    "tf-test-testgroup" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -95,7 +96,7 @@ func testAccIapTunnelDestGroup_iapDestgroupExample(context map[string]interface{
 	return acctest.Nprintf(`
 resource "google_iap_tunnel_dest_group" "dest_group" {
   region = "us-central1"
-  group_name = "testgroup%{random_suffix}"
+  group_name = "%{group_name}"
   cidrs = [
     "10.1.0.0/16",
     "192.168.10.0/24",

@@ -1212,7 +1212,7 @@ resource "google_compute_security_policy" "policy" {
 	}
 
 	rule {
-		action   = "deny"
+		action   = "deny(403)"
 		priority = "1000"
 		match {
 			expr {
@@ -1278,7 +1278,7 @@ resource "google_compute_security_policy" "policy" {
 	}
 
 	rule {
-		action   = "deny"
+		action   = "deny(403)"
 		priority = "1000"
 		match {
 			expr {
@@ -1337,7 +1337,7 @@ resource "google_compute_security_policy" "policy" {
 	}
 
 	rule {
-		action   = "deny"
+		action   = "deny(403)"
 		priority = "1000"
 		match {
 			expr {
@@ -1371,7 +1371,7 @@ resource "google_compute_security_policy" "policy" {
 	}
 
 	rule {
-		action   = "deny"
+		action   = "deny(403)"
 		priority = "1000"
 		match {
 			expr {

@@ -222,6 +222,19 @@ The following arguments are supported:
   (Optional)
   If set to true, the widget will enable the create agent button.
 
+* `source_admin_display_name_enabled` -
+  (Optional)
+  Whether to show the admin-configured display name for data connectors in
+  the widget sources UI (instead of the connector kind). Opt-in; defaults
+  to false.
+
+* `search_addon_spec` -
+  (Optional)
+  SearchAddonSpec is used to disable add-ons for search. By default, if this
+  field is not specified, add-ons are enabled wherever applicable.
+  This field is only supported for search requests.
+  Structure is [documented below](#nested_ui_settings_search_addon_spec).
+
 
 <a name="nested_ui_settings_generative_answer_config"></a>The `generative_answer_config` block supports:
 
@@ -322,6 +335,23 @@ The following arguments are supported:
   (Optional)
   The template to customize how the field is displayed.
   An example value would be a string that looks like: "Price: {value}".
+
+<a name="nested_ui_settings_search_addon_spec"></a>The `search_addon_spec` block supports:
+
+* `semantic_add_on_disabled` -
+  (Optional)
+  If true, semantic add-on is disabled. Semantic add-on includes
+  embeddings and jetstream.
+
+* `kpi_personalization_add_on_disabled` -
+  (Optional)
+  If true, disables event re-ranking and personalization to optimize KPIs
+  & personalize results.
+
+* `generative_answer_add_on_disabled` -
+  (Optional)
+  If true, generative answer add-on is disabled. Generative answer
+  add-on includes natural language to filters and simple answers.
 
 <a name="nested_ui_branding"></a>The `ui_branding` block supports:
 

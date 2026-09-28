@@ -484,6 +484,11 @@ resource "google_ces_toolset" "ces_toolset_mcp_service_agent_id_token_auth_confi
     api_authentication {
         service_agent_id_token_auth_config {}
     }
+    tool_overrides {
+      tool = "my-tool"
+      name_override = "my_tool_override"
+      description_override = "A tool description override"
+    }
   }
 }
 ```
@@ -975,6 +980,11 @@ The following arguments are supported:
   https://docs.cloud.google.com/customer-engagement-ai/conversational-agents/ps/tool/open-api#openapi-injection
   for more details.
 
+* `tool_overrides` -
+  (Optional)
+  A list of tool overrides for the toolset.
+  Structure is [documented below](#nested_mcp_toolset_tool_overrides).
+
 
 <a name="nested_mcp_toolset_api_authentication"></a>The `api_authentication` block supports:
 
@@ -1117,6 +1127,20 @@ The following arguments are supported:
   (Required)
   The name of the allowed custom CA certificates. This
   can be used to disambiguate the custom CA certificates.
+
+<a name="nested_mcp_toolset_tool_overrides"></a>The `tool_overrides` block supports:
+
+* `description_override` -
+  (Optional)
+  The description override for the tool.
+
+* `name_override` -
+  (Optional)
+  The name override for the tool.
+
+* `tool` -
+  (Required)
+  The name of the tool to be overridden.
 
 <a name="nested_tool_fake_config"></a>The `tool_fake_config` block supports:
 

@@ -182,6 +182,16 @@ func ListColabNotebookExecutions(config *transport_tpg.Config,
 			if err = ResourceColabNotebookExecutionFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if location != "" {
+				if err := d.Set("location", location); err != nil {
+					return fmt.Errorf("error setting location: %w", err)
+				}
+			}
+			if project != "" {
+				if err := d.Set("project", project); err != nil {
+					return fmt.Errorf("error setting project: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/notebookExecutionJobs/{{notebook_execution_job_id}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

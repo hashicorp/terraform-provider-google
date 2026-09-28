@@ -56,6 +56,37 @@ func TestAccCloudSchedulerJob_schedulerPausedExample(t *testing.T) {
 	})
 }
 
+func TestAccCloudSchedulerJob_pausedRemovedResumes(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudSchedulerJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudSchedulerJob_schedulerPaused(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_scheduler_job.job", "paused", "true"),
+					resource.TestCheckResourceAttr("google_cloud_scheduler_job.job", "state", "PAUSED"),
+				),
+			},
+			{
+				// Removing the paused attribute must resume the job (documented default).
+				Config: testAccCloudSchedulerJob_schedulerPausedUnset(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_scheduler_job.job", "paused", "false"),
+					resource.TestCheckResourceAttr("google_cloud_scheduler_job.job", "state", "ENABLED"),
+				),
+			},
+		},
+	})
+}
+
 func TestUnitCloudSchedulerJob_LastSlashDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Old, New           string
@@ -123,6 +154,29 @@ func testAccCloudSchedulerJob_schedulerUnPaused(context map[string]interface{}) 
 	return acctest.Nprintf(`
 resource "google_cloud_scheduler_job" "job" {
   paused           = false # Has been flipped 
+  name             = "tf-test-test-job%{random_suffix}"
+  description      = "test http job with updated fields"
+  schedule         = "*/8 * * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+  region           = "us-west2"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "POST"
+    uri         = "https://example.com/ping"
+    body        = base64encode("{\"foo\":\"bar\"}")
+  }
+}
+`, context)
+}
+
+func testAccCloudSchedulerJob_schedulerPausedUnset(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_scheduler_job" "job" {
   name             = "tf-test-test-job%{random_suffix}"
   description      = "test http job with updated fields"
   schedule         = "*/8 * * * *"

@@ -720,7 +720,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "tf-test-gcf-source%{random_suffix}-${local.project}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -769,7 +769,7 @@ locals {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "tf-test-gcf-source%{random_suffix}-${local.project}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }

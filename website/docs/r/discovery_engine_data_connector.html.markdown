@@ -107,10 +107,9 @@ resource "google_discovery_engine_data_connector" "jira-with-actions" {
   collection_id                = "collection-id"
   collection_display_name      = "Jira Federated"
   data_source                  = "jira"
-  data_source_version          = 3
   params = {
     instance_uri               = "https://example.atlassian.net"
-    instance_id                = "SECRET_MANAGER_RESOURCE_NAME"
+    instance_id                = "12345678-1234-1234-1234-123456789abc"
     client_id                  = "SECRET_MANAGER_RESOURCE_NAME"
     client_secret              = "SECRET_MANAGER_RESOURCE_NAME"
     refresh_token              = "SECRET_MANAGER_RESOURCE_NAME"
@@ -147,7 +146,7 @@ resource "google_discovery_engine_data_connector" "jira-with-actions" {
   action_config {
     action_params = {
       instance_uri             = "https://example.atlassian.net"
-      instance_id              = "SECRET_MANAGER_RESOURCE_NAME"
+      instance_id              = "12345678-1234-1234-1234-123456789abc"
       client_id                = "SECRET_MANAGER_RESOURCE_NAME"
       client_secret            = "SECRET_MANAGER_RESOURCE_NAME"
       auth_type                = "OAUTH"
@@ -164,6 +163,14 @@ resource "google_discovery_engine_data_connector" "jira-with-actions" {
       "update_comment",
       "upload_attachment",
     ]
+  }
+  tag                          = "sample-tag"
+  metadata {
+    title             = "Jira Connector"
+    description       = "Jira Connector Description"
+    short_description = "Jira Connector Short Description"
+    author            = "Google"
+    note              = "Sample Note"
   }
 }
 ```
@@ -329,6 +336,15 @@ The following arguments are supported:
   (Optional)
   Indicates whether incremental syncs are paused for this connector.
 
+* `tag` -
+  (Optional)
+  User-facing, version-independent label for this connector.
+
+* `metadata` -
+  (Optional)
+  User-facing metadata for the connector.
+  Structure is [documented below](#nested_metadata).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -430,6 +446,28 @@ The following arguments are supported:
 * `port` -
   (Optional)
   Target port number accepted by the destination.
+
+<a name="nested_metadata"></a>The `metadata` block supports:
+
+* `title` -
+  (Optional)
+  Display title of the connector.
+
+* `description` -
+  (Optional)
+  Human-readable description of the connector.
+
+* `short_description` -
+  (Optional)
+  Short, subtitle-length description of the connector.
+
+* `author` -
+  (Optional)
+  The party that authored the connector, e.g. "Google" or a third-party provider name.
+
+* `note` -
+  (Optional)
+  Free-form, multi-line note about the connector's capabilities.
 
 ## Attributes Reference
 

@@ -51,7 +51,7 @@ func TestAccDataSourceComputeRegionSslCertificate(t *testing.T) {
 func testAccDataSourceComputeRegionSslCertificateConfig(certName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_ssl_certificate" "foobar" {
-  name        = "cert-test-%s"
+  name        = "tf-test-cert-%s"
   region      = "us-central1"
   description = "really descriptive"
   private_key = file("test-fixtures/test.key")

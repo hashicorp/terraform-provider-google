@@ -200,7 +200,7 @@ func TestAccBigqueryDatasetIamMember_withDatasetAccessBlockAndIgnoreChanges(t *t
 
 	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
 	saID := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	ownerSaID := fmt.Sprintf("tf-owner-%s", acctest.RandString(t, 10))
+	ownerSaID := fmt.Sprintf("tf-test-owner-%s", acctest.RandString(t, 10))
 
 	expected := map[string]interface{}{
 		"role":        "roles/viewer",

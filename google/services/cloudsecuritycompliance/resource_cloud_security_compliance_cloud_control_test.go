@@ -387,6 +387,93 @@ resource "google_cloud_security_compliance_cloud_control" "example" {
 			}
 		}
 	}
+	parameter_spec {
+		name         = "nested-oneof-parameter"
+		display_name = "Nested Oneof Parameter"
+		description  = "A parameter testing nested oneof_value and subParameters"
+		value_type   = "ONEOF"
+		is_required  = true
+		
+		default_value {
+			oneof_value {
+				name = "test-nested-oneof"
+				parameter_value {
+					oneof_value {
+						name = "inner-oneof"
+						parameter_value {
+							string_value = "nested-val"
+						}
+					}
+				}
+			}
+		}
+		
+		validation {
+			allowed_values {
+				values {
+					oneof_value {
+						name = "test-nested-oneof"
+						parameter_value {
+							oneof_value {
+								name = "inner-oneof"
+								parameter_value {
+									string_value = "nested-val"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		sub_parameters {
+			name         = "sub-nested-oneof"
+			display_name = "Sub Nested Oneof"
+			description  = "A sub-parameter for nested oneof"
+			value_type   = "ONEOF"
+			is_required  = true
+			default_value {
+				oneof_value {
+					name = "sub-test-nested-oneof"
+					parameter_value {
+						oneof_value {
+							name = "sub-inner-oneof"
+							parameter_value {
+								string_value = "sub-nested-val"
+							}
+						}
+					}
+				}
+			}
+			validation {
+				allowed_values {
+					values {
+						oneof_value {
+							name = "sub-test-nested-oneof"
+							parameter_value {
+								oneof_value {
+									name = "sub-inner-oneof"
+									parameter_value {
+										string_value = "sub-nested-val"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			sub_parameters {
+				name         = "nested-sub-param"
+				display_name = "Nested Sub Parameter"
+				description  = "Testing sub_parameters within sub_parameters"
+				value_type   = "STRING"
+				is_required  = true
+				default_value {
+					string_value = "nested-sub-val"
+				}
+			}
+		}
+	}
 }
 `, context)
 }
@@ -753,6 +840,94 @@ resource "google_cloud_security_compliance_cloud_control" "example" {
               }
             }
           }
+        }
+      }
+    }
+  }
+
+  parameter_spec {
+    name         = "nested-oneof-parameter"
+    display_name = "Updated Nested Oneof Parameter"
+    description  = "An updated parameter testing nested oneof_value and subParameters"
+    value_type   = "ONEOF"
+    is_required  = true
+
+    default_value {
+      oneof_value {
+        name = "updated-test-nested-oneof"
+        parameter_value {
+          oneof_value {
+            name = "updated-inner-oneof"
+            parameter_value {
+              string_value = "updated-nested-val"
+            }
+          }
+        }
+      }
+    }
+
+    validation {
+      allowed_values {
+        values {
+          oneof_value {
+            name = "updated-test-nested-oneof"
+            parameter_value {
+              oneof_value {
+                name = "updated-inner-oneof"
+                parameter_value {
+                  string_value = "updated-nested-val"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    sub_parameters {
+      name         = "sub-nested-oneof"
+      display_name = "Updated Sub Nested Oneof"
+      description  = "An updated sub-parameter for nested oneof"
+      value_type   = "ONEOF"
+      is_required  = true
+      default_value {
+        oneof_value {
+          name = "updated-sub-test-nested-oneof"
+          parameter_value {
+            oneof_value {
+              name = "updated-sub-inner-oneof"
+              parameter_value {
+                string_value = "updated-sub-nested-val"
+              }
+            }
+          }
+        }
+      }
+      validation {
+        allowed_values {
+          values {
+            oneof_value {
+              name = "updated-sub-test-nested-oneof"
+              parameter_value {
+                oneof_value {
+                  name = "updated-sub-inner-oneof"
+                  parameter_value {
+                    string_value = "updated-sub-nested-val"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      sub_parameters {
+        name         = "nested-sub-param"
+        display_name = "Updated Nested Sub Parameter"
+        description  = "Updated testing sub_parameters within sub_parameters"
+        value_type   = "STRING"
+        is_required  = true
+        default_value {
+          string_value = "updated-nested-sub-val"
         }
       }
     }

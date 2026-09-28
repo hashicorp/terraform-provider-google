@@ -169,6 +169,16 @@ func ListSQLDatabases(config *transport_tpg.Config,
 			if err = ResourceSQLDatabaseFlatten(d, config, res, config, project, userAgent, billingProject, url, headers); err != nil {
 				return err
 			}
+			if instance != "" {
+				if err := d.Set("instance", instance); err != nil {
+					return fmt.Errorf("error setting instance: %w", err)
+				}
+			}
+			if project != "" {
+				if err := d.Set("project", project); err != nil {
+					return fmt.Errorf("error setting project: %w", err)
+				}
+			}
 			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 			if err != nil {
 				return fmt.Errorf("error constructing id: %w", err)

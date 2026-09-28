@@ -61,6 +61,7 @@ func TestAccVmwareengineNetwork_vmwareEngineNetworkStandardExample(t *testing.T)
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"network_name":  "tf-test-standard-nw" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -91,7 +92,7 @@ func TestAccVmwareengineNetwork_vmwareEngineNetworkStandardExample(t *testing.T)
 func testAccVmwareengineNetwork_vmwareEngineNetworkStandardExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vmwareengine_network" "vmw-engine-network" {
-    name              = "standard-nw"
+    name              = "%{network_name}"
     location          = "global" # Standard network needs to be global
     type              = "STANDARD"
     description       = "VMwareEngine standard network sample"

@@ -67,19 +67,19 @@ func TestAccCloudRunV2WorkerPool_vpcAccess_basic(t *testing.T) {
 func testAccCloudRunV2WorkerPool_vpcAccess_basicConfig(ctx map[string]interface{}) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "primary" {
-  name                    = "tf-crwp-vpc-%[1]s"
+  name                    = "tf-test-crwp-vpc-%[1]s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "primary" {
-  name          = "tf-crwp-subnet-%[1]s"
+  name          = "tf-test-crwp-subnet-%[1]s"
   ip_cidr_range = "10.0.0.0/16"
   region        = "%[2]s"
   network       = google_compute_network.primary.id
 }
 
 resource "google_vpc_access_connector" "primary" {
-  name          = "tf-crwp-conn-%[1]s"
+  name          = "tf-test-crwp-c-%[1]s"
   region        = "%[2]s"
   network       = google_compute_network.primary.name
   ip_cidr_range = "10.8.0.0/28"
@@ -90,7 +90,7 @@ resource "google_vpc_access_connector" "primary" {
 }
 
 resource "google_cloud_run_v2_worker_pool" "primary" {
-  name                = "tf-crwp-%[1]s"
+  name                = "tf-test-crwp-%[1]s"
   location            = "%[2]s"
   deletion_protection = false
 
@@ -1516,7 +1516,7 @@ data "google_project" "project" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${data.google_project.project.project_id}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "tf-test-gcf-source%{random_suffix}-${data.google_project.project.project_id}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -1581,7 +1581,7 @@ data "google_project" "project" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  name     = "${data.google_project.project.project_id}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  name     = "tf-test-gcf-source%{random_suffix}-${data.google_project.project.project_id}"  # Every bucket name must be globally unique
   location = "US"
   uniform_bucket_level_access = true
 }
@@ -1926,6 +1926,76 @@ resource "google_cloud_run_v2_service" "default" {
 `, context)
 }
 
+func TestAccCloudRunV2Service_cloudrunv2ServiceSshUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceSsh(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceSshUpdate(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceSsh(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-ssh-service%{random_suffix}"
+  location = "us-central1"
+  deletion_protection = false
+  ingress = "INGRESS_TRAFFIC_ALL"
+  ssh_enabled = true
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceSshUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-ssh-service%{random_suffix}"
+  location = "us-central1"
+  deletion_protection = false
+  ingress = "INGRESS_TRAFFIC_ALL"
+  ssh_enabled = false
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+`, context)
+}
+
 // TestAccCloudRunV2Service_cloudrunv2ServiceMaxInstanceCountNoPermadiff is a regression test for
 // https://github.com/GoogleCloudPlatform/magic-modules/pull/18394.
 // When template.scaling.max_instance_count is not set, the API returns a computed default value.
@@ -2026,6 +2096,163 @@ resource "google_cloud_run_v2_service" "default" {
           memory = "1Gi"
         }
       }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccCloudRunV2Service_cloudrunv2ServiceWorkloadIdentityConfigUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWorkloadIdentityConfig_step1(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.containers.#", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "deletion_protection", "launch_stage"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWorkloadIdentityConfig_step2(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.#", "1"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.0.identity", "//spiffe.example.com/ns/default/sa/test"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.0.identity_type", "IDENTITY_TYPE_WORKLOAD_IDENTITY"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.0.identity_certificate_enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "deletion_protection", "launch_stage"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWorkloadIdentityConfig_step3(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.#", "1"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.0.identity", "//spiffe.example.com/ns/default/sa/updated"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.0.identity_type", "IDENTITY_TYPE_WORKLOAD_IDENTITY"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.0.identity_certificate_enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "deletion_protection", "launch_stage"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWorkloadIdentityConfig_step4(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.#", "1"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.0.identity", ""),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.0.identity_type", "IDENTITY_TYPE_SERVICE_ACCOUNT"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "template.0.workload_identity_config.0.identity_certificate_enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "deletion_protection", "launch_stage"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWorkloadIdentityConfig_step1(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name                = "tf-test-cloudrun-service%{random_suffix}"
+  location            = "us-central1"
+  deletion_protection = false
+  ingress             = "INGRESS_TRAFFIC_ALL"
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWorkloadIdentityConfig_step2(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name                = "tf-test-cloudrun-service%{random_suffix}"
+  location            = "us-central1"
+  deletion_protection = false
+  ingress             = "INGRESS_TRAFFIC_ALL"
+  launch_stage        = "ALPHA"
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+    workload_identity_config {
+      identity                     = "//spiffe.example.com/ns/default/sa/test"
+      identity_type                = "IDENTITY_TYPE_WORKLOAD_IDENTITY"
+      identity_certificate_enabled = false
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWorkloadIdentityConfig_step3(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name                = "tf-test-cloudrun-service%{random_suffix}"
+  location            = "us-central1"
+  deletion_protection = false
+  ingress             = "INGRESS_TRAFFIC_ALL"
+  launch_stage        = "ALPHA"
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+    workload_identity_config {
+      identity                     = "//spiffe.example.com/ns/default/sa/updated"
+      identity_type                = "IDENTITY_TYPE_WORKLOAD_IDENTITY"
+      identity_certificate_enabled = false
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWorkloadIdentityConfig_step4(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name                = "tf-test-cloudrun-service%{random_suffix}"
+  location            = "us-central1"
+  deletion_protection = false
+  ingress             = "INGRESS_TRAFFIC_ALL"
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+    workload_identity_config {
+      identity_type                = "IDENTITY_TYPE_SERVICE_ACCOUNT"
+      identity_certificate_enabled = false
     }
   }
 }

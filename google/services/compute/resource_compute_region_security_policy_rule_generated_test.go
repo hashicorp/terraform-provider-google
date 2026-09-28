@@ -60,7 +60,7 @@ func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleBasicExample
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"sec_policy_name": "policyruletest" + randomSuffix,
+		"sec_policy_name": "tf-test-policyruletest" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}
 
@@ -114,7 +114,7 @@ func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleMultipleRule
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"sec_policy_name": "policywithmultiplerules" + randomSuffix,
+		"sec_policy_name": "tf-test-policywithmultiplerules" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}
 
@@ -183,7 +183,7 @@ func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleDefaultRuleE
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"sec_policy_name": "policywithdefaultrule" + randomSuffix,
+		"sec_policy_name": "tf-test-policywithdefaultrule" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}
 
@@ -251,7 +251,7 @@ func TestAccComputeRegionSecurityPolicyRule_regionSecurityPolicyRuleWithPreconfi
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"sec_policy_name": "policyruletest" + randomSuffix,
+		"sec_policy_name": "tf-test-policyruletest" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}
 

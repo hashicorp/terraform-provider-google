@@ -140,6 +140,7 @@ resource "google_ces_example" "my-example" {
             image {
                 mime_type = "image/png"
                 data = base64encode("This is some fake image binary data.")
+                alt_text = "alt text"
             }
         }
         chunks {
@@ -269,6 +270,11 @@ The following arguments are supported:
   agent.
   Structure is [documented below](#nested_messages_chunks_agent_transfer).
 
+* `blob` -
+  (Optional)
+  Represents a blob input or output in the conversation.
+  Structure is [documented below](#nested_messages_chunks_blob).
+
 * `image` -
   (Optional)
   Represents an image input or output in the conversation.
@@ -306,7 +312,21 @@ The following arguments are supported:
   handle the conversation from this point forward.
   Format: `projects/{project}/locations/{location}/apps/{app}/agents/{agent}`
 
+<a name="nested_messages_chunks_blob"></a>The `blob` block supports:
+
+* `data` -
+  (Required)
+  Raw bytes of the blob.
+
+* `mime_type` -
+  (Required)
+  The IANA standard MIME type of the source data.
+
 <a name="nested_messages_chunks_image"></a>The `image` block supports:
+
+* `alt_text` -
+  (Optional)
+  The alternative text for the image.
 
 * `data` -
   (Required)

@@ -144,6 +144,10 @@ The following arguments are supported:
   A list of consumer projects that are rejected from connecting to this server.
   Structure is [documented below](#nested_internal_config_consumer_reject_list).
 
+* `service_attachment` -
+  (Output)
+  The Private Service Connect service attachment URI for the SFTP server.
+
 
 <a name="nested_internal_config_consumer_accept_list"></a>The `consumer_accept_list` block supports:
 
@@ -167,11 +171,21 @@ The following arguments are supported:
   (Optional)
   A list of allowed IPv4 or IPv6 CIDR block ranges that can connect to this server.
 
+* `ip_address` -
+  (Output)
+  The public IP address of the external load balancer for the SFTP server.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/servers/{{server_id}}`
+
+* `service_agent` -
+  The email address of the service agent associated with the SFTP server.
+
+* `state` -
+  The operational lifecycle state of the SFTP server.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

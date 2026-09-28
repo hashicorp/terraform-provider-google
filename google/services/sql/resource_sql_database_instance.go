@@ -209,12 +209,9 @@ func diskSizeCutomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta inte
 		return nil
 	}
 
-	// If we are here, we are trying to shrink the disk with auto resize disabled and no ignore changes on disk size.
-	// This will force a new resource.
-	if err := d.ForceNew(key); err != nil {
-		return err
-	}
-
+	// If we are here, we are shrinking the disk with auto resize disabled. Keep the diff so
+	// the update performs an in-place storage shrink (Instances.PerformDiskShrink) rather than
+	// recreating the instance.
 	return nil
 }
 
@@ -579,7 +576,7 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Computed:    true,
-							Description: `The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. The minimum value is 10GB for PD_SSD, PD_HDD and 20GB for HYPERDISK_BALANCED.`,
+							Description: `The size of data disk, in GB. The size of a running instance can be increased, or reduced when disk_autoresize is disabled (this triggers an in-place storage shrink, which restarts the instance). The minimum value is 10GB for PD_SSD, PD_HDD and 20GB for HYPERDISK_BALANCED.`,
 						},
 						"disk_type": {
 							Type:             schema.TypeString,
@@ -1158,6 +1155,13 @@ API (for read pools, effective_availability_type may differ from availability_ty
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"encryption_confidential_mode": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `Enables Confidential Mode on Hyperdisk storage for enhanced security. Only supported on Zonal C4A PG and MySQL instances.`,
 			},
 			"root_password": {
 				Type:          schema.TypeString,
@@ -1781,9 +1785,16 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	if k, ok := d.GetOk("encryption_key_name"); ok {
-		instance.DiskEncryptionConfiguration = &sqladmin.DiskEncryptionConfiguration{
-			KmsKeyName: k.(string),
+		if instance.DiskEncryptionConfiguration == nil {
+			instance.DiskEncryptionConfiguration = &sqladmin.DiskEncryptionConfiguration{}
 		}
+		instance.DiskEncryptionConfiguration.KmsKeyName = k.(string)
+	}
+	if v, ok := d.GetOk("encryption_confidential_mode"); ok {
+		if instance.DiskEncryptionConfiguration == nil {
+			instance.DiskEncryptionConfiguration = &sqladmin.DiskEncryptionConfiguration{}
+		}
+		instance.DiskEncryptionConfiguration.ConfidentialMode = v.(bool)
 	}
 
 	var patchData *sqladmin.DatabaseInstance
@@ -2504,6 +2515,9 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 		if err := d.Set("encryption_key_name", instance.DiskEncryptionConfiguration.KmsKeyName); err != nil {
 			return fmt.Errorf("Error setting encryption_key_name: %s", err)
 		}
+		if err := d.Set("encryption_confidential_mode", instance.DiskEncryptionConfiguration.ConfidentialMode); err != nil {
+			return fmt.Errorf("Error setting encryption_confidential_mode: %s", err)
+		}
 	}
 
 	if err := d.Set("replica_configuration", flattenReplicaConfiguration(instance.ReplicaConfiguration, d)); err != nil {
@@ -2904,17 +2918,17 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		Settings: expandSqlDatabaseInstanceSettings(desiredSetting.([]interface{}), databaseVersion),
 	}
 
+	// A disk_size decrease is a storage shrink, which is carried out by the dedicated
+	// Instances.PerformDiskShrink operation below rather than by the settings update. For a
+	// shrink, keep the current (larger) size on the update call so disk size is unchanged
+	// there, and record that a shrink must be performed. Increases are already applied via
+	// the expanded settings (DataDiskSizeGb) on the update call.
+	diskShrink := false
 	if d.HasChange("settings.0.disk_size") {
-		autoResize := true
-		_, autoResizeI := d.GetChange("settings.0.disk_autoresize")
-		if autoResizeI != nil {
-			autoResize = autoResizeI.(bool)
-		}
 		oldDiskSizeI, newDiskSizeI := d.GetChange("settings.0.disk_size")
-		if !autoResize || newDiskSizeI.(int) > oldDiskSizeI.(int) {
-			// If auto resize is not enabled - set the disk size as requested, even if it's a decrease - let it fail.
-			// Otherwise, allow increasing even if auto resize is enabled.
-			instance.Settings.DataDiskSizeGb = int64(newDiskSizeI.(int))
+		if newDiskSizeI.(int) < oldDiskSizeI.(int) {
+			diskShrink = true
+			instance.Settings.DataDiskSizeGb = int64(oldDiskSizeI.(int))
 		}
 	}
 
@@ -2994,6 +3008,51 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 	err = SqlAdminOperationWaitTime(config, op, project, "Update Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
+	}
+
+	// Perform an in-place storage shrink if disk_size was reduced. This is a dedicated,
+	// disruptive operation (the instance restarts) and is run after the settings update.
+	if diskShrink {
+		name := d.Get("name").(string)
+		targetSizeGb := int64(d.Get("settings.0.disk_size").(int))
+
+		// Pre-flight: the smallest size an instance can shrink to depends on its current
+		// storage usage. Fetch that minimum and surface a clear error up front instead of
+		// letting the shrink operation start and then fail.
+		var shrinkConfig *sqladmin.SqlInstancesGetDiskShrinkConfigResponse
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				shrinkConfig, rerr = NewClient(config, userAgent).Projects.Instances.GetDiskShrinkConfig(project, name).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
+		if err != nil {
+			return fmt.Errorf("Error, failed to get storage shrink config for %s: %s", name, err)
+		}
+		if targetSizeGb < shrinkConfig.MinimalTargetSizeGb {
+			return fmt.Errorf("Error, cannot shrink storage of %s to %d GB: the minimum size this instance can currently shrink to is %d GB", name, targetSizeGb, shrinkConfig.MinimalTargetSizeGb)
+		}
+
+		shrinkContext := &sqladmin.PerformDiskShrinkContext{
+			TargetSizeGb: targetSizeGb,
+		}
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = NewClient(config, userAgent).Projects.Instances.PerformDiskShrink(project, name, shrinkContext).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
+		if err != nil {
+			return fmt.Errorf("Error, failed to perform storage shrink for %s: %s", name, err)
+		}
+		err = SqlAdminOperationWaitTime(config, op, project, "Perform Disk Shrink", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
 	}
 
 	// Perform a backup restore if the backup context exists and has changed

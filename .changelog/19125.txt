@@ -1,0 +1,6 @@
+```release-note:enhancement
+storageftp: added `service_agent`, `external_config.ip_address`, `internal_config.service_attachment`, and `state` to `google_storage_ftp_server` resource
+```
+```release-note:enhancement
+storageftp: added `state` and `username` fields and increased `user_credentials` max items from 1 to 10 in `google_storage_ftp_user` resource
+```

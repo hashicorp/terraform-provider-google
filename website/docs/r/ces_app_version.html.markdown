@@ -301,6 +301,15 @@ In addition to the arguments listed above, the following computed attributes are
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
 
+* `proactive_execution_enabled` -
+  (Output)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
+
 * `python_code` -
   (Output)
   The python code to execute for the callback.
@@ -315,6 +324,15 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
+
+* `proactive_execution_enabled` -
+  (Output)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
 
 * `python_code` -
   (Output)
@@ -331,6 +349,15 @@ In addition to the arguments listed above, the following computed attributes are
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
 
+* `proactive_execution_enabled` -
+  (Output)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
+
 * `python_code` -
   (Output)
   The python code to execute for the callback.
@@ -345,6 +372,15 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
+
+* `proactive_execution_enabled` -
+  (Output)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
 
 * `python_code` -
   (Output)
@@ -361,6 +397,15 @@ In addition to the arguments listed above, the following computed attributes are
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
 
+* `proactive_execution_enabled` -
+  (Output)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
+
 * `python_code` -
   (Output)
   The python code to execute for the callback.
@@ -375,6 +420,15 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
+
+* `proactive_execution_enabled` -
+  (Output)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
 
 * `python_code` -
   (Output)
@@ -1622,6 +1676,15 @@ In addition to the arguments listed above, the following computed attributes are
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
 
+* `proactive_execution_enabled` -
+  (Output)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
+
 * `python_code` -
   (Output)
   The python code to execute for the callback.
@@ -1636,6 +1699,15 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
+
+* `proactive_execution_enabled` -
+  (Output)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
 
 * `python_code` -
   (Output)
@@ -1652,6 +1724,15 @@ In addition to the arguments listed above, the following computed attributes are
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
 
+* `proactive_execution_enabled` -
+  (Output)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
+
 * `python_code` -
   (Output)
   The python code to execute for the callback.
@@ -1666,6 +1747,15 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Whether the callback is disabled. Disabled callbacks are ignored by the
   agent.
+
+* `proactive_execution_enabled` -
+  (Output)
+  If enabled, the callback will also be executed on intermediate model
+  outputs. This setting only affects after model callback.
+  **ENABLE WITH CAUTION**. Typically after model callback only needs to be
+  executed after receiving all model responses. Enabling proactive execution
+  may have negative implication on the execution cost and latency, and
+  should only be enabled in rare situations.
 
 * `python_code` -
   (Output)

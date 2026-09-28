@@ -36,7 +36,6 @@ import (
 // can exist, they need to be run serially. See AccessPolicy for the test runner.
 
 func testAccAccessContextManagerGcpUserAccessBinding_basicTest(t *testing.T) {
-	t.Parallel()
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
@@ -221,7 +220,6 @@ resource "google_access_context_manager_gcp_user_access_binding" "gcp_user_acces
         google_access_context_manager_access_level.tf_test_access_level_id_for_user_access_binding%{random_suffix}.name,
       ]
       session_settings {
-        max_inactivity = "400s"
         session_length = "3600s"
         session_length_enabled = true
         session_reauth_method = "LOGIN"
@@ -271,7 +269,6 @@ func testAccCheckAccessContextManagerGcpUserAccessBindingDestroyProducer(t *test
 }
 
 func testAccAccessContextManagerGcpUserAccessBinding_principalTest(t *testing.T) {
-	t.Parallel()
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),

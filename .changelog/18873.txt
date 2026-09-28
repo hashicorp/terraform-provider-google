@@ -1,0 +1,15 @@
+```release-note:new-list-resource
+`google_gkebackup_backup_channel`
+```
+
+```release-note:new-list-resource
+`google_gkebackup_backup_plan`
+```
+
+```release-note:new-list-resource
+`google_gkebackup_restore_channel`
+```
+
+```release-note:new-list-resource
+`google_gkebackup_restore_plan`
+```

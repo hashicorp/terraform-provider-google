@@ -196,6 +196,11 @@ The following arguments are supported:
   Optional. Suggested summary.
   Structure is [documented below](#nested_summarization_context_few_shot_examples_output_summary_suggestion).
 
+* `tool_call_info` -
+  (Optional)
+  List of request and response for tool calls executed.
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_output_tool_call_info).
+
 
 <a name="nested_summarization_context_few_shot_examples_output_summary_suggestion"></a>The `summary_suggestion` block supports:
 
@@ -214,6 +219,51 @@ The following arguments are supported:
 * `summary` -
   (Required)
   Required. Summary text for the section.
+
+<a name="nested_summarization_context_few_shot_examples_output_tool_call_info"></a>The `tool_call_info` block supports:
+
+* `tool_call` -
+  (Required)
+  Request for a tool call.
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_output_tool_call_info_tool_call).
+
+* `tool_call_result` -
+  (Required)
+  Response for a tool call.
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_output_tool_call_info_tool_call_result).
+
+
+<a name="nested_summarization_context_few_shot_examples_output_tool_call_info_tool_call"></a>The `tool_call` block supports:
+
+* `tool` -
+  (Optional)
+  The tool associated with this call.
+
+* `action` -
+  (Optional)
+  The name of the tool's action associated with this call.
+
+<a name="nested_summarization_context_few_shot_examples_output_tool_call_info_tool_call_result"></a>The `tool_call_result` block supports:
+
+* `action` -
+  (Optional)
+  The name of the tool's action associated with this call.
+
+* `error` -
+  (Optional)
+  An error produced by the tool call.
+  Structure is [documented below](#nested_summarization_context_few_shot_examples_output_tool_call_info_tool_call_result_error).
+
+
+<a name="nested_summarization_context_few_shot_examples_output_tool_call_info_tool_call_result_error"></a>The `error` block supports:
+
+* `message` -
+  (Optional)
+  The error message of the function.
+
+* `retryable` -
+  (Optional)
+  Specifies whether the tool call is retryable.
 
 <a name="nested_summarization_context_few_shot_examples_summarization_section_list"></a>The `summarization_section_list` block supports:
 

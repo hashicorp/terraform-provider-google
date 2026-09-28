@@ -17,7 +17,15 @@ fields:
     - api_field: description
     - api_field: diskEncryptionKey.kmsKeyName
     - api_field: diskEncryptionKey.rawKey
+    - api_field: diskEncryptionKey.rawKey
+      field: disk_encryption_key.raw_key_wo
+    - field: disk_encryption_key.raw_key_wo_version
+      provider_only: true
     - api_field: diskEncryptionKey.rsaEncryptedKey
+    - api_field: diskEncryptionKey.rsaEncryptedKey
+      field: disk_encryption_key.rsa_encrypted_key_wo
+    - field: disk_encryption_key.rsa_encrypted_key_wo_version
+      provider_only: true
     - api_field: diskEncryptionKey.sha256
     - api_field: id
       field: disk_id

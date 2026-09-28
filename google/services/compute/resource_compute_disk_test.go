@@ -1150,7 +1150,7 @@ func TestAccComputeDisk_createSnapshotBeforeDestroy(t *testing.T) {
 	var disk3 map[string]interface{}
 	context := map[string]interface{}{
 		"disk_name1":        fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10)),
-		"disk_name2":        fmt.Sprintf("test-%s", acctest.RandString(t, 44)), //this is over the snapshot character creation limit of 48
+		"disk_name2":        fmt.Sprintf("tf-test-%s", acctest.RandString(t, 41)), //this is over the snapshot character creation limit of 48
 		"disk_name3":        fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10)),
 		"snapshot_prefix":   fmt.Sprintf("tf-test-snapshot-%s", acctest.RandString(t, 10)),
 		"kms_key_self_link": kms.BootstrapKMSKey(t).CryptoKey.Name,
@@ -2125,12 +2125,12 @@ func testAccComputeDisk_resourceManagerTags(context map[string]interface{}) stri
 	return acctest.Nprintf(`
 resource "google_tags_tag_key" "tag_key" {
   parent = "projects/%{project_id}"
-  short_name = "test-%{random_suffix}"
+  short_name = "tf-test-%{random_suffix}"
 }
 
 resource "google_tags_tag_value" "tag_value" {
   parent = "tagKeys/${google_tags_tag_key.tag_key.name}"
-  short_name = "name-%{random_suffix}"
+  short_name = "tf-test-name-%{random_suffix}"
 }
 
 resource "google_compute_disk" "foobar" {

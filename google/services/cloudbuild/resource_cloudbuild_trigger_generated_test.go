@@ -544,7 +544,8 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerManualBitbucketServerExample(t *t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
+		"cloudbuild_trigger_name": "tf-test-terraform-manual-bbs-trigger" + randomSuffix,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -574,7 +575,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerManualBitbucketServerExample(t *t
 func testAccCloudBuildTrigger_cloudbuildTriggerManualBitbucketServerExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "manual-bitbucket-trigger" {
-  name        = "terraform-manual-bbs-trigger"
+  name        = "%{cloudbuild_trigger_name}"
 
   source_to_build {
     uri       = "https://bbs.com/scm/stag/test-repo.git"
@@ -674,6 +675,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPushExample(t *tes
 
 	context := map[string]interface{}{
 		"cloudbuild_trigger_name": "tf-test-bbs-push-trigger" + randomSuffix,
+		"trigger_name":            "tf-test-bbs-push-trigger" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}
 
@@ -704,7 +706,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPushExample(t *tes
 func testAccCloudBuildTrigger_cloudbuildTriggerBitbucketServerPushExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "bbs-push-trigger" {
-  name        = "bbs-push-trigger"
+  name        = "%{trigger_name}"
   location    = "us-central1"
 
   bitbucket_server_trigger_config {

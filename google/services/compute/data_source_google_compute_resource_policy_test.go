@@ -80,7 +80,7 @@ func testAccCheckDataSourceComputeResourcePolicyDestroy(t *testing.T, name strin
 func testAccDataSourceComputeResourcePolicyConfig(rsName, dsName, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_resource_policy" "%s" {
-  name   = "policy-%s"
+  name   = "tf-test-policy-%s"
   region = "us-central1"
   snapshot_schedule_policy {
     schedule {

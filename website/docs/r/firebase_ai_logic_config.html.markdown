@@ -126,20 +126,6 @@ resource "google_project_service" "ailogic" {
   service = "firebasevertexai.googleapis.com"
 }
 
-resource "google_apikeys_key" "gemini" {
-  provider  = google-beta
-  project  = google_project.project.project_id
-
-  name         = "gemini-api-key"
-  display_name = "Gemini Developer API key"
-
-  restrictions {
-    api_targets {
-      service = "generativelanguage.googleapis.com"
-    }
-  }
-}
-
 # It takes a while for permissions to propagate
 # If your Terraform setup has a retry mechanism, this wait is unnecessary
 resource "time_sleep" "wait_30s" {
@@ -155,10 +141,6 @@ resource "google_firebase_ai_logic_config" "default" {
   provider  = google-beta
   project   = google_firebase_project.default.project
   location  = "global"
-
-  generative_language_config {
-    api_key = google_apikeys_key.gemini.key_string
-  }
 
   telemetry_config {
     mode = "ALL"
@@ -180,12 +162,15 @@ The following arguments are supported:
 
 
 * `generative_language_config` -
-  (Optional)
+  (Optional, Deprecated)
   Configuration for using the Gemini Developer API via Firebase AI Logic.
-  When using the Gemini Developer API via Firebase AI Logic, a separate Gemini
-  API key is stored in this configuration *on the server* so that you do
-  **not** add your Gemini API key directly into your app's codebase.
+  Firebase AI Logic now uses a Google-managed service account to authenticate
+  requests to the Gemini Developer API and no longer requires an API key.
+  Values provided here may be silently ignored on input, and may be omitted in
+  responses.
   Structure is [documented below](#nested_generative_language_config).
+
+  ~> **Warning:** `generative_language_config` is deprecated and will be removed in a future major release. Firebase AI Logic now uses a Google-managed service account to authenticate requests to the Gemini Developer API and no longer requires an API key.
 
 * `telemetry_config` -
   (Optional)
@@ -217,21 +202,17 @@ The following arguments are supported:
 <a name="nested_generative_language_config"></a>The `generative_language_config` block supports:
 
 * `api_key` -
-  (Optional)
-  The value of the API key. The API key must have
-  `generativelanguage.googleapis.com` in its "API restrictions" allowlist.
-  Note that this API is sometimes called the *Generative Language API* in
-  the Google Cloud console.
-  Do **not** add this Gemini API key into your app's codebase
+  (Optional, Deprecated)
+  The value of the API key. Firebase AI Logic no longer requires API key
+  material; values provided here may be silently ignored on input.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+  ~> **Warning:** `generative_language_config.api_key` is deprecated and will be removed in a future major release. Firebase AI Logic now uses a Google-managed service account to authenticate requests to the Gemini Developer API and no longer requires an API key.
 
 * `api_key_wo` -
   (Optional, Write-Only)
-  The value of the API key. The API key must have
-  `generativelanguage.googleapis.com` in its "API restrictions" allowlist.
-  Note that this API is sometimes called the *Generative Language API* in
-  the Google Cloud console.
-  Do **not** add this Gemini API key into your app's codebase
+  The value of the API key. Firebase AI Logic no longer requires API key
+  material; values provided here may be silently ignored on input.
   **Note**: This property is write-only and will not be read from the API.
 
   ~> **Note:** One of `api_key` or `api_key_wo` can only be set.

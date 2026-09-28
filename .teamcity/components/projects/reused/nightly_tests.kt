@@ -20,10 +20,8 @@ import generated.SweepersListBeta
 import generated.SweepersListGa
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.BuildTypeSettings
-import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.Project
-import jetbrains.buildServer.configs.kotlin.triggers.finishBuildTrigger
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import replaceCharsId
 
@@ -69,7 +67,9 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
             }
         }
     }
-    compositeConfig.addTrigger(cron)
+    if (cron.nightlyTestsEnabled) {
+        compositeConfig.addTrigger(cron)
+    }
 
     // Create build config for sweeping the nightly test project
     var sweepersList: Map<String,Map<String,String>>
@@ -81,21 +81,6 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
     }
     // We still allow locks in the service sweeper build configuration for adhoc triggers of services
     val serviceSweeperConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperName, sweepersList, projectId, vcsRoot, sharedResources, config)
-    serviceSweeperConfig.triggers {
-        finishBuildTrigger {
-            buildType = "${DslContext.projectId}_${compositeId}"
-            branchFilter = "+:${cron.branch}"
-            successfulOnly = false
-        }
-    }
-
-    // Add snapshot dependency on the composite config to run after tests finish
-    serviceSweeperConfig.dependencies {
-        snapshot(compositeConfig) {
-            onDependencyFailure = FailureAction.IGNORE
-            onDependencyCancel = FailureAction.IGNORE
-        }
-    }
 
     return Project {
         id(projectId)

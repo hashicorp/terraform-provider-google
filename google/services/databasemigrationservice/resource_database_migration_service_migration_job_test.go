@@ -96,7 +96,7 @@ resource "google_sql_user" "source_sqldb_user" {
 resource "google_database_migration_service_connection_profile" "source_cp" {
   location              = "us-central1"
   connection_profile_id = "tf-test-source-cp%{random_suffix}"
-  display_name          = "tf-test-source-cp%{random_suffix}_display"
+  display_name          = "tf-test-source-cp%{random_suffix}-display"
   labels = {
     foo = "bar"
   }
@@ -130,7 +130,7 @@ resource "google_sql_database_instance" "destination_csql" {
 resource "google_database_migration_service_connection_profile" "destination_cp" {
   location              = "us-central1"
   connection_profile_id = "tf-test-destination-cp%{random_suffix}"
-  display_name          = "tf-test-destination-cp%{random_suffix}_display"
+  display_name          = "tf-test-destination-cp%{random_suffix}-display"
   labels = {
     foo = "bar"
   }
@@ -147,7 +147,7 @@ resource "google_compute_network" "default" {
 resource "google_database_migration_service_migration_job" "mysqltomysql" {
   location              = "us-central1"
   migration_job_id = "tf-test-my-migrationid%{random_suffix}"
-  display_name = "tf-test-my-migrationid%{random_suffix}_display"
+  display_name = "tf-test-my-migrationid%{random_suffix}-display"
   labels = {
     foo = "bar"
   }
@@ -204,7 +204,7 @@ resource "google_sql_user" "source_sqldb_user" {
 resource "google_database_migration_service_connection_profile" "source_cp" {
   location              = "us-central1"
   connection_profile_id = "tf-test-source-cp%{random_suffix}"
-  display_name          = "tf-test-source-cp%{random_suffix}_display"
+  display_name          = "tf-test-source-cp%{random_suffix}-display"
   labels = {
     foo = "bar"
   }
@@ -238,7 +238,7 @@ resource "google_sql_database_instance" "destination_csql" {
 resource "google_database_migration_service_connection_profile" "destination_cp" {
   location              = "us-central1"
   connection_profile_id = "tf-test-destination-cp%{random_suffix}"
-  display_name          = "tf-test-destination-cp%{random_suffix}_display"
+  display_name          = "tf-test-destination-cp%{random_suffix}-display"
   labels = {
     foo = "bar"
   }
@@ -255,7 +255,7 @@ resource "google_compute_network" "default" {
 resource "google_database_migration_service_migration_job" "mysqltomysql" {
   location              = "us-central1"
   migration_job_id = "tf-test-my-migrationid%{random_suffix}"
-  display_name = "tf-test-my-migrationid%{random_suffix}_display"
+  display_name = "tf-test-my-migrationid%{random_suffix}-display"
   labels = {
     foo = "bar"
   }

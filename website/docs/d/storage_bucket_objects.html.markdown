@@ -57,3 +57,4 @@ The following attributes are exported:
 * `name` - The name of the object.
 * `self_link` - A url reference to this object.
 * `storage_class` - The [StorageClass](https://cloud.google.com/storage/docs/storage-classes) of the bucket object.
+* `updated` - The modification time of the object metadata in RFC 3339 format.

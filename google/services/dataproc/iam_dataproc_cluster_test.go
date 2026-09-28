@@ -36,11 +36,11 @@ func TestAccDataprocClusterIamBinding(t *testing.T) {
 	role := "roles/editor"
 
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s",
-		envvar.GetTestProjectFromEnv(), "us-central1", cluster, role)
+		envvar.GetTestProjectFromEnv(), "us-east1", cluster, role)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -82,12 +82,12 @@ func TestAccDataprocClusterIamMember(t *testing.T) {
 	role := "roles/editor"
 
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s serviceAccount:%s",
 		envvar.GetTestProjectFromEnv(),
-		"us-central1",
+		"us-east1",
 		cluster,
 		role,
 		envvar.ServiceAccountCanonicalEmail(account))
@@ -124,11 +124,11 @@ func TestAccDataprocClusterIamPolicy(t *testing.T) {
 	role := "roles/editor"
 
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	subnetworkName := BootstrapSubnetForDataprocBatches(t, "dataproc-cluster", networkName)
 	BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s",
-		envvar.GetTestProjectFromEnv(), "us-central1", cluster)
+		envvar.GetTestProjectFromEnv(), "us-east1", cluster)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -163,7 +163,7 @@ resource "google_service_account" "test-account2" {
 
 resource "google_dataproc_cluster_iam_binding" "binding" {
   cluster = google_dataproc_cluster.cluster.name
-  region  = "us-central1"
+  region  = "us-east1"
   role    = "%s"
   members = [
     "serviceAccount:${google_service_account.test-account1.email}",
@@ -186,7 +186,7 @@ resource "google_service_account" "test-account2" {
 
 resource "google_dataproc_cluster_iam_binding" "binding" {
   cluster = google_dataproc_cluster.cluster.name
-  region  = "us-central1"
+  region  = "us-east1"
   role    = "%s"
   members = [
     "serviceAccount:${google_service_account.test-account1.email}",
@@ -205,6 +205,7 @@ resource "google_service_account" "test-account" {
 
 resource "google_dataproc_cluster_iam_member" "member" {
   cluster = google_dataproc_cluster.cluster.name
+  region  = "us-east1"
   role    = "%s"
   member  = "serviceAccount:${google_service_account.test-account.email}"
 }
@@ -227,13 +228,13 @@ data "google_iam_policy" "policy" {
 
 resource "google_dataproc_cluster_iam_policy" "policy" {
   cluster     = google_dataproc_cluster.cluster.name
-  region      = "us-central1"
+  region      = "us-east1"
   policy_data = data.google_iam_policy.policy.policy_data
 }
 
 data "google_dataproc_cluster_iam_policy" "policy" {
   cluster     = google_dataproc_cluster.cluster.name
-  region      = "us-central1"
+  region      = "us-east1"
 }
 
 `, cluster, subnetworkName, account, role)
@@ -243,7 +244,7 @@ data "google_dataproc_cluster_iam_policy" "policy" {
 var testDataprocIamSingleNodeCluster = `
 resource "google_dataproc_cluster" "cluster" {
   name   = "%s"
-  region = "us-central1"
+  region = "us-east1"
 
   cluster_config {
     gce_cluster_config {
@@ -259,8 +260,9 @@ resource "google_dataproc_cluster" "cluster" {
 
     master_config {
       num_instances = 1
-      machine_type  = "e2-standard-2"
+      machine_type  = "n4-standard-2"
       disk_config {
+        boot_disk_type    = "hyperdisk-balanced"
         boot_disk_size_gb = 35
       }
     }

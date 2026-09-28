@@ -197,6 +197,69 @@ data "google_project" "project" {
 `, context)
 }
 
+func TestAccManagedKafkaCluster_managedkafkaClusterPublicExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"cluster_id":    "tf-test-my-cluster" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckManagedKafkaClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccManagedKafkaCluster_managedkafkaClusterPublicExample(context),
+			},
+			{
+				ResourceName:            "google_managed_kafka_cluster.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_managed_kafka_cluster.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccManagedKafkaCluster_managedkafkaClusterPublicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_managed_kafka_cluster" "example" {
+  cluster_id = "%{cluster_id}"
+  location = "us-central1"
+  capacity_config {
+    vcpu_count = 3
+    memory_bytes = 3221225472
+  }
+  gcp_config {
+    access_config {
+      network_configs {
+        subnet = "projects/${data.google_project.project.number}/regions/us-central1/subnetworks/default"
+      }
+      public_cluster_config {
+        allowed_source_ip_ranges = ["192.168.1.0/24"]
+      }
+    }
+  }
+  rebalance_config {
+    mode = "AUTO_REBALANCE_ON_SCALE_UP"
+  }
+}
+
+data "google_project" "project" {
+}
+`, context)
+}
+
 func testAccCheckManagedKafkaClusterDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

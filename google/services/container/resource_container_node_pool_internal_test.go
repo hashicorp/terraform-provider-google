@@ -17,15 +17,107 @@
 package container
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	container "google.golang.org/api/container/v1"
 )
+
+func TestPerformanceMonitoringUnitStandardPlan(t *testing.T) {
+	t.Parallel()
+
+	d := schema.TestResourceDataRaw(t, map[string]*schema.Schema{
+		"node_config": schemaNodeConfig(),
+	}, map[string]interface{}{
+		"node_config": []interface{}{
+			map[string]interface{}{
+				"advanced_machine_features": []interface{}{
+					map[string]interface{}{
+						"threads_per_core":            2,
+						"performance_monitoring_unit": "STANDARD",
+					},
+				},
+			},
+		},
+	})
+
+	if got := d.Get("node_config.0.advanced_machine_features.0.performance_monitoring_unit"); got != "STANDARD" {
+		t.Fatalf("performance_monitoring_unit = STANDARD planned as %q", got)
+	}
+}
+
+func TestPerformanceMonitoringUnitExistingResourcePlan(t *testing.T) {
+	t.Parallel()
+
+	nodeConfigResource := schemaNodeConfig().Elem.(*schema.Resource)
+	advancedMachineFeatures := nodeConfigResource.Schema["advanced_machine_features"].Elem.(*schema.Resource)
+	pmu := advancedMachineFeatures.Schema["performance_monitoring_unit"]
+	resource := &schema.Resource{Schema: map[string]*schema.Schema{
+		"performance_monitoring_unit": pmu,
+	}}
+	state := &terraform.InstanceState{
+		ID: "existing",
+		Attributes: map[string]string{
+			"performance_monitoring_unit": "",
+		},
+	}
+	config := terraform.NewResourceConfigRaw(map[string]interface{}{
+		"performance_monitoring_unit": "STANDARD",
+	})
+
+	diff, err := resource.Diff(context.Background(), state, config, nil)
+	if err != nil {
+		t.Fatalf("planning existing resource: %s", err)
+	}
+	if diff != nil {
+		t.Fatalf("existing resource unexpectedly planned empty to STANDARD change: %#v", diff.Attributes)
+	}
+}
+
+func TestPerformanceMonitoringUnitDiffSuppress(t *testing.T) {
+	t.Parallel()
+
+	nodeConfigResource := schemaNodeConfig().Elem.(*schema.Resource)
+	advancedMachineFeatures := nodeConfigResource.Schema["advanced_machine_features"].Elem.(*schema.Resource)
+	pmu := advancedMachineFeatures.Schema["performance_monitoring_unit"]
+	if pmu.ForceNew {
+		t.Fatal("performance_monitoring_unit must not unexpectedly replace existing node pools")
+	}
+	if pmu.DiffSuppressFunc == nil {
+		t.Fatal("performance_monitoring_unit must have a compatibility diff suppressor")
+	}
+
+	newResource := schema.TestResourceDataRaw(t, map[string]*schema.Schema{}, map[string]interface{}{})
+	existingResource := schema.TestResourceDataRaw(t, map[string]*schema.Schema{}, map[string]interface{}{})
+	existingResource.SetId("existing")
+
+	cases := map[string]struct {
+		old, new string
+		data     *schema.ResourceData
+		want     bool
+	}{
+		"new resource preserves standard":                       {old: "", new: "STANDARD", data: newResource, want: false},
+		"existing resource suppresses empty to standard":        {old: "", new: "STANDARD", data: existingResource, want: true},
+		"existing resource suppresses standard to empty":        {old: "STANDARD", new: "", data: existingResource, want: true},
+		"existing resource preserves empty to architectural":    {old: "", new: "ARCHITECTURAL", data: existingResource, want: false},
+		"existing resource preserves architectural to standard": {old: "ARCHITECTURAL", new: "STANDARD", data: existingResource, want: false},
+		"nil resource does not suppress":                        {old: "", new: "STANDARD", data: nil, want: false},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if got := pmu.DiffSuppressFunc("performance_monitoring_unit", tc.old, tc.new, tc.data); got != tc.want {
+				t.Fatalf("DiffSuppressFunc(%q, %q) = %t, want %t", tc.old, tc.new, got, tc.want)
+			}
+		})
+	}
+}
 
 func TestUnitFlattenNodePool(t *testing.T) {
 	t.Parallel()

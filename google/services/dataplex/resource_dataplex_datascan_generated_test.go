@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -797,6 +798,15 @@ func TestAccDataplexDatascan_dataplexDatascanDocumentationExample(t *testing.T) 
 		"location":      envvar.GetTestRegionFromEnv(),
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"datascan_name": "datadocumentation" + randomSuffix,
+		"sql_dialect":   "GOOGLE_SQL",
+		"random_suffix": randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"location":      envvar.GetTestRegionFromEnv(),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"datascan_name": "datadocumentation" + randomSuffix,
+		"sql_dialect":   "SPARK_SQL",
 		"random_suffix": randomSuffix,
 	}
 
@@ -807,6 +817,26 @@ func TestAccDataplexDatascan_dataplexDatascanDocumentationExample(t *testing.T) 
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataplexDatascan_dataplexDatascanDocumentationExample(context),
+			},
+			{
+				ResourceName:            "google_dataplex_datascan.documentation",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_scan_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_dataplex_datascan.documentation",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccDataplexDatascan_dataplexDatascanDocumentationExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_dataplex_datascan.documentation", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_dataplex_datascan.documentation",
@@ -904,6 +934,7 @@ resource "google_dataplex_datascan" "documentation" {
 
   data_documentation_spec {
     catalog_publishing_enabled = true
+    sql_dialect                = "%{sql_dialect}"
   }
 
   project = "%{project_name}"

@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -78,7 +79,7 @@ func TestAccVertexAIRagCorpus_vertexAiRagCorpusBasicExample(t *testing.T) {
 				ResourceName:            "google_vertex_ai_rag_corpus.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "vector_db_config.0.api_auth.0.api_key_config.0.api_key_string"},
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_corpus.example",
@@ -144,7 +145,7 @@ func TestAccVertexAIRagCorpus_vertexAiRagCorpusFullExample(t *testing.T) {
 				ResourceName:            "google_vertex_ai_rag_corpus.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "vector_db_config.0.api_auth.0.api_key_config.0.api_key_string"},
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_corpus.example",
@@ -181,6 +182,309 @@ resource "google_vertex_ai_rag_corpus" "example" {
   encryption_spec {
     kms_key_name = "%{kms_key_name}"
   }
+}
+
+data "google_project" "project" {
+}
+`, context)
+}
+
+func TestAccVertexAIRagCorpus_vertexAiRagCorpusSearchExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"display_name":  "tf-test-rag-corpus-search" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIRagCorpusDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIRagCorpus_vertexAiRagCorpusSearchExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_rag_corpus.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region", "vector_db_config.0.api_auth.0.api_key_config.0.api_key_string"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_rag_corpus.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccVertexAIRagCorpus_vertexAiRagCorpusSearchExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_rag_corpus" "example" {
+  display_name = "%{display_name}"
+  description  = "A RAG corpus with Vertex AI Search"
+  region       = "europe-west4"
+
+  vertex_ai_search_config {
+    serving_config = "projects/${data.google_project.project.number}/locations/global/collections/default_collection/engines/test/servingConfigs/default_serving_config"
+  }
+}
+
+data "google_project" "project" {
+}
+`, context)
+}
+
+func TestAccVertexAIRagCorpus_vertexAiRagCorpusPineconeExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"display_name":  "tf-test-rag-corpus-pinecone" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIRagCorpusDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIRagCorpus_vertexAiRagCorpusPineconeExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_rag_corpus.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region", "vector_db_config.0.api_auth.0.api_key_config.0.api_key_string"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_rag_corpus.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccVertexAIRagCorpus_vertexAiRagCorpusPineconeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_rag_corpus" "example" {
+  display_name = "%{display_name}"
+  description  = "A RAG corpus with Pinecone"
+  region       = "europe-west4"
+
+  vector_db_config {
+    pinecone {
+      index_name = "test-index"
+    }
+
+    api_auth {
+      api_key_config {
+        api_key_string = "secret-api-key"
+      }
+    }
+
+    rag_embedding_model_config {
+      vertex_prediction_endpoint {
+        endpoint = "projects/${data.google_project.project.number}/locations/europe-west4/publishers/google/models/text-embedding-005"
+      }
+    }
+  }
+}
+
+data "google_project" "project" {
+}
+`, context)
+}
+
+func TestAccVertexAIRagCorpus_vertexAiRagCorpusVertexVectorSearchExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"deployed_index_id":     "tf_test_deployed_index" + randomSuffix,
+		"display_name":          "tf-test-rag-corpus-vector-search" + randomSuffix,
+		"endpoint_display_name": "tf-test-endpoint-test" + randomSuffix,
+		"index_display_name":    "tf-test-index-test" + randomSuffix,
+		"random_suffix":         randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIRagCorpusDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIRagCorpus_vertexAiRagCorpusVertexVectorSearchExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_rag_corpus.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region", "vector_db_config.0.api_auth.0.api_key_config.0.api_key_string"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_rag_corpus.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccVertexAIRagCorpus_vertexAiRagCorpusVertexVectorSearchExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_rag_corpus" "example" {
+  display_name = "%{display_name}"
+  description  = "A RAG corpus with Vertex Vector Search"
+  region       = "europe-west4"
+
+  vector_db_config {
+    vertex_vector_search {
+      index_endpoint = "projects/${data.google_project.project.number}/locations/europe-west4/indexEndpoints/${google_vertex_ai_index_endpoint.index_endpoint.name}"
+      index          = "projects/${data.google_project.project.number}/locations/europe-west4/indexes/${google_vertex_ai_index.index.name}"
+    }
+
+    rag_embedding_model_config {
+      vertex_prediction_endpoint {
+        endpoint = "projects/${data.google_project.project.number}/locations/europe-west4/publishers/google/models/text-embedding-005"
+      }
+    }
+  }
+
+  depends_on = [google_vertex_ai_index_endpoint_deployed_index.deployed_index]
+}
+
+resource "google_vertex_ai_index" "index" {
+  region              = "europe-west4"
+  display_name        = "%{index_display_name}"
+  description         = "test index"
+  index_update_method = "STREAM_UPDATE"
+  metadata {
+    config {
+      dimensions            = 768
+      distance_measure_type = "COSINE_DISTANCE"
+      feature_norm_type     = "UNIT_L2_NORM"
+      algorithm_config {
+        brute_force_config {}
+      }
+    }
+  }
+}
+
+resource "google_vertex_ai_index_endpoint" "index_endpoint" {
+  display_name            = "%{endpoint_display_name}"
+  description             = "test endpoint"
+  region                  = "europe-west4"
+  public_endpoint_enabled = true
+}
+
+resource "google_vertex_ai_index_endpoint_deployed_index" "deployed_index" {
+  deployed_index_id = "%{deployed_index_id}"
+  display_name      = "%{deployed_index_id}"
+  region            = "europe-west4"
+  index             = google_vertex_ai_index.index.id
+  index_endpoint    = google_vertex_ai_index_endpoint.index_endpoint.id
+  automatic_resources {
+    min_replica_count = 1
+    max_replica_count = 1
+  }
+}
+
+data "google_project" "project" {
+}
+`, context)
+}
+
+func TestAccVertexAIRagCorpus_vertexAiRagCorpusSecretManagerExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"display_name":  "tf-test-rag-corpus-secret" + randomSuffix,
+		"secret_id":     "tf-test-secret-key" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIRagCorpusDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIRagCorpus_vertexAiRagCorpusSecretManagerExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_rag_corpus.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region", "vector_db_config.0.api_auth.0.api_key_config.0.api_key_string"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_rag_corpus.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccVertexAIRagCorpus_vertexAiRagCorpusSecretManagerExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_rag_corpus" "example" {
+  display_name = "%{display_name}"
+  description  = "A RAG corpus with Secret Manager"
+  region       = "europe-west4"
+
+  vector_db_config {
+    rag_managed_db {
+      knn {}
+    }
+
+    api_auth {
+      api_key_config {
+        api_key_secret_version = google_secret_manager_secret_version.secret_version.name
+      }
+    }
+
+    rag_embedding_model_config {
+      vertex_prediction_endpoint {
+        endpoint = "projects/${data.google_project.project.number}/locations/europe-west4/publishers/google/models/text-embedding-005"
+      }
+    }
+  }
+
+  depends_on = [google_secret_manager_secret_iam_member.secret_accessor]
+}
+
+resource "google_secret_manager_secret" "secret" {
+  secret_id = "%{secret_id}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret_version" {
+  secret      = google_secret_manager_secret.secret.id
+  secret_data = "secret-api-key"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_accessor" {
+  secret_id = google_secret_manager_secret.secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-vertex-rag.iam.gserviceaccount.com"
 }
 
 data "google_project" "project" {

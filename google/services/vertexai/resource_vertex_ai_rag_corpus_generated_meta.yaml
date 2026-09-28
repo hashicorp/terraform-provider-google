@@ -17,11 +17,17 @@ fields:
     - field: region
       provider_only: true
     - api_field: updateTime
+    - api_field: vectorDbConfig.apiAuth.apiKeyConfig.apiKeySecretVersion
+    - api_field: vectorDbConfig.apiAuth.apiKeyConfig.apiKeyString
+    - api_field: vectorDbConfig.pinecone.indexName
     - api_field: vectorDbConfig.ragEmbeddingModelConfig.vertexPredictionEndpoint.endpoint
     - api_field: vectorDbConfig.ragEmbeddingModelConfig.vertexPredictionEndpoint.model
     - api_field: vectorDbConfig.ragEmbeddingModelConfig.vertexPredictionEndpoint.modelVersionId
     - api_field: vectorDbConfig.ragManagedDb.ann.leafCount
     - api_field: vectorDbConfig.ragManagedDb.ann.treeDepth
     - api_field: vectorDbConfig.ragManagedDb.knn
+    - api_field: vectorDbConfig.vertexVectorSearch.index
+    - api_field: vectorDbConfig.vertexVectorSearch.indexEndpoint
+    - api_field: vertexAiSearchConfig.servingConfig
     - field: deletion_policy
       provider_only: true

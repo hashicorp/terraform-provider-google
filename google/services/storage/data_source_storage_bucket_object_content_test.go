@@ -32,7 +32,7 @@ import (
 
 func TestAccDataSourceStorageBucketObjectContent_Basic(t *testing.T) {
 
-	bucket := "tf-bucket-object-content-" + acctest.RandString(t, 10)
+	bucket := "tf-test-bucket-object-content-" + acctest.RandString(t, 10)
 	content := "qwertyuioasdfghjk1234567!!@#$*"
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -55,7 +55,7 @@ func TestAccDataSourceStorageBucketObjectContent_Basic(t *testing.T) {
 func TestAccDataSourceStorageBucketObjectContent_FileContentBase64(t *testing.T) {
 	acctest.SkipIfVcr(t)
 
-	bucket := "tf-bucket-object-content-" + acctest.RandString(t, 10)
+	bucket := "tf-test-bucket-object-content-" + acctest.RandString(t, 10)
 	folderName := "tf-folder-" + acctest.RandString(t, 10)
 
 	if err := os.Mkdir(folderName, 0777); err != nil {
@@ -165,7 +165,7 @@ resource "local_file" "this" {
 
 func TestAccDataSourceStorageBucketObjectContent_Issue15717(t *testing.T) {
 
-	bucket := "tf-bucket-object-content-" + acctest.RandString(t, 10)
+	bucket := "tf-test-bucket-object-content-" + acctest.RandString(t, 10)
 	content := "qwertyuioasdfghjk1234567!!@#$*"
 
 	config := fmt.Sprintf(`
@@ -192,7 +192,7 @@ output "output" {
 
 func TestAccDataSourceStorageBucketObjectContent_Issue15717BackwardCompatibility(t *testing.T) {
 
-	bucket := "tf-bucket-object-content-" + acctest.RandString(t, 10)
+	bucket := "tf-test-bucket-object-content-" + acctest.RandString(t, 10)
 	content := "qwertyuioasdfghjk1234567!!@#$*"
 
 	config := fmt.Sprintf(`

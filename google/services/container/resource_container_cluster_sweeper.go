@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 )
@@ -39,8 +40,9 @@ func testSweepContainerClusters(region string) error {
 		log.Fatalf("error loading: %s", err)
 	}
 
-	// List clusters for all zones by using "-" as the zone name
-	found, err := NewClient(config, config.UserAgent).Projects.Zones.Clusters.List(config.Project, "-").Do()
+	// List clusters for all locations by using "-" as the location name
+	parent := fmt.Sprintf("projects/%s/locations/-", config.Project)
+	found, err := NewClient(config, config.UserAgent).Projects.Locations.Clusters.List(parent).Do()
 	if err != nil {
 		log.Printf("error listing container clusters: %s", err)
 		return nil
@@ -52,15 +54,33 @@ func testSweepContainerClusters(region string) error {
 	}
 
 	for _, cluster := range found.Clusters {
-		if sweeper.IsSweepableTestResource(cluster.Name) {
-			log.Printf("Sweeping Container Cluster: %s", cluster.Name)
-			clusterURL := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", config.Project, cluster.Location, cluster.Name)
-			_, err := NewClient(config, config.UserAgent).Projects.Locations.Clusters.Delete(clusterURL).Do()
+		if !sweeper.IsSweepableTestResource(cluster.Name) {
+			continue
+		}
 
+		if cluster.CreateTime != "" {
+			createdAt, err := time.Parse(time.RFC3339Nano, cluster.CreateTime)
 			if err != nil {
-				log.Printf("Error, failed to delete cluster %s: %s", cluster.Name, err)
-				return nil
+				createdAt, err = time.Parse(time.RFC3339, cluster.CreateTime)
 			}
+			if err == nil && time.Since(createdAt) < 2*time.Hour {
+				log.Printf("Skipping cluster %s, created recently (%s)", cluster.Name, time.Since(createdAt))
+				continue
+			}
+		}
+
+		if cluster.Status == "PROVISIONING" || cluster.Status == "RECONCILING" || cluster.Status == "STOPPING" {
+			log.Printf("Skipping cluster %s in non-deletable status %s", cluster.Name, cluster.Status)
+			continue
+		}
+
+		log.Printf("Sweeping Container Cluster: %s", cluster.Name)
+		clusterURL := fmt.Sprintf("projects/%s/locations/%s/clusters/%s", config.Project, cluster.Location, cluster.Name)
+		_, err := NewClient(config, config.UserAgent).Projects.Locations.Clusters.Delete(clusterURL).Do()
+
+		if err != nil {
+			log.Printf("Error, failed to delete cluster %s: %s", cluster.Name, err)
+			continue
 		}
 	}
 

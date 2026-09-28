@@ -50,6 +50,7 @@ fields:
     - api_field: startExecutionToken
     - api_field: tags
     - api_field: template.annotations
+    - api_field: template.delayExecution
     - api_field: template.labels
     - api_field: template.parallelism
     - api_field: template.taskCount
@@ -65,6 +66,7 @@ fields:
     - api_field: template.template.containers.ports.containerPort
     - api_field: template.template.containers.ports.name
     - api_field: template.template.containers.resources.limits
+    - api_field: template.template.containers.sandboxLauncher
     - api_field: template.template.containers.startupProbe.failureThreshold
     - api_field: template.template.containers.startupProbe.grpc.port
     - api_field: template.template.containers.startupProbe.grpc.service

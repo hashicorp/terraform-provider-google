@@ -380,7 +380,7 @@ func TestAccComputeRegionDisk_createSnapshotBeforeDestroy(t *testing.T) {
 	var disk3 compute.Disk
 	context := map[string]interface{}{
 		"disk_name1":        fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10)),
-		"disk_name2":        fmt.Sprintf("test-%s", acctest.RandString(t, 44)), //this is over the snapshot character creation limit of 48
+		"disk_name2":        fmt.Sprintf("tf-test-%s", acctest.RandString(t, 41)), //this is over the snapshot character creation limit of 48
 		"disk_name3":        fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10)),
 		"snapshot_prefix":   fmt.Sprintf("tf-test-snapshot-%s", acctest.RandString(t, 10)),
 		"kms_key_self_link": kms.BootstrapKMSKey(t).CryptoKey.Name,

@@ -1696,7 +1696,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_diskResourcePoliciesCreate(suffix, template string) string {
 	return fmt.Sprintf(`
 resource "google_compute_resource_policy" "test-snapshot-policy" {
-  name    = "test-policy-%s"
+  name    = "tf-test-test-policy-%s"
   snapshot_schedule_policy {
     schedule {
       hourly_schedule {
@@ -1708,7 +1708,7 @@ resource "google_compute_resource_policy" "test-snapshot-policy" {
 }
 
 resource "google_compute_resource_policy" "test-snapshot-policy2" {
-  name    = "test-policy2-%s"
+  name    = "tf-test-test-policy2-%s"
   snapshot_schedule_policy {
     schedule {
       hourly_schedule {
@@ -1748,7 +1748,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_diskResourcePoliciesUpdate(suffix, template string) string {
 	return fmt.Sprintf(`
 resource "google_compute_resource_policy" "test-snapshot-policy" {
-  name    = "test-policy-%s"
+  name    = "tf-test-test-policy-%s"
   snapshot_schedule_policy {
     schedule {
       hourly_schedule {
@@ -1760,7 +1760,7 @@ resource "google_compute_resource_policy" "test-snapshot-policy" {
 }
 
 resource "google_compute_resource_policy" "test-snapshot-policy2" {
-  name    = "test-policy2-%s"
+  name    = "tf-test-test-policy2-%s"
   snapshot_schedule_policy {
     schedule {
       hourly_schedule {
@@ -1800,7 +1800,7 @@ resource "google_compute_instance_from_template" "foobar" {
 func testAccComputeInstanceFromTemplate_diskResourcePoliciesTwoPolicies(suffix, template string) string {
 	return fmt.Sprintf(`
 resource "google_compute_resource_policy" "test-snapshot-policy" {
-  name    = "test-policy-%s"
+  name    = "tf-test-test-policy-%s"
   snapshot_schedule_policy {
     schedule {
       hourly_schedule {
@@ -1812,7 +1812,7 @@ resource "google_compute_resource_policy" "test-snapshot-policy" {
 }
 
 resource "google_compute_resource_policy" "test-snapshot-policy2" {
-  name    = "test-policy2-%s"
+  name    = "tf-test-test-policy2-%s"
   snapshot_schedule_policy {
     schedule {
       hourly_schedule {

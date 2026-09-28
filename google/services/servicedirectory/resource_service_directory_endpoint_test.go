@@ -22,7 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/servicedirectory"
+	servicedirectory "github.com/hashicorp/terraform-provider-google/google/services/servicedirectory"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
@@ -112,4 +112,111 @@ resource "google_service_directory_endpoint" "example" {
   port    = 5353
 }
 `, testId, location, testId, testId)
+}
+
+// TestAccServiceDirectoryEndpoint_networkDiffSuppress verifies that the network field
+// diff suppression correctly handles project ID vs project number equivalence,
+// preventing perpetual diffs or recreation when the API returns a project-number-based URL.
+func TestAccServiceDirectoryEndpoint_networkDiffSuppress(t *testing.T) {
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	location := "us-central1"
+	testId := fmt.Sprintf("tf-test-endpoint-net%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckServiceDirectoryEndpointDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Configure using project ID in the network URL.
+				Config: testAccServiceDirectoryEndpoint_networkWithProjectId(location, testId, project),
+			},
+			{
+				// Re-apply same config; verifies no perpetual diff even though the API
+				// returns a project-number-based URL in the network field.
+				Config:             testAccServiceDirectoryEndpoint_networkWithProjectId(location, testId, project),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
+// TestUnitServiceDirectoryEndpointNetworkProjectIDNumberEquivalent verifies the
+// fallback used when Resource Manager cannot resolve the project identifier.
+func TestUnitServiceDirectoryEndpointNetworkProjectIDNumberEquivalent(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		Old, New string
+		Expect   bool
+	}{
+		"project id vs project number, same network": {
+			Old:    "projects/my-project/locations/global/networks/my-network",
+			New:    "projects/123456789/locations/global/networks/my-network",
+			Expect: true,
+		},
+		"project number vs project id, same network": {
+			Old:    "projects/123456789/locations/global/networks/my-network",
+			New:    "projects/my-project/locations/global/networks/my-network",
+			Expect: true,
+		},
+		"same project id, same network": {
+			Old:    "projects/my-project/locations/global/networks/my-network",
+			New:    "projects/my-project/locations/global/networks/my-network",
+			Expect: true,
+		},
+		"same project id, different network": {
+			Old:    "projects/my-project/locations/global/networks/my-network",
+			New:    "projects/my-project/locations/global/networks/other-network",
+			Expect: false,
+		},
+		"project id vs project number, different network": {
+			Old:    "projects/my-project/locations/global/networks/my-network",
+			New:    "projects/123456789/locations/global/networks/other-network",
+			Expect: false,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got := servicedirectory.ServiceDirectoryEndpointNetworkProjectIDNumberEquivalent(tc.Old, tc.New)
+			if got != tc.Expect {
+				t.Errorf("serviceDirectoryEndpointNetworkProjectIDNumberEquivalent(%q, %q) = %v; want %v",
+					tc.Old, tc.New, got, tc.Expect)
+			}
+		})
+	}
+}
+
+func testAccServiceDirectoryEndpoint_networkWithProjectId(location, testId, project string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "example" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_service_directory_namespace" "example" {
+  namespace_id = "%s"
+  location     = "%s"
+}
+
+resource "google_service_directory_service" "example" {
+  service_id = "%s"
+  namespace  = google_service_directory_namespace.example.id
+}
+
+resource "google_service_directory_endpoint" "example" {
+  endpoint_id = "%s"
+  service     = google_service_directory_service.example.id
+
+  address = "1.2.3.4"
+  port    = 5353
+  # Use project ID in the network URL; the API may return a project-number-based URL.
+  # The diff_suppress_func on the network field must treat these as equivalent.
+  network = "projects/%s/locations/global/networks/${google_compute_network.example.name}"
+}
+`, testId, testId, location, testId, testId, project)
 }

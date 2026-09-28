@@ -262,13 +262,13 @@ resource "google_compute_region_backend_service" "producer_l7_ilb_backend_servic
 }
 
 resource "google_compute_region_url_map" "producer_url_map" {
-  name            = "producer-l7-ilb-url-map-%{random_suffix}"
+  name            = "tf-test-producer-l7-ilb-url-map-%{random_suffix}"
   default_service = google_compute_region_backend_service.producer_l7_ilb_backend_service.id
   region          = "us-west2"
 }
 
 resource "google_compute_region_target_http_proxy" "producer_proxy" {
-  name    = "producer-l7-ilb-proxy-%{random_suffix}"
+  name    = "tf-test-producer-l7-ilb-proxy-%{random_suffix}"
   url_map = google_compute_region_url_map.producer_url_map.id
   region  = "us-west2"
 }

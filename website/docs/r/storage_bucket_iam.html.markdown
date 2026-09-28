@@ -217,9 +217,43 @@ Any variables not passed in the import command will be taken from the provider c
 Cloud Storage bucket IAM resources can be imported using the resource identifiers, role, and member.
 
 IAM member imports use space-delimited identifiers: the resource in question, the role, and the member identity, e.g.
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "b/{{bucket}} roles/storage.objectViewer user:jane@example.com"
+  to = google_storage_bucket_iam_member.editor
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
 ```
 $ terraform import google_storage_bucket_iam_member.editor "b/{{bucket}} roles/storage.objectViewer user:jane@example.com"
 ```
+
+#### Import via resource identity
+
+`google_storage_bucket_iam_member` also supports plannable import via [resource identity](https://developer.hashicorp.com/terraform/language/block/import#identity) (Terraform 1.12+):
+
+```tf
+import {
+  to = google_storage_bucket_iam_member.editor
+  identity = {
+    bucket = "my-bucket"
+    role   = "roles/storage.objectViewer"
+    member = "user:jane@example.com"
+  }
+}
+```
+
+Identity attributes:
+
+* `bucket` - (Required) The bucket name. Both `my-bucket` and `b/my-bucket` formats are accepted.
+* `role` - (Required) The IAM role being granted.
+* `member` - (Required) The identity that the role is granted to.
+* `condition_title` - (Optional) Title of the IAM condition, when importing a conditional binding.
 
 IAM binding imports use space-delimited identifiers: the resource in question and the role, e.g.
 ```

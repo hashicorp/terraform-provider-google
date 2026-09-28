@@ -283,6 +283,109 @@ resource "google_ces_agent" "ces_agent_basic" {
 `, context)
 }
 
+func TestAccCESAgent_cesAgentRemoteA2aAgentExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"agent_display_name": "tf-test-my-agent" + randomSuffix,
+		"agent_id":           "tf-test-agent-id" + randomSuffix,
+		"app_display_name":   "tf-test-my-app" + randomSuffix,
+		"app_id":             "tf-test-app-id" + randomSuffix,
+		"random_suffix":      randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESAgentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESAgent_cesAgentRemoteA2aAgentExample(context),
+			},
+			{
+				ResourceName:            "google_ces_agent.ces_agent_remote_a2a_agent",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"agent_id", "app", "location"},
+			},
+			{
+				ResourceName:       "google_ces_agent.ces_agent_remote_a2a_agent",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCESAgent_cesAgentRemoteA2aAgentExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_for_agent" {
+  app_id = "%{app_id}"
+  location = "us"
+  description = "App used as parent for CES Agent example"
+  display_name = "%{app_display_name}"
+
+  language_settings {
+    default_language_code    = "en-US"
+    supported_language_codes = ["es-ES", "fr-FR"]
+    enable_multilingual_support = true
+    fallback_action          = "escalate"
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+
+resource "google_ces_agent" "ces_agent_remote_a2a_agent" {
+  agent_id = "%{agent_id}"
+  location = "us"
+  app      = google_ces_app.ces_app_for_agent.app_id
+  display_name = "%{agent_display_name}"
+
+  remote_a2a_agent {
+    a2a_config {
+      agent_card {
+        name = "test-card"
+        description = "Test A2A Agent Card"
+        version = "1.0.0"
+        supported_interfaces {
+          url = "https://example.com/a2a"
+          protocol_binding = "HTTP+JSON"
+          protocol_version = "1.0"
+        }
+        skills {
+          id = "test-skill"
+          name = "test-skill-name"
+          description = "test-skill-desc"
+          tags = ["test", "skill"]
+          examples = ["example 1"]
+          input_modes = ["text/plain"]
+          output_modes = ["text/plain"]
+        }
+      }
+      api_authentication {
+        bearer_token_config {
+          token = "$context.variables.token"
+        }
+      }
+      context_id = "$context.variables.session_id"
+      input_variable_mapping = {
+        "remote_in" = "local_in"
+      }
+      output_variable_mapping = {
+        "remote_out" = "local_out"
+      }
+      streaming_enabled = false
+    }
+  }
+}
+`, context)
+}
+
 func TestAccCESAgent_cesAgentRemoteDialogflowAgentExample(t *testing.T) {
 	t.Parallel()
 

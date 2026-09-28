@@ -209,6 +209,11 @@ func ResourceStorageFtpServer() *schema.Resource {
 							},
 							Set: schema.HashString,
 						},
+						"ip_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The public IP address of the external load balancer for the SFTP server.`,
+						},
 					},
 				},
 				ExactlyOneOf: []string{"external_config", "internal_config"},
@@ -234,6 +239,11 @@ func ResourceStorageFtpServer() *schema.Resource {
 							Elem:        storageftpServerInternalConfigConsumerRejectListSchema(),
 							Set:         resourceStorageFtpServerConsumerRejectListHash,
 						},
+						"service_attachment": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The Private Service Connect service attachment URI for the SFTP server.`,
+						},
 					},
 				},
 				ExactlyOneOf: []string{"external_config", "internal_config"},
@@ -253,6 +263,16 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Computed:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"service_agent": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The email address of the service agent associated with the SFTP server.`,
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The operational lifecycle state of the SFTP server.`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -787,6 +807,8 @@ func flattenStorageFtpServerInternalConfig(v interface{}, d *schema.ResourceData
 		flattenStorageFtpServerInternalConfigConsumerAcceptList(original["consumerAcceptList"], d, config)
 	transformed["consumer_reject_list"] =
 		flattenStorageFtpServerInternalConfigConsumerRejectList(original["consumerRejectList"], d, config)
+	transformed["service_attachment"] =
+		flattenStorageFtpServerInternalConfigServiceAttachment(original["serviceAttachment"], d, config)
 	return []interface{}{transformed}
 }
 func flattenStorageFtpServerInternalConfigConsumerAcceptList(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -853,6 +875,10 @@ func flattenStorageFtpServerInternalConfigConsumerRejectListProject(v interface{
 	return v
 }
 
+func flattenStorageFtpServerInternalConfigServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenStorageFtpServerExternalConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -864,6 +890,8 @@ func flattenStorageFtpServerExternalConfig(v interface{}, d *schema.ResourceData
 	transformed := make(map[string]interface{})
 	transformed["allowed_cidr_blocks"] =
 		flattenStorageFtpServerExternalConfigAllowedCidrBlocks(original["allowedCidrBlocks"], d, config)
+	transformed["ip_address"] =
+		flattenStorageFtpServerExternalConfigIpAddress(original["ipAddress"], d, config)
 	return []interface{}{transformed}
 }
 func flattenStorageFtpServerExternalConfigAllowedCidrBlocks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -871,6 +899,18 @@ func flattenStorageFtpServerExternalConfigAllowedCidrBlocks(v interface{}, d *sc
 		return v
 	}
 	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenStorageFtpServerExternalConfigIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenStorageFtpServerServiceAgent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenStorageFtpServerState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenStorageFtpServerTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -924,6 +964,13 @@ func expandStorageFtpServerInternalConfig(v interface{}, d tpgresource.Terraform
 		return nil, err
 	} else {
 		transformed["consumerRejectList"] = transformedConsumerRejectList
+	}
+
+	transformedServiceAttachment, err := expandStorageFtpServerInternalConfigServiceAttachment(original["service_attachment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAttachment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAttachment"] = transformedServiceAttachment
 	}
 
 	return transformed, nil
@@ -1000,6 +1047,10 @@ func expandStorageFtpServerInternalConfigConsumerRejectListProject(v interface{}
 	return v, nil
 }
 
+func expandStorageFtpServerInternalConfigServiceAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandStorageFtpServerExternalConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1019,11 +1070,22 @@ func expandStorageFtpServerExternalConfig(v interface{}, d tpgresource.Terraform
 		transformed["allowedCidrBlocks"] = transformedAllowedCidrBlocks
 	}
 
+	transformedIpAddress, err := expandStorageFtpServerExternalConfigIpAddress(original["ip_address"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIpAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ipAddress"] = transformedIpAddress
+	}
+
 	return transformed, nil
 }
 
 func expandStorageFtpServerExternalConfigAllowedCidrBlocks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandStorageFtpServerExternalConfigIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1054,6 +1116,12 @@ func ResourceStorageFtpServerFlatten(d *schema.ResourceData, meta interface{}, r
 		return fmt.Errorf("Error reading Server: %s", err)
 	}
 	if err = d.Set("external_config", flattenStorageFtpServerExternalConfig(res["externalConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Server: %s", err)
+	}
+	if err = d.Set("service_agent", flattenStorageFtpServerServiceAgent(res["serviceAgent"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Server: %s", err)
+	}
+	if err = d.Set("state", flattenStorageFtpServerState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Server: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenStorageFtpServerTerraformLabels(res["labels"], d, config)); err != nil {

@@ -442,3 +442,112 @@ resource "google_ces_deployment" "my-deployment" {
 }
 `, context)
 }
+
+func TestAccCESDeployment_whatsappConfig(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESDeploymentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESDeployment_whatsappConfig(context),
+			},
+			{
+				ResourceName:            "google_ces_deployment.my-deployment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "app_version", "location"},
+			},
+			{
+				Config: testAccCESDeployment_whatsappConfig_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_deployment.my-deployment", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_deployment.my-deployment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "app_version", "location"},
+			},
+		},
+	})
+}
+
+func testAccCESDeployment_whatsappConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "tf-test-my-app%%{random_suffix}"
+    app_id       = "tf-test-app-id%%{random_suffix}"
+    time_zone_settings {
+        time_zone = "America/Los_Angeles"
+    }
+}
+resource "google_ces_app_version" "my-app-version" {
+    location       = "us"
+    display_name   = "tf-test-my-app-version%%{random_suffix}"
+    app            = google_ces_app.my-app.name
+    app_version_id = "tf-test-app-version-id%%{random_suffix}"
+    description    = "example-app-version"
+}
+resource "google_ces_deployment" "my-deployment" {
+    location     = "us"
+    display_name = "tf-test-my-deployment%%{random_suffix}"
+    app          = google_ces_app.my-app.name
+    app_version  = google_ces_app_version.my-app-version.id
+    channel_profile {
+        channel_type = "API"
+        profile_id = "temp_profile_id"
+        whatsapp_config {
+            phone_number = "+15551234567"
+            phone_number_id = "1234567890"
+            waba_id = "9876543210"
+        }
+    }
+}
+`, context)
+}
+
+func testAccCESDeployment_whatsappConfig_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "my-app" {
+    location     = "us"
+    display_name = "tf-test-my-app%%{random_suffix}"
+    app_id       = "tf-test-app-id%%{random_suffix}"
+    time_zone_settings {
+        time_zone = "America/Los_Angeles"
+    }
+}
+resource "google_ces_app_version" "my-app-version" {
+    location       = "us"
+    display_name   = "tf-test-my-app-version%%{random_suffix}"
+    app            = google_ces_app.my-app.name
+    app_version_id = "tf-test-app-version-id%%{random_suffix}"
+    description    = "example-app-version"
+}
+resource "google_ces_deployment" "my-deployment" {
+    location     = "us"
+    display_name = "tf-test-my-deployment%%{random_suffix}"
+    app          = google_ces_app.my-app.name
+    app_version  = google_ces_app_version.my-app-version.id
+    channel_profile {
+        channel_type = "API"
+        profile_id = "temp_profile_id"
+        whatsapp_config {
+            phone_number = "+15559876543"
+            phone_number_id = "2345678901"
+            waba_id = "8765432109"
+        }
+    }
+}
+`, context)
+}

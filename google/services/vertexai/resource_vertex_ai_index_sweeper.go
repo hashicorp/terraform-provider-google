@@ -183,11 +183,24 @@ func deleteResourceVertexAIIndex(config *transport_tpg.Config, d *tpgresource.Re
 	var deletionerror error
 	resourceName := "VertexAIIndex"
 	var name string
+	var deleteId string
 	if obj["displayName"] == nil {
 		log.Printf("[INFO][SWEEPER_LOG] %s resource displayName was nil", resourceName)
 		return fmt.Errorf("%s resource displayName was nil", resourceName)
 	}
 	name = obj["displayName"].(string)
+
+	// displayName decides whether this resource is sweepable, but the delete
+	// URL needs the resource's own id, which is usually a different value.
+	if obj["name"] != nil {
+		deleteId = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
+	} else if obj["id"] != nil {
+		deleteId = tpgresource.GetResourceNameFromSelfLink(obj["id"].(string))
+	} else {
+		// The list response carries no id of its own, so displayName is all
+		// there is to delete by.
+		deleteId = name
+	}
 
 	// Skip resources that shouldn't be sweeped
 	if !sweeper.IsSweepableTestResource(name) {
@@ -201,7 +214,7 @@ func deleteResourceVertexAIIndex(config *transport_tpg.Config, d *tpgresource.Re
 		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 		deletionerror = err
 	}
-	url = url + name
+	url = url + deleteId
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

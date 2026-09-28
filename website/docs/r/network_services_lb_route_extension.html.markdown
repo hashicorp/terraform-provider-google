@@ -94,7 +94,7 @@ resource "google_compute_region_target_http_proxy" "default" {
 
 # URL map
 resource "google_compute_region_url_map" "default" {
-  name            = "tf-test-l7-ilb-regional-url-map%{random_suffix}"
+  name            = "l7-ilb-regional-url-map"
   region          = "us-west1"
   default_service = google_compute_region_backend_service.default.id
 
@@ -459,7 +459,7 @@ resource "google_compute_region_target_http_proxy" "default" {
 
 # URL map
 resource "google_compute_region_url_map" "default" {
-  name            = "tf-test-l7-ilb-regional-url-map%{random_suffix}"
+  name            = "l7-ilb-regional-url-map"
   region          = "us-west1"
   default_service = google_compute_region_backend_service.default.id
 

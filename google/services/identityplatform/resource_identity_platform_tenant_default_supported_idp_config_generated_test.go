@@ -60,6 +60,7 @@ func TestAccIdentityPlatformTenantDefaultSupportedIdpConfig_identityPlatformTena
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"display_name":  "tf-test-tenant",
 		"random_suffix": randomSuffix,
 	}
 
@@ -90,7 +91,7 @@ func TestAccIdentityPlatformTenantDefaultSupportedIdpConfig_identityPlatformTena
 func testAccIdentityPlatformTenantDefaultSupportedIdpConfig_identityPlatformTenantDefaultSupportedIdpConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
-  display_name  = "tenant"
+  display_name  = "%{display_name}"
 }
 
 resource "google_identity_platform_tenant_default_supported_idp_config" "idp_config" {

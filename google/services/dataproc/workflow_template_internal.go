@@ -180,15 +180,32 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfig) validate() e
 			return err
 		}
 	}
+	if !dcl.IsEmptyValueIndirect(r.InstanceFlexibilityPolicy) {
+		if err := r.InstanceFlexibilityPolicy.validate(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerators) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) validate() error {
@@ -202,15 +219,32 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) validate() e
 			return err
 		}
 	}
+	if !dcl.IsEmptyValueIndirect(r.InstanceFlexibilityPolicy) {
+		if err := r.InstanceFlexibilityPolicy.validate(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigAccelerators) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) validate() error {
@@ -224,15 +258,40 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig) val
 			return err
 		}
 	}
+	if !dcl.IsEmptyValueIndirect(r.InstanceFlexibilityPolicy) {
+		if err := r.InstanceFlexibilityPolicy.validate(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy) validate() error {
+	if !dcl.IsEmptyValueIndirect(r.ProvisioningModelMix) {
+		if err := r.ProvisioningModelMix.validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig) validate() error {
@@ -2007,6 +2066,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfig(des, 
 	} else {
 		cDes.MinCpuPlatform = des.MinCpuPlatform
 	}
+	cDes.InstanceFlexibilityPolicy = canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy(des.InstanceFlexibilityPolicy, initial.InstanceFlexibilityPolicy, opts...)
 
 	return cDes
 }
@@ -2068,6 +2128,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c 
 	if dcl.StringCanonicalize(des.MinCpuPlatform, nw.MinCpuPlatform) {
 		nw.MinCpuPlatform = des.MinCpuPlatform
 	}
+	nw.InstanceFlexibilityPolicy = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy(c, des.InstanceFlexibilityPolicy, nw.InstanceFlexibilityPolicy)
 
 	return nw
 }
@@ -2149,6 +2210,24 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskCo
 	} else {
 		cDes.NumLocalSsds = des.NumLocalSsds
 	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedIops) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedIops) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedIops = initial.BootDiskProvisionedIops
+	} else {
+		cDes.BootDiskProvisionedIops = des.BootDiskProvisionedIops
+	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedThroughput = initial.BootDiskProvisionedThroughput
+	} else {
+		cDes.BootDiskProvisionedThroughput = des.BootDiskProvisionedThroughput
+	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, initial.LocalSsdInterface) || dcl.IsZeroValue(des.LocalSsdInterface) {
+		cDes.LocalSsdInterface = initial.LocalSsdInterface
+	} else {
+		cDes.LocalSsdInterface = des.LocalSsdInterface
+	}
+	cDes.AttachedDiskConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(des.AttachedDiskConfig, initial.AttachedDiskConfig, opts...)
 
 	return cDes
 }
@@ -2198,6 +2277,10 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDis
 	if dcl.StringCanonicalize(des.BootDiskType, nw.BootDiskType) {
 		nw.BootDiskType = des.BootDiskType
 	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, nw.LocalSsdInterface) {
+		nw.LocalSsdInterface = des.LocalSsdInterface
+	}
+	nw.AttachedDiskConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c, des.AttachedDiskConfig, nw.AttachedDiskConfig)
 
 	return nw
 }
@@ -2243,6 +2326,142 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDis
 	for i, d := range des {
 		n := nw[i]
 		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c, &d, &n))
+	}
+
+	return items
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.StringCanonicalize(des.DiskType, initial.DiskType) || dcl.IsZeroValue(des.DiskType) {
+		cDes.DiskType = initial.DiskType
+	} else {
+		cDes.DiskType = des.DiskType
+	}
+	if dcl.IsZeroValue(des.DiskSizeGb) || (dcl.IsEmptyValueIndirect(des.DiskSizeGb) && dcl.IsEmptyValueIndirect(initial.DiskSizeGb)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.DiskSizeGb = initial.DiskSizeGb
+	} else {
+		cDes.DiskSizeGb = des.DiskSizeGb
+	}
+	if dcl.IsZeroValue(des.ProvisionedIops) || (dcl.IsEmptyValueIndirect(des.ProvisionedIops) && dcl.IsEmptyValueIndirect(initial.ProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedIops = initial.ProvisionedIops
+	} else {
+		cDes.ProvisionedIops = des.ProvisionedIops
+	}
+	if dcl.IsZeroValue(des.ProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.ProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.ProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedThroughput = initial.ProvisionedThroughput
+	} else {
+		cDes.ProvisionedThroughput = des.ProvisionedThroughput
+	}
+
+	return cDes
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(des, initial []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+
+		items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.StringCanonicalize(des.DiskType, nw.DiskType) {
+		nw.DiskType = des.DiskType
+	}
+
+	return nw
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Find the elements in des that are also in nw and canonicalize them. Remove matched elements from nw.
+	var items []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig
+	for _, d := range des {
+		matchedIndex := -1
+		for i, n := range nw {
+			if diffs, _ := compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigNewStyle(&d, &n, dcl.FieldName{}); len(diffs) == 0 {
+				matchedIndex = i
+				break
+			}
+		}
+		if matchedIndex != -1 {
+			items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, &d, &nw[matchedIndex]))
+			nw = append(nw[:matchedIndex], nw[matchedIndex+1:]...)
+		}
+	}
+	// Also include elements in nw that are not matched in des.
+	items = append(items, nw...)
+
+	return items
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Lengths are unequal. A diff will occur later, so we shouldn't canonicalize.
+	// Return the original array.
+	if len(des) != len(nw) {
+		return nw
+	}
+
+	var items []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, &d, &n))
 	}
 
 	return items
@@ -2487,6 +2706,139 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcc
 	return items
 }
 
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy(des, initial *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy{}
+
+	cDes.InstanceSelectionList = canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionSlice(des.InstanceSelectionList, initial.InstanceSelectionList, opts...)
+
+	return cDes
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	nw.InstanceSelectionList = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c, des.InstanceSelectionList, nw.InstanceSelectionList)
+
+	return nw
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection(des, initial *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection{}
+
+	if dcl.StringArrayCanonicalize(des.MachineTypes, initial.MachineTypes) {
+		cDes.MachineTypes = initial.MachineTypes
+	} else {
+		cDes.MachineTypes = des.MachineTypes
+	}
+	if dcl.IsZeroValue(des.Rank) || (dcl.IsEmptyValueIndirect(des.Rank) && dcl.IsEmptyValueIndirect(initial.Rank)) {
+		cDes.Rank = initial.Rank
+	} else {
+		cDes.Rank = des.Rank
+	}
+	cDes.DiskConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(des.DiskConfig, initial.DiskConfig, opts...)
+
+	return cDes
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionSlice(des, initial []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection, opts ...dcl.ApplyOption) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection {
+	if dcl.IsEmptyValueIndirect(des) {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+		items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.StringArrayCanonicalize(des.MachineTypes, nw.MachineTypes) {
+		nw.MachineTypes = des.MachineTypes
+	}
+	nw.DiskConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c, des.DiskConfig, nw.DiskConfig)
+
+	return nw
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection {
+	if des == nil {
+		return nw
+	}
+
+	// Lengths are unequal. A diff will occur later, so we shouldn't canonicalize.
+	// Return the original array.
+	if len(des) != len(nw) {
+		return nw
+	}
+
+	var items []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection(c, &d, &n))
+	}
+
+	return items
+}
+
 func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
 	if des == nil {
 		return initial
@@ -2531,6 +2883,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(des, 
 	} else {
 		cDes.MinCpuPlatform = des.MinCpuPlatform
 	}
+	cDes.InstanceFlexibilityPolicy = canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy(des.InstanceFlexibilityPolicy, initial.InstanceFlexibilityPolicy, opts...)
 
 	return cDes
 }
@@ -2592,8 +2945,144 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c 
 	if dcl.StringCanonicalize(des.MinCpuPlatform, nw.MinCpuPlatform) {
 		nw.MinCpuPlatform = des.MinCpuPlatform
 	}
+	nw.InstanceFlexibilityPolicy = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy(c, des.InstanceFlexibilityPolicy, nw.InstanceFlexibilityPolicy)
 
 	return nw
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy(des, initial *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy{}
+
+	cDes.InstanceSelectionList = canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(des.InstanceSelectionList, initial.InstanceSelectionList, opts...)
+
+	return cDes
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	nw.InstanceSelectionList = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c, des.InstanceSelectionList, nw.InstanceSelectionList)
+
+	return nw
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection(des, initial *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection{}
+
+	if dcl.StringArrayCanonicalize(des.MachineTypes, initial.MachineTypes) {
+		cDes.MachineTypes = initial.MachineTypes
+	} else {
+		cDes.MachineTypes = des.MachineTypes
+	}
+	if dcl.IsZeroValue(des.Rank) || (dcl.IsEmptyValueIndirect(des.Rank) && dcl.IsEmptyValueIndirect(initial.Rank)) {
+		cDes.Rank = initial.Rank
+	} else {
+		cDes.Rank = des.Rank
+	}
+	cDes.DiskConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(des.DiskConfig, initial.DiskConfig, opts...)
+
+	return cDes
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(des, initial []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection, opts ...dcl.ApplyOption) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	if dcl.IsEmptyValueIndirect(des) {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+		items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.StringArrayCanonicalize(des.MachineTypes, nw.MachineTypes) {
+		nw.MachineTypes = des.MachineTypes
+	}
+	nw.DiskConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c, des.DiskConfig, nw.DiskConfig)
+
+	return nw
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	var items []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c, &d, &n))
+	}
+
+	return items
 }
 
 func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfig {
@@ -2673,6 +3162,24 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskCo
 	} else {
 		cDes.NumLocalSsds = des.NumLocalSsds
 	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedIops) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedIops) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedIops = initial.BootDiskProvisionedIops
+	} else {
+		cDes.BootDiskProvisionedIops = des.BootDiskProvisionedIops
+	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedThroughput = initial.BootDiskProvisionedThroughput
+	} else {
+		cDes.BootDiskProvisionedThroughput = des.BootDiskProvisionedThroughput
+	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, initial.LocalSsdInterface) || dcl.IsZeroValue(des.LocalSsdInterface) {
+		cDes.LocalSsdInterface = initial.LocalSsdInterface
+	} else {
+		cDes.LocalSsdInterface = des.LocalSsdInterface
+	}
+	cDes.AttachedDiskConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(des.AttachedDiskConfig, initial.AttachedDiskConfig, opts...)
 
 	return cDes
 }
@@ -2722,6 +3229,10 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDis
 	if dcl.StringCanonicalize(des.BootDiskType, nw.BootDiskType) {
 		nw.BootDiskType = des.BootDiskType
 	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, nw.LocalSsdInterface) {
+		nw.LocalSsdInterface = des.LocalSsdInterface
+	}
+	nw.AttachedDiskConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c, des.AttachedDiskConfig, nw.AttachedDiskConfig)
 
 	return nw
 }
@@ -2767,6 +3278,142 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDis
 	for i, d := range des {
 		n := nw[i]
 		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c, &d, &n))
+	}
+
+	return items
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.StringCanonicalize(des.DiskType, initial.DiskType) || dcl.IsZeroValue(des.DiskType) {
+		cDes.DiskType = initial.DiskType
+	} else {
+		cDes.DiskType = des.DiskType
+	}
+	if dcl.IsZeroValue(des.DiskSizeGb) || (dcl.IsEmptyValueIndirect(des.DiskSizeGb) && dcl.IsEmptyValueIndirect(initial.DiskSizeGb)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.DiskSizeGb = initial.DiskSizeGb
+	} else {
+		cDes.DiskSizeGb = des.DiskSizeGb
+	}
+	if dcl.IsZeroValue(des.ProvisionedIops) || (dcl.IsEmptyValueIndirect(des.ProvisionedIops) && dcl.IsEmptyValueIndirect(initial.ProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedIops = initial.ProvisionedIops
+	} else {
+		cDes.ProvisionedIops = des.ProvisionedIops
+	}
+	if dcl.IsZeroValue(des.ProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.ProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.ProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedThroughput = initial.ProvisionedThroughput
+	} else {
+		cDes.ProvisionedThroughput = des.ProvisionedThroughput
+	}
+
+	return cDes
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(des, initial []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+
+		items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.StringCanonicalize(des.DiskType, nw.DiskType) {
+		nw.DiskType = des.DiskType
+	}
+
+	return nw
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Find the elements in des that are also in nw and canonicalize them. Remove matched elements from nw.
+	var items []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig
+	for _, d := range des {
+		matchedIndex := -1
+		for i, n := range nw {
+			if diffs, _ := compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigNewStyle(&d, &n, dcl.FieldName{}); len(diffs) == 0 {
+				matchedIndex = i
+				break
+			}
+		}
+		if matchedIndex != -1 {
+			items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, &d, &nw[matchedIndex]))
+			nw = append(nw[:matchedIndex], nw[matchedIndex+1:]...)
+		}
+	}
+	// Also include elements in nw that are not matched in des.
+	items = append(items, nw...)
+
+	return items
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Lengths are unequal. A diff will occur later, so we shouldn't canonicalize.
+	// Return the original array.
+	if len(des) != len(nw) {
+		return nw
+	}
+
+	var items []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, &d, &n))
 	}
 
 	return items
@@ -3055,6 +3702,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerCon
 	} else {
 		cDes.MinCpuPlatform = des.MinCpuPlatform
 	}
+	cDes.InstanceFlexibilityPolicy = canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy(des.InstanceFlexibilityPolicy, initial.InstanceFlexibilityPolicy, opts...)
 
 	return cDes
 }
@@ -3115,6 +3763,188 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	nw.Accelerators = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSlice(c, des.Accelerators, nw.Accelerators)
 	if dcl.StringCanonicalize(des.MinCpuPlatform, nw.MinCpuPlatform) {
 		nw.MinCpuPlatform = des.MinCpuPlatform
+	}
+	nw.InstanceFlexibilityPolicy = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy(c, des.InstanceFlexibilityPolicy, nw.InstanceFlexibilityPolicy)
+
+	return nw
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy(des, initial *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy{}
+
+	cDes.InstanceSelectionList = canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(des.InstanceSelectionList, initial.InstanceSelectionList, opts...)
+	cDes.ProvisioningModelMix = canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix(des.ProvisioningModelMix, initial.ProvisioningModelMix, opts...)
+
+	return cDes
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	nw.InstanceSelectionList = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c, des.InstanceSelectionList, nw.InstanceSelectionList)
+	nw.ProvisioningModelMix = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix(c, des.ProvisioningModelMix, nw.ProvisioningModelMix)
+
+	return nw
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection(des, initial *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection{}
+
+	if dcl.StringArrayCanonicalize(des.MachineTypes, initial.MachineTypes) {
+		cDes.MachineTypes = initial.MachineTypes
+	} else {
+		cDes.MachineTypes = des.MachineTypes
+	}
+	if dcl.IsZeroValue(des.Rank) || (dcl.IsEmptyValueIndirect(des.Rank) && dcl.IsEmptyValueIndirect(initial.Rank)) {
+		cDes.Rank = initial.Rank
+	} else {
+		cDes.Rank = des.Rank
+	}
+	cDes.DiskConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(des.DiskConfig, initial.DiskConfig, opts...)
+
+	return cDes
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(des, initial []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection, opts ...dcl.ApplyOption) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	if dcl.IsEmptyValueIndirect(des) {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+		items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.StringArrayCanonicalize(des.MachineTypes, nw.MachineTypes) {
+		nw.MachineTypes = des.MachineTypes
+	}
+	nw.DiskConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c, des.DiskConfig, nw.DiskConfig)
+
+	return nw
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	var items []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c, &d, &n))
+	}
+
+	return items
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix(des, initial *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix{}
+
+	if dcl.IsZeroValue(des.StandardCapacityBase) || (dcl.IsEmptyValueIndirect(des.StandardCapacityBase) && dcl.IsEmptyValueIndirect(initial.StandardCapacityBase)) {
+		cDes.StandardCapacityBase = initial.StandardCapacityBase
+	} else {
+		cDes.StandardCapacityBase = des.StandardCapacityBase
+	}
+	if dcl.IsZeroValue(des.StandardCapacityPercentAboveBase) || (dcl.IsEmptyValueIndirect(des.StandardCapacityPercentAboveBase) && dcl.IsEmptyValueIndirect(initial.StandardCapacityPercentAboveBase)) {
+		cDes.StandardCapacityPercentAboveBase = initial.StandardCapacityPercentAboveBase
+	} else {
+		cDes.StandardCapacityPercentAboveBase = des.StandardCapacityPercentAboveBase
+	}
+
+	return cDes
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix {
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
 	}
 
 	return nw
@@ -3197,6 +4027,24 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerCon
 	} else {
 		cDes.NumLocalSsds = des.NumLocalSsds
 	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedIops) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedIops) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedIops = initial.BootDiskProvisionedIops
+	} else {
+		cDes.BootDiskProvisionedIops = des.BootDiskProvisionedIops
+	}
+	if dcl.IsZeroValue(des.BootDiskProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.BootDiskProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.BootDiskProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.BootDiskProvisionedThroughput = initial.BootDiskProvisionedThroughput
+	} else {
+		cDes.BootDiskProvisionedThroughput = des.BootDiskProvisionedThroughput
+	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, initial.LocalSsdInterface) || dcl.IsZeroValue(des.LocalSsdInterface) {
+		cDes.LocalSsdInterface = initial.LocalSsdInterface
+	} else {
+		cDes.LocalSsdInterface = des.LocalSsdInterface
+	}
+	cDes.AttachedDiskConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(des.AttachedDiskConfig, initial.AttachedDiskConfig, opts...)
 
 	return cDes
 }
@@ -3246,6 +4094,10 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	if dcl.StringCanonicalize(des.BootDiskType, nw.BootDiskType) {
 		nw.BootDiskType = des.BootDiskType
 	}
+	if dcl.StringCanonicalize(des.LocalSsdInterface, nw.LocalSsdInterface) {
+		nw.LocalSsdInterface = des.LocalSsdInterface
+	}
+	nw.AttachedDiskConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c, des.AttachedDiskConfig, nw.AttachedDiskConfig)
 
 	return nw
 }
@@ -3291,6 +4143,142 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	for i, d := range des {
 		n := nw[i]
 		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c, &d, &n))
+	}
+
+	return items
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.StringCanonicalize(des.DiskType, initial.DiskType) || dcl.IsZeroValue(des.DiskType) {
+		cDes.DiskType = initial.DiskType
+	} else {
+		cDes.DiskType = des.DiskType
+	}
+	if dcl.IsZeroValue(des.DiskSizeGb) || (dcl.IsEmptyValueIndirect(des.DiskSizeGb) && dcl.IsEmptyValueIndirect(initial.DiskSizeGb)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.DiskSizeGb = initial.DiskSizeGb
+	} else {
+		cDes.DiskSizeGb = des.DiskSizeGb
+	}
+	if dcl.IsZeroValue(des.ProvisionedIops) || (dcl.IsEmptyValueIndirect(des.ProvisionedIops) && dcl.IsEmptyValueIndirect(initial.ProvisionedIops)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedIops = initial.ProvisionedIops
+	} else {
+		cDes.ProvisionedIops = des.ProvisionedIops
+	}
+	if dcl.IsZeroValue(des.ProvisionedThroughput) || (dcl.IsEmptyValueIndirect(des.ProvisionedThroughput) && dcl.IsEmptyValueIndirect(initial.ProvisionedThroughput)) {
+		// Desired and initial values are equivalent, so set canonical desired value to initial value.
+		cDes.ProvisionedThroughput = initial.ProvisionedThroughput
+	} else {
+		cDes.ProvisionedThroughput = des.ProvisionedThroughput
+	}
+
+	return cDes
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(des, initial []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, opts ...dcl.ApplyOption) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+
+		items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	if dcl.StringCanonicalize(des.DiskType, nw.DiskType) {
+		nw.DiskType = des.DiskType
+	}
+
+	return nw
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSet(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Find the elements in des that are also in nw and canonicalize them. Remove matched elements from nw.
+	var items []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig
+	for _, d := range des {
+		matchedIndex := -1
+		for i, n := range nw {
+			if diffs, _ := compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigNewStyle(&d, &n, dcl.FieldName{}); len(diffs) == 0 {
+				matchedIndex = i
+				break
+			}
+		}
+		if matchedIndex != -1 {
+			items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, &d, &nw[matchedIndex]))
+			nw = append(nw[:matchedIndex], nw[matchedIndex+1:]...)
+		}
+	}
+	// Also include elements in nw that are not matched in des.
+	items = append(items, nw...)
+
+	return items
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, des, nw []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	if des == nil {
+		return nw
+	}
+
+	// Lengths are unequal. A diff will occur later, so we shouldn't canonicalize.
+	// Return the original array.
+	if len(des) != len(nw) {
+		return nw
+	}
+
+	var items []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, &d, &n))
 	}
 
 	return items
@@ -8645,6 +9633,13 @@ func compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigNewStyle(d,
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.InstanceFlexibilityPolicy, actual.InstanceFlexibilityPolicy, dcl.DiffInfo{ServerDefault: true, ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceFlexibilityPolicy")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
 	return diffs, nil
 }
 
@@ -8688,6 +9683,85 @@ func compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigN
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedIops, actual.BootDiskProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedThroughput, actual.BootDiskProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.LocalSsdInterface, actual.LocalSsdInterface, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("LocalSsdInterface")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.AttachedDiskConfig, actual.AttachedDiskConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("AttachedDiskConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig or *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.DiskType, actual.DiskType, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskType")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.DiskSizeGb, actual.DiskSizeGb, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskSizeGb")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedIops, actual.ProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedThroughput, actual.ProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
 	return diffs, nil
 }
 
@@ -8760,6 +9834,131 @@ func compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerator
 		}
 		diffs = append(diffs, ds...)
 	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy or *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.InstanceMachineTypes, actual.InstanceMachineTypes, dcl.DiffInfo{OutputOnly: true, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceMachineTypes")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.InstanceSelectionList, actual.InstanceSelectionList, dcl.DiffInfo{ServerDefault: true, ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceSelectionList")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.InstanceSelectionResults, actual.InstanceSelectionResults, dcl.DiffInfo{OutputOnly: true, ServerDefault: true, ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResultNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceSelectionResults")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection or *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.MachineTypes, actual.MachineTypes, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("MachineTypes")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.Rank, actual.Rank, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("Rank")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.DiskConfig, actual.DiskConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResultNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult or *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.MachineType, actual.MachineType, dcl.DiffInfo{OutputOnly: true, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("MachineType")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.VMCount, actual.VMCount, dcl.DiffInfo{OutputOnly: true, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("VmCount")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
 	return diffs, nil
 }
 
@@ -8852,6 +10051,138 @@ func compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigNewStyle(d,
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.InstanceFlexibilityPolicy, actual.InstanceFlexibilityPolicy, dcl.DiffInfo{ServerDefault: true, ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceFlexibilityPolicy")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy or *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.InstanceMachineTypes, actual.InstanceMachineTypes, dcl.DiffInfo{OutputOnly: true, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceMachineTypes")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.InstanceSelectionList, actual.InstanceSelectionList, dcl.DiffInfo{ServerDefault: true, ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceSelectionList")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.InstanceSelectionResults, actual.InstanceSelectionResults, dcl.DiffInfo{OutputOnly: true, ServerDefault: true, ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceSelectionResults")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection or *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.MachineTypes, actual.MachineTypes, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("MachineTypes")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.Rank, actual.Rank, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("Rank")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.DiskConfig, actual.DiskConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult or *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.MachineType, actual.MachineType, dcl.DiffInfo{OutputOnly: true, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("MachineType")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.VMCount, actual.VMCount, dcl.DiffInfo{OutputOnly: true, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("VmCount")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
 	return diffs, nil
 }
 
@@ -8895,6 +10226,85 @@ func compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigN
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedIops, actual.BootDiskProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedThroughput, actual.BootDiskProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.LocalSsdInterface, actual.LocalSsdInterface, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("LocalSsdInterface")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.AttachedDiskConfig, actual.AttachedDiskConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("AttachedDiskConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig or *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.DiskType, actual.DiskType, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskType")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.DiskSizeGb, actual.DiskSizeGb, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskSizeGb")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedIops, actual.ProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedThroughput, actual.ProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
 	return diffs, nil
 }
 
@@ -9059,6 +10469,182 @@ func compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigNe
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.InstanceFlexibilityPolicy, actual.InstanceFlexibilityPolicy, dcl.DiffInfo{ServerDefault: true, ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceFlexibilityPolicy")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy or *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.InstanceMachineTypes, actual.InstanceMachineTypes, dcl.DiffInfo{OutputOnly: true, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceMachineTypes")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.InstanceSelectionList, actual.InstanceSelectionList, dcl.DiffInfo{ServerDefault: true, ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceSelectionList")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.InstanceSelectionResults, actual.InstanceSelectionResults, dcl.DiffInfo{OutputOnly: true, ServerDefault: true, ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("InstanceSelectionResults")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisioningModelMix, actual.ProvisioningModelMix, dcl.DiffInfo{ServerDefault: true, ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMixNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisioningModelMix")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection or *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.MachineTypes, actual.MachineTypes, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("MachineTypes")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.Rank, actual.Rank, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("Rank")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.DiskConfig, actual.DiskConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult or *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.MachineType, actual.MachineType, dcl.DiffInfo{OutputOnly: true, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("MachineType")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.VMCount, actual.VMCount, dcl.DiffInfo{OutputOnly: true, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("VmCount")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMixNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix or *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.StandardCapacityBase, actual.StandardCapacityBase, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("StandardCapacityBase")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.StandardCapacityPercentAboveBase, actual.StandardCapacityPercentAboveBase, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("StandardCapacityPercentAboveBase")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
 	return diffs, nil
 }
 
@@ -9102,6 +10688,85 @@ func compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDi
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedIops, actual.BootDiskProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.BootDiskProvisionedThroughput, actual.BootDiskProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.LocalSsdInterface, actual.LocalSsdInterface, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("LocalSsdInterface")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.AttachedDiskConfig, actual.AttachedDiskConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("AttachedDiskConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig or *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.DiskType, actual.DiskType, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskType")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.DiskSizeGb, actual.DiskSizeGb, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("DiskSizeGb")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedIops, actual.ProvisionedIops, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedIops")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ProvisionedThroughput, actual.ProvisionedThroughput, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ProvisionedThroughput")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
 	return diffs, nil
 }
 
@@ -12069,6 +13734,11 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c *DclClien
 	if v := f.MinCpuPlatform; !dcl.IsEmptyValueIndirect(v) {
 		m["minCpuPlatform"] = v
 	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy(c, f.InstanceFlexibilityPolicy, res); err != nil {
+		return nil, fmt.Errorf("error expanding InstanceFlexibilityPolicy into instanceFlexibilityPolicy: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["instanceFlexibilityPolicy"] = v
+	}
 
 	return m, nil
 }
@@ -12096,6 +13766,7 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c *DclClie
 	r.ManagedGroupConfig = flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigManagedGroupConfig(c, m["managedGroupConfig"], res)
 	r.Accelerators = flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAcceleratorsSlice(c, m["accelerators"], res)
 	r.MinCpuPlatform = dcl.FlattenString(m["minCpuPlatform"])
+	r.InstanceFlexibilityPolicy = flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy(c, m["instanceFlexibilityPolicy"], res)
 
 	return r
 }
@@ -12198,6 +13869,20 @@ func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c
 	if v := f.NumLocalSsds; !dcl.IsEmptyValueIndirect(v) {
 		m["numLocalSsds"] = v
 	}
+	if v := f.BootDiskProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedIops"] = v
+	}
+	if v := f.BootDiskProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedThroughput"] = v
+	}
+	if v := f.LocalSsdInterface; !dcl.IsEmptyValueIndirect(v) {
+		m["localSsdInterface"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c, f.AttachedDiskConfig, res); err != nil {
+		return nil, err
+	} else if v != nil {
+		m["attachedDiskConfigs"] = v
+	}
 
 	return m, nil
 }
@@ -12218,6 +13903,140 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(
 	r.BootDiskType = dcl.FlattenString(m["bootDiskType"])
 	r.BootDiskSizeGb = dcl.FlattenInteger(m["bootDiskSizeGb"])
 	r.NumLocalSsds = dcl.FlattenInteger(m["numLocalSsds"])
+	r.BootDiskProvisionedIops = dcl.FlattenInteger(m["bootDiskProvisionedIops"])
+	r.BootDiskProvisionedThroughput = dcl.FlattenInteger(m["bootDiskProvisionedThroughput"])
+	r.LocalSsdInterface = dcl.FlattenString(m["localSsdInterface"])
+	attachedDiskConfigs := m["attachedDiskConfigs"]
+	if attachedDiskConfigs == nil {
+		attachedDiskConfigs = m["attachedDiskConfig"]
+	}
+	r.AttachedDiskConfig = flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c, attachedDiskConfigs, res)
+
+	return r
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := make(map[string]interface{})
+	for k, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items[k] = i
+		}
+	}
+
+	return items, nil
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.(map[string]interface{})
+	if !ok {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make(map[string]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig)
+	for k, item := range a {
+		items[k] = *flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res)
+	}
+
+	return items
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.DiskType; !dcl.IsEmptyValueIndirect(v) {
+		m["diskType"] = v
+	}
+	if v := f.DiskSizeGb; !dcl.IsEmptyValueIndirect(v) {
+		m["diskSizeGb"] = v
+	}
+	if v := f.ProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedIops"] = v
+	}
+	if v := f.ProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedThroughput"] = v
+	}
+
+	return m, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig
+	}
+	r.DiskType = dcl.FlattenString(m["diskType"])
+	r.DiskSizeGb = dcl.FlattenInteger(m["diskSizeGb"])
+	r.ProvisionedIops = dcl.FlattenInteger(m["provisionedIops"])
+	r.ProvisionedThroughput = dcl.FlattenInteger(m["provisionedThroughput"])
 
 	return r
 }
@@ -12452,6 +14271,210 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigAccelerator
 	return r
 }
 
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy expands an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c, f.InstanceSelectionList, res); err != nil {
+		return nil, fmt.Errorf("error expanding InstanceSelectionList into instanceSelectionList: %w", err)
+	} else if v != nil {
+		m["instanceSelectionList"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c, f.InstanceSelectionResults, res); err != nil {
+		return nil, fmt.Errorf("error expanding InstanceSelectionResults into instanceSelectionResults: %w", err)
+	} else if v != nil {
+		m["instanceSelectionResults"] = v
+	}
+
+	return m, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy flattens an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicy
+	}
+	r.InstanceMachineTypes = dcl.FlattenKeyValuePairs(m["instanceMachineTypes"])
+	r.InstanceSelectionList = flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c, m["instanceSelectionList"], res)
+	r.InstanceSelectionResults = flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c, m["instanceSelectionResults"], res)
+
+	return r
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items = append(items, i)
+		}
+	}
+
+	return items, nil
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection expands an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.MachineTypes; !dcl.IsEmptyValueIndirect(v) {
+		m["machineTypes"] = v
+	}
+	if v := f.Rank; v != nil {
+		m["rank"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c, f.DiskConfig, res); err != nil {
+		return nil, fmt.Errorf("error expanding DiskConfig into diskConfig: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["diskConfig"] = v
+	}
+
+	return m, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection flattens an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelection
+	}
+	r.MachineTypes = dcl.FlattenStringSlice(m["machineTypes"])
+	r.Rank = dcl.FlattenInteger(m["rank"])
+	r.DiskConfig = flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig(c, m["diskConfig"], res)
+
+	return r
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items = append(items, i)
+		}
+	}
+
+	return items, nil
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult expands an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.MachineType; !dcl.IsEmptyValueIndirect(v) {
+		m["machineType"] = v
+	}
+	if v := f.VMCount; !dcl.IsEmptyValueIndirect(v) {
+		m["vmCount"] = v
+	}
+
+	return m, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult flattens an instance of WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigMasterConfigInstanceFlexibilityPolicyInstanceSelectionResult
+	}
+	r.MachineType = dcl.FlattenString(m["machineType"])
+	r.VMCount = dcl.FlattenInteger(m["vmCount"])
+
+	return r
+}
+
 // expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfig into a JSON
 // request object.
 func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
@@ -12566,6 +14589,11 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c *DclClien
 	if v := f.MinCpuPlatform; !dcl.IsEmptyValueIndirect(v) {
 		m["minCpuPlatform"] = v
 	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy(c, f.InstanceFlexibilityPolicy, res); err != nil {
+		return nil, fmt.Errorf("error expanding InstanceFlexibilityPolicy into instanceFlexibilityPolicy: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["instanceFlexibilityPolicy"] = v
+	}
 
 	return m, nil
 }
@@ -12593,6 +14621,189 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c *DclClie
 	r.ManagedGroupConfig = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigManagedGroupConfig(c, m["managedGroupConfig"], res)
 	r.Accelerators = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigAcceleratorsSlice(c, m["accelerators"], res)
 	r.MinCpuPlatform = dcl.FlattenString(m["minCpuPlatform"])
+	r.InstanceFlexibilityPolicy = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy(c, m["instanceFlexibilityPolicy"], res)
+
+	return r
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy expands an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy into a JSON request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c, f.InstanceSelectionList, res); err != nil {
+		return nil, fmt.Errorf("error expanding InstanceSelectionList into instanceSelectionList: %w", err)
+	} else if v != nil {
+		m["instanceSelectionList"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c, f.InstanceSelectionResults, res); err != nil {
+		return nil, fmt.Errorf("error expanding InstanceSelectionResults into instanceSelectionResults: %w", err)
+	} else if v != nil {
+		m["instanceSelectionResults"] = v
+	}
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicy
+	}
+	r.InstanceMachineTypes = dcl.FlattenKeyValuePairs(m["instanceMachineTypes"])
+	r.InstanceSelectionList = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c, m["instanceSelectionList"], res)
+	r.InstanceSelectionResults = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c, m["instanceSelectionResults"], res)
+
+	return r
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.MachineTypes; !dcl.IsEmptyValueIndirect(v) {
+		m["machineTypes"] = v
+	}
+	if v := f.Rank; v != nil {
+		m["rank"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c, f.DiskConfig, res); err != nil {
+		return nil, fmt.Errorf("error expanding DiskConfig into diskConfig: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["diskConfig"] = v
+	}
+
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelection
+	}
+	r.MachineTypes = dcl.FlattenStringSlice(m["machineTypes"])
+	r.Rank = dcl.FlattenInteger(m["rank"])
+	r.DiskConfig = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c, m["diskConfig"], res)
+
+	return r
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.MachineType; !dcl.IsEmptyValueIndirect(v) {
+		m["machineType"] = v
+	}
+	if v := f.VMCount; !dcl.IsEmptyValueIndirect(v) {
+		m["vmCount"] = v
+	}
+
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult
+	}
+	r.MachineType = dcl.FlattenString(m["machineType"])
+	r.VMCount = dcl.FlattenInteger(m["vmCount"])
 
 	return r
 }
@@ -12695,6 +14906,20 @@ func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(c
 	if v := f.NumLocalSsds; !dcl.IsEmptyValueIndirect(v) {
 		m["numLocalSsds"] = v
 	}
+	if v := f.BootDiskProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedIops"] = v
+	}
+	if v := f.BootDiskProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedThroughput"] = v
+	}
+	if v := f.LocalSsdInterface; !dcl.IsEmptyValueIndirect(v) {
+		m["localSsdInterface"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c, f.AttachedDiskConfig, res); err != nil {
+		return nil, err
+	} else if v != nil {
+		m["attachedDiskConfigs"] = v
+	}
 
 	return m, nil
 }
@@ -12715,6 +14940,140 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig(
 	r.BootDiskType = dcl.FlattenString(m["bootDiskType"])
 	r.BootDiskSizeGb = dcl.FlattenInteger(m["bootDiskSizeGb"])
 	r.NumLocalSsds = dcl.FlattenInteger(m["numLocalSsds"])
+	r.BootDiskProvisionedIops = dcl.FlattenInteger(m["bootDiskProvisionedIops"])
+	r.BootDiskProvisionedThroughput = dcl.FlattenInteger(m["bootDiskProvisionedThroughput"])
+	r.LocalSsdInterface = dcl.FlattenString(m["localSsdInterface"])
+	attachedDiskConfigs := m["attachedDiskConfigs"]
+	if attachedDiskConfigs == nil {
+		attachedDiskConfigs = m["attachedDiskConfig"]
+	}
+	r.AttachedDiskConfig = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c, attachedDiskConfigs, res)
+
+	return r
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := make(map[string]interface{})
+	for k, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items[k] = i
+		}
+	}
+
+	return items, nil
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.(map[string]interface{})
+	if !ok {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make(map[string]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig)
+	for k, item := range a {
+		items[k] = *flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res)
+	}
+
+	return items
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.DiskType; !dcl.IsEmptyValueIndirect(v) {
+		m["diskType"] = v
+	}
+	if v := f.DiskSizeGb; !dcl.IsEmptyValueIndirect(v) {
+		m["diskSizeGb"] = v
+	}
+	if v := f.ProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedIops"] = v
+	}
+	if v := f.ProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedThroughput"] = v
+	}
+
+	return m, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig
+	}
+	r.DiskType = dcl.FlattenString(m["diskType"])
+	r.DiskSizeGb = dcl.FlattenInteger(m["diskSizeGb"])
+	r.ProvisionedIops = dcl.FlattenInteger(m["provisionedIops"])
+	r.ProvisionedThroughput = dcl.FlattenInteger(m["provisionedThroughput"])
 
 	return r
 }
@@ -13063,6 +15422,11 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c 
 	if v := f.MinCpuPlatform; !dcl.IsEmptyValueIndirect(v) {
 		m["minCpuPlatform"] = v
 	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy(c, f.InstanceFlexibilityPolicy, res); err != nil {
+		return nil, fmt.Errorf("error expanding InstanceFlexibilityPolicy into instanceFlexibilityPolicy: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["instanceFlexibilityPolicy"] = v
+	}
 
 	return m, nil
 }
@@ -13090,6 +15454,229 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c
 	r.ManagedGroupConfig = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigManagedGroupConfig(c, m["managedGroupConfig"], res)
 	r.Accelerators = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsSlice(c, m["accelerators"], res)
 	r.MinCpuPlatform = dcl.FlattenString(m["minCpuPlatform"])
+	r.InstanceFlexibilityPolicy = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy(c, m["instanceFlexibilityPolicy"], res)
+
+	return r
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy expands an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy into a JSON request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c, f.InstanceSelectionList, res); err != nil {
+		return nil, fmt.Errorf("error expanding InstanceSelectionList into instanceSelectionList: %w", err)
+	} else if v != nil {
+		m["instanceSelectionList"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c, f.InstanceSelectionResults, res); err != nil {
+		return nil, fmt.Errorf("error expanding InstanceSelectionResults into instanceSelectionResults: %w", err)
+	} else if v != nil {
+		m["instanceSelectionResults"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix(c, f.ProvisioningModelMix, res); err != nil {
+		return nil, fmt.Errorf("error expanding ProvisioningModelMix into provisioningModelMix: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["provisioningModelMix"] = v
+	}
+
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicy
+	}
+	r.InstanceMachineTypes = dcl.FlattenKeyValuePairs(m["instanceMachineTypes"])
+	r.InstanceSelectionList = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c, m["instanceSelectionList"], res)
+	r.InstanceSelectionResults = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c, m["instanceSelectionResults"], res)
+	r.ProvisioningModelMix = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix(c, m["provisioningModelMix"], res)
+
+	return r
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.MachineTypes; !dcl.IsEmptyValueIndirect(v) {
+		m["machineTypes"] = v
+	}
+	if v := f.Rank; v != nil {
+		m["rank"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c, f.DiskConfig, res); err != nil {
+		return nil, fmt.Errorf("error expanding DiskConfig into diskConfig: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["diskConfig"] = v
+	}
+
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelection
+	}
+	r.MachineTypes = dcl.FlattenStringSlice(m["machineTypes"])
+	r.Rank = dcl.FlattenInteger(m["rank"])
+	r.DiskConfig = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfig(c, m["diskConfig"], res)
+
+	return r
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.MachineType; !dcl.IsEmptyValueIndirect(v) {
+		m["machineType"] = v
+	}
+	if v := f.VMCount; !dcl.IsEmptyValueIndirect(v) {
+		m["vmCount"] = v
+	}
+
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResultSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyInstanceSelectionResult
+	}
+	r.MachineType = dcl.FlattenString(m["machineType"])
+	r.VMCount = dcl.FlattenInteger(m["vmCount"])
+
+	return r
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.StandardCapacityBase; v != nil {
+		m["standardCapacityBase"] = v
+	}
+	if v := f.StandardCapacityPercentAboveBase; v != nil {
+		m["standardCapacityPercentAboveBase"] = v
+	}
+
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigInstanceFlexibilityPolicyProvisioningModelMix
+	}
+	r.StandardCapacityBase = dcl.FlattenInteger(m["standardCapacityBase"])
+	r.StandardCapacityPercentAboveBase = dcl.FlattenInteger(m["standardCapacityPercentAboveBase"])
 
 	return r
 }
@@ -13192,6 +15779,20 @@ func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDis
 	if v := f.NumLocalSsds; !dcl.IsEmptyValueIndirect(v) {
 		m["numLocalSsds"] = v
 	}
+	if v := f.BootDiskProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedIops"] = v
+	}
+	if v := f.BootDiskProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskProvisionedThroughput"] = v
+	}
+	if v := f.LocalSsdInterface; !dcl.IsEmptyValueIndirect(v) {
+		m["localSsdInterface"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c, f.AttachedDiskConfig, res); err != nil {
+		return nil, err
+	} else if v != nil {
+		m["attachedDiskConfigs"] = v
+	}
 
 	return m, nil
 }
@@ -13212,6 +15813,140 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDi
 	r.BootDiskType = dcl.FlattenString(m["bootDiskType"])
 	r.BootDiskSizeGb = dcl.FlattenInteger(m["bootDiskSizeGb"])
 	r.NumLocalSsds = dcl.FlattenInteger(m["numLocalSsds"])
+	r.BootDiskProvisionedIops = dcl.FlattenInteger(m["bootDiskProvisionedIops"])
+	r.BootDiskProvisionedThroughput = dcl.FlattenInteger(m["bootDiskProvisionedThroughput"])
+	r.LocalSsdInterface = dcl.FlattenString(m["localSsdInterface"])
+	attachedDiskConfigs := m["attachedDiskConfigs"]
+	if attachedDiskConfigs == nil {
+		attachedDiskConfigs = m["attachedDiskConfig"]
+	}
+	r.AttachedDiskConfig = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c, attachedDiskConfigs, res)
+
+	return r
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigMap(c *DclClient, f map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := make(map[string]interface{})
+	for k, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items[k] = i
+		}
+	}
+
+	return items, nil
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice expands the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, f []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigMap flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigMap(c *DclClient, i interface{}, res *WorkflowTemplate) map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.(map[string]interface{})
+	if !ok {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make(map[string]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig)
+	for k, item := range a {
+		items[k] = *flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res)
+	}
+
+	return items
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice flattens the contents of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfigSlice(c *DclClient, i interface{}, res *WorkflowTemplate) []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	if len(a) == 0 {
+		return []WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+	}
+
+	items := make([]WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+// expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig expands an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig into a JSON
+// request object.
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.DiskType; !dcl.IsEmptyValueIndirect(v) {
+		m["diskType"] = v
+	}
+	if v := f.DiskSizeGb; !dcl.IsEmptyValueIndirect(v) {
+		m["diskSizeGb"] = v
+	}
+	if v := f.ProvisionedIops; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedIops"] = v
+	}
+	if v := f.ProvisionedThroughput; !dcl.IsEmptyValueIndirect(v) {
+		m["provisionedThroughput"] = v
+	}
+
+	return m, nil
+}
+
+// flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig flattens an instance of WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig from a JSON
+// response object.
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig
+	}
+	r.DiskType = dcl.FlattenString(m["diskType"])
+	r.DiskSizeGb = dcl.FlattenInteger(m["diskSizeGb"])
+	r.ProvisionedIops = dcl.FlattenInteger(m["provisionedIops"])
+	r.ProvisionedThroughput = dcl.FlattenInteger(m["provisionedThroughput"])
 
 	return r
 }

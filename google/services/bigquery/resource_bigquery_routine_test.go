@@ -31,8 +31,8 @@ import (
 func TestAccBigQueryRoutine_bigQueryRoutine_Update(t *testing.T) {
 	t.Parallel()
 
-	dataset := fmt.Sprintf("tfmanualdataset%s", acctest.RandString(t, 10))
-	routine := fmt.Sprintf("tfmanualroutine%s", acctest.RandString(t, 10))
+	dataset := fmt.Sprintf("tf_test_manualdataset%s", acctest.RandString(t, 10))
+	routine := fmt.Sprintf("tf_test_manualroutine%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

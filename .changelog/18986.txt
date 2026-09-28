@@ -1,0 +1,3 @@
+```release-note:bug
+container: corrected the `host_maintenance_policy` field appearing in the GA provider. Any usage of the field would fail as handlers were correctly in the beta provider & the v1 API does not support the field (GA only)
+```

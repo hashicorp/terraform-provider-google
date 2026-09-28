@@ -178,8 +178,10 @@ func ResourceVertexAISemanticGovernancePolicyEngine() *schema.Resource {
 			"gateway_configs": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Description: `Configurations for gateways. The keys are user-defined names for each gateway.
-At most 5 gateway configurations are allowed.`,
+				Description: `Configurations for gateways, keyed by a user-defined gateway name. At most
+5 gateway configurations are allowed. Each gateway name must be 1-63
+characters, start with a lowercase letter, contain only lowercase letters,
+numbers and hyphens, and not end with a hyphen.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -201,33 +203,43 @@ implicitly and need not be listed. Format: projects/{project} (ID or number).`,
 							},
 						},
 						"dns_zone_name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `FQDN of the private DNS zone to create DNS record set for PSC endpoint.`,
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The name of the private Cloud DNS managed zone in which the backend
+creates the DNS record set for this gateway's PSC endpoint. This is the
+managed-zone resource name, not a fully-qualified domain name. The zone
+must already exist and be attached to the gateway's VPC at provision
+time. The name must match '^[a-z0-9.-]{1,63}$'. Must be set together
+with 'network' and 'subnetwork' (all three or none).`,
 						},
 						"network": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The URI of the network resource where PSC-E will be provisioned. If not
-provided 'default' network will be used. Format:
-projects/{project}/global/networks/{network}`,
+							Description: `The URI of the network resource where the gateway's PSC endpoint is
+provisioned. Format: projects/{project}/global/networks/{network}.
+'network', 'subnetwork', and 'dns_zone_name' must all be set together
+or all omitted; setting only some is rejected by the API.`,
 						},
 						"subnetwork": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Description: `The URI of the subnetwork resource where PSC-E will be provisioned. If
-not provided 'default' subnet will be used from the same {location}
-Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}`,
+							Description: `The URI of the subnetwork resource where the gateway's PSC endpoint is
+provisioned. Format:
+projects/{project}/regions/{region}/subnetworks/{subnetwork}. Must be
+set together with 'network' and 'dns_zone_name' (all three or none).`,
 						},
 						"dns_record": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The fully qualified record name of the created A-record in Cloud DNS.`,
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The fully qualified record name of the A-record the backend writes into
+'dns_zone_name' for this gateway. Populated after the gateway reaches
+'ACTIVE'; empty until then.`,
 						},
 						"ip_address": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The private IP address of the PSC endpoint.`,
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The private IP address of the PSC endpoint. This field is currently
+always empty and is slated for deprecation; do not depend on it.`,
 						},
 						"psc_endpoint": {
 							Type:     schema.TypeString,
@@ -239,7 +251,9 @@ rule.`,
 							Type:     schema.TypeString,
 							Computed: true,
 							Description: `The state of the Gateway configuration. One of: STATE_UNSPECIFIED,
-PROVISIONING, ACTIVE, DEPROVISIONING, INACTIVE, FAILED.`,
+PROVISIONING, ACTIVE, DEPROVISIONING, INACTIVE, FAILED. A 'FAILED'
+gateway is surfaced here without a provider error; the engine as a
+whole may still be 'ACTIVE'.`,
 						},
 					},
 				},

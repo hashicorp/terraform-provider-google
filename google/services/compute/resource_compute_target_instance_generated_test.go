@@ -61,7 +61,7 @@ func TestAccComputeTargetInstance_targetInstanceBasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"instance_name": "tf-test-target-vm" + randomSuffix,
-		"target_name":   "target" + randomSuffix,
+		"target_name":   "tf-test-target" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

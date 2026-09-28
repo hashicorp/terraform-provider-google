@@ -224,11 +224,11 @@ The following arguments are supported:
 
 * `availability_type` -
   (Optional)
-  'Availability type of an Instance. Defaults to REGIONAL for both primary and read instances.
-  Note that primary and read instances can have different availability types.
-  Primary instances can be either ZONAL or REGIONAL. Read Pool instances can also be either ZONAL or REGIONAL.
-  Read pools of size 1 can only have zonal availability. Read pools with a node count of 2 or more
-  can have regional availability (nodes are present in 2 or more zones in a region).
+  'Availability type of a primary Instance. Defaults to REGIONAL.
+  Primary instances can be either ZONAL or REGIONAL. Read Pool instances
+  derive their availability from `read_pool_config.node_count`: a pool
+  with one node is ZONAL, while a pool with two or more nodes is REGIONAL.
+  Read Pool instances do not support setting this field directly.
   Possible values are: `AVAILABILITY_TYPE_UNSPECIFIED`, `ZONAL`, `REGIONAL`.'
   Possible values are: `AVAILABILITY_TYPE_UNSPECIFIED`, `ZONAL`, `REGIONAL`.
 
@@ -362,7 +362,9 @@ The following arguments are supported:
 
 * `cpu_count` -
   (Optional)
-  The number of CPU's in the VM instance.
+  The number of CPUs in the VM instance. For read pool instances, this
+  value is applied to the instances in the pool and is not replaced by
+  a fixed default.
 
 * `machine_type` -
   (Optional)

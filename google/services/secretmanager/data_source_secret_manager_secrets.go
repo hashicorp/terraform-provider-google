@@ -172,6 +172,7 @@ func flattenSecretManagerSecretsSecrets(v interface{}, d *schema.ResourceData, c
 			"topics":                flattenSecretManagerSecretTopics(original["topics"], d, config),
 			"version_aliases":       flattenSecretManagerSecretVersionAliases(original["versionAliases"], d, config),
 			"version_destroy_ttl":   flattenSecretManagerSecretVersionDestroyTtl(original["versionDestroyTtl"], d, config),
+			"secret_type":           flattenSecretManagerSecretSecretType(original["secretType"], d, config),
 			"create_time":           flattenSecretManagerSecretCreateTime(original["createTime"], d, config),
 			"name":                  flattenSecretManagerSecretName(original["name"], d, config),
 			"project":               getDataFromName(original["name"], 1),

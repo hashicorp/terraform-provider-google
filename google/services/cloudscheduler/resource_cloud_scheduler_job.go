@@ -54,6 +54,29 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// When `paused` is removed from configuration, honor the documented default
+// (jobs are enabled when the property is not set). The field is Optional+Computed,
+// so an absent value would otherwise carry the prior state forward and produce no
+// diff, leaving a previously-paused job paused. Forcing the planned value to false
+// when the config is null generates the diff that fires the :resume RPC.
+func resumeJobWhenPausedUnset(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	rawConfig := diff.GetRawConfig()
+	if rawConfig.IsNull() {
+		return nil
+	}
+
+	pausedConfig := rawConfig.GetAttr("paused")
+	if pausedConfig.IsNull() {
+		if paused, ok := diff.Get("paused").(bool); ok && paused {
+			if err := diff.SetNew("paused", false); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 // Both oidc and oauth headers cannot be set
 func validateAuthHeaders(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	httpBlock := diff.Get("http_target.0").(map[string]interface{})
@@ -204,6 +227,7 @@ func ResourceCloudSchedulerJob() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			validateAuthHeaders,
+			resumeJobWhenPausedUnset,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),

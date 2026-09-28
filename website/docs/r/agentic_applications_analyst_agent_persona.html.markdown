@@ -65,6 +65,12 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     description = "Skill for finance analysis"
     content     = "# Finance Analysis\nAnalyze financial data."
   }
+
+  math_rendering_mode = "MATH_RENDERING_MODE_LATEX"
+
+  web_search_config {
+    excluded_domains = ["example.com"]
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -187,6 +193,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
       }
     }
     visualization_options {
+      visualization_mode = "VISUALIZATION_MODE_WHEN_NECESSARY"
       visualization_examples {
         visualization_type = "VISUALIZATION_TYPE_UNSPECIFIED"
         resource {
@@ -214,6 +221,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     enabled         = true
     prompt          = "Use this server for queries"
     api_key_name    = "x-api-key"
+    api_key_header  = "x-api-key-header"
     client_id       = "sample-client-id"
     oauth_token_url = "https://example.com/oauth/token"
   }
@@ -265,6 +273,39 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
       name        = "column_1"
       description = "First column description"
       data_type   = "STRING"
+    }
+  }
+
+  math_rendering_mode = "MATH_RENDERING_MODE_LATEX"
+
+  web_search_config {
+    disabled         = false
+    excluded_domains = ["example.com"]
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=analyst_agent_persona_methodology_export_options&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Analyst Agent Persona Methodology Export Options
+
+
+```hcl
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  location                 = "us"
+  analyst_agent_persona_id = "methodology"
+  display_name             = "Test Analyst Persona Methodology Export"
+  display_description      = "Sample analyst agent persona description"
+  model_description        = "Sample model description"
+  role                     = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+
+  artifacts_config {
+    methodology_export_options {
+      append_methodology          = true
+      export_format               = "MARKDOWN"
+      export_methodology_artifact = true
     }
   }
 }
@@ -320,6 +361,13 @@ The following arguments are supported:
   persona.
   If not set, requests from GE will only be routed to this persona if its
   name ends in "/default".
+
+* `math_rendering_mode` -
+  (Optional)
+  The math rendering mode selected for this persona.
+  Possible values:
+  MATH_RENDERING_MODE_LATEX
+  MATH_RENDERING_MODE_PLAIN_TEXT
 
 * `mcp_data_sources` -
   (Optional)
@@ -377,6 +425,11 @@ The following arguments are supported:
   table in the customer's database, e.g. to provide additional context to the
   agent.
   Structure is [documented below](#nested_tables).
+
+* `web_search_config` -
+  (Optional)
+  Configuration for web search grounding for the analyst agent.
+  Structure is [documented below](#nested_web_search_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -515,6 +568,11 @@ The following arguments are supported:
   (Optional)
   Options for document generation.
   Structure is [documented below](#nested_artifacts_config_document_generation_options).
+
+* `methodology_export_options` -
+  (Optional)
+  Options for methodology export.
+  Structure is [documented below](#nested_artifacts_config_methodology_export_options).
 
 * `slide_generation_options` -
   (Optional)
@@ -663,6 +721,24 @@ The following arguments are supported:
   (Required)
   The mime type of the file.
 
+<a name="nested_artifacts_config_methodology_export_options"></a>The `methodology_export_options` block supports:
+
+* `append_methodology` -
+  (Optional)
+  If true, append the detailed methodology to the final response.
+
+* `export_format` -
+  (Optional)
+  Format for methodology export.
+  Possible values:
+  MARKDOWN
+  HTML
+  PDF
+
+* `export_methodology_artifact` -
+  (Optional)
+  If true, export the detailed methodology as a separate artifact.
+
 <a name="nested_artifacts_config_slide_generation_options"></a>The `slide_generation_options` block supports:
 
 * `export_format` -
@@ -806,6 +882,15 @@ The following arguments are supported:
   (Optional)
   Examples for visualizations.
   Structure is [documented below](#nested_artifacts_config_visualization_options_visualization_examples).
+
+* `visualization_mode` -
+  (Optional)
+  Mode for generating visualizations.
+  Possible values:
+  VISUALIZATION_MODE_EXPLICIT_ONLY
+  VISUALIZATION_MODE_WHEN_NECESSARY
+  VISUALIZATION_MODE_WHEN_HELPFUL
+  VISUALIZATION_MODE_ALWAYS
 
 
 <a name="nested_artifacts_config_visualization_options_visualization_examples"></a>The `visualization_examples` block supports:
@@ -982,6 +1067,11 @@ The following arguments are supported:
   (Optional)
   Input only. The API key of the MCP server.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `api_key_header` -
+  (Optional)
+  The HTTP header when the API key is passed in a request header
+  (e.g. `x-api-key`, `api-key`, `X-Auth-Token`).
 
 * `api_key_name` -
   (Optional)
@@ -1196,6 +1286,18 @@ The following arguments are supported:
 * `name` -
   (Required)
   The name of the column.
+
+<a name="nested_web_search_config"></a>The `web_search_config` block supports:
+
+* `disabled` -
+  (Optional)
+  Whether web search grounding is disabled for the analyst agent.
+  Defaults to false if not specified (i.e. web search grounding is enabled).
+
+* `excluded_domains` -
+  (Optional)
+  List of domains to be excluded from Google Search / Enterprise Web Search
+  grounding.
 
 ## Attributes Reference
 

@@ -50,7 +50,7 @@ func testAccDataSourceGoogleCloudBuildTrigger_basic(context map[string]interface
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "test-trigger" {
 	location = "us-central1"
-	name        = "manual-build%{random_suffix}"
+	name        = "tf-test-manual-build%{random_suffix}"
 	trigger_template {
 		branch_name = "main"
 		repo_name   = "my-repo"

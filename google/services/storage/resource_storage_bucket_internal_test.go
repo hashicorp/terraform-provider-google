@@ -17,7 +17,12 @@
 package storage
 
 import (
+	"errors"
+	"fmt"
+	"sync"
 	"testing"
+
+	"google.golang.org/api/googleapi"
 )
 
 func TestLabelDiffSuppress(t *testing.T) {
@@ -97,4 +102,168 @@ func TestLabelDiffSuppress(t *testing.T) {
 			t.Errorf("bad: %s, %q: %q => %q expect DiffSuppress to return %t", tn, tc.K, tc.Old, tc.New, tc.ExpectDiffSuppress)
 		}
 	}
+}
+
+func TestIsIgnorableStorageObjectDeleteError(t *testing.T) {
+	cases := map[string]struct {
+		err      error
+		expected bool
+	}{
+		// Callers check err != nil before calling, so nil is not an ignorable error.
+		"nil": {
+			err:      nil,
+			expected: false,
+		},
+		"404 no such object": {
+			err:      &googleapi.Error{Code: 404, Message: "No such object: example-bucket/path/to/object"},
+			expected: true,
+		},
+		"410 gone": {
+			err:      &googleapi.Error{Code: 410, Message: "Gone"},
+			expected: true,
+		},
+		"wrapped 404": {
+			err:      fmt.Errorf("deleting object: %w", &googleapi.Error{Code: 404, Message: "No such object: example-bucket/path/to/object"}),
+			expected: true,
+		},
+		"double wrapped 404": {
+			err:      fmt.Errorf("outer: %w", fmt.Errorf("inner: %w", &googleapi.Error{Code: 404, Message: "No such object"})),
+			expected: true,
+		},
+		"errors.Join with 404": {
+			err:      errors.Join(errors.New("network blip"), &googleapi.Error{Code: 404, Message: "No such object"}),
+			expected: true,
+		},
+		"403 forbidden": {
+			err:      &googleapi.Error{Code: 403, Message: "Forbidden"},
+			expected: false,
+		},
+		"409 conflict": {
+			err:      &googleapi.Error{Code: 409, Message: "Conflict"},
+			expected: false,
+		},
+		"400 bad request": {
+			err:      &googleapi.Error{Code: 400, Message: "Bad Request"},
+			expected: false,
+		},
+		"429 rate limit": {
+			err:      &googleapi.Error{Code: 429, Message: "Rate Limit Exceeded"},
+			expected: false,
+		},
+		"500 internal": {
+			err:      &googleapi.Error{Code: 500, Message: "Internal Error"},
+			expected: false,
+		},
+		"412 precondition": {
+			err:      &googleapi.Error{Code: 412, Message: "Precondition Failed"},
+			expected: false,
+		},
+		"wrapped 403": {
+			err:      fmt.Errorf("deleting object: %w", &googleapi.Error{Code: 403, Message: "Forbidden"}),
+			expected: false,
+		},
+		"errors.Join with 403": {
+			err:      errors.Join(errors.New("network blip"), &googleapi.Error{Code: 403, Message: "Forbidden"}),
+			expected: false,
+		},
+		"non-googleapi error": {
+			err:      errors.New("network timeout"),
+			expected: false,
+		},
+		// Typed nil in an error interface: err != nil is true, but there is no real
+		// googleapi.Error value. Must not panic and must not be treated as ignorable.
+		"typed nil *googleapi.Error": {
+			err: func() error {
+				var gerr *googleapi.Error
+				return gerr
+			}(),
+			expected: false,
+		},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if got := isIgnorableStorageObjectDeleteError(tc.err); got != tc.expected {
+				t.Fatalf("isIgnorableStorageObjectDeleteError(%v) = %v, want %v", tc.err, got, tc.expected)
+			}
+		})
+	}
+}
+
+// TestForceDestroyDeleteWorkerContract mirrors the force_destroy Objects.Delete
+// worker: ignore 404/410, keep the first real error under concurrent deletes.
+func TestForceDestroyDeleteWorkerContract(t *testing.T) {
+	run := func(errs []error) error {
+		var (
+			mu  sync.Mutex
+			got error
+			wg  sync.WaitGroup
+		)
+		for _, e := range errs {
+			e := e
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if e != nil {
+					if isIgnorableStorageObjectDeleteError(e) {
+						return
+					}
+					mu.Lock()
+					defer mu.Unlock()
+					if got == nil {
+						got = e
+					}
+				}
+			}()
+		}
+		wg.Wait()
+		return got
+	}
+
+	t.Run("all success", func(t *testing.T) {
+		if err := run([]error{nil, nil, nil}); err != nil {
+			t.Fatalf("want nil, got %v", err)
+		}
+	})
+	t.Run("all ignorable", func(t *testing.T) {
+		if err := run([]error{
+			&googleapi.Error{Code: 404},
+			&googleapi.Error{Code: 404},
+			&googleapi.Error{Code: 410},
+		}); err != nil {
+			t.Fatalf("want nil when only ignorable errors, got %v", err)
+		}
+	})
+	t.Run("mix 404 and 403 keeps 403", func(t *testing.T) {
+		err403 := &googleapi.Error{Code: 403, Message: "Forbidden"}
+		err := run([]error{
+			&googleapi.Error{Code: 404},
+			err403,
+			&googleapi.Error{Code: 410},
+			nil,
+		})
+		if err == nil {
+			t.Fatal("want 403 kept")
+		}
+		var gerr *googleapi.Error
+		if !errors.As(err, &gerr) || gerr.Code != 403 {
+			t.Fatalf("want 403, got %v", err)
+		}
+	})
+	t.Run("contention keeps a non-ignorable error", func(t *testing.T) {
+		var inputs []error
+		for i := 0; i < 200; i++ {
+			inputs = append(inputs, &googleapi.Error{Code: 500, Message: fmt.Sprintf("e%d", i)})
+		}
+		for i := 0; i < 200; i++ {
+			inputs = append(inputs, &googleapi.Error{Code: 404})
+		}
+		err := run(inputs)
+		if err == nil {
+			t.Fatal("expected a kept error")
+		}
+		if isIgnorableStorageObjectDeleteError(err) {
+			t.Fatalf("kept an ignorable error: %v", err)
+		}
+	})
 }

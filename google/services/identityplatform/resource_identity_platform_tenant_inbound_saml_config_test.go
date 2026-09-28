@@ -61,7 +61,7 @@ func TestAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboun
 func testAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboundSamlConfigBasic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
-  display_name  = "tenant"
+  display_name  = "tf-test-tenant"
 }
 
 resource "google_identity_platform_tenant_inbound_saml_config" "tenant_saml_config" {
@@ -88,7 +88,7 @@ resource "google_identity_platform_tenant_inbound_saml_config" "tenant_saml_conf
 func testAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboundSamlConfigUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_identity_platform_tenant" "tenant" {
-  display_name  = "tenant"
+  display_name  = "tf-test-tenant"
 }
 
 resource "google_identity_platform_tenant_inbound_saml_config" "tenant_saml_config" {

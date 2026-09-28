@@ -197,6 +197,160 @@ resource "google_compute_security_policy" "policy" {
 }
 ```
 
+## Example Usage - Security Policy With Body Exclude
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "test-subnet"
+  region        = "us-west2"
+  network       = google_compute_network.default.id
+  ip_cidr_range = "10.10.0.0/24"
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name     = "test-health-check"
+
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_compute_security_policy" "policy_rule_one" {
+  provider    = google-beta
+  name        = "policyruletest"
+  description = "global security policy with body inspection"
+  type        = "CLOUD_ARMOR"
+
+  advanced_options_config {
+    json_parsing = "STANDARD"
+    log_level    = "VERBOSE"
+  }
+
+  rule {
+    description     = "waf body rule"
+    action          = "deny(403)"
+    priority        = 100
+    preview         = true
+
+    match {
+      expr {
+        expression = "evaluatePreconfiguredWaf('sqli-v33-stable')"
+      }
+    }
+
+    preconfigured_waf_config {
+      exclusion {
+        target_rule_set = "sqli-v33-stable"
+
+        request_body {
+          operator = "EQUALS"
+          value    = "safe-field"
+        }
+      }
+    }
+  }
+
+  rule {
+    action   = "allow"
+    priority = 2147483647
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
+}
+
+resource "google_compute_instance_template" "default" {
+  provider     = google-beta
+  name         = "backendpolicy"
+  machine_type = "e2-micro"
+
+  disk {
+    source_image = "projects/debian-cloud/global/images/family/debian-11"
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {}
+  }
+}
+
+resource "google_compute_instance_group_manager" "default" {
+  provider           = google-beta
+  name               = "backendpolicy"
+  base_instance_name = "backend"
+  zone               = "us-west2-a"
+
+  version {
+    instance_template = google_compute_instance_template.default.id
+  }
+
+  target_size = 1
+}
+
+resource "google_compute_backend_service" "default" {
+  provider              = google-beta
+  name                  = "backendpolicy"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  timeout_sec           = 30
+
+  health_checks = [google_compute_health_check.default.id]
+
+  backend {
+    group = google_compute_instance_group_manager.default.instance_group
+  }
+
+  security_policy = google_compute_security_policy.policy_rule_one.id
+}
+```
+
+## Example Usage - With request body expression
+
+```hcl
+resource "google_compute_security_policy" "policy" {
+  provider    = google-beta
+  name        = "my-policy"
+  description = "Policy with Request Body inspection"
+
+  rule {
+    action   = "deny(403)"
+    priority = 1000
+    match {
+      expr {
+        expression = "request.body.contains('my-match-string')"
+      }
+    }
+    description = "Deny requests containing specific body string"
+  }
+
+  rule {
+    action   = "allow"
+    priority = 2147483647
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -363,13 +517,15 @@ The following arguments are supported:
 
 * `request_uri` - (Optional) Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation. When specifying this field, the query or fragment part should be excluded. Structure is [documented below](#nested_field_params).
 
+* `request_body` - (Optional) A list of request body fields to be excluded from inspection during preconfigured WAF evaluation. Structure is [documented below](#nested_field_params).
+
 * `request_query_param` - (Optional) Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation. Note that the parameter can be in the query string or in the POST body. Structure is [documented below](#nested_field_params).
 
 * `target_rule_set` - (Required) Target WAF rule set to apply the preconfigured WAF exclusion.
 
 * `target_rule_ids` - (Optional) A list of target rule IDs under the WAF rule set to apply the preconfigured WAF exclusion. If omitted, it refers to all the rule IDs under the WAF rule set.
 
-<a name="nested_field_params"></a>The `request_header`, `request_cookie`, `request_uri` and `request_query_param` blocks support:
+<a name="nested_field_params"></a>The `request_header`, `request_cookie`, `request_uri` , `request_body` and `request_query_param` blocks support:
 
 * `operator` - (Required) You can specify an exact match or a partial match by using a field operator and a field value.
 
