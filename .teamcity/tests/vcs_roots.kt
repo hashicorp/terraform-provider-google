@@ -7,11 +7,44 @@
 
 package tests
 
+import AllProvidersNightlyTestsName
+import DefaultBranchName
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import projects.googleCloudRootProject
+import vcs_roots.HashiCorpVCSRootBeta
+import vcs_roots.HashiCorpVCSRootBetaNightly
+import vcs_roots.HashiCorpVCSRootGa
+import vcs_roots.HashiCorpVCSRootGaNightly
 
 class VcsTests {
+    @Test
+    fun nightlyTestsAndSweepersShouldDefaultToNightlyBranch() {
+        val root = googleCloudRootProject(testContextParameters())
+        listOf(
+            gaProjectName to HashiCorpVCSRootGaNightly,
+            betaProjectName to HashiCorpVCSRootBetaNightly
+        ).forEach { (provider, vcsRoot) ->
+            assertTrue("Nightly VCS root should be registered", root.roots.contains(vcsRoot))
+            assertEquals(DefaultBranchName, vcsRoot.branch)
+            val project = getNestedProjectFromRoot(root, provider, nightlyTestsProjectName)
+            project.buildTypes.forEach { build ->
+                assertEquals("${build.name} should use its provider's nightly VCS root", vcsRoot.id, build.vcs.entries.single().root.id)
+            }
+        }
+        val composite = getBuildFromProject(root, AllProvidersNightlyTestsName)
+        assertEquals(HashiCorpVCSRootGaNightly.id, composite.vcs.entries.single().root.id)
+        val globalSweepers = getSubProject(root, globalSweepersProjectName)
+        assertTrue("Gate should be branchless", getBuildFromProject(globalSweepers, "Nightly Sweeper Gate").vcs.entries.isEmpty())
+        listOf("Project Sweeper", "Folder Sweeper").forEach { name ->
+            val sweeper = getBuildFromProject(globalSweepers, name)
+            assertEquals(HashiCorpVCSRootGaNightly.id, sweeper.vcs.entries.single().root.id)
+        }
+        assertEquals("refs/heads/main", HashiCorpVCSRootGa.branch)
+        assertEquals("refs/heads/main", HashiCorpVCSRootBeta.branch)
+    }
+
     @Test
     fun buildsHaveCleanCheckOut() {
         val root = googleCloudRootProject(testContextParameters())
