@@ -18,6 +18,10 @@ fields:
   - api_field: 'iap.enabled'
   - api_field: 'iap.oauth2ClientId'
   - api_field: 'iap.oauth2ClientSecret'
+  - api_field: 'iap.oauth2ClientSecret'
+    field: 'iap.oauth2_client_secret_wo'
+  - field: 'iap.oauth2_client_secret_wo_version'
+    provider_only: true
   - api_field: 'iap.oauth2ClientSecretSha256'
   - api_field: 'locationId'
   - api_field: 'name'
