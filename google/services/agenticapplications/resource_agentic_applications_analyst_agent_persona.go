@@ -931,6 +931,16 @@ Must only be set for file-based resources.`,
 											},
 										},
 									},
+									"visualization_mode": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Mode for generating visualizations.
+Possible values:
+VISUALIZATION_MODE_EXPLICIT_ONLY
+VISUALIZATION_MODE_WHEN_NECESSARY
+VISUALIZATION_MODE_WHEN_HELPFUL
+VISUALIZATION_MODE_ALWAYS`,
+									},
 								},
 							},
 						},
@@ -1092,6 +1102,12 @@ and can only contain letters, numbers, spaces, underscores, and hyphens.`,
 							Optional:    true,
 							Description: `Input only. The API key of the MCP server.`,
 							Sensitive:   true,
+						},
+						"api_key_header": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The HTTP header when the API key is passed in a request header
+(e.g. 'x-api-key', 'api-key', 'X-Auth-Token').`,
 						},
 						"api_key_name": {
 							Type:        schema.TypeString,
@@ -1419,6 +1435,12 @@ RANGE are not supported.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"disabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Whether web search grounding is disabled for the analyst agent.
+Defaults to false if not specified (i.e. web search grounding is enabled).`,
+						},
 						"excluded_domains": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -2713,6 +2735,8 @@ func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOp
 	transformed := make(map[string]interface{})
 	transformed["visualization_examples"] =
 		flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOptionsVisualizationExamples(original["visualizationExamples"], d, config)
+	transformed["visualization_mode"] =
+		flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOptionsVisualizationMode(original["visualizationMode"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOptionsVisualizationExamples(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2899,6 +2923,10 @@ func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOp
 	return v
 }
 
+func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOptionsVisualizationMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAgenticApplicationsAnalystAgentPersonaCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -3069,6 +3097,7 @@ func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, 
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
+			"api_key_header":  flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyHeader(original["apiKeyHeader"], d, config),
 			"api_key_name":    flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyName(original["apiKeyName"], d, config),
 			"client_id":       flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesClientId(original["clientId"], d, config),
 			"description":     flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesDescription(original["description"], d, config),
@@ -3083,6 +3112,10 @@ func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, 
 }
 func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("mcp_data_sources.0.api_key")
+}
+
+func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3429,10 +3462,16 @@ func flattenAgenticApplicationsAnalystAgentPersonaWebSearchConfig(v interface{},
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["disabled"] =
+		flattenAgenticApplicationsAnalystAgentPersonaWebSearchConfigDisabled(original["disabled"], d, config)
 	transformed["excluded_domains"] =
 		flattenAgenticApplicationsAnalystAgentPersonaWebSearchConfigExcludedDomains(original["excludedDomains"], d, config)
 	return []interface{}{transformed}
 }
+func flattenAgenticApplicationsAnalystAgentPersonaWebSearchConfigDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAgenticApplicationsAnalystAgentPersonaWebSearchConfigExcludedDomains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -4546,6 +4585,13 @@ func expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOpt
 		transformed["visualizationExamples"] = transformedVisualizationExamples
 	}
 
+	transformedVisualizationMode, err := expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOptionsVisualizationMode(original["visualization_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVisualizationMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["visualizationMode"] = transformedVisualizationMode
+	}
+
 	return transformed, nil
 }
 
@@ -4871,6 +4917,10 @@ func expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOpt
 	return v, nil
 }
 
+func expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOptionsVisualizationMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandAgenticApplicationsAnalystAgentPersonaCustomerContext(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -5039,6 +5089,13 @@ func expandAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, d
 			transformed["apiKey"] = transformedApiKey
 		}
 
+		transformedApiKeyHeader, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyHeader(original["api_key_header"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedApiKeyHeader); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["apiKeyHeader"] = transformedApiKeyHeader
+		}
+
 		transformedApiKeyName, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyName(original["api_key_name"], d, config)
 		if err != nil {
 			return nil, err
@@ -5108,6 +5165,10 @@ func expandAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, d
 }
 
 func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyHeader(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -5652,6 +5713,13 @@ func expandAgenticApplicationsAnalystAgentPersonaWebSearchConfig(v interface{}, 
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedDisabled, err := expandAgenticApplicationsAnalystAgentPersonaWebSearchConfigDisabled(original["disabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disabled"] = transformedDisabled
+	}
+
 	transformedExcludedDomains, err := expandAgenticApplicationsAnalystAgentPersonaWebSearchConfigExcludedDomains(original["excluded_domains"], d, config)
 	if err != nil {
 		return nil, err
@@ -5660,6 +5728,10 @@ func expandAgenticApplicationsAnalystAgentPersonaWebSearchConfig(v interface{}, 
 	}
 
 	return transformed, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaWebSearchConfigDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandAgenticApplicationsAnalystAgentPersonaWebSearchConfigExcludedDomains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
