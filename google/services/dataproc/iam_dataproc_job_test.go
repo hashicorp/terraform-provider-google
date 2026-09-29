@@ -142,7 +142,7 @@ func TestAccDataprocJobIamPolicy(t *testing.T) {
 	})
 }
 
-var testDataprocIamJobConfig = testDataprocIamSingleNodeCluster + `
+var testDataprocIamJobConfig = `
 resource "google_dataproc_job" "pyspark" {
   region = google_dataproc_cluster.cluster.region
 
@@ -171,7 +171,7 @@ resource "google_dataproc_job" "pyspark" {
 `
 
 func testAccDataprocJobIamBinding_basic(cluster, subnetworkName, job, account, role string) string {
-	return fmt.Sprintf(testDataprocIamJobConfig+`
+	return fmt.Sprintf(testDataprocIamSingleNodeCluster+testDataprocIamJobConfig+`
 resource "google_service_account" "test-account1" {
   account_id   = "%s-1"
   display_name = "Dataproc Job IAM Testing Account"
@@ -194,7 +194,7 @@ resource "google_dataproc_job_iam_binding" "binding" {
 }
 
 func testAccDataprocJobIamBinding_update(cluster, subnetworkName, job, account, role string) string {
-	return fmt.Sprintf(testDataprocIamJobConfig+`
+	return fmt.Sprintf(testDataprocIamSingleNodeCluster+testDataprocIamJobConfig+`
 resource "google_service_account" "test-account1" {
   account_id   = "%s-1"
   display_name = "Dataproc Job IAM Testing Account"
@@ -218,7 +218,7 @@ resource "google_dataproc_job_iam_binding" "binding" {
 }
 
 func testAccDataprocJobIamMember(cluster, subnetworkName, job, account, role string) string {
-	return fmt.Sprintf(testDataprocIamJobConfig+`
+	return fmt.Sprintf(testDataprocIamSingleNodeCluster+testDataprocIamJobConfig+`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
   display_name = "Dataproc Job IAM Testing Account"
@@ -234,7 +234,7 @@ resource "google_dataproc_job_iam_member" "member" {
 }
 
 func testAccDataprocJobIamPolicy(cluster, subnetworkName, job, account, role string) string {
-	return fmt.Sprintf(testDataprocIamJobConfig+`
+	return fmt.Sprintf(testDataprocIamSingleNodeCluster+testDataprocIamJobConfig+`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
   display_name = "Dataproc Job IAM Testing Account"

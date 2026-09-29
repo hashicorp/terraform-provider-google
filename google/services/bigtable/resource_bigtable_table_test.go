@@ -1131,7 +1131,7 @@ func testAccBigtableTable_automated_backups(instanceName, tableName, automatedBa
 	if automatedBackupsFrequency != "" {
 		frequency = fmt.Sprintf(`frequency = "%s"`, automatedBackupsFrequency)
 	}
-	config := fmt.Sprintf(`
+	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
   name = "%s"
   cluster {
@@ -1153,7 +1153,6 @@ resource "google_bigtable_table" "table" {
   }
 }
 `, instanceName, instanceName, tableName, retentionPeriod, frequency, family)
-	return config
 }
 
 func testAccBigtableTable_automated_backups_locations_create(instanceName, tableName, automatedBackupsRetentionPeriod, automatedBackupsFrequency, family string) string {

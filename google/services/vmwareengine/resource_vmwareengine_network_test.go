@@ -17,7 +17,7 @@
 package vmwareengine_test
 
 import (
-	"fmt"
+	"maps"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -36,7 +36,6 @@ func TestAccVmwareengineNetwork_vmwareEngineNetworkUpdate(t *testing.T) {
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
-	configTemplate := vmwareEngineNetworkConfigTemplate(context)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -46,7 +45,7 @@ func TestAccVmwareengineNetwork_vmwareEngineNetworkUpdate(t *testing.T) {
 		CheckDestroy: testAccCheckVmwareengineNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(configTemplate, "description1"),
+				Config: vmwareEngineNetworkConfig(context, "description1"),
 			},
 			{
 				ResourceName:            "google_vmwareengine_network.default-nw",
@@ -55,7 +54,7 @@ func TestAccVmwareengineNetwork_vmwareEngineNetworkUpdate(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"location", "name"},
 			},
 			{
-				Config: fmt.Sprintf(configTemplate, "description2"),
+				Config: vmwareEngineNetworkConfig(context, "description2"),
 			},
 			{
 				ResourceName:            "google_vmwareengine_network.default-nw",
@@ -67,14 +66,16 @@ func TestAccVmwareengineNetwork_vmwareEngineNetworkUpdate(t *testing.T) {
 	})
 }
 
-func vmwareEngineNetworkConfigTemplate(context map[string]interface{}) string {
+func vmwareEngineNetworkConfig(context map[string]interface{}, description string) string {
+	context = maps.Clone(context)
+	context["description"] = description
 	return acctest.Nprintf(`
 resource "google_vmwareengine_network" "default-nw" {
   project     = google_project_service.acceptance.project
   name        = "%{region}-default"
   location    = "%{region}"
   type        = "LEGACY"
-  description = "%s"
+  description = "%{description}"
 }
 
 # there can be only 1 Legacy network per region for a given project, so creating new project to isolate tests.
