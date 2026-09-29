@@ -18,6 +18,7 @@ fields:
     - api_field: match.direction
     - api_field: match.dstIpRanges
     - api_field: match.ipProtocols
+    - api_field: match.primaryIpRanges
     - api_field: match.srcIpRanges
     - api_field: name
     - api_field: reconciling

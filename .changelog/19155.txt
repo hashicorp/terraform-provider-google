@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: added `primary_ip_ranges` field to `google_network_security_ull_mirroring_collector_rule` resource
+```

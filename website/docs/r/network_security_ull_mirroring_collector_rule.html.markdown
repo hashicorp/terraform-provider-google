@@ -90,10 +90,11 @@ resource "google_network_security_ull_mirroring_collector_rule" "default" {
   ull_mirroring_collector         = google_network_security_ull_mirroring_collector.collector.ull_mirroring_collector_id
 
   match {
-    direction     = "INGRESS"
-    ip_protocols  = ["tcp"]
-    src_ip_ranges = ["10.0.0.0/8"]
-    dst_ip_ranges = ["192.168.0.0/16"]
+    direction         = "INGRESS"
+    ip_protocols      = ["tcp"]
+    src_ip_ranges     = ["10.0.0.0/8"]
+    dst_ip_ranges     = ["192.168.0.0/16"]
+    primary_ip_ranges = ["10.1.0.0/16"]
   }
 }
 ```
@@ -156,6 +157,11 @@ The following arguments are supported:
   (Optional)
   IP protocols to match. When unset, matches any IP protocol.
   Examples: "tcp", "udp", "icmp". If unset, matches any IP protocol.
+
+* `primary_ip_ranges` -
+  (Optional)
+  Primary IP ranges to match (for the capture point).
+  When unset, matches any primary IP.
 
 * `src_ip_ranges` -
   (Optional)
