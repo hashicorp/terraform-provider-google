@@ -185,6 +185,15 @@ Examples: "tcp", "udp", "icmp". If unset, matches any IP protocol.`,
 								Type: schema.TypeString,
 							},
 						},
+						"primary_ip_ranges": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Primary IP ranges to match (for the capture point).
+When unset, matches any primary IP.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"src_ip_ranges": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -714,6 +723,8 @@ func flattenNetworkSecurityUllMirroringCollectorRuleMatch(v interface{}, d *sche
 		flattenNetworkSecurityUllMirroringCollectorRuleMatchDstIpRanges(original["dstIpRanges"], d, config)
 	transformed["ip_protocols"] =
 		flattenNetworkSecurityUllMirroringCollectorRuleMatchIpProtocols(original["ipProtocols"], d, config)
+	transformed["primary_ip_ranges"] =
+		flattenNetworkSecurityUllMirroringCollectorRuleMatchPrimaryIpRanges(original["primaryIpRanges"], d, config)
 	transformed["src_ip_ranges"] =
 		flattenNetworkSecurityUllMirroringCollectorRuleMatchSrcIpRanges(original["srcIpRanges"], d, config)
 	return []interface{}{transformed}
@@ -727,6 +738,10 @@ func flattenNetworkSecurityUllMirroringCollectorRuleMatchDstIpRanges(v interface
 }
 
 func flattenNetworkSecurityUllMirroringCollectorRuleMatchIpProtocols(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityUllMirroringCollectorRuleMatchPrimaryIpRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -798,6 +813,13 @@ func expandNetworkSecurityUllMirroringCollectorRuleMatch(v interface{}, d tpgres
 		transformed["ipProtocols"] = transformedIpProtocols
 	}
 
+	transformedPrimaryIpRanges, err := expandNetworkSecurityUllMirroringCollectorRuleMatchPrimaryIpRanges(original["primary_ip_ranges"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrimaryIpRanges); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["primaryIpRanges"] = transformedPrimaryIpRanges
+	}
+
 	transformedSrcIpRanges, err := expandNetworkSecurityUllMirroringCollectorRuleMatchSrcIpRanges(original["src_ip_ranges"], d, config)
 	if err != nil {
 		return nil, err
@@ -817,6 +839,10 @@ func expandNetworkSecurityUllMirroringCollectorRuleMatchDstIpRanges(v interface{
 }
 
 func expandNetworkSecurityUllMirroringCollectorRuleMatchIpProtocols(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityUllMirroringCollectorRuleMatchPrimaryIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
