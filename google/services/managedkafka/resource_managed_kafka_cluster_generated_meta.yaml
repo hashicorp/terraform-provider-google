@@ -21,6 +21,7 @@ fields:
     - api_field: gcpConfig.accessConfig.networkConfigs.subnet
     - api_field: gcpConfig.accessConfig.publicClusterConfig.allowedSourceIpRanges
     - api_field: gcpConfig.kmsKey
+    - api_field: kafkaVersion
     - api_field: labels
     - field: location
       provider_only: true

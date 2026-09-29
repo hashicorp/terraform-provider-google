@@ -54,6 +54,7 @@ resource "google_managed_kafka_cluster" "example" {
   labels = {
     key = "value"
   }
+  kafka_version = "3.7.x"
 }
 
 data "google_project" "project" {
@@ -218,6 +219,10 @@ The following arguments are supported:
   (Optional)
   Defines rebalancing behavior of a Kafka cluster.
   Structure is [documented below](#nested_rebalance_config).
+
+* `kafka_version` -
+  (Optional)
+  The Apache Kafka version of the cluster (for example, `3.7.x`, `4.3.x`). If not specified during cluster creation, defaults to `3.7.x`.
 
 * `tls_config` -
   (Optional)

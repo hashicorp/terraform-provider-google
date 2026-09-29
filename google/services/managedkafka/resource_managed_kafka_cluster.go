@@ -249,6 +249,12 @@ func ResourceManagedKafkaCluster() *schema.Resource {
 					},
 				},
 			},
+			"kafka_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: `The Apache Kafka version of the cluster (for example, '3.7.x', '4.3.x'). If not specified during cluster creation, defaults to '3.7.x'.`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -431,6 +437,12 @@ func resourceManagedKafkaClusterCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("rebalance_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(rebalanceConfigProp)) && (ok || !reflect.DeepEqual(v, rebalanceConfigProp)) {
 		obj["rebalanceConfig"] = rebalanceConfigProp
+	}
+	kafkaVersionProp, err := expandManagedKafkaClusterKafkaVersion(d.Get("kafka_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kafka_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(kafkaVersionProp)) && (ok || !reflect.DeepEqual(v, kafkaVersionProp)) {
+		obj["kafkaVersion"] = kafkaVersionProp
 	}
 	tlsConfigProp, err := expandManagedKafkaClusterTlsConfig(d.Get("tls_config"), d, config)
 	if err != nil {
@@ -684,6 +696,12 @@ func resourceManagedKafkaClusterUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("rebalance_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rebalanceConfigProp)) {
 		obj["rebalanceConfig"] = rebalanceConfigProp
 	}
+	kafkaVersionProp, err := expandManagedKafkaClusterKafkaVersion(d.Get("kafka_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kafka_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kafkaVersionProp)) {
+		obj["kafkaVersion"] = kafkaVersionProp
+	}
 	tlsConfigProp, err := expandManagedKafkaClusterTlsConfig(d.Get("tls_config"), d, config)
 	if err != nil {
 		return err
@@ -720,6 +738,10 @@ func resourceManagedKafkaClusterUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("rebalance_config") {
 		updateMask = append(updateMask, "rebalanceConfig")
+	}
+
+	if d.HasChange("kafka_version") {
+		updateMask = append(updateMask, "kafkaVersion")
 	}
 
 	if d.HasChange("tls_config") {
@@ -1043,6 +1065,10 @@ func flattenManagedKafkaClusterBootstrapAddress(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenManagedKafkaClusterKafkaVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenManagedKafkaClusterTlsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1320,6 +1346,10 @@ func expandManagedKafkaClusterRebalanceConfigMode(v interface{}, d tpgresource.T
 	return v, nil
 }
 
+func expandManagedKafkaClusterKafkaVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandManagedKafkaClusterTlsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1454,6 +1484,9 @@ func ResourceManagedKafkaClusterFlatten(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err = d.Set("bootstrap_address", flattenManagedKafkaClusterBootstrapAddress(res["bootstrapAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err = d.Set("kafka_version", flattenManagedKafkaClusterKafkaVersion(res["kafkaVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err = d.Set("tls_config", flattenManagedKafkaClusterTlsConfig(res["tlsConfig"], d, config)); err != nil {
