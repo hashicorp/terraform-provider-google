@@ -1,7 +1,8 @@
-# 8.5.0 (Unreleased)
+## 8.5.0 (Unreleased)
 
 NOTES:
 * compute: migrated the VPN tunnel lookup in `google_compute_router_interface` to use direct HTTP rather than a client library ([#29442](https://github.com/hashicorp/terraform-provider-google/pull/29442))
+
 DEPRECATIONS:
 * firebaseailogic: deprecated `generative_language_config` and `generative_language_config.api_key` in `google_firebase_ai_logic_config` resource ([#29656](https://github.com/hashicorp/terraform-provider-google/pull/29656))
 * networkservices: `egress_network_config.dns_peering_config.domain` field in `google_network_services_agent_connectivity_template` is deprecated. Use `egress_network_config.dns_peering_config.domains` ([#29651](https://github.com/hashicorp/terraform-provider-google/pull/29651))
@@ -22,8 +23,8 @@ IMPROVEMENTS:
 * chronicle: added `parallel_instance` field to `google_chronicle_environment` resource ([#29444](https://github.com/hashicorp/terraform-provider-google/pull/29444))
 * cloudrunv2: added `ssh_enabled` field to `google_cloud_run_v2_service` resource ([#29645](https://github.com/hashicorp/terraform-provider-google/pull/29645))
 * cloudrunv2: promoted `template.scaling.cpu_utilization` and `template.scaling.concurrency_utilization` to GA in `google_cloud_run_v2_service` resource ([#29630](https://github.com/hashicorp/terraform-provider-google/pull/29630))
-* compute: add `rsa_encryption_wo` and `raw_key_wo` fields to `google_compute_disk` resource ([#29621](https://github.com/hashicorp/terraform-provider-google/pull/29621))
-* compute: add `rsa_encryption_wo` and `raw_key_wo` fields to `google_compute_region_disk` resource ([#29621](https://github.com/hashicorp/terraform-provider-google/pull/29621))
+* compute: added `rsa_encryption_wo` and `raw_key_wo` fields to `google_compute_disk` resource ([#29621](https://github.com/hashicorp/terraform-provider-google/pull/29621))
+* compute: added `rsa_encryption_wo` and `raw_key_wo` fields to `google_compute_region_disk` resource ([#29621](https://github.com/hashicorp/terraform-provider-google/pull/29621))
 * compute: added `nat_ips_per_endpoint` field to `google_compute_service_attachment` resource ([#29648](https://github.com/hashicorp/terraform-provider-google/pull/29648))
 * dlp: added `inspect_config` subfields (`custom_info_types`, `min_likelihood_per_info_type.info_type.sensitivity_score`, and `rule_set.rules.adjustment_rule`) to `google_data_loss_prevention_content_policy` resource ([#29633](https://github.com/hashicorp/terraform-provider-google/pull/29633))
 * networkservices: added `domains` field to `egress_network_config.dns_peering_config` in `google_network_services_agent_connectivity_template` resource ([#29651](https://github.com/hashicorp/terraform-provider-google/pull/29651))
@@ -32,7 +33,7 @@ IMPROVEMENTS:
 * secretmanager: added `secret_data_wo` and `secret_data_wo_version` write-only fields to `google_secret_manager_regional_secret_version` resource ([#29653](https://github.com/hashicorp/terraform-provider-google/pull/29653))
 * sql: `google_sql_database_instance` now performs an in-place storage shrink when `disk_size` is reduced with `disk_autoresize` disabled, instead of forcing instance recreation ([#29635](https://github.com/hashicorp/terraform-provider-google/pull/29635))
 * sql: added `encryption_confidential_mode` to `google_sql_database_instance` resource ([#29623](https://github.com/hashicorp/terraform-provider-google/pull/29623))
-* storage: added `updated` field to `bucket_objects` in `google_storage_bucket_objects` datasource ([#29641](https://github.com/hashicorp/terraform-provider-google/pull/29641))
+* storage: added `updated` field to `bucket_objects` in `google_storage_bucket_objects` data source ([#29641](https://github.com/hashicorp/terraform-provider-google/pull/29641))
 * storageftp: added `service_agent`, `external_config.ip_address`, `internal_config.service_attachment`, and `state` to `google_storage_ftp_server` resource ([#29644](https://github.com/hashicorp/terraform-provider-google/pull/29644))
 * storageftp: added `state` and `username` fields and increased `user_credentials` max items from 1 to 10 in `google_storage_ftp_user` resource ([#29644](https://github.com/hashicorp/terraform-provider-google/pull/29644))
 
