@@ -215,7 +215,13 @@ resource "google_vertex_ai_semantic_governance_policy_engine" "sgpe" {
 // trouble both with cleanup on failure paths and with recreating same-named
 // networking resources. Run-unique names keep each run's resources isolated.
 
-const testAccSGPESharedNetworking = `
+// testAccSGPEPreamble is the shared preamble for every fixture that references
+// gateway_configs: the project data source and the customer-side networking
+// (custom VPC + subnet + attached private DNS zone).
+const testAccSGPEPreamble = `
+data "google_project" "project" {
+}
+
 resource "google_compute_network" "sgpe_network" {
   name                    = "tf-test-sgpe-net-%{random_suffix}"
   auto_create_subnetworks = false
@@ -241,14 +247,6 @@ resource "google_dns_managed_zone" "sgpe_zone" {
   }
 }
 `
-
-// testAccSGPEPreamble is the shared preamble for every fixture that references
-// gateway_configs: the project data source and the customer-side networking
-// (custom VPC + subnet + attached private DNS zone).
-const testAccSGPEPreamble = `
-data "google_project" "project" {
-}
-` + testAccSGPESharedNetworking
 
 func testAccVertexAISemanticGovernancePolicyEngine_addGateway(context map[string]interface{}) string {
 	return acctest.Nprintf(testAccSGPEPreamble+`

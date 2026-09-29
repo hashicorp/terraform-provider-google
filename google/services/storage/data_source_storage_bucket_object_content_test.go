@@ -168,19 +168,17 @@ func TestAccDataSourceStorageBucketObjectContent_Issue15717(t *testing.T) {
 	bucket := "tf-test-bucket-object-content-" + acctest.RandString(t, 10)
 	content := "qwertyuioasdfghjk1234567!!@#$*"
 
-	config := fmt.Sprintf(`
-%s
-
-output "output" {
-	value = replace(data.google_storage_bucket_object_content.default.content, "q", "Q")
-}`, testAccDataSourceStorageBucketObjectContent_Basic(content, bucket))
-
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: config,
+				Config: fmt.Sprintf(`
+%s
+
+output "output" {
+	value = replace(data.google_storage_bucket_object_content.default.content, "q", "Q")
+}`, testAccDataSourceStorageBucketObjectContent_Basic(content, bucket)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_object_content.default", "content"),
 					resource.TestCheckResourceAttr("data.google_storage_bucket_object_content.default", "content", content),
@@ -195,21 +193,19 @@ func TestAccDataSourceStorageBucketObjectContent_Issue15717BackwardCompatibility
 	bucket := "tf-test-bucket-object-content-" + acctest.RandString(t, 10)
 	content := "qwertyuioasdfghjk1234567!!@#$*"
 
-	config := fmt.Sprintf(`
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
 %s
 
 data "google_storage_bucket_object_content" "new" {
 	bucket  = google_storage_bucket.contenttest.name
 	content = "%s"
 	name    = google_storage_bucket_object.object.name
-}`, testAccDataSourceStorageBucketObjectContent_Basic(content, bucket), content)
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		Steps: []resource.TestStep{
-			{
-				Config: config,
+}`, testAccDataSourceStorageBucketObjectContent_Basic(content, bucket), content),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.google_storage_bucket_object_content.new", "content"),
 					resource.TestCheckResourceAttr("data.google_storage_bucket_object_content.new", "content", content),

@@ -76,12 +76,11 @@ func validateKeyHandleName(dataSourceName string, expectedKeyHandleName string) 
 	}
 }
 func testAccDataSourceGoogleKmsKeyHandles_basic(project string, location string, filter string) string {
-	str := fmt.Sprintf(`
+	return fmt.Sprintf(`
 data "google_kms_key_handles" "mykeyhandles" {
   project = "%s"
   location = "%s"
   resource_type_selector = "%s"
 }
 `, project, location, filter)
-	return str
 }

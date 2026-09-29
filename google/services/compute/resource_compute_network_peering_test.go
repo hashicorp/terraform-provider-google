@@ -265,7 +265,7 @@ resource "google_compute_network_peering" "bar" {
 }
 
 func testAccComputeNetworkPeeringDefaultCustomRoutes(primaryNetworkName, peeringName, suffix string) string {
-	s := `
+	return fmt.Sprintf(`
 resource "google_compute_network" "network1" {
   name                    = "%s"
   auto_create_subnetworks = false
@@ -286,8 +286,7 @@ resource "google_compute_network_peering" "bar" {
   network      = google_compute_network.network2.self_link
   peer_network = google_compute_network.network1.self_link
   name         = "tf-test-peering-test-2-%s"
-}`
-	return fmt.Sprintf(s, primaryNetworkName, peeringName, suffix, suffix)
+}`, primaryNetworkName, peeringName, suffix, suffix)
 }
 
 func testAccComputeNetworkPeering_stackTypeDefault(primaryNetworkName, peeringNetworkName, peeringName string) string {

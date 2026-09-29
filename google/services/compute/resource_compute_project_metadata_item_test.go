@@ -60,8 +60,6 @@ func TestAccComputeProjectMetadataItem_basicMultiple(t *testing.T) {
 	// Generate a config of two config keys
 	key1 := "myKey" + acctest.RandString(t, 10)
 	key2 := "myKey" + acctest.RandString(t, 10)
-	config := testAccProjectMetadataItem_basic("foobar", key1, "myValue") +
-		testAccProjectMetadataItem_basic("foobar2", key2, "myOtherValue")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -69,7 +67,8 @@ func TestAccComputeProjectMetadataItem_basicMultiple(t *testing.T) {
 		CheckDestroy:             testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: config,
+				Config: testAccProjectMetadataItem_basic("foobar", key1, "myValue") +
+					testAccProjectMetadataItem_basic("foobar2", key2, "myOtherValue"),
 			},
 			{
 				ResourceName:      "google_compute_project_metadata_item.foobar",
@@ -144,7 +143,6 @@ func TestAccComputeProjectMetadataItem_exists(t *testing.T) {
 
 	// Key must be unique to avoid concurrent tests interfering with each other
 	key := "myKey" + acctest.RandString(t, 10)
-	originalConfig := testAccProjectMetadataItem_basic("foobar", key, "myValue")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -152,7 +150,7 @@ func TestAccComputeProjectMetadataItem_exists(t *testing.T) {
 		CheckDestroy:             testAccCheckProjectMetadataItemDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: originalConfig,
+				Config: testAccProjectMetadataItem_basic("foobar", key, "myValue"),
 			},
 			{
 				ResourceName:      "google_compute_project_metadata_item.foobar",
@@ -161,7 +159,7 @@ func TestAccComputeProjectMetadataItem_exists(t *testing.T) {
 			},
 			// Add a second resource with the same key
 			{
-				Config:      originalConfig + testAccProjectMetadataItem_basic("foobar2", key, "myValue"),
+				Config:      testAccProjectMetadataItem_basic("foobar", key, "myValue") + testAccProjectMetadataItem_basic("foobar2", key, "myValue"),
 				ExpectError: regexp.MustCompile("already present in metadata for project"),
 			},
 		},
