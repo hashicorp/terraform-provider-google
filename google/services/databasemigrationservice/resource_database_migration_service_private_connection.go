@@ -195,7 +195,33 @@ Format: projects/{project}/regions/{region}/networkAttachments/{name}`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"vpc_peering_config"},
+				ExactlyOneOf: []string{"reserved_public_ip_config", "vpc_peering_config"},
+			},
+			"reserved_public_ip_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The Reserved Public IP configuration.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"nat_ips_count": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Optional. Number of static public IP addresses to reserve.`,
+						},
+						"egress_public_ips": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Output only. The reserved public IPs.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+				ExactlyOneOf: []string{"psc_interface_config", "vpc_peering_config"},
 			},
 			"vpc_peering_config": {
 				Type:     schema.TypeList,
@@ -221,7 +247,7 @@ Format: projects/{project}/global/{networks}/{name}`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"psc_interface_config"},
+				ExactlyOneOf: []string{"psc_interface_config", "reserved_public_ip_config"},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -315,6 +341,12 @@ func resourceDatabaseMigrationServicePrivateConnectionCreate(d *schema.ResourceD
 		return err
 	} else if v, ok := d.GetOkExists("psc_interface_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(pscInterfaceConfigProp)) && (ok || !reflect.DeepEqual(v, pscInterfaceConfigProp)) {
 		obj["pscInterfaceConfig"] = pscInterfaceConfigProp
+	}
+	reservedPublicIpConfigProp, err := expandDatabaseMigrationServicePrivateConnectionReservedPublicIpConfig(d.Get("reserved_public_ip_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reserved_public_ip_config"); ok || !reflect.DeepEqual(v, reservedPublicIpConfigProp) {
+		obj["reservedPublicIpConfig"] = reservedPublicIpConfigProp
 	}
 	effectiveLabelsProp, err := expandDatabaseMigrationServicePrivateConnectionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -666,6 +698,42 @@ func flattenDatabaseMigrationServicePrivateConnectionPscInterfaceConfigNetworkAt
 	return v
 }
 
+func flattenDatabaseMigrationServicePrivateConnectionReservedPublicIpConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["nat_ips_count"] =
+		flattenDatabaseMigrationServicePrivateConnectionReservedPublicIpConfigNatIpsCount(original["natIpsCount"], d, config)
+	transformed["egress_public_ips"] =
+		flattenDatabaseMigrationServicePrivateConnectionReservedPublicIpConfigEgressPublicIps(original["egressPublicIps"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDatabaseMigrationServicePrivateConnectionReservedPublicIpConfigNatIpsCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDatabaseMigrationServicePrivateConnectionReservedPublicIpConfigEgressPublicIps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDatabaseMigrationServicePrivateConnectionTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -752,6 +820,43 @@ func expandDatabaseMigrationServicePrivateConnectionPscInterfaceConfigNetworkAtt
 	return v, nil
 }
 
+func expandDatabaseMigrationServicePrivateConnectionReservedPublicIpConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedNatIpsCount, err := expandDatabaseMigrationServicePrivateConnectionReservedPublicIpConfigNatIpsCount(original["nat_ips_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNatIpsCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["natIpsCount"] = transformedNatIpsCount
+	}
+
+	transformedEgressPublicIps, err := expandDatabaseMigrationServicePrivateConnectionReservedPublicIpConfigEgressPublicIps(original["egress_public_ips"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEgressPublicIps); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["egressPublicIps"] = transformedEgressPublicIps
+	}
+
+	return transformed, nil
+}
+
+func expandDatabaseMigrationServicePrivateConnectionReservedPublicIpConfigNatIpsCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatabaseMigrationServicePrivateConnectionReservedPublicIpConfigEgressPublicIps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDatabaseMigrationServicePrivateConnectionEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -785,6 +890,9 @@ func ResourceDatabaseMigrationServicePrivateConnectionFlatten(d *schema.Resource
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
 	if err = d.Set("psc_interface_config", flattenDatabaseMigrationServicePrivateConnectionPscInterfaceConfig(res["pscInterfaceConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PrivateConnection: %s", err)
+	}
+	if err = d.Set("reserved_public_ip_config", flattenDatabaseMigrationServicePrivateConnectionReservedPublicIpConfig(res["reservedPublicIpConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateConnection: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenDatabaseMigrationServicePrivateConnectionTerraformLabels(res["labels"], d, config)); err != nil {
