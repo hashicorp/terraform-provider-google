@@ -1,0 +1,51 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dialogflow_tool
+generation_type: mmv1
+source_file: products/dialogflow/Tool.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v2
+api_resource_type_kind: Tool
+fields:
+    - api_field: actionConfirmationRequirement
+    - api_field: connectorSpec.actions.connectionActionId
+    - api_field: connectorSpec.actions.entityOperation.entityId
+    - api_field: connectorSpec.actions.entityOperation.operation
+    - api_field: connectorSpec.actions.inputFields
+    - api_field: connectorSpec.actions.outputFields
+    - api_field: connectorSpec.name
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: functionSpec.inputSchema
+      json: true
+    - api_field: functionSpec.methodType
+    - api_field: functionSpec.outputSchema
+      json: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: openApiSpec.authentication.apiKeyConfig.apiKey
+    - api_field: openApiSpec.authentication.apiKeyConfig.keyName
+    - api_field: openApiSpec.authentication.apiKeyConfig.requestLocation
+    - api_field: openApiSpec.authentication.apiKeyConfig.secretVersionForApiKey
+    - api_field: openApiSpec.authentication.bearerTokenConfig.secretVersionForToken
+    - api_field: openApiSpec.authentication.bearerTokenConfig.token
+    - api_field: openApiSpec.authentication.oauthConfig.clientId
+    - api_field: openApiSpec.authentication.oauthConfig.clientSecret
+    - api_field: openApiSpec.authentication.oauthConfig.oauthGrantType
+    - api_field: openApiSpec.authentication.oauthConfig.scopes
+    - api_field: openApiSpec.authentication.oauthConfig.secretVersionForClientSecret
+    - api_field: openApiSpec.authentication.oauthConfig.tokenEndpoint
+    - api_field: openApiSpec.authentication.serviceAgentAuthConfig.serviceAgentAuth
+    - api_field: openApiSpec.serviceDirectoryConfig.service
+    - api_field: openApiSpec.textSchema
+    - api_field: openApiSpec.tlsConfig.caCerts.cert
+    - api_field: openApiSpec.tlsConfig.caCerts.displayName
+    - api_field: satisfiesPzi
+    - api_field: satisfiesPzs
+    - api_field: toolId
+    - api_field: toolKey
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
