@@ -423,6 +423,54 @@ func TestAccComputeUrlMap_cachePolicyMultiLevelUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeUrlMap_regexRewrite(t *testing.T) {
+	t.Parallel()
+
+	randString := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeUrlMap_regexRewrite(randString),
+			},
+			{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeUrlMap_regexRewriteUpdate(randString),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_url_map.urlmap", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeUrlMap_regexRewriteRemoved(randString),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_url_map.urlmap", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_url_map.urlmap",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeUrlMap_basic1(bsName, hcName, umName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
@@ -2110,6 +2158,159 @@ resource "google_compute_backend_service" "default" {
 
 resource "google_compute_health_check" "default" {
   name     = "tf-test-hc-%s"
+  http_health_check {
+    port = 80
+  }
+}
+`, suffix, suffix, suffix)
+}
+
+func testAccComputeUrlMap_regexRewrite(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name            = "tf-test-urlmap-%s"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["example.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    route_rules {
+      priority = 1
+      match_rules {
+        prefix_match = "/svc_a/"
+      }
+      route_action {
+        url_rewrite {
+          regex_rewrite {
+            path_pattern      = "/svc_a/products/(?<prodid>[0-9]+)"
+            path_substitution = "/internal/svc_d/get_product/\\g<prodid>/info"
+          }
+        }
+        weighted_backend_services {
+          backend_service = google_compute_backend_service.default.id
+          weight          = 100
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name                  = "tf-test-backend-%s"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name = "tf-test-hc-%s"
+  http_health_check {
+    port = 80
+  }
+}
+`, suffix, suffix, suffix)
+}
+
+func testAccComputeUrlMap_regexRewriteUpdate(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name            = "tf-test-urlmap-%s"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["example.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    route_rules {
+      priority = 1
+      match_rules {
+        prefix_match = "/svc_b/"
+      }
+      route_action {
+        url_rewrite {
+          regex_rewrite {
+            path_pattern      = "/svc_b/products/(?<prodid>[0-9]+)"
+            path_substitution = "/internal/svc_e/get_product/\\g<prodid>/details"
+          }
+        }
+        weighted_backend_services {
+          backend_service = google_compute_backend_service.default.id
+          weight          = 100
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name                  = "tf-test-backend-%s"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name = "tf-test-hc-%s"
+  http_health_check {
+    port = 80
+  }
+}
+`, suffix, suffix, suffix)
+}
+
+func testAccComputeUrlMap_regexRewriteRemoved(suffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_url_map" "urlmap" {
+  name            = "tf-test-urlmap-%s"
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["example.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    route_rules {
+      priority = 1
+      match_rules {
+        prefix_match = "/svc_b/"
+      }
+      route_action {
+        url_rewrite {
+          host_rewrite = "internal.example.com"
+        }
+        weighted_backend_services {
+          backend_service = google_compute_backend_service.default.id
+          weight          = 100
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name                  = "tf-test-backend-%s"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  name = "tf-test-hc-%s"
   http_health_check {
     port = 80
   }
