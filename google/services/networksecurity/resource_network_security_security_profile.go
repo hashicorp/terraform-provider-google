@@ -151,8 +151,8 @@ func ResourceNetworkSecuritySecurityProfile() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"THREAT_PREVENTION", "URL_FILTERING", "CUSTOM_MIRRORING", "CUSTOM_INTERCEPT"}),
-				Description:  `The type of security profile. Possible values: ["THREAT_PREVENTION", "URL_FILTERING", "CUSTOM_MIRRORING", "CUSTOM_INTERCEPT"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"THREAT_PREVENTION", "URL_FILTERING", "CUSTOM_MIRRORING", "CUSTOM_INTERCEPT", "WILDFIRE_ANALYSIS"}),
+				Description:  `The type of security profile. 'WILDFIRE_ANALYSIS' is beta-only. Possible values: ["THREAT_PREVENTION", "URL_FILTERING", "CUSTOM_MIRRORING", "CUSTOM_INTERCEPT", "WILDFIRE_ANALYSIS"]`,
 			},
 			"custom_intercept_profile": {
 				Type:     schema.TypeList,
@@ -594,6 +594,18 @@ func resourceNetworkSecuritySecurityProfileRead(d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] Finished reading NetworkSecuritySecurityProfile %q: %#v", d.Id(), res)
+
+	res, err = resourceNetworkSecuritySecurityProfileDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing NetworkSecuritySecurityProfile because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
@@ -1500,6 +1512,11 @@ func expandNetworkSecuritySecurityProfileEffectiveLabels(v interface{}, d tpgres
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceNetworkSecuritySecurityProfileDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+
+	return res, nil
 }
 
 func ResourceNetworkSecuritySecurityProfileFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
