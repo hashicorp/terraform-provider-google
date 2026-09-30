@@ -639,6 +639,14 @@ The following arguments are supported:
   speed supported by the specific voice. 2.0 is twice as fast, and 0.5 is
   half as fast. Values outside of the range [0.25, 2.0] will return an error.
 
+* `model` -
+  (Optional)
+  The model used to synthesize audio.
+
+* `instruction` -
+  (Optional)
+  The instruction used to synthesize speech when using a generative model.
+
 <a name="nested_data_store_settings"></a>The `data_store_settings` block supports:
 
 * `engines` -
