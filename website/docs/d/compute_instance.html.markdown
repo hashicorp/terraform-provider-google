@@ -181,6 +181,8 @@ The following arguments are supported:
 
 * `network_attachment` - The URL of the network attachment to this interface.
 
+* `enable_vpc_scoped_dns` - If true, DNS resolution will be enabled over this interface. Only valid with `network_attachment`.
+
 <a name="nested_access_config"></a>The `access_config` block supports:
 
 * `nat_ip` - The IP address that is be 1:1 mapped to the instance's

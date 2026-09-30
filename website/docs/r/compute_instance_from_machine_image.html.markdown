@@ -66,6 +66,8 @@ The following arguments are supported:
 * `zone` - (Optional) The zone that the machine should be created in. If not
   set, the provider zone is used.
 
+* `network_interface.enable_vpc_scoped_dns` - (Optional) If true, DNS resolution will be enabled over this interface. Only valid with `network_attachment`.
+
 In addition to these, most* arguments from `google_compute_instance` are supported
 as a way to override the properties in the machine image. All exported attributes
 from `google_compute_instance` are likewise exported here.

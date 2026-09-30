@@ -222,6 +222,8 @@ The `disk_encryption_key` block supports:
 
 * `network_interface` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The URL of the network attachment that this interface should connect to in the following format: projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}.  s
 
+* `enable_vpc_scoped_dns` - If true, DNS resolution will be enabled over this interface. Only valid with `network_attachment`.
+
 * `subnetwork_project` - The ID of the project in which the subnetwork belongs.
     If it is not provided, the provider project is used.
 
