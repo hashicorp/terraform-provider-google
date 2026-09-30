@@ -4611,6 +4611,7 @@ func TestAccComputeInstance_NetworkAttachment(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasNetworkAttachment(&instance, fmt.Sprintf("https://www.googleapis.com/compute/%s/%s", providerVersion, fullFormNetworkAttachmentName)),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "network_interface.1.enable_vpc_scoped_dns", "true"),
 				),
 			},
 		},
@@ -11248,7 +11249,8 @@ resource "google_compute_instance" "foobar" {
 	}
 
 	network_interface {
-		network_attachment = google_compute_network_attachment.test_network_attachment.self_link
+		network_attachment    = google_compute_network_attachment.test_network_attachment.self_link
+		enable_vpc_scoped_dns = true
 	}
 
 	metadata = {

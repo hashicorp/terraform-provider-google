@@ -677,6 +677,13 @@ func ResourceComputeInstance() *schema.Resource {
 							Description:      `The URL of the network attachment that this interface should connect to in the following format: projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}.`,
 						},
 
+						"enable_vpc_scoped_dns": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `If true, DNS resolution will be enabled over this interface. Only valid with network_attachment.`,
+						},
+
 						"parent_nic_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
