@@ -208,6 +208,77 @@ resource "google_network_security_security_profile" "default" {
   }
 }
 ```
+## Example Usage - Network Security Security Profile Wildfire
+
+
+```hcl
+resource "google_network_security_security_profile" "default" {
+  provider    = google-beta
+  name        = "my-security-profile"
+  parent      = "projects/my-project-name"
+  description = "my description"
+  type        = "WILDFIRE_ANALYSIS"
+
+  wildfire_analysis_profile {
+    wildfire_realtime_lookup = true
+
+    wildfire_submission_rules {
+      direction           = "BOTH"
+      file_selection_mode = "ALL_FILE_TYPES"
+    }
+
+    wildfire_submission_rules {
+      direction           = "UPLOAD"
+      file_selection_mode = "CUSTOM_FILE_TYPES"
+      custom_file_types {
+        file_types = ["PDF", "SCRIPT"]
+      }
+    }
+
+    wildfire_inline_cloud_analysis_rules {
+      direction           = "BOTH"
+      action              = "ALLOW"
+      file_selection_mode = "ALL_FILE_TYPES"
+    }
+
+    wildfire_inline_cloud_analysis_rules {
+      direction           = "DOWNLOAD"
+      action              = "DENY"
+      file_selection_mode = "CUSTOM_FILE_TYPES"
+      custom_file_types {
+        file_types = ["PE"]
+      }
+    }
+
+    wildfire_overrides {
+      protocol = "WILDFIRE_HTTP"
+      action   = "WILDFIRE_DENY"
+    }
+
+    wildfire_inline_ml_overrides {
+      protocol = "WILDFIRE_FTP"
+      action   = "WILDFIRE_ALERT"
+    }
+
+    wildfire_threat_overrides {
+      threat_id = "12345"
+      action    = "WILDFIRE_ALLOW"
+    }
+
+    wildfire_inline_ml_setting {
+      inline_ml_configs {
+        file_type = "WINDOWS_EXECUTABLE"
+        action    = "ENABLE"
+      }
+
+      file_exceptions {
+        partial_hash = "12345abcdef"
+        filename     = "virus.exe"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -216,8 +287,8 @@ The following arguments are supported:
 
 * `type` -
   (Required)
-  The type of security profile.
-  Possible values are: `THREAT_PREVENTION`, `URL_FILTERING`, `CUSTOM_MIRRORING`, `CUSTOM_INTERCEPT`.
+  The type of security profile. `WILDFIRE_ANALYSIS` is beta-only.
+  Possible values are: `THREAT_PREVENTION`, `URL_FILTERING`, `CUSTOM_MIRRORING`, `CUSTOM_INTERCEPT`, `WILDFIRE_ANALYSIS`.
 
 * `name` -
   (Required)
@@ -256,6 +327,11 @@ The following arguments are supported:
   The configuration for defining the Intercept Endpoint Group used to
   intercept traffic to third-party firewall appliances.
   Structure is [documented below](#nested_custom_intercept_profile).
+
+* `wildfire_analysis_profile` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  The wildfire analysis configuration for the security profile.
+  Structure is [documented below](#nested_wildfire_analysis_profile).
 
 * `location` -
   (Optional)
@@ -391,6 +467,165 @@ The following arguments are supported:
   (Required)
   The Intercept Endpoint Group to which matching traffic should be intercepted.
   Format: projects/{project_id}/locations/global/interceptEndpointGroups/{endpoint_group_id}
+
+<a name="nested_wildfire_analysis_profile"></a>The `wildfire_analysis_profile` block supports:
+
+* `wildfire_realtime_lookup` -
+  (Optional)
+  Whether to hold the transfer of a file while the WildFire real-time signature cloud performs a signature lookup. Default value is false.
+
+* `wildfire_submission_rules` -
+  (Optional)
+  The configuration for file submission to WildFire in cloud.
+  Structure is [documented below](#nested_wildfire_analysis_profile_wildfire_submission_rules).
+
+* `wildfire_inline_cloud_analysis_rules` -
+  (Optional)
+  The configuration for inline cloud analysis of files.
+  Structure is [documented below](#nested_wildfire_analysis_profile_wildfire_inline_cloud_analysis_rules).
+
+* `wildfire_overrides` -
+  (Optional)
+  Defines what action to take for WildFire threats per protocol.
+  Structure is [documented below](#nested_wildfire_analysis_profile_wildfire_overrides).
+
+* `wildfire_inline_ml_overrides` -
+  (Optional)
+  Defines what action to take for WildFire inline ML threats per protocol.
+  Structure is [documented below](#nested_wildfire_analysis_profile_wildfire_inline_ml_overrides).
+
+* `wildfire_threat_overrides` -
+  (Optional)
+  The configuration for overriding threats actions by threat id match.
+  Structure is [documented below](#nested_wildfire_analysis_profile_wildfire_threat_overrides).
+
+* `wildfire_inline_ml_setting` -
+  (Optional)
+  WildFire inline Machine Learning setting for the Security Profile.
+  Structure is [documented below](#nested_wildfire_analysis_profile_wildfire_inline_ml_setting).
+
+
+<a name="nested_wildfire_analysis_profile_wildfire_submission_rules"></a>The `wildfire_submission_rules` block supports:
+
+* `file_selection_mode` -
+  (Required)
+  Defines the file selection mode for a rule.
+  Possible values are: `ALL_FILE_TYPES`, `CUSTOM_FILE_TYPES`.
+
+* `custom_file_types` -
+  (Optional)
+  Defines the custom file types to match for a rule. The API will only accept this if `file_selection_mode` is set to `CUSTOM_FILE_TYPES`
+  Structure is [documented below](#nested_wildfire_analysis_profile_wildfire_submission_rules_custom_file_types).
+
+* `direction` -
+  (Required)
+  Direction of traffic to match for a rule.
+  Possible values are: `UPLOAD`, `DOWNLOAD`, `BOTH`.
+
+
+<a name="nested_wildfire_analysis_profile_wildfire_submission_rules_custom_file_types"></a>The `custom_file_types` block supports:
+
+* `file_types` -
+  (Required)
+  The file types to match for a rule. For allowed values, see [API docs](https://docs.cloud.google.com/firewall/docs/reference/network-security/rest/v1beta1/organizations.locations.securityProfiles#wildfiresubmissionrule)
+
+<a name="nested_wildfire_analysis_profile_wildfire_inline_cloud_analysis_rules"></a>The `wildfire_inline_cloud_analysis_rules` block supports:
+
+* `file_selection_mode` -
+  (Required)
+  Defines the file selection mode for a rule.
+  Possible values are: `ALL_FILE_TYPES`, `CUSTOM_FILE_TYPES`.
+
+* `custom_file_types` -
+  (Optional)
+  Defines the custom file types to match for a rule. The API will only accept this if `file_selection_mode` is set to `CUSTOM_FILE_TYPES`
+  Structure is [documented below](#nested_wildfire_analysis_profile_wildfire_inline_cloud_analysis_rules_custom_file_types).
+
+* `direction` -
+  (Required)
+  Direction of traffic to match for a rule.
+  Possible values are: `UPLOAD`, `DOWNLOAD`, `BOTH`.
+
+* `action` -
+  (Required)
+  The action to take when a rule is matched.
+  Possible values are: `ALLOW`, `DENY`, `ALERT`.
+
+
+<a name="nested_wildfire_analysis_profile_wildfire_inline_cloud_analysis_rules_custom_file_types"></a>The `custom_file_types` block supports:
+
+* `file_types` -
+  (Required)
+  The file types to match for a rule. For allowed values, see [API docs](https://docs.cloud.google.com/firewall/docs/reference/network-security/rest/v1beta1/organizations.locations.securityProfiles#wildfireinlinecloudanalysisrule).
+
+<a name="nested_wildfire_analysis_profile_wildfire_overrides"></a>The `wildfire_overrides` block supports:
+
+* `protocol` -
+  (Required)
+  Required protocol to match.
+  Possible values are: `WILDFIRE_SMTP`, `WILDFIRE_SMB`, `WILDFIRE_POP3`, `WILDFIRE_IMAP`, `WILDFIRE_HTTP2`, `WILDFIRE_HTTP`, `WILDFIRE_FTP`.
+
+* `action` -
+  (Required)
+  Threat action override.
+  Possible values are: `WILDFIRE_DEFAULT_ACTION`, `WILDFIRE_ALLOW`, `WILDFIRE_ALERT`, `WILDFIRE_DENY`.
+
+<a name="nested_wildfire_analysis_profile_wildfire_inline_ml_overrides"></a>The `wildfire_inline_ml_overrides` block supports:
+
+* `protocol` -
+  (Required)
+  Required protocol to match.
+  Possible values are: `WILDFIRE_SMTP`, `WILDFIRE_SMB`, `WILDFIRE_POP3`, `WILDFIRE_IMAP`, `WILDFIRE_HTTP2`, `WILDFIRE_HTTP`, `WILDFIRE_FTP`.
+
+* `action` -
+  (Required)
+  Threat action override.
+  Possible values are: `WILDFIRE_DEFAULT_ACTION`, `WILDFIRE_ALLOW`, `WILDFIRE_ALERT`, `WILDFIRE_DENY`.
+
+<a name="nested_wildfire_analysis_profile_wildfire_threat_overrides"></a>The `wildfire_threat_overrides` block supports:
+
+* `threat_id` -
+  (Required)
+  Vendor-specific ID of a threat to override.
+
+* `action` -
+  (Required)
+  Threat action override.
+  Possible values are: `WILDFIRE_DEFAULT_ACTION`, `WILDFIRE_ALLOW`.
+
+<a name="nested_wildfire_analysis_profile_wildfire_inline_ml_setting"></a>The `wildfire_inline_ml_setting` block supports:
+
+* `inline_ml_configs` -
+  (Optional)
+  Defines what action to take for a specific file type in WildFire inline ML.
+  Structure is [documented below](#nested_wildfire_analysis_profile_wildfire_inline_ml_setting_inline_ml_configs).
+
+* `file_exceptions` -
+  (Optional)
+  File exceptions to exclude from WildFire inline ML.
+  Structure is [documented below](#nested_wildfire_analysis_profile_wildfire_inline_ml_setting_file_exceptions).
+
+
+<a name="nested_wildfire_analysis_profile_wildfire_inline_ml_setting_inline_ml_configs"></a>The `inline_ml_configs` block supports:
+
+* `file_type` -
+  (Required)
+  The file type to match. For allowed values, see [API docs](https://docs.cloud.google.com/firewall/docs/reference/network-security/rest/v1beta1/organizations.locations.securityProfiles#inlinemlfiletype)
+
+* `action` -
+  (Required)
+  The action to take for a file type.
+  Possible values are: `DISABLE`, `ALERT`, `ENABLE`.
+
+<a name="nested_wildfire_analysis_profile_wildfire_inline_ml_setting_file_exceptions"></a>The `file_exceptions` block supports:
+
+* `partial_hash` -
+  (Required)
+  Machine learning partial hash of the file to exclude from WildFire Inline ML analysis.
+
+* `filename` -
+  (Optional)
+  The file name associated with the partial hash.
 
 ## Attributes Reference
 

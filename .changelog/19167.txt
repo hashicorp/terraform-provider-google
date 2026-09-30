@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: added `wildfire_analysis_profile` field to `google_network_security_security_profile` resource (beta)
+```
