@@ -193,6 +193,60 @@ resource "google_compute_subnetwork" "default" {
 `, context)
 }
 
+func TestAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePrivateConnectionReservedPublicIpExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"private_connection_id": "tf-test-my-connection" + randomSuffix,
+		"random_suffix":         randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDatabaseMigrationServicePrivateConnectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePrivateConnectionReservedPublicIpExample(context),
+			},
+			{
+				ResourceName:            "google_database_migration_service_private_connection.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "private_connection_id", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_database_migration_service_private_connection.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePrivateConnectionReservedPublicIpExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_database_migration_service_private_connection" "default" {
+	display_name          = "dbms_pc"
+	location              = "us-west1"
+	private_connection_id = "%{private_connection_id}"
+
+	labels = {
+		key = "value"
+	}
+
+	reserved_public_ip_config {
+		nat_ips_count = 1
+	}
+
+	create_without_validation = false
+}
+`, context)
+}
+
 func testAccCheckDatabaseMigrationServicePrivateConnectionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

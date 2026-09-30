@@ -105,6 +105,31 @@ resource "google_compute_subnetwork" "default" {
   network       = google_compute_network.default.id
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=database_migration_service_private_connection_reserved_public_ip&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Database Migration Service Private Connection Reserved Public Ip
+
+
+```hcl
+resource "google_database_migration_service_private_connection" "default" {
+	display_name          = "dbms_pc"
+	location              = "us-west1"
+	private_connection_id = "my-connection"
+
+	labels = {
+		key = "value"
+	}
+
+	reserved_public_ip_config {
+		nat_ips_count = 1
+	}
+
+	create_without_validation = false
+}
+```
 
 ## Argument Reference
 
@@ -142,6 +167,11 @@ The following arguments are supported:
   between DMS's internal VPC and the consumer's PSC.
   Structure is [documented below](#nested_psc_interface_config).
 
+* `reserved_public_ip_config` -
+  (Optional)
+  The Reserved Public IP configuration.
+  Structure is [documented below](#nested_reserved_public_ip_config).
+
 * `create_without_validation` -
   (Optional)
   If set to true, will skip validations.
@@ -174,6 +204,16 @@ The following arguments are supported:
   (Required)
   Fully qualified name of the Network Attachment that DMS will connect to.
   Format: projects/{project}/regions/{region}/networkAttachments/{name}
+
+<a name="nested_reserved_public_ip_config"></a>The `reserved_public_ip_config` block supports:
+
+* `nat_ips_count` -
+  (Optional)
+  Optional. Number of static public IP addresses to reserve.
+
+* `egress_public_ips` -
+  (Output)
+  Output only. The reserved public IPs.
 
 ## Attributes Reference
 

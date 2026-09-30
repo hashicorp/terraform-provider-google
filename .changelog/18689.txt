@@ -1,0 +1,3 @@
+```release-note:enhancement
+databasemigrationservice: added `reserved_public_ip_config` field to `google_database_migration_service_private_connection`
+```

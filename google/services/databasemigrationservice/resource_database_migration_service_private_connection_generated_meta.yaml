@@ -21,6 +21,8 @@ fields:
     - field: private_connection_id
       provider_only: true
     - api_field: pscInterfaceConfig.networkAttachment
+    - api_field: reservedPublicIpConfig.egressPublicIps
+    - api_field: reservedPublicIpConfig.natIpsCount
     - api_field: state
     - field: terraform_labels
       provider_only: true
