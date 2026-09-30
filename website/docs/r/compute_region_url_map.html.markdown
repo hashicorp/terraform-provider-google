@@ -2255,6 +2255,8 @@ The following arguments are supported:
   Prior to forwarding the request to the selected backend service, the matching
   portion of the request's path is replaced by pathPrefixRewrite. The value must
   be between 1 and 1024 characters.
+  Only one of pathPrefixRewrite, pathTemplateRewrite, or regexRewrite may be
+  specified.
 
 * `path_template_rewrite` -
   (Optional)
@@ -2267,8 +2269,37 @@ The following arguments are supported:
   captured by the route's pathTemplate matchers.
   pathTemplateRewrite may only be used when all of a route's
   MatchRules specify pathTemplate.
-  Only one of pathPrefixRewrite and pathTemplateRewrite may be
+  Only one of pathPrefixRewrite, pathTemplateRewrite, or regexRewrite may be
   specified.
+
+* `regex_rewrite` -
+  (Optional)
+  The regex rewrite to be applied to the URL. Only one of
+  pathPrefixRewrite, pathTemplateRewrite, or regexRewrite may be
+  specified.
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_url_rewrite_regex_rewrite).
+
+
+<a name="nested_path_matcher_route_rules_route_action_url_rewrite_regex_rewrite"></a>The `regex_rewrite` block supports:
+
+* `path_pattern` -
+  (Required)
+  The regular expression used to match against the URL path.
+  It uses RE2 syntax with the following constraints:
+  * Any single character operators are allowed.
+  * Groups may only contain a submatch operator, and may not
+    contain character repetition (for example, `.*`).
+  * Character repetition (for example, `.*`) may only be used in
+    a regex together with empty string operators, other
+    repetitions, ranges, and repetitions of ranges.
+  * Ranges may only contain character ranges, digit ranges, and
+    symbols allowed for ranges.
+
+* `path_substitution` -
+  (Required)
+  The substitution used to rewrite the parts of the URL path
+  matched by pathPattern. May reference capture groups from
+  pathPattern.
 
 <a name="nested_path_matcher_route_rules_route_action_weighted_backend_services"></a>The `weighted_backend_services` block supports:
 

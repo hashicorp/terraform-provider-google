@@ -356,6 +356,10 @@ fields:
       field: path_matcher.route_rules.route_action.url_rewrite.path_prefix_rewrite
     - api_field: pathMatchers.routeRules.routeAction.urlRewrite.pathTemplateRewrite
       field: path_matcher.route_rules.route_action.url_rewrite.path_template_rewrite
+    - api_field: pathMatchers.routeRules.routeAction.urlRewrite.regexRewrite.pathPattern
+      field: path_matcher.route_rules.route_action.url_rewrite.regex_rewrite.path_pattern
+    - api_field: pathMatchers.routeRules.routeAction.urlRewrite.regexRewrite.pathSubstitution
+      field: path_matcher.route_rules.route_action.url_rewrite.regex_rewrite.path_substitution
     - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.backendService
       field: path_matcher.route_rules.route_action.weighted_backend_services.backend_service
     - api_field: pathMatchers.routeRules.routeAction.weightedBackendServices.headerAction.requestHeadersToAdd.headerName
