@@ -329,6 +329,14 @@ protected by the KMS key, as indicated in the cmek_config field.`,
 					},
 				},
 			},
+			"procurement_contact_emails": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The emails of the procurement contacts.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -437,6 +445,12 @@ func resourceDiscoveryEngineSearchEngineCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("knowledge_graph_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(knowledgeGraphConfigProp)) && (ok || !reflect.DeepEqual(v, knowledgeGraphConfigProp)) {
 		obj["knowledgeGraphConfig"] = knowledgeGraphConfigProp
+	}
+	procurementContactEmailsProp, err := expandDiscoveryEngineSearchEngineProcurementContactEmails(d.Get("procurement_contact_emails"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("procurement_contact_emails"); !tpgresource.IsEmptyValue(reflect.ValueOf(procurementContactEmailsProp)) && (ok || !reflect.DeepEqual(v, procurementContactEmailsProp)) {
+		obj["procurementContactEmails"] = procurementContactEmailsProp
 	}
 
 	obj, err = resourceDiscoveryEngineSearchEngineEncoder(d, meta, obj)
@@ -717,6 +731,12 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("knowledge_graph_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, knowledgeGraphConfigProp)) {
 		obj["knowledgeGraphConfig"] = knowledgeGraphConfigProp
 	}
+	procurementContactEmailsProp, err := expandDiscoveryEngineSearchEngineProcurementContactEmails(d.Get("procurement_contact_emails"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("procurement_contact_emails"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, procurementContactEmailsProp)) {
+		obj["procurementContactEmails"] = procurementContactEmailsProp
+	}
 
 	obj, err = resourceDiscoveryEngineSearchEngineEncoder(d, meta, obj)
 	if err != nil {
@@ -758,6 +778,10 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("knowledge_graph_config") {
 		updateMask = append(updateMask, "knowledgeGraphConfig")
+	}
+
+	if d.HasChange("procurement_contact_emails") {
+		updateMask = append(updateMask, "procurementContactEmails")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1025,6 +1049,10 @@ func flattenDiscoveryEngineSearchEngineKnowledgeGraphConfigFeatureConfigDisableP
 	return v
 }
 
+func flattenDiscoveryEngineSearchEngineProcurementContactEmails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandDiscoveryEngineSearchEngineIndustryVertical(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1248,6 +1276,10 @@ func expandDiscoveryEngineSearchEngineKnowledgeGraphConfigFeatureConfigDisablePr
 	return v, nil
 }
 
+func expandDiscoveryEngineSearchEngineProcurementContactEmails(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceDiscoveryEngineSearchEngineEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// hard code solutionType to "SOLUTION_TYPE_SEARCH" for search engine resource
 	obj["solutionType"] = "SOLUTION_TYPE_SEARCH"
@@ -1291,6 +1323,9 @@ func ResourceDiscoveryEngineSearchEngineFlatten(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading SearchEngine: %s", err)
 	}
 	if err = d.Set("knowledge_graph_config", flattenDiscoveryEngineSearchEngineKnowledgeGraphConfig(res["knowledgeGraphConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SearchEngine: %s", err)
+	}
+	if err = d.Set("procurement_contact_emails", flattenDiscoveryEngineSearchEngineProcurementContactEmails(res["procurementContactEmails"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SearchEngine: %s", err)
 	}
 
