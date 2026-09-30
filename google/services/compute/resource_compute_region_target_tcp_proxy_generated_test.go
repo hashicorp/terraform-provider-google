@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networkservices"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -94,9 +95,10 @@ func TestAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBasicExample(t *test
 func testAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_target_tcp_proxy" "default" {
-  name            = "%{region_target_tcp_proxy_name}"
-  region          = "%{region}"
-  backend_service = google_compute_region_backend_service.default.id
+  name                  = "%{region_target_tcp_proxy_name}"
+  region                = "%{region}"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  backend_service       = google_compute_region_backend_service.default.id
 }
 
 resource "google_compute_region_backend_service" "default" {
@@ -106,7 +108,7 @@ resource "google_compute_region_backend_service" "default" {
   region      = "%{region}"
 
   health_checks         = [google_compute_region_health_check.default.id]
-  load_balancing_scheme = "INTERNAL_MANAGED"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
 }
 
 resource "google_compute_region_health_check" "default" {
@@ -116,6 +118,137 @@ resource "google_compute_region_health_check" "default" {
   check_interval_sec = 1
   tcp_health_check {
     port = "80"
+  }
+}
+`, context)
+}
+
+func TestAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBackendlessExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"region_target_tcp_proxy_name": "tf-test-test-proxy" + randomSuffix,
+		"random_suffix":                randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionTargetTcpProxyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBackendlessExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_target_tcp_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "region"},
+			},
+			{
+				ResourceName:       "google_compute_region_target_tcp_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBackendlessExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_target_tcp_proxy" "default" {
+  name                  = "%{region_target_tcp_proxy_name}"
+  region                = "europe-west4"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+}
+`, context)
+}
+
+func TestAccComputeRegionTargetTcpProxy_regionTargetTcpProxyTlsRouteExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"health_check_name":            "tf-test-health-check" + randomSuffix,
+		"region_backend_service_name":  "tf-test-backend-service" + randomSuffix,
+		"region_target_tcp_proxy_name": "tf-test-test-proxy" + randomSuffix,
+		"tls_route_name":               "tf-test-tls-route-check" + randomSuffix,
+		"random_suffix":                randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionTargetTcpProxyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionTargetTcpProxy_regionTargetTcpProxyTlsRouteExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_target_tcp_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "region"},
+			},
+			{
+				ResourceName:       "google_compute_region_target_tcp_proxy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionTargetTcpProxy_regionTargetTcpProxyTlsRouteExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_target_tcp_proxy" "default" {
+  name                  = "%{region_target_tcp_proxy_name}"
+  region                = "europe-west4"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name        = "%{region_backend_service_name}"
+  protocol    = "TCP"
+  timeout_sec = 10
+  region      = "europe-west4"
+
+  health_checks         = [google_compute_region_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_region_health_check" "default" {
+  name               = "%{health_check_name}"
+  region             = "europe-west4"
+  timeout_sec        = 1
+  check_interval_sec = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_network_services_tls_route" "default" {
+  name     = "%{tls_route_name}"
+  location = "europe-west4"
+
+  target_proxies = [
+    google_compute_region_target_tcp_proxy.default.self_link
+  ]
+
+  rules {
+    matches {
+      sni_host = ["example.com"]
+    }
+    action {
+      destinations {
+        service_name = google_compute_region_backend_service.default.self_link
+      }
+    }
   }
 }
 `, context)

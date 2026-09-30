@@ -158,14 +158,24 @@ character, which cannot be a dash.`,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description: `A reference to the BackendService resource. This field is optional when
-the loadBalancingScheme (available in beta) is specified.`,
-				AtLeastOneOf: []string{"backend_service"},
+the loadBalancingScheme is specified.`,
+				AtLeastOneOf: []string{"backend_service", "load_balancing_scheme"},
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
+			},
+			"load_balancing_scheme": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"EXTERNAL_MANAGED", "INTERNAL_MANAGED", ""}),
+				Description: `Specifies the load balancer type. A target TCP proxy created for one type
+of load balancer cannot be used with another. For more information, refer
+to [Summary of types of Google Cloud load balancers](https://docs.cloud.google.com/load-balancing/docs/load-balancing-overview#summary-gclb). Possible values: ["EXTERNAL_MANAGED", "INTERNAL_MANAGED"]`,
+				AtLeastOneOf: []string{"backend_service", "load_balancing_scheme"},
 			},
 			"proxy_bind": {
 				Type:     schema.TypeBool,
@@ -267,6 +277,12 @@ func resourceComputeRegionTargetTcpProxyCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("proxy_bind"); !tpgresource.IsEmptyValue(reflect.ValueOf(proxyBindProp)) && (ok || !reflect.DeepEqual(v, proxyBindProp)) {
 		obj["proxyBind"] = proxyBindProp
+	}
+	loadBalancingSchemeProp, err := expandComputeRegionTargetTcpProxyLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !tpgresource.IsEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
+		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
 	regionProp, err := expandComputeRegionTargetTcpProxyRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -573,6 +589,10 @@ func flattenComputeRegionTargetTcpProxyProxyBind(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenComputeRegionTargetTcpProxyLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionTargetTcpProxyRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -601,6 +621,10 @@ func expandComputeRegionTargetTcpProxyBackendService(v interface{}, d tpgresourc
 }
 
 func expandComputeRegionTargetTcpProxyProxyBind(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionTargetTcpProxyLoadBalancingScheme(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -634,6 +658,9 @@ func ResourceComputeRegionTargetTcpProxyFlatten(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
 	}
 	if err = d.Set("proxy_bind", flattenComputeRegionTargetTcpProxyProxyBind(res["proxyBind"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
+	}
+	if err = d.Set("load_balancing_scheme", flattenComputeRegionTargetTcpProxyLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionTargetTcpProxy: %s", err)
 	}
 	if err = d.Set("region", flattenComputeRegionTargetTcpProxyRegion(res["region"], d, config)); err != nil {
