@@ -72,6 +72,14 @@ func suppressIapDiffWhenUnset(_ string, _, _ string, d *schema.ResourceData) boo
 	return iap.IsKnown() && iap.LengthInt() == 0
 }
 
+// suppress changes on authentication_config if identity is set.
+func suppressAuthenticationConfigWhenIdentitySet(k, old, new string, d *schema.ResourceData) bool {
+	if v, ok := d.GetOk("tls_settings.0.identity"); ok && v.(string) != "" {
+		return true
+	}
+	return false
+}
+
 // Whether the backend is a global or regional NEG
 func isNegBackend(backend map[string]interface{}) bool {
 	backendGroup, ok := backend["group"]
@@ -1461,11 +1469,23 @@ The full range of timeout values allowed goes from 1 through 2,147,483,647 secon
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"authentication_config": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: suppressAuthenticationConfigWhenIdentitySet,
 							Description: `Reference to the BackendAuthenticationConfig resource from the networksecurity.googleapis.com namespace.
 Can be used in authenticating TLS connections to the backend, as specified by the authenticationMode field.
 Can only be specified if authenticationMode is not NONE.`,
+							ConflictsWith: []string{"tls_settings.0.identity"},
+						},
+						"identity": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The fully-specified SPIFFE ID without the spiffe:// scheme. Must be in the format //<trust_domain>/ns/<namespace>/sa/<subject>.
+The load balancer uses certificates and roots of trust provisioned by the Managed Workload Identity system for this identity.
+The Trust Domain within the identity must refer to a valid Workload Identity Pool, from which the TrustConfig and CertificateIssuanceConfig are inherited.
+If set, you cannot configure sni, subjectAltNames, or authenticationConfig manually.`,
+							ConflictsWith: []string{"tls_settings.0.authentication_config", "tls_settings.0.sni", "tls_settings.0.subject_alt_names"},
 						},
 						"sni": {
 							Type:     schema.TypeString,
@@ -1474,6 +1494,7 @@ Can only be specified if authenticationMode is not NONE.`,
 TLS connection to the backend, and requires that this string match a Subject Alternative Name (SAN) in the backend's
 server certificate. With a Regional Internet NEG backend, if the SNI is specified here, the load balancer uses it
 regardless of whether the Regional Internet NEG is specified with FQDN or IP address and port.`,
+							ConflictsWith: []string{"tls_settings.0.identity"},
 						},
 						"subject_alt_names": {
 							Type:     schema.TypeList,
@@ -1499,6 +1520,7 @@ subjectAltNames.`,
 									},
 								},
 							},
+							ConflictsWith: []string{"tls_settings.0.identity"},
 						},
 					},
 				},
@@ -4134,6 +4156,8 @@ func flattenComputeBackendServiceTlsSettings(v interface{}, d *schema.ResourceDa
 		flattenComputeBackendServiceTlsSettingsSubjectAltNames(original["subjectAltNames"], d, config)
 	transformed["authentication_config"] =
 		flattenComputeBackendServiceTlsSettingsAuthenticationConfig(original["authenticationConfig"], d, config)
+	transformed["identity"] =
+		flattenComputeBackendServiceTlsSettingsIdentity(original["identity"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeBackendServiceTlsSettingsSni(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4169,6 +4193,10 @@ func flattenComputeBackendServiceTlsSettingsSubjectAltNamesUniformResourceIdenti
 }
 
 func flattenComputeBackendServiceTlsSettingsAuthenticationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceTlsSettingsIdentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5776,6 +5804,13 @@ func expandComputeBackendServiceTlsSettings(v interface{}, d tpgresource.Terrafo
 		transformed["authenticationConfig"] = transformedAuthenticationConfig
 	}
 
+	transformedIdentity, err := expandComputeBackendServiceTlsSettingsIdentity(original["identity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdentity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["identity"] = transformedIdentity
+	}
+
 	return transformed, nil
 }
 
@@ -5824,6 +5859,10 @@ func expandComputeBackendServiceTlsSettingsSubjectAltNamesUniformResourceIdentif
 }
 
 func expandComputeBackendServiceTlsSettingsAuthenticationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceTlsSettingsIdentity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

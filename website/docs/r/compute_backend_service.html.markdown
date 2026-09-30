@@ -624,6 +624,33 @@ resource "google_network_security_backend_authentication_config" "default" {
   well_known_roots = "PUBLIC_ROOTS"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_identity&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Identity
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  name          = "backend-service"
+  health_checks = [google_compute_health_check.default.id]
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol = "HTTPS"
+  tls_settings {
+    identity = "//test.global.123456789.workload.id.goog/ns/test-ns/sa/test-id"
+  }
+  description = "description"
+}
+
+resource "google_compute_health_check" "default" {
+  name = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
 ## Example Usage - Backend Service Dynamic Backends
 
 
@@ -1833,6 +1860,13 @@ The following arguments are supported:
   Reference to the BackendAuthenticationConfig resource from the networksecurity.googleapis.com namespace.
   Can be used in authenticating TLS connections to the backend, as specified by the authenticationMode field.
   Can only be specified if authenticationMode is not NONE.
+
+* `identity` -
+  (Optional)
+  The fully-specified SPIFFE ID without the spiffe:// scheme. Must be in the format //<trust_domain>/ns/<namespace>/sa/<subject>.
+  The load balancer uses certificates and roots of trust provisioned by the Managed Workload Identity system for this identity.
+  The Trust Domain within the identity must refer to a valid Workload Identity Pool, from which the TrustConfig and CertificateIssuanceConfig are inherited.
+  If set, you cannot configure sni, subjectAltNames, or authenticationConfig manually.
 
 
 <a name="nested_tls_settings_subject_alt_names"></a>The `subject_alt_names` block supports:
