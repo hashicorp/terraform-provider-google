@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `audio_processing_config.synthesize_speech_configs.model` and `audio_processing_config.synthesize_speech_configs.instruction` fields to `google_ces_app` resource
+```

@@ -532,3 +532,119 @@ resource "google_ces_app" "ces_app_basic" {
 }
 `, context)
 }
+
+func TestAccCESApp_synthesizeSpeechConfig(t *testing.T) {
+	t.Parallel()
+	ctx := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCESAppDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCESApp_synthesizeSpeechConfig_initial(ctx),
+			},
+			{
+				ResourceName:            "google_ces_app.ces_app_tts",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+			{
+				Config: testAccCESApp_synthesizeSpeechConfig_update(ctx),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_app.ces_app_tts", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_ces_app.ces_app_tts",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id"},
+			},
+		},
+	})
+}
+
+func testAccCESApp_synthesizeSpeechConfig_initial(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_tts" {
+  app_id       = "tf-test-app-tts-%{random_suffix}"
+  location     = "us"
+  description  = "CES App with Gemini TTS model and instruction"
+  display_name = "tf-test-my-app-tts-%{random_suffix}"
+
+  language_settings {
+    default_language_code       = "en-US"
+    supported_language_codes    = ["es-ES"]
+    enable_multilingual_support = true
+    fallback_action             = "escalate"
+  }
+
+  audio_processing_config {
+    synthesize_speech_configs {
+      language_code = "en-US"
+      voice         = "en-US-Standard-A"
+      speaking_rate = 1.0
+      model         = "gemini-3.1-flash-tts-preview"
+      instruction   = "Speak clearly in a professional tone."
+    }
+    synthesize_speech_configs {
+      language_code = "es-ES"
+      voice         = "es-ES-Standard-A"
+      speaking_rate = 0.95
+      model         = "gemini-3.1-flash-tts-preview"
+      instruction   = "Habla claramente."
+    }
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+`, context)
+}
+
+func testAccCESApp_synthesizeSpeechConfig_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_ces_app" "ces_app_tts" {
+  app_id       = "tf-test-app-tts-%{random_suffix}"
+  location     = "us"
+  description  = "CES App with updated Gemini TTS model and instruction"
+  display_name = "tf-test-my-app-tts-%{random_suffix}"
+
+  language_settings {
+    default_language_code       = "en-US"
+    supported_language_codes    = ["es-ES"]
+    enable_multilingual_support = true
+    fallback_action             = "escalate"
+  }
+
+  audio_processing_config {
+    synthesize_speech_configs {
+      language_code = "en-US"
+      voice         = "en-US-Standard-A"
+      speaking_rate = 1.05
+      model         = "gemini-3.1-flash-tts-preview"
+      instruction   = "Speak in an updated friendly tone."
+    }
+    synthesize_speech_configs {
+      language_code = "es-ES"
+      voice         = "es-ES-Standard-A"
+      speaking_rate = 1.0
+      model         = "gemini-3.1-flash-tts-preview"
+      instruction   = "Habla con tono amigable."
+    }
+  }
+
+  time_zone_settings {
+    time_zone = "America/Los_Angeles"
+  }
+}
+`, context)
+}
