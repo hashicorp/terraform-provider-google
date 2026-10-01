@@ -131,6 +131,47 @@ resource "google_compute_backend_service" "default" {
 	service_lb_policy     = "//networkservices.googleapis.com/${google_network_services_service_lb_policies.default.id}"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_service_lb_policies_regional&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Services Service Lb Policies Regional
+
+
+```hcl
+resource "google_network_services_service_lb_policies" "default" {
+  provider = google-beta
+
+  name                     = "my-regional-lb-policy"
+  location                 = "us-central1"
+  description              = "my regional service lb policy"
+  load_balancing_algorithm = "SPRAY_TO_REGION"
+
+  auto_capacity_drain {
+    enable = true
+  }
+
+  failover_config {
+    failover_health_threshold = 70
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_compute_region_backend_service" "default" {
+  provider = google-beta
+
+  name                  = "my-regional-lb-backend"
+  region                = "us-central1"
+  description           = "my regional backend service"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  protocol              = "HTTP"
+  service_lb_policy     = "//networkservices.googleapis.com/${google_network_services_service_lb_policies.default.id}"
+}
+```
 
 ## Argument Reference
 

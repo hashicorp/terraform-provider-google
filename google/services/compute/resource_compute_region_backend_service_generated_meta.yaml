@@ -121,6 +121,7 @@ fields:
     - api_field: protocol
     - api_field: region
     - api_field: securityPolicy
+    - api_field: serviceLbPolicy
     - api_field: sessionAffinity
     - api_field: strongSessionAffinityCookie.name
     - api_field: strongSessionAffinityCookie.path

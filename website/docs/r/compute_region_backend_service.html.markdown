@@ -1175,6 +1175,12 @@ The following arguments are supported:
   Additional params passed with the request, but not persisted as part of resource payload
   Structure is [documented below](#nested_params).
 
+* `service_lb_policy` -
+  (Optional)
+  URL to networkservices.ServiceLbPolicy resource.
+  Can only be set if load balancing scheme is EXTERNAL_MANAGED or INTERNAL_MANAGED.
+  The service lb policy must be regional and in the same region as the backend service.
+
 * `tls_settings` -
   (Optional)
   Configuration for Backend Authenticated TLS and mTLS. May only be specified when the backend protocol is SSL, HTTPS or HTTP2.
