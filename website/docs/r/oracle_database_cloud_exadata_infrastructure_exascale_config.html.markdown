@@ -57,6 +57,7 @@ resource "google_oracle_database_cloud_exadata_infrastructure_exascale_config" "
   location                     = "us-east4"
   project                      = "my-project"
   total_storage_size_gb        = 10240
+  total_vm_storage_size_gb     = 2048
 }
 ```
 
@@ -76,6 +77,10 @@ The following arguments are supported:
   (Required)
   A reference to CloudExadataInfrastructure resource
 
+
+* `total_vm_storage_size_gb` -
+  (Optional)
+  Storage size needed for VM storage on Exascale in GBs.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

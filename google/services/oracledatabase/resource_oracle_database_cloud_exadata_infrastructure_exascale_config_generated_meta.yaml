@@ -12,5 +12,6 @@ fields:
     - field: location
       provider_only: true
     - api_field: totalStorageSizeGb
+    - api_field: totalVmStorageSizeGb
     - field: deletion_policy
       provider_only: true

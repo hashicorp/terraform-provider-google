@@ -112,6 +112,7 @@ resource "google_oracle_database_cloud_exadata_infrastructure_exascale_config" "
   location                     = "us-east4"
   project                      = "%{project}"
   total_storage_size_gb        = 10240
+  total_vm_storage_size_gb     = 2048
 }
 `, context)
 }
