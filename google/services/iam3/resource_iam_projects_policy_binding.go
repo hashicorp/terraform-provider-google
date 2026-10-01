@@ -161,23 +161,38 @@ func ResourceIAM3ProjectsPolicyBinding() *schema.Resource {
 				Description: `The Policy Binding ID.`,
 			},
 			"target": {
-				Type:        schema.TypeList,
-				Required:    true,
-				Description: `Target is the full resource name of the resource to which the policy will be bound. Immutable once set.`,
-				MaxItems:    1,
+				Type:     schema.TypeList,
+				Required: true,
+				Description: `Target is the full resource name of the resource to which the policy will be bound. Immutable once set.
+Exactly one of 'principal_set' (for principal access boundary policy bindings) or
+'resource' (for access policy bindings) must be set.`,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"principal_set": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-							Description: `Required. Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
+							Description: `Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
 Examples for each one of the following supported principal set types:
 * Project:
   * '//cloudresourcemanager.googleapis.com/projects/PROJECT_NUMBER'
   * '//cloudresourcemanager.googleapis.com/projects/PROJECT_ID'
 * Workload Identity Pool: '//iam.googleapis.com/projects/PROJECT_NUMBER/locations/LOCATION/workloadIdentityPools/WORKLOAD_POOL_ID'
 It must be parent by the policy binding's parent (the project).`,
+							ConflictsWith: []string{"target.0.resource"},
+						},
+						"resource": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Immutable. Full Resource Name of the resource used for access policy bindings.
+Use this together with 'policy_kind = "ACCESS"'. Examples:
+* Project:
+  * '//cloudresourcemanager.googleapis.com/projects/PROJECT_NUMBER'
+  * '//cloudresourcemanager.googleapis.com/projects/PROJECT_ID'
+It must be the policy binding's parent (the project).`,
+							ConflictsWith: []string{"target.0.principal_set"},
 						},
 					},
 				},
@@ -217,7 +232,8 @@ description: \"Create a notification string with a timestamp.\"
 expression: \"'New message received at ' + string(document.create_time)\"
 The exact variables and functions that may be referenced within an expression are
 determined by the service that evaluates it. See the service documentation for
-additional information.`,
+additional information.
+Conditions are currently only supported when the bound policy is a principal access boundary policy.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -811,9 +827,15 @@ func flattenIAM3ProjectsPolicyBindingTarget(v interface{}, d *schema.ResourceDat
 	transformed := make(map[string]interface{})
 	transformed["principal_set"] =
 		flattenIAM3ProjectsPolicyBindingTargetPrincipalSet(original["principalSet"], d, config)
+	transformed["resource"] =
+		flattenIAM3ProjectsPolicyBindingTargetResource(original["resource"], d, config)
 	return []interface{}{transformed}
 }
 func flattenIAM3ProjectsPolicyBindingTargetPrincipalSet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAM3ProjectsPolicyBindingTargetResource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -903,10 +925,21 @@ func expandIAM3ProjectsPolicyBindingTarget(v interface{}, d tpgresource.Terrafor
 		transformed["principalSet"] = transformedPrincipalSet
 	}
 
+	transformedResource, err := expandIAM3ProjectsPolicyBindingTargetResource(original["resource"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resource"] = transformedResource
+	}
+
 	return transformed, nil
 }
 
 func expandIAM3ProjectsPolicyBindingTargetPrincipalSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAM3ProjectsPolicyBindingTargetResource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -65,6 +65,76 @@ resource "google_iam_folders_policy_binding" "binding-for-all-folder-principals"
   depends_on = [time_sleep.wait_120s]
 }
 ```
+## Example Usage - Iam Folders Policy Binding Access Policy
+
+
+```hcl
+resource "google_folder" "folder" {
+  display_name        = "ap-folder-"
+  parent              = "organizations/123456789"
+  deletion_protection = false
+}
+
+# Binding access policies can be blocked by the managed org policy constraint
+# iam.managed.disableAccessPolicyBinding. Make sure it is not enforced on this folder.
+resource "google_org_policy_policy" "allow_access_policy_binding" {
+  name   = "folders/${google_folder.folder.folder_id}/policies/iam.managed.disableAccessPolicyBinding"
+  parent = "folders/${google_folder.folder.folder_id}"
+
+  spec {
+    rules {
+      enforce = "FALSE"
+    }
+  }
+}
+
+resource "time_sleep" "wait_120s" {
+  depends_on = [
+    google_folder.folder,
+    google_org_policy_policy.allow_access_policy_binding,
+  ]
+  create_duration = "120s"
+}
+
+resource "google_service_account" "test_sa" {
+  account_id   = "ap-sa-"
+  display_name = "Test Service Account for Access Policy"
+}
+
+resource "google_iam_folder_access_policy" "access_policy" {
+  depends_on       = [time_sleep.wait_120s]
+  folder           = google_folder.folder.folder_id
+  location         = "global"
+  access_policy_id = "my-folder-policy-"
+  details {
+    rules {
+      effect     = "ALLOW"
+      principals = ["principal://iam.googleapis.com/projects/-/serviceAccounts/${google_service_account.test_sa.email}"]
+      operation {
+        permissions = ["eventarc.googleapis.com/messageBuses.publish"]
+      }
+    }
+  }
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on      = [google_iam_folder_access_policy.access_policy]
+}
+
+resource "google_iam_folders_policy_binding" "my-folder-access-policy-binding" {
+  depends_on        = [time_sleep.wait_60_seconds]
+  folder            = google_folder.folder.folder_id
+  location          = "global"
+  display_name      = "Binding for a folder access policy"
+  policy_kind       = "ACCESS"
+  policy_binding_id = "my-folder-access-binding-"
+  policy            = "folders/${google_folder.folder.folder_id}/locations/global/accessPolicies/${google_iam_folder_access_policy.access_policy.access_policy_id}"
+  target {
+    resource = "//cloudresourcemanager.googleapis.com/folders/${google_folder.folder.folder_id}"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -74,6 +144,8 @@ The following arguments are supported:
 * `target` -
   (Required)
   Target is the full resource name of the resource to which the policy will be bound. Immutable once set.
+  Exactly one of `principal_set` (for principal access boundary policy bindings) or
+  `resource` (for access policy bindings) must be set.
   Structure is [documented below](#nested_target).
 
 * `policy` -
@@ -135,6 +207,7 @@ The following arguments are supported:
   The exact variables and functions that may be referenced within an expression are
   determined by the service that evaluates it. See the service documentation for
   additional information.
+  Conditions are currently only supported when the bound policy is a principal access boundary policy.
   Structure is [documented below](#nested_condition).
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
@@ -149,10 +222,17 @@ The following arguments are supported:
 
 * `principal_set` -
   (Optional)
-  Required. Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
+  Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
   Examples for each one of the following supported principal set types:
   * Folder: `//cloudresourcemanager.googleapis.com/folders/FOLDER_ID`
   It must be parent by the policy binding's parent (the folder).
+
+* `resource` -
+  (Optional)
+  Immutable. Full Resource Name of the resource used for access policy bindings.
+  Use this together with `policy_kind = "ACCESS"`. Examples:
+  * Folder: `//cloudresourcemanager.googleapis.com/folders/FOLDER_ID`
+  It must be the policy binding's parent (the folder).
 
 <a name="nested_condition"></a>The `condition` block supports:
 

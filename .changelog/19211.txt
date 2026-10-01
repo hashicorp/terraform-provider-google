@@ -1,0 +1,3 @@
+```release-note:enhancement
+iam3: added `target.resource` field to `google_iam_projects_policy_binding`, `google_iam_folders_policy_binding`, and `google_iam_organizations_policy_binding` resources
+```
