@@ -31,6 +31,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -189,6 +190,82 @@ resource "google_secure_source_manager_hook" "default" {
     push_option {
         branch_filter = "main"
     }
+    events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
+}
+`, context)
+}
+
+func TestAccSecureSourceManagerHook_secureSourceManagerHookServiceAccountAuthExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"deletion_policy": "DELETE",
+		"hook_id":         "tf-test-my-sa-hook" + randomSuffix,
+		"instance_id":     "tf-test-my-sa-instance" + randomSuffix,
+		"prevent_destroy": false,
+		"repository_id":   "tf-test-my-sa-repository" + randomSuffix,
+		"sa_id":           "tf-test-my-sa" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecureSourceManagerHookDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecureSourceManagerHook_secureSourceManagerHookServiceAccountAuthExample(context),
+			},
+			{
+				ResourceName:            "google_secure_source_manager_hook.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "hook_id", "location", "repository_id", "sensitive_query_string"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_hook.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccSecureSourceManagerHook_secureSourceManagerHookServiceAccountAuthExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secure_source_manager_instance" "instance" {
+    location = "us-central1"
+    instance_id = "%{instance_id}"
+
+    # Prevent accidental deletions.
+    deletion_policy = "%{deletion_policy}"
+}
+
+resource "google_service_account" "sa" {
+    account_id   = "%{sa_id}"
+    display_name = "Test Service Account"
+}
+
+resource "google_secure_source_manager_repository" "repository" {
+    repository_id = "%{repository_id}"
+    instance = google_secure_source_manager_instance.instance.name
+    location = google_secure_source_manager_instance.instance.location
+    service_account = google_service_account.sa.email
+
+    # Prevent accidental deletions.
+    deletion_policy = "%{deletion_policy}"
+}
+
+resource "google_secure_source_manager_hook" "default" {
+    hook_id = "%{hook_id}"
+    location = google_secure_source_manager_repository.repository.location
+    repository_id = google_secure_source_manager_repository.repository.repository_id
+    target_uri = "https://www.example.com"
+    disabled = false
+    service_account_auth = true
     events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
 }
 `, context)
