@@ -454,6 +454,7 @@ func ResourceComputeDisk() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("size", IsDiskShrinkage),
 			hyperDiskIopsUpdateDiffSuppress,
+			forceNewOnUnsupportedKmsKeyChange("disk_encryption_key.0.kms_key_self_link", "disk_encryption_key.0.kms_key_service_account"),
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
@@ -553,14 +554,16 @@ the disk.
 
 If you do not provide an encryption key when creating the disk, then
 the disk will be encrypted using an automatically generated key and
-you do not need to provide a key to use the disk later.`,
+you do not need to provide a key to use the disk later.
+
+~>**NOTE** Only changing 'kms_key_self_link' between Cloud KMS keys is
+done in place; other changes to this block recreate the disk.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"kms_key_self_link": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ForceNew:         true,
 							DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
 							Description: `The self link of the encryption key used to encrypt the disk. Also called KmsKeyName
 in the cloud console. Your project's Compute Engine System service account
@@ -1545,6 +1548,29 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Error updating Disk %q access mode: %s", d.Id(), err)
 		}
 		err = ComputeOperationWaitTime(config, res, project, "Updating Disk Access Mode", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	// 5. KMS key (POST updateKmsKey)
+	if d.HasChange("disk_encryption_key.0.kms_key_self_link") {
+		oldKey, newKey := d.GetChange("disk_encryption_key.0.kms_key_self_link")
+		obj, err := kmsKeyUpdateRequestBody(oldKey.(string), newKey.(string), d.Get("disk_encryption_key.0.kms_key_service_account").(string))
+		if err != nil {
+			return fmt.Errorf("Error updating Disk %q KMS key: %s", d.Id(), err)
+		}
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/updateKmsKey")
+		if err != nil {
+			return err
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config: config, Method: "POST", Project: billingProject, RawURL: url, UserAgent: userAgent, Body: obj, Timeout: d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating Disk %q KMS key: %s", d.Id(), err)
+		}
+		err = ComputeOperationWaitTime(config, res, project, "Updating Disk KMS Key", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
