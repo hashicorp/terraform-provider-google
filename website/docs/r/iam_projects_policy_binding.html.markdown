@@ -63,6 +63,85 @@ resource "google_iam_projects_policy_binding" "binding-for-all-project-principal
   }
 }
 ```
+## Example Usage - Iam Projects Policy Binding Access Policy
+
+
+```hcl
+resource "google_project" "project" {
+  project_id      = "ap-proj-"
+  name            = "ap-proj-"
+  org_id          = "123456789"
+  billing_account = "000000-0000000-0000000-000000"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "iam_api" {
+  project            = google_project.project.project_id
+  service            = "iam.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Binding access policies can be blocked by the managed org policy constraint
+# iam.managed.disableAccessPolicyBinding. Make sure it is not enforced on this project.
+resource "google_org_policy_policy" "allow_access_policy_binding" {
+  name   = "projects/${google_project.project.project_id}/policies/iam.managed.disableAccessPolicyBinding"
+  parent = "projects/${google_project.project.project_id}"
+
+  spec {
+    rules {
+      enforce = "FALSE"
+    }
+  }
+}
+
+resource "time_sleep" "wait_for_project_setup" {
+  create_duration = "120s"
+  depends_on = [
+    google_project_service.iam_api,
+    google_org_policy_policy.allow_access_policy_binding,
+  ]
+}
+
+resource "google_service_account" "test_sa" {
+  project      = google_project.project.project_id
+  account_id   = "ap-sa-"
+  display_name = "Test Service Account for Access Policy"
+  depends_on   = [time_sleep.wait_for_project_setup]
+}
+
+resource "google_iam_project_access_policy" "access_policy" {
+  project          = google_project.project.project_id
+  location         = "global"
+  access_policy_id = "my-project-policy-"
+  details {
+    rules {
+      effect     = "ALLOW"
+      principals = ["principal://iam.googleapis.com/projects/-/serviceAccounts/${google_service_account.test_sa.email}"]
+      operation {
+        permissions = ["eventarc.googleapis.com/messageBuses.publish"]
+      }
+    }
+  }
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on      = [google_iam_project_access_policy.access_policy]
+}
+
+resource "google_iam_projects_policy_binding" "my-project-access-policy-binding" {
+  depends_on        = [time_sleep.wait_60_seconds]
+  project           = google_project.project.project_id
+  location          = "global"
+  display_name      = "Binding for a project access policy"
+  policy_kind       = "ACCESS"
+  policy_binding_id = "my-project-access-binding-"
+  policy            = "projects/${google_project.project.project_id}/locations/global/accessPolicies/${google_iam_project_access_policy.access_policy.access_policy_id}"
+  target {
+    resource = "//cloudresourcemanager.googleapis.com/projects/${google_project.project.project_id}"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -72,6 +151,8 @@ The following arguments are supported:
 * `target` -
   (Required)
   Target is the full resource name of the resource to which the policy will be bound. Immutable once set.
+  Exactly one of `principal_set` (for principal access boundary policy bindings) or
+  `resource` (for access policy bindings) must be set.
   Structure is [documented below](#nested_target).
 
 * `policy` -
@@ -129,6 +210,7 @@ The following arguments are supported:
   The exact variables and functions that may be referenced within an expression are
   determined by the service that evaluates it. See the service documentation for
   additional information.
+  Conditions are currently only supported when the bound policy is a principal access boundary policy.
   Structure is [documented below](#nested_condition).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -146,13 +228,22 @@ The following arguments are supported:
 
 * `principal_set` -
   (Optional)
-  Required. Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
+  Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
   Examples for each one of the following supported principal set types:
   * Project:
     * `//cloudresourcemanager.googleapis.com/projects/PROJECT_NUMBER`
     * `//cloudresourcemanager.googleapis.com/projects/PROJECT_ID`
   * Workload Identity Pool: `//iam.googleapis.com/projects/PROJECT_NUMBER/locations/LOCATION/workloadIdentityPools/WORKLOAD_POOL_ID`
   It must be parent by the policy binding's parent (the project).
+
+* `resource` -
+  (Optional)
+  Immutable. Full Resource Name of the resource used for access policy bindings.
+  Use this together with `policy_kind = "ACCESS"`. Examples:
+  * Project:
+    * `//cloudresourcemanager.googleapis.com/projects/PROJECT_NUMBER`
+    * `//cloudresourcemanager.googleapis.com/projects/PROJECT_ID`
+  It must be the policy binding's parent (the project).
 
 <a name="nested_condition"></a>The `condition` block supports:
 

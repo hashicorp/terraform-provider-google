@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/iam3"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -127,6 +128,117 @@ resource "google_iam_folders_policy_binding" "binding-for-all-folder-principals"
     principal_set = "//cloudresourcemanager.googleapis.com/folders/${google_folder.folder.folder_id}"
   }
   depends_on = [time_sleep.wait_120s]
+}
+`, context)
+}
+
+func TestAccIAM3FoldersPolicyBinding_iamFoldersPolicyBindingAccessPolicyExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"access_policy_id":  "tf-test-my-folder-policy-" + randomSuffix,
+		"account_id":        "tf-test-ap-sa-" + randomSuffix,
+		"folder_binding_id": "tf-test-my-folder-access-binding-" + randomSuffix,
+		"folder_name":       "tf-test-ap-folder-" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckIAM3FoldersPolicyBindingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIAM3FoldersPolicyBinding_iamFoldersPolicyBindingAccessPolicyExample(context),
+			},
+			{
+				ResourceName:            "google_iam_folders_policy_binding.my-folder-access-policy-binding",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "folder", "location", "policy_binding_id"},
+			},
+			{
+				ResourceName:       "google_iam_folders_policy_binding.my-folder-access-policy-binding",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccIAM3FoldersPolicyBinding_iamFoldersPolicyBindingAccessPolicyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_folder" "folder" {
+  display_name        = "%{folder_name}"
+  parent              = "organizations/%{org_id}"
+  deletion_protection = false
+}
+
+# Binding access policies can be blocked by the managed org policy constraint
+# iam.managed.disableAccessPolicyBinding. Make sure it is not enforced on this folder.
+resource "google_org_policy_policy" "allow_access_policy_binding" {
+  name   = "folders/${google_folder.folder.folder_id}/policies/iam.managed.disableAccessPolicyBinding"
+  parent = "folders/${google_folder.folder.folder_id}"
+
+  spec {
+    rules {
+      enforce = "FALSE"
+    }
+  }
+}
+
+resource "time_sleep" "wait_120s" {
+  depends_on = [
+    google_folder.folder,
+    google_org_policy_policy.allow_access_policy_binding,
+  ]
+  create_duration = "120s"
+}
+
+resource "google_service_account" "test_sa" {
+  account_id   = "%{account_id}"
+  display_name = "Test Service Account for Access Policy"
+}
+
+resource "google_iam_folder_access_policy" "access_policy" {
+  depends_on       = [time_sleep.wait_120s]
+  folder           = google_folder.folder.folder_id
+  location         = "global"
+  access_policy_id = "%{access_policy_id}"
+  details {
+    rules {
+      effect     = "ALLOW"
+      principals = ["principal://iam.googleapis.com/projects/-/serviceAccounts/${google_service_account.test_sa.email}"]
+      operation {
+        permissions = ["eventarc.googleapis.com/messageBuses.publish"]
+      }
+    }
+  }
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on      = [google_iam_folder_access_policy.access_policy]
+}
+
+resource "google_iam_folders_policy_binding" "my-folder-access-policy-binding" {
+  depends_on        = [time_sleep.wait_60_seconds]
+  folder            = google_folder.folder.folder_id
+  location          = "global"
+  display_name      = "Binding for a folder access policy"
+  policy_kind       = "ACCESS"
+  policy_binding_id = "%{folder_binding_id}"
+  policy            = "folders/${google_folder.folder.folder_id}/locations/global/accessPolicies/${google_iam_folder_access_policy.access_policy.access_policy_id}"
+  target {
+    resource = "//cloudresourcemanager.googleapis.com/folders/${google_folder.folder.folder_id}"
+  }
 }
 `, context)
 }

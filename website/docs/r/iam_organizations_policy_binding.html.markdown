@@ -59,6 +59,48 @@ resource "google_iam_organizations_policy_binding" "binding-for-all-org-principa
   }
 }
 ```
+## Example Usage - Iam Organizations Policy Binding Access Policy
+
+
+```hcl
+resource "google_service_account" "test_sa" {
+  account_id   = "ap-sa-"
+  display_name = "Test Service Account for Access Policy"
+}
+
+resource "google_iam_organization_access_policy" "access_policy" {
+  organization     = "123456789"
+  location         = "global"
+  access_policy_id = "my-org-policy-"
+  details {
+    rules {
+      effect     = "ALLOW"
+      principals = ["principal://iam.googleapis.com/projects/-/serviceAccounts/${google_service_account.test_sa.email}"]
+      operation {
+        permissions = ["eventarc.googleapis.com/messageBuses.publish"]
+      }
+    }
+  }
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on      = [google_iam_organization_access_policy.access_policy]
+}
+
+resource "google_iam_organizations_policy_binding" "my-org-access-policy-binding" {
+  depends_on        = [time_sleep.wait_60_seconds]
+  organization      = "123456789"
+  location          = "global"
+  display_name      = "Binding for an organization access policy"
+  policy_kind       = "ACCESS"
+  policy_binding_id = "my-org-access-binding-"
+  policy            = "organizations/123456789/locations/global/accessPolicies/${google_iam_organization_access_policy.access_policy.access_policy_id}"
+  target {
+    resource = "//cloudresourcemanager.googleapis.com/organizations/123456789"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -68,6 +110,8 @@ The following arguments are supported:
 * `target` -
   (Required)
   Target is the full resource name of the resource to which the policy will be bound. Immutable once set.
+  Exactly one of `principal_set` (for principal access boundary policy bindings) or
+  `resource` (for access policy bindings) must be set.
   Structure is [documented below](#nested_target).
 
 * `policy` -
@@ -129,6 +173,7 @@ The following arguments are supported:
   The exact variables and functions that may be referenced within an expression are
   determined by the service that evaluates it. See the service documentation for
   additional information.
+  Conditions are currently only supported when the bound policy is a principal access boundary policy.
   Structure is [documented below](#nested_condition).
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
@@ -143,12 +188,19 @@ The following arguments are supported:
 
 * `principal_set` -
   (Optional)
-  Required. Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
+  Immutable. Full Resource Name of the principal set used for principal access boundary policy bindings.
   Examples for each one of the following supported principal set types:
   * Organization `//cloudresourcemanager.googleapis.com/organizations/ORGANIZATION_ID`
   * Workforce Identity: `//iam.googleapis.com/locations/global/workforcePools/WORKFORCE_POOL_ID`
   * Workspace Identity: `//iam.googleapis.com/locations/global/workspace/WORKSPACE_ID`
   It must be parent by the policy binding's parent (the organization).
+
+* `resource` -
+  (Optional)
+  Immutable. Full Resource Name of the resource used for access policy bindings.
+  Use this together with `policy_kind = "ACCESS"`. Examples:
+  * Organization: `//cloudresourcemanager.googleapis.com/organizations/ORGANIZATION_ID`
+  It must be the policy binding's parent (the organization).
 
 <a name="nested_condition"></a>The `condition` block supports:
 

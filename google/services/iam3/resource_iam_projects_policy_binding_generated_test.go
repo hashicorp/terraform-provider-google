@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/iam3"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -123,6 +124,127 @@ resource "google_iam_projects_policy_binding" "binding-for-all-project-principal
   policy         = "organizations/%{org_id}/locations/global/principalAccessBoundaryPolicies/${google_iam_principal_access_boundary_policy.pab_policy.principal_access_boundary_policy_id}"
   target {
     principal_set = "//cloudresourcemanager.googleapis.com/projects/${data.google_project.project.project_id}"
+  }
+}
+`, context)
+}
+
+func TestAccIAM3ProjectsPolicyBinding_iamProjectsPolicyBindingAccessPolicyExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"billing_account":    envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":             envvar.GetTestOrgFromEnv(t),
+		"access_policy_id":   "tf-test-my-project-policy-" + randomSuffix,
+		"account_id":         "tf-test-ap-sa-" + randomSuffix,
+		"project_binding_id": "tf-test-my-project-access-binding-" + randomSuffix,
+		"project_id":         "tf-test-ap-proj-" + randomSuffix,
+		"random_suffix":      randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckIAM3ProjectsPolicyBindingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIAM3ProjectsPolicyBinding_iamProjectsPolicyBindingAccessPolicyExample(context),
+			},
+			{
+				ResourceName:            "google_iam_projects_policy_binding.my-project-access-policy-binding",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "location", "policy_binding_id"},
+			},
+			{
+				ResourceName:       "google_iam_projects_policy_binding.my-project-access-policy-binding",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccIAM3ProjectsPolicyBinding_iamProjectsPolicyBindingAccessPolicyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_project" "project" {
+  project_id      = "%{project_id}"
+  name            = "%{project_id}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
+}
+
+resource "google_project_service" "iam_api" {
+  project            = google_project.project.project_id
+  service            = "iam.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Binding access policies can be blocked by the managed org policy constraint
+# iam.managed.disableAccessPolicyBinding. Make sure it is not enforced on this project.
+resource "google_org_policy_policy" "allow_access_policy_binding" {
+  name   = "projects/${google_project.project.project_id}/policies/iam.managed.disableAccessPolicyBinding"
+  parent = "projects/${google_project.project.project_id}"
+
+  spec {
+    rules {
+      enforce = "FALSE"
+    }
+  }
+}
+
+resource "time_sleep" "wait_for_project_setup" {
+  create_duration = "120s"
+  depends_on = [
+    google_project_service.iam_api,
+    google_org_policy_policy.allow_access_policy_binding,
+  ]
+}
+
+resource "google_service_account" "test_sa" {
+  project      = google_project.project.project_id
+  account_id   = "%{account_id}"
+  display_name = "Test Service Account for Access Policy"
+  depends_on   = [time_sleep.wait_for_project_setup]
+}
+
+resource "google_iam_project_access_policy" "access_policy" {
+  project          = google_project.project.project_id
+  location         = "global"
+  access_policy_id = "%{access_policy_id}"
+  details {
+    rules {
+      effect     = "ALLOW"
+      principals = ["principal://iam.googleapis.com/projects/-/serviceAccounts/${google_service_account.test_sa.email}"]
+      operation {
+        permissions = ["eventarc.googleapis.com/messageBuses.publish"]
+      }
+    }
+  }
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  create_duration = "60s"
+  depends_on      = [google_iam_project_access_policy.access_policy]
+}
+
+resource "google_iam_projects_policy_binding" "my-project-access-policy-binding" {
+  depends_on        = [time_sleep.wait_60_seconds]
+  project           = google_project.project.project_id
+  location          = "global"
+  display_name      = "Binding for a project access policy"
+  policy_kind       = "ACCESS"
+  policy_binding_id = "%{project_binding_id}"
+  policy            = "projects/${google_project.project.project_id}/locations/global/accessPolicies/${google_iam_project_access_policy.access_policy.access_policy_id}"
+  target {
+    resource = "//cloudresourcemanager.googleapis.com/projects/${google_project.project.project_id}"
   }
 }
 `, context)
