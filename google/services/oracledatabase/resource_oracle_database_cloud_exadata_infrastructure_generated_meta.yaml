@@ -32,6 +32,10 @@ fields:
     - api_field: properties.dataStorageSizeTb
     - api_field: properties.dbNodeStorageSizeGb
     - api_field: properties.dbServerVersion
+    - api_field: properties.exascaleConfig.availableStorageSizeGb
+    - api_field: properties.exascaleConfig.availableVmStorageSizeGb
+    - api_field: properties.exascaleConfig.totalStorageSizeGb
+    - api_field: properties.exascaleConfig.totalVmStorageSizeGb
     - api_field: properties.maintenanceWindow.customActionTimeoutMins
     - api_field: properties.maintenanceWindow.daysOfWeek
     - api_field: properties.maintenanceWindow.hoursOfDay

@@ -276,6 +276,11 @@ The following arguments are supported:
   The monthly software version of the database servers (dom0)
   in the Exadata Infrastructure. Example: 20.1.15
 
+* `exascale_config` -
+  (Output)
+  The Exascale configuration for the Exadata Infrastructure.
+  Structure is [documented below](#nested_properties_exascale_config).
+
 
 <a name="nested_properties_maintenance_window"></a>The `maintenance_window` block supports:
 
@@ -343,6 +348,24 @@ The following arguments are supported:
   (Required)
   The email address used by Oracle to send notifications regarding databases
   and infrastructure.
+
+<a name="nested_properties_exascale_config"></a>The `exascale_config` block contains:
+
+* `total_storage_size_gb` -
+  (Output)
+  Total storage size needed for Exascale in GBs.
+
+* `available_storage_size_gb` -
+  (Output)
+  Available storage size for Exascale in GBs.
+
+* `total_vm_storage_size_gb` -
+  (Output)
+  Storage size needed for VM storage on Exascale in GBs.
+
+* `available_vm_storage_size_gb` -
+  (Output)
+  Available storage size for VM storage on Exascale in GBs.
 
 ## Attributes Reference
 

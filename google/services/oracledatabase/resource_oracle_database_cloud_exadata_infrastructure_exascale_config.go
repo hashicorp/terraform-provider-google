@@ -159,6 +159,12 @@ func ResourceOracleDatabaseCloudExadataInfrastructureExascaleConfig() *schema.Re
 				ForceNew:    true,
 				Description: `The total storage to be allocated to Exascale in GBs.`,
 			},
+			"total_vm_storage_size_gb": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Storage size needed for VM storage on Exascale in GBs.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -195,6 +201,12 @@ func resourceOracleDatabaseCloudExadataInfrastructureExascaleConfigCreate(d *sch
 		return err
 	} else if v, ok := d.GetOkExists("total_storage_size_gb"); !tpgresource.IsEmptyValue(reflect.ValueOf(totalStorageSizeGbProp)) && (ok || !reflect.DeepEqual(v, totalStorageSizeGbProp)) {
 		obj["totalStorageSizeGb"] = totalStorageSizeGbProp
+	}
+	totalVmStorageSizeGbProp, err := expandOracleDatabaseCloudExadataInfrastructureExascaleConfigTotalVmStorageSizeGb(d.Get("total_vm_storage_size_gb"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("total_vm_storage_size_gb"); !tpgresource.IsEmptyValue(reflect.ValueOf(totalVmStorageSizeGbProp)) && (ok || !reflect.DeepEqual(v, totalVmStorageSizeGbProp)) {
+		obj["totalVmStorageSizeGb"] = totalVmStorageSizeGbProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/cloudExadataInfrastructures/{{cloud_exadata_infrastructure}}:configureExascale")
@@ -436,7 +448,28 @@ func flattenOracleDatabaseCloudExadataInfrastructureExascaleConfigTotalStorageSi
 	return v // let terraform core handle it otherwise
 }
 
+func flattenOracleDatabaseCloudExadataInfrastructureExascaleConfigTotalVmStorageSizeGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func expandOracleDatabaseCloudExadataInfrastructureExascaleConfigTotalStorageSizeGb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseCloudExadataInfrastructureExascaleConfigTotalVmStorageSizeGb(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -452,6 +485,7 @@ func resourceOracleDatabaseCloudExadataInfrastructureExascaleConfigDecoder(d *sc
 	}
 
 	res["totalStorageSizeGb"] = exascaleConfig["totalStorageSizeGb"]
+	res["totalVmStorageSizeGb"] = exascaleConfig["totalVmStorageSizeGb"]
 
 	return res, nil
 }
@@ -460,6 +494,9 @@ func ResourceOracleDatabaseCloudExadataInfrastructureExascaleConfigFlatten(d *sc
 	var err error
 
 	if err = d.Set("total_storage_size_gb", flattenOracleDatabaseCloudExadataInfrastructureExascaleConfigTotalStorageSizeGb(res["totalStorageSizeGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudExadataInfrastructureExascaleConfig: %s", err)
+	}
+	if err = d.Set("total_vm_storage_size_gb", flattenOracleDatabaseCloudExadataInfrastructureExascaleConfigTotalVmStorageSizeGb(res["totalVmStorageSizeGb"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CloudExadataInfrastructureExascaleConfig: %s", err)
 	}
 

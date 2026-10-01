@@ -1,0 +1,6 @@
+```release-note:enhancement
+oracledatabase: added `properties.exascale_config` field to `google_oracle_database_cloud_exadata_infrastructure` resource
+```
+```release-note:enhancement
+oracledatabase: added `total_vm_storage_size_gb` field to `google_oracle_database_cloud_exadata_infrastructure_exascale_config` resource
+```
