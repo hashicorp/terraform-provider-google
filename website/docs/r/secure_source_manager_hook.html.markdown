@@ -106,6 +106,48 @@ resource "google_secure_source_manager_hook" "default" {
     events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_hook_service_account_auth&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Secure Source Manager Hook Service Account Auth
+
+
+```hcl
+resource "google_secure_source_manager_instance" "instance" {
+    location = "us-central1"
+    instance_id = "my-sa-instance"
+
+    # Prevent accidental deletions.
+    deletion_policy = ""PREVENT""
+}
+
+resource "google_service_account" "sa" {
+    account_id   = "my-sa"
+    display_name = "Test Service Account"
+}
+
+resource "google_secure_source_manager_repository" "repository" {
+    repository_id = "my-sa-repository"
+    instance = google_secure_source_manager_instance.instance.name
+    location = google_secure_source_manager_instance.instance.location
+    service_account = google_service_account.sa.email
+
+    # Prevent accidental deletions.
+    deletion_policy = ""PREVENT""
+}
+
+resource "google_secure_source_manager_hook" "default" {
+    hook_id = "my-sa-hook"
+    location = google_secure_source_manager_repository.repository.location
+    repository_id = google_secure_source_manager_repository.repository.repository_id
+    target_uri = "https://www.example.com"
+    disabled = false
+    service_account_auth = true
+    events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
+}
+```
 
 ## Argument Reference
 
@@ -143,6 +185,11 @@ The following arguments are supported:
   (Optional)
   The sensitive query string to be appended to the target URI.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `service_account_auth` -
+  (Optional)
+  Determines if the hook uses the Repository Service Account to
+  generate an OIDC ID Token for webhook authentication.
 
 * `push_option` -
   (Optional)

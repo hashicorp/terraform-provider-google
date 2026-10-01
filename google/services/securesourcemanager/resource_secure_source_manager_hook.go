@@ -206,6 +206,12 @@ See https://pkg.go.dev/github.com/gobwas/glob documentation.`,
 				Description: `The sensitive query string to be appended to the target URI.`,
 				Sensitive:   true,
 			},
+			"service_account_auth": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Determines if the hook uses the Repository Service Account to
+generate an OIDC ID Token for webhook authentication.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -281,6 +287,12 @@ func resourceSecureSourceManagerHookCreate(d *schema.ResourceData, meta interfac
 		return err
 	} else if v, ok := d.GetOkExists("sensitive_query_string"); !tpgresource.IsEmptyValue(reflect.ValueOf(sensitiveQueryStringProp)) && (ok || !reflect.DeepEqual(v, sensitiveQueryStringProp)) {
 		obj["sensitiveQueryString"] = sensitiveQueryStringProp
+	}
+	serviceAccountAuthProp, err := expandSecureSourceManagerHookServiceAccountAuth(d.Get("service_account_auth"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_account_auth"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceAccountAuthProp)) && (ok || !reflect.DeepEqual(v, serviceAccountAuthProp)) {
+		obj["serviceAccountAuth"] = serviceAccountAuthProp
 	}
 	pushOptionProp, err := expandSecureSourceManagerHookPushOption(d.Get("push_option"), d, config)
 	if err != nil {
@@ -544,6 +556,12 @@ func resourceSecureSourceManagerHookUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("sensitive_query_string"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sensitiveQueryStringProp)) {
 		obj["sensitiveQueryString"] = sensitiveQueryStringProp
 	}
+	serviceAccountAuthProp, err := expandSecureSourceManagerHookServiceAccountAuth(d.Get("service_account_auth"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_account_auth"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceAccountAuthProp)) {
+		obj["serviceAccountAuth"] = serviceAccountAuthProp
+	}
 	pushOptionProp, err := expandSecureSourceManagerHookPushOption(d.Get("push_option"), d, config)
 	if err != nil {
 		return err
@@ -574,6 +592,10 @@ func resourceSecureSourceManagerHookUpdate(d *schema.ResourceData, meta interfac
 
 	if d.HasChange("sensitive_query_string") {
 		updateMask = append(updateMask, "sensitiveQueryString")
+	}
+
+	if d.HasChange("service_account_auth") {
+		updateMask = append(updateMask, "serviceAccountAuth")
 	}
 
 	if d.HasChange("push_option") {
@@ -726,6 +748,10 @@ func flattenSecureSourceManagerHookUid(v interface{}, d *schema.ResourceData, co
 	return v
 }
 
+func flattenSecureSourceManagerHookServiceAccountAuth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenSecureSourceManagerHookPushOption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -753,6 +779,10 @@ func expandSecureSourceManagerHookEvents(v interface{}, d tpgresource.TerraformR
 }
 
 func expandSecureSourceManagerHookSensitiveQueryString(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecureSourceManagerHookServiceAccountAuth(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -809,6 +839,9 @@ func ResourceSecureSourceManagerHookFlatten(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading Hook: %s", err)
 	}
 	if err = d.Set("uid", flattenSecureSourceManagerHookUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hook: %s", err)
+	}
+	if err = d.Set("service_account_auth", flattenSecureSourceManagerHookServiceAccountAuth(res["serviceAccountAuth"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Hook: %s", err)
 	}
 	if err = d.Set("push_option", flattenSecureSourceManagerHookPushOption(res["pushOption"], d, config)); err != nil {
