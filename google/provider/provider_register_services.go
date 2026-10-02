@@ -111,6 +111,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firebaserules"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firestore"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gemini"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/geminidataanalytics"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkehub"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkehub2"

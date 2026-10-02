@@ -1,0 +1,66 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_gemini_data_analytics_data_agent
+generation_type: mmv1
+source_file: products/geminidataanalytics/DataAgent.yaml
+api_service_name: geminidataanalytics.googleapis.com
+api_version: v1
+api_resource_type_kind: DataAgent
+fields:
+    - api_field: createTime
+    - field: data_agent_id
+      provider_only: true
+    - api_field: dataAnalyticsAgent.lastPublishedContext.datasourceReferences.bq.tableReferences.datasetId
+    - api_field: dataAnalyticsAgent.lastPublishedContext.datasourceReferences.bq.tableReferences.projectId
+    - api_field: dataAnalyticsAgent.lastPublishedContext.datasourceReferences.bq.tableReferences.tableId
+    - api_field: dataAnalyticsAgent.lastPublishedContext.systemInstruction
+    - api_field: dataAnalyticsAgent.publishedContext.datasourceReferences.bq.tableReferences.datasetId
+    - api_field: dataAnalyticsAgent.publishedContext.datasourceReferences.bq.tableReferences.projectId
+    - api_field: dataAnalyticsAgent.publishedContext.datasourceReferences.bq.tableReferences.tableId
+    - api_field: dataAnalyticsAgent.publishedContext.exampleQueries.naturalLanguageQuestion
+    - api_field: dataAnalyticsAgent.publishedContext.exampleQueries.sqlQuery
+    - api_field: dataAnalyticsAgent.publishedContext.glossaryTerms.description
+    - api_field: dataAnalyticsAgent.publishedContext.glossaryTerms.displayName
+    - api_field: dataAnalyticsAgent.publishedContext.glossaryTerms.labels
+    - api_field: dataAnalyticsAgent.publishedContext.options.analysis.python.enabled
+    - api_field: dataAnalyticsAgent.publishedContext.options.datasource.bigQueryMaxBilledBytes
+    - api_field: dataAnalyticsAgent.publishedContext.schemaRelationships.confidenceScore
+    - api_field: dataAnalyticsAgent.publishedContext.schemaRelationships.leftSchemaPaths.paths
+    - api_field: dataAnalyticsAgent.publishedContext.schemaRelationships.leftSchemaPaths.tableFqn
+    - api_field: dataAnalyticsAgent.publishedContext.schemaRelationships.rightSchemaPaths.paths
+    - api_field: dataAnalyticsAgent.publishedContext.schemaRelationships.rightSchemaPaths.tableFqn
+    - api_field: dataAnalyticsAgent.publishedContext.schemaRelationships.sources
+    - api_field: dataAnalyticsAgent.publishedContext.systemInstruction
+    - api_field: dataAnalyticsAgent.stagingContext.datasourceReferences.bq.tableReferences.datasetId
+    - api_field: dataAnalyticsAgent.stagingContext.datasourceReferences.bq.tableReferences.projectId
+    - api_field: dataAnalyticsAgent.stagingContext.datasourceReferences.bq.tableReferences.tableId
+    - api_field: dataAnalyticsAgent.stagingContext.exampleQueries.naturalLanguageQuestion
+    - api_field: dataAnalyticsAgent.stagingContext.exampleQueries.sqlQuery
+    - api_field: dataAnalyticsAgent.stagingContext.glossaryTerms.description
+    - api_field: dataAnalyticsAgent.stagingContext.glossaryTerms.displayName
+    - api_field: dataAnalyticsAgent.stagingContext.glossaryTerms.labels
+    - api_field: dataAnalyticsAgent.stagingContext.options.analysis.python.enabled
+    - api_field: dataAnalyticsAgent.stagingContext.options.datasource.bigQueryMaxBilledBytes
+    - api_field: dataAnalyticsAgent.stagingContext.schemaRelationships.confidenceScore
+    - api_field: dataAnalyticsAgent.stagingContext.schemaRelationships.leftSchemaPaths.paths
+    - api_field: dataAnalyticsAgent.stagingContext.schemaRelationships.leftSchemaPaths.tableFqn
+    - api_field: dataAnalyticsAgent.stagingContext.schemaRelationships.rightSchemaPaths.paths
+    - api_field: dataAnalyticsAgent.stagingContext.schemaRelationships.rightSchemaPaths.tableFqn
+    - api_field: dataAnalyticsAgent.stagingContext.schemaRelationships.sources
+    - api_field: dataAnalyticsAgent.stagingContext.systemInstruction
+    - api_field: deleteTime
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: kmsKey
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: purgeTime
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
