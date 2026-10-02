@@ -145,7 +145,7 @@ func TestAccLustreInstance_update(t *testing.T) {
 				ResourceName:            "google_lustre_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "labels", "gke_support_enabled", "location", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "gke_support_enabled", "location", "terraform_labels", "target_version"},
 			},
 		},
 	})
@@ -365,6 +365,7 @@ resource "google_lustre_instance" "instance" {
   network                     = data.google_compute_network.lustre-network.id
   description                 = "test-description"
   per_unit_storage_throughput = 1000
+  target_version              = "latest"
   labels                      = {
     test = "test-label"
   }

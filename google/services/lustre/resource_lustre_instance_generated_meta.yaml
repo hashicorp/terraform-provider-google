@@ -15,12 +15,14 @@ fields:
     - api_field: accessRulesOptions.defaultSquashGid
     - api_field: accessRulesOptions.defaultSquashMode
     - api_field: accessRulesOptions.defaultSquashUid
+    - api_field: availableVersion
     - api_field: capacityGib
     - api_field: createTime
     - api_field: description
     - api_field: dynamicTierOptions.mode
     - field: effective_labels
       provider_only: true
+    - api_field: effectiveVersion
     - api_field: filesystem
     - api_field: gkeSupportEnabled
     - field: instance_id
@@ -51,6 +53,7 @@ fields:
     - api_field: placementPolicy
     - api_field: state
     - api_field: stateReason
+    - api_field: targetVersion
     - field: terraform_labels
       provider_only: true
     - api_field: uid

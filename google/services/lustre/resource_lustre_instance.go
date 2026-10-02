@@ -54,6 +54,23 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// lustreInstanceTargetVersionDiffSuppress suppresses target_version when the
+// requested upgrade is a no-op. The API clears the field once the upgrade
+// finishes, so the prior state value carries no information; compare the
+// request against effective_version/available_version instead.
+func lustreInstanceTargetVersionDiffSuppress(_, _, new string, d *schema.ResourceData) bool {
+	// "latest" resolves server-side to available_version; nothing available
+	// means there is nothing to upgrade to.
+	if strings.EqualFold(new, "latest") {
+		availableVersion, _ := d.Get("available_version").(string)
+		return availableVersion == ""
+	}
+	// Same-or-older than what is running is a no-op or a downgrade, both of
+	// which the API rejects. Lexicographic, matching the service's ordering.
+	effectiveVersion, _ := d.Get("effective_version").(string)
+	return effectiveVersion != "" && new <= effectiveVersion
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -544,6 +561,27 @@ must be set to zero.`,
 				Description: `The placement policy name for the instance in the format of
 projects/{project}/locations/{location}/resourcePolicies/{resource_policy}`,
 			},
+			"target_version": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: lustreInstanceTargetVersionDiffSuppress,
+				Description: `The version to upgrade this instance to. Set this to the value reported in
+'availableVersion', or to 'latest' to move to the newest version available
+at the time of the upgrade.
+This field cannot be set when the instance is created; new instances are
+always provisioned from the current release. It also cannot be changed in
+the same operation as 'capacityGib' or 'maintenancePolicy', and the
+instance must be ACTIVE and outside of the hour preceding a scheduled
+maintenance window.
+The API clears this field once the upgrade finishes, so it always reads
+back as empty on an idle instance.`,
+			},
+			"available_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The version this instance can be upgraded to, if one is available. Empty
+when the instance is already running the newest release.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -554,6 +592,12 @@ projects/{project}/locations/{location}/resourcePolicies/{resource_policy}`,
 				Computed:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The version of Managed Lustre software that this instance is currently
+running.`,
 			},
 			"mount_point": {
 				Type:        schema.TypeString,
@@ -719,11 +763,22 @@ func resourceLustreInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("placement_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(placementPolicyProp)) && (ok || !reflect.DeepEqual(v, placementPolicyProp)) {
 		obj["placementPolicy"] = placementPolicyProp
 	}
+	targetVersionProp, err := expandLustreInstanceTargetVersion(d.Get("target_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetVersionProp)) && (ok || !reflect.DeepEqual(v, targetVersionProp)) {
+		obj["targetVersion"] = targetVersionProp
+	}
 	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
 		obj["labels"] = effectiveLabelsProp
+	}
+
+	obj, err = resourceLustreInstanceEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances?instanceId={{instance_id}}")
@@ -977,11 +1032,22 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("placement_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, placementPolicyProp)) {
 		obj["placementPolicy"] = placementPolicyProp
 	}
+	targetVersionProp, err := expandLustreInstanceTargetVersion(d.Get("target_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("target_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, targetVersionProp)) {
+		obj["targetVersion"] = targetVersionProp
+	}
 	effectiveLabelsProp, err := expandLustreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
 		obj["labels"] = effectiveLabelsProp
+	}
+
+	obj, err = resourceLustreInstanceUpdateEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance_id}}")
@@ -1015,6 +1081,10 @@ func resourceLustreInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("placement_policy") {
 		updateMask = append(updateMask, "placementPolicy")
+	}
+
+	if d.HasChange("target_version") {
+		updateMask = append(updateMask, "targetVersion")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1235,6 +1305,10 @@ func flattenLustreInstanceAccessRulesOptionsDefaultSquashUid(v interface{}, d *s
 	return v // let terraform core handle it otherwise
 }
 
+func flattenLustreInstanceAvailableVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenLustreInstanceCapacityGib(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1261,6 +1335,10 @@ func flattenLustreInstanceDynamicTierOptions(v interface{}, d *schema.ResourceDa
 	return []interface{}{transformed}
 }
 func flattenLustreInstanceDynamicTierOptionsMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceEffectiveVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1686,6 +1764,10 @@ func flattenLustreInstanceState(v interface{}, d *schema.ResourceData, config *t
 }
 
 func flattenLustreInstanceStateReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLustreInstanceTargetVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2221,6 +2303,10 @@ func expandLustreInstancePlacementPolicy(v interface{}, d tpgresource.TerraformR
 	return v, nil
 }
 
+func expandLustreInstanceTargetVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandLustreInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -2232,10 +2318,28 @@ func expandLustreInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformR
 	return m, nil
 }
 
+func resourceLustreInstanceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// The API rejects target_version at create, and Terraform sends every
+	// configured property on create, so drop it here. This also covers the create
+	// half of a recreate.
+	delete(obj, "targetVersion")
+	return obj, nil
+}
+
+func resourceLustreInstanceUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// Exists only to shadow the create encoder: MMv1 falls back to
+	// custom_code.encoder on update when update_encoder is unset, which would strip
+	// target_version from every PATCH. Update needs no rewriting of its own.
+	return obj, nil
+}
+
 func ResourceLustreInstanceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
 	if err = d.Set("access_rules_options", flattenLustreInstanceAccessRulesOptions(res["accessRulesOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("available_version", flattenLustreInstanceAvailableVersion(res["availableVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err = d.Set("capacity_gib", flattenLustreInstanceCapacityGib(res["capacityGib"], d, config)); err != nil {
@@ -2248,6 +2352,9 @@ func ResourceLustreInstanceFlatten(d *schema.ResourceData, meta interface{}, res
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err = d.Set("dynamic_tier_options", flattenLustreInstanceDynamicTierOptions(res["dynamicTierOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("effective_version", flattenLustreInstanceEffectiveVersion(res["effectiveVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err = d.Set("filesystem", flattenLustreInstanceFilesystem(res["filesystem"], d, config)); err != nil {
@@ -2284,6 +2391,9 @@ func ResourceLustreInstanceFlatten(d *schema.ResourceData, meta interface{}, res
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err = d.Set("state_reason", flattenLustreInstanceStateReason(res["stateReason"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err = d.Set("target_version", flattenLustreInstanceTargetVersion(res["targetVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err = d.Set("uid", flattenLustreInstanceUid(res["uid"], d, config)); err != nil {
