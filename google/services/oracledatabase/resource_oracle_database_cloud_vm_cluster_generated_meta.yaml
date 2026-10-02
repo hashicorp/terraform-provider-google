@@ -68,6 +68,8 @@ fields:
     - api_field: properties.systemVersion
     - api_field: properties.timeZone.id
     - api_field: properties.timeZone.version
+    - api_field: properties.vmBackupStorageType
+    - api_field: properties.vmFileSystemStorageType
     - field: terraform_labels
       provider_only: true
     - field: deletion_policy

@@ -378,6 +378,8 @@ resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster" {
     cpu_core_count  = "4"
     gi_version      = "23.0.0.0"
     hostname_prefix = "hostname1"
+    vm_file_system_storage_type = "VM_FILE_SYSTEM_STORAGE_TYPE_LOCAL"
+    vm_backup_storage_type      = "VM_BACKUP_STORAGE_TYPE_LOCAL"
 
     # Required fields for Exascale-based VM Clusters:
     memory_size_gb          = 60
