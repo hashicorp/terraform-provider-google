@@ -462,6 +462,12 @@ controls the randomness of the model's responses. Lower temperatures
 produce responses that are more predictable. Higher temperatures produce
 responses that are more creative.`,
 						},
+						"thinking_level": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "LOW", "MEDIUM", "HIGH", ""}),
+							Description:  `The thinking level of the model. Possible values: ["DEFAULT", "LOW", "MEDIUM", "HIGH"]`,
+						},
 					},
 				},
 			},
@@ -1923,6 +1929,8 @@ func flattenCESAgentModelSettings(v interface{}, d *schema.ResourceData, config 
 		flattenCESAgentModelSettingsModel(original["model"], d, config)
 	transformed["temperature"] =
 		flattenCESAgentModelSettingsTemperature(original["temperature"], d, config)
+	transformed["thinking_level"] =
+		flattenCESAgentModelSettingsThinkingLevel(original["thinkingLevel"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAgentModelSettingsModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1930,6 +1938,10 @@ func flattenCESAgentModelSettingsModel(v interface{}, d *schema.ResourceData, co
 }
 
 func flattenCESAgentModelSettingsTemperature(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAgentModelSettingsThinkingLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2875,6 +2887,13 @@ func expandCESAgentModelSettings(v interface{}, d tpgresource.TerraformResourceD
 		transformed["temperature"] = transformedTemperature
 	}
 
+	transformedThinkingLevel, err := expandCESAgentModelSettingsThinkingLevel(original["thinking_level"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedThinkingLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["thinkingLevel"] = transformedThinkingLevel
+	}
+
 	return transformed, nil
 }
 
@@ -2883,6 +2902,10 @@ func expandCESAgentModelSettingsModel(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandCESAgentModelSettingsTemperature(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAgentModelSettingsThinkingLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

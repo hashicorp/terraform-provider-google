@@ -152,8 +152,9 @@ resource "google_ces_agent" "ces_agent_basic" {
   instruction = "You are a helpful assistant for this example."
 
   model_settings {
-    model       = "gemini-3.0-flash-001"
-    temperature = 0.5
+    model          = "gemini-3.0-flash-001"
+    temperature    = 0.5
+    thinking_level = "LOW"
   }
 
   before_agent_callbacks {
@@ -700,6 +701,11 @@ The following arguments are supported:
   controls the randomness of the model's responses. Lower temperatures
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
+
+* `thinking_level` -
+  (Optional)
+  The thinking level of the model.
+  Possible values are: `DEFAULT`, `LOW`, `MEDIUM`, `HIGH`.
 
 <a name="nested_remote_a2a_agent"></a>The `remote_a2a_agent` block supports:
 
