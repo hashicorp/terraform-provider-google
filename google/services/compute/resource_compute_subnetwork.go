@@ -120,32 +120,7 @@ func IpDiffSuppress(_, old, new string, d *schema.ResourceData) bool {
 	if d.Id() == "" {
 		return false
 	}
-	if old == "" || new == "" {
-		return old == new
-	}
-	addr_equality := false
-	netmask_equality := false
-
-	addr_netmask_old := strings.Split(old, "/")
-	addr_netmask_new := strings.Split(new, "/")
-
-	if !((len(addr_netmask_old)) == 2 && (len(addr_netmask_new) == 2)) {
-		return false
-	}
-
-	var addr_old net.IP = net.ParseIP(addr_netmask_old[0])
-	if addr_old == nil {
-		return false
-	}
-	var addr_new net.IP = net.ParseIP(addr_netmask_new[0])
-	if addr_new == nil {
-		return false
-	}
-
-	addr_equality = net.IP.Equal(addr_old, addr_new)
-	netmask_equality = addr_netmask_old[1] == addr_netmask_new[1]
-
-	return addr_equality && netmask_equality
+	return ipEqual(old, new)
 }
 
 // CustomDiff function for secondary_ip_range.
@@ -161,6 +136,89 @@ func resourceComputeSubnetworkSecondaryIpRangeCustomDiffFunc(diff tpgresource.Te
 	return nil
 }
 
+// Fields that are immutable except during the in-place upgrade of a subnetwork's stack_type from
+// IPV4_ONLY to IPV4_IPV6 (dual stack). Changing them at any other time requires recreating the subnetwork.
+var subnetworkIpv6ConditionallyImmutableFields = []string{
+	"ipv6_access_type",
+	"ip_collection",
+	"external_ipv6_prefix",
+}
+
+// CustomDiff function that forces recreation of the subnetwork when ipv6_access_type, ip_collection,
+// or external_ipv6_prefix change, unless the change is part of upgrading stack_type from IPV4_ONLY to
+// IPV4_IPV6.
+func resourceComputeSubnetworkIpv6ConditionalForceNew(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	// Nothing to force on create.
+	if diff.Id() == "" {
+		return nil
+	}
+	return resourceComputeSubnetworkIpv6ConditionalForceNewFunc(diff)
+}
+
+func resourceComputeSubnetworkIpv6ConditionalForceNewFunc(diff tpgresource.TerraformResourceDiff) error {
+	oldStackType, newStackType := diff.GetChange("stack_type")
+	if oldStackType == "IPV4_ONLY" && newStackType == "IPV4_IPV6" {
+		// These fields can be set in-place as part of the dual-stack upgrade.
+		return nil
+	}
+
+	for _, field := range subnetworkIpv6ConditionallyImmutableFields {
+		if !diff.HasChange(field) {
+			continue
+		}
+		// Removing the field from configuration (for example, when converting a dual-stack subnetwork
+		// back to IPV4_ONLY) seems to not cause API errors; excluding from ForceNew.
+		if !subnetworkFieldIsSetInConfig(diff, field) {
+			continue
+		}
+		// ResourceDiff.HasChange compares the prior state against the raw config value and doesn't take
+		// the field's DiffSuppressFunc into account, so equivalent values (for example, a partial
+		// ip_collection URL in config vs. the full self link returned by the API) would otherwise be
+		// reported as changes.
+		old, new := diff.GetChange(field)
+		oldStr, _ := old.(string)
+		newStr, _ := new.(string)
+		if subnetworkIpv6FieldValuesEquivalent(field, oldStr, newStr) {
+			continue
+		}
+		log.Printf("[DEBUG] %s changed outside of an IPV4_ONLY -> IPV4_IPV6 stack_type upgrade; forcing recreation", field)
+		if err := diff.ForceNew(field); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Reports whether the given top-level string field is set to a non-empty value, or to a value that is
+// not yet known, in the raw configuration.
+func subnetworkFieldIsSetInConfig(diff tpgresource.TerraformResourceDiff, field string) bool {
+	rawConfig := diff.GetRawConfig()
+	if rawConfig.IsNull() || !rawConfig.IsKnown() || !rawConfig.Type().IsObjectType() || !rawConfig.Type().HasAttribute(field) {
+		return false
+	}
+	v := rawConfig.GetAttr(field)
+	if v.IsNull() {
+		return false
+	}
+	if !v.IsKnown() {
+		return true
+	}
+	return v.AsString() != ""
+}
+
+// Reports whether old and new values of a conditionally-immutable field are equivalent, mirroring the
+// diff_suppress_func configured for the field in Subnetwork.yaml.
+func subnetworkIpv6FieldValuesEquivalent(field, old, new string) bool {
+	switch field {
+	case "ip_collection":
+		return tpgresource.CompareSelfLinkOrResourceName("", old, new, nil)
+	case "external_ipv6_prefix":
+		return ipEqual(old, new)
+	default:
+		return old == new
+	}
+}
 func ipEqual(old, new string) bool {
 	if old == "" || new == "" {
 		return old == new
@@ -386,6 +444,7 @@ func ResourceComputeSubnetwork() *schema.Resource {
 			sendSecondaryIpRangeIfEmptyDiff,
 			resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff,
 			resourceComputeSubnetworkSecondaryIpRangeCustomDiff,
+			resourceComputeSubnetworkIpv6ConditionalForceNew,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
@@ -458,7 +517,9 @@ creation time.`,
 				Optional:         true,
 				ValidateFunc:     verify.ValidateIpCidrRange,
 				DiffSuppressFunc: IpDiffSuppress,
-				Description:      `The range of external IPv6 addresses that are owned by this subnetwork.`,
+				Description: `The range of external IPv6 addresses that are owned by this subnetwork. It's immutable and can only be
+specified during creation or the first time the subnet is updated into IPV4_IPV6 dual stack. Changing this
+field at any other time forces recreation of the subnetwork.`,
 			},
 			"internal_ipv6_prefix": {
 				Type:             schema.TypeString,
@@ -486,7 +547,10 @@ Field is optional when 'reserved_internal_range' is defined, otherwise required.
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description: `Resource reference of a PublicDelegatedPrefix. The PDP must be a sub-PDP
 in EXTERNAL_IPV6_SUBNETWORK_CREATION or INTERNAL_IPV6_SUBNETWORK_CREATION
-mode. Use one of the following formats to specify a sub-PDP when creating
+mode. It's immutable and can only be specified during creation or the first
+time the subnet is updated into IPV4_IPV6 dual stack. Changing this field at
+any other time forces recreation of the subnetwork.
+Use one of the following formats to specify a sub-PDP when creating
 a dual stack or IPv6-only subnetwork using BYOIP:
 Full resource URL, as in:
   * 'https://www.googleapis.com/compute/v1/projects/{{projectId}}/regions/{{region}}/publicDelegatedPrefixes/{{sub-pdp-name}}'
@@ -500,7 +564,7 @@ Partial URL, as in:
 				ValidateFunc: verify.ValidateEnum([]string{"EXTERNAL", "INTERNAL", ""}),
 				Description: `The access type of IPv6 address this subnet holds. It's immutable and can only be specified during creation
 or the first time the subnet is updated into IPV4_IPV6 dual stack. If the ipv6_type is EXTERNAL then this subnet
-cannot enable direct path. Possible values: ["EXTERNAL", "INTERNAL"]`,
+cannot enable direct path. Changing this field at any other time forces recreation of the subnetwork. Possible values: ["EXTERNAL", "INTERNAL"]`,
 			},
 			"log_config": {
 				Type:     schema.TypeList,
