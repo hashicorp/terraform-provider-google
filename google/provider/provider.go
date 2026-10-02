@@ -691,6 +691,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: ValidateCustomEndpoint,
 			},
+			"gemini_data_analytics_custom_endpoint": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateCustomEndpoint,
+			},
 			"gke_backup_custom_endpoint": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
