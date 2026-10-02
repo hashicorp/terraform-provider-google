@@ -17535,6 +17535,34 @@ func TestAccContainerCluster_nodePool_acceleratorNetworkProfile_Lifecycle(t *tes
 	})
 }
 
+func TestAccContainerCluster_bestEffortProvisioning(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_bestEffortProvisioning(clusterName, npName, networkName, subnetworkName, true, 1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "node_pool.0.best_effort_provisioning.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "node_pool.0.best_effort_provisioning.0.min_provision_nodes", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withClusterBootDisk(t *testing.T) {
 	t.Parallel()
 
@@ -19275,4 +19303,25 @@ resource "google_container_cluster" "with_hsc_config" {
   }
 }
 `, clusterName, networkName, subnetworkName, enabled)
+}
+
+func testAccContainerCluster_bestEffortProvisioning(clusterName, npName, networkName, subnetworkName string, enabled bool, minProvisionNodes int) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  node_pool {
+    name       = "%s"
+    node_count = 1
+    best_effort_provisioning {
+      enabled             = %t
+      min_provision_nodes = %d
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName, npName, enabled, minProvisionNodes)
 }

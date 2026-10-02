@@ -265,6 +265,7 @@ func ResourceContainerNodePool() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 			resourceNodeConfigEmptyGuestAccelerator,
 			nodePoolAcceleratorNetworkProfileCustomizeDiff,
+			nodePoolBestEffortProvisioningCustomizeDiff,
 		),
 
 		UseJSONNumber: true,
@@ -439,6 +440,31 @@ var schemaNodePool = map[string]*schema.Schema{
 					Required:    true,
 					ForceNew:    true,
 					Description: `Whether nodes in this node pool are obtainable solely through the ProvisioningRequest API`,
+				},
+			},
+		},
+	},
+
+	"best_effort_provisioning": {
+		Type:        schema.TypeList,
+		Optional:    true,
+		ForceNew:    true,
+		MaxItems:    1,
+		Description: `Specifies the configuration for best effort provisioning.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"enabled": {
+					Type:        schema.TypeBool,
+					Required:    true,
+					ForceNew:    true,
+					Description: `Whether node pool creation ignores non-fatal errors like stockout to provision as many nodes as possible, eventually bringing up the target number of nodes.`,
+				},
+				"min_provision_nodes": {
+					Type:         schema.TypeInt,
+					Optional:     true,
+					ForceNew:     true,
+					ValidateFunc: validation.IntAtLeast(0),
+					Description:  `Minimum number of nodes that must be provisioned for the creation to be considered successful. Can only be set when enabled is true.`,
 				},
 			},
 		},
@@ -1265,6 +1291,24 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "best_effort_provisioning"); ok {
+		if l := v.([]interface{}); len(l) > 0 && l[0] != nil {
+			bep := l[0].(map[string]interface{})
+			enabled := bep["enabled"].(bool)
+			minProvisionNodes := bep["min_provision_nodes"].(int)
+			// The API rejects a bestEffortProvisioning message, even an empty one,
+			// unless enabled is true, so omit it entirely when disabled.
+			if enabled {
+				np.BestEffortProvisioning = &container.BestEffortProvisioning{
+					Enabled:           true,
+					MinProvisionNodes: int64(minProvisionNodes),
+				}
+			} else if minProvisionNodes > 0 {
+				return nil, fmt.Errorf("best_effort_provisioning.min_provision_nodes can only be set when best_effort_provisioning.enabled is true")
+			}
+		}
+	}
+
 	if v, ok := d.GetOk(prefix + "max_pods_per_node"); ok {
 		np.MaxPodsConstraint = &container.MaxPodsConstraint{
 			MaxPodsPerNode: int64(v.(int)),
@@ -1559,6 +1603,24 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 		nodePool["queued_provisioning"] = []map[string]interface{}{
 			{
 				"enabled": np.QueuedProvisioning.Enabled,
+			},
+		}
+	}
+
+	if np.BestEffortProvisioning != nil && np.BestEffortProvisioning.Enabled {
+		nodePool["best_effort_provisioning"] = []map[string]interface{}{
+			{
+				"enabled":             true,
+				"min_provision_nodes": np.BestEffortProvisioning.MinProvisionNodes,
+			},
+		}
+	} else if v, ok := d.GetOk(prefix + "best_effort_provisioning"); ok && len(v.([]interface{})) > 0 {
+		// The API omits bestEffortProvisioning when it is disabled. Keep an explicitly
+		// configured `enabled = false` block in state so it doesn't cause a permadiff.
+		nodePool["best_effort_provisioning"] = []map[string]interface{}{
+			{
+				"enabled":             false,
+				"min_provision_nodes": 0,
 			},
 		}
 	}
@@ -2219,6 +2281,26 @@ func nodePoolAcceleratorNetworkProfileCustomizeDiff(_ context.Context, diff *sch
 	}
 
 	return nil
+}
+
+// validateBestEffortProvisioningDiff rejects min_provision_nodes without enabled at plan time.
+// All best_effort_provisioning fields are ForceNew, so failing at apply time would destroy the
+// existing node pool before the API rejects the replacement.
+func validateBestEffortProvisioningDiff(diff *schema.ResourceDiff, prefix string) error {
+	key := prefix + "best_effort_provisioning.0."
+	if !diff.NewValueKnown(key+"enabled") || !diff.NewValueKnown(key+"min_provision_nodes") {
+		return nil
+	}
+	enabled, _ := diff.Get(key + "enabled").(bool)
+	minProvisionNodes, _ := diff.Get(key + "min_provision_nodes").(int)
+	if !enabled && minProvisionNodes > 0 {
+		return fmt.Errorf("%smin_provision_nodes can only be set when %senabled is true", key, key)
+	}
+	return nil
+}
+
+func nodePoolBestEffortProvisioningCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta any) error {
+	return validateBestEffortProvisioningDiff(diff, "")
 }
 
 func init() {
