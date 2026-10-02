@@ -192,7 +192,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateTemplateMetadataExample(t *test
 	context := map[string]interface{}{
 		"filter_config_rai_settings_rai_filters_0_confidence_level": "MEDIUM_AND_ABOVE",
 		"filter_config_rai_settings_rai_filters_0_filter_type":      "HARASSMENT",
-		"location":   "us-central1",
+		"location":   "us",
 		"templateId": "modelarmor3",
 		"template_metadata_custom_llm_response_safety_error_code":                    401,
 		"template_metadata_custom_llm_response_safety_error_message":                 "This is a custom error message for LLM response",
@@ -257,6 +257,7 @@ resource "google_model_armor_template" "template-template-metadata" {
     custom_prompt_safety_error_message       = "%{template_metadata_custom_prompt_safety_error_message}"
     custom_llm_response_safety_error_code    = %{template_metadata_custom_llm_response_safety_error_code}
     enforcement_type                         = "%{template_metadata_enforcement_type}"
+    modalities                               = ["MODALITY_TEXT", "MODALITY_IMAGE"]
     filter_version_selector {
       alias = "%{template_metadata_filter_version_selector_alias}"
     }

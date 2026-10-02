@@ -36,6 +36,7 @@ fields:
     - api_field: templateMetadata.ignorePartialInvocationFailures
     - api_field: templateMetadata.logSanitizeOperations
     - api_field: templateMetadata.logTemplateOperations
+    - api_field: templateMetadata.modalities
     - api_field: templateMetadata.multiLanguageDetection.enableMultiLanguageDetection
     - field: terraform_labels
       provider_only: true

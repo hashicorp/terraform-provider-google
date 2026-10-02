@@ -402,6 +402,20 @@ format is a case-sensitive string such as 'v1' or 'v2'.`,
 							Optional:    true,
 							Description: `If true, log template crud operations.`,
 						},
+						"modalities": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Specifies the modalities to scan. If empty, only text modality will be
+scanned. Image screening is in Preview and is only supported in the 'us'
+and 'eu' multi-regions; regional endpoints such as 'us-central1' do not
+support it.
+Possible values:
+MODALITY_TEXT
+MODALITY_IMAGE`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"multi_language_detection": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -1059,6 +1073,7 @@ func flattenModelArmorTemplateTemplateMetadata(v interface{}, d *schema.Resource
 	transformed["custom_llm_response_safety_error_code"] = original["customLlmResponseSafetyErrorCode"]
 	transformed["custom_llm_response_safety_error_message"] = original["customLlmResponseSafetyErrorMessage"]
 	transformed["enforcement_type"] = original["enforcementType"]
+	transformed["modalities"] = original["modalities"]
 	transformed["filter_version_selector"] =
 		flattenModelArmorTemplateTemplateMetadataFilterVersionSelector(original["filterVersionSelector"], d, config)
 	return []interface{}{transformed}
@@ -1459,6 +1474,13 @@ func expandModelArmorTemplateTemplateMetadata(v interface{}, d tpgresource.Terra
 		transformed["enforcementType"] = transformedEnforcementType
 	}
 
+	transformedModalities, err := expandModelArmorTemplateTemplateMetadataModalities(original["modalities"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedModalities); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["modalities"] = transformedModalities
+	}
+
 	transformedFilterVersionSelector, err := expandModelArmorTemplateTemplateMetadataFilterVersionSelector(original["filter_version_selector"], d, config)
 	if err != nil {
 		return nil, err
@@ -1524,6 +1546,10 @@ func expandModelArmorTemplateTemplateMetadataCustomLlmResponseSafetyErrorMessage
 }
 
 func expandModelArmorTemplateTemplateMetadataEnforcementType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandModelArmorTemplateTemplateMetadataModalities(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
