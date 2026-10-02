@@ -171,6 +171,48 @@ resource "google_network_security_security_profile" "security_profile" {
   parent = "organizations/123456789"
 }
 ```
+## Example Usage - Network Security Security Profile Group Wildfire
+
+
+```hcl
+resource "google_network_security_security_profile_group" "default" {
+  provider                  = google-beta
+  name                      = "sec-profile-group"
+  parent                    = "projects/my-project-name"
+  description               = "my description"
+  threat_prevention_profile = google_network_security_security_profile.threat_prevention_profile.id
+  wildfire_analysis_profile = google_network_security_security_profile.wildfire_profile.id
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_network_security_security_profile" "threat_prevention_profile" {
+  provider = google-beta
+  name     = "tp-sec-profile"
+  type     = "THREAT_PREVENTION"
+  parent   = "projects/my-project-name"
+  location = "global"
+}
+
+resource "google_network_security_security_profile" "wildfire_profile" {
+  provider = google-beta
+  name     = "wf-sec-profile"
+  type     = "WILDFIRE_ANALYSIS"
+  parent   = "projects/my-project-name"
+  location = "global"
+
+  wildfire_analysis_profile {
+    wildfire_realtime_lookup = true
+
+    wildfire_submission_rules {
+      direction           = "BOTH"
+      file_selection_mode = "ALL_FILE_TYPES"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -208,6 +250,10 @@ The following arguments are supported:
 * `custom_intercept_profile` -
   (Optional)
   Reference to a SecurityProfile with the CustomIntercept configuration.
+
+* `wildfire_analysis_profile` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Reference to a SecurityProfile with the WildFire configuration for the SecurityProfileGroup.
 
 * `location` -
   (Optional)
