@@ -49,8 +49,78 @@ resource "google_dialogflow_generator" "summarization_basic_generator" {
     top_p             = 0.95
   }
   summarization_context {
-    version = "4.0"
+    version = "6.0"
     output_language_code = "en"
+  }
+  trigger_event = "MANUAL_CALL"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dialogflow_generator_agent_coaching&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dialogflow Generator Agent Coaching
+
+
+```hcl
+resource "google_dialogflow_generator" "agent_coaching_generator" {
+  location    = "global"
+  description = "An agent coaching generator."
+  agent_coaching_context {
+    version              = "2.5"
+    overarching_guidance = "Be helpful and polite."
+    output_language_code = "en"
+    instructions {
+      display_name     = "Greeting"
+      display_details  = "Greet the customer warmly"
+      condition        = "Customer starts the conversation"
+      agent_action     = "Say hello and ask how to help"
+      system_action    = "Log greeting event"
+      triggering_event = "END_OF_UTTERANCE"
+    }
+  }
+  trigger_event = "END_OF_UTTERANCE"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dialogflow_generator_with_tools&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dialogflow Generator With Tools
+
+
+```hcl
+resource "google_dialogflow_tool" "test_tool" {
+  location     = "global"
+  tool_key     = "generator_tool_key"
+  display_name = "test-tool"
+  description  = "A test tool"
+  open_api_spec {
+    text_schema = <<EOF
+openapi: 3.0.0
+info:
+  title: generator_tool_key
+  version: 1.0.0
+paths:
+  /search:
+    get:
+      summary: Search function
+      operationId: searchAction
+      responses:
+        '200':
+          description: OK
+EOF
+  }
+}
+
+resource "google_dialogflow_generator" "generator_with_tools" {
+  location    = "global"
+  description = "A generator with tools and free form context."
+  tools       = [google_dialogflow_tool.test_tool.name]
+  free_form_context {
+    text = "Use the search tool to answer the user's query."
   }
   trigger_event = "MANUAL_CALL"
 }
@@ -61,11 +131,6 @@ resource "google_dialogflow_generator" "summarization_basic_generator" {
 The following arguments are supported:
 
 
-* `summarization_context` -
-  (Required)
-  Input of prebuilt Summarization feature.
-  Structure is [documented below](#nested_summarization_context).
-
 * `location` -
   (Required)
   desc
@@ -74,6 +139,21 @@ The following arguments are supported:
 * `description` -
   (Optional)
   Optional. Human readable description of the generator.
+
+* `summarization_context` -
+  (Optional)
+  Input of prebuilt Summarization feature.
+  Structure is [documented below](#nested_summarization_context).
+
+* `free_form_context` -
+  (Optional)
+  Input of free form generator to LLM.
+  Structure is [documented below](#nested_free_form_context).
+
+* `agent_coaching_context` -
+  (Optional)
+  Input of prebuilt Agent Coaching feature.
+  Structure is [documented below](#nested_agent_coaching_context).
 
 * `inference_parameter` -
   (Optional)
@@ -88,6 +168,10 @@ The following arguments are supported:
 * `published_model` -
   (Optional)
   Optional. The published Large Language Model name. * To use the latest model version, specify the model name without version number. Example: text-bison * To use a stable model version, specify the version number as well. Example: text-bison@002.
+
+* `tools` -
+  (Optional)
+  Optional. Resource names of the tools that the generator can choose from. Format: `projects/<Project ID>/locations/<Location ID>/tools/<tool ID>`.
 
 * `generator_id` -
   (Optional)
@@ -118,7 +202,7 @@ The following arguments are supported:
 
 * `version` -
   (Optional)
-  Optional. Version of the feature. If not set, default to latest version. Current candidates are ["1.0"].
+  Optional. Version of the feature. If not set, default to latest version. Current candidates are ["5.0", "6.0"].
 
 * `output_language_code` -
   (Optional)
@@ -287,6 +371,59 @@ The following arguments are supported:
   (Optional)
   Optional. Type of the summarization section.
   Possible values are: `SITUATION`, `ACTION`, `RESOLUTION`, `REASON_FOR_CANCELLATION`, `CUSTOMER_SATISFACTION`, `ENTITIES`, `CUSTOMER_DEFINED`, `SITUATION_CONCISE`, `ACTION_CONCISE`.
+
+<a name="nested_free_form_context"></a>The `free_form_context` block supports:
+
+* `text` -
+  (Optional)
+  Optional. Free form text input to LLM.
+
+<a name="nested_agent_coaching_context"></a>The `agent_coaching_context` block supports:
+
+* `overarching_guidance` -
+  (Optional)
+  Optional. The overarching guidance for the agent coaching. This should be set only for v1.5 and later versions.
+
+* `version` -
+  (Optional)
+  Optional. Version of the feature. If not set, default to latest version. Current candidates are ["2.5"].
+
+* `output_language_code` -
+  (Optional)
+  Optional. Output language code.
+
+* `instructions` -
+  (Optional)
+  Optional. Customized instructions for agent coaching.
+  Structure is [documented below](#nested_agent_coaching_context_instructions).
+
+
+<a name="nested_agent_coaching_context_instructions"></a>The `instructions` block supports:
+
+* `display_name` -
+  (Optional)
+  Optional. Display name for the instruction.
+
+* `display_details` -
+  (Optional)
+  Optional. The detailed description of this instruction.
+
+* `condition` -
+  (Optional)
+  Optional. The condition of the instruction.
+
+* `agent_action` -
+  (Optional)
+  Optional. The action that human agent should take.
+
+* `system_action` -
+  (Optional)
+  Optional. The action that system should take.
+
+* `triggering_event` -
+  (Optional)
+  Optional. The trigger event of the instruction.
+  Possible values are: `END_OF_UTTERANCE`, `MANUAL_CALL`, `CUSTOMER_MESSAGE`, `AGENT_MESSAGE`, `TOOL_CALL_COMPLETION`.
 
 <a name="nested_inference_parameter"></a>The `inference_parameter` block supports:
 

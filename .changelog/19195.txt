@@ -1,0 +1,3 @@
+```release-note:enhancement
+dialogflow: added `free_form_context`, `agent_coaching_context`, and `tools` fields to `google_dialogflow_generator`
+```
