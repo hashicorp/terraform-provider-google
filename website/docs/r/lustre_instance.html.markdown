@@ -161,6 +161,19 @@ The following arguments are supported:
   The placement policy name for the instance in the format of
   projects/{project}/locations/{location}/resourcePolicies/{resource_policy}
 
+* `target_version` -
+  (Optional)
+  The version to upgrade this instance to. Set this to the value reported in
+  `availableVersion`, or to `latest` to move to the newest version available
+  at the time of the upgrade.
+  This field cannot be set when the instance is created; new instances are
+  always provisioned from the current release. It also cannot be changed in
+  the same operation as `capacityGib` or `maintenancePolicy`, and the
+  instance must be ACTIVE and outside of the hour preceding a scheduled
+  maintenance window.
+  The API clears this field once the upgrade finishes, so it always reads
+  back as empty on an idle instance.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -400,8 +413,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/instances/{{instance_id}}`
 
+* `available_version` -
+  The version this instance can be upgraded to, if one is available. Empty
+  when the instance is already running the newest release.
+
 * `create_time` -
   Timestamp when the instance was created.
+
+* `effective_version` -
+  The version of Managed Lustre software that this instance is currently
+  running.
 
 * `mount_point` -
   Mount point of the instance in the format `IP_ADDRESS@tcp:/FILESYSTEM`.

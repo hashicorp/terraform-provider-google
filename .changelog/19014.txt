@@ -1,0 +1,3 @@
+```release-note:enhancement
+lustre: added `target_version`, `available_version`, and `effective_version` fields to `google_lustre_instance` resource
+```
