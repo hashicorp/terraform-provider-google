@@ -94,7 +94,7 @@ func testAccDialogflowGenerator_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_generator" "summarization_generator" {
   location = "global"
-  description = "A v4.0 summarization generator with customized section."
+  description = "A v6.0 summarization generator with customized section."
   published_model = "gemini-2.0-flash-001"
   inference_parameter {
     max_output_tokens = 1024
@@ -155,7 +155,7 @@ resource "google_dialogflow_generator" "summarization_generator" {
       key        = "Redaction"
       type       = "CUSTOMER_DEFINED"
     }
-    version = "4.0"
+    version = "6.0"
     output_language_code = "en"
   }
   trigger_event = "MANUAL_CALL"
@@ -167,7 +167,7 @@ func testAccDialogflowGenerator_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dialogflow_generator" "summarization_generator" {
   location = "global"
-  description = "A v3.0 summarization generator with customized section."
+  description = "A v5.0 summarization generator with customized section."
   published_model = "gemini-1.0-pro-002"
   inference_parameter {
     max_output_tokens = 2048
@@ -228,7 +228,7 @@ resource "google_dialogflow_generator" "summarization_generator" {
       key        = "Redaction"
       type       = "CUSTOMER_DEFINED"
     }
-    version = "3.0"
+    version = "5.0"
     output_language_code = "es"
   }
   trigger_event = "MANUAL_CALL"
@@ -249,7 +249,7 @@ resource "google_dialogflow_generator" "summarization_generator" {
     top_p             = 0.95
   }
   summarization_context {
-    version = "4.0"
+    version = "6.0"
     output_language_code = "en"
   }
   trigger_event = "MANUAL_CALL"

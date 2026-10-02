@@ -7,7 +7,17 @@ api_service_name: dialogflow.googleapis.com
 api_version: v2
 api_resource_type_kind: Generator
 fields:
+    - api_field: agentCoachingContext.instructions.agentAction
+    - api_field: agentCoachingContext.instructions.condition
+    - api_field: agentCoachingContext.instructions.displayDetails
+    - api_field: agentCoachingContext.instructions.displayName
+    - api_field: agentCoachingContext.instructions.systemAction
+    - api_field: agentCoachingContext.instructions.triggeringEvent
+    - api_field: agentCoachingContext.outputLanguageCode
+    - api_field: agentCoachingContext.overarchingGuidance
+    - api_field: agentCoachingContext.version
     - api_field: description
+    - api_field: freeFormContext.text
     - api_field: generatorId
     - api_field: inferenceParameter.maxOutputTokens
     - api_field: inferenceParameter.temperature
@@ -37,6 +47,7 @@ fields:
     - api_field: summarizationContext.summarizationSections.key
     - api_field: summarizationContext.summarizationSections.type
     - api_field: summarizationContext.version
+    - api_field: tools
     - api_field: triggerEvent
     - field: deletion_policy
       provider_only: true

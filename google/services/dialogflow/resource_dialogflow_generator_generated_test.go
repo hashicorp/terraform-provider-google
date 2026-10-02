@@ -100,8 +100,135 @@ resource "google_dialogflow_generator" "summarization_basic_generator" {
     top_p             = 0.95
   }
   summarization_context {
-    version = "4.0"
+    version = "6.0"
     output_language_code = "en"
+  }
+  trigger_event = "MANUAL_CALL"
+}
+`, context)
+}
+
+func TestAccDialogflowGenerator_dialogflowGeneratorAgentCoachingExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowGeneratorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowGenerator_dialogflowGeneratorAgentCoachingExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_generator.agent_coaching_generator",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_dialogflow_generator.agent_coaching_generator",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDialogflowGenerator_dialogflowGeneratorAgentCoachingExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_generator" "agent_coaching_generator" {
+  location    = "global"
+  description = "An agent coaching generator."
+  agent_coaching_context {
+    version              = "2.5"
+    overarching_guidance = "Be helpful and polite."
+    output_language_code = "en"
+    instructions {
+      display_name     = "Greeting"
+      display_details  = "Greet the customer warmly"
+      condition        = "Customer starts the conversation"
+      agent_action     = "Say hello and ask how to help"
+      system_action    = "Log greeting event"
+      triggering_event = "END_OF_UTTERANCE"
+    }
+  }
+  trigger_event = "END_OF_UTTERANCE"
+}
+`, context)
+}
+
+func TestAccDialogflowGenerator_dialogflowGeneratorWithToolsExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"tool_key":      "tf_test_generator_tool_key" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowGeneratorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowGenerator_dialogflowGeneratorWithToolsExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_generator.generator_with_tools",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_dialogflow_generator.generator_with_tools",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDialogflowGenerator_dialogflowGeneratorWithToolsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_tool" "test_tool" {
+  location     = "global"
+  tool_key     = "%{tool_key}"
+  display_name = "test-tool"
+  description  = "A test tool"
+  open_api_spec {
+    text_schema = <<EOF
+openapi: 3.0.0
+info:
+  title: %{tool_key}
+  version: 1.0.0
+paths:
+  /search:
+    get:
+      summary: Search function
+      operationId: searchAction
+      responses:
+        '200':
+          description: OK
+EOF
+  }
+}
+
+resource "google_dialogflow_generator" "generator_with_tools" {
+  location    = "global"
+  description = "A generator with tools and free form context."
+  tools       = [google_dialogflow_tool.test_tool.name]
+  free_form_context {
+    text = "Use the search tool to answer the user's query."
   }
   trigger_event = "MANUAL_CALL"
 }
