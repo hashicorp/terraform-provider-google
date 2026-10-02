@@ -7506,3 +7506,115 @@ resource "google_container_node_pool" "np_with_custom_node_init_secret" {
 }
 `, secretId, cluster, networkName, subnetworkName, np)
 }
+
+func TestAccContainerNodePool_bestEffortProvisioning(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	poolName := fmt.Sprintf("tf-test-pool-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_bestEffortProvisioning(clusterName, poolName, networkName, subnetworkName, true, 1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.spot", "true"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "best_effort_provisioning.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "best_effort_provisioning.0.min_provision_nodes", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster"},
+			},
+			{
+				// Rejected at plan time, so the existing node pool is not destroyed.
+				Config:      testAccContainerNodePool_bestEffortProvisioning(clusterName, poolName, networkName, subnetworkName, false, 1),
+				ExpectError: regexp.MustCompile("min_provision_nodes can only be set when best_effort_provisioning.0.enabled is true"),
+			},
+			{
+				// The API omits bestEffortProvisioning when disabled, so an explicit
+				// `enabled = false` is only kept in state from config and isn't imported.
+				Config: testAccContainerNodePool_bestEffortProvisioning(clusterName, poolName, networkName, subnetworkName, false, 0),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "best_effort_provisioning.0.enabled", "false"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "best_effort_provisioning.0.min_provision_nodes", "0"),
+				),
+			},
+			{
+				Config: testAccContainerNodePool_bestEffortProvisioningRemoved(clusterName, poolName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "best_effort_provisioning.#", "0"),
+				),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster"},
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_bestEffortProvisioning(clusterName, poolName, networkName, subnetworkName string, enabled bool, minProvisionNodes int) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                     = "%s"
+  location                 = "us-central1-a"
+  remove_default_node_pool = true
+  initial_node_count       = 1
+  network                  = "%s"
+  subnetwork               = "%s"
+  deletion_protection      = false
+}
+
+resource "google_container_node_pool" "np" {
+  name       = "%s"
+  location   = "us-central1-a"
+  cluster    = google_container_cluster.primary.name
+  node_count = 2
+
+  node_config {
+    spot = true
+  }
+
+  best_effort_provisioning {
+    enabled             = %t
+    min_provision_nodes = %d
+  }
+}
+`, clusterName, networkName, subnetworkName, poolName, enabled, minProvisionNodes)
+}
+
+func testAccContainerNodePool_bestEffortProvisioningRemoved(clusterName, poolName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                     = "%s"
+  location                 = "us-central1-a"
+  remove_default_node_pool = true
+  initial_node_count       = 1
+  network                  = "%s"
+  subnetwork               = "%s"
+  deletion_protection      = false
+}
+
+resource "google_container_node_pool" "np" {
+  name       = "%s"
+  location   = "us-central1-a"
+  cluster    = google_container_cluster.primary.name
+  node_count = 2
+
+  node_config {
+    spot = true
+  }
+}
+`, clusterName, networkName, subnetworkName, poolName)
+}

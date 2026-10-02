@@ -1476,6 +1476,14 @@ workload_identity_config {
 
 * `node_config` - (Optional) The node configuration of the pool. Structure is [documented below](#nested_node_pool_node_config).
 
+* `best_effort_provisioning` - (Optional) Best-effort provisioning allows node pool creations to automatically ignore stockout errors once the minimum number of nodes have been provisioned. Structure is [documented below](#nested_node_pool_best_effort_provisioning).
+
+<a name="nested_node_pool_best_effort_provisioning"></a>The `best_effort_provisioning` block supports:
+
+* `enabled` - (Required) When enabled, node pool creation ignores non-fatal errors like stockout to provision as many nodes as possible right away, and eventually brings up the target number of nodes. Set to `false` or remove the block to disable best-effort provisioning; either change recreates the cluster.
+
+* `min_provision_nodes` - (Optional) Minimum number of nodes that must be provisioned for the creation to be considered successful. The remaining nodes are provisioned gradually once the stockout issue has been resolved. Can only be set when `enabled` is `true`.
+
 <a name="nested_node_pool_node_config"></a>The `node_config` block supports:
 
 * `kubelet_config` - (Optional) Node kubelet configs. Structure is [documented below](#nested_kubelet_config).

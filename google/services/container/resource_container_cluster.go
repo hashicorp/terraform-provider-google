@@ -266,6 +266,7 @@ func ResourceContainerCluster() *schema.Resource {
 			containerClusterSkipNodePoolRefreshCustomizeDiff,
 			tpgresource.SetDiffForLabelsWithCustomizedName("resource_labels"),
 			clusterAcceleratorNetworkProfileCustomizeDiff,
+			containerClusterBestEffortProvisioningCustomizeDiff,
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -8565,6 +8566,16 @@ func containerClusterNodeVersionCustomizeDiffFunc(diff tpgresource.TerraformReso
 		return fmt.Errorf("Resource argument node_version (value: %s) must either be unset or set to the same value as min_master_version (value: %s) on create.", newValueNode, newValueMaster)
 	}
 
+	return nil
+}
+
+func containerClusterBestEffortProvisioningCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta any) error {
+	nodePools, _ := diff.Get("node_pool").([]interface{})
+	for i := range nodePools {
+		if err := validateBestEffortProvisioningDiff(diff, fmt.Sprintf("node_pool.%d.", i)); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

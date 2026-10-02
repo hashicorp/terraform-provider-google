@@ -336,6 +336,8 @@ fields:
   - api_field: 'placementPolicy.type'
   - field: 'project'
   - api_field: 'queuedProvisioning.enabled'
+  - api_field: 'bestEffortProvisioning.enabled'
+  - api_field: 'bestEffortProvisioning.minProvisionNodes'
   - api_field: 'upgradeSettings.blueGreenSettings.nodePoolSoakDuration'
   - api_field: 'upgradeSettings.blueGreenSettings.standardRolloutPolicy.batchNodeCount'
   - api_field: 'upgradeSettings.blueGreenSettings.standardRolloutPolicy.batchPercentage'
