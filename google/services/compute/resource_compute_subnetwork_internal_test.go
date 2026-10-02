@@ -15,3 +15,180 @@
 //
 // ----------------------------------------------------------------------------
 package compute
+
+import (
+	"testing"
+
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+)
+
+func TestUnitComputeSubnetworkIpv6ConditionalForceNew(t *testing.T) {
+	t.Parallel()
+
+	fields := []string{"stack_type", "ipv6_access_type", "ip_collection", "external_ipv6_prefix"}
+
+	// Builds a raw config object containing the fields above; fields not present in cfg are null.
+	rawConfig := func(cfg map[string]cty.Value) cty.Value {
+		attrs := make(map[string]cty.Value, len(fields))
+		for _, f := range fields {
+			if v, ok := cfg[f]; ok {
+				attrs[f] = v
+			} else {
+				attrs[f] = cty.NullVal(cty.String)
+			}
+		}
+		return cty.ObjectVal(attrs)
+	}
+
+	dualStackExternal := map[string]interface{}{
+		"stack_type":           "IPV4_IPV6",
+		"ipv6_access_type":     "EXTERNAL",
+		"ip_collection":        "projects/my-proj/regions/us-east1/publicDelegatedPrefixes/sub-pdp-1",
+		"external_ipv6_prefix": "2600:1901:4464:1::/64",
+	}
+	dualStackExternalConfig := map[string]cty.Value{
+		"stack_type":           cty.StringVal("IPV4_IPV6"),
+		"ipv6_access_type":     cty.StringVal("EXTERNAL"),
+		"ip_collection":        cty.StringVal("projects/my-proj/regions/us-east1/publicDelegatedPrefixes/sub-pdp-1"),
+		"external_ipv6_prefix": cty.StringVal("2600:1901:4464:1::/64"),
+	}
+
+	// Returns a copy of base with the given overrides applied.
+	withValues := func(base map[string]interface{}, overrides map[string]interface{}) map[string]interface{} {
+		m := make(map[string]interface{}, len(base))
+		for k, v := range base {
+			m[k] = v
+		}
+		for k, v := range overrides {
+			m[k] = v
+		}
+		return m
+	}
+	withConfig := func(base map[string]cty.Value, overrides map[string]cty.Value) map[string]cty.Value {
+		m := make(map[string]cty.Value, len(base))
+		for k, v := range base {
+			m[k] = v
+		}
+		for k, v := range overrides {
+			m[k] = v
+		}
+		return m
+	}
+
+	cases := map[string]struct {
+		Before         map[string]interface{}
+		After          map[string]interface{}
+		Config         map[string]cty.Value
+		ExpectForceNew bool
+	}{
+		"no changes": {
+			Before:         dualStackExternal,
+			After:          dualStackExternal,
+			Config:         dualStackExternalConfig,
+			ExpectForceNew: false,
+		},
+		"upgrade from IPV4_ONLY to IPV4_IPV6 sets all fields in place": {
+			Before: map[string]interface{}{
+				"stack_type":           "IPV4_ONLY",
+				"ipv6_access_type":     "",
+				"ip_collection":        "",
+				"external_ipv6_prefix": "",
+			},
+			After:          dualStackExternal,
+			Config:         dualStackExternalConfig,
+			ExpectForceNew: false,
+		},
+		"change ipv6_access_type on dual stack subnetwork": {
+			Before:         dualStackExternal,
+			After:          withValues(dualStackExternal, map[string]interface{}{"ipv6_access_type": "INTERNAL"}),
+			Config:         withConfig(dualStackExternalConfig, map[string]cty.Value{"ipv6_access_type": cty.StringVal("INTERNAL")}),
+			ExpectForceNew: true,
+		},
+		"change ip_collection on dual stack subnetwork": {
+			Before:         dualStackExternal,
+			After:          withValues(dualStackExternal, map[string]interface{}{"ip_collection": "projects/my-proj/regions/us-east1/publicDelegatedPrefixes/sub-pdp-2"}),
+			Config:         withConfig(dualStackExternalConfig, map[string]cty.Value{"ip_collection": cty.StringVal("projects/my-proj/regions/us-east1/publicDelegatedPrefixes/sub-pdp-2")}),
+			ExpectForceNew: true,
+		},
+		"change external_ipv6_prefix on dual stack subnetwork": {
+			Before:         dualStackExternal,
+			After:          withValues(dualStackExternal, map[string]interface{}{"external_ipv6_prefix": "2600:1901:4464:2::/64"}),
+			Config:         withConfig(dualStackExternalConfig, map[string]cty.Value{"external_ipv6_prefix": cty.StringVal("2600:1901:4464:2::/64")}),
+			ExpectForceNew: true,
+		},
+		"unknown ip_collection on dual stack subnetwork": {
+			Before:         dualStackExternal,
+			After:          withValues(dualStackExternal, map[string]interface{}{"ip_collection": ""}),
+			Config:         withConfig(dualStackExternalConfig, map[string]cty.Value{"ip_collection": cty.UnknownVal(cty.String)}),
+			ExpectForceNew: true,
+		},
+		"ip_collection full self link in state and partial URL in config": {
+			Before:         withValues(dualStackExternal, map[string]interface{}{"ip_collection": "https://www.googleapis.com/compute/v1/projects/my-proj/regions/us-east1/publicDelegatedPrefixes/sub-pdp-1"}),
+			After:          dualStackExternal,
+			Config:         dualStackExternalConfig,
+			ExpectForceNew: false,
+		},
+		"external_ipv6_prefix non-canonical representation in config": {
+			Before:         dualStackExternal,
+			After:          withValues(dualStackExternal, map[string]interface{}{"external_ipv6_prefix": "2600:1901:4464:0001::/64"}),
+			Config:         withConfig(dualStackExternalConfig, map[string]cty.Value{"external_ipv6_prefix": cty.StringVal("2600:1901:4464:0001::/64")}),
+			ExpectForceNew: false,
+		},
+		"change ipv6_access_type on IPV6_ONLY subnetwork": {
+			Before: map[string]interface{}{
+				"stack_type":           "IPV6_ONLY",
+				"ipv6_access_type":     "INTERNAL",
+				"ip_collection":        "",
+				"external_ipv6_prefix": "",
+			},
+			After: map[string]interface{}{
+				"stack_type":           "IPV6_ONLY",
+				"ipv6_access_type":     "EXTERNAL",
+				"ip_collection":        "",
+				"external_ipv6_prefix": "",
+			},
+			Config: map[string]cty.Value{
+				"stack_type":       cty.StringVal("IPV6_ONLY"),
+				"ipv6_access_type": cty.StringVal("EXTERNAL"),
+			},
+			ExpectForceNew: true,
+		},
+		"downgrade from IPV4_IPV6 to IPV4_ONLY with ipv6 fields removed from config": {
+			Before: dualStackExternal,
+			After: withValues(dualStackExternal, map[string]interface{}{
+				"stack_type":       "IPV4_ONLY",
+				"ipv6_access_type": "",
+				"ip_collection":    "",
+			}),
+			Config: map[string]cty.Value{
+				"stack_type": cty.StringVal("IPV4_ONLY"),
+			},
+			ExpectForceNew: false,
+		},
+		"ipv6_access_type set to empty string in config": {
+			Before:         dualStackExternal,
+			After:          withValues(dualStackExternal, map[string]interface{}{"ipv6_access_type": ""}),
+			Config:         withConfig(dualStackExternalConfig, map[string]cty.Value{"ipv6_access_type": cty.StringVal("")}),
+			ExpectForceNew: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			d := &tpgresource.ResourceDiffMock{
+				Before:    tc.Before,
+				After:     tc.After,
+				RawConfig: rawConfig(tc.Config),
+			}
+
+			if err := resourceComputeSubnetworkIpv6ConditionalForceNewFunc(d); err != nil {
+				t.Fatalf("unexpected error: %s", err)
+			}
+
+			if d.IsForceNew != tc.ExpectForceNew {
+				t.Errorf("expected IsForceNew to be %v, but was %v", tc.ExpectForceNew, d.IsForceNew)
+			}
+		})
+	}
+}

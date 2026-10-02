@@ -521,7 +521,7 @@ The following arguments are supported:
   (Optional)
   The access type of IPv6 address this subnet holds. It's immutable and can only be specified during creation
   or the first time the subnet is updated into IPV4_IPV6 dual stack. If the ipv6_type is EXTERNAL then this subnet
-  cannot enable direct path.
+  cannot enable direct path. Changing this field at any other time forces recreation of the subnetwork.
   Possible values are: `EXTERNAL`, `INTERNAL`.
 
 * `internal_ipv6_prefix` -
@@ -530,13 +530,18 @@ The following arguments are supported:
 
 * `external_ipv6_prefix` -
   (Optional)
-  The range of external IPv6 addresses that are owned by this subnetwork.
+  The range of external IPv6 addresses that are owned by this subnetwork. It's immutable and can only be
+  specified during creation or the first time the subnet is updated into IPV4_IPV6 dual stack. Changing this
+  field at any other time forces recreation of the subnetwork.
 
 * `ip_collection` -
   (Optional)
   Resource reference of a PublicDelegatedPrefix. The PDP must be a sub-PDP
   in EXTERNAL_IPV6_SUBNETWORK_CREATION or INTERNAL_IPV6_SUBNETWORK_CREATION
-  mode. Use one of the following formats to specify a sub-PDP when creating
+  mode. It's immutable and can only be specified during creation or the first
+  time the subnet is updated into IPV4_IPV6 dual stack. Changing this field at
+  any other time forces recreation of the subnetwork.
+  Use one of the following formats to specify a sub-PDP when creating
   a dual stack or IPv6-only subnetwork using BYOIP:
   Full resource URL, as in:
     * `https://www.googleapis.com/compute/v1/projects/{{projectId}}/regions/{{region}}/publicDelegatedPrefixes/{{sub-pdp-name}}`

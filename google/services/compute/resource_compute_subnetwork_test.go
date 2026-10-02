@@ -163,6 +163,48 @@ func TestIpDiffSuppress(t *testing.T) {
 			new:  "2001:db8::/48",
 			want: false,
 		},
+		{
+			name: "ipv6 leading zeros",
+			old:  "2001:db8::/32",
+			new:  "2001:0db8::/32",
+			want: true,
+		},
+		{
+			name: "ipv6 expanded zero groups",
+			old:  "2001:db8::/64",
+			new:  "2001:db8:0:0::/64",
+			want: true,
+		},
+		{
+			name: "ipv6 uppercase hex",
+			old:  "2001:db8::/32",
+			new:  "2001:DB8::/32",
+			want: true,
+		},
+		{
+			name: "different host bits same mask",
+			old:  "10.0.0.0/24",
+			new:  "10.0.0.1/24",
+			want: false,
+		},
+		{
+			name: "netmask compared as string",
+			old:  "10.0.0.0/24",
+			new:  "10.0.0.0/024",
+			want: false,
+		},
+		{
+			name: "extra slash",
+			old:  "10.0.0.0/24",
+			new:  "10.0.0.0/24/1",
+			want: false,
+		},
+		{
+			name: "ipv4-mapped ipv6 equals ipv4",
+			old:  "10.0.0.0/24",
+			new:  "::ffff:10.0.0.0/24",
+			want: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -179,6 +221,9 @@ func TestIpDiffSuppress_NoId(t *testing.T) {
 
 	if tpgcompute.IpDiffSuppress("ip_cidr_range", "10.0.0.0/24", "10.0.0.0/24", d) != false {
 		t.Errorf("IpDiffSuppress() with no ID should return false")
+	}
+	if tpgcompute.IpDiffSuppress("ip_cidr_range", "2001:db8::/32", "2001:0db8::/32", d) != false {
+		t.Errorf("IpDiffSuppress() with no ID should return false for equivalent addresses")
 	}
 }
 
@@ -608,6 +653,11 @@ func TestAccComputeSubnetwork_ipv6(t *testing.T) {
 			},
 			{
 				Config: testAccComputeSubnetwork_ipv6(cnName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_subnetwork.subnetwork", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_subnetwork.subnetwork",
@@ -725,6 +775,11 @@ func TestAccComputeSubnetwork_ipv6UpdateWithPdp(t *testing.T) {
 			// Step 2: Update Subnetwork to Dual Stack with IP Collection
 			{
 				Config: testAccComputeSubnetwork_ipv6PdpUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(subnetResName, plancheck.ResourceActionUpdate),
+					},
+				},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(t, subnetResName, new(map[string]interface{})),
 					resource.TestCheckResourceAttr(subnetResName, "stack_type", "IPV4_IPV6"),
