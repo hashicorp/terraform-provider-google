@@ -414,6 +414,28 @@ NORMAL`,
 								},
 							},
 						},
+						"vm_backup_storage_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							ForceNew: true,
+							Description: `Specifies whether VM backups are stored on local DB server storage or Exascale storage.
+Possible values:
+VM_BACKUP_STORAGE_TYPE_UNSPECIFIED
+VM_BACKUP_STORAGE_TYPE_LOCAL
+VM_BACKUP_STORAGE_TYPE_EXASCALE`,
+						},
+						"vm_file_system_storage_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							ForceNew: true,
+							Description: `Specifies whether VM file system storage / VM images are stored on local DB server storage or Exascale storage.
+Possible values:
+VM_FILE_SYSTEM_STORAGE_TYPE_UNSPECIFIED
+VM_FILE_SYSTEM_STORAGE_TYPE_LOCAL
+VM_FILE_SYSTEM_STORAGE_TYPE_EXASCALE`,
+						},
 						"compartment_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -1035,6 +1057,10 @@ func flattenOracleDatabaseCloudVmClusterProperties(v interface{}, d *schema.Reso
 		flattenOracleDatabaseCloudVmClusterPropertiesClusterName(original["clusterName"], d, config)
 	transformed["storage_management_type"] =
 		flattenOracleDatabaseCloudVmClusterPropertiesStorageManagementType(original["storageManagementType"], d, config)
+	transformed["vm_file_system_storage_type"] =
+		flattenOracleDatabaseCloudVmClusterPropertiesVmFileSystemStorageType(original["vmFileSystemStorageType"], d, config)
+	transformed["vm_backup_storage_type"] =
+		flattenOracleDatabaseCloudVmClusterPropertiesVmBackupStorageType(original["vmBackupStorageType"], d, config)
 	return []interface{}{transformed}
 }
 func flattenOracleDatabaseCloudVmClusterPropertiesOcid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1301,6 +1327,14 @@ func flattenOracleDatabaseCloudVmClusterPropertiesClusterName(v interface{}, d *
 }
 
 func flattenOracleDatabaseCloudVmClusterPropertiesStorageManagementType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseCloudVmClusterPropertiesVmFileSystemStorageType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseCloudVmClusterPropertiesVmBackupStorageType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1644,6 +1678,20 @@ func expandOracleDatabaseCloudVmClusterProperties(v interface{}, d tpgresource.T
 		transformed["storageManagementType"] = transformedStorageManagementType
 	}
 
+	transformedVmFileSystemStorageType, err := expandOracleDatabaseCloudVmClusterPropertiesVmFileSystemStorageType(original["vm_file_system_storage_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVmFileSystemStorageType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["vmFileSystemStorageType"] = transformedVmFileSystemStorageType
+	}
+
+	transformedVmBackupStorageType, err := expandOracleDatabaseCloudVmClusterPropertiesVmBackupStorageType(original["vm_backup_storage_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVmBackupStorageType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["vmBackupStorageType"] = transformedVmBackupStorageType
+	}
+
 	return transformed, nil
 }
 
@@ -1853,6 +1901,14 @@ func expandOracleDatabaseCloudVmClusterPropertiesClusterName(v interface{}, d tp
 }
 
 func expandOracleDatabaseCloudVmClusterPropertiesStorageManagementType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseCloudVmClusterPropertiesVmFileSystemStorageType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseCloudVmClusterPropertiesVmBackupStorageType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

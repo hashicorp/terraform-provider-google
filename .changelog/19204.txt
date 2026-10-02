@@ -1,0 +1,3 @@
+```release-note:enhancement
+oracledatabase: added `properties.vm_file_system_storage_type` and `properties.vm_backup_storage_type` fields to `google_oracle_database_cloud_vm_cluster` resource
+```
