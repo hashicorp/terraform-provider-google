@@ -48,6 +48,7 @@ fields:
       provider_only: true
     - api_field: modelSettings.model
     - api_field: modelSettings.temperature
+    - api_field: modelSettings.thinkingLevel
     - api_field: name
     - api_field: remoteA2aAgent.a2aConfig.agentCard.description
     - api_field: remoteA2aAgent.a2aConfig.agentCard.name
