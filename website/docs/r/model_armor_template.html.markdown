@@ -98,7 +98,7 @@ resource "google_model_armor_template" "template-filter-config" {
 
 ```hcl
 resource "google_model_armor_template" "template-template-metadata" {
-  location    = "us-central1"
+  location    = "us"
   template_id = "modelarmor3"
 
   filter_config {
@@ -121,6 +121,7 @@ resource "google_model_armor_template" "template-template-metadata" {
     custom_prompt_safety_error_message       = "This is a custom error message for prompt"
     custom_llm_response_safety_error_code    = 401
     enforcement_type                         = "INSPECT_ONLY"
+    modalities                               = ["MODALITY_TEXT", "MODALITY_IMAGE"]
     filter_version_selector {
       alias = "FILTER_VERSION_ALIAS_LATEST"
     }
@@ -401,6 +402,16 @@ The following arguments are supported:
   Possible values:
   INSPECT_ONLY
   INSPECT_AND_BLOCK
+
+* `modalities` -
+  (Optional)
+  Specifies the modalities to scan. If empty, only text modality will be
+  scanned. Image screening is in Preview and is only supported in the `us`
+  and `eu` multi-regions; regional endpoints such as `us-central1` do not
+  support it.
+  Possible values:
+  MODALITY_TEXT
+  MODALITY_IMAGE
 
 * `filter_version_selector` -
   (Optional)
