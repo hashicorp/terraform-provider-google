@@ -218,6 +218,8 @@ fields:
   - api_field: 'scheduling.onInstanceStopAction.discardLocalSsd'
   - api_field: 'scheduling.preemptible'
   - api_field: 'scheduling.provisioningModel'
+  - api_field: 'scheduling.preemptionNoticeDuration.nanos'
+  - api_field: 'scheduling.preemptionNoticeDuration.seconds'
   - api_field: 'scheduling.terminationTime'
   - api_field: 'disks.deviceName'
     field: 'scratch_disk.device_name'

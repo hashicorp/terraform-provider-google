@@ -4530,6 +4530,66 @@ func TestAccComputeInstance_keyRevocationActionType(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_preemptionNoticeDuration(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_preemptionNoticeDuration(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.preemption_notice_duration.0.seconds", "120"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.preemption_notice_duration.0.nanos", "0"),
+				),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
+		},
+	})
+}
+
+func testAccComputeInstance_preemptionNoticeDuration(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family    = "debian-13"
+  project   = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+  	automatic_restart = false
+    preemptible = true
+    provisioning_model = "SPOT"
+	instance_termination_action = "STOP"
+    preemption_notice_duration {
+      seconds = 120
+	  nanos = 0
+    }
+  }
+}
+`, instance)
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]

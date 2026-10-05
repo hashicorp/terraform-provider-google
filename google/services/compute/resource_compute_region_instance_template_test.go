@@ -1650,6 +1650,35 @@ func TestAccComputeRegionInstanceTemplate_workloadIdentity(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionInstanceTemplate_schedulingPreemptionNoticeDuration(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate map[string]interface{}
+	instanceName := fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_schedulingPreemptionNoticeDuration(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "scheduling.0.preemption_notice_duration.0.seconds", "120"),
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "scheduling.0.preemption_notice_duration.0.nanos", "0"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_region_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionInstanceTemplate_GuestOsFeatures(t *testing.T) {
 	t.Parallel()
 
@@ -5050,6 +5079,51 @@ resource "google_compute_region_instance_template" "foobar" {
   }
 }
 `, context)
+}
+
+func testAccComputeRegionInstanceTemplate_schedulingPreemptionNoticeDuration(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    automatic_restart = false
+    preemptible = true
+    provisioning_model = "SPOT"
+	instance_termination_action = "STOP"
+    preemption_notice_duration {
+      seconds = 120
+	  nanos = 0
+    }
+  }
+
+  metadata = {
+	foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, suffix)
 }
 
 func testAccComputeRegionInstanceTemplate_workloadIdentity(suffix string) string {
