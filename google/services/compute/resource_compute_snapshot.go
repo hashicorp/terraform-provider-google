@@ -113,6 +113,7 @@ func ResourceComputeSnapshot() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			forceNewOnUnsupportedKmsKeyChange("snapshot_encryption_key.0.kms_key_self_link", "snapshot_encryption_key.0.kms_key_service_account"),
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
@@ -212,14 +213,16 @@ the snapshot.
 
 If you do not provide an encryption key when creating the snapshot,
 then the snapshot will be encrypted using an automatically generated
-key and you do not need to provide a key to use the snapshot later.`,
+key and you do not need to provide a key to use the snapshot later.
+
+~>**NOTE** Only changing 'kms_key_self_link' between Cloud KMS keys is
+done in place; other changes to this block recreate the snapshot.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"kms_key_self_link": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The name of the encryption key that is stored in Google Cloud KMS.`,
 						},
 						"kms_key_service_account": {
@@ -779,6 +782,46 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 
 	d.Partial(false)
 
+	// Nested fields aren't handled by the generated update. Runs after
+	// d.Partial(false), so set d.Partial(true) on error to keep the old state.
+	if d.HasChange("snapshot_encryption_key.0.kms_key_self_link") {
+		oldKey, newKey := d.GetChange("snapshot_encryption_key.0.kms_key_self_link")
+		kmsKeyObj, err := kmsKeyUpdateRequestBody(oldKey.(string), newKey.(string), d.Get("snapshot_encryption_key.0.kms_key_service_account").(string))
+		if err != nil {
+			d.Partial(true)
+			return fmt.Errorf("Error updating Snapshot %q KMS key: %s", d.Id(), err)
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshots/{{name}}/updateKmsKey")
+		if err != nil {
+			d.Partial(true)
+			return err
+		}
+
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      kmsKeyObj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			d.Partial(true)
+			return fmt.Errorf("Error updating Snapshot %q KMS key: %s", d.Id(), err)
+		}
+
+		err = ComputeOperationWaitTime(config, res, project, "Updating Snapshot KMS Key", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			d.Partial(true)
+			return err
+		}
+	}
 	return resourceComputeSnapshotRead(d, meta)
 }
 
