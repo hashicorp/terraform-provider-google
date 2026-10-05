@@ -206,6 +206,15 @@ func expandScheduling(v interface{}) (map[string]interface{}, error) {
 			result["hostErrorTimeoutSeconds"] = int64(v.(int))
 		}
 	}
+	if v, ok := original["preemption_notice_duration"]; ok {
+		transformedPreemptionNoticeDuration, err := expandComputePreemptionNoticeDuration(v)
+		if err != nil {
+			return nil, err
+		}
+		if transformedPreemptionNoticeDuration != nil || !omitDurations {
+			result["preemptionNoticeDuration"] = transformedPreemptionNoticeDuration
+		}
+	}
 	if v, ok := original["local_ssd_recovery_timeout"]; ok {
 		transformedLocalSsdRecoveryTimeout, err := expandComputeLocalSsdRecoveryTimeout(v)
 		if err != nil {
@@ -331,6 +340,10 @@ func flattenScheduling(resp map[string]interface{}) []map[string]interface{} {
 		schedulingMap["host_error_timeout_seconds"] = h
 	}
 
+	if pnd, ok := resp["preemptionNoticeDuration"].(map[string]interface{}); ok {
+		schedulingMap["preemption_notice_duration"] = flattenComputePreemptionNoticeDuration(pnd)
+	}
+
 	if lsrt, ok := resp["localSsdRecoveryTimeout"].(map[string]interface{}); ok {
 		schedulingMap["local_ssd_recovery_timeout"] = flattenComputeLocalSsdRecoveryTimeout(lsrt)
 	}
@@ -381,6 +394,43 @@ func flattenOnInstanceStopAction(v map[string]interface{}) []interface{} {
 }
 
 func flattenComputeLocalSsdRecoveryTimeout(v map[string]interface{}) []interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["nanos"] = getInt(v["nanos"])
+	transformed["seconds"] = getInt(v["seconds"])
+	return []interface{}{transformed}
+}
+
+func expandComputePreemptionNoticeDuration(v interface{}) (map[string]interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	result := map[string]interface{}{}
+
+	if transformedNanos, ok := original["nanos"]; ok && transformedNanos != nil {
+		if n := int64(transformedNanos.(int)); n != 0 {
+			result["nanos"] = n
+		}
+	}
+
+	if transformedSeconds, ok := original["seconds"]; ok && transformedSeconds != nil {
+		if s := int64(transformedSeconds.(int)); s != 0 {
+			result["seconds"] = s
+		}
+	}
+
+	if len(result) == 0 {
+		return nil, nil
+	}
+	return result, nil
+}
+
+func flattenComputePreemptionNoticeDuration(v map[string]interface{}) []interface{} {
 	if v == nil {
 		return nil
 	}

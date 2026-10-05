@@ -1960,6 +1960,35 @@ func TestAccComputeInstanceTemplate_keyRevocationActionType(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_schedulingPreemptionNoticeDuration(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate map[string]interface{}
+	instanceName := fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_schedulingPreemptionNoticeDuration(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "scheduling.0.preemption_notice_duration.0.seconds", "120"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "scheduling.0.preemption_notice_duration.0.nanos", "0"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_dynamicNic(t *testing.T) {
 	t.Parallel()
 
@@ -5440,6 +5469,51 @@ resource "google_compute_instance_template" "foobar" {
   }
 }
 `, context)
+}
+
+func testAccComputeInstanceTemplate_schedulingPreemptionNoticeDuration(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    automatic_restart = false
+    preemptible = true
+    provisioning_model = "SPOT"
+	instance_termination_action = "STOP"
+    preemption_notice_duration {
+      seconds = 120
+	  nanos = 0
+    }
+  }
+
+  metadata = {
+	foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, suffix)
 }
 
 func testAccComputeInstanceTemplate_keyRevocationActionType(context map[string]interface{}) string {

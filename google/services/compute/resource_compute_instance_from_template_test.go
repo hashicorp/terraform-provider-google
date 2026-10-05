@@ -316,6 +316,32 @@ func TestAccComputeInstanceFromTemplate_TerminationTime(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceFromTemplate_schedulingPreemptionNoticeDuration(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	resourceName := "google_compute_instance_from_template.foobar"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_schedulingPreemptionNoticeDuration(templateName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "scheduling.0.preemption_notice_duration.0.seconds", "120"),
+					resource.TestCheckResourceAttr(resourceName, "scheduling.0.preemption_notice_duration.0.nanos", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *testing.T) {
 	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -1208,6 +1234,101 @@ resource "google_compute_instance_from_template" "inst" {
   source_instance_template = google_compute_instance_template.foobar.self_link
 }
 `, templateDisk, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_schedulingPreemptionNoticeDuration(template, instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"  // can't be e2 because of local-ssd
+
+  disk {
+    source      = google_compute_disk.foobar.name
+    auto_delete = false
+    boot        = true
+  }
+
+  disk {
+    disk_type    = "local-ssd"
+    type         = "SCRATCH"
+    interface    = "NVME"
+    disk_size_gb = 375
+  }
+
+  disk {
+    device_name  = "test-local-ssd"
+    disk_type    = "local-ssd"
+    type         = "SCRATCH"
+    interface    = "NVME"
+    disk_size_gb = 375
+  }
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 100
+    boot         = false
+    disk_type    = "pd-ssd"
+    type         = "PERSISTENT"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+  	automatic_restart = false
+    preemptible = true
+    provisioning_model = "SPOT"
+	  instance_termination_action = "STOP"
+    preemption_notice_duration {
+      seconds = 120
+	    nanos = 0
+    }
+  }
+
+  can_ip_forward = true
+}
+
+resource "google_compute_instance_from_template" "foobar" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar.self_link
+
+  can_ip_forward = false
+  labels = {
+    my_key = "my_value"
+  }
+  scheduling {
+  	automatic_restart = false
+    preemptible = true
+    provisioning_model = "SPOT"
+	  instance_termination_action = "STOP"
+    preemption_notice_duration {
+      seconds = 120
+	    nanos = 0
+    }
+  }
+}
+`, template, template, instance)
 }
 
 func testAccComputeInstanceFromTemplate_terminationTime(templateDisk, template, termination_time, instance string) string {

@@ -277,6 +277,16 @@ func FlattenSchedulingHTTP(resp map[string]interface{}) []map[string]interface{}
 		}
 	}
 
+	if pndRaw, ok := resp["preemptionNoticeDuration"]; ok && pndRaw != nil {
+		pnd := pndRaw.(map[string]interface{})
+		schedulingMap["preemption_notice_duration"] = []map[string]interface{}{
+			{
+				"seconds": ParseIntHTTP(pnd["seconds"]),
+				"nanos":   ParseIntHTTP(pnd["nanos"]),
+			},
+		}
+	}
+
 	if naRaw, ok := resp["nodeAffinities"].([]interface{}); ok && naRaw != nil {
 		nodeAffinities := make([]map[string]interface{}, len(naRaw))
 		for i, naItem := range naRaw {
