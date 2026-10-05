@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: made `snapshot_encryption_key.kms_key_self_link` updatable in place in `google_compute_snapshot`
+```
