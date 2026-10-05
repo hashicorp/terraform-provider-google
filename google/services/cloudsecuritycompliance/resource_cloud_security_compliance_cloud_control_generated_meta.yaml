@@ -33,6 +33,8 @@ fields:
     - api_field: parameterSpec.defaultValue.oneofValue.parameterValue.oneofValue.name
     - api_field: parameterSpec.defaultValue.oneofValue.parameterValue.oneofValue.parameterValue.boolValue
     - api_field: parameterSpec.defaultValue.oneofValue.parameterValue.oneofValue.parameterValue.numberValue
+    - api_field: parameterSpec.defaultValue.oneofValue.parameterValue.oneofValue.parameterValue.oneofValue
+      json: true
     - api_field: parameterSpec.defaultValue.oneofValue.parameterValue.oneofValue.parameterValue.stringListValue.values
     - api_field: parameterSpec.defaultValue.oneofValue.parameterValue.oneofValue.parameterValue.stringValue
     - api_field: parameterSpec.defaultValue.oneofValue.parameterValue.stringListValue.values
@@ -51,6 +53,8 @@ fields:
     - api_field: parameterSpec.subParameters.defaultValue.oneofValue.parameterValue.oneofValue.name
     - api_field: parameterSpec.subParameters.defaultValue.oneofValue.parameterValue.oneofValue.parameterValue.boolValue
     - api_field: parameterSpec.subParameters.defaultValue.oneofValue.parameterValue.oneofValue.parameterValue.numberValue
+    - api_field: parameterSpec.subParameters.defaultValue.oneofValue.parameterValue.oneofValue.parameterValue.oneofValue
+      json: true
     - api_field: parameterSpec.subParameters.defaultValue.oneofValue.parameterValue.oneofValue.parameterValue.stringListValue.values
     - api_field: parameterSpec.subParameters.defaultValue.oneofValue.parameterValue.oneofValue.parameterValue.stringValue
     - api_field: parameterSpec.subParameters.defaultValue.oneofValue.parameterValue.stringListValue.values
@@ -66,6 +70,8 @@ fields:
     - api_field: parameterSpec.subParameters.subParameters.defaultValue.oneofValue.name
     - api_field: parameterSpec.subParameters.subParameters.defaultValue.oneofValue.parameterValue.boolValue
     - api_field: parameterSpec.subParameters.subParameters.defaultValue.oneofValue.parameterValue.numberValue
+    - api_field: parameterSpec.subParameters.subParameters.defaultValue.oneofValue.parameterValue.oneofValue
+      json: true
     - api_field: parameterSpec.subParameters.subParameters.defaultValue.oneofValue.parameterValue.stringListValue.values
     - api_field: parameterSpec.subParameters.subParameters.defaultValue.oneofValue.parameterValue.stringValue
     - api_field: parameterSpec.subParameters.subParameters.defaultValue.stringListValue.values
@@ -74,6 +80,8 @@ fields:
     - api_field: parameterSpec.subParameters.subParameters.displayName
     - api_field: parameterSpec.subParameters.subParameters.isRequired
     - api_field: parameterSpec.subParameters.subParameters.name
+    - api_field: parameterSpec.subParameters.subParameters.subParameters
+      json: true
     - api_field: parameterSpec.subParameters.subParameters.substitutionRules.attributeSubstitutionRule.attribute
     - api_field: parameterSpec.subParameters.subParameters.substitutionRules.placeholderSubstitutionRule.attribute
     - api_field: parameterSpec.subParameters.subParameters.validation.allowedValues.values.boolValue
@@ -81,6 +89,8 @@ fields:
     - api_field: parameterSpec.subParameters.subParameters.validation.allowedValues.values.oneofValue.name
     - api_field: parameterSpec.subParameters.subParameters.validation.allowedValues.values.oneofValue.parameterValue.boolValue
     - api_field: parameterSpec.subParameters.subParameters.validation.allowedValues.values.oneofValue.parameterValue.numberValue
+    - api_field: parameterSpec.subParameters.subParameters.validation.allowedValues.values.oneofValue.parameterValue.oneofValue
+      json: true
     - api_field: parameterSpec.subParameters.subParameters.validation.allowedValues.values.oneofValue.parameterValue.stringListValue.values
     - api_field: parameterSpec.subParameters.subParameters.validation.allowedValues.values.oneofValue.parameterValue.stringValue
     - api_field: parameterSpec.subParameters.subParameters.validation.allowedValues.values.stringListValue.values
@@ -99,6 +109,8 @@ fields:
     - api_field: parameterSpec.subParameters.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.name
     - api_field: parameterSpec.subParameters.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.parameterValue.boolValue
     - api_field: parameterSpec.subParameters.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.parameterValue.numberValue
+    - api_field: parameterSpec.subParameters.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.parameterValue.oneofValue
+      json: true
     - api_field: parameterSpec.subParameters.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.parameterValue.stringListValue.values
     - api_field: parameterSpec.subParameters.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.parameterValue.stringValue
     - api_field: parameterSpec.subParameters.validation.allowedValues.values.oneofValue.parameterValue.stringListValue.values
@@ -119,6 +131,8 @@ fields:
     - api_field: parameterSpec.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.name
     - api_field: parameterSpec.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.parameterValue.boolValue
     - api_field: parameterSpec.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.parameterValue.numberValue
+    - api_field: parameterSpec.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.parameterValue.oneofValue
+      json: true
     - api_field: parameterSpec.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.parameterValue.stringListValue.values
     - api_field: parameterSpec.validation.allowedValues.values.oneofValue.parameterValue.oneofValue.parameterValue.stringValue
     - api_field: parameterSpec.validation.allowedValues.values.oneofValue.parameterValue.stringListValue.values
