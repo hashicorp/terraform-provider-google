@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_compute_organization_snapshot_recycle_bin_policy` (beta)
+```
+```release-note:new-resource
+`google_compute_snapshot_recycle_bin_policy` (beta)
+```
