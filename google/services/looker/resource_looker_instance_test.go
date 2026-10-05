@@ -107,6 +107,9 @@ func TestAccLookerInstance_updateControlledEgress(t *testing.T) {
 
 func testAccLookerInstance_basic(context map[string]interface{}) string {
 	return fmt.Sprintf(`
+provider "google" {
+  prefer_regional_endpoints = true
+}
 resource "google_looker_instance" "test" {
   name               = "tf-test-looker-%s"
   platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
@@ -128,6 +131,9 @@ resource "google_looker_instance" "test" {
 
 func testAccLookerInstance_controlledEgress(context map[string]interface{}) string {
 	return fmt.Sprintf(`
+provider "google" {
+  prefer_regional_endpoints = true
+}
 resource "google_looker_instance" "test" {
   name               = "tf-test-looker-%s"
   platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
@@ -208,6 +214,9 @@ func TestAccLookerInstance_updatePeriodicExport(t *testing.T) {
 
 func testAccLookerInstance_periodicExport(context map[string]interface{}) string {
 	return fmt.Sprintf(`
+provider "google" {
+  prefer_regional_endpoints = true
+}
 resource "google_storage_bucket" "export" {
   name          = "tf-test-looker-export-%s"
   location      = "US"
