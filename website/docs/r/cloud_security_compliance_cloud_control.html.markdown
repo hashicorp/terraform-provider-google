@@ -715,6 +715,10 @@ The following arguments are supported:
   (Optional)
   Represents a double value.
 
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values, in JSON format.
+
 * `string_list_value` -
   (Optional)
   A list of strings.
@@ -902,6 +906,10 @@ The following arguments are supported:
   (Optional)
   Represents a double value.
 
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values, in JSON format.
+
 * `string_list_value` -
   (Optional)
   A list of strings.
@@ -1066,6 +1074,10 @@ The following arguments are supported:
   (Optional)
   Represents a double value.
 
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values, in JSON format.
+
 * `string_list_value` -
   (Optional)
   A list of strings.
@@ -1138,6 +1150,10 @@ The following arguments are supported:
   List of parameter substitutions.
   Structure is [documented below](#nested_parameter_spec_sub_parameters_sub_parameters_substitution_rules).
 
+* `sub_parameters` -
+  (Optional)
+  The parameter spec of the cloud control, in JSON format.
+
 * `validation` -
   (Optional)
   Validation of the parameter.
@@ -1200,6 +1216,10 @@ The following arguments are supported:
 * `number_value` -
   (Optional)
   Represents a double value.
+
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values, in JSON format.
 
 * `string_list_value` -
   (Optional)
@@ -1321,6 +1341,10 @@ The following arguments are supported:
 * `number_value` -
   (Optional)
   Represents a double value.
+
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values, in JSON format.
 
 * `string_list_value` -
   (Optional)
@@ -1469,6 +1493,10 @@ The following arguments are supported:
 * `number_value` -
   (Optional)
   Represents a double value.
+
+* `oneof_value` -
+  (Optional)
+  Sub-parameter values, in JSON format.
 
 * `string_list_value` -
   (Optional)

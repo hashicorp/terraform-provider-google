@@ -300,6 +300,13 @@ ONEOF`,
 																						Optional:    true,
 																						Description: `Represents a double value.`,
 																					},
+																					"oneof_value": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringIsJSON,
+																						StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																						Description:  `Sub-parameter values, in JSON format.`,
+																					},
 																					"string_list_value": {
 																						Type:        schema.TypeList,
 																						Optional:    true,
@@ -496,6 +503,13 @@ ONEOF`,
 																									Optional:    true,
 																									Description: `Represents a double value.`,
 																								},
+																								"oneof_value": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validation.StringIsJSON,
+																									StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																									Description:  `Sub-parameter values, in JSON format.`,
+																								},
 																								"string_list_value": {
 																									Type:        schema.TypeList,
 																									Optional:    true,
@@ -663,6 +677,13 @@ ONEOF`,
 																						Optional:    true,
 																						Description: `Represents a double value.`,
 																					},
+																					"oneof_value": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						ValidateFunc: validation.StringIsJSON,
+																						StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																						Description:  `Sub-parameter values, in JSON format.`,
+																					},
 																					"string_list_value": {
 																						Type:        schema.TypeList,
 																						Optional:    true,
@@ -727,6 +748,13 @@ ONEOF`,
 													Type:        schema.TypeString,
 													Optional:    true,
 													Description: `The display name of the parameter. The maximum length is 200 characters.`,
+												},
+												"sub_parameters": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validation.StringIsJSON,
+													StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+													Description:  `The parameter spec of the cloud control, in JSON format.`,
 												},
 												"substitution_rules": {
 													Type:        schema.TypeList,
@@ -826,6 +854,13 @@ Example: rules[0].cel_expression.resource_types_values`,
 																												Type:        schema.TypeFloat,
 																												Optional:    true,
 																												Description: `Represents a double value.`,
+																											},
+																											"oneof_value": {
+																												Type:         schema.TypeString,
+																												Optional:     true,
+																												ValidateFunc: validation.StringIsJSON,
+																												StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																												Description:  `Sub-parameter values, in JSON format.`,
 																											},
 																											"string_list_value": {
 																												Type:        schema.TypeList,
@@ -1053,6 +1088,13 @@ Example: rules[0].cel_expression.resource_types_values`,
 																															Type:        schema.TypeFloat,
 																															Optional:    true,
 																															Description: `Represents a double value.`,
+																														},
+																														"oneof_value": {
+																															Type:         schema.TypeString,
+																															Optional:     true,
+																															ValidateFunc: validation.StringIsJSON,
+																															StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																															Description:  `Sub-parameter values, in JSON format.`,
 																														},
 																														"string_list_value": {
 																															Type:        schema.TypeList,
@@ -1309,6 +1351,13 @@ Example: rules[0].cel_expression.resource_types_values`,
 																												Type:        schema.TypeFloat,
 																												Optional:    true,
 																												Description: `Represents a double value.`,
+																											},
+																											"oneof_value": {
+																												Type:         schema.TypeString,
+																												Optional:     true,
+																												ValidateFunc: validation.StringIsJSON,
+																												StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																												Description:  `Sub-parameter values, in JSON format.`,
 																											},
 																											"string_list_value": {
 																												Type:        schema.TypeList,
@@ -2244,6 +2293,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofVal
 		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueBoolValue(original["boolValue"], d, config)
 	transformed["number_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueNumberValue(original["numberValue"], d, config)
+	transformed["oneof_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueOneofValue(original["oneofValue"], d, config)
 	transformed["string_list_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueStringListValue(original["stringListValue"], d, config)
 	transformed["string_value"] =
@@ -2256,6 +2307,18 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofVal
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueOneofValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2527,6 +2590,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefault
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueBoolValue(original["boolValue"], d, config)
 	transformed["number_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueNumberValue(original["numberValue"], d, config)
+	transformed["oneof_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueOneofValue(original["oneofValue"], d, config)
 	transformed["string_list_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueStringListValue(original["stringListValue"], d, config)
 	transformed["string_value"] =
@@ -2539,6 +2604,18 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefault
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueOneofValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2815,6 +2892,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidat
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueBoolValue(original["boolValue"], d, config)
 	transformed["number_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueNumberValue(original["numberValue"], d, config)
+	transformed["oneof_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueOneofValue(original["oneofValue"], d, config)
 	transformed["string_list_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueStringListValue(original["stringListValue"], d, config)
 	transformed["string_value"] =
@@ -2827,6 +2906,18 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidat
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueOneofValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2952,6 +3043,7 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubPara
 			"is_required":        flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersIsRequired(original["isRequired"], d, config),
 			"name":               flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersName(original["name"], d, config),
 			"substitution_rules": flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersSubstitutionRules(original["substitutionRules"], d, config),
+			"sub_parameters":     flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersSubParameters(original["subParameters"], d, config),
 			"validation":         flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidation(original["validation"], d, config),
 			"value_type":         flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValueType(original["valueType"], d, config),
 		})
@@ -3019,6 +3111,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubPara
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueBoolValue(original["boolValue"], d, config)
 	transformed["number_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueNumberValue(original["numberValue"], d, config)
+	transformed["oneof_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueOneofValue(original["oneofValue"], d, config)
 	transformed["string_list_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueStringListValue(original["stringListValue"], d, config)
 	transformed["string_value"] =
@@ -3031,6 +3125,18 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubPara
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueOneofValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3145,6 +3251,18 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubPara
 	return v
 }
 
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersSubParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
 func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -3238,6 +3356,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubPara
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueBoolValue(original["boolValue"], d, config)
 	transformed["number_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueNumberValue(original["numberValue"], d, config)
+	transformed["oneof_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValue(original["oneofValue"], d, config)
 	transformed["string_list_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValue(original["stringListValue"], d, config)
 	transformed["string_value"] =
@@ -3250,6 +3370,18 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubPara
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3483,6 +3615,8 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedVal
 		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueBoolValue(original["boolValue"], d, config)
 	transformed["number_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueNumberValue(original["numberValue"], d, config)
+	transformed["oneof_value"] =
+		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueOneofValue(original["oneofValue"], d, config)
 	transformed["string_list_value"] =
 		flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueStringListValue(original["stringListValue"], d, config)
 	transformed["string_value"] =
@@ -3495,6 +3629,18 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedVal
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueNumberValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueOneofValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
 }
 
 func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueStringListValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3998,6 +4144,13 @@ func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValu
 		transformed["numberValue"] = transformedNumberValue
 	}
 
+	transformedOneofValue, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueOneofValue(original["oneof_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOneofValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oneofValue"] = transformedOneofValue
+	}
+
 	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueStringListValue(original["string_list_value"], d, config)
 	if err != nil {
 		return nil, err
@@ -4021,6 +4174,18 @@ func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValu
 
 func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueOneofValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
 }
 
 func expandCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofValueParameterValueOneofValueParameterValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4502,6 +4667,13 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultV
 		transformed["numberValue"] = transformedNumberValue
 	}
 
+	transformedOneofValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueOneofValue(original["oneof_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOneofValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oneofValue"] = transformedOneofValue
+	}
+
 	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueStringListValue(original["string_list_value"], d, config)
 	if err != nil {
 		return nil, err
@@ -4525,6 +4697,18 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultV
 
 func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueOneofValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
 }
 
 func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersDefaultValueOneofValueParameterValueOneofValueParameterValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4986,6 +5170,13 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidati
 		transformed["numberValue"] = transformedNumberValue
 	}
 
+	transformedOneofValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueOneofValue(original["oneof_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOneofValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oneofValue"] = transformedOneofValue
+	}
+
 	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueStringListValue(original["string_list_value"], d, config)
 	if err != nil {
 		return nil, err
@@ -5009,6 +5200,18 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidati
 
 func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueOneofValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
 }
 
 func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -5219,6 +5422,13 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParam
 			transformed["substitutionRules"] = transformedSubstitutionRules
 		}
 
+		transformedSubParameters, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersSubParameters(original["sub_parameters"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subParameters"] = transformedSubParameters
+		}
+
 		transformedValidation, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidation(original["validation"], d, config)
 		if err != nil {
 			return nil, err
@@ -5355,6 +5565,13 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParam
 		transformed["numberValue"] = transformedNumberValue
 	}
 
+	transformedOneofValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueOneofValue(original["oneof_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOneofValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oneofValue"] = transformedOneofValue
+	}
+
 	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueStringListValue(original["string_list_value"], d, config)
 	if err != nil {
 		return nil, err
@@ -5378,6 +5595,18 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParam
 
 func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueOneofValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
 }
 
 func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersDefaultValueOneofValueParameterValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -5538,6 +5767,18 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParam
 
 func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersSubstitutionRulesPlaceholderSubstitutionRuleAttribute(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersSubParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
 }
 
 func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -5718,6 +5959,13 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParam
 		transformed["numberValue"] = transformedNumberValue
 	}
 
+	transformedOneofValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValue(original["oneof_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOneofValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oneofValue"] = transformedOneofValue
+	}
+
 	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValue(original["string_list_value"], d, config)
 	if err != nil {
 		return nil, err
@@ -5741,6 +5989,18 @@ func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParam
 
 func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueOneofValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
 }
 
 func expandCloudSecurityComplianceCloudControlParameterSpecSubParametersSubParametersValidationAllowedValuesValuesOneofValueParameterValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -6143,6 +6403,13 @@ func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValu
 		transformed["numberValue"] = transformedNumberValue
 	}
 
+	transformedOneofValue, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueOneofValue(original["oneof_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOneofValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oneofValue"] = transformedOneofValue
+	}
+
 	transformedStringListValue, err := expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueStringListValue(original["string_list_value"], d, config)
 	if err != nil {
 		return nil, err
@@ -6166,6 +6433,18 @@ func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValu
 
 func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueNumberValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueOneofValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
 }
 
 func expandCloudSecurityComplianceCloudControlParameterSpecValidationAllowedValuesValuesOneofValueParameterValueOneofValueParameterValueStringListValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
