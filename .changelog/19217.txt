@@ -1,0 +1,3 @@
+```release-note:enhancement
+looker: added support for Regional Endpoint Policies (REP). See the [provider reference](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#prefer_regional_endpoints) for more details on configuration.
+```

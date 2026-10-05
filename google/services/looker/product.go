@@ -25,6 +25,8 @@ import (
 var Product = registry.Product{
 	Name:                 "looker",
 	BaseUrl:              "https://looker.googleapis.com/v1/",
+	RepUrl:               "https://looker.{{region}}.rep.googleapis.com/v1/",
+	RepByDefault:         false,
 	CustomEndpointField:  "looker_custom_endpoint",
 	CustomEndpointEnvVar: "GOOGLE_LOOKER_CUSTOM_ENDPOINT",
 }
