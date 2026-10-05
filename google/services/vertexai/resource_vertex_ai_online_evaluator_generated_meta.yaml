@@ -1,0 +1,47 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_online_evaluator
+generation_type: mmv1
+source_file: products/vertexai/OnlineEvaluator.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: OnlineEvaluator
+fields:
+    - api_field: agentResource
+    - api_field: cloudObservability.logView
+    - api_field: cloudObservability.openTelemetry.semconvVersion
+    - api_field: cloudObservability.sessionScope.filter.duration.comparisonOperator
+    - api_field: cloudObservability.sessionScope.filter.duration.value
+    - api_field: cloudObservability.sessionScope.filter.modelCallErrors.comparisonOperator
+    - api_field: cloudObservability.sessionScope.filter.modelCallErrors.value
+    - api_field: cloudObservability.sessionScope.filter.modelCalls.comparisonOperator
+    - api_field: cloudObservability.sessionScope.filter.modelCalls.value
+    - api_field: cloudObservability.sessionScope.filter.toolCallErrors.comparisonOperator
+    - api_field: cloudObservability.sessionScope.filter.toolCallErrors.value
+    - api_field: cloudObservability.sessionScope.filter.toolCalls.comparisonOperator
+    - api_field: cloudObservability.sessionScope.filter.toolCalls.value
+    - api_field: cloudObservability.sessionScope.filter.totalTokenUsage.comparisonOperator
+    - api_field: cloudObservability.sessionScope.filter.totalTokenUsage.value
+    - api_field: cloudObservability.sessionScope.filter.userTurns.comparisonOperator
+    - api_field: cloudObservability.sessionScope.filter.userTurns.value
+    - api_field: cloudObservability.sessionScope.inactivityTrigger.threshold
+    - api_field: cloudObservability.traceScope.filter.duration.comparisonOperator
+    - api_field: cloudObservability.traceScope.filter.duration.value
+    - api_field: cloudObservability.traceScope.filter.totalTokenUsage.comparisonOperator
+    - api_field: cloudObservability.traceScope.filter.totalTokenUsage.value
+    - api_field: cloudObservability.traceView
+    - api_field: config.maxEvaluatedSamplesPerRun
+    - api_field: config.randomSampling.percentage
+    - api_field: createTime
+    - api_field: displayName
+    - api_field: metricSources.metric
+      json: true
+    - api_field: metricSources.metricResourceName
+    - api_field: name
+    - field: region
+      provider_only: true
+    - api_field: state
+    - api_field: stateDetails.message
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
