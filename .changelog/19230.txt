@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `default_route_action.dynamic_compression_policy`, `path_matcher.default_route_action.dynamic_compression_policy`, `path_matcher.path_rule.route_action.dynamic_compression_policy`, and `path_matcher.route_rules.route_action.dynamic_compression_policy` fields to `google_compute_url_map` resource (beta)
+```
