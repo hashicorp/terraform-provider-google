@@ -17,17 +17,21 @@
 package discoveryengine_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowBasicExample_update(t *testing.T) {
-	// Skips this update test due to duration and flakiness.
-	t.Skip()
-
+func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -42,204 +46,233 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowB
 		},
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowBasicExample_basic(context),
+				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_basic(context),
+				Check:  testAccCheckDiscoveryEngineDataConnectorParamsTenantId(t, "google_discovery_engine_data_connector.onedrive-basic", "tenant_id_1"),
 			},
 			{
-				ResourceName:            "google_discovery_engine_data_connector.servicenow-basic",
+				ResourceName:            "google_discovery_engine_data_connector.onedrive-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"collection_display_name", "collection_id", "location", "params", "update_time", "action_config.0.action_params", "action_config.0.create_bap_connection"},
+				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "location", "params", "state", "update_time"},
 			},
 			{
-				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowBasicExample_update(context),
+				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_update(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_discovery_engine_data_connector.onedrive-basic", plancheck.ResourceActionUpdate),
+						plancheck.ExpectKnownValue(
+							"google_discovery_engine_data_connector.onedrive-basic",
+							tfjsonpath.New("params"),
+							knownvalue.MapExact(map[string]knownvalue.Check{
+								"auth_type":     knownvalue.StringExact("OAUTH"),
+								"client_id":     knownvalue.StringExact("client_id_1"),
+								"client_secret": knownvalue.StringExact("client_secret_1"),
+								"tenant_id":     knownvalue.StringExact("tenant_id_2"),
+							}),
+						),
+						plancheck.ExpectKnownValue(
+							"google_discovery_engine_data_connector.onedrive-basic",
+							tfjsonpath.New("refresh_interval"),
+							knownvalue.StringExact("172800s"),
+						),
+					},
+				},
+				Check: testAccCheckDiscoveryEngineDataConnectorParamsTenantId(t, "google_discovery_engine_data_connector.onedrive-basic", "tenant_id_2"),
 			},
 			{
-				ResourceName:            "google_discovery_engine_data_connector.servicenow-basic",
+				ResourceName:            "google_discovery_engine_data_connector.onedrive-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"collection_display_name", "collection_id", "location", "params", "update_time", "action_config.0.action_params", "action_config.0.create_bap_connection"},
+				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "location", "params", "update_time"},
+			},
+			{
+				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_updateJsonParams(context, "tenant_id_3"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_discovery_engine_data_connector.onedrive-basic", plancheck.ResourceActionUpdate),
+						plancheck.ExpectKnownValue(
+							"google_discovery_engine_data_connector.onedrive-basic",
+							tfjsonpath.New("json_params"),
+							knownvalue.StringExact(`{"auth_type":"OAUTH","client_id":"client_id_1","client_secret":"client_secret_1","tenant_id":"tenant_id_3"}`),
+						),
+						plancheck.ExpectKnownValue(
+							"google_discovery_engine_data_connector.onedrive-basic",
+							tfjsonpath.New("params"),
+							knownvalue.MapExact(map[string]knownvalue.Check{}),
+						),
+					},
+				},
+				Check: testAccCheckDiscoveryEngineDataConnectorParamsTenantId(t, "google_discovery_engine_data_connector.onedrive-basic", "tenant_id_3"),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_connector.onedrive-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "update_time"},
+			},
+			{
+				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_updateJsonParams(context, "tenant_id_4"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_discovery_engine_data_connector.onedrive-basic", plancheck.ResourceActionUpdate),
+						plancheck.ExpectKnownValue(
+							"google_discovery_engine_data_connector.onedrive-basic",
+							tfjsonpath.New("json_params"),
+							knownvalue.StringExact(`{"auth_type":"OAUTH","client_id":"client_id_1","client_secret":"client_secret_1","tenant_id":"tenant_id_4"}`),
+						),
+					},
+				},
+				Check: testAccCheckDiscoveryEngineDataConnectorParamsTenantId(t, "google_discovery_engine_data_connector.onedrive-basic", "tenant_id_4"),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_connector.onedrive-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "update_time"},
 			},
 		},
 	})
 }
 
-func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowBasicExample_basic(context map[string]interface{}) string {
+func testAccCheckDiscoveryEngineDataConnectorParamsTenantId(t *testing.T, resourceName, expectedTenantId string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+
+		config := acctest.GoogleProviderConfig(t)
+		url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(discoveryengine.Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/dataConnector")
+		if err != nil {
+			return err
+		}
+
+		billingProject := ""
+		if config.BillingProject != "" {
+			billingProject = config.BillingProject
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
+		if err != nil {
+			return err
+		}
+
+		params, ok := res["params"].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("expected params map in API response, got: %#v", res["params"])
+		}
+		gotTenantId, ok := params["tenant_id"].(string)
+		if !ok || gotTenantId != expectedTenantId {
+			return fmt.Errorf("expected API params.tenant_id to be %q, got %q", expectedTenantId, gotTenantId)
+		}
+		return nil
+	}
+}
+
+func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 
-resource "google_discovery_engine_data_connector" "servicenow-basic" {
+resource "google_discovery_engine_data_connector" "onedrive-basic" {
   location                     = "global"
   collection_id                = "tf-test-collection-id%{random_suffix}"
-  collection_display_name      = "tf-test-dataconnector-servicenow"
-  data_source                  = "servicenow"
-  data_source_version          = 3
+  collection_display_name      = "tf-test-dataconnector-onedrive"
+  data_source                  = "onedrive_federated_search"
+  tag                          = "tf-test-tag-%{random_suffix}"
   params = {
-    auth_type                  = "OAUTH_PASSWORD_GRANT"
-    instance_uri               = "https://gcpconnector1.service-now.com/"
-    client_id                  = "SECRET_MANAGER_RESOURCE_NAME"
-    client_secret              = "SECRET_MANAGER_RESOURCE_NAME"
-    static_ip_enabled          = "false"
-    user_account               = "connectorsuserqa@google.com"
-    password                   = "SECRET_MANAGER_RESOURCE_NAME"
+    auth_type                  = "OAUTH"
+    client_id                  = "client_id_1"
+    client_secret              = "client_secret_1"
+    tenant_id                  = "tenant_id_1"
   }
   refresh_interval             = "86400s"
   entities {
-    entity_name                = "catalog"
-    key_property_mappings = {
-      title       = "title"
-      description = "short_description"
-    }
+    entity_name                = "file"
     params = jsonencode({
-      "inclusion_filters" : {
-        "knowledgeBaseSysId" : [
-          "123"
-        ]
-      }
-    })
-  }
-  entities {
-    entity_name = "incident"
-    params = jsonencode({
-      "inclusion_filters" : {
-        "knowledgeBaseSysId" : [
-          "123"
-        ]
-      }
-    })
-  }
-  entities {
-    entity_name = "knowledge_base"
-    params = jsonencode({
-      "inclusion_filters" : {
-        "knowledgeBaseSysId" : [
-          "123"
-        ]
-      }
+      "custom_id" : "123"
     })
   }
   static_ip_enabled            = false
-  destination_configs {
-    key = "url"
-    destinations {
-      host = "https://gcpconnector1.service-now.com/"
-      port = 123
-    }
-    params.                    = jsonencode({
-      "destination_type": "private"
-    })
-  }
   incremental_refresh_interval = "21600s"
-  connector_modes              = ["DATA_INGESTION", "ACTIONS"]
-  sync_mode                    = "PERIODIC"
+  connector_modes              = ["FEDERATED"]
   auto_run_disabled            = true
   incremental_sync_disabled    = true
-  action_config {
-    action_params = {
-      instance_uri  = "https://example.atlassian.net"
-      instance_id   = "unused"
-      client_id     = "unused"
-      client_secret = "unused"
-      auth_type     = "OAUTH"
-    }
-    create_bap_connection = true
-  }
-  bap_config {
-    supported_connector_modes = ["ACTIONS"]
-    enabled_actions = [
-      "create_issue",
-      "update_issue",
-      "change_issue_status",
-      "create_comment",
-      "update_comment",
-      "upload_attachment",
-    ]
-  }
 }
 `, context)
 }
 
-func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowBasicExample_update(context map[string]interface{}) string {
+func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "time_sleep" "wait_1_hour" {
-  create_duration = "3s"
+resource "time_sleep" "wait_1_minute" {
+  create_duration = "60s"
 }
 
-resource "google_discovery_engine_data_connector" "servicenow-basic" {
-  depends_on                   = [time_sleep.wait_1_hour]
+resource "google_discovery_engine_data_connector" "onedrive-basic" {
+  depends_on                   = [time_sleep.wait_1_minute]
   location                     = "global"
   collection_id                = "tf-test-collection-id%{random_suffix}"
-  collection_display_name      = "tf-test-dataconnector-servicenow"
-  data_source                  = "servicenow"
+  collection_display_name      = "tf-test-dataconnector-onedrive"
+  data_source                  = "onedrive_federated_search"
+  tag                          = "tf-test-tag-%{random_suffix}"
   params = {
-    max_qps                    = "100"
+    auth_type                  = "OAUTH"
+    client_id                  = "client_id_1"
+    client_secret              = "client_secret_1"
+    tenant_id                  = "tenant_id_2"
   }
   refresh_interval             = "172800s"
   entities {
-    entity_name                = "catalog"
+    entity_name                = "file"
     params                     = jsonencode({
-      "inclusion_filters": {
-        "knowledgeBaseSysId": [
-          "456"
-        ]
-      }
-    })
-  }
-  entities {
-    entity_name                = "incident"
-    params                     = jsonencode({
-      "inclusion_filters": {
-        "knowledgeBaseSysId": [
-          "456"
-        ]
-      }
-    })
-  }
-  entities {
-    entity_name                = "knowledge_base"
-    params                     = jsonencode({
-      "inclusion_filters": {
-        "knowledgeBaseSysId": [
-          "456"
-        ]
-      }
+      "custom_id": "456"
     })
   }
   static_ip_enabled            = false
-  destination_configs {
-    key = "url"
-    destinations {
-      host = "https://gcpconnector1.service-now.com/"
-      port = 123
-    }
+  incremental_refresh_interval = "21600s"
+  connector_modes              = ["FEDERATED"]
+  auto_run_disabled            = true
+  incremental_sync_disabled    = true
+}
+`, context)
+}
+
+func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_updateJsonParams(context map[string]interface{}, tenantId string) string {
+	context["tenant_id"] = tenantId
+	return acctest.Nprintf(`
+resource "time_sleep" "wait_1_minute" {
+  create_duration = "60s"
+}
+
+resource "google_discovery_engine_data_connector" "onedrive-basic" {
+  depends_on                   = [time_sleep.wait_1_minute]
+  location                     = "global"
+  collection_id                = "tf-test-collection-id%{random_suffix}"
+  collection_display_name      = "tf-test-dataconnector-onedrive"
+  data_source                  = "onedrive_federated_search"
+  tag                          = "tf-test-tag-%{random_suffix}"
+  json_params = jsonencode({
+    auth_type                  = "OAUTH"
+    client_id                  = "client_id_1"
+    client_secret              = "client_secret_1"
+    tenant_id                  = "%{tenant_id}"
+  })
+  refresh_interval             = "172800s"
+  entities {
+    entity_name                = "file"
     params                     = jsonencode({
-      "destination_type": "private"
+      "custom_id": "456"
     })
   }
+  static_ip_enabled            = false
   incremental_refresh_interval = "21600s"
-  connector_modes              = ["DATA_INGESTION", "ACTIONS"]
-  sync_mode                    = "PERIODIC"
-  auto_run_disabled            = false
-  incremental_sync_disabled    = false
-  action_config {
-    action_params = {
-      instance_uri  = "https://example.atlassian.net"
-      instance_id   = "unused"
-      client_id     = "unused"
-      client_secret = "unused"
-      auth_type     = "OAUTH"
-    }
-    create_bap_connection = true
-  }
-  bap_config {
-    supported_connector_modes = ["ACTIONS"]
-    enabled_actions = [
-      "create_issue",
-      "update_issue",
-      "change_issue_status",
-      "create_comment",
-      "update_comment",
-      "upload_attachment",
-    ]
-  }
+  connector_modes              = ["FEDERATED"]
+  auto_run_disabled            = true
+  incremental_sync_disabled    = true
 }
 `, context)
 }

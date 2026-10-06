@@ -1,0 +1,3 @@
+```release-note:bug
+discoveryengine: fixed `json_params` updates not taking effect on `google_discovery_engine_data_connector`
+```

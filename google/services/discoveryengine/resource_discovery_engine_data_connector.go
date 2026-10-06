@@ -1086,7 +1086,7 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 	}
 
 	if d.HasChange("json_params") {
-		updateMask = append(updateMask, "jsonParams")
+		updateMask = append(updateMask, "params")
 	}
 
 	if d.HasChange("refresh_interval") {
