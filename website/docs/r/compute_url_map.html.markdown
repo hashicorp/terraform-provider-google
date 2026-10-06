@@ -983,6 +983,145 @@ resource "google_compute_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_dynamic_compression_policy_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Dynamic Compression Policy Basic
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider = google-beta
+  name     = "urlmap"
+
+  default_service = google_compute_backend_service.default.id
+
+  default_route_action {
+    dynamic_compression_policy {
+      compression_mode = "AUTOMATIC"
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  provider = google-beta
+  name     = "home"
+
+  protocol = "HTTP"
+  # Mandatory scheme for dynamic_compression_policy
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name     = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_dynamic_compression_policy_multi_level&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Url Map Dynamic Compression Policy Multi Level
+
+
+```hcl
+resource "google_compute_url_map" "urlmap" {
+  provider = google-beta
+  name     = "urlmap"
+
+  default_service = google_compute_backend_service.default.id
+
+  # Level 1: Top-level default_route_action
+  default_route_action {
+    dynamic_compression_policy {
+      compression_mode = "AUTOMATIC"
+    }
+  }
+
+  host_rule {
+    hosts        = ["example.com"]
+    path_matcher = "main-matcher"
+  }
+
+  host_rule {
+    hosts        = ["api.example.com"]
+    path_matcher = "api-matcher"
+  }
+
+  path_matcher {
+    name            = "main-matcher"
+    default_service = google_compute_backend_service.default.id
+
+    # Level 2: PathMatcher-level default_route_action
+    default_route_action {
+      dynamic_compression_policy {
+        compression_mode = "DISABLED"
+      }
+    }
+
+    # Level 3: PathRule route_action
+    path_rule {
+      paths   = ["/static/*"]
+      service = google_compute_backend_service.default.id
+      route_action {
+        dynamic_compression_policy {
+          compression_mode = "AUTOMATIC"
+        }
+      }
+    }
+  }
+
+  path_matcher {
+    name            = "api-matcher"
+    default_service = google_compute_backend_service.default.id
+
+    default_route_action {
+      dynamic_compression_policy {
+        compression_mode = "AUTOMATIC"
+      }
+    }
+
+    # Level 4: RouteRule route_action
+    route_rules {
+      priority = 1
+      match_rules {
+        prefix_match = "/api/v1"
+      }
+      service = google_compute_backend_service.default.id
+      route_action {
+        dynamic_compression_policy {
+          compression_mode = "DISABLED"
+        }
+      }
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  provider = google-beta
+  name     = "home"
+
+  protocol = "HTTP"
+  # Mandatory scheme for dynamic_compression_policy
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  health_checks         = [google_compute_health_check.default.id]
+}
+
+resource "google_compute_health_check" "default" {
+  provider = google-beta
+  name     = "health-check"
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=url_map_path_rule_mirror_percent&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -2203,6 +2342,12 @@ The following arguments are supported:
   backend has Identity-Aware Proxy enabled.
   Structure is [documented below](#nested_path_matcher_path_rule_route_action_cache_policy).
 
+* `dynamic_compression_policy` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Dynamic compression policy for this URL Map's route. Available only for
+  Global EXTERNAL_MANAGED load balancer schemes.
+  Structure is [documented below](#nested_path_matcher_path_rule_route_action_dynamic_compression_policy).
+
 
 <a name="nested_path_matcher_path_rule_route_action_cors_policy"></a>The `cors_policy` block supports:
 
@@ -2728,6 +2873,14 @@ The following arguments are supported:
   Buckets will result in a configuration error. Up to 5 cookie names can
   be specified.
 
+<a name="nested_path_matcher_path_rule_route_action_dynamic_compression_policy"></a>The `dynamic_compression_policy` block supports:
+
+* `compression_mode` -
+  (Optional)
+  Compress text responses using Brotli or gzip compression, based on
+  the client's Accept-Encoding header.
+  Possible values are: `AUTOMATIC`, `DISABLED`.
+
 <a name="nested_path_matcher_path_rule_url_redirect"></a>The `url_redirect` block supports:
 
 * `host_redirect` -
@@ -3184,6 +3337,12 @@ The following arguments are supported:
   property must be specified. This policy cannot be specified if any target
   backend has Identity-Aware Proxy enabled.
   Structure is [documented below](#nested_path_matcher_route_rules_route_action_cache_policy).
+
+* `dynamic_compression_policy` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Dynamic compression policy for this URL Map's route. Available only for
+  Global EXTERNAL_MANAGED load balancer schemes.
+  Structure is [documented below](#nested_path_matcher_route_rules_route_action_dynamic_compression_policy).
 
 
 <a name="nested_path_matcher_route_rules_route_action_cors_policy"></a>The `cors_policy` block supports:
@@ -3758,6 +3917,14 @@ The following arguments are supported:
   Buckets will result in a configuration error. Up to 5 cookie names can
   be specified.
 
+<a name="nested_path_matcher_route_rules_route_action_dynamic_compression_policy"></a>The `dynamic_compression_policy` block supports:
+
+* `compression_mode` -
+  (Optional)
+  Compress text responses using Brotli or gzip compression, based on
+  the client's Accept-Encoding header.
+  Possible values are: `AUTOMATIC`, `DISABLED`.
+
 <a name="nested_path_matcher_route_rules_url_redirect"></a>The `url_redirect` block supports:
 
 * `host_redirect` -
@@ -3990,6 +4157,12 @@ The following arguments are supported:
   property must be specified. This policy cannot be specified if any target
   backend has Identity-Aware Proxy enabled.
   Structure is [documented below](#nested_path_matcher_default_route_action_cache_policy).
+
+* `dynamic_compression_policy` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Dynamic compression policy for this URL Map's route. Available only for
+  Global EXTERNAL_MANAGED load balancer schemes.
+  Structure is [documented below](#nested_path_matcher_default_route_action_dynamic_compression_policy).
 
 
 <a name="nested_path_matcher_default_route_action_weighted_backend_services"></a>The `weighted_backend_services` block supports:
@@ -4501,6 +4674,14 @@ The following arguments are supported:
   Buckets will result in a configuration error. Up to 5 cookie names can
   be specified.
 
+<a name="nested_path_matcher_default_route_action_dynamic_compression_policy"></a>The `dynamic_compression_policy` block supports:
+
+* `compression_mode` -
+  (Optional)
+  Compress text responses using Brotli or gzip compression, based on
+  the client's Accept-Encoding header.
+  Possible values are: `AUTOMATIC`, `DISABLED`.
+
 <a name="nested_default_custom_error_response_policy"></a>The `default_custom_error_response_policy` block supports:
 
 * `error_response_rule` -
@@ -4705,6 +4886,12 @@ The following arguments are supported:
   property must be specified. This policy cannot be specified if any target
   backend has Identity-Aware Proxy enabled.
   Structure is [documented below](#nested_default_route_action_cache_policy).
+
+* `dynamic_compression_policy` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Dynamic compression policy for this URL Map's route. Available only for
+  Global EXTERNAL_MANAGED load balancer schemes.
+  Structure is [documented below](#nested_default_route_action_dynamic_compression_policy).
 
 
 <a name="nested_default_route_action_weighted_backend_services"></a>The `weighted_backend_services` block supports:
@@ -5215,6 +5402,14 @@ The following arguments are supported:
   Attempting to set it on a route that points exclusively to Backend
   Buckets will result in a configuration error. Up to 5 cookie names can
   be specified.
+
+<a name="nested_default_route_action_dynamic_compression_policy"></a>The `dynamic_compression_policy` block supports:
+
+* `compression_mode` -
+  (Optional)
+  Compress text responses using Brotli or gzip compression, based on
+  the client's Accept-Encoding header.
+  Possible values are: `AUTOMATIC`, `DISABLED`.
 
 ## Attributes Reference
 
