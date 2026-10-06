@@ -58,7 +58,7 @@ resource "google_saas_runtime_release" "example_release" {
   release_id = "example-release"
   unit_kind  = google_saas_runtime_unit_kind.cluster_unit_kind.id
   blueprint {
-    package = "us-central1-docker.pkg.dev/ci-test-project-188019/test-repo/tf-test-easysaas-alpha-image@sha256:7992fdbaeaf998ecd31a7f937bb26e38a781ecf49b24857a6176c1e9bfc299ee"
+    package = "us-central1-docker.pkg.dev/ci-test-project-188019/test-repo/tf-test-easysaas-alpha-image@sha256:16f50ddbcbc7926ad9d4f09fa6c37306b88ccc4d6370f627a4733b1ab0823680"
   }
 }
 
@@ -119,9 +119,17 @@ resource "google_service_account_iam_member" "actuation_token_creator" {
   member             = "serviceAccount:service-1111111111111@gcp-sa-saasservicemgmt.iam.gserviceaccount.com"
 }
 
+# Infra Manager engine: actuation SA needs config.agent in the producer project.
+resource "google_project_iam_member" "producer_config_agent" {
+  provider = google-beta
+  project  = "my-project-name"
+  role     = "roles/config.agent"
+  member   = "serviceAccount:${google_service_account.actuation_service_account.email}"
+}
+
 resource "google_saas_runtime_unit_operation" "provision_unit_operation" {
   provider          = google-beta
-  depends_on        = [google_project_iam_member.tenant_config_admin, google_project_iam_member.tenant_storage_admin, google_project_iam_member.tenant_compute_admin, google_service_account_iam_member.actuation_token_creator, google_project_service.saas_services]
+  depends_on        = [google_project_iam_member.tenant_config_admin, google_project_iam_member.tenant_storage_admin, google_project_iam_member.tenant_compute_admin, google_service_account_iam_member.actuation_token_creator, google_project_service.saas_services, google_project_iam_member.producer_config_agent]
   location          = local.location
   unit_operation_id = "provision-unit-operation"
   unit              = google_saas_runtime_unit.example_unit.id
