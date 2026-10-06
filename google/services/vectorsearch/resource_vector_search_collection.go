@@ -273,7 +273,6 @@ contain one or more references to fields in the DataObject, e.g.:
 									},
 								},
 							},
-							ConflictsWith: []string{},
 						},
 						"sparse_vector": {
 							Type:        schema.TypeList,
@@ -283,7 +282,6 @@ contain one or more references to fields in the DataObject, e.g.:
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{},
 							},
-							ConflictsWith: []string{},
 						},
 					},
 				},

@@ -204,11 +204,10 @@ with a COLLOCATED policy, then exactly 'vm_count' instances must be created at t
 attached. Possible values: ["COLLOCATED"]`,
 						},
 						"gpu_topology": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							ForceNew:      true,
-							Description:   `Specifies the shape of the GPU slice, in slice based GPU families eg. A4X.`,
-							ConflictsWith: []string{},
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies the shape of the GPU slice, in slice based GPU families eg. A4X.`,
 						},
 						"vm_count": {
 							Type:     schema.TypeInt,

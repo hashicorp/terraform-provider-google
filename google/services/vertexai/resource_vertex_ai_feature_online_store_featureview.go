@@ -219,8 +219,7 @@ func ResourceVertexAIFeatureOnlineStoreFeatureview() *schema.Resource {
 						},
 					},
 				},
-				ConflictsWith: []string{},
-				ExactlyOneOf:  []string{"big_query_source", "feature_registry_source"},
+				ExactlyOneOf: []string{"big_query_source", "feature_registry_source"},
 			},
 			"labels": {
 				Type:     schema.TypeMap,

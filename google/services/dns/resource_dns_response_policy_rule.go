@@ -202,7 +202,6 @@ resolvers.`,
 						},
 					},
 				},
-				ConflictsWith: []string{},
 			},
 			"project": {
 				Type:     schema.TypeString,

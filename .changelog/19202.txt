@@ -1,0 +1,15 @@
+```release-note:bug
+cloudsecuritycompliance: fixed `ExactlyOneOf` validation between `organization` and `parent` on `google_cloud_security_compliance_cloud_control`
+```
+
+```release-note:bug
+cloudsecuritycompliance: fixed `ExactlyOneOf` validation between `organization` and `parent` on `google_cloud_security_compliance_framework`
+```
+
+```release-note:bug
+cloudsecuritycompliance: fixed `ExactlyOneOf` validation between `organization` and `parent` on `google_cloud_security_compliance_framework_deployment`
+```
+
+```release-note:bug
+filestore: fixed `ExactlyOneOf` validation between `location` and `zone` on `google_filestore_instance`
+```

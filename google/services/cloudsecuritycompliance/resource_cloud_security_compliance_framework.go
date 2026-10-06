@@ -200,7 +200,7 @@ the framework.`,
 				Deprecated:   "Use `parent` instead.",
 				ForceNew:     true,
 				Description:  `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
-				ExactlyOneOf: []string{},
+				ExactlyOneOf: []string{"organization", "parent"},
 			},
 			"parent": {
 				Type:     schema.TypeString,
@@ -211,7 +211,7 @@ the framework.`,
 Must be in one of the following formats:
 * 'projects/{{project}}'
 * 'organizations/{{organization}}'`,
-				ExactlyOneOf: []string{},
+				ExactlyOneOf: []string{"organization", "parent"},
 			},
 			"category": {
 				Type:        schema.TypeList,

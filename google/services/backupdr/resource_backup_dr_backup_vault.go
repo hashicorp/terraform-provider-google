@@ -221,8 +221,7 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 				Description: `If set, the following restrictions against deletion of the backup vault instance can be overridden:
    * deletion of a backup vault instance containing no backups, but still containing empty datasources.
    * deletion of a backup vault instance that is being referenced by an active backup plan.`,
-				Default:       false,
-				ConflictsWith: []string{},
+				Default: false,
 			},
 			"force_update": {
 				Type:     schema.TypeBool,
@@ -250,8 +249,7 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 				Optional: true,
 				Description: `If set, the following restrictions against deletion of the backup vault instance can be overridden:
    * deletion of a backup vault instance containing no backups, but still containing empty datasources.`,
-				Default:       false,
-				ConflictsWith: []string{},
+				Default: false,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
