@@ -213,12 +213,14 @@ If not set, defaults to a global caching layer in front of the origin.`,
 							Description: `Whenever possible, content will be fetched from origin and cached in or
 near the specified origin. Best effort.
 
-You must specify exactly one FlexShieldingRegion. Possible values: ["AFRICA_SOUTH1", "ME_CENTRAL1"]`,
+You must specify exactly one FlexShieldingRegion. Possible values include
+'AFRICA_SOUTH1', 'ME_CENTRAL1', 'EUROPE_WEST3', and 'US_EAST5'. See
+[FlexShieldingRegion](https://cloud.google.com/media-cdn/docs/reference/rest/v1/projects.locations.edgeCacheOrigins#FlexShieldingRegion)
+for the full list of supported regions.`,
 							MinItems: 1,
 							MaxItems: 1,
 							Elem: &schema.Schema{
-								Type:         schema.TypeString,
-								ValidateFunc: verify.ValidateEnum([]string{"AFRICA_SOUTH1", "ME_CENTRAL1"}),
+								Type: schema.TypeString,
 							},
 						},
 					},
