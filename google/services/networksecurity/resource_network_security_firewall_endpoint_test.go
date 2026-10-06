@@ -32,7 +32,6 @@ import (
 )
 
 func TestAccNetworkSecurityFirewallEndpoints_basic(t *testing.T) {
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	billingProjectId := envvar.GetTestProjectFromEnv()
@@ -97,7 +96,6 @@ resource "google_network_security_firewall_endpoint" "foobar" {
 }
 
 func TestAccNetworkSecurityFirewallEndpoints_enableJumboFrames(t *testing.T) {
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	billingProjectId := envvar.GetTestProjectFromEnv()

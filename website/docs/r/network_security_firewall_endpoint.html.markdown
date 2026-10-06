@@ -109,6 +109,11 @@ The following arguments are supported:
   Settings for the endpoint.
   Structure is [documented below](#nested_endpoint_settings).
 
+* `wildfire_settings` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Settings for WildFire analysis on the firewall endpoint.
+  Structure is [documented below](#nested_wildfire_settings).
+
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
 	the command will fail if this field is set to "PREVENT" in Terraform state.
@@ -122,6 +127,75 @@ The following arguments are supported:
 * `jumbo_frames_enabled` -
   (Optional)
   Indicates whether Jumbo Frames are enabled for the firewall endpoint.
+
+* `content_cloud_region` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  The Palo Alto Networks content cloud region of the firewall endpoint,
+  for example `US_CENTRAL` or `CANADA`. See
+  [API docs](https://docs.cloud.google.com/firewall/docs/reference/network-security/rest/v1beta1/organizations.locations.firewallEndpoints#contentcloudregion)
+  for the list of supported regions.
+
+* `http_partial_response_blocked` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Whether to block HTTP partial responses for the firewall endpoint.
+  When `true`, resumption of blocked malicious HTTP file downloads is
+  blocked by the firewall. `false` provides maximum availability, `true`
+  provides maximum security.
+
+<a name="nested_wildfire_settings"></a>The `wildfire_settings` block supports:
+
+* `enabled` -
+  (Optional)
+  Indicates whether WildFire is enabled for the firewall endpoint.
+  Enabling WildFire requires accepting the WildFire end-user license
+  agreement (EULA) for the endpoint's billing project; see
+  [Configure WildFire](https://docs.cloud.google.com/firewall/docs/configure-wildfire).
+
+* `wildfire_region` -
+  (Optional)
+  The WildFire region for the firewall endpoint, for example
+  `UNITED_STATES` or `CANADA`. See
+  [API docs](https://docs.cloud.google.com/firewall/docs/reference/network-security/rest/v1beta1/organizations.locations.firewallEndpoints#wildfireregion)
+  for the list of supported regions.
+
+* `wildfire_realtime_lookup_duration` -
+  (Optional)
+  The duration for which the firewall endpoint waits for a real-time
+  signature lookup response from the WildFire cloud before taking the
+  configured timeout action (1ms to 5000ms, default 1000ms).
+  A duration in seconds with up to nine fractional digits, ending with 's'.
+  Example: "1s".
+
+* `wildfire_realtime_lookup_timeout_action` -
+  (Optional)
+  The action to take when a WildFire real-time signature lookup times out.
+  Possible values are: `ALLOW`, `DENY`.
+
+* `wildfire_inline_cloud_analysis_settings` -
+  (Optional)
+  Settings for WildFire inline cloud analysis.
+  Structure is [documented below](#nested_wildfire_settings_wildfire_inline_cloud_analysis_settings).
+
+
+<a name="nested_wildfire_settings_wildfire_inline_cloud_analysis_settings"></a>The `wildfire_inline_cloud_analysis_settings` block supports:
+
+* `max_analysis_duration` -
+  (Optional)
+  The maximum duration for which the firewall endpoint holds a file
+  while waiting for an inline cloud analysis verdict before taking
+  the configured timeout action (1ms to 240000ms, default 30000ms).
+  A duration in seconds with up to nine fractional digits, ending with 's'.
+  Example: "30s".
+
+* `timeout_action` -
+  (Optional)
+  The action to take when WildFire inline cloud analysis times out.
+  Possible values are: `ALLOW`, `DENY`.
+
+* `submission_timeout_logging_disabled` -
+  (Optional)
+  Indicates whether logging is disabled when a WildFire inline cloud
+  analysis submission times out.
 
 ## Attributes Reference
 
