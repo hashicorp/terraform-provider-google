@@ -3017,8 +3017,10 @@ func TestAccSqlDatabaseInstance_SelfManagedActiveDirectory(t *testing.T) {
 func TestAccSQLDatabaseInstance_DenyMaintenancePeriod(t *testing.T) {
 	t.Parallel()
 	databaseName := "tf-test-" + acctest.RandString(t, 10)
-	endDate := "2022-12-5"
-	startDate := "2022-10-5"
+	endDate := "2022-12-05"
+	startDate := "2022-10-05"
+	recurringEndDate := "01-10"
+	recurringStartDate := "12-20"
 	time := "00:00:00"
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -3027,6 +3029,15 @@ func TestAccSQLDatabaseInstance_DenyMaintenancePeriod(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testGoogleSqlDatabaseInstance_DenyMaintenancePeriodConfig(databaseName, endDate, startDate, time),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_DenyMaintenancePeriodConfig(databaseName, recurringEndDate, recurringStartDate, time),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",

@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed permadiff on `settings.deny_maintenance_period.start_date` and `settings.deny_maintenance_period.end_date` in `google_sql_database_instance` when using zero-padded or recurring `MM-DD` dates
+```

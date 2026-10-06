@@ -381,14 +381,16 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"end_date": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `End date before which maintenance will not take place. The date is in format yyyy-mm-dd i.e., 2020-11-01, or mm-dd, i.e., 11-01`,
+										Type:             schema.TypeString,
+										Required:         true,
+										DiffSuppressFunc: denyMaintenancePeriodDateDiffSuppress,
+										Description:      `End date before which maintenance will not take place. The date is in format yyyy-mm-dd i.e., 2020-11-01, or mm-dd, i.e., 11-01`,
 									},
 									"start_date": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `Start date after which maintenance will not take place. The date is in format yyyy-mm-dd i.e., 2020-11-01, or mm-dd, i.e., 11-01`,
+										Type:             schema.TypeString,
+										Required:         true,
+										DiffSuppressFunc: denyMaintenancePeriodDateDiffSuppress,
+										Description:      `Start date after which maintenance will not take place. The date is in format yyyy-mm-dd i.e., 2020-11-01, or mm-dd, i.e., 11-01`,
 									},
 									"time": {
 										Type:        schema.TypeString,
@@ -3176,6 +3178,42 @@ func serverCertificateRotationModeDiffSuppress(_, oldMode, newMode string, _ *sc
 		return true
 	}
 	return false
+}
+
+func parseDenyMaintenancePeriodDate(date string) (int, int, int, bool) {
+	date = strings.TrimPrefix(date, "0-")
+	parts := strings.Split(date, "-")
+	switch len(parts) {
+	case 2:
+		month, errM := strconv.Atoi(parts[0])
+		day, errD := strconv.Atoi(parts[1])
+		if errM != nil || errD != nil || month < 1 || month > 12 || day < 1 || day > 31 {
+			return 0, 0, 0, false
+		}
+		return 0, month, day, true
+	case 3:
+		year, errY := strconv.Atoi(parts[0])
+		month, errM := strconv.Atoi(parts[1])
+		day, errD := strconv.Atoi(parts[2])
+		if errY != nil || errM != nil || errD != nil || year < 0 || month < 1 || month > 12 || day < 1 || day > 31 {
+			return 0, 0, 0, false
+		}
+		return year, month, day, true
+	default:
+		return 0, 0, 0, false
+	}
+}
+
+func denyMaintenancePeriodDateDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	if old == new {
+		return true
+	}
+	oldYear, oldMonth, oldDay, oldOk := parseDenyMaintenancePeriodDate(old)
+	newYear, newMonth, newDay, newOk := parseDenyMaintenancePeriodDate(new)
+	if !oldOk || !newOk {
+		return false
+	}
+	return oldYear == newYear && oldMonth == newMonth && oldDay == newDay
 }
 
 func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{}) error {
