@@ -519,6 +519,13 @@ Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key m
 							Description: `If true, DNS resolution will be enabled over this interface. Only valid with network_attachment.`,
 						},
 
+						"service_class_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Producer Service's Service class Id for the region of this network interface. Can only be used with network_attachment. It is not possible to use on its own; however, network_attachment can be used without service_class_id.`,
+						},
+
 						"parent_nic_name": {
 							Type:        schema.TypeString,
 							Computed:    true,

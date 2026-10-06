@@ -183,6 +183,8 @@ The following arguments are supported:
 
 * `enable_vpc_scoped_dns` - If true, DNS resolution will be enabled over this interface. Only valid with `network_attachment`.
 
+* `service_class_id` - Producer Service's Service class Id for the region of this network interface. Can only be used with `network_attachment`. It is not possible to use on its own; however, `network_attachment` can be used without `service_class_id`.
+
 <a name="nested_access_config"></a>The `access_config` block supports:
 
 * `nat_ip` - The IP address that is be 1:1 mapped to the instance's
