@@ -650,7 +650,6 @@ should be non-negative and less than or equal to 50. If not set
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ConflictsWith: []string{},
 									},
 									"exclude_objects": {
 										Type:        schema.TypeList,
@@ -746,7 +745,6 @@ https://dev.mysql.com/doc/refman/8.0/en/data-types.html`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ConflictsWith: []string{},
 									},
 									"include_objects": {
 										Type:        schema.TypeList,

@@ -466,7 +466,7 @@ as the target_resource of a deployment.`,
 				Deprecated:   "Use `parent` instead.",
 				ForceNew:     true,
 				Description:  `Resource ID segment making up resource 'name'. It identifies the resource within its parent collection as described in https://google.aip.dev/122.`,
-				ExactlyOneOf: []string{},
+				ExactlyOneOf: []string{"organization", "parent"},
 			},
 			"parent": {
 				Type:     schema.TypeString,
@@ -477,7 +477,7 @@ as the target_resource of a deployment.`,
 Must be in one of the following formats:
 * 'projects/{{project}}'
 * 'organizations/{{organization}}'`,
-				ExactlyOneOf: []string{},
+				ExactlyOneOf: []string{"organization", "parent"},
 			},
 			"cloud_control_deployment_references": {
 				Type:     schema.TypeList,

@@ -446,16 +446,14 @@ and table will be named 'discovery_profiles'. This table will be placed in the s
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"account_id": {
-										Type:          schema.TypeString,
-										Optional:      true,
-										Description:   `The AWS account ID that this discovery config applies to. Within an organization, you can find the AWS account ID inside an AWS account ARN. Example: arn:<partition>:organizations::<management-account-id>:account/<organization-id>/<account-id>`,
-										ConflictsWith: []string{},
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The AWS account ID that this discovery config applies to. Within an organization, you can find the AWS account ID inside an AWS account ARN. Example: arn:<partition>:organizations::<management-account-id>:account/<organization-id>/<account-id>`,
 									},
 									"all_asset_inventory_assets": {
-										Type:          schema.TypeBool,
-										Optional:      true,
-										Description:   `All AWS assets stored in Asset Inventory that didn't match other AWS discovery configs.`,
-										ConflictsWith: []string{},
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `All AWS assets stored in Asset Inventory that didn't match other AWS discovery configs.`,
 									},
 								},
 							},
@@ -1029,7 +1027,6 @@ resource or its ancestors.`,
 																						Description: `The namespaced name for the tag key. Must be in the format
 '{parent_id}/{tag_key_short_name}', for example, "123456/sensitive" for
 an organization parent, or "my-project/sensitive" for a project parent.`,
-																						ConflictsWith: []string{},
 																					},
 																					"namespaced_tag_value": {
 																						Type:     schema.TypeString,
@@ -1038,7 +1035,6 @@ an organization parent, or "my-project/sensitive" for a project parent.`,
 '{parent_id}/{tag_key_short_name}/{short_name}', for example,
 "123456/environment/prod" for an organization parent, or
 "my-project/environment/prod" for a project parent.`,
-																						ConflictsWith: []string{},
 																					},
 																				},
 																			},

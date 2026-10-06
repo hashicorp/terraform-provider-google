@@ -187,7 +187,6 @@ When downloading an image, the digest value is used instead of an image tag.`,
 							Description: `A base64-encoded string containing the configuration for the plugin. The configuration is provided to the plugin at runtime through the ON_CONFIGURE callback.
 When a new WasmPluginVersion resource is created, the digest of the contents is saved in the pluginConfigDigest field.
 Conflics with pluginConfigUri.`,
-							ConflictsWith: []string{},
 						},
 						"plugin_config_uri": {
 							Type:     schema.TypeString,
@@ -196,7 +195,6 @@ Conflics with pluginConfigUri.`,
 The container image must contain only a single file with the name plugin.config.
 When a new WasmPluginVersion resource is created, the digest of the container image is saved in the pluginConfigDigest field.
 Conflics with pluginConfigData.`,
-							ConflictsWith: []string{},
 						},
 						"create_time": {
 							Type:        schema.TypeString,

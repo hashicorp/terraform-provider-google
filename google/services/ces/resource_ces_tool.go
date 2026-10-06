@@ -752,7 +752,6 @@ See: https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metad
 									},
 								},
 							},
-							ConflictsWith: []string{},
 						},
 						"description": {
 							Type:        schema.TypeString,
@@ -874,7 +873,6 @@ https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata`,
 									},
 								},
 							},
-							ConflictsWith: []string{},
 						},
 						"filter_parameter_behavior": {
 							Type:         schema.TypeString,

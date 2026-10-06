@@ -280,7 +280,6 @@ If not specified, "https://www.googleapis.com/auth/cloud-platform" will be used.
 									},
 								},
 							},
-							ConflictsWith: []string{},
 						},
 						"oidc_token": {
 							Type:     schema.TypeList,
@@ -307,7 +306,6 @@ The caller must have iam.serviceAccounts.actAs permission for the service accoun
 									},
 								},
 							},
-							ConflictsWith: []string{},
 						},
 						"uri_override": {
 							Type:     schema.TypeList,

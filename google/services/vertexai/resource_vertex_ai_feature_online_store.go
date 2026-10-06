@@ -272,8 +272,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{},
 				},
-				ConflictsWith: []string{},
-				ExactlyOneOf:  []string{"bigtable", "optimized"},
+				ExactlyOneOf: []string{"bigtable", "optimized"},
 			},
 			"region": {
 				Type:        schema.TypeString,

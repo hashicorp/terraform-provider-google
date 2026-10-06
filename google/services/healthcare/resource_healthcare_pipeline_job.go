@@ -252,7 +252,6 @@ destination store. The destination store must set
 [disableReferentialIntegrity][FhirStore.disable_referential_integrity]
 to true. The destination store must use FHIR version R4.
 Format: project/{projectID}/locations/{locationID}/datasets/{datasetName}/fhirStores/{fhirStoreID}.`,
-							ConflictsWith: []string{},
 						},
 						"fhir_streaming_source": {
 							Type:        schema.TypeList,
@@ -281,7 +280,6 @@ Format: project/{projectID}/locations/{locationID}/datasets/{datasetName}/fhirSt
 to the reconciliation pipeline in its dataset. A reconciliation
 pipeline must exist in this dataset before a mapping pipeline
 with a reconciliation destination can be created.`,
-							ConflictsWith: []string{},
 						},
 					},
 				},
