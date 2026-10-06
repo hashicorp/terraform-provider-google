@@ -787,6 +787,50 @@ resource "google_compute_backend_service" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_dynamic_forwarding_forward_proxy_cloud_run&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Dynamic Forwarding Forward Proxy Cloud Run
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  provider              = google-beta
+  name                  = "backend-service"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  protocol              = "HTTP2"
+  dynamic_forwarding {
+    forward_proxy {
+      enabled    = true
+      proxy_mode = "CLOUD_RUN"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=backend_service_dynamic_forwarding_forward_proxy_direct_forwarding&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Backend Service Dynamic Forwarding Forward Proxy Direct Forwarding
+
+
+```hcl
+resource "google_compute_backend_service" "default" {
+  provider              = google-beta
+  name                  = "backend-service"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  protocol              = "HTTP2"
+  dynamic_forwarding {
+    forward_proxy {
+      enabled    = true
+      proxy_mode = "DIRECT_FORWARDING"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -1922,12 +1966,28 @@ The following arguments are supported:
   IP:PORT based dynamic forwarding configuration.
   Structure is [documented below](#nested_dynamic_forwarding_ip_port_selection).
 
+* `forward_proxy` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Dynamic Forwarding Proxy configuration.
+  Structure is [documented below](#nested_dynamic_forwarding_forward_proxy).
+
 
 <a name="nested_dynamic_forwarding_ip_port_selection"></a>The `ip_port_selection` block supports:
 
 * `enabled` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   A boolean flag enabling IP:PORT based dynamic forwarding.
+
+<a name="nested_dynamic_forwarding_forward_proxy"></a>The `forward_proxy` block supports:
+
+* `enabled` -
+  (Required, [Beta](../guides/provider_versions.html.markdown))
+  A boolean flag enabling dynamic forwarding proxy.
+
+* `proxy_mode` -
+  (Required, [Beta](../guides/provider_versions.html.markdown))
+  Determines the dynamic forwarding proxy mode
+  Possible values are: `DIRECT_FORWARDING`, `CLOUD_RUN`.
 
 <a name="nested_params"></a>The `params` block supports:
 
