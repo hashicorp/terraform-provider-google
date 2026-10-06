@@ -133,7 +133,9 @@ resource "google_network_services_agent_connectivity_template" "default" {
     tier = "gold"
   }
 
-  access_path = "CLIENT_TO_AGENT"
+  agent_compute    = "GKE"
+  deployment_model = "CENTRALIZED"
+  access_path      = "CLIENT_TO_AGENT"
 }
 `, context)
 }
@@ -151,7 +153,9 @@ resource "google_network_services_agent_connectivity_template" "default" {
     tier = "platinum"
     new_label = "added"
   }
-  access_path = "CLIENT_TO_AGENT"
+  agent_compute    = "CLOUD_RUN"
+  deployment_model = "AMBIENT"
+  access_path      = "CLIENT_TO_AGENT"
 }
 `, context)
 }
@@ -282,8 +286,10 @@ resource "google_network_services_agent_connectivity_template" "default" {
   location                       = "us-west2"
   description                    = "An advanced configuration for Agent Connectivity Template"
 
-  access_types = ["PRIVATE"]
-  access_path = "AGENT_TO_ANYWHERE"
+  agent_compute    = "GKE"
+  deployment_model = "CENTRALIZED"
+  access_types     = ["PRIVATE"]
+  access_path      = "AGENT_TO_ANYWHERE"
 
   egress_network_config {
     vpc_egress = "ALL_TRAFFIC"
@@ -356,8 +362,10 @@ resource "google_network_services_agent_connectivity_template" "default" {
   location                       = "us-west2"
   description                    = "An updated advanced configuration for Agent Connectivity Template"
 
-  access_types = ["PUBLIC"]
-  access_path = "AGENT_TO_ANYWHERE"
+  agent_compute    = "CLOUD_RUN"
+  deployment_model = "AMBIENT"
+  access_types     = ["PUBLIC"]
+  access_path      = "AGENT_TO_ANYWHERE"
 
   labels = {
     env = "prod"

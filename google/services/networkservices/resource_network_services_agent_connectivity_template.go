@@ -172,6 +172,19 @@ Both PUBLIC and PRIVATE can be configured. Possible values: ["PUBLIC", "PRIVATE"
 					ValidateFunc: verify.ValidateEnum([]string{"PUBLIC", "PRIVATE"}),
 				},
 			},
+			"agent_compute": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The compute environment where the agent is hosted.
+Exactly one type of compute must be chosen.
+Possible values are: 'GKE', 'CLOUD_RUN'.`,
+			},
+			"deployment_model": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The deployment model for the gateway.
+Possible values are: 'CENTRALIZED', 'AMBIENT'.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -351,6 +364,18 @@ func resourceNetworkServicesAgentConnectivityTemplateCreate(d *schema.ResourceDa
 		return err
 	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
+	}
+	agentComputeProp, err := expandNetworkServicesAgentConnectivityTemplateAgentCompute(d.Get("agent_compute"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("agent_compute"); !tpgresource.IsEmptyValue(reflect.ValueOf(agentComputeProp)) && (ok || !reflect.DeepEqual(v, agentComputeProp)) {
+		obj["agentCompute"] = agentComputeProp
+	}
+	deploymentModelProp, err := expandNetworkServicesAgentConnectivityTemplateDeploymentModel(d.Get("deployment_model"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deployment_model"); !tpgresource.IsEmptyValue(reflect.ValueOf(deploymentModelProp)) && (ok || !reflect.DeepEqual(v, deploymentModelProp)) {
+		obj["deploymentModel"] = deploymentModelProp
 	}
 	accessTypesProp, err := expandNetworkServicesAgentConnectivityTemplateAccessTypes(d.Get("access_types"), d, config)
 	if err != nil {
@@ -606,6 +631,18 @@ func resourceNetworkServicesAgentConnectivityTemplateUpdate(d *schema.ResourceDa
 	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
 	}
+	agentComputeProp, err := expandNetworkServicesAgentConnectivityTemplateAgentCompute(d.Get("agent_compute"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("agent_compute"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, agentComputeProp)) {
+		obj["agentCompute"] = agentComputeProp
+	}
+	deploymentModelProp, err := expandNetworkServicesAgentConnectivityTemplateDeploymentModel(d.Get("deployment_model"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deployment_model"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deploymentModelProp)) {
+		obj["deploymentModel"] = deploymentModelProp
+	}
 	accessTypesProp, err := expandNetworkServicesAgentConnectivityTemplateAccessTypes(d.Get("access_types"), d, config)
 	if err != nil {
 		return err
@@ -640,6 +677,14 @@ func resourceNetworkServicesAgentConnectivityTemplateUpdate(d *schema.ResourceDa
 
 	if d.HasChange("etag") {
 		updateMask = append(updateMask, "etag")
+	}
+
+	if d.HasChange("agent_compute") {
+		updateMask = append(updateMask, "agentCompute")
+	}
+
+	if d.HasChange("deployment_model") {
+		updateMask = append(updateMask, "deploymentModel")
 	}
 
 	if d.HasChange("access_types") {
@@ -815,6 +860,14 @@ func flattenNetworkServicesAgentConnectivityTemplateEtag(v interface{}, d *schem
 	return v
 }
 
+func flattenNetworkServicesAgentConnectivityTemplateAgentCompute(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesAgentConnectivityTemplateDeploymentModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkServicesAgentConnectivityTemplateAccessTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -926,6 +979,14 @@ func expandNetworkServicesAgentConnectivityTemplateDescription(v interface{}, d 
 }
 
 func expandNetworkServicesAgentConnectivityTemplateEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesAgentConnectivityTemplateAgentCompute(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesAgentConnectivityTemplateDeploymentModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1103,6 +1164,12 @@ func ResourceNetworkServicesAgentConnectivityTemplateFlatten(d *schema.ResourceD
 		return fmt.Errorf("Error reading AgentConnectivityTemplate: %s", err)
 	}
 	if err = d.Set("etag", flattenNetworkServicesAgentConnectivityTemplateEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AgentConnectivityTemplate: %s", err)
+	}
+	if err = d.Set("agent_compute", flattenNetworkServicesAgentConnectivityTemplateAgentCompute(res["agentCompute"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AgentConnectivityTemplate: %s", err)
+	}
+	if err = d.Set("deployment_model", flattenNetworkServicesAgentConnectivityTemplateDeploymentModel(res["deploymentModel"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AgentConnectivityTemplate: %s", err)
 	}
 	if err = d.Set("access_types", flattenNetworkServicesAgentConnectivityTemplateAccessTypes(res["accessTypes"], d, config)); err != nil {
