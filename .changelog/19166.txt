@@ -1,0 +1,8 @@
+```release-note:enhancement
+networksecurity: added `wildfire_settings` field to `google_network_security_firewall_endpoint` resource (beta)
+```
+
+
+```release-note:enhancement
+networksecurity: added `endpoint_settings.content_cloud_region` and `endpoint_settings.http_partial_response_blocked` field to `google_network_security_firewall_endpoint` resource (beta)
+```

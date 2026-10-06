@@ -171,6 +171,7 @@ endpoint's project if specified.`,
 			},
 			"endpoint_settings": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Settings for the endpoint.`,
 				MaxItems:    1,
@@ -517,7 +518,8 @@ func resourceNetworkSecurityFirewallEndpointUpdate(d *schema.ResourceData, meta 
 	}
 
 	if d.HasChange("endpoint_settings") {
-		updateMask = append(updateMask, "endpointSettings")
+		updateMask = append(updateMask, "endpointSettings.contentCloudRegion",
+			"endpointSettings.httpPartialResponseBlocked")
 	}
 
 	if d.HasChange("effective_labels") {
