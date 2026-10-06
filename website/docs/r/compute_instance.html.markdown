@@ -506,6 +506,8 @@ is desired, you will need to modify your state file manually using
 
 * `enable_vpc_scoped_dns` - (Optional) If true, DNS resolution will be enabled over this interface. Only valid with `network_attachment`.
 
+* `service_class_id` - (Optional) Producer Service's Service class Id for the region of this network interface. Can only be used with `network_attachment`. It is not possible to use on its own; however, `network_attachment` can be used without `service_class_id`.
+
 * `vlan` - (Optional) VLAN tag of a dynamic network interface, must be an integer in the range from 2 to 255 inclusively.
 
 * `igmp_query` - (Optional) Indicates whether igmp query is enabled on the network interface or not. If enabled, also indicates the version of IGMP supported.

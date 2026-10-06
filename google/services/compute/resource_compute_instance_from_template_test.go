@@ -572,6 +572,37 @@ func TestAccComputeInstanceFromTemplate_networkAttachment(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceFromTemplate_networkAttachmentServiceClass(t *testing.T) {
+	t.Parallel()
+	serviceClassId := testAccServiceClassId(t)
+
+	var instance map[string]interface{}
+	suffix := acctest.RandString(t, 10)
+	resourceName := "google_compute_instance_from_template.foobar"
+
+	context := map[string]interface{}{
+		"suffix":                  suffix,
+		"network_attachment_name": fmt.Sprintf("tf-test-network-attachment-%s", suffix),
+		"region":                  "us-central1",
+		"service_class_id":        serviceClassId,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_networkAttachmentServiceClass(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "network_interface.1.service_class_id", serviceClassId),
+				),
+			},
+		},
+	})
+}
+
 func testAccComputeInstanceFromTemplate_basic(instance, template string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -2317,6 +2348,72 @@ resource "google_compute_instance_from_template" "foobar" {
   network_interface {
     network_attachment    = google_compute_network_attachment.test_network_attachment.self_link
     enable_vpc_scoped_dns = true
+  }
+}
+`, context)
+}
+
+func testAccComputeInstanceFromTemplate_networkAttachmentServiceClass(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "test-network" {
+  name                    = "tf-test-network-%{suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test-subnetwork" {
+  name          = "tf-test-compute-subnet-%{suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "%{region}"
+  network       = google_compute_network.test-network.id
+}
+
+resource "google_compute_network_attachment" "test_network_attachment" {
+  name                  = "%{network_attachment_name}"
+  region                = "%{region}"
+  description           = "network attachment description"
+  connection_preference = "ACCEPT_MANUAL"
+
+  producer_accept_lists = [
+    "serviceclasses/%{service_class_id}",
+  ]
+
+  subnetworks = [
+    google_compute_subnetwork.test-subnetwork.self_link
+  ]
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "tf-test-template-%{suffix}"
+  machine_type = "e2-medium"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_instance_from_template" "foobar" {
+  name                     = "tf-test-instance-%{suffix}"
+  zone                     = "%{region}-a"
+  source_instance_template = google_compute_instance_template.foobar.self_link
+
+  network_interface {
+    network = "default"
+  }
+
+  network_interface {
+    network_attachment = google_compute_network_attachment.test_network_attachment.self_link
+    service_class_id   = "%{service_class_id}"
   }
 }
 `, context)

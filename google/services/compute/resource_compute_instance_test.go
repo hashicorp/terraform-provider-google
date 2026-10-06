@@ -4678,6 +4678,68 @@ func TestAccComputeInstance_NetworkAttachment(t *testing.T) {
 	})
 }
 
+// testAccServiceClassId returns the PSC Interface service class the current test
+// project is authorized to use as a producer. Setting service_class_id on a
+// network interface requires networkconnectivity.serviceClasses.use on the
+// service class, which is owned by the producer project. Creating a service class
+// is an internal API, so each CI project was given its own class in b/521416084;
+// they only exist in us-central1. Tests that need one are skipped in any other
+// project because they cannot pass there.
+func testAccServiceClassId(t *testing.T) string {
+	switch envvar.GetTestProjectFromEnv() {
+	case "ci-test-project-188019":
+		return "gcp-tf-persistent-service-class-dev"
+	case "ci-test-project-nightly-ga":
+		return "gcp-tf-persistent-service-class-ga"
+	case "ci-test-project-nightly-beta":
+		return "gcp-tf-persistent-service-class-beta"
+	default:
+		t.Skip("b/521416084")
+		return ""
+	}
+}
+
+func TestAccComputeInstance_NetworkAttachmentServiceClass(t *testing.T) {
+	t.Parallel()
+	suffix := acctest.RandString(t, 10)
+	project := envvar.GetTestProjectFromEnv()
+	region := "us-central1"
+	serviceClassId := testAccServiceClassId(t)
+	var instance map[string]interface{}
+
+	providerVersion := "v1"
+
+	testNetworkAttachmentName := fmt.Sprintf("tf-test-network-attachment-%s", suffix)
+
+	// Need to have the full network attachment name in the format project/{project_id}/regions/{region_id}/networkAttachments/{testNetworkAttachmentName}
+	fullFormNetworkAttachmentName := fmt.Sprintf("projects/%s/regions/%s/networkAttachments/%s", project, region, testNetworkAttachmentName)
+
+	context := map[string]interface{}{
+		"suffix":                  suffix,
+		"network_attachment_name": testNetworkAttachmentName,
+		"region":                  region,
+		"service_class_id":        serviceClassId,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_networkAttachmentServiceClass(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNetworkAttachment(&instance, fmt.Sprintf("https://www.googleapis.com/compute/%s/%s", providerVersion, fullFormNetworkAttachmentName)),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "network_interface.1.service_class_id", serviceClassId),
+				),
+			},
+			computeInstanceImportStep(fmt.Sprintf("%s-a", region), fmt.Sprintf("tf-test-instance-%s", suffix), []string{}),
+		},
+	})
+}
+
 func TestAccComputeInstance_NetworkAttachmentUpdate(t *testing.T) {
 	t.Parallel()
 	suffix := acctest.RandString(t, 10)
@@ -11316,6 +11378,63 @@ resource "google_compute_instance" "foobar" {
 	metadata = {
 		foo = "bar"
 	}
+}
+`, context)
+}
+
+func testAccComputeInstance_networkAttachmentServiceClass(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "test-network" {
+  name                    = "tf-test-network-%{suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test-subnetwork" {
+  name          = "tf-test-compute-subnet-%{suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "%{region}"
+  network       = google_compute_network.test-network.id
+}
+
+resource "google_compute_network_attachment" "test_network_attachment" {
+  name                  = "%{network_attachment_name}"
+  region                = "%{region}"
+  description           = "network attachment description"
+  connection_preference = "ACCEPT_MANUAL"
+
+  producer_accept_lists = [
+    "serviceclasses/%{service_class_id}",
+  ]
+
+  subnetworks = [
+    google_compute_subnetwork.test-subnetwork.self_link
+  ]
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "tf-test-instance-%{suffix}"
+  machine_type = "e2-medium"
+  zone         = "%{region}-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.id
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  network_interface {
+    network_attachment = google_compute_network_attachment.test_network_attachment.self_link
+    service_class_id   = "%{service_class_id}"
+  }
 }
 `, context)
 }

@@ -594,6 +594,10 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *transport_tpg.Conf
 		if !ok && iface["enableVpcScopedDns"] != nil {
 			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for enableVpcScopedDns at index %d: %T", i, iface["enableVpcScopedDns"])
 		}
+		serviceClassId, ok := iface["serviceClassId"].(string)
+		if !ok && iface["serviceClassId"] != nil {
+			log.Printf("[WARN] flattenNetworkInterfaces: unexpected type for serviceClassId at index %d: %T", i, iface["serviceClassId"])
+		}
 
 		subnet, err := tpgresource.ParseSubnetworkFieldValue(subnetwork, d, config)
 		if err != nil {
@@ -619,6 +623,7 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *transport_tpg.Conf
 			"internal_ipv6_prefix_length": flattenNetworkInterfaceInt64(iface["internalIpv6PrefixLength"]),
 			"igmp_query":                  igmpQuery,
 			"enable_vpc_scoped_dns":       enableVpcScopedDns,
+			"service_class_id":            serviceClassId,
 		}
 		// Instance template interfaces never have names, so they're absent
 		// in the instance template network_interface schema. We want to use the
@@ -772,6 +777,9 @@ func expandNetworkInterfaces(d tpgresource.TerraformResourceData, config *transp
 		}
 		if v, ok := data["enable_vpc_scoped_dns"].(bool); ok && v {
 			iface["enableVpcScopedDns"] = v
+		}
+		if v, ok := data["service_class_id"].(string); ok && v != "" {
+			iface["serviceClassId"] = v
 		}
 		if v := int64(data["vlan"].(int)); v != 0 {
 			iface["vlan"] = v

@@ -1774,6 +1774,76 @@ resource "google_compute_region_instance_template" "foobar" {
 `, context)
 }
 
+func TestAccComputeRegionInstanceTemplate_networkAttachmentServiceClass(t *testing.T) {
+	t.Parallel()
+	serviceClassId := testAccServiceClassId(t)
+
+	network := tpgcompute.BootstrapSharedTestNetwork(t, "attachment-network")
+	subnet := tpgcompute.BootstrapSubnet(t, "tf-test-subnet", network)
+	region := envvar.GetTestRegionFromEnv()
+
+	networkAttachmentShortname := tpgcompute.BootstrapNetworkAttachment(t, "tf-test-attachment", subnet)
+	networkAttachment := fmt.Sprintf("projects/%s/regions/%s/networkAttachments/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), networkAttachmentShortname)
+
+	context := map[string]interface{}{
+		"instance_name":      fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"subnet":             subnet,
+		"network_attachment": networkAttachment,
+		"region":             region,
+		"service_class_id":   serviceClassId,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_networkAttachmentServiceClass(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_region_instance_template.foobar", "network_interface.1.service_class_id", serviceClassId),
+				),
+			},
+			{
+				ResourceName:      "google_compute_region_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionInstanceTemplate_networkAttachmentServiceClass(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name         = "%{instance_name}"
+  region       = "%{region}"
+  machine_type = "e2-medium"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  network_interface {
+    network_attachment = "%{network_attachment}"
+    service_class_id   = "%{service_class_id}"
+  }
+}
+`, context)
+}
+
 func TestAccComputeRegionInstanceTemplate_dynamicNic(t *testing.T) {
 	t.Parallel()
 

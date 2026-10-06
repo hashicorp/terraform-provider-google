@@ -1751,6 +1751,44 @@ func TestAccComputeInstanceTemplate_NetworkAttachment(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_NetworkAttachmentServiceClass(t *testing.T) {
+	t.Parallel()
+	serviceClassId := testAccServiceClassId(t)
+
+	testNetworkName := tpgcompute.BootstrapSharedTestNetwork(t, "attachment-network")
+	subnetName := tpgcompute.BootstrapSubnet(t, "tf-test-subnet", testNetworkName)
+	networkAttachmentName := tpgcompute.BootstrapNetworkAttachment(t, "tf-test-attachment", subnetName)
+
+	// Need to have the full network attachment name in the format project/{project_id}/regions/{region_id}/networkAttachments/{networkAttachmentName}
+	fullFormNetworkAttachmentName := fmt.Sprintf("projects/%s/regions/%s/networkAttachments/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), networkAttachmentName)
+
+	context := map[string]interface{}{
+		"subnet":             subnetName,
+		"suffix":             (acctest.RandString(t, 10)),
+		"network_attachment": fullFormNetworkAttachmentName,
+		"service_class_id":   serviceClassId,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_networkAttachmentServiceClass(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "network_interface.1.service_class_id", serviceClassId),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_migration(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
@@ -5466,6 +5504,36 @@ resource "google_compute_instance_template" "foobar" {
 
   metadata = {
     foo = "bar"
+  }
+}
+`, context)
+}
+
+func testAccComputeInstanceTemplate_networkAttachmentServiceClass(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "tf-test-instance-template-%{suffix}"
+  machine_type = "e2-medium"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    disk_size_gb = 10
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  network_interface {
+    network_attachment = "%{network_attachment}"
+    service_class_id   = "%{service_class_id}"
   }
 }
 `, context)
