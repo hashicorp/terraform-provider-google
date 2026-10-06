@@ -43,7 +43,9 @@ resource "google_network_services_agent_connectivity_template" "default" {
     tier = "gold"
   }
 
-  access_path = "CLIENT_TO_AGENT"
+  agent_compute    = "GKE"
+  deployment_model = "CENTRALIZED"
+  access_path      = "CLIENT_TO_AGENT"
 }
 ```
 ## Example Usage - Network Services Agent Connectivity Template Advanced
@@ -103,8 +105,10 @@ resource "google_network_services_agent_connectivity_template" "default" {
   location                       = "us-west2"
   description                    = "An advanced configuration for Agent Connectivity Template"
 
-  access_types = ["PRIVATE"]
-  access_path = "AGENT_TO_ANYWHERE"
+  agent_compute    = "GKE"
+  deployment_model = "CENTRALIZED"
+  access_types     = ["PRIVATE"]
+  access_path      = "AGENT_TO_ANYWHERE"
 
   egress_network_config {
     vpc_egress = "ALL_TRAFFIC"
@@ -151,6 +155,17 @@ The following arguments are supported:
 * `description` -
   (Optional)
   A free-text description of the resource. Max length 1024 characters.
+
+* `agent_compute` -
+  (Optional)
+  The compute environment where the agent is hosted.
+  Exactly one type of compute must be chosen.
+  Possible values are: `GKE`, `CLOUD_RUN`.
+
+* `deployment_model` -
+  (Optional)
+  The deployment model for the gateway.
+  Possible values are: `CENTRALIZED`, `AMBIENT`.
 
 * `access_types` -
   (Optional)
