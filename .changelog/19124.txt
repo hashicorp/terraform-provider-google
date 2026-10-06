@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added ` forward_proxy` to `google_compute_backend_service` (beta)
+```
