@@ -239,3 +239,71 @@ func TestDatabaseVersionDiffSuppress(t *testing.T) {
 		})
 	}
 }
+
+func TestDenyMaintenancePeriodDateDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New       string
+		ShouldSuppress bool
+	}{
+		"recurring two-digit month and day with leading zero year should suppress diff": {
+			Old:            "0-12-20",
+			New:            "12-20",
+			ShouldSuppress: true,
+		},
+		"recurring single-digit month with zero-padding and leading zero year should suppress diff": {
+			Old:            "0-1-10",
+			New:            "01-10",
+			ShouldSuppress: true,
+		},
+		"recurring single-digit month and day with zero-padding and leading zero year should suppress diff": {
+			Old:            "0-1-5",
+			New:            "01-05",
+			ShouldSuppress: true,
+		},
+		"full date with zero-padded month and day should suppress diff against unpadded API value": {
+			Old:            "2026-1-5",
+			New:            "2026-01-05",
+			ShouldSuppress: true,
+		},
+		"identical full dates should suppress diff": {
+			Old:            "2026-11-01",
+			New:            "2026-11-01",
+			ShouldSuppress: true,
+		},
+		"different recurring dates should not suppress diff": {
+			Old:            "0-12-20",
+			New:            "12-25",
+			ShouldSuppress: false,
+		},
+		"recurring date vs full date with same month and day should not suppress diff": {
+			Old:            "0-12-20",
+			New:            "2026-12-20",
+			ShouldSuppress: false,
+		},
+		"different full dates should not suppress diff": {
+			Old:            "2026-1-5",
+			New:            "2026-01-06",
+			ShouldSuppress: false,
+		},
+		"empty old value on creation should not suppress diff": {
+			Old:            "",
+			New:            "12-20",
+			ShouldSuppress: false,
+		},
+		"invalid date format should not suppress diff": {
+			Old:            "0-1-10",
+			New:            "invalid",
+			ShouldSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		tc := tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+			if denyMaintenancePeriodDateDiffSuppress("settings.0.deny_maintenance_period.0.start_date", tc.Old, tc.New, nil) != tc.ShouldSuppress {
+				t.Fatalf("%q => %q expect DiffSuppress to return %t", tc.Old, tc.New, tc.ShouldSuppress)
+			}
+		})
+	}
+}
