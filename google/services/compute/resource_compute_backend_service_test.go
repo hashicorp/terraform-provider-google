@@ -949,7 +949,7 @@ func TestAccComputeBackendService_withCompressionMode(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeBackendService_withCompressionMode(backendName, checkName, "DISABLED"),
+				Config: testAccComputeBackendService_withCompressionMode(backendName, checkName, true, "DISABLED"),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -957,7 +957,15 @@ func TestAccComputeBackendService_withCompressionMode(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeBackendService_withCompressionMode(backendName, checkName, "AUTOMATIC"),
+				Config: testAccComputeBackendService_withCompressionMode(backendName, checkName, true, "AUTOMATIC"),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withCompressionMode(backendName, checkName, false, "AUTOMATIC"),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -2352,12 +2360,12 @@ resource "google_compute_health_check" "zero" {
 `, serviceName, reqHeader, respHeader, checkName)
 }
 
-func testAccComputeBackendService_withCompressionMode(serviceName, checkName, compressionMode string) string {
+func testAccComputeBackendService_withCompressionMode(serviceName, checkName string, enableCdn bool, compressionMode string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_service" "foobar" {
   name             = "%s"
   health_checks    = [google_compute_http_health_check.zero.self_link]
-  enable_cdn       = true
+  enable_cdn       = %t
   compression_mode = "%s"
 }
 
@@ -2367,7 +2375,7 @@ resource "google_compute_http_health_check" "zero" {
   check_interval_sec = 1
   timeout_sec        = 1
 }
-`, serviceName, compressionMode, checkName)
+`, serviceName, enableCdn, compressionMode, checkName)
 }
 
 func testAccComputeBackendService_withPrivateOriginAuth(randomSuffix string) string {
