@@ -2640,7 +2640,6 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			}
 		}
 	}
-
 	var op *sqladmin.Operation
 	var instance *sqladmin.DatabaseInstance
 
@@ -2766,7 +2765,6 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 
 		transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
-		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
 		var op *sqladmin.Operation
 		updateFunc := func() error {
 			op, err = NewClient(config, userAgent).Users.Update(project, instance, user).Host(host).Name(name).Do()
@@ -2778,6 +2776,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		})
 
 		if err != nil {
+			transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
 			if err := d.Set("root_password", oldPwd.(string)); err != nil {
 				return fmt.Errorf("Error re-setting root_password: %s", err)
 			}
@@ -2785,6 +2784,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 
 		err = SqlAdminOperationWaitTime(config, op, project, "Insert User", userAgent, d.Timeout(schema.TimeoutUpdate))
+		transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
 
 		if err != nil {
 			if err := d.Set("root_password", oldPwd.(string)); err != nil {
