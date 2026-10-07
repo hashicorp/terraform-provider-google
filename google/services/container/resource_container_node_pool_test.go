@@ -1732,7 +1732,7 @@ func TestAccContainerNodePool_withMaintenancePolicy(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withMaintenancePolicy(cluster, nodePool, networkName, subnetworkName),
+				Config: testAccContainerNodePool_withMaintenancePolicy(cluster, nodePool, networkName, subnetworkName, true),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.np_with_maintenance_policy", "maintenance_policy.0.exclusion_until_end_of_support.0.enabled", "true"),
 				),
@@ -1741,6 +1741,19 @@ func TestAccContainerNodePool_withMaintenancePolicy(t *testing.T) {
 				ResourceName:      "google_container_node_pool.np_with_maintenance_policy",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withMaintenancePolicy(cluster, nodePool, networkName, subnetworkName, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np_with_maintenance_policy", "maintenance_policy.0.exclusion_until_end_of_support.0.enabled", "false"),
+				),
+			},
+			// Step 3: Update to re-enable maintenance exclusion
+			{
+				Config: testAccContainerNodePool_withMaintenancePolicy(cluster, nodePool, networkName, subnetworkName, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np_with_maintenance_policy", "maintenance_policy.0.exclusion_until_end_of_support.0.enabled", "true"),
+				),
 			},
 		},
 	})
@@ -5002,7 +5015,7 @@ resource "google_container_node_pool" "np_with_node_drain_config" {
 `, cluster, networkName, subnetworkName, np, privateName, privateVal)
 }
 
-func testAccContainerNodePool_withMaintenancePolicy(cluster, np, networkName, subnetworkName string) string {
+func testAccContainerNodePool_withMaintenancePolicy(cluster, np, networkName, subnetworkName string, enabled bool) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-east1-b"
@@ -5025,11 +5038,11 @@ resource "google_container_node_pool" "np_with_maintenance_policy" {
   initial_node_count = 1
   maintenance_policy {
      exclusion_until_end_of_support {
-		enabled = true
+		enabled = %t
 	}
   }
 }
-`, cluster, networkName, subnetworkName, np)
+`, cluster, networkName, subnetworkName, np, enabled)
 }
 
 func testAccContainerNodePool_withAccurateTimeConfig(cluster, np, networkName, subnetworkName string, enablePTP bool) string {

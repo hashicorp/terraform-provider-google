@@ -2139,6 +2139,54 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 		log.Printf("[INFO] Updated node_drain_config in Node Pool %s", name)
 	}
 
+	if d.HasChange(prefix + "maintenance_policy") {
+		req := &container.UpdateNodePoolRequest{
+			NodePoolId: name,
+		}
+		if v, ok := d.GetOk(prefix + "maintenance_policy"); ok && len(v.([]interface{})) > 0 {
+			req.MaintenancePolicy = &container.NodePoolMaintenancePolicy{
+				ExclusionUntilEndOfSupport: &container.ExclusionUntilEndOfSupport{},
+			}
+			maintenancePolicy := v.([]interface{})[0].(map[string]interface{})
+			if v, ok := maintenancePolicy["exclusion_until_end_of_support"]; ok && len(v.([]interface{})) > 0 {
+				exclusionUntilEndOfSupport := v.([]interface{})[0].(map[string]interface{})
+				if v, ok := exclusionUntilEndOfSupport["enabled"]; ok {
+					req.MaintenancePolicy.ExclusionUntilEndOfSupport.Enabled = v.(bool)
+					req.MaintenancePolicy.ExclusionUntilEndOfSupport.ForceSendFields = []string{"Enabled"}
+				}
+			}
+		} else {
+			// If removed or cleared from config, explicitly disable the exclusion
+			req.MaintenancePolicy = &container.NodePoolMaintenancePolicy{
+				ExclusionUntilEndOfSupport: &container.ExclusionUntilEndOfSupport{
+					Enabled:         false,
+					ForceSendFields: []string{"Enabled"},
+				},
+			}
+		}
+
+		updateF := func() error {
+			clusterNodePoolsUpdateCall := NewClient(config, userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+			if config.UserProjectOverride {
+				clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+			}
+			op, err := clusterNodePoolsUpdateCall.Do()
+			if err != nil {
+				return err
+			}
+
+			return ContainerOperationWait(config, op,
+				nodePoolInfo.project,
+				nodePoolInfo.location,
+				"updating GKE node pool maintenance policy", userAgent, timeout)
+		}
+
+		if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+			return err
+		}
+		log.Printf("[INFO] Updated maintenance policy in Node Pool %s", name)
+	}
+
 	return nil
 }
 
