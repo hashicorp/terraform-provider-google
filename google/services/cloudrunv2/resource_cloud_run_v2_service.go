@@ -1061,10 +1061,11 @@ subnetwork with the same name with the network will be used.`,
 							},
 						},
 						"workload_identity_config": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: `Workload identity settings for this Revision.`,
-							MaxItems:    1,
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The Revision's workload identity settings. Used to assign an
+[Agent Platform](https://cloud.google.com/run/docs/ai/agent-platform-features) identity to the workload.`,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"identity": {
@@ -1073,15 +1074,18 @@ subnetwork with the same name with the network will be used.`,
 										Description: `The Revision's SPIFFE workload identity. Enables provisioning of SPIFFE workload certificates.`,
 									},
 									"identity_certificate_enabled": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: `Controls whether an instance receives a MWLID certificate.`,
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Controls whether an instance receives a managed workload identity (MWLID) certificate.
+Defaults to true when 'identity_type' is 'IDENTITY_TYPE_AGENT_IDENTITY'.`,
 									},
 									"identity_type": {
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"IDENTITY_TYPE_SERVICE_ACCOUNT", "IDENTITY_TYPE_WORKLOAD_IDENTITY", "IDENTITY_TYPE_AGENT_IDENTITY", ""}),
-										Description:  `The type of identity to use. Possible values: ["IDENTITY_TYPE_SERVICE_ACCOUNT", "IDENTITY_TYPE_WORKLOAD_IDENTITY", "IDENTITY_TYPE_AGENT_IDENTITY"]`,
+										Description: `The type of identity to use. 'IDENTITY_TYPE_AGENT_IDENTITY' assigns a system-managed agent identity and
+is required when the Service's 'functional_type' is 'FUNCTIONAL_TYPE_AGENT'. Once set, this field
+cannot be changed or unset. Possible values: ["IDENTITY_TYPE_SERVICE_ACCOUNT", "IDENTITY_TYPE_WORKLOAD_IDENTITY", "IDENTITY_TYPE_AGENT_IDENTITY"]`,
 									},
 								},
 							},
