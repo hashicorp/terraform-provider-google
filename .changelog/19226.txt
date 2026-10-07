@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a bug where updating `maintenance_policy` on `google_container_node_pool` was not applied
+```
