@@ -508,6 +508,36 @@ resource "google_cloud_run_v2_job" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_job_agent_identity&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Job Agent Identity
+
+
+```hcl
+resource "google_cloud_run_v2_job" "default" {
+  provider = google-beta
+  name     = "cloudrun-job"
+  location = "us-central1"
+  deletion_protection = false
+
+  functional_type = "FUNCTIONAL_TYPE_AGENT"
+
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/job"
+      }
+      workload_identity_config {
+        identity_type                = "IDENTITY_TYPE_AGENT_IDENTITY"
+        identity_certificate_enabled = true
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -560,6 +590,16 @@ The following arguments are supported:
   If no value is specified, GA is assumed. Set the launch stage to a preview stage on input to allow use of preview features in that stage. On read (or output), describes whether the resource uses preview features.
   For example, if ALPHA is provided as input, but only BETA and GA-level features are used, this field will be BETA on output.
   Possible values are: `UNIMPLEMENTED`, `PRELAUNCH`, `EARLY_ACCESS`, `ALPHA`, `BETA`, `GA`, `DEPRECATED`.
+
+* `functional_type` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  The functional type of the Job. Declares the primary purpose of the workload so that it can be
+  registered with [Agent Platform](https://cloud.google.com/run/docs/ai/agent-platform-features).
+  Once set, this field cannot be changed or unset.
+  Jobs only support `FUNCTIONAL_TYPE_AGENT`; only Cloud Run services can be exposed as MCP servers.
+  A Job with `FUNCTIONAL_TYPE_AGENT` must also set
+  `template.template.workload_identity_config.identity_type` to `IDENTITY_TYPE_AGENT_IDENTITY`.
+  Possible values are: `FUNCTIONAL_TYPE_AGENT`.
 
 * `binary_authorization` -
   (Optional)
@@ -655,6 +695,12 @@ When the field is set to false, deleting the job is allowed.
 * `service_account` -
   (Optional)
   Email address of the IAM service account associated with the Task of a Job. The service account represents the identity of the running task, and determines what permissions the task has. If not provided, the task will use the project's default service account.
+
+* `workload_identity_config` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  The Task's workload identity settings. Used to assign an
+  [Agent Platform](https://cloud.google.com/run/docs/ai/agent-platform-features) identity to the workload.
+  Structure is [documented below](#nested_template_template_workload_identity_config).
 
 * `execution_environment` -
   (Optional)
@@ -1002,6 +1048,24 @@ When the field is set to false, deleting the job is allowed.
 * `read_only` -
   (Optional)
   If true, mount this volume as read-only in all mounts.
+
+<a name="nested_template_template_workload_identity_config"></a>The `workload_identity_config` block supports:
+
+* `identity_type` -
+  (Optional)
+  The type of identity to use. `IDENTITY_TYPE_AGENT_IDENTITY` assigns a system-managed agent identity
+  and is required when the Job's `functional_type` is `FUNCTIONAL_TYPE_AGENT`. Once set, this field
+  cannot be changed or unset.
+  Possible values are: `IDENTITY_TYPE_SERVICE_ACCOUNT`, `IDENTITY_TYPE_AGENT_IDENTITY`.
+
+* `identity_certificate_enabled` -
+  (Optional)
+  Controls whether an instance receives a managed workload identity (MWLID) certificate.
+  Defaults to true when `identity_type` is `IDENTITY_TYPE_AGENT_IDENTITY`.
+
+* `identity` -
+  (Optional)
+  The Task's SPIFFE workload identity. Enables provisioning of SPIFFE workload certificates.
 
 <a name="nested_template_template_vpc_access"></a>The `vpc_access` block supports:
 
