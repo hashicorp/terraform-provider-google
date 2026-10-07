@@ -1041,6 +1041,7 @@ func TestAccComputeRegionInstanceTemplate_with18TbScratchDisk(t *testing.T) {
 
 func TestAccComputeRegionInstanceTemplate_imageResourceTest(t *testing.T) {
 	// Multiple fine-grained resources
+	// name_prefix appends a random suffix to the generated name, which VCR cannot replay.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 	diskName := "tf-test-disk-" + acctest.RandString(t, 10)

@@ -1,0 +1,11 @@
+```release-note:bug
+compute: reduced likelihood of name collisions when using a long `name_prefix` on `google_compute_instance_template`, `google_compute_region_instance_template`, `google_compute_region_ssl_certificate`, and `google_compute_ssl_certificate`
+```
+
+```release-note:bug
+container: reduced likelihood of name collisions when using a long `name_prefix` on `google_container_node_pool` and `google_container_cluster.node_pool`
+```
+
+```release-note:bug
+workflows: reduced likelihood of name collisions when using a long `name_prefix` on `google_workflows_workflow`
+```

@@ -754,7 +754,7 @@ func TestAccComputeBackendService_withCustomHeaders(t *testing.T) {
 }
 
 func TestAccComputeBackendService_internalLoadBalancing(t *testing.T) {
-	// Instance template uses UniqueId in some cases
+	// name_prefix appends a random suffix to the generated name, which VCR cannot replay.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 

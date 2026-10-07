@@ -1079,7 +1079,7 @@ func TestAccComputeInstanceTemplate_invalidScratchDiskInterface(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_withNamePrefix(t *testing.T) {
-	// Randomness from generated name suffix
+	// name_prefix appends a random suffix to the generated name, which VCR cannot replay.
 	acctest.SkipIfVcr(t)
 
 	t.Parallel()
@@ -1162,6 +1162,7 @@ func TestAccComputeInstanceTemplate_with18TbScratchDisk(t *testing.T) {
 
 func TestAccComputeInstanceTemplate_imageResourceTest(t *testing.T) {
 	// Multiple fine-grained resources
+	// name_prefix appends a random suffix to the generated name, which VCR cannot replay.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 	diskName := "tf-test-disk-" + acctest.RandString(t, 10)

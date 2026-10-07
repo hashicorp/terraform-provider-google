@@ -3373,7 +3373,7 @@ func TestAccContainerCluster_withNodePoolCIA(t *testing.T) {
 }
 
 func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
-	// Randomness
+	// name_prefix appends a random suffix to the generated name, which VCR cannot replay.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 

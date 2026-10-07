@@ -165,7 +165,7 @@ cluster.
     Resulting name for a `name_prefix` <= 14 characters:
     `name_prefix` + YYYYmmddHHSSssss + 8 digit incremental counter
     Resulting name for a `name_prefix` 15 - 31 characters:
-    `name_prefix` + YYmmdd + 3 digit incremental counter
+    `name_prefix` + 9 random lowercase alphanumeric characters
 
 * `node_config` - (Optional) Parameters used in creating the node pool. Structure is [documented below](#nested_node_config). See [google_container_cluster](container_cluster.html#nested_node_config) for exact schema.
 
