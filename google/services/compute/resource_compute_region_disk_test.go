@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -249,6 +250,126 @@ func TestAccComputeRegionDisk_encryption(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccComputeRegionDisk_encryptionKMSUpdate(t *testing.T) {
+	t.Parallel()
+
+	key1 := kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name
+	key2 := kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-compute-kms-update-key2").CryptoKey.Name
+	pid := envvar.GetTestProjectFromEnv()
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@compute-system.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionDisk_encryptionKMSUpdateNoKey(diskName),
+			},
+			{
+				Config: testAccComputeRegionDisk_encryptionKMSUpdateKey(diskName, key1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_region_disk.regiondisk", plancheck.ResourceActionReplace),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_region_disk.regiondisk",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionDisk_encryptionKMSUpdateKey(diskName, key2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_region_disk.regiondisk", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_region_disk.regiondisk",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Out-of-band key change is reverted in place.
+				PreConfig: testAccComputeRegionDiskUpdateKmsKeyOutOfBand(t, pid, "us-central1", diskName, key1),
+				Config:    testAccComputeRegionDisk_encryptionKMSUpdateKey(diskName, key2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_region_disk.regiondisk", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				Config: testAccComputeRegionDisk_encryptionKMSUpdateNoKey(diskName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_region_disk.regiondisk", plancheck.ResourceActionReplace),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionDiskUpdateKmsKeyOutOfBand(t *testing.T, project, region, diskName, kmsKey string) func() {
+	return func() {
+		config := acctest.GoogleProviderConfig(t)
+		url := fmt.Sprintf("%sprojects/%s/regions/%s/disks/%s/updateKmsKey", transport_tpg.BaseUrl(tpgcompute.Product, config), project, region, diskName)
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+			Body:      map[string]interface{}{"kmsKeyName": kmsKey},
+		})
+		if err != nil {
+			t.Fatalf("Error updating the KMS key of regional disk %s: %s", diskName, err)
+		}
+		if err := tpgcompute.ComputeOperationWaitTime(config, res, project, "Updating RegionDisk KMS Key", config.UserAgent, 10*time.Minute); err != nil {
+			t.Fatalf("Error waiting for the KMS key update of regional disk %s: %s", diskName, err)
+		}
+	}
+}
+
+func testAccComputeRegionDisk_encryptionKMSUpdateNoKey(diskName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_disk" "regiondisk" {
+  name          = "%s"
+  size          = 10
+  type          = "pd-balanced"
+  region        = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
+}
+`, diskName)
+}
+
+func testAccComputeRegionDisk_encryptionKMSUpdateKey(diskName, kmsKey string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_disk" "regiondisk" {
+  name          = "%s"
+  size          = 10
+  type          = "pd-balanced"
+  region        = "us-central1"
+  replica_zones = ["us-central1-a", "us-central1-f"]
+
+  disk_encryption_key {
+    kms_key_name = "%s"
+  }
+}
+`, diskName, kmsKey)
 }
 
 func TestAccComputeRegionDisk_deleteDetach(t *testing.T) {
