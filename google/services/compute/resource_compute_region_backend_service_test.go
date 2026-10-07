@@ -1428,6 +1428,55 @@ resource "google_compute_health_check" "health_check" {
 `, serviceName, checkName)
 }
 
+func TestAccComputeRegionBackendService_withSecurityPolicy(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	polName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_withSecurityPolicy(serviceName, polName, "google_compute_region_security_policy.policy.self_link"),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionBackendService_withSecurityPolicy(serviceName, polName, "\"\""),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionBackendService_withSecurityPolicy(serviceName, polName, polLink string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name                  = "%s"
+  region                = "us-central1"
+  security_policy       = %s
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_region_security_policy" "policy" {
+  name        = "%s"
+  region      = "us-central1"
+  description = "basic security policy"
+  type        = "CLOUD_ARMOR"
+}
+`, serviceName, polLink, polName)
+}
+
 func testAccComputeRegionBackendService_withLogConfig(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
