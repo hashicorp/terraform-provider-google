@@ -63,6 +63,26 @@ resource "google_network_connectivity_hub" "primary"  {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_hub_with_export_psc_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Hub With Export Psc Config
+
+
+```hcl
+resource "google_network_connectivity_hub" "primary" {
+  provider    = google-beta
+  name        = "psc-config"
+  description = "A sample hub that propagates Private Service Connect endpoints for global Google APIs only"
+  export_psc  = true
+  export_psc_config {
+    published_services_and_regional_google_apis = false
+    global_google_apis                          = true
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_hub_mesh_topology&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -153,6 +173,12 @@ The following arguments are supported:
   (Optional)
   Whether Private Service Connect transitivity is enabled for the hub. If true, Private Service Connect endpoints in VPC spokes attached to the hub are made accessible to other VPC spokes attached to the hub. The default value is false.
 
+* `export_psc_config` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Config for more granular control of Private Service Connect transitivity. Only takes effect when `export_psc` is true.
+  If `export_psc` is true, at least one of `published_services_and_regional_google_apis` and `global_google_apis` must be true.
+  Structure is [documented below](#nested_export_psc_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -163,6 +189,16 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
+
+<a name="nested_export_psc_config"></a>The `export_psc_config` block supports:
+
+* `published_services_and_regional_google_apis` -
+  (Optional)
+  Whether Private Service Connect endpoints for published services (regional ILBs) and regional Google APIs are propagated.
+
+* `global_google_apis` -
+  (Optional)
+  Whether Private Service Connect endpoints for global Google APIs are propagated. The default value is false.
 
 ## Attributes Reference
 
