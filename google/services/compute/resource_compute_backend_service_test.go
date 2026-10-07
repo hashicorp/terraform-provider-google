@@ -1616,9 +1616,18 @@ func testAccComputeBackendService_withCdnPolicy(serviceName, checkName string) s
 resource "google_compute_backend_service" "foobar" {
   name          = "%s"
   health_checks = [google_compute_http_health_check.zero.self_link]
+  enable_cdn    = true
 
   cdn_policy {
-    negative_caching = false
+    // client_ttl and default_ttl are explicitly 0 here. They are Optional + Computed, so an
+    // explicit 0 has to be told apart from an unset field: dropping it makes the API apply its own
+    // default and produces a permadiff, while sending it unconditionally breaks cache modes that
+    // forbid TTLs. testAccComputeBackendService_withCdnPolicyUseOriginHeaders covers the unset side.
+    cache_mode        = "CACHE_ALL_STATIC"
+    client_ttl        = 0
+    default_ttl       = 0
+    max_ttl       = 0
+    negative_caching  = false
     serve_while_stale = 0
     cache_key_policy {
       include_protocol       = true
