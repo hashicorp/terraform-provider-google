@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand/v2"
 	"net"
 	"net/url"
 	"reflect"
@@ -40,7 +41,6 @@ import (
 	"github.com/hashicorp/go-cty/cty"
 	fwDiags "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"golang.org/x/exp/maps"
@@ -1015,17 +1015,27 @@ func DefaultProviderDeletionPolicy(resourceDefault string) schema.CustomizeDiffF
 	}
 }
 
-// id.UniqueId() returns a timestamp + incremental hash
-// This function truncates the timestamp to provide a prefix + 9 using
-// YYmmdd + last 3 digits of the incremental hash
+// ReducedUniqueIdSuffixLength is the number of characters appended to the
+// prefix by ReducedPrefixedUniqueId.
+const ReducedUniqueIdSuffixLength = 9
+
+const reducedUniqueIdCharset = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+// ReducedPrefixedUniqueId returns the prefix followed by
+// ReducedUniqueIdSuffixLength random lowercase alphanumeric characters. It is
+// used in place of id.PrefixedUniqueId, which appends 26 characters, when the
+// full-length suffix would exceed a resource's name length limit.
+//
+// The suffix is random rather than derived from id.PrefixedUniqueId, whose
+// counter restarts at zero in every provider process: truncating its
+// timestamp + counter output yields the same name on every apply within a day,
+// which makes create_before_destroy replacements fail with a name conflict.
 func ReducedPrefixedUniqueId(prefix string) string {
-	// uniqueID is timestamp + 8 digit counter (YYYYmmddHHMMSSssss + 12345678)
-	uniqueId := id.PrefixedUniqueId("")
-	// last three digits of the counter (678)
-	counter := uniqueId[len(uniqueId)-3:]
-	// YYmmdd of date
-	date := uniqueId[2:8]
-	return prefix + date + counter
+	b := make([]byte, ReducedUniqueIdSuffixLength)
+	for i := range b {
+		b[i] = reducedUniqueIdCharset[rand.IntN(len(reducedUniqueIdCharset))]
+	}
+	return prefix + string(b)
 }
 
 // GetRawConfigAttributeAsString retrieves an attribute directly from the raw config

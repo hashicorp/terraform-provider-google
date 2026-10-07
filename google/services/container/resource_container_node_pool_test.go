@@ -210,7 +210,7 @@ func TestAccContainerNodePool_maxPodsPerNode(t *testing.T) {
 }
 
 func TestAccContainerNodePool_namePrefix(t *testing.T) {
-	// Randomness
+	// name_prefix appends a random suffix to the generated name, which VCR cannot replay.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
@@ -237,7 +237,7 @@ func TestAccContainerNodePool_namePrefix(t *testing.T) {
 }
 
 func TestAccContainerNodePool_namePrefix_long(t *testing.T) {
-	// Randomness
+	// name_prefix appends a random suffix to the generated name, which VCR cannot replay.
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 

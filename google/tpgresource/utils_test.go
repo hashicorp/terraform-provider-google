@@ -19,6 +19,7 @@ package tpgresource_test
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -1280,5 +1281,28 @@ func TestNormalizeIamPrincipalCasing(t *testing.T) {
 				t.Errorf("bad: %s; expected %q, got %q", tn, tc.Expected, normalizedPrincipal)
 			}
 		})
+	}
+}
+
+func TestReducedPrefixedUniqueId(t *testing.T) {
+	prefix := "gh29660-cbd-replace-probe-name-prefix-long-ab"
+	suffixRegex := regexp.MustCompile(`^[0-9a-z]+$`)
+	seen := make(map[string]bool)
+	for i := 0; i < 10000; i++ {
+		got := tpgresource.ReducedPrefixedUniqueId(prefix)
+		if !strings.HasPrefix(got, prefix) {
+			t.Fatalf("ReducedPrefixedUniqueId(%q) = %q, want prefix %q", prefix, got, prefix)
+		}
+		suffix := strings.TrimPrefix(got, prefix)
+		if len(suffix) != tpgresource.ReducedUniqueIdSuffixLength {
+			t.Fatalf("ReducedPrefixedUniqueId(%q) = %q, suffix length %d, want %d", prefix, got, len(suffix), tpgresource.ReducedUniqueIdSuffixLength)
+		}
+		if !suffixRegex.MatchString(suffix) {
+			t.Fatalf("ReducedPrefixedUniqueId(%q) = %q, suffix %q is not lowercase alphanumeric", prefix, got, suffix)
+		}
+		if seen[got] {
+			t.Fatalf("ReducedPrefixedUniqueId(%q) returned duplicate %q after %d calls", prefix, got, i)
+		}
+		seen[got] = true
 	}
 }

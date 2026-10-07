@@ -261,7 +261,7 @@ The following arguments are supported:
  Resulting name for a `name_prefix` <= 37 characters:
  `name_prefix` + YYYYmmddHHSSssss + 8 digit incremental counter
  Resulting name for a `name_prefix` 38 - 54 characters:
- `name_prefix` + YYmmdd + 3 digit incremental counter
+ `name_prefix` + 9 random lowercase alphanumeric characters
 
 
 ## Attributes Reference
