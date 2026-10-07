@@ -1855,6 +1855,44 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error waiting to create RegionBackendService: %s", err)
 	}
 
+	// security_policy isn't set by Create
+	if v, ok := d.GetOkExists("security_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, securityPolicyProp)) {
+		err = resourceComputeRegionBackendServiceRead(d, meta)
+		if err != nil {
+			return err
+		}
+
+		obj := make(map[string]interface{})
+		securityPolicyProp, err := expandComputeRegionBackendServiceSecurityPolicy(v, d, config)
+		if err != nil {
+			return err
+		}
+		obj["security_policy"] = securityPolicyProp
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/backendServices/{{name}}/setSecurityPolicy")
+		if err != nil {
+			return err
+		}
+
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error adding SecurityPolicy to RegionBackendService %q: %s", d.Id(), err)
+		}
+
+		err = ComputeOperationWaitTime(config, res, project, "Updating RegionBackendService SecurityPolicy", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
 	log.Printf("[DEBUG] Finished creating RegionBackendService %q: %#v", d.Id(), res)
 
 	identity, err := d.Identity()
