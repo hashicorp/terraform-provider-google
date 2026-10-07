@@ -119,6 +119,7 @@ func ResourceComputeRegionDisk() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("size", IsDiskShrinkage),
 			hyperDiskIopsUpdateDiffSuppress,
+			forceNewOnUnsupportedKmsKeyChange("disk_encryption_key.0.kms_key_name", ""),
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
@@ -223,14 +224,16 @@ the disk.
 
 If you do not provide an encryption key when creating the disk, then
 the disk will be encrypted using an automatically generated key and
-you do not need to provide a key to use the disk later.`,
+you do not need to provide a key to use the disk later.
+
+~>**NOTE** Only changing 'kms_key_name' between Cloud KMS keys is done
+in place; other changes to this block recreate the disk.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"kms_key_name": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The name of the encryption key that is stored in Google Cloud KMS.`,
 						},
 						"raw_key": {
@@ -1139,6 +1142,38 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		err = ComputeOperationWaitTime(config, res, project, "Updating RegionDisk Access Mode", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	// 5. KMS key (POST updateKmsKey)
+	if d.HasChange("disk_encryption_key.0.kms_key_name") {
+		oldKey, newKey := d.GetChange("disk_encryption_key.0.kms_key_name")
+		obj, err := kmsKeyUpdateRequestBody(oldKey.(string), newKey.(string), "")
+		if err != nil {
+			return fmt.Errorf("error updating RegionDisk %q KMS key: %w", d.Id(), err)
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/disks/{{name}}/updateKmsKey")
+		if err != nil {
+			return err
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("error updating RegionDisk %q KMS key: %w", d.Id(), err)
+		}
+
+		err = ComputeOperationWaitTime(config, res, project, "Updating RegionDisk KMS Key", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
