@@ -201,6 +201,26 @@ Default value is an empty string. Max length: 2000 bytes.`,
 				ForceNew:    true,
 				Description: `Documentation describing the QueryTemplate.`,
 			},
+			"encryption_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Encryption configuration for the query template.
+If set, the customer-managed KMS key is used to encrypt the query
+template definition body.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `The KMS key used to encrypt the query template.
+Format: 'projects/{project}/locations/{location}/keyRings/{keyring}/cryptoKeys/{key}'`,
+						},
+					},
+				},
+			},
 			"primary_contact": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -307,6 +327,12 @@ func resourceBigqueryAnalyticsHubQueryTemplateCreate(d *schema.ResourceData, met
 		return err
 	} else if v, ok := d.GetOkExists("routine"); !tpgresource.IsEmptyValue(reflect.ValueOf(routineProp)) && (ok || !reflect.DeepEqual(v, routineProp)) {
 		obj["routine"] = routineProp
+	}
+	encryptionConfigurationProp, err := expandBigqueryAnalyticsHubQueryTemplateEncryptionConfiguration(d.Get("encryption_configuration"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_configuration"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionConfigurationProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigurationProp)) {
+		obj["encryptionConfiguration"] = encryptionConfigurationProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/dataExchanges/{{data_exchange_id}}/queryTemplates?queryTemplateId={{query_template_id}}")
@@ -775,6 +801,23 @@ func flattenBigqueryAnalyticsHubQueryTemplateRoutineDefinitionBody(v interface{}
 	return v
 }
 
+func flattenBigqueryAnalyticsHubQueryTemplateEncryptionConfiguration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenBigqueryAnalyticsHubQueryTemplateEncryptionConfigurationKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryAnalyticsHubQueryTemplateEncryptionConfigurationKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBigqueryAnalyticsHubQueryTemplateCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -836,6 +879,32 @@ func expandBigqueryAnalyticsHubQueryTemplateRoutineDefinitionBody(v interface{},
 	return v, nil
 }
 
+func expandBigqueryAnalyticsHubQueryTemplateEncryptionConfiguration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandBigqueryAnalyticsHubQueryTemplateEncryptionConfigurationKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryAnalyticsHubQueryTemplateEncryptionConfigurationKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceBigqueryAnalyticsHubQueryTemplateFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -858,6 +927,9 @@ func ResourceBigqueryAnalyticsHubQueryTemplateFlatten(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading QueryTemplate: %s", err)
 	}
 	if err = d.Set("routine", flattenBigqueryAnalyticsHubQueryTemplateRoutine(res["routine"], d, config)); err != nil {
+		return fmt.Errorf("Error reading QueryTemplate: %s", err)
+	}
+	if err = d.Set("encryption_configuration", flattenBigqueryAnalyticsHubQueryTemplateEncryptionConfiguration(res["encryptionConfiguration"], d, config)); err != nil {
 		return fmt.Errorf("Error reading QueryTemplate: %s", err)
 	}
 	if err = d.Set("create_time", flattenBigqueryAnalyticsHubQueryTemplateCreateTime(res["createTime"], d, config)); err != nil {
