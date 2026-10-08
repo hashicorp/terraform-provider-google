@@ -2084,10 +2084,13 @@ func expandMaintenanceWindow(configured []interface{}) *sqladmin.MaintenanceWind
 
 	window := configured[0].(map[string]interface{})
 	return &sqladmin.MaintenanceWindow{
-		Day:             int64(window["day"].(int)),
-		Hour:            int64(window["hour"].(int)),
-		UpdateTrack:     window["update_track"].(string),
-		ForceSendFields: []string{"Hour"},
+		Day:         int64(window["day"].(int)),
+		Hour:        int64(window["hour"].(int)),
+		UpdateTrack: window["update_track"].(string),
+		// Hour must be sent even when 0 (midnight). The API rejects a window
+		// that contains hour without day ("Day of week is unspecified"), so Day
+		// must always be sent alongside it; day = 0 means "any day".
+		ForceSendFields: []string{"Day", "Hour"},
 	}
 }
 

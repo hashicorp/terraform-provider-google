@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed `Invalid maintenance window. Day of week is unspecified.` error when creating or updating `google_sql_database_instance` with a `settings.maintenance_window` that sets `update_track` or `hour` without `day`
+```
