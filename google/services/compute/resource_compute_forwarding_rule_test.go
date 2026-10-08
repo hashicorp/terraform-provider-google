@@ -204,6 +204,39 @@ func TestAccComputeForwardingRule_forwardingRulePscTargetUpdateRecreate(t *testi
 	})
 }
 
+func TestAccComputeForwardingRule_forwardingRulePscAddressUpdateRecreate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeForwardingRule_forwardingRulePscAddressUpdateRecreate(context, "10.0.1.1"),
+			},
+			{
+				ResourceName:      "google_compute_forwarding_rule.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeForwardingRule_forwardingRulePscAddressUpdateRecreate(context, "10.0.1.2"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_address.consumer_address", plancheck.ResourceActionReplace),
+						plancheck.ExpectResourceAction("google_compute_forwarding_rule.default", plancheck.ResourceActionReplace),
+					},
+				},
+			},
+		},
+	})
+}
+
 func TestAccComputeForwardingRule_forwardingRulePscRecreate(t *testing.T) {
 	t.Parallel()
 
@@ -1004,4 +1037,96 @@ resource "google_compute_forwarding_rule" "foobar" {
   depends_on = [google_compute_subnetwork.proxy]
 }
 `, poolName, poolName, poolName, poolName, poolName, poolName, poolName, ruleName, allowGlobalAccess)
+}
+
+func testAccComputeForwardingRule_forwardingRulePscAddressUpdateRecreate(context map[string]interface{}, ipAddress string) string {
+	context["ip_address"] = ipAddress
+	return acctest.Nprintf(`
+// Consumer side
+resource "google_compute_forwarding_rule" "default" {
+  name                    = "tf-test-psc-endpoint%{random_suffix}"
+  region                  = "us-central1"
+  load_balancing_scheme   = ""
+  target                  = google_compute_service_attachment.producer_service_attachment.self_link
+  network                 = google_compute_network.consumer_net.name
+  ip_address              = google_compute_address.consumer_address.id
+  allow_psc_global_access = true
+}
+
+resource "google_compute_network" "consumer_net" {
+  name                    = "tf-test-consumer-net%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "consumer_subnet" {
+  name          = "tf-test-consumer-net%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.consumer_net.id
+}
+
+resource "google_compute_address" "consumer_address" {
+  name         = "tf-test-website-ip%{random_suffix}"
+  region       = "us-central1"
+  subnetwork   = google_compute_subnetwork.consumer_subnet.id
+  address_type = "INTERNAL"
+  address      = "%{ip_address}"
+}
+
+// Producer service attachment
+resource "google_compute_network" "producer_net" {
+  name                    = "tf-test-producer-net%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "tf-test-producer-net%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_subnetwork" "producer_nat_subnet" {
+  name          = "tf-test-producer-nat-net%{random_suffix}"
+  ip_cidr_range = "10.1.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+}
+
+resource "google_compute_health_check" "producer_service_health_check" {
+  name = "tf-test-producer-service-health-check%{random_suffix}"
+
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  name                  = "tf-test-producer-service-backend%{random_suffix}"
+  region                = "us-central1"
+  health_checks         = [google_compute_health_check.producer_service_health_check.id]
+  load_balancing_scheme = "INTERNAL"
+}
+
+resource "google_compute_forwarding_rule" "producer_target_service" {
+  name                  = "tf-test-producer-forwarding-rule%{random_suffix}"
+  region                = "us-central1"
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.producer_net.name
+  subnetwork            = google_compute_subnetwork.producer_subnet.name
+}
+
+resource "google_compute_service_attachment" "producer_service_attachment" {
+  name                  = "tf-test-producer-service-attachment%{random_suffix}"
+  region                = "us-central1"
+  description           = "A service attachment configured with Terraform"
+  enable_proxy_protocol = false
+  connection_preference = "ACCEPT_AUTOMATIC"
+  nat_subnets           = [google_compute_subnetwork.producer_nat_subnet.name]
+  target_service        = google_compute_forwarding_rule.producer_target_service.id
+}
+`, context)
 }
