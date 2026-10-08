@@ -1,0 +1,3 @@
+```release-note:enhancement
+workbench: added `disable-bigquery`, `enable-opencode`, `enable-opencode-web`, and `enable-antigravity` to the metadata keys that trigger a stop/restart of a `google_workbench_instance` on update, since they only take effect at startup
+```
