@@ -991,6 +991,23 @@ func TestAccSqlDatabaseInstance_maintenance(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
+			{
+				// Switch to an "any day" window (update_track only) and change
+				// another setting in place.
+				Config: fmt.Sprintf(
+					testGoogleSqlDatabaseInstance_maintenance_update, masterID),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_sql_database_instance.instance", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
 		},
 	})
 }
@@ -8644,6 +8661,23 @@ resource "google_sql_database_instance" "instance" {
     maintenance_window {
       day          = 7
       hour         = 3
+      update_track = "canary"
+    }
+  }
+}
+`
+
+var testGoogleSqlDatabaseInstance_maintenance_update = `
+resource "google_sql_database_instance" "instance" {
+  name                = "tf-test-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+
+  settings {
+    tier = "db-f1-micro"
+
+    maintenance_window {
       update_track = "canary"
     }
   }
