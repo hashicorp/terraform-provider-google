@@ -172,6 +172,9 @@ func resourceVertexAICacheConfigCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new CacheConfig: %#v", obj)
 	billingProject := ""
@@ -209,8 +212,10 @@ func resourceVertexAICacheConfigCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating CacheConfig", userAgent,
+		config, res, project, endpointLocation, "Creating CacheConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -245,6 +250,9 @@ func resourceVertexAICacheConfigRead(d *schema.ResourceData, meta interface{}) e
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/cacheConfig")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -337,6 +345,9 @@ func resourceVertexAICacheConfigUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating CacheConfig %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -363,8 +374,10 @@ func resourceVertexAICacheConfigUpdate(d *schema.ResourceData, meta interface{})
 		log.Printf("[DEBUG] Finished updating CacheConfig %q: %#v", d.Id(), res)
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Updating CacheConfig", userAgent,
+		config, res, project, endpointLocation, "Updating CacheConfig", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {

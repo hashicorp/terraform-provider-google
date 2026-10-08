@@ -336,6 +336,9 @@ func resourceChronicleDataExportCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new DataExport: %#v", obj)
 	billingProject := ""
@@ -420,6 +423,9 @@ func resourceChronicleDataExportRead(d *schema.ResourceData, meta interface{}) e
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/dataExports/{{data_export_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""

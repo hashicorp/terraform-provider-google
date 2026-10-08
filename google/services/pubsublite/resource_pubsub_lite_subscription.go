@@ -236,6 +236,9 @@ func resourcePubsubLiteSubscriptionCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Subscription: %#v", obj)
 	billingProject := ""
@@ -309,6 +312,9 @@ func resourcePubsubLiteSubscriptionRead(d *schema.ResourceData, meta interface{}
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -453,6 +459,9 @@ func resourcePubsubLiteSubscriptionUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Subscription %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -521,6 +530,9 @@ func resourcePubsubLiteSubscriptionDelete(d *schema.ResourceData, meta interface
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{zone}}/subscriptions/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

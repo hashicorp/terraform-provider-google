@@ -2030,6 +2030,9 @@ func resourceDialogflowCXPageCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Page: %#v", obj)
 	billingProject := ""
@@ -2118,6 +2121,9 @@ func resourceDialogflowCXPageRead(d *schema.ResourceData, meta interface{}) erro
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/pages/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -2293,6 +2299,9 @@ func resourceDialogflowCXPageUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Page %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -2405,6 +2414,9 @@ func resourceDialogflowCXPageDelete(d *schema.ResourceData, meta interface{}) er
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/pages/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

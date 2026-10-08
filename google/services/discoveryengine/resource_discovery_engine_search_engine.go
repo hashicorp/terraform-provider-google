@@ -462,6 +462,9 @@ func resourceDiscoveryEngineSearchEngineCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new SearchEngine: %#v", obj)
 	billingProject := ""
@@ -499,8 +502,10 @@ func resourceDiscoveryEngineSearchEngineCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Creating SearchEngine", userAgent,
+		config, res, project, endpointLocation, "Creating SearchEngine", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -550,6 +555,9 @@ func resourceDiscoveryEngineSearchEngineRead(d *schema.ResourceData, meta interf
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -747,6 +755,9 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating SearchEngine %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -844,6 +855,9 @@ func resourceDiscoveryEngineSearchEngineDelete(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -869,8 +883,10 @@ func resourceDiscoveryEngineSearchEngineDelete(d *schema.ResourceData, meta inte
 		return transport_tpg.HandleNotFoundError(err, d, "SearchEngine")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Deleting SearchEngine", userAgent,
+		config, res, project, endpointLocation, "Deleting SearchEngine", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

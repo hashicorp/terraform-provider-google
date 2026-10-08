@@ -1495,6 +1495,9 @@ func resourceChronicleDashboardChartCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new DashboardChart: %#v", obj)
 	billingProject := ""
@@ -1579,6 +1582,9 @@ func resourceChronicleDashboardChartRead(d *schema.ResourceData, meta interface{
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/dashboardCharts/{{chart_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -1758,6 +1764,9 @@ func resourceChronicleDashboardChartUpdate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating DashboardChart %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -1857,6 +1866,9 @@ func resourceChronicleDashboardChartDelete(d *schema.ResourceData, meta interfac
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{native_dashboard}}:removeChart")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

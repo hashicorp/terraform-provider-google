@@ -344,6 +344,9 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewCreate(d *schema.ResourceData,
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new FeatureOnlineStoreFeatureview: %#v", obj)
 	billingProject := ""
@@ -381,8 +384,10 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewCreate(d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating FeatureOnlineStoreFeatureview", userAgent,
+		config, res, project, endpointLocation, "Creating FeatureOnlineStoreFeatureview", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -432,6 +437,9 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewRead(d *schema.ResourceData, m
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureOnlineStores/{{feature_online_store}}/featureViews/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -600,6 +608,9 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewUpdate(d *schema.ResourceData,
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating FeatureOnlineStoreFeatureview %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -681,6 +692,9 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewDelete(d *schema.ResourceData,
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -706,8 +720,10 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewDelete(d *schema.ResourceData,
 		return transport_tpg.HandleNotFoundError(err, d, "FeatureOnlineStoreFeatureview")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Deleting FeatureOnlineStoreFeatureview", userAgent,
+		config, res, project, endpointLocation, "Deleting FeatureOnlineStoreFeatureview", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

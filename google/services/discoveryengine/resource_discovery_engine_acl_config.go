@@ -210,6 +210,9 @@ func resourceDiscoveryEngineAclConfigCreate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new AclConfig: %#v", obj)
 	billingProject := ""
@@ -278,6 +281,9 @@ func resourceDiscoveryEngineAclConfigRead(d *schema.ResourceData, meta interface
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/aclConfig")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -380,6 +386,9 @@ func resourceDiscoveryEngineAclConfigUpdate(d *schema.ResourceData, meta interfa
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/aclConfig")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	log.Printf("[DEBUG] Updating AclConfig %q: %#v", d.Id(), obj)

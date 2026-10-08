@@ -203,6 +203,9 @@ func testAccCheckDialogflowCXEnvironmentDestroyProducer(t *testing.T) func(s *te
 			if err != nil {
 				return err
 			}
+			if strings.Contains(url, "{{location}}") {
+				return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+			}
 
 			billingProject := ""
 

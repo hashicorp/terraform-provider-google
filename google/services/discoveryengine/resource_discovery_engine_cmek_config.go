@@ -267,6 +267,9 @@ func resourceDiscoveryEngineCmekConfigCreate(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new CmekConfig: %#v", obj)
 	billingProject := ""
@@ -304,8 +307,10 @@ func resourceDiscoveryEngineCmekConfigCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Creating CmekConfig", userAgent,
+		config, res, project, endpointLocation, "Creating CmekConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -350,6 +355,9 @@ func resourceDiscoveryEngineCmekConfigRead(d *schema.ResourceData, meta interfac
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/cmekConfigs/{{cmek_config_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -494,6 +502,9 @@ func resourceDiscoveryEngineCmekConfigUpdate(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating CmekConfig %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -520,8 +531,10 @@ func resourceDiscoveryEngineCmekConfigUpdate(d *schema.ResourceData, meta interf
 		log.Printf("[DEBUG] Finished updating CmekConfig %q: %#v", d.Id(), res)
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Updating CmekConfig", userAgent,
+		config, res, project, endpointLocation, "Updating CmekConfig", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -556,6 +569,9 @@ func resourceDiscoveryEngineCmekConfigDelete(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -581,8 +597,10 @@ func resourceDiscoveryEngineCmekConfigDelete(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, "CmekConfig")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Deleting CmekConfig", userAgent,
+		config, res, project, endpointLocation, "Deleting CmekConfig", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

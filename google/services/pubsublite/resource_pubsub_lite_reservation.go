@@ -204,6 +204,9 @@ func resourcePubsubLiteReservationCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Reservation: %#v", obj)
 	billingProject := ""
@@ -277,6 +280,9 @@ func resourcePubsubLiteReservationRead(d *schema.ResourceData, meta interface{})
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/reservations/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -416,6 +422,9 @@ func resourcePubsubLiteReservationUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Reservation %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -484,6 +493,9 @@ func resourcePubsubLiteReservationDelete(d *schema.ResourceData, meta interface{
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/reservations/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

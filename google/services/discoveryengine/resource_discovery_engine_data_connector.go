@@ -778,6 +778,9 @@ func resourceDiscoveryEngineDataConnectorCreate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new DataConnector: %#v", obj)
 	billingProject := ""
@@ -815,8 +818,10 @@ func resourceDiscoveryEngineDataConnectorCreate(d *schema.ResourceData, meta int
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Creating DataConnector", userAgent,
+		config, res, project, endpointLocation, "Creating DataConnector", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -861,6 +866,9 @@ func resourceDiscoveryEngineDataConnectorRead(d *schema.ResourceData, meta inter
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/dataConnector")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -1072,6 +1080,9 @@ func resourceDiscoveryEngineDataConnectorUpdate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating DataConnector %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -1190,6 +1201,9 @@ func resourceDiscoveryEngineDataConnectorDelete(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -1215,8 +1229,10 @@ func resourceDiscoveryEngineDataConnectorDelete(d *schema.ResourceData, meta int
 		return transport_tpg.HandleNotFoundError(err, d, "DataConnector")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Deleting DataConnector", userAgent,
+		config, res, project, endpointLocation, "Deleting DataConnector", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

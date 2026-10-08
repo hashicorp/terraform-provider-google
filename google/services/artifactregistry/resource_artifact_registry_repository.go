@@ -1077,9 +1077,9 @@ func resourceArtifactRegistryRepositoryCreate(d *schema.ResourceData, meta inter
 	d.SetId(id)
 
 	// Derive location for use in REP endpoints
-	location := tpgresource.LocationFromId(d.Id())
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = ArtifactRegistryOperationWaitTime(
-		config, res, project, location, "Creating Repository", userAgent,
+		config, res, project, endpointLocation, "Creating Repository", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -1462,9 +1462,9 @@ func resourceArtifactRegistryRepositoryDelete(d *schema.ResourceData, meta inter
 	}
 
 	// Derive location for use in REP endpoints
-	location := tpgresource.LocationFromId(d.Id())
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = ArtifactRegistryOperationWaitTime(
-		config, res, project, location, "Deleting Repository", userAgent,
+		config, res, project, endpointLocation, "Deleting Repository", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

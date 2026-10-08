@@ -370,6 +370,9 @@ func resourceDiscoveryEngineChatEngineCreate(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new ChatEngine: %#v", obj)
 	billingProject := ""
@@ -407,8 +410,10 @@ func resourceDiscoveryEngineChatEngineCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Creating ChatEngine", userAgent,
+		config, res, project, endpointLocation, "Creating ChatEngine", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -458,6 +463,9 @@ func resourceDiscoveryEngineChatEngineRead(d *schema.ResourceData, meta interfac
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -619,6 +627,9 @@ func resourceDiscoveryEngineChatEngineUpdate(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating ChatEngine %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -692,6 +703,9 @@ func resourceDiscoveryEngineChatEngineDelete(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -717,8 +731,10 @@ func resourceDiscoveryEngineChatEngineDelete(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, "ChatEngine")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Deleting ChatEngine", userAgent,
+		config, res, project, endpointLocation, "Deleting ChatEngine", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

@@ -881,6 +881,9 @@ func resourceColabScheduleCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Schedule: %#v", obj)
 	billingProject := ""
@@ -967,6 +970,9 @@ func resourceColabScheduleRead(d *schema.ResourceData, meta interface{}) error {
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/schedules/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -1164,6 +1170,9 @@ func resourceColabScheduleUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Schedule %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -1289,6 +1298,9 @@ func resourceColabScheduleDelete(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -1314,8 +1326,10 @@ func resourceColabScheduleDelete(d *schema.ResourceData, meta interface{}) error
 		return transport_tpg.HandleNotFoundError(err, d, "Schedule")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = ColabOperationWaitTime(
-		config, res, project, "Deleting Schedule", userAgent,
+		config, res, project, endpointLocation, "Deleting Schedule", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

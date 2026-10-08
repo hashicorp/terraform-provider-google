@@ -422,6 +422,9 @@ func resourceChronicleRuleCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Rule: %#v", obj)
 	billingProject := ""
@@ -506,6 +509,9 @@ func resourceChronicleRuleRead(d *schema.ResourceData, meta interface{}) error {
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -668,6 +674,9 @@ func resourceChronicleRuleUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Rule %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -744,6 +753,9 @@ func resourceChronicleRuleDelete(d *schema.ResourceData, meta interface{}) error
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/rules/{{rule_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

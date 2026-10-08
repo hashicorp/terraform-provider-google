@@ -307,6 +307,9 @@ func resourceDialogflowCXGeneratorCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Generator: %#v", obj)
 	billingProject := ""
@@ -399,6 +402,9 @@ func resourceDialogflowCXGeneratorRead(d *schema.ResourceData, meta interface{})
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/generators/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -556,6 +562,9 @@ func resourceDialogflowCXGeneratorUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Generator %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -656,6 +665,9 @@ func resourceDialogflowCXGeneratorDelete(d *schema.ResourceData, meta interface{
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/generators/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

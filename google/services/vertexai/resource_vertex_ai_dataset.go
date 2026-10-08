@@ -272,6 +272,9 @@ func resourceVertexAIDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Dataset: %#v", obj)
 	billingProject := ""
@@ -309,11 +312,13 @@ func resourceVertexAIDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = VertexAIOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Dataset", userAgent,
+		config, res, &opRes, project, endpointLocation, "Creating Dataset", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -369,6 +374,9 @@ func resourceVertexAIDatasetRead(d *schema.ResourceData, meta interface{}) error
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -514,6 +522,9 @@ func resourceVertexAIDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Dataset %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -587,6 +598,9 @@ func resourceVertexAIDatasetDelete(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -612,8 +626,10 @@ func resourceVertexAIDatasetDelete(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, "Dataset")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Deleting Dataset", userAgent,
+		config, res, project, endpointLocation, "Deleting Dataset", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

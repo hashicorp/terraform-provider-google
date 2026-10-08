@@ -454,6 +454,9 @@ func resourceSecretManagerRegionalRegionalSecretCreate(d *schema.ResourceData, m
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new RegionalSecret: %#v", obj)
 	billingProject := ""
@@ -527,6 +530,9 @@ func resourceSecretManagerRegionalRegionalSecretRead(d *schema.ResourceData, met
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -719,6 +725,9 @@ func resourceSecretManagerRegionalRegionalSecretUpdate(d *schema.ResourceData, m
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating RegionalSecret %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -824,6 +833,9 @@ func resourceSecretManagerRegionalRegionalSecretDelete(d *schema.ResourceData, m
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

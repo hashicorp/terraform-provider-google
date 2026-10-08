@@ -604,6 +604,9 @@ func resourceDiscoveryEngineDataStoreCreate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new DataStore: %#v", obj)
 	billingProject := ""
@@ -641,8 +644,10 @@ func resourceDiscoveryEngineDataStoreCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Creating DataStore", userAgent,
+		config, res, project, endpointLocation, "Creating DataStore", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -687,6 +692,9 @@ func resourceDiscoveryEngineDataStoreRead(d *schema.ResourceData, meta interface
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores/{{data_store_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -832,6 +840,9 @@ func resourceDiscoveryEngineDataStoreUpdate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating DataStore %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -905,6 +916,9 @@ func resourceDiscoveryEngineDataStoreDelete(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -930,8 +944,10 @@ func resourceDiscoveryEngineDataStoreDelete(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, "DataStore")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Deleting DataStore", userAgent,
+		config, res, project, endpointLocation, "Deleting DataStore", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

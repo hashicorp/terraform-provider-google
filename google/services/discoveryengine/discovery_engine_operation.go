@@ -75,7 +75,7 @@ func createDiscoveryEngineWaiter(config *transport_tpg.Config, op map[string]int
 }
 
 // nolint: deadcode,unused
-func DiscoveryEngineOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func DiscoveryEngineOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, location, activity, userAgent string, timeout time.Duration) error {
 	w, err := createDiscoveryEngineWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func DiscoveryEngineOperationWaitTimeWithResponse(config *transport_tpg.Config, 
 	return json.Unmarshal(rawResponse, response)
 }
 
-func DiscoveryEngineOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func DiscoveryEngineOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, location, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

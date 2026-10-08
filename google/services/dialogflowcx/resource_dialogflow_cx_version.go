@@ -248,6 +248,9 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Version: %#v", obj)
 	billingProject := ""
@@ -299,11 +302,13 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = DialogflowCXOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating Version", userAgent,
+		config, res, &opRes, endpointLocation, "Creating Version", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -354,6 +359,9 @@ func resourceDialogflowCXVersionRead(d *schema.ResourceData, meta interface{}) e
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -493,6 +501,9 @@ func resourceDialogflowCXVersionUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Version %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -581,6 +592,9 @@ func resourceDialogflowCXVersionDelete(d *schema.ResourceData, meta interface{})
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/versions/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

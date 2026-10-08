@@ -442,6 +442,9 @@ func resourceCloudRunDomainMappingCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new DomainMapping: %#v", obj)
 	billingProject := ""
@@ -519,6 +522,9 @@ func resourceCloudRunDomainMappingPollRead(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return nil, err
 		}
+		if strings.Contains(url, "{{location}}") {
+			return nil, fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+		}
 
 		billingProject := ""
 
@@ -571,6 +577,9 @@ func resourceCloudRunDomainMappingRead(d *schema.ResourceData, meta interface{})
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -692,6 +701,9 @@ func resourceCloudRunDomainMappingDelete(d *schema.ResourceData, meta interface{
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"apis/domains.cloudrun.com/v1/namespaces/{{project}}/domainmappings/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

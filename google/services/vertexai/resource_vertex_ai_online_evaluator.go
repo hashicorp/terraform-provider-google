@@ -682,6 +682,9 @@ func resourceVertexAIOnlineEvaluatorCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new OnlineEvaluator: %#v", obj)
 	billingProject := ""
@@ -719,11 +722,13 @@ func resourceVertexAIOnlineEvaluatorCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = VertexAIOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating OnlineEvaluator", userAgent,
+		config, res, &opRes, project, endpointLocation, "Creating OnlineEvaluator", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -779,6 +784,9 @@ func resourceVertexAIOnlineEvaluatorRead(d *schema.ResourceData, meta interface{
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/onlineEvaluators/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -930,6 +938,9 @@ func resourceVertexAIOnlineEvaluatorUpdate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating OnlineEvaluator %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -977,8 +988,10 @@ func resourceVertexAIOnlineEvaluatorUpdate(d *schema.ResourceData, meta interfac
 			log.Printf("[DEBUG] Finished updating OnlineEvaluator %q: %#v", d.Id(), res)
 		}
 
+		// Derive location for use in REP endpoints
+		endpointLocation := tpgresource.LocationFromId(d.Id())
 		err = VertexAIOperationWaitTime(
-			config, res, project, "Updating OnlineEvaluator", userAgent,
+			config, res, project, endpointLocation, "Updating OnlineEvaluator", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -1014,6 +1027,9 @@ func resourceVertexAIOnlineEvaluatorDelete(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -1039,8 +1055,10 @@ func resourceVertexAIOnlineEvaluatorDelete(d *schema.ResourceData, meta interfac
 		return transport_tpg.HandleNotFoundError(err, d, "OnlineEvaluator")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Deleting OnlineEvaluator", userAgent,
+		config, res, project, endpointLocation, "Deleting OnlineEvaluator", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

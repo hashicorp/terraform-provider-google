@@ -446,6 +446,9 @@ func resourceVertexAIIndexEndpointDeployedIndexCreate(d *schema.ResourceData, me
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new IndexEndpointDeployedIndex: %#v", obj)
 	billingProject := ""
@@ -477,8 +480,10 @@ func resourceVertexAIIndexEndpointDeployedIndexCreate(d *schema.ResourceData, me
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating IndexEndpointDeployedIndex", userAgent,
+		config, res, project, endpointLocation, "Creating IndexEndpointDeployedIndex", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -502,6 +507,9 @@ func resourceVertexAIIndexEndpointDeployedIndexRead(d *schema.ResourceData, meta
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{index_endpoint}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -647,6 +655,9 @@ func resourceVertexAIIndexEndpointDeployedIndexUpdate(d *schema.ResourceData, me
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating IndexEndpointDeployedIndex %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -673,8 +684,10 @@ func resourceVertexAIIndexEndpointDeployedIndexUpdate(d *schema.ResourceData, me
 		log.Printf("[DEBUG] Finished updating IndexEndpointDeployedIndex %q: %#v", d.Id(), res)
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Updating IndexEndpointDeployedIndex", userAgent,
+		config, res, project, endpointLocation, "Updating IndexEndpointDeployedIndex", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -705,6 +718,9 @@ func resourceVertexAIIndexEndpointDeployedIndexDelete(d *schema.ResourceData, me
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -733,8 +749,10 @@ func resourceVertexAIIndexEndpointDeployedIndexDelete(d *schema.ResourceData, me
 		return transport_tpg.HandleNotFoundError(err, d, "IndexEndpointDeployedIndex")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Deleting IndexEndpointDeployedIndex", userAgent,
+		config, res, project, endpointLocation, "Deleting IndexEndpointDeployedIndex", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
