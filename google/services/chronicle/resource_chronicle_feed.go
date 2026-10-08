@@ -4388,6 +4388,9 @@ func resourceChronicleFeedCreate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Feed: %#v", obj)
 	billingProject := ""
@@ -4542,6 +4545,9 @@ func resourceChronicleFeedRead(d *schema.ResourceData, meta interface{}) error {
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/feeds/{{feed}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -4715,6 +4721,9 @@ func resourceChronicleFeedUpdate(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Feed %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -4823,6 +4832,9 @@ func resourceChronicleFeedDelete(d *schema.ResourceData, meta interface{}) error
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/feeds/{{feed}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

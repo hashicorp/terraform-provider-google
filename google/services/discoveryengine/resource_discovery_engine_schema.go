@@ -222,6 +222,9 @@ func resourceDiscoveryEngineSchemaCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Schema: %#v", obj)
 	billingProject := ""
@@ -259,8 +262,10 @@ func resourceDiscoveryEngineSchemaCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Creating Schema", userAgent,
+		config, res, project, endpointLocation, "Creating Schema", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -310,6 +315,9 @@ func resourceDiscoveryEngineSchemaRead(d *schema.ResourceData, meta interface{})
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores/{{data_store_id}}/schemas/{{schema_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -425,6 +433,9 @@ func resourceDiscoveryEngineSchemaDelete(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -450,8 +461,10 @@ func resourceDiscoveryEngineSchemaDelete(d *schema.ResourceData, meta interface{
 		return transport_tpg.HandleNotFoundError(err, d, "Schema")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Deleting Schema", userAgent,
+		config, res, project, endpointLocation, "Deleting Schema", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

@@ -372,6 +372,9 @@ func resourceDiscoveryEngineAssistantCreate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Assistant: %#v", obj)
 	billingProject := ""
@@ -455,6 +458,9 @@ func resourceDiscoveryEngineAssistantRead(d *schema.ResourceData, meta interface
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/assistants/{{assistant_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -640,6 +646,9 @@ func resourceDiscoveryEngineAssistantUpdate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Assistant %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -724,6 +733,9 @@ func resourceDiscoveryEngineAssistantDelete(d *schema.ResourceData, meta interfa
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/assistants/{{assistant_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

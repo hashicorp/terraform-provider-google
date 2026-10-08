@@ -66,7 +66,7 @@ func createVertexAIWaiter(config *transport_tpg.Config, op map[string]interface{
 }
 
 // nolint: deadcode,unused
-func VertexAIOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func VertexAIOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, location, activity, userAgent string, timeout time.Duration) error {
 	w, err := createVertexAIWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func VertexAIOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func VertexAIOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func VertexAIOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, location, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

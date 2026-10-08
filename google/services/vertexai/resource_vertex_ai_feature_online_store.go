@@ -386,6 +386,9 @@ func resourceVertexAIFeatureOnlineStoreCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new FeatureOnlineStore: %#v", obj)
 	billingProject := ""
@@ -423,8 +426,10 @@ func resourceVertexAIFeatureOnlineStoreCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating FeatureOnlineStore", userAgent,
+		config, res, project, endpointLocation, "Creating FeatureOnlineStore", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -469,6 +474,9 @@ func resourceVertexAIFeatureOnlineStoreRead(d *schema.ResourceData, meta interfa
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureOnlineStores/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -637,6 +645,9 @@ func resourceVertexAIFeatureOnlineStoreUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating FeatureOnlineStore %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -692,8 +703,10 @@ func resourceVertexAIFeatureOnlineStoreUpdate(d *schema.ResourceData, meta inter
 			log.Printf("[DEBUG] Finished updating FeatureOnlineStore %q: %#v", d.Id(), res)
 		}
 
+		// Derive location for use in REP endpoints
+		endpointLocation := tpgresource.LocationFromId(d.Id())
 		err = VertexAIOperationWaitTime(
-			config, res, project, "Updating FeatureOnlineStore", userAgent,
+			config, res, project, endpointLocation, "Updating FeatureOnlineStore", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -729,6 +742,9 @@ func resourceVertexAIFeatureOnlineStoreDelete(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -761,8 +777,10 @@ func resourceVertexAIFeatureOnlineStoreDelete(d *schema.ResourceData, meta inter
 		return transport_tpg.HandleNotFoundError(err, d, "FeatureOnlineStore")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Deleting FeatureOnlineStore", userAgent,
+		config, res, project, endpointLocation, "Deleting FeatureOnlineStore", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

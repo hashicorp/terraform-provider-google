@@ -214,6 +214,9 @@ func testAccCheckVertexAIIndexEndpointDestroyProducer(t *testing.T) func(s *terr
 			if err != nil {
 				return err
 			}
+			if strings.Contains(url, "{{region}}") {
+				return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+			}
 
 			billingProject := ""
 

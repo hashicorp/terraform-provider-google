@@ -396,6 +396,9 @@ func resourceDiscoveryEngineRecommendationEngineCreate(d *schema.ResourceData, m
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new RecommendationEngine: %#v", obj)
 	billingProject := ""
@@ -433,8 +436,10 @@ func resourceDiscoveryEngineRecommendationEngineCreate(d *schema.ResourceData, m
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Creating RecommendationEngine", userAgent,
+		config, res, project, endpointLocation, "Creating RecommendationEngine", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -479,6 +484,9 @@ func resourceDiscoveryEngineRecommendationEngineRead(d *schema.ResourceData, met
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/engines/{{engine_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -635,6 +643,9 @@ func resourceDiscoveryEngineRecommendationEngineUpdate(d *schema.ResourceData, m
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating RecommendationEngine %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -712,6 +723,9 @@ func resourceDiscoveryEngineRecommendationEngineDelete(d *schema.ResourceData, m
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -737,8 +751,10 @@ func resourceDiscoveryEngineRecommendationEngineDelete(d *schema.ResourceData, m
 		return transport_tpg.HandleNotFoundError(err, d, "RecommendationEngine")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Deleting RecommendationEngine", userAgent,
+		config, res, project, endpointLocation, "Deleting RecommendationEngine", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

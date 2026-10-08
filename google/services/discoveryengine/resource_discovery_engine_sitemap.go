@@ -211,6 +211,9 @@ func resourceDiscoveryEngineSitemapCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Sitemap: %#v", obj)
 	billingProject := ""
@@ -248,11 +251,13 @@ func resourceDiscoveryEngineSitemapCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = DiscoveryEngineOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Sitemap", userAgent,
+		config, res, &opRes, project, endpointLocation, "Creating Sitemap", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -298,6 +303,9 @@ func resourceDiscoveryEngineSitemapRead(d *schema.ResourceData, meta interface{}
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores/{{data_store_id}}/siteSearchEngine/sitemaps:fetch")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -440,6 +448,9 @@ func resourceDiscoveryEngineSitemapDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -465,8 +476,10 @@ func resourceDiscoveryEngineSitemapDelete(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, "Sitemap")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Deleting Sitemap", userAgent,
+		config, res, project, endpointLocation, "Deleting Sitemap", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

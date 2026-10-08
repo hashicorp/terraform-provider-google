@@ -229,6 +229,9 @@ func resourceChronicleCaseStageDefinitionCreate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new CaseStageDefinition: %#v", obj)
 	billingProject := ""
@@ -313,6 +316,9 @@ func resourceChronicleCaseStageDefinitionRead(d *schema.ResourceData, meta inter
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/caseStageDefinitions/{{case_stage_definition_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -457,6 +463,9 @@ func resourceChronicleCaseStageDefinitionUpdate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating CaseStageDefinition %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -521,6 +530,9 @@ func resourceChronicleCaseStageDefinitionDelete(d *schema.ResourceData, meta int
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/caseStageDefinitions/{{case_stage_definition_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

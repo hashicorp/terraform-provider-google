@@ -281,6 +281,9 @@ func resourceChronicleFindingsRefinementDeploymentCreate(d *schema.ResourceData,
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new FindingsRefinementDeployment: %#v", obj)
 	billingProject := ""
@@ -359,6 +362,9 @@ func resourceChronicleFindingsRefinementDeploymentRead(d *schema.ResourceData, m
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/findingsRefinements/{{findings_refinement}}/deployment")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -495,6 +501,9 @@ func resourceChronicleFindingsRefinementDeploymentUpdate(d *schema.ResourceData,
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/findingsRefinements/{{findings_refinement}}/deployment")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	log.Printf("[DEBUG] Updating FindingsRefinementDeployment %q: %#v", d.Id(), obj)

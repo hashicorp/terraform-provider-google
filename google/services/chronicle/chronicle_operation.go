@@ -63,7 +63,7 @@ func createChronicleWaiter(config *transport_tpg.Config, op map[string]interface
 	return w, nil
 }
 
-func ChronicleOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func ChronicleOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, location, activity, userAgent string, timeout time.Duration) error {
 	w, err := createChronicleWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func ChronicleOperationWaitTimeWithResponse(config *transport_tpg.Config, op map
 	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
 }
 
-func ChronicleOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func ChronicleOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, location, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil

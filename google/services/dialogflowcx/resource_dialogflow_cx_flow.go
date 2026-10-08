@@ -1389,6 +1389,9 @@ func resourceDialogflowCXFlowCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Flow: %#v", obj)
 	billingProject := ""
@@ -1502,6 +1505,9 @@ func resourceDialogflowCXFlowRead(d *schema.ResourceData, meta interface{}) erro
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/flows/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -1677,6 +1683,9 @@ func resourceDialogflowCXFlowUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Flow %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -1789,6 +1798,9 @@ func resourceDialogflowCXFlowDelete(d *schema.ResourceData, meta interface{}) er
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/flows/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

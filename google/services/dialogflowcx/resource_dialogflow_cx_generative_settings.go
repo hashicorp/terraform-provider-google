@@ -314,6 +314,9 @@ func resourceDialogflowCXGenerativeSettingsCreate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new GenerativeSettings: %#v", obj)
 	billingProject := ""
@@ -405,6 +408,9 @@ func resourceDialogflowCXGenerativeSettingsRead(d *schema.ResourceData, meta int
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/generativeSettings?languageCode={{language_code}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -502,6 +508,9 @@ func resourceDialogflowCXGenerativeSettingsUpdate(d *schema.ResourceData, meta i
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/generativeSettings")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	log.Printf("[DEBUG] Updating GenerativeSettings %q: %#v", d.Id(), obj)

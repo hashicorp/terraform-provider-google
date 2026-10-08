@@ -349,6 +349,9 @@ func resourceVertexAIFeaturestoreEntitytypeCreate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new FeaturestoreEntitytype: %#v", obj)
 	billingProject := ""
@@ -389,8 +392,10 @@ func resourceVertexAIFeaturestoreEntitytypeCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating FeaturestoreEntitytype", userAgent,
+		config, res, project, endpointLocation, "Creating FeaturestoreEntitytype", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -430,6 +435,9 @@ func resourceVertexAIFeaturestoreEntitytypeRead(d *schema.ResourceData, meta int
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{featurestore}}/entityTypes/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -560,6 +568,9 @@ func resourceVertexAIFeaturestoreEntitytypeUpdate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating FeaturestoreEntitytype %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -633,6 +644,9 @@ func resourceVertexAIFeaturestoreEntitytypeDelete(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -667,8 +681,10 @@ func resourceVertexAIFeaturestoreEntitytypeDelete(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, "FeaturestoreEntitytype")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Deleting FeaturestoreEntitytype", userAgent,
+		config, res, project, endpointLocation, "Deleting FeaturestoreEntitytype", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

@@ -273,6 +273,9 @@ func resourceChronicleFindingsRefinementCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new FindingsRefinement: %#v", obj)
 	billingProject := ""
@@ -357,6 +360,9 @@ func resourceChronicleFindingsRefinementRead(d *schema.ResourceData, meta interf
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/findingsRefinements/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -499,6 +505,9 @@ func resourceChronicleFindingsRefinementUpdate(d *schema.ResourceData, meta inte
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/findingsRefinements/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	log.Printf("[DEBUG] Updating FindingsRefinement %q: %#v", d.Id(), obj)

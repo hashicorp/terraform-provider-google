@@ -360,6 +360,9 @@ func resourceDialogflowCXSecuritySettingsCreate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new SecuritySettings: %#v", obj)
 	billingProject := ""
@@ -444,6 +447,9 @@ func resourceDialogflowCXSecuritySettingsRead(d *schema.ResourceData, meta inter
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/securitySettings/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -637,6 +643,9 @@ func resourceDialogflowCXSecuritySettingsUpdate(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating SecuritySettings %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -745,6 +754,9 @@ func resourceDialogflowCXSecuritySettingsDelete(d *schema.ResourceData, meta int
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/securitySettings/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

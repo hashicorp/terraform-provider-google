@@ -1525,6 +1525,9 @@ func resourceVertexAIEndpointWithModelGardenDeploymentCreate(d *schema.ResourceD
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new EndpointWithModelGardenDeployment: %#v", obj)
 	billingProject := ""
@@ -1562,8 +1565,10 @@ func resourceVertexAIEndpointWithModelGardenDeploymentCreate(d *schema.ResourceD
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating EndpointWithModelGardenDeployment", userAgent,
+		config, res, project, endpointLocation, "Creating EndpointWithModelGardenDeployment", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -1592,7 +1597,7 @@ func resourceVertexAIEndpointWithModelGardenDeploymentCreate(d *schema.ResourceD
 	// Declare and populate opRes
 	var opRes map[string]interface{}
 	err = VertexAIOperationWaitTimeWithResponse(
-		config, res, &opRes, d.Get("project").(string), "Vertex AI deployModel operation", userAgent,
+		config, res, &opRes, d.Get("project").(string), tpgresource.LocationFromId(d.Id()), "Vertex AI deployModel operation", userAgent,
 		d.Timeout(schema.TimeoutCreate),
 	)
 	if err != nil {
@@ -1741,6 +1746,9 @@ func resourceVertexAIEndpointWithModelGardenDeploymentRead(d *schema.ResourceDat
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -1922,7 +1930,7 @@ func resourceVertexAIEndpointWithModelGardenDeploymentUpdate(d *schema.ResourceD
 	}
 
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Updating EndpointWithModelGardenDeployment", userAgent,
+		config, res, project, tpgresource.LocationFromId(d.Id()), "Updating EndpointWithModelGardenDeployment", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return fmt.Errorf("Error waiting to update EndpointWithModelGardenDeployment %q: %s", d.Id(), err)
@@ -2004,7 +2012,7 @@ func resourceVertexAIEndpointWithModelGardenDeploymentDelete(d *schema.ResourceD
 	}
 
 	err = VertexAIOperationWaitTime(
-		config, undeployRes, project, fmt.Sprintf("Undeploying model %s from EndpointWithModelGardenDeployment", deployedModelDisplayName), userAgent,
+		config, undeployRes, project, tpgresource.LocationFromId(d.Id()), fmt.Sprintf("Undeploying model %s from EndpointWithModelGardenDeployment", deployedModelDisplayName), userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -2038,7 +2046,7 @@ func resourceVertexAIEndpointWithModelGardenDeploymentDelete(d *schema.ResourceD
 	}
 
 	err = VertexAIOperationWaitTime(
-		config, deleteRes, project, "Deleting EndpointWithModelGardenDeployment", userAgent,
+		config, deleteRes, project, tpgresource.LocationFromId(d.Id()), "Deleting EndpointWithModelGardenDeployment", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

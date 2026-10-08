@@ -865,9 +865,9 @@ func resourceLookerInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(id)
 
 	// Derive location for use in REP endpoints
-	location := tpgresource.LocationFromId(d.Id())
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = LookerOperationWaitTime(
-		config, res, project, location, "Creating Instance", userAgent,
+		config, res, project, endpointLocation, "Creating Instance", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -1271,9 +1271,9 @@ func resourceLookerInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		// Derive location for use in REP endpoints
-		location := tpgresource.LocationFromId(d.Id())
+		endpointLocation := tpgresource.LocationFromId(d.Id())
 		err = LookerOperationWaitTime(
-			config, res, project, location, "Updating Instance", userAgent,
+			config, res, project, endpointLocation, "Updating Instance", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -1343,9 +1343,9 @@ func resourceLookerInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Derive location for use in REP endpoints
-	location := tpgresource.LocationFromId(d.Id())
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = LookerOperationWaitTime(
-		config, res, project, location, "Deleting Instance", userAgent,
+		config, res, project, endpointLocation, "Deleting Instance", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

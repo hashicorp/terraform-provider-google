@@ -300,6 +300,9 @@ func resourceVertexAITensorboardRunCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new TensorboardRun: %#v", obj)
 	billingProject := ""
@@ -383,6 +386,9 @@ func resourceVertexAITensorboardRunRead(d *schema.ResourceData, meta interface{}
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/tensorboards/{{tensorboard}}/experiments/{{experiment}}/runs/{{tensorboard_run_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -556,6 +562,9 @@ func resourceVertexAITensorboardRunUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating TensorboardRun %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -633,6 +642,9 @@ func resourceVertexAITensorboardRunDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -658,8 +670,10 @@ func resourceVertexAITensorboardRunDelete(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, "TensorboardRun")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Deleting TensorboardRun", userAgent,
+		config, res, project, endpointLocation, "Deleting TensorboardRun", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

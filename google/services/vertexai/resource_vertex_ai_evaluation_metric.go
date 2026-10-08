@@ -323,6 +323,9 @@ func resourceVertexAIEvaluationMetricCreate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new EvaluationMetric: %#v", obj)
 	billingProject := ""
@@ -402,6 +405,9 @@ func resourceVertexAIEvaluationMetricRead(d *schema.ResourceData, meta interface
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/evaluationMetrics/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -511,6 +517,9 @@ func resourceVertexAIEvaluationMetricDelete(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -536,8 +545,10 @@ func resourceVertexAIEvaluationMetricDelete(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, "EvaluationMetric")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Deleting EvaluationMetric", userAgent,
+		config, res, project, endpointLocation, "Deleting EvaluationMetric", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

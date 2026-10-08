@@ -233,6 +233,9 @@ func resourceVertexAIRagEngineConfigCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new RagEngineConfig: %#v", obj)
 	billingProject := ""
@@ -270,8 +273,10 @@ func resourceVertexAIRagEngineConfigCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating RagEngineConfig", userAgent,
+		config, res, project, endpointLocation, "Creating RagEngineConfig", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -311,6 +316,9 @@ func resourceVertexAIRagEngineConfigRead(d *schema.ResourceData, meta interface{
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/ragEngineConfig")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -439,6 +447,9 @@ func resourceVertexAIRagEngineConfigUpdate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating RagEngineConfig %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -465,8 +476,10 @@ func resourceVertexAIRagEngineConfigUpdate(d *schema.ResourceData, meta interfac
 		log.Printf("[DEBUG] Finished updating RagEngineConfig %q: %#v", d.Id(), res)
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Updating RagEngineConfig", userAgent,
+		config, res, project, endpointLocation, "Updating RagEngineConfig", userAgent,
 		d.Timeout(schema.TimeoutUpdate))
 
 	if err != nil {
@@ -524,7 +537,7 @@ func resourceVertexAIRagEngineConfigDelete(d *schema.ResourceData, meta interfac
 	}
 
 	err = VertexAIOperationWaitTime(
-		config, deleteRes, project, "Updating RagEngineConfig tier to Unprovisioned", userAgent,
+		config, deleteRes, project, tpgresource.LocationFromId(d.Id()), "Updating RagEngineConfig tier to Unprovisioned", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

@@ -284,6 +284,9 @@ func resourceVertexAIDeploymentResourcePoolCreate(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new DeploymentResourcePool: %#v", obj)
 	billingProject := ""
@@ -321,8 +324,10 @@ func resourceVertexAIDeploymentResourcePoolCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating DeploymentResourcePool", userAgent,
+		config, res, project, endpointLocation, "Creating DeploymentResourcePool", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -367,6 +372,9 @@ func resourceVertexAIDeploymentResourcePoolRead(d *schema.ResourceData, meta int
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/deploymentResourcePools/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -476,6 +484,9 @@ func resourceVertexAIDeploymentResourcePoolDelete(d *schema.ResourceData, meta i
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -501,8 +512,10 @@ func resourceVertexAIDeploymentResourcePoolDelete(d *schema.ResourceData, meta i
 		return transport_tpg.HandleNotFoundError(err, d, "DeploymentResourcePool")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Deleting DeploymentResourcePool", userAgent,
+		config, res, project, endpointLocation, "Deleting DeploymentResourcePool", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

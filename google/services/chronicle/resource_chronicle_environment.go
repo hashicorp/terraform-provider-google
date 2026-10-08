@@ -388,6 +388,9 @@ func resourceChronicleEnvironmentCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Environment: %#v", obj)
 	billingProject := ""
@@ -472,6 +475,9 @@ func resourceChronicleEnvironmentRead(d *schema.ResourceData, meta interface{}) 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/environments/{{environment_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -687,6 +693,9 @@ func resourceChronicleEnvironmentUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Environment %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -795,6 +804,9 @@ func resourceChronicleEnvironmentDelete(d *schema.ResourceData, meta interface{}
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/environments/{{environment_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

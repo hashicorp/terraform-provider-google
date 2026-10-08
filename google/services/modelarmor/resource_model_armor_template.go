@@ -516,6 +516,9 @@ func resourceModelArmorTemplateCreate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Template: %#v", obj)
 	billingProject := ""
@@ -589,6 +592,9 @@ func resourceModelArmorTemplateRead(d *schema.ResourceData, meta interface{}) er
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/templates/{{template_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -740,6 +746,9 @@ func resourceModelArmorTemplateUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Template %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -828,6 +837,9 @@ func resourceModelArmorTemplateDelete(d *schema.ResourceData, meta interface{}) 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/templates/{{template_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

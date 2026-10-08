@@ -335,6 +335,9 @@ func resourceChronicleWatchlistCreate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Watchlist: %#v", obj)
 	billingProject := ""
@@ -419,6 +422,9 @@ func resourceChronicleWatchlistRead(d *schema.ResourceData, meta interface{}) er
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/watchlists/{{watchlist_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -598,6 +604,9 @@ func resourceChronicleWatchlistUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Watchlist %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -682,6 +691,9 @@ func resourceChronicleWatchlistDelete(d *schema.ResourceData, meta interface{}) 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/watchlists/{{watchlist_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

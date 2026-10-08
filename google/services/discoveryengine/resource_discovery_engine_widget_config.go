@@ -601,6 +601,9 @@ func resourceDiscoveryEngineWidgetConfigCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new WidgetConfig: %#v", obj)
 	billingProject := ""
@@ -707,6 +710,9 @@ func resourceDiscoveryEngineWidgetConfigRead(d *schema.ResourceData, meta interf
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/widgetConfigs/{{widget_config_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -860,6 +866,9 @@ func resourceDiscoveryEngineWidgetConfigUpdate(d *schema.ResourceData, meta inte
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/widgetConfigs/{{widget_config_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	log.Printf("[DEBUG] Updating WidgetConfig %q: %#v", d.Id(), obj)

@@ -315,6 +315,9 @@ func resourceDiscoveryEngineTargetSiteCreate(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new TargetSite: %#v", obj)
 	billingProject := ""
@@ -352,11 +355,13 @@ func resourceDiscoveryEngineTargetSiteCreate(d *schema.ResourceData, meta interf
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = DiscoveryEngineOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating TargetSite", userAgent,
+		config, res, &opRes, project, endpointLocation, "Creating TargetSite", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -417,6 +422,9 @@ func resourceDiscoveryEngineTargetSiteRead(d *schema.ResourceData, meta interfac
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -532,6 +540,9 @@ func resourceDiscoveryEngineTargetSiteDelete(d *schema.ResourceData, meta interf
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -557,8 +568,10 @@ func resourceDiscoveryEngineTargetSiteDelete(d *schema.ResourceData, meta interf
 		return transport_tpg.HandleNotFoundError(err, d, "TargetSite")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = DiscoveryEngineOperationWaitTime(
-		config, res, project, "Deleting TargetSite", userAgent,
+		config, res, project, endpointLocation, "Deleting TargetSite", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

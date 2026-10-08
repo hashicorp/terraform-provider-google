@@ -550,6 +550,9 @@ func resourceColabRuntimeTemplateCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new RuntimeTemplate: %#v", obj)
 	billingProject := ""
@@ -587,11 +590,13 @@ func resourceColabRuntimeTemplateCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = ColabOperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating RuntimeTemplate", userAgent,
+		config, res, &opRes, project, endpointLocation, "Creating RuntimeTemplate", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -650,6 +655,9 @@ func resourceColabRuntimeTemplateRead(d *schema.ResourceData, meta interface{}) 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notebookRuntimeTemplates/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -801,6 +809,9 @@ func resourceColabRuntimeTemplateUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating RuntimeTemplate %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -882,6 +893,9 @@ func resourceColabRuntimeTemplateDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -907,8 +921,10 @@ func resourceColabRuntimeTemplateDelete(d *schema.ResourceData, meta interface{}
 		return transport_tpg.HandleNotFoundError(err, d, "RuntimeTemplate")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = ColabOperationWaitTime(
-		config, res, project, "Deleting RuntimeTemplate", userAgent,
+		config, res, project, endpointLocation, "Deleting RuntimeTemplate", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

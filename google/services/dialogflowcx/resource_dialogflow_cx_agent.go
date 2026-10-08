@@ -700,6 +700,9 @@ func resourceDialogflowCXAgentCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Agent: %#v", obj)
 	billingProject := ""
@@ -779,6 +782,9 @@ func resourceDialogflowCXAgentRead(d *schema.ResourceData, meta interface{}) err
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/agents/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -1031,6 +1037,9 @@ func resourceDialogflowCXAgentUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Agent %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -1171,6 +1180,9 @@ func resourceDialogflowCXAgentDelete(d *schema.ResourceData, meta interface{}) e
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/agents/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

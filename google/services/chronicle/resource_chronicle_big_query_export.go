@@ -416,6 +416,9 @@ func resourceChronicleBigQueryExportCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new BigQueryExport: %#v", obj)
 	billingProject := ""
@@ -489,6 +492,9 @@ func resourceChronicleBigQueryExportRead(d *schema.ResourceData, meta interface{
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/bigQueryExport")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -632,6 +638,9 @@ func resourceChronicleBigQueryExportUpdate(d *schema.ResourceData, meta interfac
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/bigQueryExport")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	log.Printf("[DEBUG] Updating BigQueryExport %q: %#v", d.Id(), obj)

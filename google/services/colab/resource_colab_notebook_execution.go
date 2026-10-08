@@ -527,6 +527,9 @@ func resourceColabNotebookExecutionCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new NotebookExecution: %#v", obj)
 	billingProject := ""
@@ -564,8 +567,10 @@ func resourceColabNotebookExecutionCreate(d *schema.ResourceData, meta interface
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = ColabOperationWaitTime(
-		config, res, project, "Creating NotebookExecution", userAgent,
+		config, res, project, endpointLocation, "Creating NotebookExecution", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -627,6 +632,9 @@ func resourceColabNotebookExecutionRead(d *schema.ResourceData, meta interface{}
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notebookExecutionJobs/{{notebook_execution_job_id}}?view=NOTEBOOK_EXECUTION_JOB_VIEW_FULL")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -748,6 +756,9 @@ func resourceColabNotebookExecutionDelete(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -773,8 +784,10 @@ func resourceColabNotebookExecutionDelete(d *schema.ResourceData, meta interface
 		return transport_tpg.HandleNotFoundError(err, d, "NotebookExecution")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = ColabOperationWaitTime(
-		config, res, project, "Deleting NotebookExecution", userAgent,
+		config, res, project, endpointLocation, "Deleting NotebookExecution", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

@@ -228,6 +228,9 @@ func resourceDiscoveryEngineUserStoreCreate(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new UserStore: %#v", obj)
 	billingProject := ""
@@ -301,6 +304,9 @@ func resourceDiscoveryEngineUserStoreRead(d *schema.ResourceData, meta interface
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/userStores/{{user_store_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -426,6 +432,9 @@ func resourceDiscoveryEngineUserStoreUpdate(d *schema.ResourceData, meta interfa
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/userStores/{{user_store_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	log.Printf("[DEBUG] Updating UserStore %q: %#v", d.Id(), obj)

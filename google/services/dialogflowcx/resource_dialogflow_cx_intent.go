@@ -381,6 +381,9 @@ func resourceDialogflowCXIntentCreate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Intent: %#v", obj)
 	billingProject := ""
@@ -494,6 +497,9 @@ func resourceDialogflowCXIntentRead(d *schema.ResourceData, meta interface{}) er
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/intents/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -663,6 +669,9 @@ func resourceDialogflowCXIntentUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Intent %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -771,6 +780,9 @@ func resourceDialogflowCXIntentDelete(d *schema.ResourceData, meta interface{}) 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/intents/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	var obj map[string]interface{}

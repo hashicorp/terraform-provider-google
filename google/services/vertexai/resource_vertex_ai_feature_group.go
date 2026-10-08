@@ -290,6 +290,9 @@ func resourceVertexAIFeatureGroupCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new FeatureGroup: %#v", obj)
 	billingProject := ""
@@ -327,8 +330,10 @@ func resourceVertexAIFeatureGroupCreate(d *schema.ResourceData, meta interface{}
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Creating FeatureGroup", userAgent,
+		config, res, project, endpointLocation, "Creating FeatureGroup", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -373,6 +378,9 @@ func resourceVertexAIFeatureGroupRead(d *schema.ResourceData, meta interface{}) 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/featureGroups/{{name}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -530,6 +538,9 @@ func resourceVertexAIFeatureGroupUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating FeatureGroup %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -581,8 +592,10 @@ func resourceVertexAIFeatureGroupUpdate(d *schema.ResourceData, meta interface{}
 			log.Printf("[DEBUG] Finished updating FeatureGroup %q: %#v", d.Id(), res)
 		}
 
+		// Derive location for use in REP endpoints
+		endpointLocation := tpgresource.LocationFromId(d.Id())
 		err = VertexAIOperationWaitTime(
-			config, res, project, "Updating FeatureGroup", userAgent,
+			config, res, project, endpointLocation, "Updating FeatureGroup", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -618,6 +631,9 @@ func resourceVertexAIFeatureGroupDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{region}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -643,8 +659,10 @@ func resourceVertexAIFeatureGroupDelete(d *schema.ResourceData, meta interface{}
 		return transport_tpg.HandleNotFoundError(err, d, "FeatureGroup")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = VertexAIOperationWaitTime(
-		config, res, project, "Deleting FeatureGroup", userAgent,
+		config, res, project, endpointLocation, "Deleting FeatureGroup", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
