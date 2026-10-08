@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where `google_compute_forwarding_rule` was not recreated when its referenced `google_compute_address` was recreated
+```
