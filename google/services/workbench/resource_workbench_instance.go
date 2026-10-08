@@ -57,6 +57,9 @@ import (
 var metadataDefaults = map[string]string{
 	"enable-jupyterlab4":      "true",
 	"new-proxy-agent-enabled": "true",
+	"enable-opencode":         "true",
+	"enable-opencode-web":     "true",
+	"enable-antigravity":      "true",
 }
 
 var WorkbenchInstanceSettableUnmodifiableDefaultMetadata = []string{
@@ -1450,6 +1453,7 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	// Build custom mask since the notebooks API does not support gce_setup as a valid mask
 	restartRequiredKeys := []string{
 		"disable-mixer",
+		"disable-bigquery",
 		"notebook-disable-terminal",
 		"notebook-disable-downloads",
 		"notebook-disable-nbconvert",
@@ -1458,6 +1462,9 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		"enable-jupyterlab4",
 		"geminicli-disabled",
 		"geminicli-tc-accepted",
+		"enable-opencode",
+		"enable-opencode-web",
+		"enable-antigravity",
 	}
 
 	stopInstance := false
