@@ -1,0 +1,9 @@
+```release-note:enhancement
+networksecurity: added missing matchers `ignore_case`, `prefix`, `suffix` and `contains` on `network_rules` for `google_network_security_authz_policy` resource
+```
+```release-note:enhancement
+networksecurity: added nested field `to.noOperations`, on `network_rules` for `google_network_security_authz_policy` resource
+```
+```release-note:enhancement
+networksecurity: added nested field `from.sources/not_sources.resources`, on `network_rules` for `google_network_security_authz_policy` resource
+```

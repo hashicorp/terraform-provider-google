@@ -455,6 +455,39 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyNetworkRulesExa
 		"random_suffix":            randomSuffix,
 	}
 
+	context_2 := map[string]interface{}{
+		"project":           envvar.GetTestProjectFromEnv(),
+		"gateway_name":      "tf-test-swp-gateway" + randomSuffix,
+		"network_name":      "tf-test-lb-network" + randomSuffix,
+		"proxy_subnet_name": "tf-test-proxy-only-subnet" + randomSuffix,
+		"resource_name":     "tf-test-authz-policy" + randomSuffix,
+		"subnet_name":       "tf-test-backend-subnet" + randomSuffix,
+		"swp_policy":        "tf-test-swp-policy" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	context_3 := map[string]interface{}{
+		"project":           envvar.GetTestProjectFromEnv(),
+		"gateway_name":      "tf-test-swp-gateway" + randomSuffix,
+		"network_name":      "tf-test-lb-network" + randomSuffix,
+		"proxy_subnet_name": "tf-test-proxy-only-subnet" + randomSuffix,
+		"resource_name":     "tf-test-authz-policy" + randomSuffix,
+		"subnet_name":       "tf-test-backend-subnet" + randomSuffix,
+		"swp_policy":        "tf-test-swp-policy" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	context_4 := map[string]interface{}{
+		"project":           envvar.GetTestProjectFromEnv(),
+		"gateway_name":      "tf-test-swp-gateway" + randomSuffix,
+		"network_name":      "tf-test-lb-network" + randomSuffix,
+		"proxy_subnet_name": "tf-test-proxy-only-subnet" + randomSuffix,
+		"resource_name":     "tf-test-authz-policy" + randomSuffix,
+		"subnet_name":       "tf-test-backend-subnet" + randomSuffix,
+		"swp_policy":        "tf-test-swp-policy" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -477,6 +510,66 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyNetworkRulesExa
 			},
 			{
 				Config: testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyWithNetworkRulesExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_security_authz_policy.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_security_authz_policy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_authz_policy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyWithNetworkRulesUpdate1Example(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_security_authz_policy.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_security_authz_policy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_authz_policy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyWithNetworkRulesUpdate2Example(context_3),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_security_authz_policy.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_security_authz_policy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_authz_policy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyWithNetworkRulesUpdate3Example(context_4),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_network_security_authz_policy.default", plancheck.ResourceActionUpdate),
@@ -534,7 +627,7 @@ resource "google_network_security_gateway_security_policy" "default" {
 }
 
 resource "google_compute_address" "swp_ip" {
-  name         = "%{gateway_name}" # Alterado para amarrar com a regra de nomenclatura do GCP
+  name         = "%{gateway_name}"
   project      = "%{project}"
   region       = "us-east4"
 
@@ -596,6 +689,16 @@ resource "google_network_security_authz_policy" "default" {
             exact = "%{not_sources_principal}"
           }
         }
+
+        resources {
+          iam_service_account {
+            ignore_case = false
+            exact       = "spiffe://exact/ns/default/sa/exact"
+          }
+          tag_value_id_set {
+            ids = ["1"]
+          }
+        }
       }
       sources {
         ip_blocks {
@@ -610,6 +713,16 @@ resource "google_network_security_authz_policy" "default" {
             exact = "%{sources_principal}"
           }
         }
+
+        resources {
+          iam_service_account {
+            ignore_case = false
+            exact       = "spiffe://example/ns/default/sa/example"
+          }
+          tag_value_id_set {
+            ids = ["2"]
+          }
+        }
       }
     }
 
@@ -619,7 +732,507 @@ resource "google_network_security_authz_policy" "default" {
           exact = "%{to_operations_snis_exact}"
         }
       }
+      not_operations {
+        snis {
+          exact = "testing.com"
+        }
+      }
     }
+  }
+
+  labels = {
+    environment = "test"
+    managed_by  = "terraform"
+  }
+
+  lifecycle {
+    create_before_destroy = false
+  }
+}
+`, context)
+}
+
+func testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyWithNetworkRulesUpdate1Example(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "default" {
+  name                    = "%{network_name}"
+  project                 = "%{project}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%{subnet_name}"
+  project       = "%{project}"
+  region        = "us-east4"
+  ip_cidr_range = "10.1.2.0/24"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_subnetwork" "proxy_only" {
+  name          = "%{proxy_subnet_name}"
+  project       = "%{project}"
+  region        = "us-east4"
+  ip_cidr_range = "10.129.0.0/23"
+
+  purpose = "REGIONAL_MANAGED_PROXY"
+  role    = "ACTIVE"
+
+  network = google_compute_network.default.id
+}
+
+resource "google_network_security_gateway_security_policy" "default" {
+  name     = "%{swp_policy}"
+  project  = "%{project}"
+  location = "us-east4"
+}
+
+resource "google_compute_address" "swp_ip" {
+  name         = "%{gateway_name}"
+  project      = "%{project}"
+  region       = "us-east4"
+
+  subnetwork   = google_compute_subnetwork.default.id
+  address_type = "INTERNAL"
+}
+
+resource "google_network_services_gateway" "swp_gateway" {
+  name     = "%{gateway_name}"
+  project  = "%{project}"
+  location = "us-east4"
+
+  type = "SECURE_WEB_GATEWAY"
+
+  addresses = [google_compute_address.swp_ip.address]
+  ports     = [443]
+  delete_swg_autogen_router_on_destroy = true
+  scope      = "swp-scope"
+  network    = google_compute_network.default.id
+  subnetwork = google_compute_subnetwork.default.id
+
+  gateway_security_policy = google_network_security_gateway_security_policy.default.id
+
+  depends_on = [
+    google_compute_subnetwork.proxy_only
+  ]
+}
+
+resource "google_network_security_authz_policy" "default" {
+  name           = "%{resource_name}"
+  project        = "%{project}"
+  location       = "us-east4"
+
+  description    = "SWP authorization policy"
+  policy_profile = "REQUEST_AUTHZ"
+
+  target {
+    load_balancing_scheme = "INTERNAL_MANAGED"
+
+    resources = [
+      google_network_services_gateway.swp_gateway.id
+    ]
+  }
+
+  action = "ALLOW"
+
+  network_rules {
+    from {
+      not_sources {
+        ip_blocks {
+          prefix = "10.1.7.0"
+          length = 24
+        }
+
+        principals {
+          principal_selector = "CLIENT_CERT_URI_SAN"
+
+          principal {
+            ignore_case = true
+            exact = "spiffe://example/ns/default/sa/example-updated"
+          }
+        }
+
+        resources {
+          iam_service_account {
+            ignore_case = true
+            prefix = "google.com"
+          }
+          tag_value_id_set {
+            ids = ["3"]
+          }
+        }
+      }
+      sources {
+        ip_blocks {
+          length = 24
+          prefix = "10.4.0.0"
+        }
+        
+        principals {
+          principal_selector = "CLIENT_CERT_URI_SAN"
+          
+          principal {
+            ignore_case = true
+            exact = "spiffe://example.com/ns/prod/sa/app-updated"
+          }
+        }
+
+        resources {
+          iam_service_account {
+            ignore_case = true
+            prefix = "google.com"
+          }
+          tag_value_id_set {
+            ids = ["3"]
+          }
+        }
+      }
+    }
+
+    to {
+      operations {
+        snis {
+          ignore_case = true
+          prefix = "google.com"
+        }
+      }
+      not_operations {
+        snis {
+          ignore_case = true
+          prefix = "google.com"
+        }
+      }
+    }
+    when = "request.host.endsWith('.example.com')"
+  }
+
+  labels = {
+    environment = "test"
+    managed_by  = "terraform"
+  }
+
+  lifecycle {
+    create_before_destroy = false
+  }
+}
+`, context)
+}
+
+func testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyWithNetworkRulesUpdate2Example(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "default" {
+  name                    = "%{network_name}"
+  project                 = "%{project}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%{subnet_name}"
+  project       = "%{project}"
+  region        = "us-east4"
+  ip_cidr_range = "10.1.2.0/24"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_subnetwork" "proxy_only" {
+  name          = "%{proxy_subnet_name}"
+  project       = "%{project}"
+  region        = "us-east4"
+  ip_cidr_range = "10.129.0.0/23"
+
+  purpose = "REGIONAL_MANAGED_PROXY"
+  role    = "ACTIVE"
+
+  network = google_compute_network.default.id
+}
+
+resource "google_network_security_gateway_security_policy" "default" {
+  name     = "%{swp_policy}"
+  project  = "%{project}"
+  location = "us-east4"
+}
+
+resource "google_compute_address" "swp_ip" {
+  name         = "%{gateway_name}"
+  project      = "%{project}"
+  region       = "us-east4"
+
+  subnetwork   = google_compute_subnetwork.default.id
+  address_type = "INTERNAL"
+}
+
+resource "google_network_services_gateway" "swp_gateway" {
+  name     = "%{gateway_name}"
+  project  = "%{project}"
+  location = "us-east4"
+
+  type = "SECURE_WEB_GATEWAY"
+
+  addresses = [google_compute_address.swp_ip.address]
+  ports     = [443]
+  delete_swg_autogen_router_on_destroy = true
+  scope      = "swp-scope"
+  network    = google_compute_network.default.id
+  subnetwork = google_compute_subnetwork.default.id
+
+  gateway_security_policy = google_network_security_gateway_security_policy.default.id
+
+  depends_on = [
+    google_compute_subnetwork.proxy_only
+  ]
+}
+
+resource "google_network_security_authz_policy" "default" {
+  name           = "%{resource_name}"
+  project        = "%{project}"
+  location       = "us-east4"
+
+  description    = "SWP authorization policy"
+  policy_profile = "REQUEST_AUTHZ"
+
+  target {
+    load_balancing_scheme = "INTERNAL_MANAGED"
+
+    resources = [
+      google_network_services_gateway.swp_gateway.id
+    ]
+  }
+
+  action = "ALLOW"
+
+  network_rules {
+    from {
+      not_sources {
+        ip_blocks {
+          prefix = "10.1.7.0"
+          length = 24
+        }
+
+        principals {
+          principal_selector = "CLIENT_CERT_URI_SAN"
+
+          principal {
+            ignore_case = true
+            exact = "spiffe://example/ns/default/sa/example-updated"
+          }
+        }
+
+        resources {
+          iam_service_account {
+            ignore_case = true
+            suffix = "/samples"
+          }
+          tag_value_id_set {
+            ids = ["3"]
+          }
+        }
+      }
+      sources {
+        ip_blocks {
+          length = 24
+          prefix = "10.4.0.0"
+        }
+        
+        principals {
+          principal_selector = "CLIENT_CERT_URI_SAN"
+          
+          principal {
+            ignore_case = true
+            exact = "spiffe://example.com/ns/prod/sa/app-updated"
+          }
+        }
+
+        resources {
+          iam_service_account {
+            ignore_case = true
+            suffix = "/samples"
+          }
+          tag_value_id_set {
+            ids = ["3"]
+          }
+        }
+      }
+    }
+
+    to {
+      operations {
+        snis {
+          ignore_case = true
+          suffix = "/samples"
+        }
+      }
+      not_operations {
+        snis {
+          ignore_case = true
+          suffix = "/samples"
+        }
+      }
+    }
+    when = "request.host.endsWith('.example.com')"
+  }
+
+  labels = {
+    environment = "test"
+    managed_by  = "terraform"
+  }
+
+  lifecycle {
+    create_before_destroy = false
+  }
+}
+`, context)
+}
+
+func testAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyWithNetworkRulesUpdate3Example(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "default" {
+  name                    = "%{network_name}"
+  project                 = "%{project}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%{subnet_name}"
+  project       = "%{project}"
+  region        = "us-east4"
+  ip_cidr_range = "10.1.2.0/24"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_subnetwork" "proxy_only" {
+  name          = "%{proxy_subnet_name}"
+  project       = "%{project}"
+  region        = "us-east4"
+  ip_cidr_range = "10.129.0.0/23"
+
+  purpose = "REGIONAL_MANAGED_PROXY"
+  role    = "ACTIVE"
+
+  network = google_compute_network.default.id
+}
+
+resource "google_network_security_gateway_security_policy" "default" {
+  name     = "%{swp_policy}"
+  project  = "%{project}"
+  location = "us-east4"
+}
+
+resource "google_compute_address" "swp_ip" {
+  name         = "%{gateway_name}"
+  project      = "%{project}"
+  region       = "us-east4"
+
+  subnetwork   = google_compute_subnetwork.default.id
+  address_type = "INTERNAL"
+}
+
+resource "google_network_services_gateway" "swp_gateway" {
+  name     = "%{gateway_name}"
+  project  = "%{project}"
+  location = "us-east4"
+
+  type = "SECURE_WEB_GATEWAY"
+
+  addresses = [google_compute_address.swp_ip.address]
+  ports     = [443]
+  delete_swg_autogen_router_on_destroy = true
+  scope      = "swp-scope"
+  network    = google_compute_network.default.id
+  subnetwork = google_compute_subnetwork.default.id
+
+  gateway_security_policy = google_network_security_gateway_security_policy.default.id
+
+  depends_on = [
+    google_compute_subnetwork.proxy_only
+  ]
+}
+
+resource "google_network_security_authz_policy" "default" {
+  name           = "%{resource_name}"
+  project        = "%{project}"
+  location       = "us-east4"
+
+  description    = "SWP authorization policy"
+  policy_profile = "REQUEST_AUTHZ"
+
+  target {
+    load_balancing_scheme = "INTERNAL_MANAGED"
+
+    resources = [
+      google_network_services_gateway.swp_gateway.id
+    ]
+  }
+
+  action = "ALLOW"
+
+  network_rules {
+    from {
+      not_sources {
+        ip_blocks {
+          prefix = "10.1.7.0"
+          length = 24
+        }
+
+        principals {
+          principal_selector = "CLIENT_CERT_URI_SAN"
+
+          principal {
+            ignore_case = true
+            exact = "spiffe://example/ns/default/sa/example-updated"
+          }
+        }
+
+        resources {
+          iam_service_account {
+            ignore_case = true
+            contains = "/beta/"
+          }
+          tag_value_id_set {
+            ids = ["3"]
+          }
+        }
+      }
+      sources {
+        ip_blocks {
+          length = 24
+          prefix = "10.4.0.0"
+        }
+        
+        principals {
+          principal_selector = "CLIENT_CERT_URI_SAN"
+          
+          principal {
+            ignore_case = true
+            exact = "spiffe://example.com/ns/prod/sa/app-updated"
+          }
+        }
+
+        resources {
+          iam_service_account {
+            ignore_case = true
+            contains = "/beta/"
+          }
+          tag_value_id_set {
+            ids = ["3"]
+          }
+        }
+      }
+    }
+
+    to {
+      operations {
+        snis {
+          ignore_case = false
+          contains = "/beta/"
+        }
+      }
+      not_operations {
+        snis {
+          ignore_case = false
+          contains = "/beta/"
+        }
+      }
+    }
+    when = "request.host.endsWith('.example.com')"
   }
 
   labels = {
