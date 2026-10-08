@@ -70,6 +70,74 @@ resource "google_bigquery_analytics_hub_query_template" "querytemplate" {
   submit=false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_querytemplate_cmek&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Querytemplate Cmek
+
+
+```hcl
+data "google_client_openid_userinfo" "me" {
+  provider = google-beta
+}
+
+resource "google_project_service_identity" "analyticshub_sa" {
+  provider = google-beta
+  service  = "analyticshub.googleapis.com"
+}
+
+resource "time_sleep" "wait_for_sa" {
+  create_duration = "30s"
+  depends_on      = [google_project_service_identity.analyticshub_sa]
+}
+
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
+  provider      = google-beta
+  crypto_key_id = "projects/keys-project/locations/us/keyRings/key-ring/cryptoKeys/crypto-key"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = google_project_service_identity.analyticshub_sa.member
+  depends_on    = [time_sleep.wait_for_sa]
+}
+
+resource "time_sleep" "wait_for_iam" {
+  create_duration = "30s"
+  depends_on      = [google_kms_crypto_key_iam_member.crypto_key]
+}
+
+resource "google_bigquery_analytics_hub_data_exchange" "querytemplate" {
+  provider         = google-beta
+  display_name     = "My Audience Data Exchange"
+  data_exchange_id = "my_data_exchange"
+  description      = "example of query template with cmek"
+  location         = "us"
+  sharing_environment_config {
+    dcr_exchange_config {}
+  }
+}
+
+resource "google_bigquery_analytics_hub_query_template" "querytemplate" {
+  provider          = google-beta
+  location          = "us"
+  data_exchange_id  = google_bigquery_analytics_hub_data_exchange.querytemplate.data_exchange_id
+  query_template_id = "my_query_template"
+  display_name      = "my_query_template"
+  description       = "example of query template with cmek"
+  primary_contact   = data.google_client_openid_userinfo.me.email
+  documentation     = "This TVF takes a table t1 as input and returns all columns. Useful for basic data pass-through."
+  routine {
+    routine_type    = "TABLE_VALUED_FUNCTION"
+    definition_body = "my_query_template() as (select * from t1)"
+  }
+  encryption_configuration {
+    kms_key_name = "projects/keys-project/locations/us/keyRings/key-ring/cryptoKeys/crypto-key"
+  }
+  depends_on = [
+    time_sleep.wait_for_iam,
+  ]
+}
+```
 
 ## Argument Reference
 
@@ -116,6 +184,13 @@ The following arguments are supported:
   The routine associated with the QueryTemplate.
   Structure is [documented below](#nested_routine).
 
+* `encryption_configuration` -
+  (Optional)
+  Encryption configuration for the query template.
+  If set, the customer-managed KMS key is used to encrypt the query
+  template definition body.
+  Structure is [documented below](#nested_encryption_configuration).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -138,6 +213,13 @@ The following arguments are supported:
 * `definition_body` -
   (Optional)
   SQL query logic.
+
+<a name="nested_encryption_configuration"></a>The `encryption_configuration` block supports:
+
+* `kms_key_name` -
+  (Required)
+  The KMS key used to encrypt the query template.
+  Format: `projects/{project}/locations/{location}/keyRings/{keyring}/cryptoKeys/{key}`
 
 ## Attributes Reference
 

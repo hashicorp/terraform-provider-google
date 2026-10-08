@@ -13,6 +13,7 @@ fields:
     - api_field: description
     - api_field: displayName
     - api_field: documentation
+    - api_field: encryptionConfiguration.kmsKeyName
     - field: location
       provider_only: true
     - api_field: name
