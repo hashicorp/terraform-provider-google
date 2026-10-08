@@ -346,7 +346,7 @@ resource "google_network_security_gateway_security_policy" "default" {
 }
 
 resource "google_compute_address" "swp_ip" {
-  name         = "swp-gateway" # Alterado para amarrar com a regra de nomenclatura do GCP
+  name         = "swp-gateway"
   project      = "my-project-name"
   region       = "us-east4"
 
@@ -408,6 +408,16 @@ resource "google_network_security_authz_policy" "default" {
             exact = "spiffe://example/ns/default/sa/example"
           }
         }
+
+        resources {
+          iam_service_account {
+            ignore_case = false
+            exact       = "spiffe://exact/ns/default/sa/exact"
+          }
+          tag_value_id_set {
+            ids = ["1"]
+          }
+        }
       }
       sources {
         ip_blocks {
@@ -422,6 +432,16 @@ resource "google_network_security_authz_policy" "default" {
             exact = "spiffe://example.com/ns/prod/sa/app-valid"
           }
         }
+
+        resources {
+          iam_service_account {
+            ignore_case = false
+            exact       = "spiffe://example/ns/default/sa/example"
+          }
+          tag_value_id_set {
+            ids = ["2"]
+          }
+        }
       }
     }
 
@@ -429,6 +449,11 @@ resource "google_network_security_authz_policy" "default" {
       operations {
         snis {
           exact = "example.com"
+        }
+      }
+      not_operations {
+        snis {
+          exact = "testing.com"
         }
       }
     }
@@ -1247,6 +1272,10 @@ The following arguments are supported:
   Describes properties of one or more targets of a request
   Structure is [documented below](#nested_network_rules_to).
 
+* `when` -
+  (Optional)
+  CEL expression that describes the conditions to be satisfied for the action. The result of the CEL expression is ANDed with the from and to. Refer to the CEL language reference for a list of available attributes.
+
 
 <a name="nested_network_rules_from"></a>The `from` block supports:
 
@@ -1273,6 +1302,12 @@ The following arguments are supported:
   A list of identities derived from the client's certificate. This field will not match on a request unless mutual TLS is enabled for the Forwarding rule or Gateway. Each identity is a string whose value is matched against the URI SAN, or DNS SAN or the subject field in the client's certificate. The match can be exact, prefix, suffix or a substring match. One of exact, prefix, suffix or contains must be specified.
   Limited to 5 principals.
   Structure is [documented below](#nested_network_rules_from_sources_principals).
+
+* `resources` -
+  (Optional)
+  A list of resources to match against the resource of the source VM of a request.
+  Limited to 5 resources.
+  Structure is [documented below](#nested_network_rules_from_sources_resources).
 
 
 <a name="nested_network_rules_from_sources_ip_blocks"></a>The `ip_blocks` block supports:
@@ -1302,11 +1337,65 @@ The following arguments are supported:
 
 <a name="nested_network_rules_from_sources_principals_principal"></a>The `principal` block supports:
 
+* `ignore_case` -
+  (Optional)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
 * `exact` -
   (Optional)
   The input string must match exactly the string specified here.
   Examples:
   * abc only matches the value abc.
+
+<a name="nested_network_rules_from_sources_resources"></a>The `resources` block supports:
+
+* `tag_value_id_set` -
+  (Optional)
+  A list of resource tag value permanent IDs to match against the resource manager tags value associated with the source VM of a request.
+  Structure is [documented below](#nested_network_rules_from_sources_resources_tag_value_id_set).
+
+* `iam_service_account` -
+  (Optional)
+  An IAM service account to match against the source service account of the VM sending the request.
+  Structure is [documented below](#nested_network_rules_from_sources_resources_iam_service_account).
+
+
+<a name="nested_network_rules_from_sources_resources_tag_value_id_set"></a>The `tag_value_id_set` block supports:
+
+* `ids` -
+  (Optional)
+  A list of resource tag value permanent IDs to match against the resource manager tags value associated with the source VM of a request. The match follows AND semantics which means all the ids must match.
+  Limited to 5 matches.
+
+<a name="nested_network_rules_from_sources_resources_iam_service_account"></a>The `iam_service_account` block supports:
+
+* `ignore_case` -
+  (Optional)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
+* `exact` -
+  (Optional)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+* `prefix` -
+  (Optional)
+  The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value abc.xyz
+
+* `suffix` -
+  (Optional)
+  The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc
+
+* `contains` -
+  (Optional)
+  The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc.def
 
 <a name="nested_network_rules_from_not_sources"></a>The `not_sources` block supports:
 
@@ -1320,6 +1409,12 @@ The following arguments are supported:
   A list of identities derived from the client's certificate. This field will not match on a request unless mutual TLS is enabled for the Forwarding rule or Gateway. Each identity is a string whose value is matched against the URI SAN, or DNS SAN or the subject field in the client's certificate. The match can be exact, prefix, suffix or a substring match. One of exact, prefix, suffix or contains must be specified.
   Limited to 5 principals.
   Structure is [documented below](#nested_network_rules_from_not_sources_principals).
+
+* `resources` -
+  (Optional)
+  A list of resources to match against the resource of the source VM of a request.
+  Limited to 5 resources.
+  Structure is [documented below](#nested_network_rules_from_not_sources_resources).
 
 
 <a name="nested_network_rules_from_not_sources_ip_blocks"></a>The `ip_blocks` block supports:
@@ -1349,11 +1444,65 @@ The following arguments are supported:
 
 <a name="nested_network_rules_from_not_sources_principals_principal"></a>The `principal` block supports:
 
+* `ignore_case` -
+  (Optional)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
 * `exact` -
   (Optional)
   The input string must match exactly the string specified here.
   Examples:
   * abc only matches the value abc.
+
+<a name="nested_network_rules_from_not_sources_resources"></a>The `resources` block supports:
+
+* `tag_value_id_set` -
+  (Optional)
+  A list of resource tag value permanent IDs to match against the resource manager tags value associated with the source VM of a request.
+  Structure is [documented below](#nested_network_rules_from_not_sources_resources_tag_value_id_set).
+
+* `iam_service_account` -
+  (Optional)
+  An IAM service account to match against the source service account of the VM sending the request.
+  Structure is [documented below](#nested_network_rules_from_not_sources_resources_iam_service_account).
+
+
+<a name="nested_network_rules_from_not_sources_resources_tag_value_id_set"></a>The `tag_value_id_set` block supports:
+
+* `ids` -
+  (Optional)
+  A list of resource tag value permanent IDs to match against the resource manager tags value associated with the source VM of a request. The match follows AND semantics which means all the ids must match.
+  Limited to 5 matches.
+
+<a name="nested_network_rules_from_not_sources_resources_iam_service_account"></a>The `iam_service_account` block supports:
+
+* `ignore_case` -
+  (Optional)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
+* `exact` -
+  (Optional)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+* `prefix` -
+  (Optional)
+  The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value abc.xyz
+
+* `suffix` -
+  (Optional)
+  The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc
+
+* `contains` -
+  (Optional)
+  The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc.def
 
 <a name="nested_network_rules_to"></a>The `to` block supports:
 
@@ -1361,6 +1510,11 @@ The following arguments are supported:
   (Optional)
   Describes properties of one or more targets of a request. At least one of operations or notOperations must be specified. Limited to 1 operation.
   Structure is [documented below](#nested_network_rules_to_operations).
+
+* `not_operations` -
+  (Optional)
+  Describes properties of one or more targets of a request. At least one of operations or notOperations must be specified. Limited to 1 operation.
+  Structure is [documented below](#nested_network_rules_to_not_operations).
 
 
 <a name="nested_network_rules_to_operations"></a>The `operations` block supports:
@@ -1372,8 +1526,70 @@ The following arguments are supported:
 
 <a name="nested_network_rules_to_operations_snis"></a>The `snis` block supports:
 
+* `ignore_case` -
+  (Optional)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
 * `exact` -
   (Optional)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+* `prefix` -
+  (Optional)
+  The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value abc.xyz
+
+* `suffix` -
+  (Optional)
+  The input string must have the suffix specified here. Note: empty suffix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc
+
+* `contains` -
+  (Optional)
+  The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc.def
+
+<a name="nested_network_rules_to_not_operations"></a>The `not_operations` block supports:
+
+* `snis` -
+  (Optional)
+  Structure is [documented below](#nested_network_rules_to_not_operations_snis).
+
+
+<a name="nested_network_rules_to_not_operations_snis"></a>The `snis` block supports:
+
+* `ignore_case` -
+  (Optional)
+  If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.
+
+* `exact` -
+  (Optional)
+  The input string must match exactly the string specified here.
+  Examples:
+  * abc only matches the value abc.
+
+* `prefix` -
+  (Optional)
+  The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value abc.xyz
+
+* `suffix` -
+  (Optional)
+  The input string must have the suffix specified here. Note: empty suffix is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc
+
+* `contains` -
+  (Optional)
+  The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+  Examples:
+  * abc matches the value xyz.abc.def
 
 <a name="nested_custom_provider"></a>The `custom_provider` block supports:
 

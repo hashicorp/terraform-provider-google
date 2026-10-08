@@ -1158,6 +1158,11 @@ Only exact match can be applied for CLIENT_CERT_URI_SAN, CLIENT_CERT_DNS_NAME_SA
 Examples:
 * abc only matches the value abc.`,
 																		},
+																		"ignore_case": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.`,
+																		},
 																	},
 																},
 															},
@@ -1167,6 +1172,78 @@ Examples:
 																ValidateFunc: verify.ValidateEnum([]string{"PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME", ""}),
 																Description:  `An enum to decide what principal value the principal rule will match against. If not specified, the PrincipalSelector is CLIENT_CERT_URI_SAN. Default value: "CLIENT_CERT_URI_SAN" Possible values: ["PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME"]`,
 																Default:      "CLIENT_CERT_URI_SAN",
+															},
+														},
+													},
+												},
+												"resources": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of resources to match against the resource of the source VM of a request.
+Limited to 5 resources.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"iam_service_account": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `An IAM service account to match against the source service account of the VM sending the request.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"contains": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc.def`,
+																		},
+																		"exact": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must match exactly the string specified here.
+Examples:
+* abc only matches the value abc.`,
+																		},
+																		"ignore_case": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.`,
+																		},
+																		"prefix": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+Examples:
+* abc matches the value abc.xyz`,
+																		},
+																		"suffix": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc`,
+																		},
+																	},
+																},
+															},
+															"tag_value_id_set": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `A list of resource tag value permanent IDs to match against the resource manager tags value associated with the source VM of a request.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"ids": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `A list of resource tag value permanent IDs to match against the resource manager tags value associated with the source VM of a request. The match follows AND semantics which means all the ids must match.
+Limited to 5 matches.`,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																		},
+																	},
+																},
 															},
 														},
 													},
@@ -1221,6 +1298,11 @@ Only exact match can be applied for CLIENT_CERT_URI_SAN, CLIENT_CERT_DNS_NAME_SA
 Examples:
 * abc only matches the value abc.`,
 																		},
+																		"ignore_case": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.`,
+																		},
 																	},
 																},
 															},
@@ -1230,6 +1312,78 @@ Examples:
 																ValidateFunc: verify.ValidateEnum([]string{"PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME", ""}),
 																Description:  `An enum to decide what principal value the principal rule will match against. If not specified, the PrincipalSelector is CLIENT_CERT_URI_SAN. Default value: "CLIENT_CERT_URI_SAN" Possible values: ["PRINCIPAL_SELECTOR_UNSPECIFIED", "CLIENT_CERT_URI_SAN", "CLIENT_CERT_DNS_NAME_SAN", "CLIENT_CERT_COMMON_NAME"]`,
 																Default:      "CLIENT_CERT_URI_SAN",
+															},
+														},
+													},
+												},
+												"resources": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `A list of resources to match against the resource of the source VM of a request.
+Limited to 5 resources.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"iam_service_account": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `An IAM service account to match against the source service account of the VM sending the request.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"contains": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc.def`,
+																		},
+																		"exact": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must match exactly the string specified here.
+Examples:
+* abc only matches the value abc.`,
+																		},
+																		"ignore_case": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.`,
+																		},
+																		"prefix": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+Examples:
+* abc matches the value abc.xyz`,
+																		},
+																		"suffix": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The input string must have the suffix specified here. Note: empty prefix is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc`,
+																		},
+																	},
+																},
+															},
+															"tag_value_id_set": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `A list of resource tag value permanent IDs to match against the resource manager tags value associated with the source VM of a request.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"ids": {
+																			Type:     schema.TypeList,
+																			Optional: true,
+																			Description: `A list of resource tag value permanent IDs to match against the resource manager tags value associated with the source VM of a request. The match follows AND semantics which means all the ids must match.
+Limited to 5 matches.`,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																		},
+																	},
+																},
 															},
 														},
 													},
@@ -1247,6 +1401,57 @@ Examples:
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"not_operations": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Describes properties of one or more targets of a request. At least one of operations or notOperations must be specified. Limited to 1 operation.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"snis": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: ``,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"contains": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc.def`,
+															},
+															"exact": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `The input string must match exactly the string specified here.
+Examples:
+* abc only matches the value abc.`,
+															},
+															"ignore_case": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: `If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.`,
+															},
+															"prefix": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+Examples:
+* abc matches the value abc.xyz`,
+															},
+															"suffix": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `The input string must have the suffix specified here. Note: empty suffix is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"operations": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -1259,10 +1464,38 @@ Examples:
 													Description: ``,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
+															"contains": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `The input string must have the substring specified here. Note: empty contains match is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc.def`,
+															},
 															"exact": {
-																Type:        schema.TypeString,
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `The input string must match exactly the string specified here.
+Examples:
+* abc only matches the value abc.`,
+															},
+															"ignore_case": {
+																Type:        schema.TypeBool,
 																Optional:    true,
-																Description: ``,
+																Description: `If true, indicates the exact/prefix/suffix/contains matching should be case insensitive. For example, the matcher data will match both input string Data and data if set to true.`,
+															},
+															"prefix": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `The input string must have the prefix specified here. Note: empty prefix is not allowed, please use regex instead.
+Examples:
+* abc matches the value abc.xyz`,
+															},
+															"suffix": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `The input string must have the suffix specified here. Note: empty suffix is not allowed, please use regex instead.
+Examples:
+* abc matches the value xyz.abc`,
 															},
 														},
 													},
@@ -1272,6 +1505,11 @@ Examples:
 									},
 								},
 							},
+						},
+						"when": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `CEL expression that describes the conditions to be satisfied for the action. The result of the CEL expression is ANDed with the from and to. Refer to the CEL language reference for a list of available attributes.`,
 						},
 					},
 				},
@@ -2893,6 +3131,7 @@ func flattenNetworkSecurityAuthzPolicyNetworkRules(v interface{}, d *schema.Reso
 		transformed = append(transformed, map[string]interface{}{
 			"from": flattenNetworkSecurityAuthzPolicyNetworkRulesFrom(original["from"], d, config),
 			"to":   flattenNetworkSecurityAuthzPolicyNetworkRulesTo(original["to"], d, config),
+			"when": flattenNetworkSecurityAuthzPolicyNetworkRulesWhen(original["when"], d, config),
 		})
 	}
 	return transformed
@@ -2928,6 +3167,7 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSources(v interface{}, d *
 		transformed = append(transformed, map[string]interface{}{
 			"ip_blocks":  flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesIpBlocks(original["ipBlocks"], d, config),
 			"principals": flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipals(original["principals"], d, config),
+			"resources":  flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResources(original["resources"], d, config),
 		})
 	}
 	return transformed
@@ -3006,11 +3246,95 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipal
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["ignore_case"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalIgnoreCase(original["ignoreCase"], d, config)
 	transformed["exact"] =
 		flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalExact(original["exact"], d, config)
 	return []interface{}{transformed}
 }
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"tag_value_id_set":    flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesTagValueIdSet(original["tagValueIdSet"], d, config),
+			"iam_service_account": flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccount(original["iamServiceAccount"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesTagValueIdSet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ids"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesTagValueIdSetIds(original["ids"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesTagValueIdSetIds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ignore_case"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountIgnoreCase(original["ignoreCase"], d, config)
+	transformed["exact"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountExact(original["exact"], d, config)
+	transformed["prefix"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountPrefix(original["prefix"], d, config)
+	transformed["suffix"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountSuffix(original["suffix"], d, config)
+	transformed["contains"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountContains(original["contains"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountSuffix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountContains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3030,6 +3354,7 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSources(v interface{}, 
 		transformed = append(transformed, map[string]interface{}{
 			"ip_blocks":  flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesIpBlocks(original["ipBlocks"], d, config),
 			"principals": flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipals(original["principals"], d, config),
+			"resources":  flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResources(original["resources"], d, config),
 		})
 	}
 	return transformed
@@ -3108,11 +3433,95 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrinci
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["ignore_case"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalIgnoreCase(original["ignoreCase"], d, config)
 	transformed["exact"] =
 		flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalExact(original["exact"], d, config)
 	return []interface{}{transformed}
 }
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"tag_value_id_set":    flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesTagValueIdSet(original["tagValueIdSet"], d, config),
+			"iam_service_account": flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccount(original["iamServiceAccount"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesTagValueIdSet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ids"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesTagValueIdSetIds(original["ids"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesTagValueIdSetIds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ignore_case"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountIgnoreCase(original["ignoreCase"], d, config)
+	transformed["exact"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountExact(original["exact"], d, config)
+	transformed["prefix"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountPrefix(original["prefix"], d, config)
+	transformed["suffix"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountSuffix(original["suffix"], d, config)
+	transformed["contains"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountContains(original["contains"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountSuffix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountContains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3127,6 +3536,8 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesTo(v interface{}, d *schema.Re
 	transformed := make(map[string]interface{})
 	transformed["operations"] =
 		flattenNetworkSecurityAuthzPolicyNetworkRulesToOperations(original["operations"], d, config)
+	transformed["not_operations"] =
+		flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperations(original["notOperations"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3162,12 +3573,98 @@ func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnis(v interface{}
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"exact": flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisExact(original["exact"], d, config),
+			"ignore_case": flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisIgnoreCase(original["ignoreCase"], d, config),
+			"exact":       flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisExact(original["exact"], d, config),
+			"prefix":      flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisPrefix(original["prefix"], d, config),
+			"suffix":      flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisSuffix(original["suffix"], d, config),
+			"contains":    flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisContains(original["contains"], d, config),
 		})
 	}
 	return transformed
 }
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisSuffix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisContains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"snis": flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnis(original["snis"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnis(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"ignore_case": flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisIgnoreCase(original["ignoreCase"], d, config),
+			"exact":       flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisExact(original["exact"], d, config),
+			"prefix":      flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisPrefix(original["prefix"], d, config),
+			"suffix":      flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisSuffix(original["suffix"], d, config),
+			"contains":    flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisContains(original["contains"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisIgnoreCase(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisExact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisSuffix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisContains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityAuthzPolicyNetworkRulesWhen(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4948,6 +5445,13 @@ func expandNetworkSecurityAuthzPolicyNetworkRules(v interface{}, d tpgresource.T
 			transformed["to"] = transformedTo
 		}
 
+		transformedWhen, err := expandNetworkSecurityAuthzPolicyNetworkRulesWhen(original["when"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedWhen); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["when"] = transformedWhen
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -5007,6 +5511,13 @@ func expandNetworkSecurityAuthzPolicyNetworkRulesFromSources(v interface{}, d tp
 			return nil, err
 		} else if val := reflect.ValueOf(transformedPrincipals); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["principals"] = transformedPrincipals
+		}
+
+		transformedResources, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResources(original["resources"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedResources); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["resources"] = transformedResources
 		}
 
 		req = append(req, transformed)
@@ -5102,6 +5613,13 @@ func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipal(
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalIgnoreCase(original["ignore_case"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ignoreCase"] = transformedIgnoreCase
+	}
+
 	transformedExact, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalExact(original["exact"], d, config)
 	if err != nil {
 		return nil, err
@@ -5112,7 +5630,139 @@ func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipal(
 	return transformed, nil
 }
 
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesPrincipalsPrincipalExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedTagValueIdSet, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesTagValueIdSet(original["tag_value_id_set"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTagValueIdSet); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["tagValueIdSet"] = transformedTagValueIdSet
+		}
+
+		transformedIamServiceAccount, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccount(original["iam_service_account"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIamServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["iamServiceAccount"] = transformedIamServiceAccount
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesTagValueIdSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIds, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesTagValueIdSetIds(original["ids"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ids"] = transformedIds
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesTagValueIdSetIds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountIgnoreCase(original["ignore_case"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ignoreCase"] = transformedIgnoreCase
+	}
+
+	transformedExact, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountExact(original["exact"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exact"] = transformedExact
+	}
+
+	transformedPrefix, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountPrefix(original["prefix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["prefix"] = transformedPrefix
+	}
+
+	transformedSuffix, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountSuffix(original["suffix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSuffix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["suffix"] = transformedSuffix
+	}
+
+	transformedContains, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountContains(original["contains"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContains); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["contains"] = transformedContains
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountSuffix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromSourcesResourcesIamServiceAccountContains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -5141,6 +5791,13 @@ func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSources(v interface{}, d
 			return nil, err
 		} else if val := reflect.ValueOf(transformedPrincipals); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["principals"] = transformedPrincipals
+		}
+
+		transformedResources, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResources(original["resources"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedResources); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["resources"] = transformedResources
 		}
 
 		req = append(req, transformed)
@@ -5236,6 +5893,13 @@ func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincip
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalIgnoreCase(original["ignore_case"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ignoreCase"] = transformedIgnoreCase
+	}
+
 	transformedExact, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalExact(original["exact"], d, config)
 	if err != nil {
 		return nil, err
@@ -5246,7 +5910,139 @@ func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincip
 	return transformed, nil
 }
 
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesPrincipalsPrincipalExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedTagValueIdSet, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesTagValueIdSet(original["tag_value_id_set"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTagValueIdSet); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["tagValueIdSet"] = transformedTagValueIdSet
+		}
+
+		transformedIamServiceAccount, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccount(original["iam_service_account"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIamServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["iamServiceAccount"] = transformedIamServiceAccount
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesTagValueIdSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIds, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesTagValueIdSetIds(original["ids"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ids"] = transformedIds
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesTagValueIdSetIds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountIgnoreCase(original["ignore_case"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ignoreCase"] = transformedIgnoreCase
+	}
+
+	transformedExact, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountExact(original["exact"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exact"] = transformedExact
+	}
+
+	transformedPrefix, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountPrefix(original["prefix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["prefix"] = transformedPrefix
+	}
+
+	transformedSuffix, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountSuffix(original["suffix"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSuffix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["suffix"] = transformedSuffix
+	}
+
+	transformedContains, err := expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountContains(original["contains"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContains); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["contains"] = transformedContains
+	}
+
+	return transformed, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountSuffix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesFromNotSourcesResourcesIamServiceAccountContains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -5267,6 +6063,13 @@ func expandNetworkSecurityAuthzPolicyNetworkRulesTo(v interface{}, d tpgresource
 		return nil, err
 	} else if val := reflect.ValueOf(transformedOperations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["operations"] = transformedOperations
+	}
+
+	transformedNotOperations, err := expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperations(original["not_operations"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNotOperations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["notOperations"] = transformedNotOperations
 	}
 
 	return transformed, nil
@@ -5310,6 +6113,13 @@ func expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnis(v interface{},
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
+		transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisIgnoreCase(original["ignore_case"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ignoreCase"] = transformedIgnoreCase
+		}
+
 		transformedExact, err := expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisExact(original["exact"], d, config)
 		if err != nil {
 			return nil, err
@@ -5317,12 +6127,151 @@ func expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnis(v interface{},
 			transformed["exact"] = transformedExact
 		}
 
+		transformedPrefix, err := expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisPrefix(original["prefix"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["prefix"] = transformedPrefix
+		}
+
+		transformedSuffix, err := expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisSuffix(original["suffix"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSuffix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["suffix"] = transformedSuffix
+		}
+
+		transformedContains, err := expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisContains(original["contains"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedContains); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["contains"] = transformedContains
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
 }
 
+func expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisSuffix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToOperationsSnisContains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSnis, err := expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnis(original["snis"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSnis); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["snis"] = transformedSnis
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnis(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedIgnoreCase, err := expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisIgnoreCase(original["ignore_case"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIgnoreCase); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ignoreCase"] = transformedIgnoreCase
+		}
+
+		transformedExact, err := expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisExact(original["exact"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["exact"] = transformedExact
+		}
+
+		transformedPrefix, err := expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisPrefix(original["prefix"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrefix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["prefix"] = transformedPrefix
+		}
+
+		transformedSuffix, err := expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisSuffix(original["suffix"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSuffix); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["suffix"] = transformedSuffix
+		}
+
+		transformedContains, err := expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisContains(original["contains"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedContains); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["contains"] = transformedContains
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisIgnoreCase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisExact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisSuffix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesToNotOperationsSnisContains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityAuthzPolicyNetworkRulesWhen(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
