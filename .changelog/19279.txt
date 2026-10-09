@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_storage_control_project_feature_config` (beta)
+```
+
+```release-note:new-datasource
+`google_storage_control_project_feature_config` (beta)
+```
