@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: promoted `preconfigured_waf_config.exclusion.request_body` field to GA for `google_compute_security_policy`, `google_compute_security_policy_rule`, `google_compute_region_security_policy`, and `google_compute_region_security_policy_rule`
+```

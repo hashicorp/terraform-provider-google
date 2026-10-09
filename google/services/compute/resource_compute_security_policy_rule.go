@@ -311,6 +311,33 @@ If the rule does not evaluate preconfigured WAF rules, i.e., if evaluatePreconfi
 										Required:    true,
 										Description: `Target WAF rule set to apply the preconfigured WAF exclusion.`,
 									},
+									"request_body": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `A list of request body fields to be excluded from inspection during preconfigured WAF evaluation.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"operator": {
+													Type:         schema.TypeString,
+													Required:     true,
+													ValidateFunc: validation.StringInSlice([]string{"EQUALS", "STARTS_WITH", "ENDS_WITH", "CONTAINS", "EQUALS_ANY"}, false),
+													Description: `You can specify an exact match or a partial match by using a field operator and a field value.
+Available options:
+EQUALS: The operator matches if the field value equals the specified value.
+STARTS_WITH: The operator matches if the field value starts with the specified value.
+ENDS_WITH: The operator matches if the field value ends with the specified value.
+CONTAINS: The operator matches if the field value contains the specified value.
+EQUALS_ANY: The operator matches if the field value is any value.`,
+												},
+												"value": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.`,
+												},
+											},
+										},
+									},
 									"request_cookie": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -1307,6 +1334,7 @@ func flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusion(v interface
 			"request_header":      flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestHeader(original["requestHeadersToExclude"], d, config),
 			"request_cookie":      flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestCookie(original["requestCookiesToExclude"], d, config),
 			"request_uri":         flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestUri(original["requestUrisToExclude"], d, config),
+			"request_body":        flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBody(original["requestBodiesToExclude"], d, config),
 			"request_query_param": flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestQueryParam(original["requestQueryParamsToExclude"], d, config),
 			"target_rule_set":     flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionTargetRuleSet(original["targetRuleSet"], d, config),
 			"target_rule_ids":     flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionTargetRuleIds(original["targetRuleIds"], d, config),
@@ -1395,6 +1423,34 @@ func flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestUriOp
 }
 
 func flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestUriValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBody(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"operator": flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBodyOperator(original["op"], d, config),
+			"value":    flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBodyValue(original["val"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBodyOperator(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBodyValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1939,6 +1995,13 @@ func expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusion(v interface{
 			transformed["requestUrisToExclude"] = transformedRequestUri
 		}
 
+		transformedRequestBody, err := expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBody(original["request_body"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRequestBody); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["requestBodiesToExclude"] = transformedRequestBody
+		}
+
 		transformedRequestQueryParam, err := expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestQueryParam(original["request_query_param"], d, config)
 		if err != nil {
 			return nil, err
@@ -2082,6 +2145,46 @@ func expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestUriOpe
 }
 
 func expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestUriValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBody(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedOperator, err := expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBodyOperator(original["operator"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOperator); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["op"] = transformedOperator
+		}
+
+		transformedValue, err := expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBodyValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["val"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBodyOperator(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusionRequestBodyValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

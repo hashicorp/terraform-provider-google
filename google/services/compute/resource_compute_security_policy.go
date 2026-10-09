@@ -264,6 +264,10 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 													`Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation. When specifying this field, the query or fragment part should be excluded.`,
 												),
 
+												"request_body": resourceComputeSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParamsSchema(
+													`A list of request body fields to be excluded from inspection during\npreconfigured WAF evaluation.`,
+												),
+
 												"request_query_param": resourceComputeSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParamsSchema(
 													`Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation.  Note that the parameter can be in the query string or in the POST body.`,
 												),
@@ -1459,6 +1463,7 @@ func expandSecurityPolicyRulePreconfiguredWafConfigExclusion(raw interface{}) ma
 		"requestHeadersToExclude":     expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_header"].([]interface{})),
 		"requestCookiesToExclude":     expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_cookie"].([]interface{})),
 		"requestUrisToExclude":        expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_uri"].([]interface{})),
+		"requestBodiesToExclude":      expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_body"].([]interface{})),
 		"requestQueryParamsToExclude": expandSecurityPolicyRulePreconfiguredWafConfigExclusionFieldParams(data["request_query_param"].([]interface{})),
 		"targetRuleSet":               data["target_rule_set"].(string),
 		"targetRuleIds":               tpgresource.ConvertStringArr(data["target_rule_ids"].(*schema.Set).List()),
@@ -1636,6 +1641,7 @@ func flattenPreconfiguredWafConfigExclusions(rawExclusions interface{}) []map[st
 			"request_header":      flattenPreconfiguredWafConfigExclusionField(exclusion["requestHeadersToExclude"]),
 			"request_cookie":      flattenPreconfiguredWafConfigExclusionField(exclusion["requestCookiesToExclude"]),
 			"request_uri":         flattenPreconfiguredWafConfigExclusionField(exclusion["requestUrisToExclude"]),
+			"request_body":        flattenPreconfiguredWafConfigExclusionField(exclusion["requestBodiesToExclude"]),
 			"request_query_param": flattenPreconfiguredWafConfigExclusionField(exclusion["requestQueryParamsToExclude"]),
 			"target_rule_set":     exclusion["targetRuleSet"],
 			"target_rule_ids":     schema.NewSet(schema.HashString, targetRuleIds),

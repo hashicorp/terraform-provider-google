@@ -32,6 +32,10 @@ fields:
     - api_field: rules.networkMatch.srcRegionCodes
     - api_field: rules.networkMatch.userDefinedFields.name
     - api_field: rules.networkMatch.userDefinedFields.values
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestBodiesToExclude.op
+      field: rules.preconfigured_waf_config.exclusion.request_body.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestBodiesToExclude.val
+      field: rules.preconfigured_waf_config.exclusion.request_body.value
     - api_field: rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.op
       field: rules.preconfigured_waf_config.exclusion.request_cookie.operator
     - api_field: rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.val

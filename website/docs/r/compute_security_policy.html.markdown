@@ -201,13 +201,11 @@ resource "google_compute_security_policy" "policy" {
 
 ```hcl
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "%{network_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "test-subnet"
   region        = "us-west2"
   network       = google_compute_network.default.id
@@ -215,8 +213,7 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
-  name     = "test-health-check"
+  name = "test-health-check"
 
   http_health_check {
     port = 80
@@ -224,7 +221,6 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_compute_security_policy" "policy_rule_one" {
-  provider    = google-beta
   name        = "policyruletest"
   description = "global security policy with body inspection"
   type        = "CLOUD_ARMOR"
@@ -272,12 +268,11 @@ resource "google_compute_security_policy" "policy_rule_one" {
 }
 
 resource "google_compute_instance_template" "default" {
-  provider     = google-beta
   name         = "backendpolicy"
   machine_type = "e2-micro"
 
   disk {
-    source_image = "projects/debian-cloud/global/images/family/debian-11"
+    source_image = "projects/debian-cloud/global/images/family/debian-13"
     auto_delete  = true
     boot         = true
   }
@@ -289,7 +284,6 @@ resource "google_compute_instance_template" "default" {
 }
 
 resource "google_compute_instance_group_manager" "default" {
-  provider           = google-beta
   name               = "backendpolicy"
   base_instance_name = "backend"
   zone               = "us-west2-a"
@@ -302,7 +296,6 @@ resource "google_compute_instance_group_manager" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  provider              = google-beta
   name                  = "backendpolicy"
   protocol              = "HTTP"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -322,7 +315,6 @@ resource "google_compute_backend_service" "default" {
 
 ```hcl
 resource "google_compute_security_policy" "policy" {
-  provider    = google-beta
   name        = "my-policy"
   description = "Policy with Request Body inspection"
 

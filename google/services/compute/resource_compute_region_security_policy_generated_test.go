@@ -246,6 +246,217 @@ resource "google_compute_region_security_policy" "region-sec-policy-with-rules" 
 `, context)
 }
 
+func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyWithBodyExcludeExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"backend_name":      "tf-test-backendpolicy" + randomSuffix,
+		"health_check_name": "tf-test-test-health-check" + randomSuffix,
+		"network_name":      "tf-test-test-network" + randomSuffix,
+		"sec_policy_name":   "tf-test-policyruletest" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionSecurityPolicy_regionSecurityPolicyWithBodyExcludeExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_security_policy.policy_rule_one",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionSecurityPolicy_regionSecurityPolicyWithBodyExcludeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_compute_network" "default" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%{network_name}-subnet"
+  region        = "us-west2"
+  network       = google_compute_network.default.id
+  ip_cidr_range = "10.10.0.0/24"
+}
+
+resource "google_compute_region_health_check" "default" {
+  name   = "%{health_check_name}"
+  region = "us-west2"
+
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_compute_region_security_policy" "policy_rule_one" {
+  name        = "%{sec_policy_name}"
+  description = "regional security policy with body inspection"
+  region      = "us-west2"
+  type        = "CLOUD_ARMOR"
+
+  advanced_options_config {
+    json_parsing = "STANDARD"
+    log_level    = "VERBOSE"
+  }
+
+  rules {
+    description     = "waf body rule"
+    action          = "deny(403)"
+    priority        = 100
+    preview         = true
+
+    match {
+      expr {
+        expression = "evaluatePreconfiguredWaf('sqli-v33-stable')"
+      }
+    }
+
+    preconfigured_waf_config {
+      exclusion {
+        target_rule_set = "sqli-v33-stable"
+
+        request_body {
+          operator = "EQUALS"
+          value    = "safe-field"
+        }
+      }
+    }
+  }
+
+  rules {
+    action   = "allow"
+    priority = 2147483647
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
+}
+
+resource "google_compute_instance_template" "default" {
+  name         = "%{backend_name}"
+  machine_type = "e2-micro"
+
+  disk {
+    source_image = "projects/debian-cloud/global/images/family/debian-13"
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {}
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "default" {
+  name               = "%{backend_name}"
+  region             = "us-west2"
+  base_instance_name = "backend"
+
+  version {
+    instance_template = google_compute_instance_template.default.id
+  }
+
+  target_size = 1
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name                  = "%{backend_name}"
+  region                = "us-west2"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  timeout_sec           = 30
+
+  health_checks = [google_compute_region_health_check.default.id]
+
+  backend {
+    group           = google_compute_region_instance_group_manager.default.instance_group
+    capacity_scaler = 1.0
+  }
+
+  security_policy = google_compute_region_security_policy.policy_rule_one.id
+}
+`, context)
+}
+
+func TestAccComputeRegionSecurityPolicy_regionSecurityPolicyRequestBodyExpressionExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"sec_policy_name": "tf-test-policyruletest" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionSecurityPolicy_regionSecurityPolicyRequestBodyExpressionExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_security_policy.policy_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionSecurityPolicy_regionSecurityPolicyRequestBodyExpressionExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_security_policy" "policy_rule" {
+  name        = "%{sec_policy_name}"
+  description = "Policy with Request Body inspection"
+  region      = "us-west2"
+  type        = "CLOUD_ARMOR"
+  rules {
+    action   = "deny(403)"
+    priority = 1000
+    match {
+      expr {
+        expression = "request.body.contains('my-match-string')"
+      }
+    }
+    description = "Deny requests containing specific body string"
+  }
+
+  rules {
+    action   = "allow"
+    priority = 2147483647
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule"
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeRegionSecurityPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
