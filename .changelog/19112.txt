@@ -1,0 +1,12 @@
+```release-note:enhancement
+dataproc: added `attached_disk_config.type` field to `google_dataproc_cluster` resource
+```
+```release-note:enhancement
+dataproc: added `attached_disk_config.type` field to `google_dataproc_workflow_template` resource
+```
+```release-note:deprecation
+dataproc: deprecated `attached_disk_config.disk_type` on `google_dataproc_cluster` and `google_dataproc_workflow_template`. Use `attached_disk_config.type` instead.
+```
+```release-note:bug
+dataproc: fixed `confidential_instance_config.enable_confidential_compute` and `resource_manager_tags` state drift on `google_dataproc_cluster`
+```

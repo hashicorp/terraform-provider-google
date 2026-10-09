@@ -341,7 +341,7 @@ func TestAccDataprocWorkflowTemplate_instanceFlexibilityPolicy(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_provisioned_throughput", "140"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.disk_size_gb", "100"),
-					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_BALANCED"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.type", "hyperdisk-balanced"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.provisioned_throughput", "140"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "n4-standard-2"),
@@ -351,7 +351,7 @@ func TestAccDataprocWorkflowTemplate_instanceFlexibilityPolicy(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_provisioned_throughput", "140"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.disk_size_gb", "100"),
-					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_BALANCED"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.type", "hyperdisk-balanced"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.provisioned_throughput", "140"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.machine_types.0", "n4-standard-4"),
@@ -365,7 +365,7 @@ func TestAccDataprocWorkflowTemplate_instanceFlexibilityPolicy(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.boot_disk_provisioned_throughput", "140"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.disk_size_gb", "100"),
-					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_BALANCED"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.type", "hyperdisk-balanced"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.disk_config.0.attached_disk_config.0.provisioned_throughput", "140"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.instance_flexibility_policy.0.provisioning_model_mix.0.standard_capacity_base", "0"),
@@ -407,7 +407,7 @@ resource "google_dataproc_workflow_template" "template" {
                 boot_disk_provisioned_throughput = 140
                 attached_disk_config {
                   disk_size_gb           = 100
-                  disk_type              = "HYPERDISK_BALANCED"
+                  type                   = "hyperdisk-balanced"
                   provisioned_iops       = 3000
                   provisioned_throughput = 140
                 }
@@ -428,7 +428,7 @@ resource "google_dataproc_workflow_template" "template" {
                 boot_disk_provisioned_throughput = 140
                 attached_disk_config {
                   disk_size_gb           = 100
-                  disk_type              = "HYPERDISK_BALANCED"
+                  type                   = "hyperdisk-balanced"
                   provisioned_iops       = 3000
                   provisioned_throughput = 140
                 }
@@ -457,7 +457,7 @@ resource "google_dataproc_workflow_template" "template" {
                 boot_disk_provisioned_throughput = 140
                 attached_disk_config {
                   disk_size_gb           = 100
-                  disk_type              = "HYPERDISK_BALANCED"
+                  type                   = "hyperdisk-balanced"
                   provisioned_iops       = 3000
                   provisioned_throughput = 140
                 }
@@ -507,7 +507,7 @@ func TestAccDataprocWorkflowTemplate_diskConfig(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.disk_config.0.boot_disk_size_gb", "500"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.disk_config.0.boot_disk_provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.disk_config.0.boot_disk_provisioned_throughput", "140"),
-					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_BALANCED"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.disk_config.0.attached_disk_config.0.type", "hyperdisk-balanced"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.disk_config.0.attached_disk_config.0.disk_size_gb", "100"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.disk_config.0.attached_disk_config.0.provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.master_config.0.disk_config.0.attached_disk_config.0.provisioned_throughput", "140"),
@@ -515,7 +515,7 @@ func TestAccDataprocWorkflowTemplate_diskConfig(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.disk_config.0.boot_disk_size_gb", "500"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.disk_config.0.boot_disk_provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.disk_config.0.boot_disk_provisioned_throughput", "140"),
-					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_BALANCED"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.disk_config.0.attached_disk_config.0.type", "hyperdisk-balanced"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.disk_config.0.attached_disk_config.0.disk_size_gb", "100"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.disk_config.0.attached_disk_config.0.provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.worker_config.0.disk_config.0.attached_disk_config.0.provisioned_throughput", "140"),
@@ -523,7 +523,7 @@ func TestAccDataprocWorkflowTemplate_diskConfig(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.disk_config.0.boot_disk_size_gb", "500"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.disk_config.0.boot_disk_provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.disk_config.0.boot_disk_provisioned_throughput", "140"),
-					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_BALANCED"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.disk_config.0.attached_disk_config.0.type", "hyperdisk-balanced"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.disk_config.0.attached_disk_config.0.disk_size_gb", "100"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.disk_config.0.attached_disk_config.0.provisioned_iops", "3000"),
 					resource.TestCheckResourceAttr("google_dataproc_workflow_template.template", "placement.0.managed_cluster.0.config.0.secondary_worker_config.0.disk_config.0.attached_disk_config.0.provisioned_throughput", "140"),
@@ -560,7 +560,7 @@ resource "google_dataproc_workflow_template" "template" {
             boot_disk_provisioned_iops       = 3000
             boot_disk_provisioned_throughput = 140
             attached_disk_config {
-              disk_type              = "HYPERDISK_BALANCED"
+              type                   = "hyperdisk-balanced"
               disk_size_gb           = 100
               provisioned_iops       = 3000
               provisioned_throughput = 140
@@ -576,7 +576,7 @@ resource "google_dataproc_workflow_template" "template" {
             boot_disk_provisioned_iops       = 3000
             boot_disk_provisioned_throughput = 140
             attached_disk_config {
-              disk_type              = "HYPERDISK_BALANCED"
+              type                   = "hyperdisk-balanced"
               disk_size_gb           = 100
               provisioned_iops       = 3000
               provisioned_throughput = 140
@@ -592,7 +592,7 @@ resource "google_dataproc_workflow_template" "template" {
             boot_disk_provisioned_iops       = 3000
             boot_disk_provisioned_throughput = 140
             attached_disk_config {
-              disk_type              = "HYPERDISK_BALANCED"
+              type                   = "hyperdisk-balanced"
               disk_size_gb           = 100
               provisioned_iops       = 3000
               provisioned_throughput = 140

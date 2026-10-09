@@ -535,7 +535,7 @@ cluster_config {
           boot_disk_type    = "pd-standard"
           attached_disk_config {
             disk_size_gb = 30
-            disk_type    = "pd-standard"
+            type         = "hyperdisk-balanced"
           }
         }
       }
@@ -588,7 +588,8 @@ cluster_config {
 
         * `attached_disk_config` - (Optional) Attached disk configuration.
             * `disk_size_gb` - (Optional) Size of the attached disk, specified in GB.
-            * `disk_type` - (Optional) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".
+            * `disk_type` - (Optional, Deprecated) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard". `disk_type` is deprecated and will be removed in a future major release. Use `type` instead.
+            * `type` - (Optional) The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".
             * `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
             * `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
 * `instance_flexibility_policy` (Optional) Instance flexibility Policy allowing a mixture of VM shapes.
@@ -607,7 +608,8 @@ cluster_config {
             * `local_ssd_interface` - (Optional) Interface type of local SSDs (no Local SSDs or NVMe).
             * `attached_disk_config` - (Optional) Attached disk configuration.
                 * `disk_size_gb` - (Optional) Size of the attached disk, specified in GB.
-                * `disk_type` - (Optional) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".
+                * `disk_type` - (Optional, Deprecated) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard". `disk_type` is deprecated and will be removed in a future major release. Use `type` instead.
+                * `type` - (Optional) The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".
                 * `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
                 * `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
 
@@ -646,7 +648,7 @@ cluster_config {
           boot_disk_type    = "pd-standard"
           attached_disk_config {
             disk_size_gb = 30
-            disk_type    = "pd-standard"
+            type         = "hyperdisk-balanced"
           }
         }
       }
@@ -695,7 +697,8 @@ cluster_config {
 
     * `attached_disk_config` - (Optional) Attached disk configuration.
         * `disk_size_gb` - (Optional) Size of the attached disk, specified in GB.
-        * `disk_type` - (Optional) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".
+        * `disk_type` - (Optional, Deprecated) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard". `disk_type` is deprecated and will be removed in a future major release. Use `type` instead.
+        * `type` - (Optional) The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".
         * `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
         * `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
 
@@ -719,7 +722,8 @@ cluster_config {
             * `local_ssd_interface` - (Optional) Interface type of local SSDs (no Local SSDs or NVMe).
             * `attached_disk_config` - (Optional) Attached disk configuration.
                 * `disk_size_gb` - (Optional) Size of the attached disk, specified in GB.
-                * `disk_type` - (Optional) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".
+                * `disk_type` - (Optional, Deprecated) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard". `disk_type` is deprecated and will be removed in a future major release. Use `type` instead.
+                * `type` - (Optional) The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".
                 * `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
                 * `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
 
@@ -797,7 +801,8 @@ will be set for you based on whatever was set for the `worker_config.machine_typ
 
         * `attached_disk_config` - (Optional) Attached disk configuration.
             * `disk_size_gb` - (Optional) Size of the attached disk, specified in GB.
-            * `disk_type` - (Optional) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".
+            * `disk_type` - (Optional, Deprecated) The disk type of the attached disk. Such as "pd-ssd" or "pd-standard". `disk_type` is deprecated and will be removed in a future major release. Use `type` instead.
+            * `type` - (Optional) The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".
             * `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
             * `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
 
