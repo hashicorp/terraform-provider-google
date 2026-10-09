@@ -1,0 +1,39 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_document_ai_schema_version
+generation_type: mmv1
+source_file: products/documentai/SchemaVersion.yaml
+api_service_name: documentai.googleapis.com
+api_version: v1
+api_resource_type_kind: SchemaVersion
+fields:
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: schema.description
+    - api_field: schema.displayName
+    - api_field: schema.documentPrompt
+    - api_field: schema.entityTypes.baseTypes
+    - api_field: schema.entityTypes.displayName
+    - api_field: schema.entityTypes.enumValues.values
+    - api_field: schema.entityTypes.name
+    - api_field: schema.entityTypes.properties.displayName
+    - api_field: schema.entityTypes.properties.method
+    - api_field: schema.entityTypes.properties.name
+    - api_field: schema.entityTypes.properties.occurrenceType
+    - api_field: schema.entityTypes.properties.valueType
+    - api_field: schema.metadata.documentAllowMultipleLabels
+    - api_field: schema.metadata.documentSplitter
+    - api_field: schema.metadata.prefixedNamingOnProperties
+    - api_field: schema.metadata.skipNamingValidation
+    - field: schema_id
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
