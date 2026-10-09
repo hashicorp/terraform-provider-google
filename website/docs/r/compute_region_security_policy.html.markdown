@@ -141,13 +141,11 @@ resource "google_compute_region_security_policy" "region-sec-policy-with-rules" 
 ```hcl
 
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "test-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "test-network-subnet"
   region        = "us-west2"
   network       = google_compute_network.default.id
@@ -155,9 +153,8 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_region_health_check" "default" {
-  provider = google-beta
-  name     = "test-health-check"
-	region   = "us-west2"
+  name   = "test-health-check"
+  region = "us-west2"
 
   http_health_check {
     port = 80
@@ -165,7 +162,6 @@ resource "google_compute_region_health_check" "default" {
 }
 
 resource "google_compute_region_security_policy" "policy_rule_one" {
-  provider    = google-beta
   name        = "policyruletest"
   description = "regional security policy with body inspection"
   region      = "us-west2"
@@ -214,12 +210,11 @@ resource "google_compute_region_security_policy" "policy_rule_one" {
 }
 
 resource "google_compute_instance_template" "default" {
-  provider     = google-beta
   name         = "backendpolicy"
   machine_type = "e2-micro"
 
   disk {
-    source_image = "projects/debian-cloud/global/images/family/debian-11"
+    source_image = "projects/debian-cloud/global/images/family/debian-13"
     auto_delete  = true
     boot         = true
   }
@@ -231,7 +226,6 @@ resource "google_compute_instance_template" "default" {
 }
 
 resource "google_compute_region_instance_group_manager" "default" {
-  provider           = google-beta
   name               = "backendpolicy"
   region             = "us-west2"
   base_instance_name = "backend"
@@ -244,7 +238,6 @@ resource "google_compute_region_instance_group_manager" "default" {
 }
 
 resource "google_compute_region_backend_service" "default" {
-  provider              = google-beta
   name                  = "backendpolicy"
   region                = "us-west2"
   protocol              = "HTTP"
@@ -254,7 +247,7 @@ resource "google_compute_region_backend_service" "default" {
   health_checks = [google_compute_region_health_check.default.id]
 
   backend {
-    group = google_compute_region_instance_group_manager.default.instance_group
+    group           = google_compute_region_instance_group_manager.default.instance_group
     capacity_scaler = 1.0
   }
 
@@ -271,7 +264,6 @@ resource "google_compute_region_backend_service" "default" {
 
 ```hcl
 resource "google_compute_region_security_policy" "policy_rule" {
-  provider    = google-beta
   name        = "policyruletest"
   description = "Policy with Request Body inspection"
   region      = "us-west2"
@@ -559,7 +551,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_rules_preconfigured_waf_config_exclusion_request_uri).
 
 * `request_body` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   A list of request body fields to be excluded from inspection during preconfigured WAF evaluation.
   Structure is [documented below](#nested_rules_preconfigured_waf_config_exclusion_request_body).
 

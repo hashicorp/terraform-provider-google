@@ -201,13 +201,11 @@ resource "google_compute_security_policy_rule" "policy" {
 ```hcl
 
 resource "google_compute_network" "default" {
-  provider                = google-beta
   name                    = "test-network"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  provider      = google-beta
   name          = "test-subnet"
   region        = "us-west2"
   network       = google_compute_network.default.id
@@ -215,8 +213,7 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
-  name     = "test-health-check"
+  name = "test-health-check"
 
   http_health_check {
     port = 80
@@ -224,7 +221,6 @@ resource "google_compute_health_check" "default" {
 }
 
 resource "google_compute_security_policy" "default" {
-  provider    = google-beta
   name        = "policyruletest"
   description = "global security policy with body inspection"
   type        = "CLOUD_ARMOR"
@@ -236,7 +232,6 @@ resource "google_compute_security_policy" "default" {
 }
 
 resource "google_compute_instance_template" "default" {
-  provider     = google-beta
   name         = "backendpolicy"
   machine_type = "e2-micro"
 
@@ -253,7 +248,6 @@ resource "google_compute_instance_template" "default" {
 }
 
 resource "google_compute_instance_group_manager" "default" {
-  provider           = google-beta
   name               = "backendpolicy"
   base_instance_name = "backend"
   zone               = "us-west2-a"
@@ -266,7 +260,6 @@ resource "google_compute_instance_group_manager" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  provider              = google-beta
   name                  = "backendpolicy"
   protocol              = "HTTP"
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -282,7 +275,6 @@ resource "google_compute_backend_service" "default" {
 }
 
 resource "google_compute_security_policy_rule" "policy_rule_one" {
-  provider        = google-beta
   security_policy = google_compute_security_policy.default.name
   description     = "waf body rule"
   action          = "deny(403)"
@@ -321,14 +313,12 @@ resource "google_compute_security_policy_rule" "policy_rule_one" {
 
 ```hcl
 resource "google_compute_security_policy" "default" {
-  provider    = google-beta
   name        = "policyruletest"
   description = "basic global security policy"
   type        = "CLOUD_ARMOR"
 }
 
 resource "google_compute_security_policy_rule" "policy_rule" {
-  provider        = google-beta
   security_policy = google_compute_security_policy.default.name
   description     = "Deny requests containing specific body string"
   action          = "deny(403)"
@@ -494,7 +484,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_uri).
 
 * `request_body` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   A list of request body fields to be excluded from inspection during preconfigured WAF evaluation.
   Structure is [documented below](#nested_preconfigured_waf_config_exclusion_request_body).
 

@@ -330,6 +330,208 @@ resource "google_compute_security_policy_rule" "policy" {
 `, context)
 }
 
+func TestAccComputeSecurityPolicyRule_securityPolicyRuleWithBodyExcludeExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"backend_name":      "tf-test-backendpolicy" + randomSuffix,
+		"health_check_name": "tf-test-test-health-check" + randomSuffix,
+		"network_name":      "tf-test-test-network" + randomSuffix,
+		"sec_policy_name":   "tf-test-policyruletest" + randomSuffix,
+		"subnetwork_name":   "tf-test-test-subnet" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicyRule_securityPolicyRuleWithBodyExcludeExample(context),
+			},
+			{
+				ResourceName:            "google_compute_security_policy_rule.policy_rule_one",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"security_policy"},
+			},
+			{
+				ResourceName:       "google_compute_security_policy_rule.policy_rule_one",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeSecurityPolicyRule_securityPolicyRuleWithBodyExcludeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_compute_network" "default" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%{subnetwork_name}"
+  region        = "us-west2"
+  network       = google_compute_network.default.id
+  ip_cidr_range = "10.10.0.0/24"
+}
+
+resource "google_compute_health_check" "default" {
+  name = "%{health_check_name}"
+
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_compute_security_policy" "default" {
+  name        = "%{sec_policy_name}"
+  description = "global security policy with body inspection"
+  type        = "CLOUD_ARMOR"
+
+  advanced_options_config {
+    json_parsing = "STANDARD"
+    log_level    = "VERBOSE"
+  }
+}
+
+resource "google_compute_instance_template" "default" {
+  name         = "%{backend_name}"
+  machine_type = "e2-micro"
+
+  disk {
+    source_image = "projects/debian-cloud/global/images/family/debian-13"
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {}
+  }
+}
+
+resource "google_compute_instance_group_manager" "default" {
+  name               = "%{backend_name}"
+  base_instance_name = "backend"
+  zone               = "us-west2-a"
+
+  version {
+    instance_template = google_compute_instance_template.default.id
+  }
+
+  target_size = 1
+}
+
+resource "google_compute_backend_service" "default" {
+  name                  = "%{backend_name}"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  timeout_sec           = 30
+
+  health_checks = [google_compute_health_check.default.id]
+
+  backend {
+    group = google_compute_instance_group_manager.default.instance_group
+  }
+
+  security_policy = google_compute_security_policy.default.id
+}
+
+resource "google_compute_security_policy_rule" "policy_rule_one" {
+  security_policy = google_compute_security_policy.default.name
+  description     = "waf body rule"
+  action          = "deny(403)"
+  priority        = 100
+  preview         = true
+
+  match {
+    expr {
+      expression = "evaluatePreconfiguredWaf('sqli-v33-stable')"
+    }
+  }
+
+  preconfigured_waf_config {
+    exclusion {
+      target_rule_set = "sqli-v33-stable"
+
+      request_body {
+        operator = "EQUALS"
+        value    = "safe-field"
+      }
+    }
+  }
+
+  depends_on = [
+    google_compute_backend_service.default
+  ]
+}
+`, context)
+}
+
+func TestAccComputeSecurityPolicyRule_securityPolicyRuleRequestBodyExpressionExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"sec_policy_name": "tf-test-policyruletest" + randomSuffix,
+		"random_suffix":   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicyRule_securityPolicyRuleRequestBodyExpressionExample(context),
+			},
+			{
+				ResourceName:            "google_compute_security_policy_rule.policy_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"security_policy"},
+			},
+			{
+				ResourceName:       "google_compute_security_policy_rule.policy_rule",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeSecurityPolicyRule_securityPolicyRuleRequestBodyExpressionExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "%{sec_policy_name}"
+  description = "basic global security policy"
+  type        = "CLOUD_ARMOR"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_security_policy.default.name
+  description     = "Deny requests containing specific body string"
+  action          = "deny(403)"
+  priority        = 1000
+  match {
+    expr {
+      expression = "request.body.contains('my-match-string')"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeSecurityPolicyRuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

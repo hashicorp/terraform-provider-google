@@ -25,6 +25,10 @@ fields:
       field: match.expr_options.recaptcha_options.session_token_site_keys
     - api_field: rules.match.versionedExpr
       field: match.versioned_expr
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestBodiesToExclude.op
+      field: preconfigured_waf_config.exclusion.request_body.operator
+    - api_field: rules.preconfiguredWafConfig.exclusions.requestBodiesToExclude.val
+      field: preconfigured_waf_config.exclusion.request_body.value
     - api_field: rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.op
       field: preconfigured_waf_config.exclusion.request_cookie.operator
     - api_field: rules.preconfiguredWafConfig.exclusions.requestCookiesToExclude.val
