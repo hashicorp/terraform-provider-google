@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -62,10 +63,19 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"deployment_name": "tf-test-example-deployment" + randomSuffix,
-		"framework_name":  "tf-test-example-framework" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"cloudcontrol_name": "tf-test-example-cloudcontrol" + randomSuffix,
+		"deployment_name":   "tf-test-example-deployment" + randomSuffix,
+		"framework_name":    "tf-test-example-framework" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"cloudcontrol_name": "tf-test-example-cloudcontrol" + randomSuffix,
+		"deployment_name":   "tf-test-example-deployment" + randomSuffix,
+		"framework_name":    "tf-test-example-framework" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -88,108 +98,198 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
+			{
+				Config: testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_cloud_security_compliance_framework_deployment.example", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
 
 func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_cloud_security_compliance_cloud_control" "example" {
+  parent           = "organizations/%{org_id}"
+  location         = "global"
+  cloud_control_id = "%{cloudcontrol_name}"
+
+  display_name              = "TF test CloudControl Name"
+  description               = "A test cloud control for security compliance"
+  categories                = ["CC_CATEGORY_INFRASTRUCTURE"]
+  severity                  = "HIGH"
+  finding_category          = "SECURITY_POLICY"
+  remediation_steps         = "Review and update the security configuration according to best practices."
+  supported_cloud_providers = ["GCP"]
+
+  rules {
+    description       = "Ensure compute instances have secure boot enabled"
+    rule_action_types = ["RULE_ACTION_TYPE_DETECTIVE"]
+
+    cel_expression {
+      expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+      resource_types_values {
+        values = ["compute.googleapis.com/Instance"]
+      }
+    }
+  }
+
+  parameter_spec {
+    name        = "enabled"
+    value_type  = "BOOLEAN"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "regions"
+    value_type  = "STRINGLIST"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "location"
+    value_type  = "STRING"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "oneof-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "bool-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "number-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "string-list-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+  }
+}
+
 resource "google_cloud_security_compliance_framework" "example" {
   parent       = "organizations/%{org_id}"
   location     = "global"
   framework_id = "%{framework_name}"
-  
+
   display_name = "Terraform Framework Name"
   description  = "An Terraform description for the framework"
-  
+
   cloud_control_details {
-		name              = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-		major_revision_id = "2"
-    
+    name              = google_cloud_security_compliance_cloud_control.example.name
+    major_revision_id = "1"
+
     parameters {
-      name = "location"
+      name = "enabled"
       parameter_value {
-        string_value = "us-central1"
-      }
-    }
-    parameters {
-      name = "oneof-parameter"
-      parameter_value {
-        oneof_value {
-          name = "test-oneof"
-          parameter_value {
-            string_value = "test-value"
-          }
-        }
-      }
-    }
-    parameters {
-      name = "bool-parameter"
-      parameter_value {
-        oneof_value {
-          name = "bool-oneof"
-          parameter_value {
-            bool_value = true
-          }
-        }
-      }
-    }
-    parameters {
-      name = "number-parameter"
-      parameter_value {
-        oneof_value {
-          name = "number-oneof"
-          parameter_value {
-            number_value = 123.45
-          }
-        }
-      }
-    }
-    parameters {
-      name = "string-list-parameter"
-      parameter_value {
-        oneof_value {
-          name = "string-list-oneof"
-          parameter_value {
-            string_list_value {
-              values = ["value1", "value2"]
-            }
-          }
-        }
+        bool_value = true
       }
     }
   }
 }
 
 resource "google_cloud_security_compliance_framework_deployment" "example" {
-  parent            = "organizations/%{org_id}"
+  parent                  = "organizations/%{org_id}"
   location                = "global"
   framework_deployment_id = "%{deployment_name}"
   description             = "A framework deployment for cloud security compliance"
-  
+
   framework {
     framework         = google_cloud_security_compliance_framework.example.name
     major_revision_id = "1"
   }
-  
+
   target_resource_config {
     existing_target_resource = "organizations/%{org_id}"
   }
-  
+
   cloud_control_metadata {
     enforcement_mode = "DETECTIVE"
-    
+
     cloud_control_details {
-      name                  = "organizations/%{org_id}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-      major_revision_id     = "2"
-      
+      name              = google_cloud_security_compliance_cloud_control.example.name
+      major_revision_id = "1"
+
       parameters {
         name = "enabled"
         parameter_value {
           bool_value = true
         }
       }
-      
+
       parameters {
         name = "regions"
         parameter_value {
@@ -198,13 +298,14 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
-      
+
       parameters {
         name = "location"
         parameter_value {
           string_value = "us-central1"
         }
       }
+
       parameters {
         name = "oneof-parameter"
         parameter_value {
@@ -216,6 +317,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "bool-parameter"
         parameter_value {
@@ -227,6 +329,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "number-parameter"
         parameter_value {
@@ -238,6 +341,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "string-list-parameter"
         parameter_value {
@@ -253,8 +357,245 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
       }
     }
   }
+}
+`, context)
+}
 
+func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentOrgUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_security_compliance_cloud_control" "example" {
+  parent           = "organizations/%{org_id}"
+  location         = "global"
+  cloud_control_id = "%{cloudcontrol_name}"
 
+  display_name              = "TF test CloudControl Name"
+  description               = "A test cloud control for security compliance"
+  categories                = ["CC_CATEGORY_INFRASTRUCTURE"]
+  severity                  = "HIGH"
+  finding_category          = "SECURITY_POLICY"
+  remediation_steps         = "Review and update the security configuration according to best practices."
+  supported_cloud_providers = ["GCP"]
+
+  rules {
+    description       = "Ensure compute instances have secure boot enabled"
+    rule_action_types = ["RULE_ACTION_TYPE_DETECTIVE"]
+
+    cel_expression {
+      expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+      resource_types_values {
+        values = ["compute.googleapis.com/Instance"]
+      }
+    }
+  }
+
+  parameter_spec {
+    name        = "enabled"
+    value_type  = "BOOLEAN"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "regions"
+    value_type  = "STRINGLIST"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "location"
+    value_type  = "STRING"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "oneof-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "bool-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "number-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "string-list-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework" "example" {
+  parent       = "organizations/%{org_id}"
+  location     = "global"
+  framework_id = "%{framework_name}"
+
+  display_name = "Updated Terraform Framework Name"
+  description  = "An updated Terraform description for the framework"
+
+  cloud_control_details {
+    name              = google_cloud_security_compliance_cloud_control.example.name
+    major_revision_id = "1"
+
+    parameters {
+      name = "enabled"
+      parameter_value {
+        bool_value = true
+      }
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework_deployment" "example" {
+  parent                  = "organizations/%{org_id}"
+  location                = "global"
+  framework_deployment_id = "%{deployment_name}"
+  description             = "A framework deployment for cloud security compliance"
+
+  framework {
+    framework         = google_cloud_security_compliance_framework.example.name
+    major_revision_id = "2"
+  }
+
+  target_resource_config {
+    existing_target_resource = "organizations/%{org_id}"
+  }
+
+  cloud_control_metadata {
+    enforcement_mode = "DETECTIVE"
+
+    cloud_control_details {
+      name              = google_cloud_security_compliance_cloud_control.example.name
+      major_revision_id = "1"
+
+      parameters {
+        name = "enabled"
+        parameter_value {
+          bool_value = true
+        }
+      }
+
+      parameters {
+        name = "regions"
+        parameter_value {
+          string_list_value {
+            values = ["us-central1", "us-west1"]
+          }
+        }
+      }
+
+      parameters {
+        name = "location"
+        parameter_value {
+          string_value = "us-west1"
+        }
+      }
+
+      parameters {
+        name = "oneof-parameter"
+        parameter_value {
+          oneof_value {
+            name = "updated-test-oneof"
+            parameter_value {
+              string_value = "updated-test-value"
+            }
+          }
+        }
+      }
+
+      parameters {
+        name = "bool-parameter"
+        parameter_value {
+          oneof_value {
+            name = "updated-bool-oneof"
+            parameter_value {
+              bool_value = true
+            }
+          }
+        }
+      }
+
+      parameters {
+        name = "number-parameter"
+        parameter_value {
+          oneof_value {
+            name = "updated-number-oneof"
+            parameter_value {
+              number_value = 678.9
+            }
+          }
+        }
+      }
+
+      parameters {
+        name = "string-list-parameter"
+        parameter_value {
+          oneof_value {
+            name = "updated-string-list-oneof"
+            parameter_value {
+              string_list_value {
+                values = ["updated-value1", "updated-value2"]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 `, context)
 }
@@ -265,10 +606,19 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"deployment_name": "tf-test-example-deployment" + randomSuffix,
-		"framework_name":  "tf-test-example-framework" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"cloudcontrol_name": "tf-test-example-cloudcontrol" + randomSuffix,
+		"deployment_name":   "tf-test-example-deployment" + randomSuffix,
+		"framework_name":    "tf-test-example-framework" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"org_id":            envvar.GetTestOrgFromEnv(t),
+		"cloudcontrol_name": "tf-test-example-cloudcontrol" + randomSuffix,
+		"deployment_name":   "tf-test-example-deployment" + randomSuffix,
+		"framework_name":    "tf-test-example-framework" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -283,7 +633,27 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_control_metadata", "framework_deployment_id", "location", "organization", "parent"},
+				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
+			},
+			{
+				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_cloud_security_compliance_framework_deployment.example", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_cloud_security_compliance_framework_deployment.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"framework_deployment_id", "location", "organization", "parent"},
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework_deployment.example",
@@ -298,68 +668,139 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "project" {}
+
+resource "google_cloud_security_compliance_cloud_control" "example" {
+  parent           = "projects/${data.google_project.project.number}"
+  location         = "global"
+  cloud_control_id = "%{cloudcontrol_name}"
+
+  display_name              = "TF test CloudControl Name"
+  description               = "A test cloud control for security compliance"
+  categories                = ["CC_CATEGORY_INFRASTRUCTURE"]
+  severity                  = "HIGH"
+  finding_category          = "SECURITY_POLICY"
+  remediation_steps         = "Review and update the security configuration according to best practices."
+  supported_cloud_providers = ["GCP"]
+
+  rules {
+    description       = "Ensure compute instances have secure boot enabled"
+    rule_action_types = ["RULE_ACTION_TYPE_DETECTIVE"]
+
+    cel_expression {
+      expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+      resource_types_values {
+        values = ["compute.googleapis.com/Instance"]
+      }
+    }
+  }
+
+  parameter_spec {
+    name        = "enabled"
+    value_type  = "BOOLEAN"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "regions"
+    value_type  = "STRINGLIST"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "location"
+    value_type  = "STRING"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "oneof-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "bool-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "number-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "string-list-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+  }
+}
+
 resource "google_cloud_security_compliance_framework" "example" {
   parent       = "projects/${data.google_project.project.number}"
   location     = "global"
   framework_id = "%{framework_name}"
-  
+
   display_name = "Terraform Framework Name"
   description  = "An Terraform description for the framework"
-  
+
   cloud_control_details {
-		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-		major_revision_id = "2"
-    
+    name              = google_cloud_security_compliance_cloud_control.example.name
+    major_revision_id = "1"
+
     parameters {
-      name = "location"
+      name = "enabled"
       parameter_value {
-        string_value = "us-central1"
-      }
-    }
-    parameters {
-      name = "oneof-parameter"
-      parameter_value {
-        oneof_value {
-          name = "test-oneof"
-          parameter_value {
-            string_value = "test-value"
-          }
-        }
-      }
-    }
-    parameters {
-      name = "bool-parameter"
-      parameter_value {
-        oneof_value {
-          name = "bool-oneof"
-          parameter_value {
-            bool_value = true
-          }
-        }
-      }
-    }
-    parameters {
-      name = "number-parameter"
-      parameter_value {
-        oneof_value {
-          name = "number-oneof"
-          parameter_value {
-            number_value = 123.45
-          }
-        }
-      }
-    }
-    parameters {
-      name = "string-list-parameter"
-      parameter_value {
-        oneof_value {
-          name = "string-list-oneof"
-          parameter_value {
-            string_list_value {
-              values = ["value1", "value2"]
-            }
-          }
-        }
+        bool_value = true
       }
     }
   }
@@ -370,30 +811,30 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
   location                = "global"
   framework_deployment_id = "%{deployment_name}"
   description             = "A framework deployment for cloud security compliance"
-  
+
   framework {
     framework         = google_cloud_security_compliance_framework.example.name
     major_revision_id = "1"
   }
-  
+
   target_resource_config {
     existing_target_resource = "projects/${data.google_project.project.project_id}"
   }
-  
+
   cloud_control_metadata {
     enforcement_mode = "DETECTIVE"
-    
+
     cloud_control_details {
-      name                  = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-      major_revision_id     = "2"
-      
+      name              = google_cloud_security_compliance_cloud_control.example.name
+      major_revision_id = "1"
+
       parameters {
         name = "enabled"
         parameter_value {
           bool_value = true
         }
       }
-      
+
       parameters {
         name = "regions"
         parameter_value {
@@ -402,13 +843,14 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
-      
+
       parameters {
         name = "location"
         parameter_value {
           string_value = "us-central1"
         }
       }
+
       parameters {
         name = "oneof-parameter"
         parameter_value {
@@ -420,6 +862,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "bool-parameter"
         parameter_value {
@@ -431,6 +874,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "number-parameter"
         parameter_value {
@@ -442,6 +886,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "string-list-parameter"
         parameter_value {
@@ -457,8 +902,247 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
       }
     }
   }
+}
+`, context)
+}
 
+func testAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFrameworkDeploymentProjectUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
 
+resource "google_cloud_security_compliance_cloud_control" "example" {
+  parent           = "projects/${data.google_project.project.number}"
+  location         = "global"
+  cloud_control_id = "%{cloudcontrol_name}"
+
+  display_name              = "TF test CloudControl Name"
+  description               = "A test cloud control for security compliance"
+  categories                = ["CC_CATEGORY_INFRASTRUCTURE"]
+  severity                  = "HIGH"
+  finding_category          = "SECURITY_POLICY"
+  remediation_steps         = "Review and update the security configuration according to best practices."
+  supported_cloud_providers = ["GCP"]
+
+  rules {
+    description       = "Ensure compute instances have secure boot enabled"
+    rule_action_types = ["RULE_ACTION_TYPE_DETECTIVE"]
+
+    cel_expression {
+      expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+      resource_types_values {
+        values = ["compute.googleapis.com/Instance"]
+      }
+    }
+  }
+
+  parameter_spec {
+    name        = "enabled"
+    value_type  = "BOOLEAN"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "regions"
+    value_type  = "STRINGLIST"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "location"
+    value_type  = "STRING"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "oneof-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "bool-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "number-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "string-list-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework" "example" {
+  parent       = "projects/${data.google_project.project.number}"
+  location     = "global"
+  framework_id = "%{framework_name}"
+
+  display_name = "Updated Terraform Framework Name"
+  description  = "An updated Terraform description for the framework"
+
+  cloud_control_details {
+    name              = google_cloud_security_compliance_cloud_control.example.name
+    major_revision_id = "1"
+
+    parameters {
+      name = "enabled"
+      parameter_value {
+        bool_value = true
+      }
+    }
+  }
+}
+
+resource "google_cloud_security_compliance_framework_deployment" "example" {
+  parent                  = "projects/${data.google_project.project.number}"
+  location                = "global"
+  framework_deployment_id = "%{deployment_name}"
+  description             = "A framework deployment for cloud security compliance"
+
+  framework {
+    framework         = google_cloud_security_compliance_framework.example.name
+    major_revision_id = "2"
+  }
+
+  target_resource_config {
+    existing_target_resource = "projects/${data.google_project.project.project_id}"
+  }
+
+  cloud_control_metadata {
+    enforcement_mode = "DETECTIVE"
+
+    cloud_control_details {
+      name              = google_cloud_security_compliance_cloud_control.example.name
+      major_revision_id = "1"
+
+      parameters {
+        name = "enabled"
+        parameter_value {
+          bool_value = true
+        }
+      }
+
+      parameters {
+        name = "regions"
+        parameter_value {
+          string_list_value {
+            values = ["us-central1", "us-west1"]
+          }
+        }
+      }
+
+      parameters {
+        name = "location"
+        parameter_value {
+          string_value = "us-west1"
+        }
+      }
+
+      parameters {
+        name = "oneof-parameter"
+        parameter_value {
+          oneof_value {
+            name = "updated-test-oneof"
+            parameter_value {
+              string_value = "updated-test-value"
+            }
+          }
+        }
+      }
+
+      parameters {
+        name = "bool-parameter"
+        parameter_value {
+          oneof_value {
+            name = "updated-bool-oneof"
+            parameter_value {
+              bool_value = true
+            }
+          }
+        }
+      }
+
+      parameters {
+        name = "number-parameter"
+        parameter_value {
+          oneof_value {
+            name = "updated-number-oneof"
+            parameter_value {
+              number_value = 678.9
+            }
+          }
+        }
+      }
+
+      parameters {
+        name = "string-list-parameter"
+        parameter_value {
+          oneof_value {
+            name = "updated-string-list-oneof"
+            parameter_value {
+              string_list_value {
+                values = ["updated-value1", "updated-value2"]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 `, context)
 }
