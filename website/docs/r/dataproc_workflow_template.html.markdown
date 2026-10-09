@@ -938,8 +938,12 @@ The `values` block supports:
   Size of the attached disk, specified in GB.
 
 * `disk_type` -
+  (Optional, Deprecated)
+  The disk type of the attached disk. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`. `disk_type` is deprecated and will be removed in a future major release. Use `type` instead.
+
+* `type` -
   (Optional)
-  The disk type of the attached disk. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.
+  Attached disk type. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.
 
 * `provisioned_iops` -
   (Optional)

@@ -813,6 +813,7 @@ type WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttached
 	DiskSizeGb            *int64  `json:"diskSizeGb"`
 	ProvisionedIops       *int64  `json:"provisionedIops"`
 	ProvisionedThroughput *int64  `json:"provisionedThroughput"`
+	Type                  *string `json:"type"`
 }
 
 type jsonWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAttachedDiskConfig
@@ -837,6 +838,8 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfigAtta
 		r.ProvisionedIops = res.ProvisionedIops
 
 		r.ProvisionedThroughput = res.ProvisionedThroughput
+
+		r.Type = res.Type
 
 	}
 	return nil
@@ -1259,6 +1262,7 @@ type WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttached
 	DiskSizeGb            *int64  `json:"diskSizeGb"`
 	ProvisionedIops       *int64  `json:"provisionedIops"`
 	ProvisionedThroughput *int64  `json:"provisionedThroughput"`
+	Type                  *string `json:"type"`
 }
 
 type jsonWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAttachedDiskConfig
@@ -1283,6 +1287,8 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfigAtta
 		r.ProvisionedIops = res.ProvisionedIops
 
 		r.ProvisionedThroughput = res.ProvisionedThroughput
+
+		r.Type = res.Type
 
 	}
 	return nil
@@ -1705,6 +1711,7 @@ type WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfi
 	DiskSizeGb            *int64  `json:"diskSizeGb"`
 	ProvisionedIops       *int64  `json:"provisionedIops"`
 	ProvisionedThroughput *int64  `json:"provisionedThroughput"`
+	Type                  *string `json:"type"`
 }
 
 type jsonWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskConfigAttachedDiskConfig
@@ -1729,6 +1736,8 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigDiskC
 		r.ProvisionedIops = res.ProvisionedIops
 
 		r.ProvisionedThroughput = res.ProvisionedThroughput
+
+		r.Type = res.Type
 
 	}
 	return nil

@@ -1005,7 +1005,14 @@ func ResourceDataprocCluster() *schema.Resource {
 															"disk_type": {
 																Type:        schema.TypeString,
 																Optional:    true,
+																Deprecated:  "`disk_type` is deprecated and will be removed in a future major release. Use `type` instead.",
 																Description: `The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".`,
+																ForceNew:    true,
+															},
+															"type": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".`,
 																ForceNew:    true,
 															},
 															"provisioned_iops": {
@@ -1147,7 +1154,14 @@ func ResourceDataprocCluster() *schema.Resource {
 																					"disk_type": {
 																						Type:        schema.TypeString,
 																						Optional:    true,
+																						Deprecated:  "`disk_type` is deprecated and will be removed in a future major release. Use `type` instead.",
 																						Description: `The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".`,
+																						ForceNew:    true,
+																					},
+																					"type": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".`,
 																						ForceNew:    true,
 																					},
 																					"provisioned_iops": {
@@ -1349,7 +1363,14 @@ func ResourceDataprocCluster() *schema.Resource {
 															"disk_type": {
 																Type:        schema.TypeString,
 																Optional:    true,
+																Deprecated:  "`disk_type` is deprecated and will be removed in a future major release. Use `type` instead.",
 																Description: `The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".`,
+																ForceNew:    true,
+															},
+															"type": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".`,
 																ForceNew:    true,
 															},
 															"provisioned_iops": {
@@ -1510,7 +1531,14 @@ func ResourceDataprocCluster() *schema.Resource {
 																					"disk_type": {
 																						Type:        schema.TypeString,
 																						Optional:    true,
+																						Deprecated:  "`disk_type` is deprecated and will be removed in a future major release. Use `type` instead.",
 																						Description: `The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".`,
+																						ForceNew:    true,
+																					},
+																					"type": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".`,
 																						ForceNew:    true,
 																					},
 																					"provisioned_iops": {
@@ -1683,7 +1711,14 @@ func ResourceDataprocCluster() *schema.Resource {
 															"disk_type": {
 																Type:        schema.TypeString,
 																Optional:    true,
+																Deprecated:  "`disk_type` is deprecated and will be removed in a future major release. Use `type` instead.",
 																Description: `The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".`,
+																ForceNew:    true,
+															},
+															"type": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".`,
 																ForceNew:    true,
 															},
 															"provisioned_iops": {
@@ -1812,7 +1847,14 @@ func ResourceDataprocCluster() *schema.Resource {
 																					"disk_type": {
 																						Type:        schema.TypeString,
 																						Optional:    true,
+																						Deprecated:  "`disk_type` is deprecated and will be removed in a future major release. Use `type` instead.",
 																						Description: `The disk type of the attached disk. Such as "pd-ssd" or "pd-standard".`,
+																						ForceNew:    true,
+																					},
+																					"type": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The disk type of the attached disk. Currently only supports Hyperdisks: "hyperdisk-balanced", "hyperdisk-extreme", "hyperdisk-ml", "hyperdisk-throughput".`,
 																						ForceNew:    true,
 																					},
 																					"provisioned_iops": {
@@ -3933,13 +3975,27 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 		return []map[string]interface{}{}
 	}
 
+	resourceManagerTags := gcc.ResourceManagerTags
+	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.resource_manager_tags"); ok {
+		cfgTags := v.(map[string]interface{})
+		if len(cfgTags) > 0 && resourceManagerTags != nil {
+			filteredTags := make(map[string]string, len(cfgTags))
+			for k, val := range resourceManagerTags {
+				if _, exists := cfgTags[k]; exists {
+					filteredTags[k] = val
+				}
+			}
+			resourceManagerTags = filteredTags
+		}
+	}
+
 	gceConfig := map[string]interface{}{
 		"tags":                  schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(gcc.Tags)),
 		"service_account":       gcc.ServiceAccount,
 		"zone":                  tpgresource.GetResourceNameFromSelfLink(gcc.ZoneUri),
 		"internal_ip_only":      gcc.InternalIpOnly,
 		"metadata":              gcc.Metadata,
-		"resource_manager_tags": gcc.ResourceManagerTags,
+		"resource_manager_tags": resourceManagerTags,
 	}
 
 	if gcc.NetworkUri != "" {
@@ -3977,10 +4033,20 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 		}
 	}
 	if gcc.ConfidentialInstanceConfig != nil {
+		enableConfidentialCompute := gcc.ConfidentialInstanceConfig.EnableConfidentialCompute
+		confidentialInstanceType := gcc.ConfidentialInstanceConfig.ConfidentialInstanceType
+		if !enableConfidentialCompute && confidentialInstanceType != "" {
+			if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.confidential_instance_config.0.enable_confidential_compute"); ok && v.(bool) {
+				enableConfidentialCompute = true
+				if _, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.confidential_instance_config.0.confidential_instance_type"); !ok {
+					confidentialInstanceType = ""
+				}
+			}
+		}
 		gceConfig["confidential_instance_config"] = []map[string]interface{}{
 			{
-				"enable_confidential_compute": gcc.ConfidentialInstanceConfig.EnableConfidentialCompute,
-				"confidential_instance_type":  gcc.ConfidentialInstanceConfig.ConfidentialInstanceType,
+				"enable_confidential_compute": enableConfidentialCompute,
+				"confidential_instance_type":  confidentialInstanceType,
 			},
 		}
 	}
@@ -4283,6 +4349,9 @@ func expandAttachedDiskConfig(l []interface{}) []*dataproc.AttachedDiskConfig {
 		if v, ok := rawMap["disk_type"]; ok {
 			c.DiskType = v.(string)
 		}
+		if v, ok := rawMap["type"]; ok {
+			c.Type = v.(string)
+		}
 		if v, ok := rawMap["provisioned_iops"]; ok && v.(int) > 0 {
 			c.ProvisionedIops = int64(v.(int))
 		}
@@ -4306,6 +4375,7 @@ func flattenAttachedDiskConfig(configs []*dataproc.AttachedDiskConfig) []map[str
 		m := make(map[string]interface{})
 		m["disk_size_gb"] = c.DiskSizeGb
 		m["disk_type"] = c.DiskType
+		m["type"] = c.Type
 		if c.ProvisionedIops > 0 {
 			m["provisioned_iops"] = c.ProvisionedIops
 		}

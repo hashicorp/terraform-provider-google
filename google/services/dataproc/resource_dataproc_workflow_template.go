@@ -1612,7 +1612,16 @@ func DataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDiskConfig
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
+				Deprecated:  "`disk_type` is deprecated and will be removed in a future major release. Use `type` instead.",
 				Description: "Optional. The disk type of the attached disk. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.",
+			},
+
+			"type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Attached disk type. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.",
 			},
 
 			"provisioned_iops": {
@@ -1925,7 +1934,16 @@ func DataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigD
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
+				Deprecated:  "`disk_type` is deprecated and will be removed in a future major release. Use `type` instead.",
 				Description: "Optional. The disk type of the attached disk. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.",
+			},
+
+			"type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Attached disk type. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.",
 			},
 
 			"provisioned_iops": {
@@ -2433,7 +2451,16 @@ func DataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDiskConfig
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
+				Deprecated:  "`disk_type` is deprecated and will be removed in a future major release. Use `type` instead.",
 				Description: "Optional. The disk type of the attached disk. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.",
+			},
+
+			"type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Attached disk type. Currently only supports Hyperdisks: `hyperdisk-balanced`, `hyperdisk-extreme`, `hyperdisk-ml`, `hyperdisk-throughput`.",
 			},
 
 			"provisioned_iops": {
@@ -4186,6 +4213,7 @@ func expandDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDisk
 		DiskType:              dcl.StringOrNil(obj["disk_type"].(string)),
 		ProvisionedIops:       dcl.Int64OrNil(int64(obj["provisioned_iops"].(int))),
 		ProvisionedThroughput: dcl.Int64OrNil(int64(obj["provisioned_throughput"].(int))),
+		Type:                  dcl.StringOrNil(obj["type"].(string)),
 	}
 }
 
@@ -4212,6 +4240,7 @@ func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigMasterConfigDis
 		"disk_type":              obj.DiskType,
 		"provisioned_iops":       obj.ProvisionedIops,
 		"provisioned_throughput": obj.ProvisionedThroughput,
+		"type":                   obj.Type,
 	}
 
 	return transformed
@@ -4530,6 +4559,7 @@ func expandDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerC
 		DiskType:              dcl.StringOrNil(obj["disk_type"].(string)),
 		ProvisionedIops:       dcl.Int64OrNil(int64(obj["provisioned_iops"].(int))),
 		ProvisionedThroughput: dcl.Int64OrNil(int64(obj["provisioned_throughput"].(int))),
+		Type:                  dcl.StringOrNil(obj["type"].(string)),
 	}
 }
 
@@ -4556,6 +4586,7 @@ func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 		"disk_type":              obj.DiskType,
 		"provisioned_iops":       obj.ProvisionedIops,
 		"provisioned_throughput": obj.ProvisionedThroughput,
+		"type":                   obj.Type,
 	}
 
 	return transformed
@@ -5014,6 +5045,7 @@ func expandDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDisk
 		DiskType:              dcl.StringOrNil(obj["disk_type"].(string)),
 		ProvisionedIops:       dcl.Int64OrNil(int64(obj["provisioned_iops"].(int))),
 		ProvisionedThroughput: dcl.Int64OrNil(int64(obj["provisioned_throughput"].(int))),
+		Type:                  dcl.StringOrNil(obj["type"].(string)),
 	}
 }
 
@@ -5040,6 +5072,7 @@ func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigWorkerConfigDis
 		"disk_type":              obj.DiskType,
 		"provisioned_iops":       obj.ProvisionedIops,
 		"provisioned_throughput": obj.ProvisionedThroughput,
+		"type":                   obj.Type,
 	}
 
 	return transformed

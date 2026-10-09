@@ -3888,7 +3888,7 @@ func TestAccDataprocCluster_instanceFlexibilityDiskConfig(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_cluster.instance_flexibility_disk_config", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.boot_disk_size_gb", "100"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.instance_flexibility_disk_config", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.boot_disk_provisioned_throughput", "140"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.instance_flexibility_disk_config", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.attached_disk_config.0.disk_size_gb", "3000"),
-					resource.TestCheckResourceAttr("google_dataproc_cluster.instance_flexibility_disk_config", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_THROUGHPUT"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.instance_flexibility_disk_config", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.attached_disk_config.0.type", "hyperdisk-throughput"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.instance_flexibility_disk_config", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.machine_types.0", "n4-standard-2"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.instance_flexibility_disk_config", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.boot_disk_type", "hyperdisk-balanced"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.instance_flexibility_disk_config", "cluster_config.0.worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.boot_disk_provisioned_iops", "3000"),
@@ -3936,7 +3936,7 @@ resource "google_dataproc_cluster" "instance_flexibility_disk_config" {
 						boot_disk_provisioned_throughput = 140
 						attached_disk_config {
 							disk_size_gb = 3000
-							disk_type = "HYPERDISK_THROUGHPUT"
+							type = "hyperdisk-throughput"
 						}
 					}
 				}
@@ -3962,7 +3962,7 @@ func TestAccDataprocCluster_AttachedDiskConfigMaster(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.attached_disk_config_master", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.attached_disk_config_master", "cluster_config.0.master_config.0.disk_config.0.attached_disk_config.0.disk_size_gb", "30"),
-					resource.TestCheckResourceAttr("google_dataproc_cluster.attached_disk_config_master", "cluster_config.0.master_config.0.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_BALANCED"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.attached_disk_config_master", "cluster_config.0.master_config.0.disk_config.0.attached_disk_config.0.type", "hyperdisk-balanced"),
 				),
 			},
 		},
@@ -3984,7 +3984,7 @@ func TestAccDataprocCluster_AttachedDiskConfigWorker(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.attached_disk_config_worker", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.attached_disk_config_worker", "cluster_config.0.worker_config.0.disk_config.0.attached_disk_config.0.disk_size_gb", "30"),
-					resource.TestCheckResourceAttr("google_dataproc_cluster.attached_disk_config_worker", "cluster_config.0.worker_config.0.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_BALANCED"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.attached_disk_config_worker", "cluster_config.0.worker_config.0.disk_config.0.attached_disk_config.0.type", "hyperdisk-balanced"),
 				),
 			},
 		},
@@ -4006,7 +4006,7 @@ func TestAccDataprocCluster_AttachedDiskConfigSecondary(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.attached_disk_config_secondary", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.attached_disk_config_secondary", "cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.attached_disk_config.0.disk_size_gb", "30"),
-					resource.TestCheckResourceAttr("google_dataproc_cluster.attached_disk_config_secondary", "cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.attached_disk_config.0.disk_type", "HYPERDISK_BALANCED"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.attached_disk_config_secondary", "cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_list.1.disk_config.0.attached_disk_config.0.type", "hyperdisk-balanced"),
 				),
 			},
 		},
@@ -4029,7 +4029,7 @@ resource "google_dataproc_cluster" "attached_disk_config_master" {
 				boot_disk_type = "hyperdisk-balanced"
 				attached_disk_config {   
 					disk_size_gb = 30
-					disk_type    = "HYPERDISK_BALANCED"
+					type         = "hyperdisk-balanced"
 				}
       }
     }
@@ -4071,7 +4071,7 @@ resource "google_dataproc_cluster" "attached_disk_config_worker" {
 				boot_disk_type = "hyperdisk-balanced"
 				attached_disk_config {
 					disk_size_gb = 30
-					disk_type = "HYPERDISK_BALANCED"
+					type = "hyperdisk-balanced"
 				}
 			}
 		}
@@ -4125,7 +4125,7 @@ resource "google_dataproc_cluster" "attached_disk_config_secondary" {
 						boot_disk_type = "hyperdisk-balanced"
 						attached_disk_config {
 							disk_size_gb = 30
-							disk_type = "HYPERDISK_BALANCED"
+							type = "hyperdisk-balanced"
 						}
 					}
 				}
