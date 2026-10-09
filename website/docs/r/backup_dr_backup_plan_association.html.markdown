@@ -224,6 +224,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `data_source` -
   Resource name of data source which will be used as storage location for backups taken
 
+* `auto_protection_policy_binding` -
+  ([Beta](../guides/provider_versions.html.markdown))
+  The resource name of the auto protection policy binding that manages this backup plan association, if any.
+
 * `rules_config_info` -
   Message for rules config info
   Structure is [documented below](#nested_rules_config_info).
