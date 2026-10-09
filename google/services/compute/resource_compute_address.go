@@ -316,7 +316,8 @@ If it is not provided, the provider region is used.`,
 				Description: `The URL of the subnetwork in which to reserve the address. If an IP
 address is specified, it must be within the subnetwork's IP range.
 This field can only be used with INTERNAL type with
-GCE_ENDPOINT/DNS_RESOLVER purposes.`,
+GCE_ENDPOINT/DNS_RESOLVER purposes, or with EXTERNAL type IPv6 addresses
+when 'ipv6_endpoint_type' is 'VM' or 'NETLB'.`,
 			},
 			"address_id": {
 				Type:        schema.TypeString,
