@@ -1,0 +1,7 @@
+```release-note:bug
+saasruntime: fixed `google_saas_runtime_saas` deletion returning before the resource was removed (beta)
+```
+
+```release-note:bug
+saasruntime: fixed `google_saas_runtime_unit_operation` deletion returning before the resource was removed (beta)
+```
