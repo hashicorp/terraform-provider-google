@@ -32,102 +32,172 @@ To get more information about FrameworkDeployment, see:
 
 
 ```hcl
+resource "google_cloud_security_compliance_cloud_control" "example" {
+  parent           = "organizations/123456789"
+  location         = "global"
+  cloud_control_id = "example-cloudcontrol"
+
+  display_name              = "TF test CloudControl Name"
+  description               = "A test cloud control for security compliance"
+  categories                = ["CC_CATEGORY_INFRASTRUCTURE"]
+  severity                  = "HIGH"
+  finding_category          = "SECURITY_POLICY"
+  remediation_steps         = "Review and update the security configuration according to best practices."
+  supported_cloud_providers = ["GCP"]
+
+  rules {
+    description       = "Ensure compute instances have secure boot enabled"
+    rule_action_types = ["RULE_ACTION_TYPE_DETECTIVE"]
+
+    cel_expression {
+      expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+      resource_types_values {
+        values = ["compute.googleapis.com/Instance"]
+      }
+    }
+  }
+
+  parameter_spec {
+    name        = "enabled"
+    value_type  = "BOOLEAN"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "regions"
+    value_type  = "STRINGLIST"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "location"
+    value_type  = "STRING"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "oneof-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "bool-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "number-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "string-list-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+  }
+}
+
 resource "google_cloud_security_compliance_framework" "example" {
   parent       = "organizations/123456789"
   location     = "global"
   framework_id = "example-framework"
-  
+
   display_name = "Terraform Framework Name"
   description  = "An Terraform description for the framework"
-  
+
   cloud_control_details {
-		name              = "organizations/123456789/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-		major_revision_id = "2"
-    
+    name              = google_cloud_security_compliance_cloud_control.example.name
+    major_revision_id = "1"
+
     parameters {
-      name = "location"
+      name = "enabled"
       parameter_value {
-        string_value = "us-central1"
-      }
-    }
-    parameters {
-      name = "oneof-parameter"
-      parameter_value {
-        oneof_value {
-          name = "test-oneof"
-          parameter_value {
-            string_value = "test-value"
-          }
-        }
-      }
-    }
-    parameters {
-      name = "bool-parameter"
-      parameter_value {
-        oneof_value {
-          name = "bool-oneof"
-          parameter_value {
-            bool_value = true
-          }
-        }
-      }
-    }
-    parameters {
-      name = "number-parameter"
-      parameter_value {
-        oneof_value {
-          name = "number-oneof"
-          parameter_value {
-            number_value = 123.45
-          }
-        }
-      }
-    }
-    parameters {
-      name = "string-list-parameter"
-      parameter_value {
-        oneof_value {
-          name = "string-list-oneof"
-          parameter_value {
-            string_list_value {
-              values = ["value1", "value2"]
-            }
-          }
-        }
+        bool_value = true
       }
     }
   }
 }
 
 resource "google_cloud_security_compliance_framework_deployment" "example" {
-  parent            = "organizations/123456789"
+  parent                  = "organizations/123456789"
   location                = "global"
   framework_deployment_id = "example-deployment"
   description             = "A framework deployment for cloud security compliance"
-  
+
   framework {
     framework         = google_cloud_security_compliance_framework.example.name
     major_revision_id = "1"
   }
-  
+
   target_resource_config {
     existing_target_resource = "organizations/123456789"
   }
-  
+
   cloud_control_metadata {
     enforcement_mode = "DETECTIVE"
-    
+
     cloud_control_details {
-      name                  = "organizations/123456789/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-      major_revision_id     = "2"
-      
+      name              = google_cloud_security_compliance_cloud_control.example.name
+      major_revision_id = "1"
+
       parameters {
         name = "enabled"
         parameter_value {
           bool_value = true
         }
       }
-      
+
       parameters {
         name = "regions"
         parameter_value {
@@ -136,13 +206,14 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
-      
+
       parameters {
         name = "location"
         parameter_value {
           string_value = "us-central1"
         }
       }
+
       parameters {
         name = "oneof-parameter"
         parameter_value {
@@ -154,6 +225,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "bool-parameter"
         parameter_value {
@@ -165,6 +237,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "number-parameter"
         parameter_value {
@@ -176,6 +249,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "string-list-parameter"
         parameter_value {
@@ -191,8 +265,6 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
       }
     }
   }
-
-
 }
 ```
 ## Example Usage - Cloudsecuritycompliance Framework Deployment Project Basic
@@ -200,68 +272,139 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
 
 ```hcl
 data "google_project" "project" {}
+
+resource "google_cloud_security_compliance_cloud_control" "example" {
+  parent           = "projects/${data.google_project.project.number}"
+  location         = "global"
+  cloud_control_id = "example-cloudcontrol"
+
+  display_name              = "TF test CloudControl Name"
+  description               = "A test cloud control for security compliance"
+  categories                = ["CC_CATEGORY_INFRASTRUCTURE"]
+  severity                  = "HIGH"
+  finding_category          = "SECURITY_POLICY"
+  remediation_steps         = "Review and update the security configuration according to best practices."
+  supported_cloud_providers = ["GCP"]
+
+  rules {
+    description       = "Ensure compute instances have secure boot enabled"
+    rule_action_types = ["RULE_ACTION_TYPE_DETECTIVE"]
+
+    cel_expression {
+      expression = "resource.data.shieldedInstanceConfig.enableSecureBoot == true"
+      resource_types_values {
+        values = ["compute.googleapis.com/Instance"]
+      }
+    }
+  }
+
+  parameter_spec {
+    name        = "enabled"
+    value_type  = "BOOLEAN"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "regions"
+    value_type  = "STRINGLIST"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "location"
+    value_type  = "STRING"
+    is_required = true
+  }
+
+  parameter_spec {
+    name        = "oneof-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-test-oneof"
+      value_type  = "STRING"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "bool-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-bool-oneof"
+      value_type  = "BOOLEAN"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "number-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-number-oneof"
+      value_type  = "NUMBER"
+      is_required = true
+    }
+  }
+
+  parameter_spec {
+    name        = "string-list-parameter"
+    value_type  = "ONEOF"
+    is_required = true
+
+    sub_parameters {
+      name        = "string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+
+    sub_parameters {
+      name        = "updated-string-list-oneof"
+      value_type  = "STRINGLIST"
+      is_required = true
+    }
+  }
+}
+
 resource "google_cloud_security_compliance_framework" "example" {
   parent       = "projects/${data.google_project.project.number}"
   location     = "global"
   framework_id = "example-framework"
-  
+
   display_name = "Terraform Framework Name"
   description  = "An Terraform description for the framework"
-  
+
   cloud_control_details {
-		name              = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-		major_revision_id = "2"
-    
+    name              = google_cloud_security_compliance_cloud_control.example.name
+    major_revision_id = "1"
+
     parameters {
-      name = "location"
+      name = "enabled"
       parameter_value {
-        string_value = "us-central1"
-      }
-    }
-    parameters {
-      name = "oneof-parameter"
-      parameter_value {
-        oneof_value {
-          name = "test-oneof"
-          parameter_value {
-            string_value = "test-value"
-          }
-        }
-      }
-    }
-    parameters {
-      name = "bool-parameter"
-      parameter_value {
-        oneof_value {
-          name = "bool-oneof"
-          parameter_value {
-            bool_value = true
-          }
-        }
-      }
-    }
-    parameters {
-      name = "number-parameter"
-      parameter_value {
-        oneof_value {
-          name = "number-oneof"
-          parameter_value {
-            number_value = 123.45
-          }
-        }
-      }
-    }
-    parameters {
-      name = "string-list-parameter"
-      parameter_value {
-        oneof_value {
-          name = "string-list-oneof"
-          parameter_value {
-            string_list_value {
-              values = ["value1", "value2"]
-            }
-          }
-        }
+        bool_value = true
       }
     }
   }
@@ -272,30 +415,30 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
   location                = "global"
   framework_deployment_id = "example-deployment"
   description             = "A framework deployment for cloud security compliance"
-  
+
   framework {
     framework         = google_cloud_security_compliance_framework.example.name
     major_revision_id = "1"
   }
-  
+
   target_resource_config {
     existing_target_resource = "projects/${data.google_project.project.project_id}"
   }
-  
+
   cloud_control_metadata {
     enforcement_mode = "DETECTIVE"
-    
+
     cloud_control_details {
-      name                  = "projects/${data.google_project.project.number}/locations/global/cloudControls/builtin-detective-policy-for-vertex-ai-runtime-template-idle-shutdown"
-      major_revision_id     = "2"
-      
+      name              = google_cloud_security_compliance_cloud_control.example.name
+      major_revision_id = "1"
+
       parameters {
         name = "enabled"
         parameter_value {
           bool_value = true
         }
       }
-      
+
       parameters {
         name = "regions"
         parameter_value {
@@ -304,13 +447,14 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
-      
+
       parameters {
         name = "location"
         parameter_value {
           string_value = "us-central1"
         }
       }
+
       parameters {
         name = "oneof-parameter"
         parameter_value {
@@ -322,6 +466,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "bool-parameter"
         parameter_value {
@@ -333,6 +478,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "number-parameter"
         parameter_value {
@@ -344,6 +490,7 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
           }
         }
       }
+
       parameters {
         name = "string-list-parameter"
         parameter_value {
@@ -359,8 +506,6 @@ resource "google_cloud_security_compliance_framework_deployment" "example" {
       }
     }
   }
-
-
 }
 ```
 ## Example Usage - Cloudsecuritycompliance Framework Deployment Folder Creation
@@ -996,6 +1141,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

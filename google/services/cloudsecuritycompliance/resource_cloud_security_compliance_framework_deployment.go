@@ -109,6 +109,7 @@ func ResourceCloudSecurityComplianceFrameworkDeployment() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -150,7 +151,6 @@ func ResourceCloudSecurityComplianceFrameworkDeployment() *schema.Resource {
 			"cloud_control_metadata": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				Description: `Deployment mode and parameters for each of the Cloud Controls in
 the framework. Every Cloud Control in the framework must have a
 CloudControlMetadata.`,
@@ -159,7 +159,6 @@ CloudControlMetadata.`,
 						"cloud_control_details": {
 							Type:        schema.TypeList,
 							Required:    true,
-							ForceNew:    true,
 							Description: `CloudControlDetails contains the details of a CloudControl.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -167,20 +166,17 @@ CloudControlMetadata.`,
 									"major_revision_id": {
 										Type:        schema.TypeString,
 										Required:    true,
-										ForceNew:    true,
 										Description: `Major revision of cloudcontrol`,
 									},
 									"name": {
 										Type:     schema.TypeString,
 										Required: true,
-										ForceNew: true,
 										Description: `The name of the CloudControl in the format:
 "{parent}/locations/{location}/cloudControls/{cloud-control}"`,
 									},
 									"parameters": {
 										Type:     schema.TypeList,
 										Optional: true,
-										ForceNew: true,
 										Description: `Parameters is a key-value pair that is required by the CloudControl. The
 specification of these parameters will be present in cloudcontrol.Eg: {
 "name": "location","value": "us-west-1"}.`,
@@ -189,13 +185,11 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 												"name": {
 													Type:        schema.TypeString,
 													Required:    true,
-													ForceNew:    true,
 													Description: `The name of the parameter.`,
 												},
 												"parameter_value": {
 													Type:        schema.TypeList,
 													Required:    true,
-													ForceNew:    true,
 													Description: `Possible parameter value types.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
@@ -203,19 +197,16 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 															"bool_value": {
 																Type:        schema.TypeBool,
 																Optional:    true,
-																ForceNew:    true,
 																Description: `Represents a boolean value.`,
 															},
 															"number_value": {
 																Type:        schema.TypeFloat,
 																Optional:    true,
-																ForceNew:    true,
 																Description: `Represents a double value.`,
 															},
 															"oneof_value": {
 																Type:        schema.TypeList,
 																Optional:    true,
-																ForceNew:    true,
 																Description: `Sub-parameter values.`,
 																MaxItems:    1,
 																Elem: &schema.Resource{
@@ -223,13 +214,11 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 																		"name": {
 																			Type:        schema.TypeString,
 																			Optional:    true,
-																			ForceNew:    true,
 																			Description: `The name of the parameter.`,
 																		},
 																		"parameter_value": {
 																			Type:        schema.TypeList,
 																			Optional:    true,
-																			ForceNew:    true,
 																			Description: `The value of the parameter.`,
 																			MaxItems:    1,
 																			Elem: &schema.Resource{
@@ -237,19 +226,16 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 																					"bool_value": {
 																						Type:        schema.TypeBool,
 																						Optional:    true,
-																						ForceNew:    true,
 																						Description: `Represents a boolean value.`,
 																					},
 																					"number_value": {
 																						Type:        schema.TypeFloat,
 																						Optional:    true,
-																						ForceNew:    true,
 																						Description: `Represents a double value.`,
 																					},
 																					"string_list_value": {
 																						Type:        schema.TypeList,
 																						Optional:    true,
-																						ForceNew:    true,
 																						Description: `A list of strings.`,
 																						MaxItems:    1,
 																						Elem: &schema.Resource{
@@ -257,7 +243,6 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 																								"values": {
 																									Type:        schema.TypeList,
 																									Required:    true,
-																									ForceNew:    true,
 																									Description: `The strings in the list.`,
 																									Elem: &schema.Schema{
 																										Type: schema.TypeString,
@@ -269,7 +254,6 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 																					"string_value": {
 																						Type:        schema.TypeString,
 																						Optional:    true,
-																						ForceNew:    true,
 																						Description: `Represents a string value.`,
 																					},
 																				},
@@ -281,7 +265,6 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 															"string_list_value": {
 																Type:        schema.TypeList,
 																Optional:    true,
-																ForceNew:    true,
 																Description: `A list of strings.`,
 																MaxItems:    1,
 																Elem: &schema.Resource{
@@ -289,7 +272,6 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 																		"values": {
 																			Type:        schema.TypeList,
 																			Required:    true,
-																			ForceNew:    true,
 																			Description: `The strings in the list.`,
 																			Elem: &schema.Schema{
 																				Type: schema.TypeString,
@@ -301,7 +283,6 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 															"string_value": {
 																Type:        schema.TypeString,
 																Optional:    true,
-																ForceNew:    true,
 																Description: `Represents a string value.`,
 															},
 														},
@@ -316,7 +297,6 @@ specification of these parameters will be present in cloudcontrol.Eg: {
 						"enforcement_mode": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 							Description: `Enforcement mode for the framework deployment.
 Possible values:
 PREVENTIVE
@@ -329,7 +309,6 @@ AUDIT`,
 			"framework": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: `FrameworkReference contains the reference of a framework.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -344,7 +323,6 @@ AUDIT`,
 						"major_revision_id": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `Major revision id of the framework.`,
 						},
 					},
@@ -790,7 +768,138 @@ func resourceCloudSecurityComplianceFrameworkDeploymentRead(d *schema.ResourceDa
 }
 
 func resourceCloudSecurityComplianceFrameworkDeploymentUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceCloudSecurityComplianceFrameworkDeployment().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceCloudSecurityComplianceFrameworkDeploymentRead(d, meta)
+	}
+
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if organizationValue, ok := d.GetOk("organization"); ok && organizationValue.(string) != "" {
+			if err = identity.Set("organization", organizationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting organization: %s", err)
+			}
+		}
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if frameworkDeploymentIdValue, ok := d.GetOk("framework_deployment_id"); ok && frameworkDeploymentIdValue.(string) != "" {
+			if err = identity.Set("framework_deployment_id", frameworkDeploymentIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting framework_deployment_id: %s", err)
+			}
+		}
+		if parentValue, ok := d.GetOk("parent"); ok && parentValue.(string) != "" {
+			if err = identity.Set("parent", parentValue.(string)); err != nil {
+				return fmt.Errorf("Error setting parent: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
+	}
+
+	billingProject := ""
+
+	obj := make(map[string]interface{})
+	cloudControlMetadataProp, err := expandCloudSecurityComplianceFrameworkDeploymentCloudControlMetadata(d.Get("cloud_control_metadata"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cloud_control_metadata"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cloudControlMetadataProp)) {
+		obj["cloudControlMetadata"] = cloudControlMetadataProp
+	}
+	frameworkProp, err := expandCloudSecurityComplianceFrameworkDeploymentFramework(d.Get("framework"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("framework"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, frameworkProp)) {
+		obj["framework"] = frameworkProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating FrameworkDeployment %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+	updateMask := []string{}
+
+	if d.HasChange("cloud_control_metadata") {
+		updateMask = append(updateMask, "cloudControlMetadata")
+	}
+
+	if d.HasChange("framework") {
+		updateMask = append(updateMask, "framework.major_revision_id")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
+		if err := d.Set("parent", fmt.Sprintf("organizations/%s", d.Get("organization").(string))); err != nil {
+			return err
+		}
+	}
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
+	if err != nil {
+		return err
+	}
+	if len(updateMask) > 0 {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+		if err != nil {
+			return err
+		}
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error updating FrameworkDeployment %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating FrameworkDeployment %q: %#v", d.Id(), res)
+		}
+
+		err = CloudSecurityComplianceOperationWaitTime(
+			config, res, "Updating FrameworkDeployment", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceCloudSecurityComplianceFrameworkDeploymentRead(d, meta)
 }
 

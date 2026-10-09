@@ -722,13 +722,19 @@ func resourceCloudSecurityComplianceFrameworkUpdate(d *schema.ResourceData, meta
 	}
 
 	if d.Get("parent").(string) == "" && d.Get("organization").(string) != "" {
-		if err := d.Set("parent", "organizations/"+d.Get("organization").(string)); err != nil {
+		if err := d.Set("parent", fmt.Sprintf("organizations/%s", d.Get("organization").(string))); err != nil {
 			return err
 		}
 	}
 	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworks/{{framework_id}}")
 	if err != nil {
 		return err
+	}
+	if len(updateMask) > 0 {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+		if err != nil {
+			return err
+		}
 	}
 
 	// err == nil indicates that the billing_project value was found
