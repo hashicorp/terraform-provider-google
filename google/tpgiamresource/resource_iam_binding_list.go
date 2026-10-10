@@ -14,7 +14,7 @@
 //     overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2014, 2026
 // SPDX-License-Identifier: MPL-2.0
 
 // IAM binding list resource: enumerate row per (row, member-set) by reading
