@@ -29,6 +29,7 @@ To get more information about Schema, see:
 * [API documentation](https://cloud.google.com/generative-ai-app-builder/docs/reference/rest/v1/projects.locations.collections.dataStores.schemas)
 * How-to Guides
     * [Provide a schema for your data store](https://cloud.google.com/generative-ai-app-builder/docs/provide-schema)
+    * [Update a schema for structured data](https://cloud.google.com/generative-ai-app-builder/docs/update-schemas)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_schema_basic&open_in_editor=main.tf" target="_blank">
@@ -80,6 +81,12 @@ The following arguments are supported:
 * `json_schema` -
   (Optional)
   The JSON representation of the schema.
+  Changes are applied in place and must be backward compatible: existing fields
+  can't be removed or have their type changed. Updating the schema triggers
+  reindexing of all documents in the data store, which can take hours for large
+  data stores and may incur costs. See
+  [Update a schema for structured data](https://cloud.google.com/generative-ai-app-builder/docs/update-schemas)
+  for details.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -111,6 +118,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 60 minutes.
+- `update` - Default is 60 minutes.
 - `delete` - Default is 60 minutes.
 
 ## Import
