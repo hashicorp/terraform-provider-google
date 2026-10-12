@@ -936,6 +936,12 @@ controls the randomness of the model's responses. Lower temperatures
 produce responses that are more predictable. Higher temperatures produce
 responses that are more creative.`,
 						},
+						"thinking_level": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "LOW", "MEDIUM", "HIGH", ""}),
+							Description:  `The thinking level of the model. Possible values: ["DEFAULT", "LOW", "MEDIUM", "HIGH"]`,
+						},
 					},
 				},
 			},
@@ -2617,6 +2623,8 @@ func flattenCESAppModelSettings(v interface{}, d *schema.ResourceData, config *t
 		flattenCESAppModelSettingsModel(original["model"], d, config)
 	transformed["temperature"] =
 		flattenCESAppModelSettingsTemperature(original["temperature"], d, config)
+	transformed["thinking_level"] =
+		flattenCESAppModelSettingsThinkingLevel(original["thinkingLevel"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAppModelSettingsModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2624,6 +2632,10 @@ func flattenCESAppModelSettingsModel(v interface{}, d *schema.ResourceData, conf
 }
 
 func flattenCESAppModelSettingsTemperature(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppModelSettingsThinkingLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4096,6 +4108,13 @@ func expandCESAppModelSettings(v interface{}, d tpgresource.TerraformResourceDat
 		transformed["temperature"] = transformedTemperature
 	}
 
+	transformedThinkingLevel, err := expandCESAppModelSettingsThinkingLevel(original["thinking_level"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedThinkingLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["thinkingLevel"] = transformedThinkingLevel
+	}
+
 	return transformed, nil
 }
 
@@ -4104,6 +4123,10 @@ func expandCESAppModelSettingsModel(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandCESAppModelSettingsTemperature(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppModelSettingsThinkingLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

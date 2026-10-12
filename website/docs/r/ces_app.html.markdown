@@ -128,8 +128,9 @@ resource "google_ces_app" "ces_app_basic" {
   }
 
   model_settings {
-    model       = "gemini-3.0-flash-001"
-    temperature = 0.5
+    model          = "gemini-3.0-flash-001"
+    temperature    = 0.5
+    thinking_level = "LOW"
   }
 
   evaluation_metrics_thresholds {
@@ -1040,6 +1041,11 @@ The following arguments are supported:
   controls the randomness of the model's responses. Lower temperatures
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
+
+* `thinking_level` -
+  (Optional)
+  The thinking level of the model.
+  Possible values are: `DEFAULT`, `LOW`, `MEDIUM`, `HIGH`.
 
 <a name="nested_time_zone_settings"></a>The `time_zone_settings` block supports:
 
