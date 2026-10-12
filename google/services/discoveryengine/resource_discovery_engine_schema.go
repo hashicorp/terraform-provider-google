@@ -108,6 +108,7 @@ func ResourceDiscoveryEngineSchema() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
@@ -166,10 +167,15 @@ only be one of "global", "us" and "eu".`,
 			"json_schema": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringIsJSON,
 				StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-				Description:  `The JSON representation of the schema.`,
+				Description: `The JSON representation of the schema.
+Changes are applied in place and must be backward compatible: existing fields
+can't be removed or have their type changed. Updating the schema triggers
+reindexing of all documents in the data store, which can take hours for large
+data stores and may incur costs. See
+[Update a schema for structured data](https://cloud.google.com/generative-ai-app-builder/docs/update-schemas)
+for details.`,
 				ExactlyOneOf: []string{"json_schema"},
 			},
 			"name": {
@@ -404,7 +410,109 @@ func resourceDiscoveryEngineSchemaRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceDiscoveryEngineSchemaUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceDiscoveryEngineSchema().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceDiscoveryEngineSchemaRead(d, meta)
+	}
+
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if dataStoreIdValue, ok := d.GetOk("data_store_id"); ok && dataStoreIdValue.(string) != "" {
+			if err = identity.Set("data_store_id", dataStoreIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting data_store_id: %s", err)
+			}
+		}
+		if schemaIdValue, ok := d.GetOk("schema_id"); ok && schemaIdValue.(string) != "" {
+			if err = identity.Set("schema_id", schemaIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting schema_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Schema: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	jsonSchemaProp, err := expandDiscoveryEngineSchemaJsonSchema(d.Get("json_schema"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("json_schema"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, jsonSchemaProp)) {
+		obj["jsonSchema"] = jsonSchemaProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores/{{data_store_id}}/schemas/{{schema_id}}")
+	if err != nil {
+		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
+
+	log.Printf("[DEBUG] Updating Schema %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error updating Schema %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Schema %q: %#v", d.Id(), res)
+	}
+
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
+	err = DiscoveryEngineOperationWaitTime(
+		config, res, project, endpointLocation, "Updating Schema", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return err
+	}
+
 	return resourceDiscoveryEngineSchemaRead(d, meta)
 }
 
