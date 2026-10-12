@@ -143,8 +143,10 @@ func ResourceAccessContextManagerServicePerimeterDryRunResource() *schema.Resour
 				Required: true,
 				ForceNew: true,
 				Description: `A GCP resource that is inside of the service perimeter.
-Currently only projects are allowed.
-Format: projects/{project_number}`,
+Projects, folders, and VPC networks are allowed.
+Project format: 'projects/{project_number}'
+Folder format: 'folders/{folder_number}'
+VPC network format: '//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}'`,
 			},
 			"access_policy_id": {
 				Type:        schema.TypeString,

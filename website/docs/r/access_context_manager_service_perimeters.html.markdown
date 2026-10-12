@@ -185,8 +185,10 @@ The following arguments are supported:
 * `resources` -
   (Optional)
   A list of GCP resources that are inside of the service perimeter.
-  Currently only projects are allowed.
-  Format: projects/{project_number}
+  Projects, folders, and VPC networks are allowed.
+  Project format: `projects/{project_number}`
+  Folder format: `folders/{folder_number}`
+  VPC network format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}`
 
 * `access_levels` -
   (Optional)
@@ -346,8 +348,12 @@ The following arguments are supported:
   (Optional)
   A Google Cloud resource that is allowed to ingress the perimeter.
   Requests from these resources will be allowed to access perimeter data.
-  Currently only projects are allowed. Format `projects/{project_number}`
-  The project may be in any Google Cloud organization, not just the
+  Projects, folders, organizations, and VPC networks are allowed.
+  Project format: `projects/{project_number}`
+  Folder format: `folders/{folder_number}`
+  Organization format: `organizations/{organization_number}`
+  VPC network format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}`
+  The resource may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the case
   of allowing all Google Cloud resources only is not supported.
 
@@ -369,8 +375,9 @@ The following arguments are supported:
 
 * `resources` -
   (Optional)
-  A list of resources, currently only projects in the form
-  `projects/<projectnumber>`, protected by this `ServicePerimeter`
+  A list of resources protected by this `ServicePerimeter`, in the form
+  `projects/{project_number}`, `folders/{folder_number}`, or
+  `organizations/{organization_number}`,
   that are allowed to be accessed by sources defined in the
   corresponding `IngressFrom`. A request matches if it contains
   a resource in this list. If `*` is specified for resources,
@@ -475,7 +482,10 @@ The following arguments are supported:
   (Optional)
   A Google Cloud resource that is allowed to egress the perimeter.
   Requests from these resources are allowed to access data outside the perimeter.
-  Currently only projects are allowed. Project format: `projects/{project_number}`.
+  Projects, folders, and organizations are allowed.
+  Project format: `projects/{project_number}`
+  Folder format: `folders/{folder_number}`
+  Organization format: `organizations/{organization_number}`
   The resource may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the
   case of allowing all Google Cloud resources only is not supported.
@@ -498,8 +508,9 @@ The following arguments are supported:
 
 * `resources` -
   (Optional)
-  A list of resources, currently only projects in the form
-  `projects/<projectnumber>`, that match this to stanza. A request matches
+  A list of resources, in the form `projects/{project_number}`,
+  `folders/{folder_number}`, or `organizations/{organization_number}`,
+  that match this to stanza. A request matches
   if it contains a resource in this list. If * is specified for resources,
   then this `EgressTo` rule will authorize access to all resources outside
   the perimeter.
@@ -558,8 +569,10 @@ The following arguments are supported:
 * `resources` -
   (Optional)
   A list of GCP resources that are inside of the service perimeter.
-  Currently only projects are allowed.
-  Format: projects/{project_number}
+  Projects, folders, and VPC networks are allowed.
+  Project format: `projects/{project_number}`
+  Folder format: `folders/{folder_number}`
+  VPC network format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}`
 
 * `access_levels` -
   (Optional)
@@ -719,8 +732,12 @@ The following arguments are supported:
   (Optional)
   A Google Cloud resource that is allowed to ingress the perimeter.
   Requests from these resources will be allowed to access perimeter data.
-  Currently only projects are allowed. Format `projects/{project_number}`
-  The project may be in any Google Cloud organization, not just the
+  Projects, folders, organizations, and VPC networks are allowed.
+  Project format: `projects/{project_number}`
+  Folder format: `folders/{folder_number}`
+  Organization format: `organizations/{organization_number}`
+  VPC network format: `//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}`
+  The resource may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the case
   of allowing all Google Cloud resources only is not supported.
 
@@ -742,8 +759,9 @@ The following arguments are supported:
 
 * `resources` -
   (Optional)
-  A list of resources, currently only projects in the form
-  `projects/<projectnumber>`, protected by this `ServicePerimeter`
+  A list of resources protected by this `ServicePerimeter`, in the form
+  `projects/{project_number}`, `folders/{folder_number}`, or
+  `organizations/{organization_number}`,
   that are allowed to be accessed by sources defined in the
   corresponding `IngressFrom`. A request matches if it contains
   a resource in this list. If `*` is specified for resources,
@@ -850,7 +868,10 @@ The following arguments are supported:
   (Optional)
   A Google Cloud resource that is allowed to egress the perimeter.
   Requests from these resources are allowed to access data outside the perimeter.
-  Currently only projects are allowed. Project format: `projects/{project_number}`.
+  Projects, folders, and organizations are allowed.
+  Project format: `projects/{project_number}`
+  Folder format: `folders/{folder_number}`
+  Organization format: `organizations/{organization_number}`
   The resource may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the
   case of allowing all Google Cloud resources only is not supported.
@@ -873,8 +894,9 @@ The following arguments are supported:
 
 * `resources` -
   (Optional)
-  A list of resources, currently only projects in the form
-  `projects/<projectnumber>`, that match this to stanza. A request matches
+  A list of resources, in the form `projects/{project_number}`,
+  `folders/{folder_number}`, or `organizations/{organization_number}`,
+  that match this to stanza. A request matches
   if it contains a resource in this list. If * is specified for resources,
   then this `EgressTo` rule will authorize access to all resources outside
   the perimeter.
