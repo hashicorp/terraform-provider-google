@@ -351,6 +351,7 @@ resource "google_ces_guardrail" "ces_guardrail_generative_answer_llm_prompt_secu
       model_settings {
         model = "gemini-3.0-flash-001"
         temperature = 50
+        thinking_level = "LOW"
       }
       prompt = "example_prompt"
       policy_scope = "USER_QUERY"
@@ -399,6 +400,7 @@ resource "google_ces_guardrail" "ces_guardrail_generative_answer_llm_prompt_secu
       model_settings {
         model = "gemini-3.0-flash-001"
         temperature = 49
+        thinking_level = "HIGH"
       }
       prompt = "example_prompt_updated"
       policy_scope = "USER_QUERY"
@@ -646,6 +648,7 @@ resource "google_ces_guardrail" "ces_guardrail_llm_policy" {
     model_settings {
         model = "gemini-3.0-flash-001"
         temperature = 50
+        thinking_level = "LOW"
     }
     prompt = "example_prompt"
     policy_scope = "USER_QUERY"
@@ -692,6 +695,7 @@ resource "google_ces_guardrail" "ces_guardrail_llm_policy" {
     model_settings {
         model = "gemini-3.0-flash-001"
         temperature = 45
+        thinking_level = "HIGH"
     }
     prompt = "example_prompt_updated"
     policy_scope = "USER_QUERY"

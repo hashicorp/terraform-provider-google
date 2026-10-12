@@ -48,6 +48,7 @@ fields:
     - api_field: llmPolicy.maxConversationMessages
     - api_field: llmPolicy.modelSettings.model
     - api_field: llmPolicy.modelSettings.temperature
+    - api_field: llmPolicy.modelSettings.thinkingLevel
     - api_field: llmPolicy.policyScope
     - api_field: llmPolicy.prompt
     - api_field: llmPromptSecurity.customPolicy.allowShortUtterance
@@ -55,6 +56,7 @@ fields:
     - api_field: llmPromptSecurity.customPolicy.maxConversationMessages
     - api_field: llmPromptSecurity.customPolicy.modelSettings.model
     - api_field: llmPromptSecurity.customPolicy.modelSettings.temperature
+    - api_field: llmPromptSecurity.customPolicy.modelSettings.thinkingLevel
     - api_field: llmPromptSecurity.customPolicy.policyScope
     - api_field: llmPromptSecurity.customPolicy.prompt
     - api_field: llmPromptSecurity.defaultSettings.defaultPromptTemplate
