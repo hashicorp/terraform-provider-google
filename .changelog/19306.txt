@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `llm_policy.model_settings.thinking_level` and `llm_prompt_security.custom_policy.model_settings.thinking_level` fields to `google_ces_guardrail` resource
+```

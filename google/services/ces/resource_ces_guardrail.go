@@ -528,6 +528,12 @@ controls the randomness of the model's responses. Lower temperatures
 produce responses that are more predictable. Higher temperatures produce
 responses that are more creative.`,
 									},
+									"thinking_level": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "LOW", "MEDIUM", "HIGH", ""}),
+										Description:  `The thinking level of the model. Possible values: ["DEFAULT", "LOW", "MEDIUM", "HIGH"]`,
+									},
 								},
 							},
 						},
@@ -607,6 +613,12 @@ If not set, the agent will inherit the model from its parent agent.`,
 controls the randomness of the model's responses. Lower temperatures
 produce responses that are more predictable. Higher temperatures produce
 responses that are more creative.`,
+												},
+												"thinking_level": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "LOW", "MEDIUM", "HIGH", ""}),
+													Description:  `The thinking level of the model. Possible values: ["DEFAULT", "LOW", "MEDIUM", "HIGH"]`,
 												},
 											},
 										},
@@ -1602,6 +1614,8 @@ func flattenCESGuardrailLlmPolicyModelSettings(v interface{}, d *schema.Resource
 		flattenCESGuardrailLlmPolicyModelSettingsModel(original["model"], d, config)
 	transformed["temperature"] =
 		flattenCESGuardrailLlmPolicyModelSettingsTemperature(original["temperature"], d, config)
+	transformed["thinking_level"] =
+		flattenCESGuardrailLlmPolicyModelSettingsThinkingLevel(original["thinkingLevel"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESGuardrailLlmPolicyModelSettingsModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1609,6 +1623,10 @@ func flattenCESGuardrailLlmPolicyModelSettingsModel(v interface{}, d *schema.Res
 }
 
 func flattenCESGuardrailLlmPolicyModelSettingsTemperature(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESGuardrailLlmPolicyModelSettingsThinkingLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1702,6 +1720,8 @@ func flattenCESGuardrailLlmPromptSecurityCustomPolicyModelSettings(v interface{}
 		flattenCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsModel(original["model"], d, config)
 	transformed["temperature"] =
 		flattenCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsTemperature(original["temperature"], d, config)
+	transformed["thinking_level"] =
+		flattenCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsThinkingLevel(original["thinkingLevel"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1709,6 +1729,10 @@ func flattenCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsModel(v interf
 }
 
 func flattenCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsTemperature(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsThinkingLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2392,6 +2416,13 @@ func expandCESGuardrailLlmPolicyModelSettings(v interface{}, d tpgresource.Terra
 		transformed["temperature"] = transformedTemperature
 	}
 
+	transformedThinkingLevel, err := expandCESGuardrailLlmPolicyModelSettingsThinkingLevel(original["thinking_level"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedThinkingLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["thinkingLevel"] = transformedThinkingLevel
+	}
+
 	return transformed, nil
 }
 
@@ -2400,6 +2431,10 @@ func expandCESGuardrailLlmPolicyModelSettingsModel(v interface{}, d tpgresource.
 }
 
 func expandCESGuardrailLlmPolicyModelSettingsTemperature(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESGuardrailLlmPolicyModelSettingsThinkingLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2546,6 +2581,13 @@ func expandCESGuardrailLlmPromptSecurityCustomPolicyModelSettings(v interface{},
 		transformed["temperature"] = transformedTemperature
 	}
 
+	transformedThinkingLevel, err := expandCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsThinkingLevel(original["thinking_level"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedThinkingLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["thinkingLevel"] = transformedThinkingLevel
+	}
+
 	return transformed, nil
 }
 
@@ -2554,6 +2596,10 @@ func expandCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsModel(v interfa
 }
 
 func expandCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsTemperature(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESGuardrailLlmPromptSecurityCustomPolicyModelSettingsThinkingLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

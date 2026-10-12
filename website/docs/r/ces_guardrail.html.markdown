@@ -165,6 +165,7 @@ resource "google_ces_guardrail" "ces_guardrail_generative_answer_llm_prompt_secu
       model_settings {
         model = "gemini-3.0-flash-001"
         temperature = 50
+        thinking_level = "LOW"
       }
       prompt = "example_prompt"
       policy_scope = "USER_QUERY"
@@ -366,6 +367,7 @@ resource "google_ces_guardrail" "ces_guardrail_llm_policy" {
     model_settings {
         model = "gemini-3.0-flash-001"
         temperature = 50
+        thinking_level = "LOW"
     }
     prompt = "example_prompt"
     policy_scope = "USER_QUERY"
@@ -710,6 +712,11 @@ The following arguments are supported:
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
 
+* `thinking_level` -
+  (Optional)
+  The thinking level of the model.
+  Possible values are: `DEFAULT`, `LOW`, `MEDIUM`, `HIGH`.
+
 <a name="nested_llm_prompt_security"></a>The `llm_prompt_security` block supports:
 
 * `fail_open` -
@@ -785,6 +792,11 @@ The following arguments are supported:
   controls the randomness of the model's responses. Lower temperatures
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
+
+* `thinking_level` -
+  (Optional)
+  The thinking level of the model.
+  Possible values are: `DEFAULT`, `LOW`, `MEDIUM`, `HIGH`.
 
 <a name="nested_llm_prompt_security_default_settings"></a>The `default_settings` block supports:
 
