@@ -313,8 +313,12 @@ Forwarding rule format: '//compute.googleapis.com/projects/{PROJECT_ID}/global/f
 										Optional: true,
 										Description: `A Google Cloud resource that is allowed to ingress the perimeter.
 Requests from these resources will be allowed to access perimeter data.
-Currently only projects are allowed. Format 'projects/{project_number}'
-The project may be in any Google Cloud organization, not just the
+Projects, folders, organizations, and VPC networks are allowed.
+Project format: 'projects/{project_number}'
+Folder format: 'folders/{folder_number}'
+Organization format: 'organizations/{organization_number}'
+VPC network format: '//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}'
+The resource may be in any Google Cloud organization, not just the
 organization that the perimeter is defined in. '*' is not allowed, the case
 of allowing all Google Cloud resources only is not supported.`,
 									},
@@ -378,8 +382,9 @@ field set to '*' will allow all methods AND permissions for all services.`,
 							Type:             schema.TypeList,
 							Optional:         true,
 							DiffSuppressFunc: AccessContextManagerServicePerimeterDryRunIngressPolicyIngressToResourcesDiffSuppressFunc,
-							Description: `A list of resources, currently only projects in the form
-'projects/<projectnumber>', protected by this 'ServicePerimeter'
+							Description: `A list of resources protected by this 'ServicePerimeter', in the form
+'projects/{project_number}', 'folders/{folder_number}', or
+'organizations/{organization_number}',
 that are allowed to be accessed by sources defined in the
 corresponding 'IngressFrom'. A request matches if it contains
 a resource in this list. If '*' is specified for resources,
