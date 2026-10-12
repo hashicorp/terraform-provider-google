@@ -185,8 +185,9 @@ resource "google_ces_app" "ces_app_basic" {
   }
 
   model_settings {
-    model       = "gemini-3.0-flash-001"
-    temperature = 0.5
+    model          = "gemini-3.0-flash-001"
+    temperature    = 0.5
+    thinking_level = "LOW"
   }
 
   evaluation_metrics_thresholds {

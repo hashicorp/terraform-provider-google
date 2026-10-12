@@ -89,6 +89,7 @@ fields:
     - api_field: metadata
     - api_field: modelSettings.model
     - api_field: modelSettings.temperature
+    - api_field: modelSettings.thinkingLevel
     - api_field: name
     - api_field: pinned
     - api_field: rootAgent
