@@ -869,6 +869,43 @@ Expects the format "projects/<Project ID>/locations/<Location ID>/topics/<Topic 
 							Optional:    true,
 							Description: `If true, Dialogflow returns SpeechWordInfo in StreamingRecognitionResult with information about the recognized speech words.`,
 						},
+						"gemini_asr_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration for using Gemini ASR models served via Vertex AI, overriding the default Gemini ASR model or providing additional advanced parameters. This field is only used when 'use_gemini_asr' is true.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"end_of_speech_sensitivity": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"END_SENSITIVITY_HIGH", "END_SENSITIVITY_LOW", ""}),
+										Description:  `End of speech sensitivity. Possible values: ["END_SENSITIVITY_HIGH", "END_SENSITIVITY_LOW"]`,
+									},
+									"model_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The Gemini ASR model ID used for transcription. This value overrides the default model ID configured on the server.`,
+									},
+									"prefix_padding_ms": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `The required duration of detected speech before start-of-speech is committed.`,
+									},
+									"silence_duration_ms": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `The required duration of detected silence (or non-speech) before end-of-speech is committed.`,
+									},
+									"start_of_speech_sensitivity": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"START_SENSITIVITY_HIGH", "START_SENSITIVITY_LOW", ""}),
+										Description:  `Start of speech sensitivity. Possible values: ["START_SENSITIVITY_HIGH", "START_SENSITIVITY_LOW"]`,
+									},
+								},
+							},
+						},
 						"language_code": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -891,6 +928,11 @@ Leave this field unspecified to use Agent Speech settings for model selection.`,
 							Optional:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"SPEECH_MODEL_VARIANT_UNSPECIFIED", "USE_BEST_AVAILABLE", "USE_STANDARD", "USE_ENHANCED", ""}),
 							Description:  `The speech model used in speech to text. Possible values: ["SPEECH_MODEL_VARIANT_UNSPECIFIED", "USE_BEST_AVAILABLE", "USE_STANDARD", "USE_ENHANCED"]`,
+						},
+						"use_gemini_asr": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `If true, Gemini ASR will be used for transcription instead of Cloud Speech-to-Text.`,
 						},
 						"use_timeout_based_endpointing": {
 							Type:        schema.TypeBool,
@@ -2364,6 +2406,10 @@ func flattenDialogflowConversationProfileSttConfig(v interface{}, d *schema.Reso
 		flattenDialogflowConversationProfileSttConfigEnableWordInfo(original["enableWordInfo"], d, config)
 	transformed["use_timeout_based_endpointing"] =
 		flattenDialogflowConversationProfileSttConfigUseTimeoutBasedEndpointing(original["useTimeoutBasedEndpointing"], d, config)
+	transformed["use_gemini_asr"] =
+		flattenDialogflowConversationProfileSttConfigUseGeminiAsr(original["useGeminiAsr"], d, config)
+	transformed["gemini_asr_config"] =
+		flattenDialogflowConversationProfileSttConfigGeminiAsrConfig(original["geminiAsrConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDialogflowConversationProfileSttConfigSpeechModelVariant(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2404,6 +2450,77 @@ func flattenDialogflowConversationProfileSttConfigEnableWordInfo(v interface{}, 
 }
 
 func flattenDialogflowConversationProfileSttConfigUseTimeoutBasedEndpointing(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowConversationProfileSttConfigUseGeminiAsr(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowConversationProfileSttConfigGeminiAsrConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["model_id"] =
+		flattenDialogflowConversationProfileSttConfigGeminiAsrConfigModelId(original["modelId"], d, config)
+	transformed["silence_duration_ms"] =
+		flattenDialogflowConversationProfileSttConfigGeminiAsrConfigSilenceDurationMs(original["silenceDurationMs"], d, config)
+	transformed["prefix_padding_ms"] =
+		flattenDialogflowConversationProfileSttConfigGeminiAsrConfigPrefixPaddingMs(original["prefixPaddingMs"], d, config)
+	transformed["start_of_speech_sensitivity"] =
+		flattenDialogflowConversationProfileSttConfigGeminiAsrConfigStartOfSpeechSensitivity(original["startOfSpeechSensitivity"], d, config)
+	transformed["end_of_speech_sensitivity"] =
+		flattenDialogflowConversationProfileSttConfigGeminiAsrConfigEndOfSpeechSensitivity(original["endOfSpeechSensitivity"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowConversationProfileSttConfigGeminiAsrConfigModelId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowConversationProfileSttConfigGeminiAsrConfigSilenceDurationMs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDialogflowConversationProfileSttConfigGeminiAsrConfigPrefixPaddingMs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDialogflowConversationProfileSttConfigGeminiAsrConfigStartOfSpeechSensitivity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowConversationProfileSttConfigGeminiAsrConfigEndOfSpeechSensitivity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3895,6 +4012,20 @@ func expandDialogflowConversationProfileSttConfig(v interface{}, d tpgresource.T
 		transformed["useTimeoutBasedEndpointing"] = transformedUseTimeoutBasedEndpointing
 	}
 
+	transformedUseGeminiAsr, err := expandDialogflowConversationProfileSttConfigUseGeminiAsr(original["use_gemini_asr"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["useGeminiAsr"] = transformedUseGeminiAsr
+	}
+
+	transformedGeminiAsrConfig, err := expandDialogflowConversationProfileSttConfigGeminiAsrConfig(original["gemini_asr_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGeminiAsrConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["geminiAsrConfig"] = transformedGeminiAsrConfig
+	}
+
 	return transformed, nil
 }
 
@@ -3923,6 +4054,80 @@ func expandDialogflowConversationProfileSttConfigEnableWordInfo(v interface{}, d
 }
 
 func expandDialogflowConversationProfileSttConfigUseTimeoutBasedEndpointing(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowConversationProfileSttConfigUseGeminiAsr(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowConversationProfileSttConfigGeminiAsrConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedModelId, err := expandDialogflowConversationProfileSttConfigGeminiAsrConfigModelId(original["model_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedModelId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["modelId"] = transformedModelId
+	}
+
+	transformedSilenceDurationMs, err := expandDialogflowConversationProfileSttConfigGeminiAsrConfigSilenceDurationMs(original["silence_duration_ms"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSilenceDurationMs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["silenceDurationMs"] = transformedSilenceDurationMs
+	}
+
+	transformedPrefixPaddingMs, err := expandDialogflowConversationProfileSttConfigGeminiAsrConfigPrefixPaddingMs(original["prefix_padding_ms"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrefixPaddingMs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["prefixPaddingMs"] = transformedPrefixPaddingMs
+	}
+
+	transformedStartOfSpeechSensitivity, err := expandDialogflowConversationProfileSttConfigGeminiAsrConfigStartOfSpeechSensitivity(original["start_of_speech_sensitivity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartOfSpeechSensitivity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["startOfSpeechSensitivity"] = transformedStartOfSpeechSensitivity
+	}
+
+	transformedEndOfSpeechSensitivity, err := expandDialogflowConversationProfileSttConfigGeminiAsrConfigEndOfSpeechSensitivity(original["end_of_speech_sensitivity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEndOfSpeechSensitivity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["endOfSpeechSensitivity"] = transformedEndOfSpeechSensitivity
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowConversationProfileSttConfigGeminiAsrConfigModelId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowConversationProfileSttConfigGeminiAsrConfigSilenceDurationMs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowConversationProfileSttConfigGeminiAsrConfigPrefixPaddingMs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowConversationProfileSttConfigGeminiAsrConfigStartOfSpeechSensitivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowConversationProfileSttConfigGeminiAsrConfigEndOfSpeechSensitivity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

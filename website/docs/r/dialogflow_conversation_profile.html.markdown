@@ -56,6 +56,16 @@ resource "google_dialogflow_conversation_profile" "basic_profile" {
       enable_sentiment_analysis = true
     }
   }
+  stt_config {
+    use_gemini_asr = true
+    gemini_asr_config {
+      model_id                    = "gemini-3-flash-lite-asr-preview"
+      silence_duration_ms         = 1000
+      prefix_padding_ms           = 500
+      start_of_speech_sensitivity = "START_SENSITIVITY_LOW"
+      end_of_speech_sensitivity   = "END_SENSITIVITY_LOW"
+    }
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -712,6 +722,40 @@ The following arguments are supported:
 * `use_timeout_based_endpointing` -
   (Optional)
   Use timeout based endpointing, interpreting endpointer sensitivity as seconds of timeout value.
+
+* `use_gemini_asr` -
+  (Optional)
+  If true, Gemini ASR will be used for transcription instead of Cloud Speech-to-Text.
+
+* `gemini_asr_config` -
+  (Optional)
+  Configuration for using Gemini ASR models served via Vertex AI, overriding the default Gemini ASR model or providing additional advanced parameters. This field is only used when `use_gemini_asr` is true.
+  Structure is [documented below](#nested_stt_config_gemini_asr_config).
+
+
+<a name="nested_stt_config_gemini_asr_config"></a>The `gemini_asr_config` block supports:
+
+* `model_id` -
+  (Optional)
+  The Gemini ASR model ID used for transcription. This value overrides the default model ID configured on the server.
+
+* `silence_duration_ms` -
+  (Optional)
+  The required duration of detected silence (or non-speech) before end-of-speech is committed.
+
+* `prefix_padding_ms` -
+  (Optional)
+  The required duration of detected speech before start-of-speech is committed.
+
+* `start_of_speech_sensitivity` -
+  (Optional)
+  Start of speech sensitivity.
+  Possible values are: `START_SENSITIVITY_HIGH`, `START_SENSITIVITY_LOW`.
+
+* `end_of_speech_sensitivity` -
+  (Optional)
+  End of speech sensitivity.
+  Possible values are: `END_SENSITIVITY_HIGH`, `END_SENSITIVITY_LOW`.
 
 <a name="nested_tts_config"></a>The `tts_config` block supports:
 
