@@ -75,10 +75,16 @@ fields:
     - api_field: securitySettings
     - api_field: sttConfig.audioEncoding
     - api_field: sttConfig.enableWordInfo
+    - api_field: sttConfig.geminiAsrConfig.endOfSpeechSensitivity
+    - api_field: sttConfig.geminiAsrConfig.modelId
+    - api_field: sttConfig.geminiAsrConfig.prefixPaddingMs
+    - api_field: sttConfig.geminiAsrConfig.silenceDurationMs
+    - api_field: sttConfig.geminiAsrConfig.startOfSpeechSensitivity
     - api_field: sttConfig.languageCode
     - api_field: sttConfig.model
     - api_field: sttConfig.sampleRateHertz
     - api_field: sttConfig.speechModelVariant
+    - api_field: sttConfig.useGeminiAsr
     - api_field: sttConfig.useTimeoutBasedEndpointing
     - api_field: timeZone
     - api_field: ttsConfig.effectsProfileId

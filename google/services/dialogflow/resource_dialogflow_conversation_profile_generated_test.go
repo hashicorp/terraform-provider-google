@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -61,8 +62,25 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileBasicExam
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"profile_name":  "tf-test-dialogflow-profile" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"end_of_speech_sensitivity":   "END_SENSITIVITY_LOW",
+		"model_id":                    "gemini-3-flash-lite-asr-preview",
+		"prefix_padding_ms":           500,
+		"profile_name":                "tf-test-dialogflow-profile" + randomSuffix,
+		"silence_duration_ms":         1000,
+		"start_of_speech_sensitivity": "START_SENSITIVITY_LOW",
+		"use_gemini_asr":              true,
+		"random_suffix":               randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"end_of_speech_sensitivity":   "END_SENSITIVITY_HIGH",
+		"model_id":                    "gemini-3-flash-lite-asr-preview-v2",
+		"prefix_padding_ms":           800,
+		"profile_name":                "tf-test-dialogflow-profile" + randomSuffix,
+		"silence_duration_ms":         2000,
+		"start_of_speech_sensitivity": "START_SENSITIVITY_HIGH",
+		"use_gemini_asr":              false,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -72,6 +90,26 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileBasicExam
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDialogflowConversationProfile_dialogflowConversationProfileBasicExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_conversation_profile.basic_profile",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "logging_config"},
+			},
+			{
+				ResourceName:       "google_dialogflow_conversation_profile.basic_profile",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccDialogflowConversationProfile_dialogflowConversationProfileBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_dialogflow_conversation_profile.basic_profile", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_dialogflow_conversation_profile.basic_profile",
@@ -106,6 +144,16 @@ resource "google_dialogflow_conversation_profile" "basic_profile" {
     message_analysis_config {
       enable_entity_extraction  = true
       enable_sentiment_analysis = true
+    }
+  }
+  stt_config {
+    use_gemini_asr = %{use_gemini_asr}
+    gemini_asr_config {
+      model_id                    = "%{model_id}"
+      silence_duration_ms         = %{silence_duration_ms}
+      prefix_padding_ms           = %{prefix_padding_ms}
+      start_of_speech_sensitivity = "%{start_of_speech_sensitivity}"
+      end_of_speech_sensitivity   = "%{end_of_speech_sensitivity}"
     }
   }
 }
