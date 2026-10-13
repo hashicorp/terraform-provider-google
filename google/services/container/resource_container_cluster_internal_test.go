@@ -18,6 +18,7 @@ package container
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
 	"testing"
@@ -26,6 +27,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/googleapi"
@@ -761,5 +763,168 @@ func TestContainerCluster_RunClusterOperation_NonRetryableFailsFast(t *testing.T
 	}
 	if attempts != 1 {
 		t.Fatalf("expected non-retryable error to fail immediately on attempt 1, but ran %d attempts", attempts)
+	}
+}
+
+// TestUnitContainerCluster_managedOpenTelemetryConfigPlan covers every
+// (prior state, config) combination for managed_opentelemetry_config without
+// calling the API. For each row it runs the SDK plan diff against the real
+// schema (exercising Optional+Computed and the SCOPE_UNSPECIFIED diff
+// suppression), builds the *schema.ResourceData that Create/Update receive, and
+// checks:
+//   - wantGet: the planned value that d.Get returns and expand consumes.
+//   - wantRequest: the JSON sent for managed_opentelemetry_config, or "" if no
+//     request is sent. Create always sends the field; Update only sends it when
+//     d.HasChange is true.
+//
+// The resulting state after apply depends on the API response and is covered by
+// the acceptance tests.
+func TestUnitContainerCluster_managedOpenTelemetryConfigPlan(t *testing.T) {
+	t.Parallel()
+
+	const (
+		priorCreate = "<create>" // no prior state
+		priorAbsent = "<absent>" // prior state without the block
+		unspec      = "SCOPE_UNSPECIFIED"
+		none        = "NONE"
+		coll        = "COLLECTION_AND_INSTRUMENTATION_COMPONENTS"
+	)
+
+	block := func(scope string) map[string]interface{} {
+		return map[string]interface{}{"managed_opentelemetry_config": []interface{}{map[string]interface{}{"scope": scope}}}
+	}
+	configs := map[string]map[string]interface{}{
+		"Missing":    {},
+		"Empty":      {"managed_opentelemetry_config": []interface{}{map[string]interface{}{}}},
+		"UNSPEC":     block(unspec),
+		"NONE":       block(none),
+		"COLLECTION": block(coll),
+	}
+
+	getScope := func(scope string) []interface{} {
+		return []interface{}{map[string]interface{}{"scope": scope}}
+	}
+	getNil := []interface{}{nil}
+	getEmpty := []interface{}{}
+
+	cases := []struct {
+		prior       string
+		config      string
+		wantGet     []interface{}
+		wantRequest string
+	}{
+		{priorCreate, "Missing", getEmpty, `null`},
+		{priorCreate, "Empty", getScope(""), `{}`},
+		{priorCreate, "UNSPEC", getNil, `{}`},
+		{priorCreate, "NONE", getScope(none), `{"scope":"NONE"}`},
+		{priorCreate, "COLLECTION", getScope(coll), `{"scope":"COLLECTION_AND_INSTRUMENTATION_COMPONENTS"}`},
+
+		{priorAbsent, "Missing", getEmpty, ""},
+		{priorAbsent, "Empty", getNil, `{}`},
+		{priorAbsent, "UNSPEC", getNil, `{}`},
+		{priorAbsent, "NONE", getScope(none), `{"scope":"NONE"}`},
+		{priorAbsent, "COLLECTION", getScope(coll), `{"scope":"COLLECTION_AND_INSTRUMENTATION_COMPONENTS"}`},
+
+		{unspec, "Missing", getScope(unspec), ""},
+		{unspec, "Empty", getScope(unspec), ""},
+		{unspec, "UNSPEC", getScope(unspec), ""},
+		{unspec, "NONE", getScope(none), `{"scope":"NONE"}`},
+		{unspec, "COLLECTION", getScope(coll), `{"scope":"COLLECTION_AND_INSTRUMENTATION_COMPONENTS"}`},
+
+		{none, "Missing", getScope(none), ""},
+		{none, "Empty", getScope(none), ""},
+		{none, "UNSPEC", getScope(unspec), `{"scope":"SCOPE_UNSPECIFIED"}`},
+		{none, "NONE", getScope(none), ""},
+		{none, "COLLECTION", getScope(coll), `{"scope":"COLLECTION_AND_INSTRUMENTATION_COMPONENTS"}`},
+
+		{coll, "Missing", getScope(coll), ""},
+		{coll, "Empty", getScope(coll), ""},
+		{coll, "UNSPEC", getScope(unspec), `{"scope":"SCOPE_UNSPECIFIED"}`},
+		{coll, "NONE", getScope(none), `{"scope":"NONE"}`},
+		{coll, "COLLECTION", getScope(coll), ""},
+	}
+
+	// Use only this field's schema so the cluster's CustomizeDiff functions,
+	// which need provider config, don't run.
+	r := &schema.Resource{Schema: map[string]*schema.Schema{
+		"managed_opentelemetry_config": ResourceContainerCluster().Schema["managed_opentelemetry_config"],
+	}}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.prior+"/"+tc.config, func(t *testing.T) {
+			t.Parallel()
+
+			var prior *terraform.InstanceState
+			switch tc.prior {
+			case priorCreate:
+			case priorAbsent:
+				prior = &terraform.InstanceState{ID: "id", Attributes: map[string]string{
+					"id":                             "id",
+					"managed_opentelemetry_config.#": "0",
+				}}
+			default:
+				prior = &terraform.InstanceState{ID: "id", Attributes: map[string]string{
+					"id":                                   "id",
+					"managed_opentelemetry_config.#":       "1",
+					"managed_opentelemetry_config.0.scope": tc.prior,
+				}}
+			}
+
+			diff, err := r.SimpleDiff(context.Background(), prior, terraform.NewResourceConfigRaw(configs[tc.config]), nil)
+			if err != nil {
+				t.Fatalf("SimpleDiff: %v", err)
+			}
+			d, err := schema.InternalMap(r.SchemaMap()).Data(prior, diff)
+			if err != nil {
+				t.Fatalf("Data: %v", err)
+			}
+
+			got := d.Get("managed_opentelemetry_config")
+			if diff := cmp.Diff(tc.wantGet, got); diff != "" {
+				t.Errorf("d.Get() mismatch (-want +got):\n%s", diff)
+			}
+
+			sent := tc.prior == priorCreate || d.HasChange("managed_opentelemetry_config")
+			if wantSent := tc.wantRequest != ""; sent != wantSent {
+				t.Fatalf("request sent = %t, want %t", sent, wantSent)
+			}
+			if !sent {
+				return
+			}
+			b, err := json.Marshal(expandManagedOpenTelemetryConfig(got))
+			if err != nil {
+				t.Fatalf("json.Marshal: %v", err)
+			}
+			if string(b) != tc.wantRequest {
+				t.Errorf("request = %s, want %s", b, tc.wantRequest)
+			}
+		})
+	}
+}
+
+func TestUnitContainerCluster_flattenManagedOpenTelemetryConfig(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		in   *container.ManagedOpenTelemetryConfig
+		want []map[string]interface{}
+	}{
+		"nil":   {nil, nil},
+		"empty": {&container.ManagedOpenTelemetryConfig{}, []map[string]interface{}{map[string]interface{}{"scope": ""}}},
+		"NONE":  {&container.ManagedOpenTelemetryConfig{Scope: "NONE"}, []map[string]interface{}{map[string]interface{}{"scope": "NONE"}}},
+		"COLLECTION": {
+			&container.ManagedOpenTelemetryConfig{Scope: "COLLECTION_AND_INSTRUMENTATION_COMPONENTS"},
+			[]map[string]interface{}{map[string]interface{}{"scope": "COLLECTION_AND_INSTRUMENTATION_COMPONENTS"}},
+		},
+	}
+	for name, tc := range cases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			if diff := cmp.Diff(tc.want, flattenManagedOpenTelemetryConfig(tc.in)); diff != "" {
+				t.Errorf("flattenManagedOpenTelemetryConfig() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }

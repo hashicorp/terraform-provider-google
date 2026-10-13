@@ -1,0 +1,7 @@
+```release-note:enhancement
+container: promoted `managed_opentelemetry_config` field on `google_container_cluster` to GA
+```
+
+```release-note:bug
+container: fixed permadiff and update error on `google_container_cluster` when `managed_opentelemetry_config` is empty or `scope` is omitted
+```
