@@ -168,6 +168,13 @@ connecting to.`,
 					Type: schema.TypeString,
 				},
 			},
+			"auto_accept": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Controls whether resources proposed by the Transport are automatically accepted on behalf of the user.`,
+				Default:     false,
+			},
 			"bandwidth": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -178,6 +185,13 @@ connecting to.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `An optional description of this resource.`,
+			},
+			"hub": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `The NCC Hub that the Transport should attach to. The hub must be in the same project as the Transport.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -204,6 +218,13 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Key used for establishing a connection with the remote transport. This key can only be provided if the profile supports an INPUT key flow and the resource is in the PENDING_KEY state.`,
+			},
+			"psc_routing_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Controls whether a Routing VPC Spoke should be created and attached to the NCC Hub.`,
+				Default:     false,
 			},
 			"remote_account_id": {
 				Type:        schema.TypeString,
@@ -335,6 +356,24 @@ func resourceNetworkConnectivityTransportCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("remote_account_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(remoteAccountIdProp)) && (ok || !reflect.DeepEqual(v, remoteAccountIdProp)) {
 		obj["remoteAccountId"] = remoteAccountIdProp
+	}
+	hubProp, err := expandNetworkConnectivityTransportHub(d.Get("hub"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("hub"); !tpgresource.IsEmptyValue(reflect.ValueOf(hubProp)) && (ok || !reflect.DeepEqual(v, hubProp)) {
+		obj["hub"] = hubProp
+	}
+	pscRoutingEnabledProp, err := expandNetworkConnectivityTransportPscRoutingEnabled(d.Get("psc_routing_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("psc_routing_enabled"); ok || !reflect.DeepEqual(v, pscRoutingEnabledProp) {
+		obj["pscRoutingEnabled"] = pscRoutingEnabledProp
+	}
+	autoAcceptProp, err := expandNetworkConnectivityTransportAutoAccept(d.Get("auto_accept"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("auto_accept"); ok || !reflect.DeepEqual(v, autoAcceptProp) {
+		obj["autoAccept"] = autoAcceptProp
 	}
 	effectiveLabelsProp, err := expandNetworkConnectivityTransportEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -809,6 +848,21 @@ func flattenNetworkConnectivityTransportPeeringNetwork(v interface{}, d *schema.
 	return v
 }
 
+func flattenNetworkConnectivityTransportHub(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenNetworkConnectivityTransportPscRoutingEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityTransportAutoAccept(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkConnectivityTransportTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -868,6 +922,18 @@ func expandNetworkConnectivityTransportRemoteAccountId(v interface{}, d tpgresou
 	return v, nil
 }
 
+func expandNetworkConnectivityTransportHub(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityTransportPscRoutingEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityTransportAutoAccept(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkConnectivityTransportEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -922,6 +988,15 @@ func ResourceNetworkConnectivityTransportFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading Transport: %s", err)
 	}
 	if err = d.Set("peering_network", flattenNetworkConnectivityTransportPeeringNetwork(res["peeringNetwork"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Transport: %s", err)
+	}
+	if err = d.Set("hub", flattenNetworkConnectivityTransportHub(res["hub"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Transport: %s", err)
+	}
+	if err = d.Set("psc_routing_enabled", flattenNetworkConnectivityTransportPscRoutingEnabled(res["pscRoutingEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Transport: %s", err)
+	}
+	if err = d.Set("auto_accept", flattenNetworkConnectivityTransportAutoAccept(res["autoAccept"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Transport: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenNetworkConnectivityTransportTerraformLabels(res["labels"], d, config)); err != nil {

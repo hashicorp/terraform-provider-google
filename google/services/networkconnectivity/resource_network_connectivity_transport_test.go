@@ -71,7 +71,7 @@ func TestAccNetworkConnectivityTransport_networkConnectivityTransportBasicExampl
 				ResourceName:            "google_network_connectivity_transport.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "network", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "network", "terraform_labels"},
 			},
 			{
 				Config: testAccNetworkConnectivityTransport_networkConnectivityTransportBasicExample_update(context),
@@ -80,7 +80,7 @@ func TestAccNetworkConnectivityTransport_networkConnectivityTransportBasicExampl
 				ResourceName:            "google_network_connectivity_transport.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "network", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "network", "terraform_labels"},
 			},
 		},
 	})
@@ -90,22 +90,24 @@ func testAccNetworkConnectivityTransport_networkConnectivityTransportBasicExampl
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 
-resource "google_compute_network" "primary-network" {
-  name                    = "tf-test-my-vpc-network%{random_suffix}"
-  auto_create_subnetworks = false
+resource "google_network_connectivity_hub" "primary-hub" {
+  name        = "tf-test-basic-hub%{random_suffix}"
+  description = "A sample hub"
 }
 
 resource "google_network_connectivity_transport" "primary"  {
-  name              = "tf-test-basic-transport%{random_suffix}"
-  region            = "us-east4"
-  description       = "A sample transport"
-  remote_profile    = "https://networkconnectivity.googleapis.com/v1/${data.google_project.project.id}/locations/us-east4/remoteTransportProfiles/aws-us-east-1"
-  network           = google_compute_network.primary-network.name
-  bandwidth         = "BPS_1G"
-  remote_account_id = "123"
+  name                = "tf-test-basic-transport%{random_suffix}"
+  region              = "us-east4"
+  description         = "A sample transport"
+  remote_profile      = "https://networkconnectivity.googleapis.com/v1/${data.google_project.project.id}/locations/us-east4/remoteTransportProfiles/aws-us-east-1"
+  bandwidth           = "BPS_1G"
+  remote_account_id   = "123"
   labels = {
     label-one = "value-one"
   }
+  hub                 = google_network_connectivity_hub.primary-hub.id
+  psc_routing_enabled = true
+  auto_accept         = true
 }
 `, context)
 }
@@ -114,22 +116,24 @@ func testAccNetworkConnectivityTransport_networkConnectivityTransportBasicExampl
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 
-resource "google_compute_network" "primary-network" {
-  name                    = "tf-test-my-vpc-network%{random_suffix}"
-  auto_create_subnetworks = false
+resource "google_network_connectivity_hub" "primary-hub" {
+  name        = "tf-test-basic-hub%{random_suffix}"
+  description = "A sample hub"
 }
 
 resource "google_network_connectivity_transport" "primary"  {
-  name              = "tf-test-basic-transport%{random_suffix}"
-  region            = "us-east4"
-  description       = "New description"
-  remote_profile    = "https://networkconnectivity.googleapis.com/v1/${data.google_project.project.id}/locations/us-east4/remoteTransportProfiles/aws-us-east-1"
-  network           = google_compute_network.primary-network.name
-  bandwidth         = "BPS_1G"
-  remote_account_id = "123"
+  name                = "tf-test-basic-transport%{random_suffix}"
+  region              = "us-east4"
+  description         = "New description"
+  remote_profile      = "https://networkconnectivity.googleapis.com/v1/${data.google_project.project.id}/locations/us-east4/remoteTransportProfiles/aws-us-east-1"
+  bandwidth           = "BPS_1G"
+  remote_account_id   = "123"
   labels = {
     label-one = "value-one"
   }
+  hub                 = google_network_connectivity_hub.primary-hub.id
+  psc_routing_enabled = true
+  auto_accept         = true
 }
 `, context)
 }

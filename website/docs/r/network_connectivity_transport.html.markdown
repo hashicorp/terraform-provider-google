@@ -123,15 +123,15 @@ The following arguments are supported:
   The user supplied account id for the CSP associated with the remote profile.
 
 * `hub` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The NCC Hub that the Transport should attach to. The hub must be in the same project as the Transport.
 
 * `psc_routing_enabled` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Controls whether a Routing VPC Spoke should be created and attached to the NCC Hub.
 
 * `auto_accept` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Controls whether resources proposed by the Transport are automatically accepted on behalf of the user.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

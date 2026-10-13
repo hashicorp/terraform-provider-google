@@ -79,7 +79,7 @@ func TestAccNetworkConnectivityTransport_networkConnectivityTransportBasicExampl
 				ResourceName:            "google_network_connectivity_transport.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "network", "region", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"hub", "labels", "network", "region", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_network_connectivity_transport.primary",
