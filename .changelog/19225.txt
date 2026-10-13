@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue causing `google_compute_region_backend_service` update to fail when `params.resource_manager_tags` is set
+```
