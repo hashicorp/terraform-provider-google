@@ -184,6 +184,12 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/releases/{{release_id}}`
 
+* `application_template_component` -
+  Reference to a component and revision in a composite Application Design
+  Center ApplicationTemplate. Set by the service on Releases created by an
+  ApplicationTemplate import.
+  Structure is [documented below](#nested_application_template_component).
+
 * `create_time` -
   The timestamp when the resource was created.
 
@@ -229,6 +235,37 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_application_template_component"></a>The `application_template_component` block contains:
+
+* `composite_ref` -
+  (Output)
+  Reference to the composite ApplicationTemplate.
+  Structure is [documented below](#nested_application_template_component_composite_ref).
+
+* `component` -
+  (Output)
+  Name of the component in the composite ApplicationTemplate.
+
+* `revision` -
+  (Output)
+  Revision of the component. If the component does not have a revision,
+  this is the revision of the composite ApplicationTemplate.
+
+
+<a name="nested_application_template_component_composite_ref"></a>The `composite_ref` block contains:
+
+* `application_template` -
+  (Output)
+  Reference to the ApplicationTemplate resource.
+
+* `revision` -
+  (Output)
+  Revision of the ApplicationTemplate.
+
+* `sync_operation` -
+  (Output)
+  Reference to the ongoing import and replication operation. Opaque for external usage.
 
 <a name="nested_input_variables"></a>The `input_variables` block contains:
 
