@@ -1707,7 +1707,7 @@ resource "google_composer_environment" "test" {
     }
 
     software_config {
-      image_version = "composer-2.13.0-airflow-2.10.5"
+      image_version = "composer-2.17.10-airflow-2.10.5"
     }
   }
   depends_on = [google_project_iam_member.composer-worker]
@@ -1756,7 +1756,7 @@ resource "google_composer_environment" "test" {
     }
 
     software_config {
-      image_version = "composer-2.16.11-airflow-2.11.1"
+      image_version = "composer-2.17.10-airflow-2.11.1"
     }
   }
   depends_on = [google_project_iam_member.composer-worker]
