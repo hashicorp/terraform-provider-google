@@ -8,17 +8,20 @@ api_version: v1
 api_resource_type_kind: Transport
 fields:
     - api_field: advertisedRoutes
+    - api_field: autoAccept
     - api_field: bandwidth
     - api_field: description
     - field: effective_labels
       provider_only: true
     - api_field: generatedActivationKey
+    - api_field: hub
     - api_field: labels
     - api_field: mtuLimit
     - api_field: name
     - api_field: network
     - api_field: peeringNetwork
     - api_field: providedActivationKey
+    - api_field: pscRoutingEnabled
     - field: region
       provider_only: true
     - api_field: remoteAccountId
