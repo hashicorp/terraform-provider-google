@@ -101,6 +101,18 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
 
+* `app_params` -
+  (Optional)
+  Parameters for creating an App Hub Application for the Units of this
+  UnitKind.
+  Structure is [documented below](#nested_app_params).
+
+* `application_template_component` -
+  (Optional)
+  Reference to a component and revision in a composite Application Design
+  Center ApplicationTemplate.
+  Structure is [documented below](#nested_application_template_component).
+
 * `default_release` -
   (Optional)
   A reference to the Release object to use as default for creating new units
@@ -144,6 +156,65 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
+
+<a name="nested_app_params"></a>The `app_params` block supports:
+
+* `group` -
+  (Optional)
+  Grouping used to construct the name of the App Hub Application.
+  Multiple UnitKinds can specify the same group to use the same
+  Application across their respective Units. Corresponds to the
+  app_boundary_id in the ADC composite ApplicationTemplate. If empty,
+  the service creates no App Hub application.
+
+* `scope` -
+  (Optional)
+  Corresponds to the scope in the ADC composite ApplicationTemplate.
+  Structure is [documented below](#nested_app_params_scope).
+
+
+<a name="nested_app_params_scope"></a>The `scope` block supports:
+
+* `type` -
+  (Required)
+  Scope type.
+  Possible values:
+  TYPE_REGIONAL
+  TYPE_GLOBAL
+
+<a name="nested_application_template_component"></a>The `application_template_component` block supports:
+
+* `composite_ref` -
+  (Optional)
+  Reference to the composite ApplicationTemplate.
+  Structure is [documented below](#nested_application_template_component_composite_ref).
+
+* `component` -
+  (Optional)
+  Name of the component in the composite ApplicationTemplate (the root
+  module ID, e.g. a composite component ID or `native-components`).
+
+* `revision` -
+  (Optional)
+  Revision of the component. If the component does not have a revision,
+  this is the revision of the composite ApplicationTemplate.
+
+
+<a name="nested_application_template_component_composite_ref"></a>The `composite_ref` block supports:
+
+* `application_template` -
+  (Required)
+  Reference to the ApplicationTemplate resource, in the format
+  `projects/{project}/locations/{location}/spaces/{space}/applicationTemplates/{applicationTemplate}`.
+
+* `revision` -
+  (Optional)
+  Revision of the ApplicationTemplate, as a full resource name
+  prefixed by `application_template`.
+
+* `sync_operation` -
+  (Output)
+  Reference to the ongoing import and replication operation. Opaque for external usage.
 
 <a name="nested_dependencies"></a>The `dependencies` block supports:
 
