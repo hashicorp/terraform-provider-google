@@ -1824,6 +1824,8 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	}
 
 	headers := make(http.Header)
+	// security_policy isn't set by Create
+	delete(obj, "securityPolicy")
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",

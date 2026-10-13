@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where setting `security_policy` on `google_compute_region_backend_service` failed during creation when `protocol` was set to `UDP`
+```
