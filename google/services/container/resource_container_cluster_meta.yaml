@@ -242,6 +242,7 @@ fields:
   - api_field: 'maintenancePolicy.disruptionBudget.lastMinorVersionDisruptionTime'  
   - api_field: 'maintenancePolicy.disruptionBudget.MinorVersionDisruptionInterval'
   - api_field: 'maintenancePolicy.disruptionBudget.PatchVersionDisruptionInterval'
+  - api_field: 'managedOpentelemetryConfig.scope'
   - api_field: 'masterAuth.clientCertificate'
   - api_field: 'masterAuth.clientCertificateConfig.issueClientCertificate'
   - api_field: 'masterAuth.clientKey'

@@ -1496,6 +1496,243 @@ func TestAccContainerCluster_withAcceleratedGkeAutoUpgradeConfig(t *testing.T) {
 	})
 }
 
+// managed_opentelemetry_config acceptance tests. These cover what needs a real
+// cluster to verify: the API accepts each request, there is no permadiff (the
+// framework re-plans after every step), and import matches state. The full
+// prior state x config matrix is unit-tested in
+// TestUnitContainerCluster_managedOpenTelemetryConfigPlan.
+//
+// What is asserted:
+//   - Explicit NONE / COLLECTION_AND_INSTRUMENTATION_COMPONENTS: the exact scope.
+//     An update is only expected when the prior scope was also set explicitly,
+//     since a server-computed prior scope could already equal the new value.
+//   - Omitting the block or the scope once a scope is in state: an empty plan,
+//     and the scope is unchanged (Optional+Computed).
+//   - Omitting the block or the scope with nothing in state: only the default
+//     checks (no error, no permadiff, import matches). Neither the
+//     server-computed scope nor whether an update is planned is asserted, so
+//     these tests don't depend on the server default.
+
+const testAccManagedOpenTelemetryResourceName = "google_container_cluster.with_managed_opentelemetry"
+
+// testAccCheckManagedOpenTelemetryScope checks that the block is present with the given scope.
+func testAccCheckManagedOpenTelemetryScope(expectedScope string) resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr(testAccManagedOpenTelemetryResourceName, "managed_opentelemetry_config.#", "1"),
+		resource.TestCheckResourceAttr(testAccManagedOpenTelemetryResourceName, "managed_opentelemetry_config.0.scope", expectedScope),
+	)
+}
+
+// testAccManagedOpenTelemetryExpectUpdate asserts that the step plans an update.
+func testAccManagedOpenTelemetryExpectUpdate() resource.ConfigPlanChecks {
+	return resource.ConfigPlanChecks{
+		PreApply: []plancheck.PlanCheck{
+			plancheck.ExpectResourceAction(testAccManagedOpenTelemetryResourceName, plancheck.ResourceActionUpdate),
+		},
+	}
+}
+
+// testAccManagedOpenTelemetryExpectNoop asserts that the step plans no changes.
+func testAccManagedOpenTelemetryExpectNoop() resource.ConfigPlanChecks {
+	return resource.ConfigPlanChecks{
+		PreApply: []plancheck.PlanCheck{
+			plancheck.ExpectEmptyPlan(),
+		},
+	}
+}
+
+func testAccManagedOpenTelemetryImportStep() resource.TestStep {
+	return resource.TestStep{
+		ResourceName:            testAccManagedOpenTelemetryResourceName,
+		ImportState:             true,
+		ImportStateVerify:       true,
+		ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+	}
+}
+
+// Create without managed_opentelemetry_config, then:
+// add `{}` -> disable (NONE) -> remove block (keeps NONE) ->
+// enable (COLLECTION) -> add `{}` (keeps COLLECTION)
+func TestAccContainerCluster_withManagedOpenTelemetryConfig_createWithoutConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnetInRegion(t, "gke-cluster", networkName, "us-east1", "10.79.0.0/20")
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// The server decides what (if anything) is returned.
+				Config: testAccContainerCluster_withoutManagedOpenTelemetryConfig(clusterName, networkName, subnetworkName),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+			{
+				// With nothing in state, adding an empty block plans an update
+				// that sends `{}` so the server sets its default scope (sending
+				// no config would be rejected as an empty update). If the
+				// server returned a config on create, this is a no-op instead;
+				// either way, only the default checks apply.
+				Config: testAccContainerCluster_withManagedOpenTelemetryConfigEmpty(clusterName, networkName, subnetworkName),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+			{
+				// Disable. No update expectation: the server-computed prior
+				// scope could already be NONE.
+				Config: testAccContainerCluster_withManagedOpenTelemetryConfigScope(clusterName, networkName, subnetworkName, "NONE"),
+				Check:  testAccCheckManagedOpenTelemetryScope("NONE"),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+			{
+				// Optional+Computed: removing the block keeps the previous state.
+				Config:           testAccContainerCluster_withoutManagedOpenTelemetryConfig(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: testAccManagedOpenTelemetryExpectNoop(),
+				Check:            testAccCheckManagedOpenTelemetryScope("NONE"),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+			{
+				// Enable.
+				Config:           testAccContainerCluster_withManagedOpenTelemetryConfigScope(clusterName, networkName, subnetworkName, "COLLECTION_AND_INSTRUMENTATION_COMPONENTS"),
+				ConfigPlanChecks: testAccManagedOpenTelemetryExpectUpdate(),
+				Check:            testAccCheckManagedOpenTelemetryScope("COLLECTION_AND_INSTRUMENTATION_COMPONENTS"),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+			{
+				// Optional+Computed: an empty block keeps the previous state.
+				Config:           testAccContainerCluster_withManagedOpenTelemetryConfigEmpty(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: testAccManagedOpenTelemetryExpectNoop(),
+				Check:            testAccCheckManagedOpenTelemetryScope("COLLECTION_AND_INSTRUMENTATION_COMPONENTS"),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+		},
+	})
+}
+
+// Create with an empty managed_opentelemetry_config block (create sends `{}`), then:
+// enable (COLLECTION) -> remove block (keeps COLLECTION) -> disable (NONE) ->
+// add `{}` (keeps NONE)
+func TestAccContainerCluster_withManagedOpenTelemetryConfig_createWithConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnetInRegion(t, "gke-cluster", networkName, "us-east1", "10.79.0.0/20")
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create sends `{}`; the server computes the scope. The
+				// framework's post-apply plan check catches a permadiff.
+				Config: testAccContainerCluster_withManagedOpenTelemetryConfigEmpty(clusterName, networkName, subnetworkName),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+			{
+				// Enable. No update expectation: the server-computed prior
+				// scope could already be COLLECTION_AND_INSTRUMENTATION_COMPONENTS.
+				Config: testAccContainerCluster_withManagedOpenTelemetryConfigScope(clusterName, networkName, subnetworkName, "COLLECTION_AND_INSTRUMENTATION_COMPONENTS"),
+				Check:  testAccCheckManagedOpenTelemetryScope("COLLECTION_AND_INSTRUMENTATION_COMPONENTS"),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+			{
+				// Optional+Computed: removing the block keeps the previous state.
+				Config:           testAccContainerCluster_withoutManagedOpenTelemetryConfig(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: testAccManagedOpenTelemetryExpectNoop(),
+				Check:            testAccCheckManagedOpenTelemetryScope("COLLECTION_AND_INSTRUMENTATION_COMPONENTS"),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+			{
+				// Disable.
+				Config:           testAccContainerCluster_withManagedOpenTelemetryConfigScope(clusterName, networkName, subnetworkName, "NONE"),
+				ConfigPlanChecks: testAccManagedOpenTelemetryExpectUpdate(),
+				Check:            testAccCheckManagedOpenTelemetryScope("NONE"),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+			{
+				// Optional+Computed: an empty block keeps the previous state.
+				Config:           testAccContainerCluster_withManagedOpenTelemetryConfigEmpty(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: testAccManagedOpenTelemetryExpectNoop(),
+				Check:            testAccCheckManagedOpenTelemetryScope("NONE"),
+			},
+			testAccManagedOpenTelemetryImportStep(),
+		},
+	})
+}
+
+// The managed_opentelemetry_config block is written literally in each config
+// (rather than interpolated) so that the missing-test detector, which only
+// parses the config template, sees the tested fields.
+func testAccContainerCluster_withoutManagedOpenTelemetryConfig(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "uscentral1a" {
+  location       = "us-east1-b"
+  version_prefix = "1.34."
+}
+
+resource "google_container_cluster" "with_managed_opentelemetry" {
+  name               = "%s"
+  location           = "us-east1-b"
+  initial_node_count = 1
+  network            = "%s"
+  subnetwork         = "%s"
+  min_master_version = data.google_container_engine_versions.uscentral1a.latest_master_version
+
+  deletion_protection = false
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withManagedOpenTelemetryConfigEmpty(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "uscentral1a" {
+  location       = "us-east1-b"
+  version_prefix = "1.34."
+}
+
+resource "google_container_cluster" "with_managed_opentelemetry" {
+  name               = "%s"
+  location           = "us-east1-b"
+  initial_node_count = 1
+  network            = "%s"
+  subnetwork         = "%s"
+  min_master_version = data.google_container_engine_versions.uscentral1a.latest_master_version
+
+  managed_opentelemetry_config {}
+
+  deletion_protection = false
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withManagedOpenTelemetryConfigScope(clusterName, networkName, subnetworkName, scope string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "uscentral1a" {
+  location       = "us-east1-b"
+  version_prefix = "1.34."
+}
+
+resource "google_container_cluster" "with_managed_opentelemetry" {
+  name               = "%s"
+  location           = "us-east1-b"
+  initial_node_count = 1
+  network            = "%s"
+  subnetwork         = "%s"
+  min_master_version = data.google_container_engine_versions.uscentral1a.latest_master_version
+
+  managed_opentelemetry_config {
+    scope = "%s"
+  }
+
+  deletion_protection = false
+}
+`, clusterName, networkName, subnetworkName, scope)
+}
+
 func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 	t.Parallel()
 
