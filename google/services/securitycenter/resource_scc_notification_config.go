@@ -171,6 +171,11 @@ for information on how to write a filter.`,
 					},
 				},
 			},
+			"deletion_notifications_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether the notifications will be sent for deleted findings.`,
+			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -232,6 +237,12 @@ func resourceSecurityCenterNotificationConfigCreate(d *schema.ResourceData, meta
 		return err
 	} else if v, ok := d.GetOkExists("streaming_config"); ok || !reflect.DeepEqual(v, streamingConfigProp) {
 		obj["streamingConfig"] = streamingConfigProp
+	}
+	deletionNotificationsEnabledProp, err := expandSecurityCenterNotificationConfigDeletionNotificationsEnabled(d.Get("deletion_notifications_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_notifications_enabled"); ok || !reflect.DeepEqual(v, deletionNotificationsEnabledProp) {
+		obj["deletionNotificationsEnabled"] = deletionNotificationsEnabledProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/notificationConfigs?configId={{config_id}}")
@@ -377,6 +388,12 @@ func resourceSecurityCenterNotificationConfigUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("streaming_config"); ok || !reflect.DeepEqual(v, streamingConfigProp) {
 		obj["streamingConfig"] = streamingConfigProp
 	}
+	deletionNotificationsEnabledProp, err := expandSecurityCenterNotificationConfigDeletionNotificationsEnabled(d.Get("deletion_notifications_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_notifications_enabled"); ok || !reflect.DeepEqual(v, deletionNotificationsEnabledProp) {
+		obj["deletionNotificationsEnabled"] = deletionNotificationsEnabledProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
@@ -397,6 +414,10 @@ func resourceSecurityCenterNotificationConfigUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("streaming_config") {
 		updateMask = append(updateMask, "streamingConfig.filter")
+	}
+
+	if d.HasChange("deletion_notifications_enabled") {
+		updateMask = append(updateMask, "deletionNotificationsEnabled")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -536,6 +557,10 @@ func flattenSecurityCenterNotificationConfigStreamingConfigFilter(v interface{},
 	return v
 }
 
+func flattenSecurityCenterNotificationConfigDeletionNotificationsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandSecurityCenterNotificationConfigDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -575,6 +600,10 @@ func expandSecurityCenterNotificationConfigStreamingConfigFilter(v interface{}, 
 	return v, nil
 }
 
+func expandSecurityCenterNotificationConfigDeletionNotificationsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceSecurityCenterNotificationConfigPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	if err := d.Set("name", flattenSecurityCenterNotificationConfigName(res["name"], d, config)); err != nil {
@@ -599,6 +628,9 @@ func ResourceSecurityCenterNotificationConfigFlatten(d *schema.ResourceData, met
 		return fmt.Errorf("Error reading NotificationConfig: %s", err)
 	}
 	if err = d.Set("streaming_config", flattenSecurityCenterNotificationConfigStreamingConfig(res["streamingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotificationConfig: %s", err)
+	}
+	if err = d.Set("deletion_notifications_enabled", flattenSecurityCenterNotificationConfigDeletionNotificationsEnabled(res["deletionNotificationsEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotificationConfig: %s", err)
 	}
 

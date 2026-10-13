@@ -101,11 +101,12 @@ resource "time_sleep" "wait_x_minutes" {
 }
 
 resource "google_scc_project_scc_big_query_export" "default" {
-  big_query_export_id    = "%{big_query_export_id}"
-  project      = "%{project}"
-  dataset      = google_bigquery_dataset.default.id
-  description  = "Cloud Security Command Center Findings Big Query Export Config"
-  filter       = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
+  big_query_export_id            = "%{big_query_export_id}"
+  project                        = "%{project}"
+  dataset                        = google_bigquery_dataset.default.id
+  description                    = "Cloud Security Command Center Findings Big Query Export Config"
+  filter                         = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
+  deletion_notifications_enabled = true
 
   depends_on = [time_sleep.wait_x_minutes]
 }
@@ -148,11 +149,12 @@ resource "time_sleep" "wait_x_minutes" {
 }
 
 resource "google_scc_project_scc_big_query_export" "default" {
-  big_query_export_id    = "%{big_query_export_id}"
-  project      = "%{project}"
-  dataset      = google_bigquery_dataset.default.id
-  description  = "SCC Findings Big Query Export Update"
-  filter       = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
+  big_query_export_id            = "%{big_query_export_id}"
+  project                        = "%{project}"
+  dataset                        = google_bigquery_dataset.default.id
+  description                    = "SCC Findings Big Query Export Update"
+  filter                         = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
+  deletion_notifications_enabled = false
 
   depends_on = [time_sleep.wait_x_minutes]
 }

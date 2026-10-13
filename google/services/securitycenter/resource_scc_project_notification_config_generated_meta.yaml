@@ -11,6 +11,7 @@ api_variant_patterns:
 fields:
     - field: config_id
       provider_only: true
+    - api_field: deletionNotificationsEnabled
     - api_field: description
     - api_field: name
     - api_field: pubsubTopic

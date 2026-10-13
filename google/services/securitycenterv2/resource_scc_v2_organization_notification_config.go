@@ -186,6 +186,11 @@ for information on how to write a filter.`,
 					},
 				},
 			},
+			"deletion_notifications_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether the notifications will be sent for deleted findings.`,
+			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -254,6 +259,12 @@ func resourceSecurityCenterV2OrganizationNotificationConfigCreate(d *schema.Reso
 		return err
 	} else if v, ok := d.GetOkExists("streaming_config"); ok || !reflect.DeepEqual(v, streamingConfigProp) {
 		obj["streamingConfig"] = streamingConfigProp
+	}
+	deletionNotificationsEnabledProp, err := expandSecurityCenterV2OrganizationNotificationConfigDeletionNotificationsEnabled(d.Get("deletion_notifications_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_notifications_enabled"); ok || !reflect.DeepEqual(v, deletionNotificationsEnabledProp) {
+		obj["deletionNotificationsEnabled"] = deletionNotificationsEnabledProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization}}/locations/{{location}}/notificationConfigs?configId={{config_id}}")
@@ -432,6 +443,12 @@ func resourceSecurityCenterV2OrganizationNotificationConfigUpdate(d *schema.Reso
 	} else if v, ok := d.GetOkExists("streaming_config"); ok || !reflect.DeepEqual(v, streamingConfigProp) {
 		obj["streamingConfig"] = streamingConfigProp
 	}
+	deletionNotificationsEnabledProp, err := expandSecurityCenterV2OrganizationNotificationConfigDeletionNotificationsEnabled(d.Get("deletion_notifications_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_notifications_enabled"); ok || !reflect.DeepEqual(v, deletionNotificationsEnabledProp) {
+		obj["deletionNotificationsEnabled"] = deletionNotificationsEnabledProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
@@ -452,6 +469,10 @@ func resourceSecurityCenterV2OrganizationNotificationConfigUpdate(d *schema.Reso
 
 	if d.HasChange("streaming_config") {
 		updateMask = append(updateMask, "streamingConfig.filter")
+	}
+
+	if d.HasChange("deletion_notifications_enabled") {
+		updateMask = append(updateMask, "deletionNotificationsEnabled")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -597,6 +618,10 @@ func flattenSecurityCenterV2OrganizationNotificationConfigStreamingConfigFilter(
 	return v
 }
 
+func flattenSecurityCenterV2OrganizationNotificationConfigDeletionNotificationsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandSecurityCenterV2OrganizationNotificationConfigDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -636,6 +661,10 @@ func expandSecurityCenterV2OrganizationNotificationConfigStreamingConfigFilter(v
 	return v, nil
 }
 
+func expandSecurityCenterV2OrganizationNotificationConfigDeletionNotificationsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceSecurityCenterV2OrganizationNotificationConfigPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	if err := d.Set("name", flattenSecurityCenterV2OrganizationNotificationConfigName(res["name"], d, config)); err != nil {
@@ -660,6 +689,9 @@ func ResourceSecurityCenterV2OrganizationNotificationConfigFlatten(d *schema.Res
 		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
 	}
 	if err = d.Set("streaming_config", flattenSecurityCenterV2OrganizationNotificationConfigStreamingConfig(res["streamingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
+	}
+	if err = d.Set("deletion_notifications_enabled", flattenSecurityCenterV2OrganizationNotificationConfigDeletionNotificationsEnabled(res["deletionNotificationsEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OrganizationNotificationConfig: %s", err)
 	}
 

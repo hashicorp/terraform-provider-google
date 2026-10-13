@@ -97,11 +97,12 @@ resource "google_pubsub_topic" "scc_v2_folder_notification_config" {
 }
 
 resource "google_scc_v2_folder_notification_config" "default" {
-  config_id    = "tf-test-config-%{random_suffix}"
-  folder 	   = google_folder.folder.folder_id
-  location     = "global"
-  description  = "A test folder notification config"
-  pubsub_topic = google_pubsub_topic.scc_v2_folder_notification_config.id
+  config_id                      = "tf-test-config-%{random_suffix}"
+  folder                         = google_folder.folder.folder_id
+  location                       = "global"
+  description                    = "A test folder notification config"
+  pubsub_topic                   = google_pubsub_topic.scc_v2_folder_notification_config.id
+  deletion_notifications_enabled = true
 
   streaming_config {
     filter = "severity = \"HIGH\""
@@ -126,11 +127,12 @@ resource "google_pubsub_topic" "scc_v2_folder_notification_config" {
 }
 
 resource "google_scc_v2_folder_notification_config" "default" {
-  config_id    = "tf-test-config-%{random_suffix}"
-  folder 	   = google_folder.folder.folder_id
-  location     = "global"
-  description  = "An updated test folder notification config"
-  pubsub_topic = google_pubsub_topic.scc_v2_folder_notification_config.id
+  config_id                      = "tf-test-config-%{random_suffix}"
+  folder                         = google_folder.folder.folder_id
+  location                       = "global"
+  description                    = "An updated test folder notification config"
+  pubsub_topic                   = google_pubsub_topic.scc_v2_folder_notification_config.id
+  deletion_notifications_enabled = false
 
   streaming_config {
     filter = "severity = \"CRITICAL\""

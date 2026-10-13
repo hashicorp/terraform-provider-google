@@ -84,6 +84,10 @@ The following arguments are supported:
   (Optional)
   The description of the notification config (max of 1024 characters).
 
+* `deletion_notifications_enabled` -
+  (Optional)
+  Indicates whether the notifications will be sent for deleted findings.
+
 * `location` -
   (Optional)
   Location ID of the parent organization. If not provided, 'global' will be used as the default location.

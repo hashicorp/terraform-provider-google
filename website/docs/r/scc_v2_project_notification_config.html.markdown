@@ -74,6 +74,10 @@ The following arguments are supported:
   The Pub/Sub topic to send notifications to. Its format is
   "projects/[project_id]/topics/[topic]".
 
+* `deletion_notifications_enabled` -
+  (Optional)
+  Indicates whether the notifications will be sent for deleted findings.
+
 * `location` -
   (Optional)
   Location ID for the parent project. Defaults to `global` if location is not provided.

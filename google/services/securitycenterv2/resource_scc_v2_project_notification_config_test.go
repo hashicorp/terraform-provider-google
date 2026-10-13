@@ -86,11 +86,12 @@ resource "google_pubsub_topic" "scc_v2_project_notification" {
 }
 
 resource "google_scc_v2_project_notification_config" "custom_notification_config" {
-  config_id    = "%{config_id}"
-  project      = "%{project}"
-  description  = "My custom Cloud Security Command Center Finding Notification Configuration"
-  pubsub_topic =  google_pubsub_topic.scc_v2_project_notification.id
-  location     = "%{location}"
+  config_id                      = "%{config_id}"
+  project                        = "%{project}"
+  description                    = "My custom Cloud Security Command Center Finding Notification Configuration"
+  pubsub_topic                   =  google_pubsub_topic.scc_v2_project_notification.id
+  location                       = "%{location}"
+  deletion_notifications_enabled = true
 
   streaming_config {
     filter = "category = \"OPEN_FIREWALL\""
@@ -106,11 +107,12 @@ resource "google_pubsub_topic" "scc_v2_project_notification" {
 }
 
 resource "google_scc_v2_project_notification_config" "custom_notification_config" {
-  config_id    = "%{config_id}"
-  project      = "%{project}"
-  description  = "My custom Cloud Security Command Center Finding Notification Configuration"
-  pubsub_topic =  google_pubsub_topic.scc_v2_project_notification.id
-  location     = "%{location}"
+  config_id                      = "%{config_id}"
+  project                        = "%{project}"
+  description                    = "My custom Cloud Security Command Center Finding Notification Configuration"
+  pubsub_topic                   =  google_pubsub_topic.scc_v2_project_notification.id
+  location                       = "%{location}"
+  deletion_notifications_enabled = false
 
   streaming_config {
     filter = ""
