@@ -2415,10 +2415,30 @@ from service agent.`,
 							Computed:    true,
 							Description: `The description of the tool.`,
 						},
+						"input_variable_mapping": {
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Description: `Mapping of input variable names of remote agent to GECX variable names.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The name of the tool.`,
+						},
+						"output_variable_mapping": {
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Description: `Mapping of output variable names of remote agent to GECX variable names.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"stateful_agent": {
+							Type:     schema.TypeBool,
+							Computed: true,
+							Description: `When enabled, the interaction between the CXAS app and the remote agent
+will share the same context. If the remote agent returns a context_id, it
+will be persisted for the entirety of the session for this remote agent
+tool.`,
 						},
 					},
 				},
@@ -4823,6 +4843,12 @@ func flattenCESToolRemoteAgentTool(v interface{}, d *schema.ResourceData, config
 		flattenCESToolRemoteAgentToolAgentCard(original["agentCard"], d, config)
 	transformed["api_authentication"] =
 		flattenCESToolRemoteAgentToolApiAuthentication(original["apiAuthentication"], d, config)
+	transformed["input_variable_mapping"] =
+		flattenCESToolRemoteAgentToolInputVariableMapping(original["inputVariableMapping"], d, config)
+	transformed["output_variable_mapping"] =
+		flattenCESToolRemoteAgentToolOutputVariableMapping(original["outputVariableMapping"], d, config)
+	transformed["stateful_agent"] =
+		flattenCESToolRemoteAgentToolStatefulAgent(original["statefulAgent"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolRemoteAgentToolName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5094,6 +5120,18 @@ func flattenCESToolRemoteAgentToolApiAuthenticationServiceAgentIdTokenAuthConfig
 	}
 	transformed := make(map[string]interface{})
 	return []interface{}{transformed}
+}
+
+func flattenCESToolRemoteAgentToolInputVariableMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolOutputVariableMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESToolRemoteAgentToolStatefulAgent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenCESToolSystemTool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

@@ -215,7 +215,10 @@ fields:
     - api_field: remoteAgentTool.apiAuthentication.serviceAccountAuthConfig.serviceAccount
     - api_field: remoteAgentTool.apiAuthentication.serviceAgentIdTokenAuthConfig
     - api_field: remoteAgentTool.description
+    - api_field: remoteAgentTool.inputVariableMapping
     - api_field: remoteAgentTool.name
+    - api_field: remoteAgentTool.outputVariableMapping
+    - api_field: remoteAgentTool.statefulAgent
     - api_field: systemTool.description
     - api_field: systemTool.name
     - api_field: timeout
