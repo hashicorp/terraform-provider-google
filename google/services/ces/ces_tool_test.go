@@ -388,6 +388,7 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
                 model_settings {
                     model = "gemini-3.0-flash-001"
                     temperature = 1
+                    thinking_level = "LOW"
                 }
                 prompt = "example-prompt"
                 disabled = false
@@ -396,6 +397,7 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
                 model_settings {
                     model = "gemini-3.0-flash-001"
                     temperature = 1
+                    thinking_level = "LOW"
                 }
                 prompt = "example-prompt"
                 disabled = false
@@ -486,6 +488,7 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
                 model_settings {
                     model = "gemini-3.0-flash-001"
                     temperature = 1
+                    thinking_level = "HIGH"
                 }
                 prompt = "example-prompt"
                 disabled = false
@@ -494,6 +497,7 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
                 model_settings {
                     model = "gemini-3.0-flash-001"
                     temperature = 1
+                    thinking_level = "HIGH"
                 }
                 prompt = "example-prompt"
                 disabled = false

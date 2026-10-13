@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `data_store_tool.modality_configs.rewriter_config.model_settings.thinking_level` and `data_store_tool.modality_configs.summarization_config.model_settings.thinking_level` fields to `google_ces_tool` resource
+```

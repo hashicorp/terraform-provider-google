@@ -218,6 +218,7 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
                 model_settings {
                     model = "gemini-3.0-flash-001"
                     temperature = 1
+                    thinking_level = "LOW"
                 }
                 prompt = "example-prompt"
                 disabled = false
@@ -226,6 +227,7 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
                 model_settings {
                     model = "gemini-3.0-flash-001"
                     temperature = 1
+                    thinking_level = "LOW"
                 }
                 prompt = "example-prompt"
                 disabled = false
@@ -1167,6 +1169,16 @@ The following arguments are supported:
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
 
+* `thinking_level` -
+  (Optional)
+  The thinking level of the model.
+  Possible values:
+  DEFAULT
+  LOW
+  MEDIUM
+  HIGH
+  Possible values are: `DEFAULT`, `LOW`, `MEDIUM`, `HIGH`.
+
 <a name="nested_data_store_tool_modality_configs_snippets_config"></a>The `snippets_config` block supports:
 
 * `enable_snippets` -
@@ -1202,6 +1214,16 @@ The following arguments are supported:
   controls the randomness of the model's responses. Lower temperatures
   produce responses that are more predictable. Higher temperatures produce
   responses that are more creative.
+
+* `thinking_level` -
+  (Optional)
+  The thinking level of the model.
+  Possible values:
+  DEFAULT
+  LOW
+  MEDIUM
+  HIGH
+  Possible values are: `DEFAULT`, `LOW`, `MEDIUM`, `HIGH`.
 
 <a name="nested_file_search_tool"></a>The `file_search_tool` block supports:
 
