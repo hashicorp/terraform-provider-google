@@ -1495,6 +1495,76 @@ resource "google_compute_region_security_policy" "policy" {
 `, serviceName, polLink, polName)
 }
 
+func TestAccComputeRegionBackendService_withSecurityPolicyUdp(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	ddosPolName := fmt.Sprintf("tf-test-ddos-%s", acctest.RandString(t, 10))
+	edgeSecName := fmt.Sprintf("tf-test-edge-%s", acctest.RandString(t, 10))
+	polName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_withSecurityPolicyUdp(ddosPolName, edgeSecName, polName, serviceName, "google_compute_region_security_policy.policy.self_link"),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRegionBackendService_withSecurityPolicyUdp(ddosPolName, edgeSecName, polName, serviceName, "\"\""),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRegionBackendService_withSecurityPolicyUdp(ddosPolName, edgeSecName, polName, serviceName, polLink string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_security_policy" "policyddosprotection" {
+  region      = "us-central1"
+  name        = "%s"
+  description = "region security policy for ddos protection"
+  type        = "CLOUD_ARMOR_NETWORK"
+  ddos_protection_config {
+    ddos_protection = "ADVANCED_PREVIEW"
+  }
+}
+
+resource "google_compute_network_edge_security_service" "edge_sec_service" {
+  name            = "%s"
+  region          = "us-central1"
+  description     = "edge security service with security policy"
+  security_policy = google_compute_region_security_policy.policyddosprotection.self_link
+}
+
+resource "google_compute_region_security_policy" "policy" {
+  name        = "%s"
+  region      = "us-central1"
+  description = "basic network security policy"
+  type        = "CLOUD_ARMOR_NETWORK"
+  depends_on  = [google_compute_network_edge_security_service.edge_sec_service]
+}
+
+resource "google_compute_region_backend_service" "foobar" {
+  name                  = "%s"
+  region                = "us-central1"
+  protocol              = "UDP"
+  load_balancing_scheme = "EXTERNAL"
+  security_policy       = %s
+}
+`, ddosPolName, edgeSecName, polName, serviceName, polLink)
+}
+
 func testAccComputeRegionBackendService_withLogConfig(serviceName, checkName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
