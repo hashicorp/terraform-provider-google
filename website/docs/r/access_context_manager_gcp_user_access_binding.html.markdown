@@ -191,6 +191,11 @@ The following arguments are supported:
   Optional. The application that is subject to this binding's scope. Only one of clientId or name should be specified.
   Structure is [documented below](#nested_scoped_access_settings_scope_client_scope_restricted_client_application).
 
+* `restricted_project` -
+  (Optional)
+  Optional. The Google Cloud project that is subject to this binding's scope.
+  Structure is [documented below](#nested_scoped_access_settings_scope_client_scope_restricted_project).
+
 
 <a name="nested_scoped_access_settings_scope_client_scope_restricted_client_application"></a>The `restricted_client_application` block supports:
 
@@ -201,6 +206,14 @@ The following arguments are supported:
 * `name` -
   (Optional)
   The name of the application. Example: "Cloud Console"
+
+<a name="nested_scoped_access_settings_scope_client_scope_restricted_project"></a>The `restricted_project` block supports:
+
+* `name` -
+  (Required)
+  The Google Cloud project resource name.
+  Format: `projects/{project_number}`. Only the project number is supported.
+  Example: `projects/1234567890`
 
 <a name="nested_scoped_access_settings_active_settings"></a>The `active_settings` block supports:
 
@@ -246,6 +259,21 @@ The following arguments are supported:
   Optional. Access level that a user must have to be granted access. Only one access level is supported, not multiple. This repeated field must have exactly one element. Example: "accessPolicies/9522/accessLevels/device_trusted"
 
 <a name="nested_principal"></a>The `principal` block supports:
+
+* `federated_principal` -
+  (Optional)
+  Immutable. The IAM principal identifier of the federated workforce or workload to
+  assign the policy to. Examples include the following:
+  * Single principal:
+  `principal://iam.googleapis.com/projects/{project_number}/locations/global/workloadIdentityPools/{pool_id}/subject/{subject_attribute_value}`
+  * All workloads in a workload identity pool:
+  `principalSet://iam.googleapis.com/projects/{project_number}/locations/global/workloadIdentityPools/{pool_id}/*`
+  * All Workforce Pools in a Google Cloud organization:
+  `principalSet://cloudresourcemanager.googleapis.com/organizations/{organization_id}/type/WorkforcePool`
+  Bindings created for all Workforce Pools in a Google Cloud organization
+  support only `scoped_access_settings` with the `restricted_project`
+  client scope and active `session_settings`. No other configurations are
+  allowed.
 
 * `service_account_project_number` -
   (Optional)

@@ -66,6 +66,7 @@ func TestAccAccessContextManager(t *testing.T) {
 		"service_perimeters":                              testAccAccessContextManagerServicePerimeters_basicTest,
 		"gcp_user_access_binding":                         testAccAccessContextManagerGcpUserAccessBinding_basicTest,
 		"gcp_user_access_binding_principal":               testAccAccessContextManagerGcpUserAccessBinding_principalTest,
+		"gcp_user_access_binding_restricted_project":      testAccAccessContextManagerGcpUserAccessBindingRestrictedProjectScopeTest,
 		"authorized_orgs_desc":                            testAccAccessContextManagerAuthorizedOrgsDesc_basicTest,
 		"data_source_access_policy_basic":                 testAccDataSourceAccessContextManagerServicePerimeter_basicTest,
 		"data_source_access_policy_scoped":                testAccDataSourceAccessContextManagerServicePerimeter_scopedPolicyTest,

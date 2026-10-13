@@ -175,6 +175,24 @@ Example: "01d520gv4vjcrht"`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"federated_principal": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Immutable. The IAM principal identifier of the federated workforce or workload to
+assign the policy to. Examples include the following:
+* Single principal:
+'principal://iam.googleapis.com/projects/{project_number}/locations/global/workloadIdentityPools/{pool_id}/subject/{subject_attribute_value}'
+* All workloads in a workload identity pool:
+'principalSet://iam.googleapis.com/projects/{project_number}/locations/global/workloadIdentityPools/{pool_id}/*'
+* All Workforce Pools in a Google Cloud organization:
+'principalSet://cloudresourcemanager.googleapis.com/organizations/{organization_id}/type/WorkforcePool'
+
+Bindings created for all Workforce Pools in a Google Cloud organization
+support only 'scoped_access_settings' with the 'restricted_project'
+client scope and active 'session_settings'. No other configurations are
+allowed.`,
+						},
 						"service_account": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -307,6 +325,23 @@ If 'session_length' is set to zero, this field must be false.`,
 																Type:        schema.TypeString,
 																Optional:    true,
 																Description: `The name of the application. Example: "Cloud Console"`,
+															},
+														},
+													},
+												},
+												"restricted_project": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. The Google Cloud project that is subject to this binding's scope.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:     schema.TypeString,
+																Required: true,
+																Description: `The Google Cloud project resource name.
+Format: 'projects/{project_number}'. Only the project number is supported.
+Example: 'projects/1234567890'`,
 															},
 														},
 													},
@@ -876,6 +911,8 @@ func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeCli
 	transformed := make(map[string]interface{})
 	transformed["restricted_client_application"] =
 		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplication(original["restrictedClientApplication"], d, config)
+	transformed["restricted_project"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedProject(original["restrictedProject"], d, config)
 	return []interface{}{transformed}
 }
 func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -898,6 +935,23 @@ func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeCli
 }
 
 func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedProjectName(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedProjectName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -991,12 +1045,18 @@ func flattenAccessContextManagerGcpUserAccessBindingPrincipal(v interface{}, d *
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["federated_principal"] =
+		flattenAccessContextManagerGcpUserAccessBindingPrincipalFederatedPrincipal(original["federatedPrincipal"], d, config)
 	transformed["service_account_project_number"] =
 		flattenAccessContextManagerGcpUserAccessBindingPrincipalServiceAccountProjectNumber(original["serviceAccountProjectNumber"], d, config)
 	transformed["service_account"] =
 		flattenAccessContextManagerGcpUserAccessBindingPrincipalServiceAccount(original["serviceAccount"], d, config)
 	return []interface{}{transformed}
 }
+func flattenAccessContextManagerGcpUserAccessBindingPrincipalFederatedPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAccessContextManagerGcpUserAccessBindingPrincipalServiceAccountProjectNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1163,6 +1223,13 @@ func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClie
 		transformed["restrictedClientApplication"] = transformedRestrictedClientApplication
 	}
 
+	transformedRestrictedProject, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedProject(original["restricted_project"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRestrictedProject); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["restrictedProject"] = transformedRestrictedProject
+	}
+
 	return transformed, nil
 }
 
@@ -1200,6 +1267,32 @@ func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClie
 }
 
 func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedClientApplicationName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedProjectName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingScopedAccessSettingsScopeClientScopeRestrictedProjectName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1348,6 +1441,13 @@ func expandAccessContextManagerGcpUserAccessBindingPrincipal(v interface{}, d tp
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedFederatedPrincipal, err := expandAccessContextManagerGcpUserAccessBindingPrincipalFederatedPrincipal(original["federated_principal"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFederatedPrincipal); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["federatedPrincipal"] = transformedFederatedPrincipal
+	}
+
 	transformedServiceAccountProjectNumber, err := expandAccessContextManagerGcpUserAccessBindingPrincipalServiceAccountProjectNumber(original["service_account_project_number"], d, config)
 	if err != nil {
 		return nil, err
@@ -1363,6 +1463,10 @@ func expandAccessContextManagerGcpUserAccessBindingPrincipal(v interface{}, d tp
 	}
 
 	return transformed, nil
+}
+
+func expandAccessContextManagerGcpUserAccessBindingPrincipalFederatedPrincipal(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandAccessContextManagerGcpUserAccessBindingPrincipalServiceAccountProjectNumber(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

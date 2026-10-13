@@ -13,6 +13,7 @@ fields:
     - api_field: name
     - field: organization_id
       provider_only: true
+    - api_field: principal.federatedPrincipal
     - api_field: principal.serviceAccount
     - api_field: principal.serviceAccountProjectNumber
     - api_field: scopedAccessSettings.activeSettings.accessLevels
@@ -24,6 +25,7 @@ fields:
     - api_field: scopedAccessSettings.dryRunSettings.accessLevels
     - api_field: scopedAccessSettings.scope.clientScope.restrictedClientApplication.clientId
     - api_field: scopedAccessSettings.scope.clientScope.restrictedClientApplication.name
+    - api_field: scopedAccessSettings.scope.clientScope.restrictedProject.name
     - api_field: sessionSettings.maxInactivity
     - api_field: sessionSettings.sessionLength
     - api_field: sessionSettings.sessionLengthEnabled
