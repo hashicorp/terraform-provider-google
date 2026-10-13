@@ -193,6 +193,11 @@ for information on how to write a filter.`,
 					},
 				},
 			},
+			"deletion_notifications_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether the notifications will be sent for deleted findings.`,
+			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -261,6 +266,12 @@ func resourceSecurityCenterV2FolderNotificationConfigCreate(d *schema.ResourceDa
 		return err
 	} else if v, ok := d.GetOkExists("streaming_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(streamingConfigProp)) && (ok || !reflect.DeepEqual(v, streamingConfigProp)) {
 		obj["streamingConfig"] = streamingConfigProp
+	}
+	deletionNotificationsEnabledProp, err := expandSecurityCenterV2FolderNotificationConfigDeletionNotificationsEnabled(d.Get("deletion_notifications_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_notifications_enabled"); ok || !reflect.DeepEqual(v, deletionNotificationsEnabledProp) {
+		obj["deletionNotificationsEnabled"] = deletionNotificationsEnabledProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/locations/{{location}}/notificationConfigs?configId={{config_id}}")
@@ -465,6 +476,12 @@ func resourceSecurityCenterV2FolderNotificationConfigUpdate(d *schema.ResourceDa
 	} else if v, ok := d.GetOkExists("streaming_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, streamingConfigProp)) {
 		obj["streamingConfig"] = streamingConfigProp
 	}
+	deletionNotificationsEnabledProp, err := expandSecurityCenterV2FolderNotificationConfigDeletionNotificationsEnabled(d.Get("deletion_notifications_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_notifications_enabled"); ok || !reflect.DeepEqual(v, deletionNotificationsEnabledProp) {
+		obj["deletionNotificationsEnabled"] = deletionNotificationsEnabledProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/locations/{{location}}/notificationConfigs/{{config_id}}")
 	if err != nil {
@@ -485,6 +502,10 @@ func resourceSecurityCenterV2FolderNotificationConfigUpdate(d *schema.ResourceDa
 
 	if d.HasChange("streaming_config") {
 		updateMask = append(updateMask, "streamingConfig.filter")
+	}
+
+	if d.HasChange("deletion_notifications_enabled") {
+		updateMask = append(updateMask, "deletionNotificationsEnabled")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -636,6 +657,10 @@ func flattenSecurityCenterV2FolderNotificationConfigStreamingConfigFilter(v inte
 	return v
 }
 
+func flattenSecurityCenterV2FolderNotificationConfigDeletionNotificationsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandSecurityCenterV2FolderNotificationConfigDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -670,6 +695,10 @@ func expandSecurityCenterV2FolderNotificationConfigStreamingConfigFilter(v inter
 	return v, nil
 }
 
+func expandSecurityCenterV2FolderNotificationConfigDeletionNotificationsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceSecurityCenterV2FolderNotificationConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -686,6 +715,9 @@ func ResourceSecurityCenterV2FolderNotificationConfigFlatten(d *schema.ResourceD
 		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
 	}
 	if err = d.Set("streaming_config", flattenSecurityCenterV2FolderNotificationConfigStreamingConfig(res["streamingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
+	}
+	if err = d.Set("deletion_notifications_enabled", flattenSecurityCenterV2FolderNotificationConfigDeletionNotificationsEnabled(res["deletionNotificationsEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FolderNotificationConfig: %s", err)
 	}
 

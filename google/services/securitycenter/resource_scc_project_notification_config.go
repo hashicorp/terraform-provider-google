@@ -169,6 +169,11 @@ for information on how to write a filter.`,
 					},
 				},
 			},
+			"deletion_notifications_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether the notifications will be sent for deleted findings.`,
+			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -235,6 +240,12 @@ func resourceSecurityCenterProjectNotificationConfigCreate(d *schema.ResourceDat
 		return err
 	} else if v, ok := d.GetOkExists("streaming_config"); ok || !reflect.DeepEqual(v, streamingConfigProp) {
 		obj["streamingConfig"] = streamingConfigProp
+	}
+	deletionNotificationsEnabledProp, err := expandSecurityCenterProjectNotificationConfigDeletionNotificationsEnabled(d.Get("deletion_notifications_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_notifications_enabled"); ok || !reflect.DeepEqual(v, deletionNotificationsEnabledProp) {
+		obj["deletionNotificationsEnabled"] = deletionNotificationsEnabledProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/notificationConfigs?configId={{config_id}}")
@@ -401,6 +412,12 @@ func resourceSecurityCenterProjectNotificationConfigUpdate(d *schema.ResourceDat
 	} else if v, ok := d.GetOkExists("streaming_config"); ok || !reflect.DeepEqual(v, streamingConfigProp) {
 		obj["streamingConfig"] = streamingConfigProp
 	}
+	deletionNotificationsEnabledProp, err := expandSecurityCenterProjectNotificationConfigDeletionNotificationsEnabled(d.Get("deletion_notifications_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_notifications_enabled"); ok || !reflect.DeepEqual(v, deletionNotificationsEnabledProp) {
+		obj["deletionNotificationsEnabled"] = deletionNotificationsEnabledProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
@@ -421,6 +438,10 @@ func resourceSecurityCenterProjectNotificationConfigUpdate(d *schema.ResourceDat
 
 	if d.HasChange("streaming_config") {
 		updateMask = append(updateMask, "streamingConfig.filter")
+	}
+
+	if d.HasChange("deletion_notifications_enabled") {
+		updateMask = append(updateMask, "deletionNotificationsEnabled")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -565,6 +586,10 @@ func flattenSecurityCenterProjectNotificationConfigStreamingConfigFilter(v inter
 	return v
 }
 
+func flattenSecurityCenterProjectNotificationConfigDeletionNotificationsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandSecurityCenterProjectNotificationConfigDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -604,6 +629,10 @@ func expandSecurityCenterProjectNotificationConfigStreamingConfigFilter(v interf
 	return v, nil
 }
 
+func expandSecurityCenterProjectNotificationConfigDeletionNotificationsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceSecurityCenterProjectNotificationConfigPostCreateSetComputedFields(d *schema.ResourceData, meta interface{}, res map[string]interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	if err := d.Set("name", flattenSecurityCenterProjectNotificationConfigName(res["name"], d, config)); err != nil {
@@ -628,6 +657,9 @@ func ResourceSecurityCenterProjectNotificationConfigFlatten(d *schema.ResourceDa
 		return fmt.Errorf("Error reading ProjectNotificationConfig: %s", err)
 	}
 	if err = d.Set("streaming_config", flattenSecurityCenterProjectNotificationConfigStreamingConfig(res["streamingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectNotificationConfig: %s", err)
+	}
+	if err = d.Set("deletion_notifications_enabled", flattenSecurityCenterProjectNotificationConfigDeletionNotificationsEnabled(res["deletionNotificationsEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ProjectNotificationConfig: %s", err)
 	}
 

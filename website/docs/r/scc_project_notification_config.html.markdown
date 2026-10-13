@@ -80,6 +80,10 @@ The following arguments are supported:
   (Optional)
   The description of the notification config (max of 1024 characters).
 
+* `deletion_notifications_enabled` -
+  (Optional)
+  Indicates whether the notifications will be sent for deleted findings.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

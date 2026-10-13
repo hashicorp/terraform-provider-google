@@ -108,6 +108,10 @@ The following arguments are supported:
   [Filtering notifications](https://cloud.google.com/security-command-center/docs/how-to-api-filter-notifications)
   for information on how to write a filter.
 
+* `deletion_notifications_enabled` -
+  (Optional)
+  Indicates whether the notifications will be sent for deleted findings.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

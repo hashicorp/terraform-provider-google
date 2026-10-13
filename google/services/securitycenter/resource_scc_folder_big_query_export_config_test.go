@@ -105,11 +105,12 @@ resource "time_sleep" "wait_1_minute" {
 	create_duration = "3m"
 }
 resource "google_scc_folder_scc_big_query_export" "default" {
-  big_query_export_id    = "%{big_query_export_id}"
-  folder 	   = google_folder.folder.folder_id
-  dataset      = google_bigquery_dataset.default.id
-  description  = "Cloud Security Command Center Findings Big Query Export Config"
-  filter       = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
+  big_query_export_id            = "%{big_query_export_id}"
+  folder                         = google_folder.folder.folder_id
+  dataset                        = google_bigquery_dataset.default.id
+  description                    = "Cloud Security Command Center Findings Big Query Export Config"
+  filter                         = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
+  deletion_notifications_enabled = true
 
   depends_on = [time_sleep.wait_1_minute]
 }
@@ -139,11 +140,12 @@ resource "google_bigquery_dataset" "default" {
   }
 }
 resource "google_scc_folder_scc_big_query_export" "default" {
-  big_query_export_id    = "%{big_query_export_id}"
-  folder 	   = google_folder.folder.folder_id
-  dataset      = google_bigquery_dataset.default.id
-  description  = "SCC Findings Big Query Export Update"
-  filter       = ""
+  big_query_export_id            = "%{big_query_export_id}"
+  folder                         = google_folder.folder.folder_id
+  dataset                        = google_bigquery_dataset.default.id
+  description                    = "SCC Findings Big Query Export Update"
+  filter                         = ""
+  deletion_notifications_enabled = false
 }
 
 `, context)

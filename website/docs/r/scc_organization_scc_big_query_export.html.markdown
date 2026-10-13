@@ -113,6 +113,10 @@ The following arguments are supported:
   [Filtering notifications](https://cloud.google.com/security-command-center/docs/how-to-api-filter-notifications)
   for information on how to write a filter.
 
+* `deletion_notifications_enabled` -
+  (Optional)
+  Indicates whether the notifications will be sent for deleted findings.
+
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
 	the command will fail if this field is set to "PREVENT" in Terraform state.

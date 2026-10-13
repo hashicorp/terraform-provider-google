@@ -158,6 +158,11 @@ Config lives in.`,
 Its format is "projects/[projectId]/datasets/[bigquery_dataset_id]".
 BigQuery Dataset unique ID must contain only letters (a-z, A-Z), numbers (0-9), or underscores (_).`,
 			},
+			"deletion_notifications_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether the notifications will be sent for deleted findings.`,
+			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -275,6 +280,12 @@ func resourceSecurityCenterV2FolderSccBigQueryExportCreate(d *schema.ResourceDat
 		return err
 	} else if v, ok := d.GetOkExists("filter"); !tpgresource.IsEmptyValue(reflect.ValueOf(filterProp)) && (ok || !reflect.DeepEqual(v, filterProp)) {
 		obj["filter"] = filterProp
+	}
+	deletionNotificationsEnabledProp, err := expandSecurityCenterV2FolderSccBigQueryExportDeletionNotificationsEnabled(d.Get("deletion_notifications_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_notifications_enabled"); ok || !reflect.DeepEqual(v, deletionNotificationsEnabledProp) {
+		obj["deletionNotificationsEnabled"] = deletionNotificationsEnabledProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/locations/{{location}}/bigQueryExports?bigQueryExportId={{big_query_export_id}}")
@@ -479,6 +490,12 @@ func resourceSecurityCenterV2FolderSccBigQueryExportUpdate(d *schema.ResourceDat
 	} else if v, ok := d.GetOkExists("filter"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, filterProp)) {
 		obj["filter"] = filterProp
 	}
+	deletionNotificationsEnabledProp, err := expandSecurityCenterV2FolderSccBigQueryExportDeletionNotificationsEnabled(d.Get("deletion_notifications_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_notifications_enabled"); ok || !reflect.DeepEqual(v, deletionNotificationsEnabledProp) {
+		obj["deletionNotificationsEnabled"] = deletionNotificationsEnabledProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}")
 	if err != nil {
@@ -499,6 +516,10 @@ func resourceSecurityCenterV2FolderSccBigQueryExportUpdate(d *schema.ResourceDat
 
 	if d.HasChange("filter") {
 		updateMask = append(updateMask, "filter")
+	}
+
+	if d.HasChange("deletion_notifications_enabled") {
+		updateMask = append(updateMask, "deletionNotificationsEnabled")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -636,6 +657,10 @@ func flattenSecurityCenterV2FolderSccBigQueryExportFilter(v interface{}, d *sche
 	return v
 }
 
+func flattenSecurityCenterV2FolderSccBigQueryExportDeletionNotificationsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandSecurityCenterV2FolderSccBigQueryExportDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -645,6 +670,10 @@ func expandSecurityCenterV2FolderSccBigQueryExportDataset(v interface{}, d tpgre
 }
 
 func expandSecurityCenterV2FolderSccBigQueryExportFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecurityCenterV2FolderSccBigQueryExportDeletionNotificationsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -673,6 +702,9 @@ func ResourceSecurityCenterV2FolderSccBigQueryExportFlatten(d *schema.ResourceDa
 		return fmt.Errorf("Error reading FolderSccBigQueryExport: %s", err)
 	}
 	if err = d.Set("filter", flattenSecurityCenterV2FolderSccBigQueryExportFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FolderSccBigQueryExport: %s", err)
+	}
+	if err = d.Set("deletion_notifications_enabled", flattenSecurityCenterV2FolderSccBigQueryExportDeletionNotificationsEnabled(res["deletionNotificationsEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FolderSccBigQueryExport: %s", err)
 	}
 

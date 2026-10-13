@@ -100,13 +100,14 @@ resource "time_sleep" "wait_1_minute" {
 }
 
 resource "google_scc_v2_organization_scc_big_query_exports" "default" {
-  name		   = "%{name}"
-  big_query_export_id    = "%{big_query_export_id}"
-  organization = "%{org_id}"
-  dataset      = google_bigquery_dataset.default.id
-  location     = "global"
-  description  = "Cloud Security Command Center Findings Big Query Export Config"
-  filter       = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
+  name                           = "%{name}"
+  big_query_export_id            = "%{big_query_export_id}"
+  organization                   = "%{org_id}"
+  dataset                        = google_bigquery_dataset.default.id
+  location                       = "global"
+  description                    = "Cloud Security Command Center Findings Big Query Export Config"
+  filter                         = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
+  deletion_notifications_enabled = true
 
   depends_on = [time_sleep.wait_1_minute]
 }
@@ -145,13 +146,14 @@ resource "time_sleep" "wait_1_minute" {
 }
 
 resource "google_scc_v2_organization_scc_big_query_exports" "default" {
-  name		   = "%{name}"
-  big_query_export_id    = "%{big_query_export_id}"
-  organization = "%{org_id}"
-  dataset      = google_bigquery_dataset.default.id
-  location     = "global"
-  description  = "SCC Findings Big Query Export Update"
-  filter       = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
+  name                           = "%{name}"
+  big_query_export_id            = "%{big_query_export_id}"
+  organization                   = "%{org_id}"
+  dataset                        = google_bigquery_dataset.default.id
+  location                       = "global"
+  description                    = "SCC Findings Big Query Export Update"
+  filter                         = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
+  deletion_notifications_enabled = false
 
   depends_on = [time_sleep.wait_1_minute]  
 }

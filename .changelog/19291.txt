@@ -1,0 +1,39 @@
+```release-note:enhancement
+securitycenter: added `deletion_notifications_enabled` field to `google_scc_notification_config` resource
+```
+```release-note:enhancement
+securitycenter: added `deletion_notifications_enabled` field to `google_scc_folder_notification_config` resource
+```
+```release-note:enhancement
+securitycenter: added `deletion_notifications_enabled` field to `google_scc_project_notification_config` resource
+```
+```release-note:enhancement
+securitycenter: added `deletion_notifications_enabled` field to `google_scc_organization_scc_big_query_export` resource
+```
+```release-note:enhancement
+securitycenter: added `deletion_notifications_enabled` field to `google_scc_folder_scc_big_query_export` resource
+```
+```release-note:enhancement
+securitycenter: added `deletion_notifications_enabled` field to `google_scc_project_scc_big_query_export` resource
+```
+```release-note:enhancement
+securitycenterv2: added `deletion_notifications_enabled` field to `google_scc_v2_organization_notification_config` resource
+```
+```release-note:enhancement
+securitycenterv2: added `deletion_notifications_enabled` field to `google_scc_v2_folder_notification_config` resource
+```
+```release-note:enhancement
+securitycenterv2: added `deletion_notifications_enabled` field to `google_scc_v2_project_notification_config` resource
+```
+```release-note:enhancement
+securitycenterv2: added `deletion_notifications_enabled` field to `google_scc_v2_organization_scc_big_query_export` resource
+```
+```release-note:enhancement
+securitycenterv2: added `deletion_notifications_enabled` field to `google_scc_v2_organization_scc_big_query_exports` resource
+```
+```release-note:enhancement
+securitycenterv2: added `deletion_notifications_enabled` field to `google_scc_v2_folder_scc_big_query_export` resource
+```
+```release-note:enhancement
+securitycenterv2: added `deletion_notifications_enabled` field to `google_scc_v2_project_scc_big_query_export` resource
+```

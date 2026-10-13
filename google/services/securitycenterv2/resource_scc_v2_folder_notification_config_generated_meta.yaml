@@ -13,6 +13,7 @@ api_variant_patterns:
 fields:
     - field: config_id
       provider_only: true
+    - api_field: deletionNotificationsEnabled
     - api_field: description
     - field: folder
       provider_only: true
