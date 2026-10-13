@@ -1,0 +1,3 @@
+```release-note:enhancement
+ces: added `remote_agent_tool.input_variable_mapping`, `remote_agent_tool.output_variable_mapping`, and `remote_agent_tool.stateful_agent` fields to `google_ces_tool` resource
+```

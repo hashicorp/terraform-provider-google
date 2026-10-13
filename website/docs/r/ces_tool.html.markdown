@@ -2072,6 +2072,21 @@ In addition to the arguments listed above, the following computed attributes are
   Authentication information required for calling the remote agent.
   Structure is [documented below](#nested_remote_agent_tool_api_authentication).
 
+* `input_variable_mapping` -
+  (Output)
+  Mapping of input variable names of remote agent to GECX variable names.
+
+* `output_variable_mapping` -
+  (Output)
+  Mapping of output variable names of remote agent to GECX variable names.
+
+* `stateful_agent` -
+  (Output)
+  When enabled, the interaction between the CXAS app and the remote agent
+  will share the same context. If the remote agent returns a context_id, it
+  will be persisted for the entirety of the session for this remote agent
+  tool.
+
 
 <a name="nested_remote_agent_tool_agent_card"></a>The `agent_card` block contains:
 
