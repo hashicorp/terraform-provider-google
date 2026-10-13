@@ -1,0 +1,3 @@
+```release-note:enhancement
+serviceusagev2: added `enable_rules.catalogs` field and deprecated `check_usage_on_remove` in `google_service_usage_v2_consumer_policy` (beta)
+```

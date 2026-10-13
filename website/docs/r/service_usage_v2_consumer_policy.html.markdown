@@ -59,7 +59,7 @@ The following arguments are supported:
 	When set to "DELETE", deleting the resource is allowed.
 * `validate_dependencies` - (Optional) (Optional) Default value is true. If true, this flag enforces dependency management within the consumer policy. When adding a new service, it verifies that all its dependencies are already present/added in the policy. Conversely, when removing a service, it ensures that no other services within the policy depend on the service to be removed. If the validation fails, a comprehensive message will be presented, outlining the missing dependencies and providing instructions on how to address the issue.
 
-* `check_usage_on_remove` - (Optional) (Optional) Default value is false. If true, the usage of the service to be removed will be checked. If the service has been used within the past 30 days or was enabled in the last 3 days, an error will be thrown.
+* `check_usage_on_remove` - (Optional) (Optional) Default value is false. This field is deprecated and has no effect.
 
 
 
@@ -68,6 +68,10 @@ The following arguments are supported:
 * `services` -
   (Optional)
   (Optional): List of service names to be enabled in the format of services/<service_name>
+
+* `catalogs` -
+  (Optional)
+  List of service catalog names to be enabled in the format of catalogs/<catalog_name>, for example catalogs/default-cloud-services.
 
 ## Attributes Reference
 
