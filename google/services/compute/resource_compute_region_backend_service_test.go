@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
@@ -739,7 +740,24 @@ func TestAccComputeRegionBackendService_withTags(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRegionBackendService_withTags(serviceName, checkName, tagKeyResult["name"], tagValueResult["name"]),
+				Config: testAccComputeRegionBackendService_withTags(serviceName, checkName, tagKeyResult["name"], tagValueResult["name"], "foo"),
+			},
+			{
+				ResourceName:            "google_compute_region_backend_service.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
+			},
+			{
+				// Updating a mutable field must not resend the create-only params.resource_manager_tags.
+				// The config uses EXTERNAL_MANAGED because the API rejects re-sent tags for that scheme
+				// (it accepts them for INTERNAL), so this step only catches the regression with it.
+				Config: testAccComputeRegionBackendService_withTags(serviceName, checkName, tagKeyResult["name"], tagValueResult["name"], "bar"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_region_backend_service.foobar", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_compute_region_backend_service.foobar",
@@ -1570,12 +1588,15 @@ resource "google_compute_region_health_check" "health_check" {
 `, serviceName, reqHeader, respHeader, checkName)
 }
 
-func testAccComputeRegionBackendService_withTags(serviceName, checkName string, tagKey string, tagValue string) string {
+func testAccComputeRegionBackendService_withTags(serviceName, checkName string, tagKey string, tagValue string, description string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_backend_service" "foobar" {
-  name          = "%s"
-  health_checks = [google_compute_health_check.zero.self_link]
-  region        = "us-central1"
+  name                  = "%s"
+  description           = "%s"
+  health_checks         = [google_compute_region_health_check.zero.self_link]
+  region                = "us-central1"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol              = "HTTP"
   params {
     resource_manager_tags = {
       "%s" = "%s"
@@ -1583,8 +1604,9 @@ resource "google_compute_region_backend_service" "foobar" {
   }
 }
 
-resource "google_compute_health_check" "zero" {
+resource "google_compute_region_health_check" "zero" {
   name               = "%s"
+  region             = "us-central1"
   check_interval_sec = 1
   timeout_sec        = 1
 
@@ -1592,7 +1614,7 @@ resource "google_compute_health_check" "zero" {
     port = "80"
   }
 }
-`, serviceName, tagKey, tagValue, checkName)
+`, serviceName, description, tagKey, tagValue, checkName)
 }
 
 func TestAccComputeRegionBackendService_withNetworkPassThroughLbTrafficPolicy(t *testing.T) {
