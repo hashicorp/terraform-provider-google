@@ -258,6 +258,103 @@ resource "google_vector_search_index" "example-dedicated-index" {
 `, context)
 }
 
+func TestAccVectorSearchIndex_vectorsearchIndexSkipWaitExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"collection_id": "tf-test-example-skip-wait-collection" + randomSuffix,
+		"index_id":      "tf-test-example-skip-wait-index" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVectorSearchIndexDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVectorSearchIndex_vectorsearchIndexSkipWaitExample(context),
+			},
+			{
+				ResourceName:            "google_vector_search_index.example-skip-wait-index",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"collection_id", "index_id", "labels", "location", "skip_wait", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vector_search_index.example-skip-wait-index",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccVectorSearchIndex_vectorsearchIndexSkipWaitExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+# Building an ANN index over a Vector Search 2.0 (Agent Retrieval) collection
+# can take many hours; setting skip_wait = true returns as soon as the create
+# request has been accepted so short-lived credentials in your Terraform runner
+# do not have to be extended to the full build duration. The index continues to
+# build asynchronously on the backend; subsequent terraform apply invocations
+# refresh state from the API.
+resource "google_vector_search_collection" "parent" {
+  location      = "us-central1"
+  collection_id = "%{collection_id}"
+
+  display_name = "Collection for a skip_wait ANN index"
+  description  = "Parent collection for the skip_wait index example."
+
+  data_schema = <<EOF
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "plot": {
+      "type": "string"
+    }
+  }
+}
+EOF
+
+  vector_schema {
+    field_name = "text_embedding"
+    dense_vector {
+      dimensions = 768
+      vertex_embedding_config {
+        model_id      = "textembedding-gecko@003"
+        task_type     = "RETRIEVAL_DOCUMENT"
+        text_template = "Title: {title} ---- Plot: {plot}"
+      }
+    }
+  }
+}
+
+resource "google_vector_search_index" "example-skip-wait-index" {
+  location      = "us-central1"
+  collection_id = google_vector_search_collection.parent.collection_id
+  index_id      = "%{index_id}"
+
+  display_name    = "Skip-wait ANN index"
+  description     = "ScaNN index over text_embedding, created without waiting for the build to finish."
+  index_field     = "text_embedding"
+  distance_metric = "DOT_PRODUCT"
+
+  dense_scann {
+    feature_norm_type = "UNIT_L2_NORM"
+  }
+
+  # Do not block terraform apply on the multi-hour index build.
+  skip_wait = true
+}
+`, context)
+}
+
 func testAccCheckVectorSearchIndexDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

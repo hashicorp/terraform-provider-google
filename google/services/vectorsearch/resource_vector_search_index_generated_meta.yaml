@@ -29,6 +29,8 @@ fields:
     - field: location
       provider_only: true
     - api_field: name
+    - field: skip_wait
+      provider_only: true
     - api_field: storeFields
     - field: terraform_labels
       provider_only: true

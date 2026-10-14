@@ -171,6 +171,73 @@ resource "google_vector_search_index" "example-dedicated-index" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vectorsearch_index_skip_wait&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vectorsearch Index Skip Wait
+
+
+```hcl
+# Building an ANN index over a Vector Search 2.0 (Agent Retrieval) collection
+# can take many hours; setting skip_wait = true returns as soon as the create
+# request has been accepted so short-lived credentials in your Terraform runner
+# do not have to be extended to the full build duration. The index continues to
+# build asynchronously on the backend; subsequent terraform apply invocations
+# refresh state from the API.
+resource "google_vector_search_collection" "parent" {
+  location      = "us-central1"
+  collection_id = "example-skip-wait-collection"
+
+  display_name = "Collection for a skip_wait ANN index"
+  description  = "Parent collection for the skip_wait index example."
+
+  data_schema = <<EOF
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "plot": {
+      "type": "string"
+    }
+  }
+}
+EOF
+
+  vector_schema {
+    field_name = "text_embedding"
+    dense_vector {
+      dimensions = 768
+      vertex_embedding_config {
+        model_id      = "textembedding-gecko@003"
+        task_type     = "RETRIEVAL_DOCUMENT"
+        text_template = "Title: {title} ---- Plot: {plot}"
+      }
+    }
+  }
+}
+
+resource "google_vector_search_index" "example-skip-wait-index" {
+  location      = "us-central1"
+  collection_id = google_vector_search_collection.parent.collection_id
+  index_id      = "example-skip-wait-index"
+
+  display_name    = "Skip-wait ANN index"
+  description     = "ScaNN index over text_embedding, created without waiting for the build to finish."
+  index_field     = "text_embedding"
+  distance_metric = "DOT_PRODUCT"
+
+  dense_scann {
+    feature_norm_type = "UNIT_L2_NORM"
+  }
+
+  # Do not block terraform apply on the multi-hour index build.
+  skip_wait = true
+}
+```
 
 ## Argument Reference
 
@@ -250,6 +317,15 @@ The following arguments are supported:
 	When set to "ABANDON", the command will remove the resource from Terraform
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
+* `skip_wait` - (Optional) Whether to skip waiting for the index to be created. Building an ANN
+index over a large collection can take several hours; setting `skip_wait`
+to `true` causes Terraform to return as soon as the creation request is
+accepted rather than blocking until the long-running build completes
+(which can exceed CI/CD timeouts or short-lived Terraform runner
+credentials). Leave this set to `false` (the default) if downstream
+resources or workloads depend on the index being ready to serve queries
+immediately after `terraform apply`, or if you want Terraform to fail
+synchronously when an asynchronous index build fails.
 
 
 <a name="nested_dedicated_infrastructure"></a>The `dedicated_infrastructure` block supports:
