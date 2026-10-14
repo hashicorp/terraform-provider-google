@@ -1,0 +1,3 @@
+```release-note:bug
+memorystore: fixed `google_memorystore_instance` update failures when multiple fields (such as `node_type` and `engine_version`) are changed in the same apply
+```
