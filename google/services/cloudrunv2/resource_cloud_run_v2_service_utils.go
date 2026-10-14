@@ -20,7 +20,17 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/version"
 )
+
+func setCloudRunV2ClientDefaults(d *schema.ResourceData, obj map[string]interface{}) {
+	_, hasClient := d.GetOk("client")
+	_, hasClientVersion := d.GetOk("client_version")
+	if !hasClient && !hasClientVersion {
+		obj["client"] = "terraform"
+		obj["clientVersion"] = version.ProviderVersion
+	}
+}
 
 // cloudRunV2ServiceResourceLimitsDiffSuppress suppresses diffs for the `cpu`
 // key in the container resources.limits map when it was added by the API but
