@@ -1,0 +1,15 @@
+```release-note:new-resource
+`google_cloud_run_v2_instance`
+```
+
+```release-note:new-resource
+`google_cloud_run_v2_instance_iam_binding`
+```
+
+```release-note:new-resource
+`google_cloud_run_v2_instance_iam_member`
+```
+
+```release-note:new-resource
+`google_cloud_run_v2_instance_iam_policy`
+```
