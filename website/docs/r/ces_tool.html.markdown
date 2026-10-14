@@ -236,6 +236,10 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
                 grounding_level = 3
                 disabled = false
             }
+            snippets_config {
+                enable_snippets = true
+                max_snippets    = 5
+            }
         }
 
         engine_source {
@@ -1184,6 +1188,11 @@ The following arguments are supported:
 * `enable_snippets` -
   (Optional)
   Whether snippets are enabled.
+
+* `max_snippets` -
+  (Optional)
+  Number of snippets to return per query.
+  If unset, returns all snippets from the service by default.
 
 <a name="nested_data_store_tool_modality_configs_summarization_config"></a>The `summarization_config` block supports:
 

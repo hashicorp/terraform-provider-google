@@ -999,6 +999,12 @@ HIGH Possible values: ["DEFAULT", "LOW", "MEDIUM", "HIGH"]`,
 													Optional:    true,
 													Description: `Whether snippets are enabled.`,
 												},
+												"max_snippets": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `Number of snippets to return per query.
+If unset, returns all snippets from the service by default.`,
+												},
 											},
 										},
 									},
@@ -4094,10 +4100,29 @@ func flattenCESToolDataStoreToolModalityConfigsSnippetsConfig(v interface{}, d *
 	transformed := make(map[string]interface{})
 	transformed["enable_snippets"] =
 		flattenCESToolDataStoreToolModalityConfigsSnippetsConfigEnableSnippets(original["enableSnippets"], d, config)
+	transformed["max_snippets"] =
+		flattenCESToolDataStoreToolModalityConfigsSnippetsConfigMaxSnippets(original["maxSnippets"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESToolDataStoreToolModalityConfigsSnippetsConfigEnableSnippets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenCESToolDataStoreToolModalityConfigsSnippetsConfigMaxSnippets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenCESToolDataStoreToolModalityConfigsSummarizationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -7073,10 +7098,21 @@ func expandCESToolDataStoreToolModalityConfigsSnippetsConfig(v interface{}, d tp
 		transformed["enableSnippets"] = transformedEnableSnippets
 	}
 
+	transformedMaxSnippets, err := expandCESToolDataStoreToolModalityConfigsSnippetsConfigMaxSnippets(original["max_snippets"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxSnippets); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxSnippets"] = transformedMaxSnippets
+	}
+
 	return transformed, nil
 }
 
 func expandCESToolDataStoreToolModalityConfigsSnippetsConfigEnableSnippets(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESToolDataStoreToolModalityConfigsSnippetsConfigMaxSnippets(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
