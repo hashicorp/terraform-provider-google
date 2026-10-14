@@ -78,6 +78,14 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
 
+* `application` -
+  (Optional)
+  Reference to the App Hub Application this Unit belongs to, in the format
+  `projects/{project}/locations/{location}/applications/{application}`.
+  All resources deployed in this Unit are associated with the specified
+  Application. If empty, the service sets it during any UnitOperation
+  when the UnitKind has `app_params.group` and App Hub is enabled.
+
 * `labels` -
   (Optional)
   The labels on the resource, which can be used for categorization.
