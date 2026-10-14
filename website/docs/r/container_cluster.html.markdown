@@ -1697,6 +1697,7 @@ not.
     Accepted values are:
 
     * `"GVISOR"`: Pods run within a gVisor sandbox.
+    * `"MICROVM"`: Pods run within a microVM sandbox.
 
 * `sandbox_type` (Beta, Deprecated) Which sandbox to use for pods in the node pool. `sandbox_config.sandbox_type` is deprecated and will be removed in a future major release. Use `sandbox_config.type` instead.
     Accepted values are:
