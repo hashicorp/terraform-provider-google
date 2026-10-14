@@ -296,6 +296,10 @@ configuration. These addresses are regional resources.
 configure Private Service Connect. Only global internal addresses can use
 this purpose.
 
+* SYSTEM_MANAGED for regional internal IP address that is reserved and
+managed internally. It can not be assigned to compute resources such as
+VM and internal load balancer.
+
 This should only be set when using an Internal address.`,
 			},
 			"region": {
