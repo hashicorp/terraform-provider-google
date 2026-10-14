@@ -318,6 +318,20 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Computed:    true,
 				Description: `[Output only] Update time stamp`,
 			},
+			"skip_wait": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Whether to skip waiting for the index to be created. Building an ANN
+index over a large collection can take several hours; setting 'skip_wait'
+to 'true' causes Terraform to return as soon as the creation request is
+accepted rather than blocking until the long-running build completes
+(which can exceed CI/CD timeouts or short-lived Terraform runner
+credentials). Leave this set to 'false' (the default) if downstream
+resources or workloads depend on the index being ready to serve queries
+immediately after 'terraform apply', or if you want Terraform to fail
+synchronously when an asynchronous index build fails.`,
+				Default: false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -438,21 +452,31 @@ func resourceVectorSearchIndexCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error creating Index: %s", err)
 	}
 
-	// Store the ID now
+	// Store the ID now. The Index resource name is fully derived from
+	// project/location/collection_id/index_id (all user-supplied URL parameters),
+	// so we can set it without waiting for the LRO to complete.
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/indexes/{{index_id}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
-	err = VectorSearchOperationWaitTime(
-		config, res, project, "Creating Index", userAgent,
-		d.Timeout(schema.TimeoutCreate))
+	if d.Get("skip_wait").(bool) {
+		// skip_wait=true: return as soon as the create request is accepted.
+		// The index will finish building asynchronously; users can poll the LRO
+		// or the resource state themselves. Subsequent `terraform apply` runs
+		// will refresh state from the API.
+		log.Printf("[DEBUG] skip_wait is set to true, not waiting on LRO for Index %q", d.Id())
+	} else {
+		err = VectorSearchOperationWaitTime(
+			config, res, project, "Creating Index", userAgent,
+			d.Timeout(schema.TimeoutCreate))
 
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Index: %s", err)
+		if err != nil {
+			// The resource didn't actually create
+			d.SetId("")
+			return fmt.Errorf("Error waiting to create Index: %s", err)
+		}
 	}
 
 	log.Printf("[DEBUG] Finished creating Index %q: %#v", d.Id(), res)
@@ -527,6 +551,11 @@ func resourceVectorSearchIndexRead(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Finished reading VectorSearchIndex %q: %#v", d.Id(), res)
 
 	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("skip_wait"); !ok {
+		if err := d.Set("skip_wait", false); err != nil {
+			return fmt.Errorf("Error setting skip_wait: %s", err)
+		}
+	}
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
 		if config.DeletionPolicy != "" {
@@ -805,6 +834,11 @@ func resourceVectorSearchIndexImport(d *schema.ResourceData, meta interface{}) (
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("skip_wait", false); err != nil {
+		return nil, fmt.Errorf("Error setting skip_wait: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
