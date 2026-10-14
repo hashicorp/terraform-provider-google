@@ -14,6 +14,7 @@ fields:
     - field: effective_labels
       provider_only: true
     - api_field: enableCustomerDataSharing
+    - api_field: geminiEnterpriseProject
     - field: gemini_gcp_enablement_setting_id
       provider_only: true
     - api_field: labels
@@ -21,6 +22,7 @@ fields:
       provider_only: true
     - api_field: mutationsEnabled
     - api_field: name
+    - api_field: releaseChannel
     - field: terraform_labels
       provider_only: true
     - api_field: updateTime

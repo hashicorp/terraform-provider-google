@@ -41,6 +41,7 @@ resource "google_gemini_gemini_gcp_enablement_setting" "example" {
     enable_customer_data_sharing = true
     web_grounding_type = "WEB_GROUNDING_FOR_ENTERPRISE"
     mutations_enabled = true
+    release_channel = "EXPERIMENTAL"
 }
 ```
 
@@ -84,6 +85,17 @@ The following arguments are supported:
 * `mutations_enabled` -
   (Optional)
   Whether resource mutations should be enabled.
+
+* `gemini_enterprise_project` -
+  (Optional)
+  The Gemini enterprise project for this setting.
+  Format: projects/{project}
+  The `{project}` segment can be the project ID or project number.
+
+* `release_channel` -
+  (Optional)
+  Specifies the release channel for Gemini features. The release channel determines which set of features are available to the user.
+  Possible values are: `STABLE`, `EXPERIMENTAL`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
