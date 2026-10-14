@@ -322,6 +322,10 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
                 grounding_level = 3
                 disabled = false
             }
+            snippets_config {
+                enable_snippets = true
+                max_snippets    = 5
+            }
         }
 
         engine_source {

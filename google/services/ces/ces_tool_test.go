@@ -408,6 +408,7 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
             }
             snippets_config {
                 enable_snippets = true
+                max_snippets    = 5
             }
         }
 
@@ -508,6 +509,7 @@ resource "google_ces_tool" "ces_tool_data_store_tool_engine_source_basic" {
             }
             snippets_config {
                 enable_snippets = false
+                max_snippets    = 10
             }
         }
 
