@@ -12,7 +12,7 @@ test: lint testnolint
 
 # Used in CI to prevent lint failures from being interpreted as test failures
 testnolint:
-	go test $(TESTARGS) -timeout=30s $(TEST)
+	go test $(TESTARGS) -vet=off -timeout=30s $(TEST)
 
 testacc: lint
 	TF_ACC_REFRESH_AFTER_APPLY=1 TF_ACC=1 TF_SCHEMA_PANIC_ON_ERROR=1 go test $(TEST) -v $(TESTARGS) -timeout 240m -ldflags="-X=github.com/hashicorp/terraform-provider-google/version.ProviderVersion=acc"
@@ -26,7 +26,7 @@ fmtcheck:
 	sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
 
 vet:
-	go vet
+	go vet ./...
 
 lint: fmtcheck vet
 
