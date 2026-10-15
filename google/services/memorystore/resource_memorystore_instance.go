@@ -192,12 +192,10 @@ Format: projects/{project}/locations/{location}/aclPolicies/{acl_policy}`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
-				Description: `Optional. Immutable. Authorization mode of the instance. Possible values:
+				Description: `Optional. Authorization mode of the instance. Possible values:
  AUTH_DISABLED
-IAM_AUTH.
-
-TOKEN_AUTH is also supported, but only available in the google-beta provider.`,
+IAM_AUTH
+TOKEN_AUTH`,
 			},
 			"automated_backup_config": {
 				Type:        schema.TypeList,
@@ -1497,6 +1495,12 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	authorizationModeProp, err := expandMemorystoreInstanceAuthorizationMode(d.Get("authorization_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("authorization_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorizationModeProp)) {
+		obj["authorizationMode"] = authorizationModeProp
+	}
 	effectiveLabelsProp, err := expandMemorystoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1517,6 +1521,10 @@ func resourceMemorystoreInstanceUpdate(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
+
+	if d.HasChange("authorization_mode") {
+		updateMask = append(updateMask, "authorizationMode")
+	}
 
 	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")

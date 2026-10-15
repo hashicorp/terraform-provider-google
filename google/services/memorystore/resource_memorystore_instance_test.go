@@ -2067,3 +2067,69 @@ resource "google_memorystore_acl_policy" "acl_policy" {
 }
 `, context)
 }
+
+func TestAccMemorystoreInstance_withTokenAuth(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"location":      "us-west1",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMemorystoreInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMemorystoreInstance_withTokenAuth(context),
+			},
+			{
+				ResourceName:            "google_memorystore_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "location"},
+			},
+			{
+				Config: testAccMemorystoreInstance_withTokenAuthUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_memorystore_instance.test", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_memorystore_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccMemorystoreInstance_withTokenAuth(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_memorystore_instance" "test" {
+  instance_id                  = "tf-test-instance-%{random_suffix}"
+  shard_count                  = 1
+  location                     = "%{location}"
+  deletion_protection_enabled  = false
+  node_type                    = "SHARED_CORE_NANO"
+  authorization_mode           = "AUTH_DISABLED"
+}
+`, context)
+}
+
+func testAccMemorystoreInstance_withTokenAuthUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_memorystore_instance" "test" {
+  instance_id                  = "tf-test-instance-%{random_suffix}"
+  shard_count                  = 1
+  location                     = "%{location}"
+  deletion_protection_enabled  = false
+  node_type                    = "SHARED_CORE_NANO"
+  authorization_mode           = "TOKEN_AUTH"
+}
+`, context)
+}

@@ -528,10 +528,10 @@ The following arguments are supported:
 
 * `authorization_mode` -
   (Optional)
-  Optional. Immutable. Authorization mode of the instance. Possible values:
+  Optional. Authorization mode of the instance. Possible values:
    AUTH_DISABLED
-  IAM_AUTH.
-  TOKEN_AUTH is also supported, but only available in the google-beta provider.
+  IAM_AUTH
+  TOKEN_AUTH
 
 * `acl_policy` -
   (Optional)

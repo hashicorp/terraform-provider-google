@@ -1655,3 +1655,66 @@ resource "google_redis_cluster_acl_policy" "acl_policy" {
 }
 `, context)
 }
+
+func TestAccRedisCluster_withTokenAuth(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRedisClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisCluster_withTokenAuth(context),
+			},
+			{
+				ResourceName:            "google_redis_cluster.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"psc_configs"},
+			},
+			{
+				Config: testAccRedisCluster_withTokenAuthUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_redis_cluster.test", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_redis_cluster.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"psc_configs"},
+			},
+		},
+	})
+}
+
+func testAccRedisCluster_withTokenAuth(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_redis_cluster" "test" {
+  name                        = "tf-test-redis-%{random_suffix}"
+  shard_count                 = 1
+  region                      = "us-west1"
+  deletion_protection_enabled = false
+  authorization_mode          = "AUTH_MODE_DISABLED"
+}
+`, context)
+}
+
+func testAccRedisCluster_withTokenAuthUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_redis_cluster" "test" {
+  name                        = "tf-test-redis-%{random_suffix}"
+  shard_count                 = 1
+  region                      = "us-west1"
+  deletion_protection_enabled = false
+  authorization_mode          = "AUTH_MODE_TOKEN_AUTH"
+}
+`, context)
+}
