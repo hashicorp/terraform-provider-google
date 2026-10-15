@@ -1,0 +1,15 @@
+```release-note:enhancement
+saasruntime: added `application_template`, `blueprint_repo`, `state`, `conditions`, and `error` fields to `google_saas_runtime_saas` resource (beta)
+```
+
+```release-note:enhancement
+saasruntime: changed `google_saas_runtime_saas` to wait for the application template import to finish on create, and on updates that change `application_template` or follow a failed or unfinished import, returning an error if the import fails (beta)
+```
+
+```release-note:enhancement
+saasruntime: increased default create, update, and delete timeouts for `google_saas_runtime_saas` to 30 minutes (beta)
+```
+
+```release-note:enhancement
+saasruntime: added retries to `google_saas_runtime_saas` for updates and deletes rejected while an application template import is running (beta)
+```
