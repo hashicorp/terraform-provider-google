@@ -236,6 +236,13 @@ func isBeenEnabled(_ context.Context, old, new, _ interface{}) bool {
 	return false
 }
 
+func suppressDiffForClusterDns(k, o, n string, d *schema.ResourceData) bool {
+	if o == "" && n == "PROVIDER_UNSPECIFIED" {
+		return true
+	}
+	return false
+}
+
 func suppressDiffForClusterDnsScope(k, o, n string, d *schema.ResourceData) bool {
 	if o == "" && n == "DNS_SCOPE_UNSPECIFIED" {
 		return true
@@ -2583,11 +2590,12 @@ func ResourceContainerCluster() *schema.Resource {
 							Optional:    true,
 						},
 						"cluster_dns": {
-							Type:         schema.TypeString,
-							Default:      "PROVIDER_UNSPECIFIED",
-							ValidateFunc: validation.StringInSlice([]string{"PROVIDER_UNSPECIFIED", "PLATFORM_DEFAULT", "CLOUD_DNS", "KUBE_DNS"}, false),
-							Description:  `Which in-cluster DNS provider should be used.`,
-							Optional:     true,
+							Type:             schema.TypeString,
+							Default:          "PROVIDER_UNSPECIFIED",
+							ValidateFunc:     validation.StringInSlice([]string{"PROVIDER_UNSPECIFIED", "PLATFORM_DEFAULT", "CLOUD_DNS", "KUBE_DNS"}, false),
+							Description:      `Which in-cluster DNS provider should be used.`,
+							Optional:         true,
+							DiffSuppressFunc: suppressDiffForClusterDns,
 						},
 						"cluster_dns_scope": {
 							Type:             schema.TypeString,
@@ -6769,8 +6777,12 @@ func expandResourceUsageExportConfig(configured interface{}) *container.Resource
 
 func expandDnsConfig(configured interface{}) *container.DNSConfig {
 	l := configured.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil
+	}
+
+	if l[0] == nil {
+		return &container.DNSConfig{}
 	}
 
 	config := l[0].(map[string]interface{})

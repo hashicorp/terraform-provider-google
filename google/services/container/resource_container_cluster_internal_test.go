@@ -928,3 +928,151 @@ func TestUnitContainerCluster_flattenManagedOpenTelemetryConfig(t *testing.T) {
 		})
 	}
 }
+
+func TestSuppressDiffForClusterDns(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		oldValue string
+		newValue string
+		expected bool
+	}{
+		"empty state to PROVIDER_UNSPECIFIED is suppressed": {
+			oldValue: "",
+			newValue: "PROVIDER_UNSPECIFIED",
+			expected: true,
+		},
+		"empty state to CLOUD_DNS is not suppressed": {
+			oldValue: "",
+			newValue: "CLOUD_DNS",
+			expected: false,
+		},
+		"CLOUD_DNS to PROVIDER_UNSPECIFIED is not suppressed": {
+			oldValue: "CLOUD_DNS",
+			newValue: "PROVIDER_UNSPECIFIED",
+			expected: false,
+		},
+		"KUBE_DNS to CLOUD_DNS is not suppressed": {
+			oldValue: "KUBE_DNS",
+			newValue: "CLOUD_DNS",
+			expected: false,
+		},
+		"PLATFORM_DEFAULT to PROVIDER_UNSPECIFIED is not suppressed": {
+			oldValue: "PLATFORM_DEFAULT",
+			newValue: "PROVIDER_UNSPECIFIED",
+			expected: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			got := suppressDiffForClusterDns("dns_config.0.cluster_dns", tc.oldValue, tc.newValue, nil)
+			if got != tc.expected {
+				t.Errorf("%s: expected %v, got %v", tn, tc.expected, got)
+			}
+		})
+	}
+}
+
+func TestUnitContainerCluster_dnsConfigPlan(t *testing.T) {
+	t.Parallel()
+
+	const (
+		priorCreate          = "<create>"
+		priorAbsent          = "<absent>"
+		priorFlattenedUnspec = ""
+		unspec               = "PROVIDER_UNSPECIFIED"
+		cloudDns             = "CLOUD_DNS"
+	)
+
+	configs := map[string]map[string]interface{}{
+		"Missing":   {},
+		"Empty":     {"dns_config": []interface{}{map[string]interface{}{}}},
+		"UNSPEC":    {"dns_config": []interface{}{map[string]interface{}{"cluster_dns": unspec}}},
+		"CLOUD_DNS": {"dns_config": []interface{}{map[string]interface{}{"cluster_dns": cloudDns}}},
+	}
+
+	cases := []struct {
+		name        string
+		prior       string
+		config      string
+		wantRequest string
+	}{
+		{"create/Missing", priorCreate, "Missing", `null`},
+		{"create/Empty", priorCreate, "Empty", `{}`},
+		{"create/UNSPEC", priorCreate, "UNSPEC", `{}`},
+		{"create/CLOUD_DNS", priorCreate, "CLOUD_DNS", `{"clusterDns":"CLOUD_DNS"}`},
+
+		{"absent/Missing", priorAbsent, "Missing", ""},
+		{"absent/Empty", priorAbsent, "Empty", `{}`},
+		{"absent/UNSPEC", priorAbsent, "UNSPEC", `{}`},
+		{"absent/CLOUD_DNS", priorAbsent, "CLOUD_DNS", `{"clusterDns":"CLOUD_DNS"}`},
+
+		// When the GKE API returns `"dnsConfig": {}` for PROVIDER_UNSPECIFIED,
+		// flattenDnsConfig sets `cluster_dns = ""` in state. Subsequent plans
+		// with `dns_config {}` or `cluster_dns = "PROVIDER_UNSPECIFIED"` must
+		// produce no diff and send no update request.
+		{"flattened_unspec/Empty", priorFlattenedUnspec, "Empty", ""},
+		{"flattened_unspec/UNSPEC", priorFlattenedUnspec, "UNSPEC", ""},
+		{"flattened_unspec/CLOUD_DNS", priorFlattenedUnspec, "CLOUD_DNS", `{"clusterDns":"CLOUD_DNS"}`},
+
+		{"CLOUD_DNS/Empty", cloudDns, "Empty", `{"clusterDns":"PROVIDER_UNSPECIFIED"}`},
+		{"CLOUD_DNS/UNSPEC", cloudDns, "UNSPEC", `{"clusterDns":"PROVIDER_UNSPECIFIED"}`},
+		{"CLOUD_DNS/CLOUD_DNS", cloudDns, "CLOUD_DNS", ""},
+	}
+
+	r := &schema.Resource{Schema: map[string]*schema.Schema{
+		"dns_config": ResourceContainerCluster().Schema["dns_config"],
+	}}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			var prior *terraform.InstanceState
+			switch tc.prior {
+			case priorCreate:
+				prior = &terraform.InstanceState{}
+			case priorAbsent:
+				prior = &terraform.InstanceState{ID: "id", Attributes: map[string]string{
+					"id":           "id",
+					"dns_config.#": "0",
+				}}
+			default:
+				prior = &terraform.InstanceState{ID: "id", Attributes: map[string]string{
+					"id":           "id",
+					"dns_config.#": "1",
+					"dns_config.0.additive_vpc_scope_dns_domain": "",
+					"dns_config.0.cluster_dns":                   tc.prior,
+					"dns_config.0.cluster_dns_domain":            "",
+					"dns_config.0.cluster_dns_scope":             "",
+				}}
+			}
+
+			diff, err := r.SimpleDiff(context.Background(), prior, terraform.NewResourceConfigRaw(configs[tc.config]), nil)
+			if err != nil {
+				t.Fatalf("SimpleDiff: %v", err)
+			}
+			d, err := schema.InternalMap(r.SchemaMap()).Data(prior, diff)
+			if err != nil {
+				t.Fatalf("Data: %v", err)
+			}
+
+			sent := tc.prior == priorCreate || d.HasChange("dns_config")
+			if wantSent := tc.wantRequest != ""; sent != wantSent {
+				t.Fatalf("request sent = %t, want %t (diff: %+v)", sent, wantSent, diff)
+			}
+			if !sent {
+				return
+			}
+			b, err := json.Marshal(expandDnsConfig(d.Get("dns_config")))
+			if err != nil {
+				t.Fatalf("json.Marshal: %v", err)
+			}
+			if string(b) != tc.wantRequest {
+				t.Errorf("request = %s, want %s", b, tc.wantRequest)
+			}
+		})
+	}
+}
