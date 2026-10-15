@@ -31,8 +31,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/container"
+	"github.com/hashicorp/terraform-provider-google/google/services/container"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 )
 
@@ -48,14 +47,11 @@ func TestAccGKEBackupBackupPlanListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"cluster_name":        "tf-test-basic-cluster" + randomSuffix,
-		"deletion_protection": false,
-		"name":                "tf-test-basic-plan" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"location":            envvar.GetTestRegionFromEnv(),
-		"random_suffix":       randomSuffix,
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-basic-plan" + randomSuffix,
+		"location":      envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": randomSuffix,
 	}
 
 	var listDisplayName acctest.ListDisplayName

@@ -31,8 +31,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/container"
+	"github.com/hashicorp/terraform-provider-google/google/services/container"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -62,12 +61,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllNamespacesExample(t *tes
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"deletion_protection": false,
-		"name":                "tf-test-restore-all-ns" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"random_suffix":       randomSuffix,
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-restore-all-ns" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -96,29 +92,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllNamespacesExample(t *tes
 
 func testAccGKEBackupRestorePlan_gkebackupRestoreplanAllNamespacesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -131,7 +107,7 @@ resource "google_gke_backup_restore_plan" "all_ns" {
   name = "%{name}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
@@ -151,12 +127,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRollbackNamespaceExample(t 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"deletion_protection": false,
-		"name":                "tf-test-rollback-ns" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"random_suffix":       randomSuffix,
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-rollback-ns" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -185,29 +158,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRollbackNamespaceExample(t 
 
 func testAccGKEBackupRestorePlan_gkebackupRestoreplanRollbackNamespaceExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -220,7 +173,7 @@ resource "google_gke_backup_restore_plan" "rollback_ns" {
   name = "%{name}-rp"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     selected_namespaces {
       namespaces = ["my-ns"]
@@ -249,12 +202,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanProtectedApplicationExample
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"deletion_protection": false,
-		"name":                "tf-test-rollback-app" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"random_suffix":       randomSuffix,
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-rollback-app" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -283,29 +233,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanProtectedApplicationExample
 
 func testAccGKEBackupRestorePlan_gkebackupRestoreplanProtectedApplicationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -318,7 +248,7 @@ resource "google_gke_backup_restore_plan" "rollback_app" {
   name = "%{name}-rp"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     selected_applications {
       namespaced_names {
@@ -342,12 +272,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllClusterResourcesExample(
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"deletion_protection": false,
-		"name":                "tf-test-all-groupkinds" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"random_suffix":       randomSuffix,
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-all-groupkinds" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -376,29 +303,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllClusterResourcesExample(
 
 func testAccGKEBackupRestorePlan_gkebackupRestoreplanAllClusterResourcesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -411,7 +318,7 @@ resource "google_gke_backup_restore_plan" "all_cluster_resources" {
   name = "%{name}-rp"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     no_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
@@ -430,12 +337,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRenameNamespaceExample(t *t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"deletion_protection": false,
-		"name":                "tf-test-rename-ns" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"random_suffix":       randomSuffix,
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-rename-ns" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -464,29 +368,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRenameNamespaceExample(t *t
 
 func testAccGKEBackupRestorePlan_gkebackupRestoreplanRenameNamespaceExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -499,7 +383,7 @@ resource "google_gke_backup_restore_plan" "rename_ns" {
   name = "%{name}-rp"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     selected_namespaces {
       namespaces = ["ns1"]
@@ -545,12 +429,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanSecondTransformationExample
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"deletion_protection": false,
-		"name":                "tf-test-transform-rule" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"random_suffix":       randomSuffix,
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-transform-rule" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -579,29 +460,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanSecondTransformationExample
 
 func testAccGKEBackupRestorePlan_gkebackupRestoreplanSecondTransformationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -618,7 +479,7 @@ resource "google_gke_backup_restore_plan" "transform_rule" {
   }
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     excluded_namespaces {
       namespaces = ["my-ns"]
@@ -658,12 +519,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanGitopsModeExample(t *testin
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"deletion_protection": false,
-		"name":                "tf-test-gitops-mode" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"random_suffix":       randomSuffix,
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-gitops-mode" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -692,29 +550,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanGitopsModeExample(t *testin
 
 func testAccGKEBackupRestorePlan_gkebackupRestoreplanGitopsModeExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -727,7 +565,7 @@ resource "google_gke_backup_restore_plan" "gitops_mode" {
   name = "%{name}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "MERGE_SKIP_ON_CONFLICT"
@@ -747,12 +585,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRestoreOrderExample(t *test
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"deletion_protection": false,
-		"name":                "tf-test-restore-order" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"random_suffix":       randomSuffix,
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-restore-order" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -781,29 +616,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRestoreOrderExample(t *test
 
 func testAccGKEBackupRestorePlan_gkebackupRestoreplanRestoreOrderExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -816,7 +631,7 @@ resource "google_gke_backup_restore_plan" "restore_order" {
   name = "%{name}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
@@ -858,12 +673,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanVolumeResExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"deletion_protection": false,
-		"name":                "tf-test-volume-res" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"random_suffix":       randomSuffix,
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-volume-res" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -892,29 +704,9 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanVolumeResExample(t *testing
 
 func testAccGKEBackupRestorePlan_gkebackupRestoreplanVolumeResExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -927,7 +719,7 @@ resource "google_gke_backup_restore_plan" "volume_res" {
   name = "%{name}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"

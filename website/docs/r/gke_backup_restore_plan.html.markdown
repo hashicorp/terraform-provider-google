@@ -30,33 +30,18 @@ To get more information about RestorePlan, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke)
 
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_restoreplan_all_namespaces&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Restoreplan All Namespaces
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "restore-all-ns-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "restore-all-ns"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/restore-all-ns-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -69,7 +54,7 @@ resource "google_gke_backup_restore_plan" "all_ns" {
   name = "restore-all-ns"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/restore-all-ns-cluster"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
@@ -81,33 +66,18 @@ resource "google_gke_backup_restore_plan" "all_ns" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_restoreplan_rollback_namespace&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Restoreplan Rollback Namespace
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "rollback-ns-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "rollback-ns"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/rollback-ns-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -120,7 +90,7 @@ resource "google_gke_backup_restore_plan" "rollback_ns" {
   name = "rollback-ns-rp"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/rollback-ns-cluster"
   restore_config {
     selected_namespaces {
       namespaces = ["my-ns"]
@@ -141,33 +111,18 @@ resource "google_gke_backup_restore_plan" "rollback_ns" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_restoreplan_protected_application&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Restoreplan Protected Application
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "rollback-app-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "rollback-app"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/rollback-app-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -180,7 +135,7 @@ resource "google_gke_backup_restore_plan" "rollback_app" {
   name = "rollback-app-rp"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/rollback-app-cluster"
   restore_config {
     selected_applications {
       namespaced_names {
@@ -196,33 +151,18 @@ resource "google_gke_backup_restore_plan" "rollback_app" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_restoreplan_all_cluster_resources&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Restoreplan All Cluster Resources
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "all-groupkinds-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "all-groupkinds"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/all-groupkinds-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -235,7 +175,7 @@ resource "google_gke_backup_restore_plan" "all_cluster_resources" {
   name = "all-groupkinds-rp"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/all-groupkinds-cluster"
   restore_config {
     no_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
@@ -246,33 +186,18 @@ resource "google_gke_backup_restore_plan" "all_cluster_resources" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_restoreplan_rename_namespace&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Restoreplan Rename Namespace
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "rename-ns-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "rename-ns"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/rename-ns-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -285,7 +210,7 @@ resource "google_gke_backup_restore_plan" "rename_ns" {
   name = "rename-ns-rp"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/rename-ns-cluster"
   restore_config {
     selected_namespaces {
       namespaces = ["ns1"]
@@ -323,33 +248,18 @@ resource "google_gke_backup_restore_plan" "rename_ns" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_restoreplan_second_transformation&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Restoreplan Second Transformation
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "transform-rule-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "transform-rule"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/transform-rule-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -366,7 +276,7 @@ resource "google_gke_backup_restore_plan" "transform_rule" {
   }
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/transform-rule-cluster"
   restore_config {
     excluded_namespaces {
       namespaces = ["my-ns"]
@@ -398,33 +308,18 @@ resource "google_gke_backup_restore_plan" "transform_rule" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_restoreplan_gitops_mode&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Restoreplan Gitops Mode
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "gitops-mode-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "gitops-mode"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/gitops-mode-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -437,7 +332,7 @@ resource "google_gke_backup_restore_plan" "gitops_mode" {
   name = "gitops-mode"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/gitops-mode-cluster"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "MERGE_SKIP_ON_CONFLICT"
@@ -449,33 +344,18 @@ resource "google_gke_backup_restore_plan" "gitops_mode" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_restoreplan_restore_order&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Restoreplan Restore Order
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "restore-order-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "restore-order"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/restore-order-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -488,7 +368,7 @@ resource "google_gke_backup_restore_plan" "restore_order" {
   name = "restore-order"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/restore-order-cluster"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
@@ -522,33 +402,18 @@ resource "google_gke_backup_restore_plan" "restore_order" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_restoreplan_volume_res&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Restoreplan Volume Res
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "volume-res-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "volume-res"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/volume-res-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -561,7 +426,7 @@ resource "google_gke_backup_restore_plan" "volume_res" {
   name = "volume-res"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/volume-res-cluster"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"

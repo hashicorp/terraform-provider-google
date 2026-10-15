@@ -21,9 +21,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/container"
+	tpgcontainer "github.com/hashicorp/terraform-provider-google/google/services/container"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 )
 
@@ -31,11 +29,8 @@ func TestAccGKEBackupRestorePlan_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
-		"deletion_protection": false,
-		"network_name":        tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     tpgcompute.BootstrapSubnetInRegion(t, "gke-cluster", tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
-		"random_suffix":       acctest.RandString(t, 10),
+		"cluster":       tpgcontainer.BootstrapSharedGKECluster(t, "gkebackup"),
+		"random_suffix": acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -66,29 +61,9 @@ func TestAccGKEBackupRestorePlan_update(t *testing.T) {
 
 func testAccGKEBackupRestorePlan_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "tf-test-restore-plan%{random_suffix}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = "%{deletion_protection}"
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "tf-test-restore-plan%{random_suffix}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -101,7 +76,7 @@ resource "google_gke_backup_restore_plan" "restore_plan" {
   name = "tf-test-restore-plan%{random_suffix}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "MERGE_SKIP_ON_CONFLICT"
@@ -143,29 +118,9 @@ resource "google_gke_backup_restore_plan" "restore_plan" {
 
 func testAccGKEBackupRestorePlan_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "tf-test-restore-plan%{random_suffix}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = "%{deletion_protection}"
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "tf-test-restore-plan%{random_suffix}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -178,7 +133,7 @@ resource "google_gke_backup_restore_plan" "restore_plan" {
   name = "tf-test-restore-plan%{random_suffix}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "MERGE_REPLACE_VOLUME_ON_CONFLICT"
