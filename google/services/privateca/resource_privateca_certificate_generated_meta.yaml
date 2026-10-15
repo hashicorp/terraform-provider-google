@@ -134,6 +134,7 @@ fields:
     - api_field: pemCsr
     - field: pool
       provider_only: true
+    - api_field: requestedNotBeforeTime
     - api_field: revocationDetails.revocationState
     - api_field: revocationDetails.revocationTime
     - field: terraform_labels

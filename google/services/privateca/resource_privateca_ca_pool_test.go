@@ -160,6 +160,7 @@ resource "google_privateca_ca_pool" "default" {
       }
     }
     maximum_lifetime = "50000s"
+    allow_requester_specified_not_before_time = true
     allowed_issuance_modes {
       allow_csr_based_issuance = true
       allow_config_based_issuance = false
@@ -242,6 +243,7 @@ resource "google_privateca_ca_pool" "default" {
       }
     }
     maximum_lifetime = "3000s"
+    backdate_duration = "3600s"
     allowed_issuance_modes {
       allow_csr_based_issuance = true
       allow_config_based_issuance = true

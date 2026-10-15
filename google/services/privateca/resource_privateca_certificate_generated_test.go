@@ -848,6 +848,150 @@ resource "google_privateca_certificate" "default" {
 `, context)
 }
 
+func TestAccPrivatecaCertificate_privatecaCertificateWithRequestedNotBeforeTimeExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":          envvar.GetTestProjectFromEnv(),
+		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
+		"certificate_name": "tf-test-my-certificate" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCertificate_privatecaCertificateWithRequestedNotBeforeTimeExample(context),
+			},
+			{
+				ResourceName:            "google_privateca_certificate.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"certificate_authority", "labels", "location", "name", "pool", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_privateca_certificate.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccPrivatecaCertificate_privatecaCertificateWithRequestedNotBeforeTimeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  location = "us-central1"
+  name     = "%{ca_pool_id}"
+  tier     = "ENTERPRISE"
+  issuance_policy {
+    allow_requester_specified_not_before_time = true
+  }
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority_id = "my-authority"
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+}
+
+resource "google_privateca_certificate" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
+  lifetime = "86000s"
+  name = "%{certificate_name}"
+  requested_not_before_time = google_privateca_certificate_authority.default.update_time
+  config {
+    subject_config  {
+      subject {
+        common_name = "san1.example.com"
+        country_code = "us"
+        organization = "google"
+        organizational_unit = "enterprise"
+        locality = "mountain view"
+        province = "california"
+        street_address = "1600 amphitheatre parkway"
+      } 
+      subject_alt_name {
+        email_addresses = ["email@example.com"]
+        ip_addresses = ["127.0.0.1"]
+        uris = ["http://www.ietf.org/rfc/rfc3986.txt"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          crl_sign = false
+          decipher_only = false
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
+      name_constraints {
+        critical                  = true
+        permitted_dns_names       = ["*.example.com"]
+        excluded_dns_names        = ["*.deny.example.com"]
+        permitted_ip_ranges       = ["10.0.0.0/8"]
+        excluded_ip_ranges        = ["10.1.1.0/24"]
+        permitted_email_addresses = [".example.com"]
+        excluded_email_addresses  = [".deny.example.com"]
+        permitted_uris            = [".example.com"]
+        excluded_uris             = [".deny.example.com"]
+      }
+    }
+    public_key {
+      format = "PEM"
+      key = filebase64("test-fixtures/rsa_public.pem")
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckPrivatecaCertificateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

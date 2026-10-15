@@ -1,0 +1,7 @@
+```release-note:enhancement
+privateca: added `issuance_policy.allow_requester_specified_not_before_time` field to `google_privateca_ca_pool` resource
+```
+
+```release-note:enhancement
+privateca: added `requested_not_before_time` field to `google_privateca_certificate` resource
+```
