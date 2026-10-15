@@ -9,7 +9,7 @@ package builds
 
 import ArtifactRules
 import DefaultBuildTimeoutDuration
-import DefaultParallelism
+import generated.DefaultServiceParallelism
 import generated.ServiceParallelism
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.failureConditions.BuildFailureOnText
@@ -51,7 +51,7 @@ class PackageDetails(private val packageName: String, private val displayName: S
         val testPrefix = "TestAcc"
         val testTimeout = "12"
 
-        var parallelism = DefaultParallelism
+        var parallelism = DefaultServiceParallelism
         if (ServiceParallelism.containsKey(packageName)){
             parallelism = ServiceParallelism.getValue(packageName)
         }

@@ -7,6 +7,17 @@
 
 package generated
 
+// specifies the default level of parallelism for per-service-package test builds, unless overridden in ServiceParallelism below
+const val DefaultServiceParallelism = 12
+
 var ServiceParallelism = mapOf(
+    // Packages with quota failures in nightly tests are kept at the previous default of 6.
+    // gemini: Quota 'Maximum number of Code Repository Indexes' exceeded (limit 10)
+    "gemini" to 6,
+    // netapp: Quotas 'BackupVaultsPerRegion' (limit 10) and 'ReplicatedVolumesPerRegion' (limit 5) exceeded
+    "netapp" to 5,
+    // osconfig: OS Config API quota exhausted
+    "osconfig" to 6,
+
     "looker" to 1
 )
