@@ -44,6 +44,7 @@ func TestAccContainerClusterDatasource_zonal(t *testing.T) {
 						"google_container_cluster.kubes",
 						[]string{"deletion_protection"},
 					),
+					resource.TestCheckResourceAttr("data.google_container_cluster.kubes_skip_node_pool_refresh", "node_pool.#", "0"),
 				),
 			},
 		},
@@ -77,26 +78,6 @@ func TestAccContainerClusterDatasource_regional(t *testing.T) {
 	})
 }
 
-func TestAccContainerClusterDatasource_skipNodePoolRefresh(t *testing.T) {
-	t.Parallel()
-
-	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
-	subnetworkName := tpgcompute.BootstrapSubnetInRegion(t, "gke-cluster", networkName, "us-east1", "10.79.0.0/20")
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerClusterDatasource_skipNodePoolRefresh(acctest.RandString(t, 10), networkName, subnetworkName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_container_cluster.kubes", "node_pool.#", "0"),
-				),
-			},
-		},
-	})
-}
-
 func testAccContainerClusterDatasource_zonal(suffix, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "kubes" {
@@ -118,27 +99,8 @@ data "google_container_cluster" "kubes" {
   name     = google_container_cluster.kubes.name
   location = google_container_cluster.kubes.location
 }
-`, suffix, networkName, subnetworkName)
-}
 
-func testAccContainerClusterDatasource_skipNodePoolRefresh(suffix, networkName, subnetworkName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "kubes" {
-  name               = "tf-test-cluster-%s"
-  location           = "us-east1-b"
-  initial_node_count = 1
-
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-
-  network    = "%s"
-  subnetwork = "%s"
-
-  deletion_protection = false
-}
-
-data "google_container_cluster" "kubes" {
+data "google_container_cluster" "kubes_skip_node_pool_refresh" {
   name     = google_container_cluster.kubes.name
   location = google_container_cluster.kubes.location
 
