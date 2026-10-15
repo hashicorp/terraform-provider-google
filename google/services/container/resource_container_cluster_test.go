@@ -8379,6 +8379,45 @@ func TestAccContainerCluster_cloudDns_nil_scope(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_dnsConfig_providerUnspecified(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnetInRegion(t, "gke-cluster", networkName, "us-east1", "10.79.0.0/20")
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withDNSConfig(clusterName, "", "", "", networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withDNSConfig(clusterName, "PROVIDER_UNSPECIFIED", "", "", networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionNoop),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_autopilot_withAdditiveVPCMutation(t *testing.T) {
 	t.Parallel()
 

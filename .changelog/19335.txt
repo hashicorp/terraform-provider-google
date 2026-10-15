@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a permadiff on `dns_config.cluster_dns` in `google_container_cluster` when omitted, set to `null`, or set to `PROVIDER_UNSPECIFIED`
+```
