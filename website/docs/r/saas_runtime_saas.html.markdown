@@ -49,6 +49,25 @@ resource "google_saas_runtime_saas" "example" {
   }
 }
 ```
+## Example Usage - Saas Runtime Saas Application Template
+
+
+```hcl
+resource "google_saas_runtime_saas" "example" {
+  provider = google-beta
+  saas_id  = "example-saas"
+  location = "us-central1"
+
+  locations {
+    name = "us-central1"
+  }
+
+  application_template {
+    application_template = "projects/my-project-name/locations/us-central1/spaces/my-space/applicationTemplates/my-composite"
+    revision             = "projects/my-project-name/locations/us-central1/spaces/my-space/applicationTemplates/my-composite/revisions/r-1"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -72,6 +91,34 @@ The following arguments are supported:
   More info: https://kubernetes.io/docs/user-guide/annotations
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `application_template` -
+  (Optional)
+  Reference to a composite Application Design Center ApplicationTemplate.
+  When `revision` is set, the service imports the template components into
+  equivalent UnitKind, Release and Blueprint resources. Create waits for
+  the import to finish. Update waits when the template changes or when the
+  Saas was failed, running, or not yet started. Both fail if `state`
+  becomes `STATE_FAILED`.
+  * The import creates UnitKinds (named `u-<rootModuleId>-<6 chars>`) and
+    their Releases, and copies the Saas, the UnitKinds and the Releases to
+    `global` and to the other `locations`. Terraform doesn't manage or
+    delete any of them, including when this field changes. Before
+    destroying or replacing the Saas (including `terraform apply -replace`
+    and recreating a tainted Saas), delete the imported UnitKinds and
+    Releases in every location: the API rejects the deletion of a Saas
+    that still has UnitKinds.
+  * After a failed import, fix the template and change `revision`. Any
+    apply that changes a failed Saas restarts the import, and the provider
+    waits for the restarted import to finish or fail again.
+  * While an import is running, the provider retries template or revision
+    updates and DELETE until it finishes, within the resource timeouts.
+  * Don't create Terraform-managed UnitKinds whose
+    `application_template_component` matches a component of this
+    template: the import adopts them and overwrites their fields.
+  * Set this field only on the source-region Saas, not on the copies in
+    `global` or other `locations`.
+  Structure is [documented below](#nested_application_template).
 
 * `labels` -
   (Optional)
@@ -97,6 +144,25 @@ The following arguments are supported:
 	When set to "DELETE", deleting the resource is allowed.
 
 
+<a name="nested_application_template"></a>The `application_template` block supports:
+
+* `application_template` -
+  (Required)
+  Reference to the ApplicationTemplate resource, in the format
+  `projects/{project}/locations/{location}/spaces/{space}/applicationTemplates/{applicationTemplate}`.
+
+* `revision` -
+  (Optional)
+  Revision of the ApplicationTemplate to import, as a full resource name
+  prefixed by `application_template`:
+  `projects/{project}/locations/{location}/spaces/{space}/applicationTemplates/{applicationTemplate}/revisions/{revision}`.
+  Changes to the revision trigger a new import. If empty, the service
+  stores `application_template` but doesn't import it.
+
+* `sync_operation` -
+  (Output)
+  Reference to the ongoing import and replication operation. Opaque for external usage.
+
 <a name="nested_locations"></a>The `locations` block supports:
 
 * `name` -
@@ -109,8 +175,21 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/saas/{{saas_id}}`
 
+* `blueprint_repo` -
+  Name of the repository in Artifact Registry for system-generated
+  Blueprints, for example the Blueprints of imported ApplicationTemplates.
+
+* `conditions` -
+  A set of conditions which indicate the various conditions this resource can
+  have.
+  Structure is [documented below](#nested_conditions).
+
 * `create_time` -
   The timestamp when the resource was created.
+
+* `error` -
+  If the state is `STATE_FAILED`, the corresponding error code and message.
+  Structure is [documented below](#nested_error).
 
 * `etag` -
   An opaque value that uniquely identifies a version or
@@ -121,6 +200,16 @@ In addition to the arguments listed above, the following computed attributes are
   Identifier. The resource name (full URI of the resource) following the standard naming
   scheme:
   "projects/{project}/locations/{location}/saas/{saas}"
+
+* `state` -
+  State of the Saas. It is always `STATE_ACTIVE` if
+  `application_template.revision` is empty.
+  Possible values:
+  STATE_UNSPECIFIED
+  STATE_TYPE_UNSPECIFIED
+  STATE_ACTIVE
+  STATE_RUNNING
+  STATE_FAILED
 
 * `uid` -
   The unique identifier of the resource. UID is unique in the time
@@ -145,14 +234,53 @@ In addition to the arguments listed above, the following computed attributes are
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
+<a name="nested_conditions"></a>The `conditions` block contains:
+
+* `last_transition_time` -
+  (Output)
+  Last time the condition transited from one status to another.
+
+* `message` -
+  (Output)
+  Human readable message indicating details about the last transition.
+
+* `reason` -
+  (Output)
+  Brief reason for the condition's last transition.
+
+* `status` -
+  (Output)
+  Status of the condition.
+  Possible values:
+  STATUS_UNKNOWN
+  STATUS_TRUE
+  STATUS_FALSE
+
+* `type` -
+  (Output)
+  Type of the condition.
+  Possible values:
+  TYPE_READY
+  TYPE_SYNCHRONIZED
+
+<a name="nested_error"></a>The `error` block contains:
+
+* `code` -
+  (Output)
+  The status code, which should be an enum value of google.rpc.Code.
+
+* `message` -
+  (Output)
+  A developer-facing error message.
+
 ## Timeouts
 
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `create` - Default is 30 minutes.
+- `update` - Default is 30 minutes.
+- `delete` - Default is 30 minutes.
 
 ## Import
 

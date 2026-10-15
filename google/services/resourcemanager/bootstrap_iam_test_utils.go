@@ -60,22 +60,7 @@ func BootstrapIamMembers(t *testing.T, members []IamMember) {
 	}
 
 	if len(projectMembers) > 0 {
-		// Get the project since we need its number, id, and policy.
-		projectId := envvar.GetTestProjectFromEnv()
-		project, err := client.Projects.Get(projectId).Do()
-		if err != nil {
-			t.Fatalf("Error getting project with id %q: %s", projectId, err)
-		}
-
-		var projectBindings []*cloudresourcemanager.Binding
-		for _, pm := range projectMembers {
-			replacedMember := strings.ReplaceAll(pm.Member, "{project_number}", strconv.FormatInt(project.ProjectNumber, 10))
-			projectBindings = append(projectBindings, &cloudresourcemanager.Binding{
-				Role:    pm.Role,
-				Members: []string{replacedMember},
-			})
-		}
-		applyProjectIamBindings(t, client, project.ProjectId, projectBindings)
+		bootstrapProjectIamMembers(t, client, envvar.GetTestProjectFromEnv(), projectMembers)
 	}
 
 	if len(orgMembers) > 0 {
@@ -96,6 +81,36 @@ func BootstrapIamMembers(t *testing.T, members []IamMember) {
 		orgName := "organizations/" + orgId
 		applyOrgIamBindings(t, client, orgName, orgBindings)
 	}
+}
+
+// BootstrapProjectIamMembers is like BootstrapIamMembers, but for project-level
+// members of the given project (for example, a project created with
+// BootstrapProject). Members will have `{project_number}` replaced with that
+// project's number.
+func BootstrapProjectIamMembers(t *testing.T, projectId string, members []IamMember) {
+	config := transport_tpg.BootstrapConfig(t)
+	if config == nil {
+		t.Fatal("Could not bootstrap a config for BootstrapProjectIamMembers.")
+	}
+	bootstrapProjectIamMembers(t, rmClient.NewClient(config, config.UserAgent), projectId, members)
+}
+
+func bootstrapProjectIamMembers(t *testing.T, client *cloudresourcemanager.Service, projectId string, members []IamMember) {
+	// Get the project since we need its number, id, and policy.
+	project, err := client.Projects.Get(projectId).Do()
+	if err != nil {
+		t.Fatalf("Error getting project with id %q: %s", projectId, err)
+	}
+
+	var projectBindings []*cloudresourcemanager.Binding
+	for _, pm := range members {
+		replacedMember := strings.ReplaceAll(pm.Member, "{project_number}", strconv.FormatInt(project.ProjectNumber, 10))
+		projectBindings = append(projectBindings, &cloudresourcemanager.Binding{
+			Role:    pm.Role,
+			Members: []string{replacedMember},
+		})
+	}
+	applyProjectIamBindings(t, client, project.ProjectId, projectBindings)
 }
 
 func applyProjectIamBindings(t *testing.T,
