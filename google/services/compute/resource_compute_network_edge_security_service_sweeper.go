@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -87,8 +88,7 @@ func testSweepComputeNetworkEdgeSecurityService(region string) error {
 
 			region := tpgresource.GetResourceNameFromSelfLink(regionPath)
 			deleteUrl := fmt.Sprintf("%sprojects/%s/regions/%s/networkEdgeSecurityServices/%s", transport_tpg.BaseUrl(Product, config), config.Project, region, name)
-			// Don't wait on operations as we may have a lot to delete
-			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,
 				Method:    "DELETE",
 				Project:   config.Project,
@@ -99,6 +99,12 @@ func testSweepComputeNetworkEdgeSecurityService(region string) error {
 				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, name, err)
 			} else {
 				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
+				err = ComputeOperationWaitTime(
+					config, op, config.Project, fmt.Sprintf("Deleting %s", resourceName), config.UserAgent,
+					time.Minute*5)
+				if err != nil {
+					log.Printf("[INFO][SWEEPER_LOG] Error waiting for deletion of %s resource (%s): %s", resourceName, name, err)
+				}
 			}
 		}
 	}

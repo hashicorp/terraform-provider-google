@@ -947,10 +947,10 @@ func TestAccComputeSecurityPolicy_securityPolicyWithBodyExclude(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"backend_name":      "backendpolicy" + randomSuffix,
+		"backend_name":      "tf-test-backendpolicy" + randomSuffix,
 		"network_name":      "tf-test-test-network" + randomSuffix,
 		"health_check_name": "tf-test-health-check" + randomSuffix,
-		"sec_policy_name":   "policyruletest" + randomSuffix,
+		"sec_policy_name":   "tf-test-policyruletest" + randomSuffix,
 		"random_suffix":     randomSuffix,
 	}
 
