@@ -81,7 +81,7 @@ To do this you should:
     * Click the `Parameters` tab
     * Edit the value of configuration parameters or environment variables as needed.
       * `TEST_PREFIX` - change this to restrict which tests are run
-      * `PARALLELISM` - controls the number of tests run in parallel
+      * `PARALLELISM` - controls the number of tests run in parallel. Service-package builds default to 20, with lower per-service limits defined in `components/inputs/per_service_parallelism.kt`. Set a positive integer in a Custom Build to override the default or a package limit.
       * `The version of Terraform Core which should be...` - change this to a valid version number of Terraform to be downloaded and used in the build.
 * When you've finished customising your build, click "Run Build" at the bottom of the modal.
 
