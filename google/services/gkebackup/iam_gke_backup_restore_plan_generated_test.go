@@ -30,8 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/compute"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/container"
+	"github.com/hashicorp/terraform-provider-google/google/services/container"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
@@ -51,12 +50,8 @@ func TestAccGKEBackupRestorePlanIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
-
-		"deletion_protection": false,
-		"name":                "tf-test-restore-all-ns" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-restore-all-ns" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -94,12 +89,8 @@ func TestAccGKEBackupRestorePlanIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
-
-		"deletion_protection": false,
-		"name":                "tf-test-restore-all-ns" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-restore-all-ns" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -135,12 +126,8 @@ func TestAccGKEBackupRestorePlanIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
-
-		"deletion_protection": false,
-		"name":                "tf-test-restore-all-ns" + randomSuffix,
-		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),
-		"subnetwork_name":     compute.BootstrapSubnetInRegion(t, "gke-cluster", compute.BootstrapSharedTestNetwork(t, "gke-cluster"), "us-east1", "10.79.0.0/20"),
+		"cluster":       container.BootstrapSharedGKECluster(t, "gkebackup"),
+		"name":          "tf-test-restore-all-ns" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -172,29 +159,9 @@ func TestAccGKEBackupRestorePlanIamPolicyGenerated(t *testing.T) {
 
 func testAccGKEBackupRestorePlanIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -207,7 +174,7 @@ resource "google_gke_backup_restore_plan" "all_ns" {
   name = "%{name}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
@@ -231,29 +198,9 @@ resource "google_gke_backup_restore_plan_iam_member" "foo" {
 
 func testAccGKEBackupRestorePlanIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -266,7 +213,7 @@ resource "google_gke_backup_restore_plan" "all_ns" {
   name = "%{name}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
@@ -305,29 +252,9 @@ data "google_gke_backup_restore_plan_iam_policy" "foo" {
 
 func testAccGKEBackupRestorePlanIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -340,7 +267,7 @@ resource "google_gke_backup_restore_plan" "all_ns" {
   name = "%{name}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
@@ -366,29 +293,9 @@ resource "google_gke_backup_restore_plan_iam_policy" "foo" {
 
 func testAccGKEBackupRestorePlanIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -401,7 +308,7 @@ resource "google_gke_backup_restore_plan" "all_ns" {
   name = "%{name}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
@@ -425,29 +332,9 @@ resource "google_gke_backup_restore_plan_iam_binding" "foo" {
 
 func testAccGKEBackupRestorePlanIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%{name}-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "%{project}.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = %{deletion_protection}
-  network       = "%{network_name}"
-  subnetwork    = "%{subnetwork_name}"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "%{name}"
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -460,7 +347,7 @@ resource "google_gke_backup_restore_plan" "all_ns" {
   name = "%{name}"
   location = "us-east1"
   backup_plan = google_gke_backup_backup_plan.basic.id
-  cluster = google_container_cluster.primary.id
+  cluster = "%{cluster}"
   restore_config {
     all_namespaces = true
     namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"

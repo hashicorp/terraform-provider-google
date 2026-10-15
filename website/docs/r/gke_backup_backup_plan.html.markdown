@@ -30,33 +30,18 @@ To get more information about BackupPlan, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke)
 
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_backupplan_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Backupplan Basic
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "basic-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "basic" {
   name = "basic-plan"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/basic-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -104,33 +89,18 @@ resource "google_gke_backup_backup_plan" "autopilot" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_backupplan_cmek&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Backupplan Cmek
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "cmek-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "cmek" {
   name = "cmek-plan"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/cmek-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -154,33 +124,18 @@ resource "google_kms_key_ring" "key_ring" {
   location = "us-east1"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_backupplan_nslabels&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Backupplan Nslabels
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "nslabels-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "nslabels" {
   name = "nslabels-plan"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/nslabels-cluster"
   location = "us-east1"
   backup_config {
     include_volume_data = true
@@ -194,33 +149,18 @@ resource "google_gke_backup_backup_plan" "nslabels" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_backupplan_full&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Backupplan Full
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "full-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "full" {
   name = "full-plan"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/full-cluster"
   location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
@@ -245,33 +185,18 @@ resource "google_gke_backup_backup_plan" "full" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_backupplan_permissive&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Backupplan Permissive
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "permissive-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "permissive" {
   name = "permissive-plan"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/permissive-cluster"
   location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
@@ -297,33 +222,18 @@ resource "google_gke_backup_backup_plan" "permissive" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_backupplan_rpo_daily_window&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Backupplan Rpo Daily Window
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "rpo-daily-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "rpo_daily_window" {
   name = "rpo-daily-window"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/rpo-daily-cluster"
   location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
@@ -363,33 +273,18 @@ resource "google_gke_backup_backup_plan" "rpo_daily_window" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=gkebackup_backupplan_rpo_weekly_window&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Gkebackup Backupplan Rpo Weekly Window
 
 
 ```hcl
-resource "google_container_cluster" "primary" {
-  name               = "rpo-weekly-cluster"
-  location           = "us-east1"
-  initial_node_count = 1
-  node_config {
-    machine_type = "n4-standard-2"
-  }
-  workload_identity_config {
-    workload_pool = "my-project-name.svc.id.goog"
-  }
-  addons_config {
-    gke_backup_agent_config {
-      enabled = true
-    }
-  }
-  deletion_protection  = true
-  network       = "default"
-  subnetwork    = "default"
-}
-
 resource "google_gke_backup_backup_plan" "rpo_weekly_window" {
   name = "rpo-weekly-window"
-  cluster = google_container_cluster.primary.id
+  cluster = "projects/my-project-name/locations/us-east1/clusters/rpo-weekly-cluster"
   location = "us-east1"
   retention_policy {
     backup_delete_lock_days = 30
