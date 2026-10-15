@@ -124,7 +124,7 @@ func listAndActionRedisCluster(action sweeper.ResourceAction) error {
 		}
 
 		// Prepare list URL
-		listTemplate := strings.Split("https://redis.googleapis.com/v1/projects/{{project}}/locations/{{region}}/clusters", "?")[0]
+		listTemplate := "https://redis.googleapis.com/v1/projects/{{project}}/locations/{{region}}/clusters"
 		listUrl, err := tpgresource.ReplaceVars(mockConfig, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -135,50 +135,67 @@ func listAndActionRedisCluster(action sweeper.ResourceAction) error {
 		// Log additional info for parent-based resources
 		log.Printf("[INFO][SWEEPER_LOG] Listing %s resources at %s", resourceName, listUrl)
 
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "GET",
-			Project:   config.Project,
-			RawURL:    listUrl,
-			UserAgent: config.UserAgent,
-		})
-		if err != nil {
-			log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
-			lastError = err
-			continue
-		}
-
-		// First try the expected resource key
-		resourceList, ok := res["clusters"]
-		if ok {
-			log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'clusters'")
-		} else {
-			// Next, try the common "items" pattern
-			resourceList, ok = res["items"]
-			if ok {
-				log.Printf("[INFO][SWEEPER_LOG] Found resources under standard 'items' key")
-			} else {
-				log.Printf("[INFO][SWEEPER_LOG] no resources found")
-				continue
-			}
-		}
-		rl := resourceList.([]interface{})
-
-		log.Printf("[INFO][SWEEPER_LOG] Found %d items in %s list response.", len(rl), resourceName)
-		// Keep count of items that aren't sweepable for logging.
-		nonPrefixCount := 0
-		for _, ri := range rl {
-			obj, ok := ri.(map[string]interface{})
-			if !ok {
-				log.Printf("[INFO][SWEEPER_LOG] Item was not a map: %T", ri)
-				continue
-			}
-
-			if err := action(config, mockConfig, obj); err != nil {
-				log.Printf("[INFO][SWEEPER_LOG] Error in action: %s", err)
+		// Page zero's URL is the raw list URL. Successive pages will return the token for the next page.
+		pageUrl := listUrl
+		for {
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   config.Project,
+				RawURL:    pageUrl,
+				UserAgent: config.UserAgent,
+			})
+			if err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", pageUrl, err)
 				lastError = err
+				break
+			}
+
+			// First try the expected resource key
+			resourceList, ok := res["clusters"]
+			if ok {
+				log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'clusters'")
 			} else {
-				nonPrefixCount++
+				// Next, try the common "items" pattern
+				resourceList, ok = res["items"]
+				if ok {
+					log.Printf("[INFO][SWEEPER_LOG] Found resources under standard 'items' key")
+				} else {
+					log.Printf("[INFO][SWEEPER_LOG] no resources found")
+				}
+			}
+
+			if ok {
+				rl := resourceList.([]interface{})
+
+				log.Printf("[INFO][SWEEPER_LOG] Found %d items in %s list response.", len(rl), resourceName)
+				// Keep count of items that aren't sweepable for logging.
+				nonPrefixCount := 0
+				for _, ri := range rl {
+					obj, ok := ri.(map[string]interface{})
+					if !ok {
+						log.Printf("[INFO][SWEEPER_LOG] Item was not a map: %T", ri)
+						continue
+					}
+
+					if err := action(config, mockConfig, obj); err != nil {
+						log.Printf("[INFO][SWEEPER_LOG] Error in action: %s", err)
+						lastError = err
+					} else {
+						nonPrefixCount++
+					}
+				}
+			}
+
+			pageToken, ok := res["nextPageToken"].(string)
+			if !ok || pageToken == "" {
+				break
+			}
+			pageUrl, err = transport_tpg.AddQueryParams(listUrl, map[string]string{"pageToken": pageToken})
+			if err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] error preparing paginated list url: %s", err)
+				lastError = err
+				break
 			}
 		}
 	}
