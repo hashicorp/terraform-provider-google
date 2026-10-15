@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquery"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/bigtable"
 	"github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
@@ -444,6 +445,121 @@ func TestAccPubsubSubscriptionCloudStorage_serviceAccount(t *testing.T) {
 			{
 				ResourceName:      "google_pubsub_subscription.foo",
 				ImportStateId:     subscriptionShort,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccPubsubSubscriptionBigtable_update(t *testing.T) {
+	// Bigtable instances and tables don't use the shared HTTP client, so they can't be recorded by VCR.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/bigtable.user",
+		},
+	})
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscriptionBigtable_basic(context, `
+    table = google_bigtable_table.plain.id
+`),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubSubscriptionBigtable_basic(context, `
+    table                 = google_bigtable_table.plain2.id
+    app_profile_id        = google_bigtable_app_profile.single_cluster.app_profile_id
+    service_account_email = google_service_account.bigtable_writer.email
+    write_metadata        = true
+
+    column_family_mapping {
+      delimited_key {
+        key_fields = ["user_id", "event_id"]
+        delimiter  = "Iw=="
+      }
+    }
+`),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubSubscriptionBigtable_basic(context, `
+    table          = google_bigtable_table.plain.id
+    write_metadata = true
+
+    column_family_mapping {
+      delimited_key {
+        key_fields = ["user_id", "event_id", "ts"]
+        delimiter  = "Og=="
+      }
+    }
+`),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubSubscriptionBigtable_basic(context, `
+    table = google_bigtable_table.plain.id
+
+    column_family_mapping {
+      delimited_key {
+        key_fields = ["user_id"]
+      }
+    }
+`),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubSubscriptionBigtable_basic(context, `
+    table = google_bigtable_table.structured.id
+
+    column_family_mapping {
+      row_key_schema {}
+    }
+`),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubSubscriptionBigtable_basic(context, `
+    table = google_bigtable_table.plain.id
+
+    column_family_mapping {}
+`),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -1312,6 +1428,109 @@ resource "google_bigquery_table_iam_policy" "policy" {
   dataset_id  = google_bigquery_table.test.dataset_id
   table_id    = google_bigquery_table.test.table_id
   policy_data = data.google_iam_policy.admin.policy_data
+}
+`, context)
+}
+
+func testAccPubsubSubscriptionBigtable_basic(context map[string]interface{}, bigtableConfig string) string {
+	context["bigtable_config"] = bigtableConfig
+	return acctest.Nprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "tf-test-ps-%{random_suffix}"
+
+  cluster {
+    cluster_id = "tf-test-ps-%{random_suffix}"
+    zone       = "us-central1-b"
+    num_nodes  = 1
+  }
+
+  deletion_protection = false
+}
+
+resource "google_bigtable_app_profile" "single_cluster" {
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "tf-test-ps-%{random_suffix}"
+
+  single_cluster_routing {
+    cluster_id = "tf-test-ps-%{random_suffix}"
+  }
+
+  ignore_warnings = true
+}
+
+resource "google_bigtable_table" "plain" {
+  name          = "tf-test-plain-%{random_suffix}"
+  instance_name = google_bigtable_instance.instance.name
+
+  column_family {
+    family = "data"
+  }
+
+  column_family {
+    family = "pubsub_metadata"
+  }
+}
+
+resource "google_bigtable_table" "plain2" {
+  name          = "tf-test-plain2-%{random_suffix}"
+  instance_name = google_bigtable_instance.instance.name
+
+  column_family {
+    family = "data"
+  }
+
+  column_family {
+    family = "pubsub_metadata"
+  }
+}
+
+resource "google_bigtable_table" "structured" {
+  name          = "tf-test-structured-%{random_suffix}"
+  instance_name = google_bigtable_instance.instance.name
+
+  column_family {
+    family = "data"
+  }
+
+  row_key_schema = <<EOF
+{
+  "structType": {
+    "fields": [{
+      "fieldName": "user_id",
+      "type": {
+        "stringType": { "encoding": { "utf8Bytes": { } } }
+      }
+    }],
+    "encoding": { "orderedCodeBytes": { } }
+  }
+}
+EOF
+}
+
+resource "google_service_account" "bigtable_writer" {
+  account_id   = "tf-test-bt-%{random_suffix}"
+  display_name = "Bigtable Write Service Account"
+}
+
+resource "google_bigtable_instance_iam_member" "bigtable_writer" {
+  instance = google_bigtable_instance.instance.name
+  role     = "roles/bigtable.user"
+  member   = google_service_account.bigtable_writer.member
+}
+
+resource "google_pubsub_topic" "foo" {
+  name = "tf-test-topic-%{random_suffix}"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name  = "tf-test-sub-%{random_suffix}"
+  topic = google_pubsub_topic.foo.id
+
+  bigtable_config {
+%{bigtable_config}
+  }
+
+  depends_on = [google_bigtable_instance_iam_member.bigtable_writer]
 }
 `, context)
 }

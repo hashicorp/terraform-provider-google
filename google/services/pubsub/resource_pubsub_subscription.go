@@ -214,8 +214,8 @@ will eventually redeliver the message.`,
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `If delivery to BigQuery is used with this subscription, this field is used to configure it.
-Either pushConfig, bigQueryConfig or cloudStorageConfig can be set, but not combined.
-If all three are empty, then the subscriber will pull and ack messages using API methods.`,
+Only one of pushConfig, bigqueryConfig, cloudStorageConfig, or bigtableConfig can be set.
+If none of them are set, then the subscriber will pull and ack messages using API methods.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -258,14 +258,120 @@ The subscription name, messageId, and publishTime fields are put in their own co
 						},
 					},
 				},
-				ConflictsWith: []string{"cloud_storage_config", "push_config"},
+				ConflictsWith: []string{"bigtable_config", "cloud_storage_config", "push_config"},
+			},
+			"bigtable_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `If delivery to Bigtable is used with this subscription, this field is used to configure it.
+Only one of pushConfig, bigqueryConfig, cloudStorageConfig, or bigtableConfig can be set.
+If none of them are set, then the subscriber will pull and ack messages using API methods.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"table": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The unique name of the table to write messages to, of the form
+'projects/{project}/instances/{instance}/tables/{table}'.`,
+						},
+						"app_profile_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The app profile to use for the Bigtable writes. If not specified, the "default" application
+profile will be used. The app profile must use single-cluster routing.`,
+						},
+						"column_family_mapping": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Configuration that allows writing row keys and/or columns based on fields in the input message.
+The input message format must be JSON if this field is set.
+
+If this field is set, top-level message fields are written to the 'data' column family with
+the field name as the column qualifier by default, or to an existing column family whose name
+matches the field name. The cell timestamp is the message publish time.
+
+If this field is not set, the row key is constructed from the subscription name, message ID hash,
+and message ID delimited by '#', and the message bytes are written to the 'data' column family
+with an empty-string column qualifier.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"delimited_key": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `If set, the row key is constructed from the given key fields and delimiter. All key fields
+must be present in the message; otherwise, the message remains in the subscription backlog.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"key_fields": {
+													Type:     schema.TypeList,
+													Required: true,
+													Description: `The key fields to construct the row key from. The fields must be present in the message
+as top-level fields; JSON path expressions will not traverse into nested objects.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"delimiter": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The byte sequence used to delimit concatenated key fields, as a base64-encoded string
+(for example, 'Iw==' for '#'). Must be specified if multiple key fields are used. The
+delimiter must contain at least 1 character and at most 50 characters.`,
+												},
+											},
+										},
+										ConflictsWith: []string{"bigtable_config.0.column_family_mapping.0.row_key_schema"},
+									},
+									"row_key_schema": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `If set, the row key is constructed from the field names of the table's
+[structured row key](https://cloud.google.com/bigtable/docs/manage-row-key-schemas).
+If a field is nullable in the structured row key, it need not be present in the message;
+null will be used instead.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ConflictsWith: []string{"bigtable_config.0.column_family_mapping.0.delimited_key"},
+									},
+								},
+							},
+						},
+						"service_account_email": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The service account to use to write to Bigtable. The subscription creator or updater that
+specifies this field must have 'iam.serviceAccounts.actAs' permission on the service account.
+If not specified, the Pub/Sub [service agent](https://cloud.google.com/iam/docs/service-agents),
+service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.`,
+						},
+						"write_metadata": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `When true, write the subscription name, messageId, publishTime, attributes, and orderingKey to
+additional columns in the table under the 'pubsub_metadata' column family. The subscription name,
+messageId, and publishTime fields are put in their own columns while all other message properties
+(other than data) are written to a JSON object in the attributes column.`,
+						},
+						"state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `An output-only field that indicates whether or not the subscription can receive messages.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"bigquery_config", "cloud_storage_config", "push_config"},
 			},
 			"cloud_storage_config": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `If delivery to Cloud Storage is used with this subscription, this field is used to configure it.
-Either pushConfig, bigQueryConfig or cloudStorageConfig can be set, but not combined.
-If all three are empty, then the subscriber will pull and ack messages using API methods.`,
+Only one of pushConfig, bigqueryConfig, cloudStorageConfig, or bigtableConfig can be set.
+If none of them are set, then the subscriber will pull and ack messages using API methods.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -358,7 +464,7 @@ service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"bigquery_config", "push_config"},
+				ConflictsWith: []string{"bigquery_config", "bigtable_config", "push_config"},
 			},
 			"dead_letter_policy": {
 				Type:     schema.TypeList,
@@ -693,7 +799,7 @@ Note: if not specified, the Push endpoint URL will be used.`,
 						},
 					},
 				},
-				ConflictsWith: []string{"bigquery_config", "cloud_storage_config"},
+				ConflictsWith: []string{"bigquery_config", "bigtable_config", "cloud_storage_config"},
 			},
 			"retain_acked_messages": {
 				Type:     schema.TypeBool,
@@ -813,6 +919,12 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("cloud_storage_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(cloudStorageConfigProp)) && (ok || !reflect.DeepEqual(v, cloudStorageConfigProp)) {
 		obj["cloudStorageConfig"] = cloudStorageConfigProp
+	}
+	bigtableConfigProp, err := expandPubsubSubscriptionBigtableConfig(d.Get("bigtable_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bigtable_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(bigtableConfigProp)) && (ok || !reflect.DeepEqual(v, bigtableConfigProp)) {
+		obj["bigtableConfig"] = bigtableConfigProp
 	}
 	pushConfigProp, err := expandPubsubSubscriptionPushConfig(d.Get("push_config"), d, config)
 	if err != nil {
@@ -1145,6 +1257,12 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("cloud_storage_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cloudStorageConfigProp)) {
 		obj["cloudStorageConfig"] = cloudStorageConfigProp
 	}
+	bigtableConfigProp, err := expandPubsubSubscriptionBigtableConfig(d.Get("bigtable_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("bigtable_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bigtableConfigProp)) {
+		obj["bigtableConfig"] = bigtableConfigProp
+	}
 	pushConfigProp, err := expandPubsubSubscriptionPushConfig(d.Get("push_config"), d, config)
 	if err != nil {
 		return err
@@ -1226,6 +1344,10 @@ func resourcePubsubSubscriptionUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("cloud_storage_config") {
 		updateMask = append(updateMask, "cloudStorageConfig")
+	}
+
+	if d.HasChange("bigtable_config") {
+		updateMask = append(updateMask, "bigtableConfig")
 	}
 
 	if d.HasChange("push_config") {
@@ -1589,6 +1711,92 @@ func flattenPubsubSubscriptionCloudStorageConfigTextConfigState(v interface{}, d
 }
 
 func flattenPubsubSubscriptionCloudStorageConfigServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigtableConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["table"] =
+		flattenPubsubSubscriptionBigtableConfigTable(original["table"], d, config)
+	transformed["app_profile_id"] =
+		flattenPubsubSubscriptionBigtableConfigAppProfileId(original["appProfileId"], d, config)
+	transformed["service_account_email"] =
+		flattenPubsubSubscriptionBigtableConfigServiceAccountEmail(original["serviceAccountEmail"], d, config)
+	transformed["write_metadata"] =
+		flattenPubsubSubscriptionBigtableConfigWriteMetadata(original["writeMetadata"], d, config)
+	transformed["column_family_mapping"] =
+		flattenPubsubSubscriptionBigtableConfigColumnFamilyMapping(original["columnFamilyMapping"], d, config)
+	transformed["state"] =
+		flattenPubsubSubscriptionBigtableConfigState(original["state"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionBigtableConfigTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigtableConfigAppProfileId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigtableConfigServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigtableConfigWriteMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigtableConfigColumnFamilyMapping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["row_key_schema"] =
+		flattenPubsubSubscriptionBigtableConfigColumnFamilyMappingRowKeySchema(original["rowKeySchema"], d, config)
+	transformed["delimited_key"] =
+		flattenPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKey(original["delimitedKey"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionBigtableConfigColumnFamilyMappingRowKeySchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key_fields"] =
+		flattenPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKeyKeyFields(original["keyFields"], d, config)
+	transformed["delimiter"] =
+		flattenPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKeyDelimiter(original["delimiter"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKeyKeyFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKeyDelimiter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigtableConfigState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2183,6 +2391,172 @@ func expandPubsubSubscriptionCloudStorageConfigServiceAccountEmail(v interface{}
 	return v, nil
 }
 
+func expandPubsubSubscriptionBigtableConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTable, err := expandPubsubSubscriptionBigtableConfigTable(original["table"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["table"] = transformedTable
+	}
+
+	transformedAppProfileId, err := expandPubsubSubscriptionBigtableConfigAppProfileId(original["app_profile_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAppProfileId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["appProfileId"] = transformedAppProfileId
+	}
+
+	transformedServiceAccountEmail, err := expandPubsubSubscriptionBigtableConfigServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	transformedWriteMetadata, err := expandPubsubSubscriptionBigtableConfigWriteMetadata(original["write_metadata"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWriteMetadata); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["writeMetadata"] = transformedWriteMetadata
+	}
+
+	transformedColumnFamilyMapping, err := expandPubsubSubscriptionBigtableConfigColumnFamilyMapping(original["column_family_mapping"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["columnFamilyMapping"] = transformedColumnFamilyMapping
+	}
+
+	transformedState, err := expandPubsubSubscriptionBigtableConfigState(original["state"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedState); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["state"] = transformedState
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionBigtableConfigTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigtableConfigAppProfileId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigtableConfigServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigtableConfigWriteMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigtableConfigColumnFamilyMapping(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRowKeySchema, err := expandPubsubSubscriptionBigtableConfigColumnFamilyMappingRowKeySchema(original["row_key_schema"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["rowKeySchema"] = transformedRowKeySchema
+	}
+
+	transformedDelimitedKey, err := expandPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKey(original["delimited_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDelimitedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["delimitedKey"] = transformedDelimitedKey
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionBigtableConfigColumnFamilyMappingRowKeySchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKeyFields, err := expandPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKeyKeyFields(original["key_fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKeyFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["keyFields"] = transformedKeyFields
+	}
+
+	transformedDelimiter, err := expandPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKeyDelimiter(original["delimiter"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDelimiter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["delimiter"] = transformedDelimiter
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKeyKeyFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigtableConfigColumnFamilyMappingDelimitedKeyDelimiter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigtableConfigState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandPubsubSubscriptionPushConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -2644,6 +3018,9 @@ func ResourcePubsubSubscriptionFlatten(d *schema.ResourceData, meta interface{},
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
 	if err = d.Set("cloud_storage_config", flattenPubsubSubscriptionCloudStorageConfig(res["cloudStorageConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subscription: %s", err)
+	}
+	if err = d.Set("bigtable_config", flattenPubsubSubscriptionBigtableConfig(res["bigtableConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subscription: %s", err)
 	}
 	if err = d.Set("push_config", flattenPubsubSubscriptionPushConfig(res["pushConfig"], d, config)); err != nil {

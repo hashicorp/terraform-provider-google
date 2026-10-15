@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquery"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/bigtable"
 	"github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
@@ -913,6 +914,114 @@ resource "google_storage_bucket_iam_member" "admin" {
   bucket = google_storage_bucket.example.name
   role   = "roles/storage.admin"
   member = "serviceAccount:${google_service_account.storage_write_service_account.email}"
+}
+`, context)
+}
+
+func TestAccPubsubSubscription_pubsubSubscriptionPushBigtableExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com",
+			Role:   "roles/bigtable.user",
+		},
+	})
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"app_profile_id":    "tf-test-example-profile" + randomSuffix,
+		"instance_name":     "tf-test-example-bt" + randomSuffix,
+		"subscription_name": "tf-test-example-subscription" + randomSuffix,
+		"table_name":        "tf-test-example-table" + randomSuffix,
+		"topic_name":        "tf-test-example-topic" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_pubsubSubscriptionPushBigtableExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "tags", "terraform_labels", "topic"},
+			},
+			{
+				ResourceName:       "google_pubsub_subscription.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccPubsubSubscription_pubsubSubscriptionPushBigtableExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigtable_instance" "example" {
+  name = "%{instance_name}"
+
+  cluster {
+    cluster_id = "%{instance_name}"
+    zone       = "us-central1-b"
+    num_nodes  = 1
+  }
+
+  deletion_protection = false
+}
+
+resource "google_bigtable_app_profile" "example" {
+  instance       = google_bigtable_instance.example.name
+  app_profile_id = "%{app_profile_id}"
+
+  single_cluster_routing {
+    cluster_id = "%{instance_name}"
+  }
+
+  ignore_warnings = true
+}
+
+resource "google_bigtable_table" "example" {
+  name          = "%{table_name}"
+  instance_name = google_bigtable_instance.example.name
+
+  column_family {
+    family = "data"
+  }
+
+  column_family {
+    family = "pubsub_metadata"
+  }
+}
+
+resource "google_pubsub_topic" "example" {
+  name = "%{topic_name}"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "%{subscription_name}"
+  topic = google_pubsub_topic.example.id
+
+  bigtable_config {
+    table          = google_bigtable_table.example.id
+    app_profile_id = google_bigtable_app_profile.example.app_profile_id
+    write_metadata = true
+
+    column_family_mapping {
+      delimited_key {
+        key_fields = ["user_id", "event_id"]
+        # base64 encoding of "#"
+        delimiter  = "Iw=="
+      }
+    }
+  }
 }
 `, context)
 }
