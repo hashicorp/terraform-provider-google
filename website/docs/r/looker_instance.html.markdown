@@ -52,6 +52,26 @@ resource "google_looker_instance" "looker-instance" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=looker_instance_force_delete&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Looker Instance Force Delete
+
+
+```hcl
+resource "google_looker_instance" "looker-instance" {
+  name              = "my-instance"
+  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
+  region            = "us-central1"
+  oauth_config {
+    client_id = "my-client-id"
+    client_secret = "my-client-secret"
+  }
+  deletion_policy = "FORCE"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=looker_instance_full&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -99,28 +119,11 @@ resource "google_looker_instance" "looker-instance" {
   oauth_config {
     client_id = "my-client-id"
     client_secret = "my-client-secret"
-  }  
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=looker_instance_fips&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Looker Instance Fips
-
-
-```hcl
-resource "google_looker_instance" "looker-instance" {
-  name               = "my-instance-fips"
-  platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
-  region             = "us-central1"
-  public_ip_enabled  = true
-  fips_enabled = true
-  oauth_config {
-    client_id = "my-client-id"
-    client_secret = "my-client-secret"
-  }  
+  }
+  custom_domain {
+    domain = "my-custom-domain.com"
+  }
+  deletion_policy = "FORCE"
 }
 ```
 ## Example Usage - Looker Instance Enterprise Full
@@ -205,30 +208,6 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=looker_instance_custom_domain&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Looker Instance Custom Domain
-
-
-```hcl
-resource "google_looker_instance" "looker-instance" {
-  name              = "my-instance"
-  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
-  region            = "us-central1"
-  oauth_config {
-    client_id = "my-client-id"
-    client_secret = "my-client-secret"
-  }
-  // After your Looker (Google Cloud core) instance has been created, you can set up, view information about, or delete a custom domain for your instance. 
-  // Therefore 2 terraform applies, one to create the instance, then another to set up the custom domain. 
-  custom_domain {
-    domain = "my-custom-domain.com"
-  }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=looker_instance_psc&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -269,26 +248,6 @@ resource "google_looker_instance" "looker-instance" {
     #   target_service_attachment_uri = "projects/devops-project/regions/us-west1/serviceAttachments/gitlab-sa"
     # }
   }
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=looker_instance_force_delete&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Looker Instance Force Delete
-
-
-```hcl
-resource "google_looker_instance" "looker-instance" {
-  name              = "my-instance"
-  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
-  region            = "us-central1"
-  oauth_config {
-    client_id = "my-client-id"
-    client_secret = "my-client-secret"
-  }
-  deletion_policy = "FORCE"
 }
 ```
 
