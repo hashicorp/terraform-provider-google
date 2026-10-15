@@ -2264,7 +2264,7 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		obj["region"] = regionProp
 	}
 
-	obj, err = resourceComputeRegionBackendServiceUpdateEncoder(d, meta, obj)
+	obj, err = resourceComputeRegionBackendServiceEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
@@ -2276,6 +2276,10 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Updating RegionBackendService %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+
+	// params (e.g. resourceManagerTags) can only be set on create. Since updates are sent as a
+	// full PUT, it must be removed here or the API rejects the request.
+	delete(obj, "params")
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -2318,17 +2322,15 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 			obj["securityPolicy"] = securityPolicyProp
 		}
 
-		obj, err = resourceComputeRegionBackendServiceUpdateEncoder(d, meta, obj)
-		if err != nil {
-			return err
-		}
-
 		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/backendServices/{{name}}/setSecurityPolicy")
 		if err != nil {
 			return err
 		}
 
 		headers := make(http.Header)
+		// params (e.g. resourceManagerTags) can only be set on create. Since updates are sent as a
+		// full PUT, it must be removed here or the API rejects the request.
+		delete(obj, "params")
 
 		// err == nil indicates that the billing_project value was found
 		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -5684,19 +5686,6 @@ func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta int
 	}
 
 	obj["backends"] = backends
-	return obj, nil
-}
-
-func resourceComputeRegionBackendServiceUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// update_encoder replaces encoder on Update, so apply the shared encoder first.
-	obj, err := resourceComputeRegionBackendServiceEncoder(d, meta, obj)
-	if err != nil {
-		return nil, err
-	}
-
-	// params (e.g. resourceManagerTags) can only be set on create. Since updates are sent as a
-	// full PUT, it must be removed here or the API rejects the request.
-	delete(obj, "params")
 	return obj, nil
 }
 

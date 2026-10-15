@@ -1531,7 +1531,7 @@ func TestAccComputeRegionBackendService_withSecurityPolicyUdp(t *testing.T) {
 func testAccComputeRegionBackendService_withSecurityPolicyUdp(ddosPolName, edgeSecName, polName, serviceName, polLink string) string {
 	return fmt.Sprintf(`
 resource "google_compute_region_security_policy" "policyddosprotection" {
-  region      = "us-central1"
+  region      = "us-east4"
   name        = "%s"
   description = "region security policy for ddos protection"
   type        = "CLOUD_ARMOR_NETWORK"
@@ -1540,16 +1540,18 @@ resource "google_compute_region_security_policy" "policyddosprotection" {
   }
 }
 
+# Only one google_compute_network_edge_security_service can exist per region per project.
+# Use us-east4 to avoid colliding with other tests using us-central1 (such as TestAccComputeNetworkEdgeSecurityService_update).
 resource "google_compute_network_edge_security_service" "edge_sec_service" {
   name            = "%s"
-  region          = "us-central1"
+  region          = "us-east4"
   description     = "edge security service with security policy"
   security_policy = google_compute_region_security_policy.policyddosprotection.self_link
 }
 
 resource "google_compute_region_security_policy" "policy" {
   name        = "%s"
-  region      = "us-central1"
+  region      = "us-east4"
   description = "basic network security policy"
   type        = "CLOUD_ARMOR_NETWORK"
   depends_on  = [google_compute_network_edge_security_service.edge_sec_service]
@@ -1557,7 +1559,7 @@ resource "google_compute_region_security_policy" "policy" {
 
 resource "google_compute_region_backend_service" "foobar" {
   name                  = "%s"
-  region                = "us-central1"
+  region                = "us-east4"
   protocol              = "UDP"
   load_balancing_scheme = "EXTERNAL"
   security_policy       = %s
