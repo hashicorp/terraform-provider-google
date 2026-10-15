@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -34,8 +35,9 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/looker"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -70,6 +72,21 @@ func TestAccLookerInstance_lookerInstanceBasicExample(t *testing.T) {
 		"random_suffix": randomSuffix,
 	}
 
+	context_1 := map[string]interface{}{
+		"client_id":     "tf-test-my-client-id" + randomSuffix,
+		"client_secret": "tf-test-my-client-secret" + randomSuffix,
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"client_id":     "tf-test-my-client-id" + randomSuffix,
+		"client_secret": "tf-test-my-client-secret" + randomSuffix,
+		"custom_domain": "tf-test-my-custom-domain" + randomSuffix,
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -83,6 +100,46 @@ func TestAccLookerInstance_lookerInstanceBasicExample(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
+			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccLookerInstance_lookerInstanceForceDeleteExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_looker_instance.looker-instance", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_looker_instance.looker-instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "name", "oauth_config", "region"},
+			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccLookerInstance_lookerInstanceFullExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_looker_instance.looker-instance", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_looker_instance.looker-instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "name", "oauth_config", "region"},
 			},
 			{
 				ResourceName:       "google_looker_instance.looker-instance",
@@ -109,40 +166,19 @@ resource "google_looker_instance" "looker-instance" {
 `, context)
 }
 
-func TestAccLookerInstance_lookerInstanceFullExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"client_id":     "tf-test-my-client-id" + randomSuffix,
-		"client_secret": "tf-test-my-client-secret" + randomSuffix,
-		"instance_name": "tf-test-my-instance" + randomSuffix,
-		"random_suffix": randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckLookerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccLookerInstance_lookerInstanceFullExample(context),
-			},
-			{
-				ResourceName:            "google_looker_instance.looker-instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
-			},
-			{
-				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
+func testAccLookerInstance_lookerInstanceForceDeleteExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_looker_instance" "looker-instance" {
+  name              = "%{instance_name}"
+  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
+  region            = "us-central1"
+  oauth_config {
+    client_id = "%{client_id}"
+    client_secret = "%{client_secret}"
+  }
+  deletion_policy = "FORCE"
+}
+`, context)
 }
 
 func testAccLookerInstance_lookerInstanceFullExample(context map[string]interface{}) string {
@@ -186,59 +222,11 @@ resource "google_looker_instance" "looker-instance" {
   oauth_config {
     client_id = "%{client_id}"
     client_secret = "%{client_secret}"
-  }  
-}
-`, context)
-}
-
-func TestAccLookerInstance_lookerInstanceFipsExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"client_id":     "tf-test-my-client-id" + randomSuffix,
-		"client_secret": "tf-test-my-client-secret" + randomSuffix,
-		"instance_name": "tf-test-my-instance-fips" + randomSuffix,
-		"random_suffix": randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckLookerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccLookerInstance_lookerInstanceFipsExample(context),
-			},
-			{
-				ResourceName:            "google_looker_instance.looker-instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
-			},
-			{
-				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccLookerInstance_lookerInstanceFipsExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_looker_instance" "looker-instance" {
-  name               = "%{instance_name}"
-  platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
-  region             = "us-central1"
-  public_ip_enabled  = true
-  fips_enabled = true
-  oauth_config {
-    client_id = "%{client_id}"
-    client_secret = "%{client_secret}"
-  }  
+  }
+  custom_domain {
+    domain = "%{custom_domain}.com"
+  }
+  deletion_policy = "FORCE"
 }
 `, context)
 }
@@ -291,6 +279,7 @@ resource "google_looker_instance" "looker-instance" {
   region             = "us-central1"
   private_ip_enabled = true
   public_ip_enabled  = false
+  fips_enabled       = true
   reserved_range     = "${data.google_compute_global_address.looker_range.name}"
   consumer_network   = data.google_compute_network.looker_network.id
   admin_settings {
@@ -348,62 +337,6 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
   crypto_key_id = "%{kms_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-looker.iam.gserviceaccount.com"
-}
-`, context)
-}
-
-func TestAccLookerInstance_lookerInstanceCustomDomainExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"client_id":     "tf-test-my-client-id" + randomSuffix,
-		"client_secret": "tf-test-my-client-secret" + randomSuffix,
-		"custom_domain": "tf-test-my-custom-domain" + randomSuffix,
-		"instance_name": "tf-test-my-instance" + randomSuffix,
-		"random_suffix": randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckLookerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccLookerInstance_lookerInstanceCustomDomainExample(context),
-			},
-			{
-				ResourceName:            "google_looker_instance.looker-instance",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
-			},
-			{
-				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccLookerInstance_lookerInstanceCustomDomainExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_looker_instance" "looker-instance" {
-  name              = "%{instance_name}"
-  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
-  region            = "us-central1"
-  oauth_config {
-    client_id = "%{client_id}"
-    client_secret = "%{client_secret}"
-  }
-  // After your Looker (Google Cloud core) instance has been created, you can set up, view information about, or delete a custom domain for your instance. 
-  // Therefore 2 terraform applies, one to create the instance, then another to set up the custom domain. 
-  custom_domain {
-    domain = "%{custom_domain}.com"
-  }
 }
 `, context)
 }
@@ -482,8 +415,18 @@ resource "google_looker_instance" "looker-instance" {
 `, context)
 }
 
-func TestAccLookerInstance_lookerInstanceForceDeleteExample(t *testing.T) {
+func TestAccLookerInstance_lookerInstancePscUpdateExample(t *testing.T) {
 	t.Parallel()
+	resourcemanager.BootstrapIamMembers(t, []resourcemanager.IamMember{
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-looker.iam.gserviceaccount.com",
+			Role:   "roles/storage.objectAdmin",
+		},
+		{
+			Member: "serviceAccount:service-{project_number}@gcp-sa-looker.iam.gserviceaccount.com",
+			Role:   "roles/cloudkms.cryptoKeyEncrypterDecrypter",
+		},
+	})
 
 	randomSuffix := acctest.RandString(t, 10)
 
@@ -494,19 +437,76 @@ func TestAccLookerInstance_lookerInstanceForceDeleteExample(t *testing.T) {
 		"random_suffix": randomSuffix,
 	}
 
+	context_1 := map[string]interface{}{
+		"client_id":     "tf-test-my-client-id" + randomSuffix,
+		"client_secret": "tf-test-my-client-secret" + randomSuffix,
+		"instance_name": "tf-test-my-instance" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"bucket_name":       "tf-test-looker-export" + randomSuffix,
+		"client_id":         "tf-test-my-client-id" + randomSuffix,
+		"client_secret":     "tf-test-my-client-secret" + randomSuffix,
+		"instance_name":     "tf-test-my-instance" + randomSuffix,
+		"kms_key_name":      "tf-test-looker-key" + randomSuffix,
+		"kms_key_ring_name": "tf-test-looker-keyring" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckLookerInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLookerInstance_lookerInstanceForceDeleteExample(context),
+				Config: testAccLookerInstance_lookerInstancePscUpdateExample(context),
 			},
 			{
 				ResourceName:            "google_looker_instance.looker-instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "name", "oauth_config", "region"},
+				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
+			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccLookerInstance_lookerInstancePscUpdateControlledEgressExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_looker_instance.looker-instance", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_looker_instance.looker-instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
+			},
+			{
+				ResourceName:       "google_looker_instance.looker-instance",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccLookerInstance_lookerInstancePscUpdatePeriodicExportExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_looker_instance.looker-instance", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_looker_instance.looker-instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
 			},
 			{
 				ResourceName:       "google_looker_instance.looker-instance",
@@ -518,17 +518,119 @@ func TestAccLookerInstance_lookerInstanceForceDeleteExample(t *testing.T) {
 	})
 }
 
-func testAccLookerInstance_lookerInstanceForceDeleteExample(context map[string]interface{}) string {
+func testAccLookerInstance_lookerInstancePscUpdateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+provider "google" {
+  prefer_regional_endpoints = true
+}
+
 resource "google_looker_instance" "looker-instance" {
   name              = "%{instance_name}"
-  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
+  platform_edition  = "LOOKER_CORE_ENTERPRISE_ANNUAL"
   region            = "us-central1"
+  public_ip_enabled = true
+  psc_enabled       = true
+
+  psc_config {
+    allowed_vpcs = []
+  }
+
   oauth_config {
-    client_id = "%{client_id}"
+    client_id     = "%{client_id}"
     client_secret = "%{client_secret}"
   }
-  deletion_policy = "FORCE"
+}
+`, context)
+}
+
+func testAccLookerInstance_lookerInstancePscUpdateControlledEgressExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  prefer_regional_endpoints = true
+}
+
+resource "google_looker_instance" "looker-instance" {
+  name              = "%{instance_name}"
+  platform_edition  = "LOOKER_CORE_ENTERPRISE_ANNUAL"
+  region            = "us-central1"
+  public_ip_enabled = true
+  psc_enabled       = true
+
+  psc_config {
+    allowed_vpcs = []
+  }
+
+  controlled_egress_enabled = true
+
+  controlled_egress_config {
+    marketplace_enabled = true
+    egress_fqdns        = ["google.com", "github.com"]
+  }
+
+  oauth_config {
+    client_id     = "%{client_id}"
+    client_secret = "%{client_secret}"
+  }
+}
+`, context)
+}
+
+func testAccLookerInstance_lookerInstancePscUpdatePeriodicExportExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  prefer_regional_endpoints = true
+}
+
+resource "google_storage_bucket" "export" {
+  name          = "%{bucket_name}"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_kms_key_ring" "keyring" {
+  name     = "%{kms_key_ring_name}"
+  location = "us-west1"
+}
+
+resource "google_kms_crypto_key" "key" {
+  name     = "%{kms_key_name}"
+  key_ring = google_kms_key_ring.keyring.id
+}
+
+resource "google_looker_instance" "looker-instance" {
+  name              = "%{instance_name}"
+  platform_edition  = "LOOKER_CORE_ENTERPRISE_ANNUAL"
+  region            = "us-central1"
+  public_ip_enabled = true
+  psc_enabled       = true
+
+  psc_config {
+    allowed_vpcs = []
+  }
+
+  controlled_egress_enabled = true
+
+  controlled_egress_config {
+    marketplace_enabled = true
+    egress_fqdns        = ["google.com", "github.com"]
+  }
+
+  periodic_export_config {
+    gcs_uri = "gs://${google_storage_bucket.export.name}"
+    kms_key = google_kms_crypto_key.key.id
+
+    start_time {
+      hours   = 12
+      minutes = 30
+      seconds = 0
+      nanos   = 0
+    }
+  }
+
+  oauth_config {
+    client_id     = "%{client_id}"
+    client_secret = "%{client_secret}"
+  }
 }
 `, context)
 }
