@@ -280,6 +280,22 @@ one target is given.`,
 								return tpgresource.Hashcode(buf.String())
 							},
 						},
+						"outbound_endpoints": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The list of outbound endpoints to use for queries.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `Specified as a resource path including project and region.
+This should be formatted like
+'projects/{project}/locations/{location}/outboundEndpoints/{endpoint}'`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1229,6 +1245,8 @@ func flattenDNSManagedZoneForwardingConfig(v interface{}, d *schema.ResourceData
 	transformed := make(map[string]interface{})
 	transformed["target_name_servers"] =
 		flattenDNSManagedZoneForwardingConfigTargetNameServers(original["targetNameServers"], d, config)
+	transformed["outbound_endpoints"] =
+		flattenDNSManagedZoneForwardingConfigOutboundEndpoints(original["outboundEndpoints"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDNSManagedZoneForwardingConfigTargetNameServers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1274,6 +1292,29 @@ func flattenDNSManagedZoneForwardingConfigTargetNameServersDomainName(v interfac
 }
 
 func flattenDNSManagedZoneForwardingConfigTargetNameServersForwardingPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDNSManagedZoneForwardingConfigOutboundEndpoints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name": flattenDNSManagedZoneForwardingConfigOutboundEndpointsName(original["name"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDNSManagedZoneForwardingConfigOutboundEndpointsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1587,6 +1628,13 @@ func expandDNSManagedZoneForwardingConfig(v interface{}, d tpgresource.Terraform
 		transformed["targetNameServers"] = transformedTargetNameServers
 	}
 
+	transformedOutboundEndpoints, err := expandDNSManagedZoneForwardingConfigOutboundEndpoints(original["outbound_endpoints"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOutboundEndpoints); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["outboundEndpoints"] = transformedOutboundEndpoints
+	}
+
 	return transformed, nil
 }
 
@@ -1650,6 +1698,35 @@ func expandDNSManagedZoneForwardingConfigTargetNameServersDomainName(v interface
 }
 
 func expandDNSManagedZoneForwardingConfigTargetNameServersForwardingPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDNSManagedZoneForwardingConfigOutboundEndpoints(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDNSManagedZoneForwardingConfigOutboundEndpointsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDNSManagedZoneForwardingConfigOutboundEndpointsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

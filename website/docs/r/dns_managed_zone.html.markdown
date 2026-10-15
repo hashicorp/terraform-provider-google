@@ -556,6 +556,11 @@ The following arguments are supported:
   one target is given.
   Structure is [documented below](#nested_forwarding_config_target_name_servers).
 
+* `outbound_endpoints` -
+  (Optional)
+  The list of outbound endpoints to use for queries.
+  Structure is [documented below](#nested_forwarding_config_outbound_endpoints).
+
 
 <a name="nested_forwarding_config_target_name_servers"></a>The `target_name_servers` block supports:
 
@@ -581,6 +586,14 @@ The following arguments are supported:
   to the Internet. When set to `private`, Cloud DNS will always
   send queries through VPC for this target.
   Possible values are: `default`, `private`.
+
+<a name="nested_forwarding_config_outbound_endpoints"></a>The `outbound_endpoints` block supports:
+
+* `name` -
+  (Required)
+  Specified as a resource path including project and region.
+  This should be formatted like
+  `projects/{project}/locations/{location}/outboundEndpoints/{endpoint}`
 
 <a name="nested_peering_config"></a>The `peering_config` block supports:
 
