@@ -169,6 +169,22 @@ are not available when an alternative name server is specified.`,
 								return tpgresource.Hashcode(buf.String())
 							},
 						},
+						"outbound_endpoints": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The list of outbound endpoints to use for queries.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `Specified as a resource path including project and region.
+This should be formatted like
+'projects/{project}/locations/{location}/outboundEndpoints/{endpoint}'`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -712,6 +728,8 @@ func flattenDNSPolicyAlternativeNameServerConfig(v interface{}, d *schema.Resour
 	transformed := make(map[string]interface{})
 	transformed["target_name_servers"] =
 		flattenDNSPolicyAlternativeNameServerConfigTargetNameServers(original["targetNameServers"], d, config)
+	transformed["outbound_endpoints"] =
+		flattenDNSPolicyAlternativeNameServerConfigOutboundEndpoints(original["outboundEndpoints"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDNSPolicyAlternativeNameServerConfigTargetNameServers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -747,6 +765,29 @@ func flattenDNSPolicyAlternativeNameServerConfigTargetNameServersIpv4Address(v i
 }
 
 func flattenDNSPolicyAlternativeNameServerConfigTargetNameServersForwardingPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDNSPolicyAlternativeNameServerConfigOutboundEndpoints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name": flattenDNSPolicyAlternativeNameServerConfigOutboundEndpointsName(original["name"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDNSPolicyAlternativeNameServerConfigOutboundEndpointsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -846,6 +887,13 @@ func expandDNSPolicyAlternativeNameServerConfig(v interface{}, d tpgresource.Ter
 		transformed["targetNameServers"] = transformedTargetNameServers
 	}
 
+	transformedOutboundEndpoints, err := expandDNSPolicyAlternativeNameServerConfigOutboundEndpoints(original["outbound_endpoints"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOutboundEndpoints); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["outboundEndpoints"] = transformedOutboundEndpoints
+	}
+
 	return transformed, nil
 }
 
@@ -887,6 +935,35 @@ func expandDNSPolicyAlternativeNameServerConfigTargetNameServersIpv4Address(v in
 }
 
 func expandDNSPolicyAlternativeNameServerConfigTargetNameServersForwardingPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDNSPolicyAlternativeNameServerConfigOutboundEndpoints(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDNSPolicyAlternativeNameServerConfigOutboundEndpointsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDNSPolicyAlternativeNameServerConfigOutboundEndpointsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

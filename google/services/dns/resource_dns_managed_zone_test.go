@@ -720,3 +720,96 @@ resource "google_compute_network" "network-1" {
 }
 `, suffix, domain_name, forwarding_path, suffix)
 }
+
+func TestAccDNSManagedZone_outboundEndpointsUpdate(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsManagedZone_outboundEndpointsUpdate(suffix, "endpoint_1"),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.forwarding_zone",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsManagedZone_outboundEndpointsUpdate(suffix, "endpoint_2"),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.forwarding_zone",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDnsManagedZone_outboundEndpointsUpdate(suffix, endpoint string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name                    = "tf-test-dns-oe-net-%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "tf-test-dns-oe-subnet-%s"
+  ip_cidr_range = "10.10.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_subnetwork" "proxy_subnet" {
+  name          = "tf-test-dns-oe-proxy-%s"
+  ip_cidr_range = "10.20.0.0/24"
+  region        = "us-central1"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.default.id
+}
+
+resource "google_dns_outbound_endpoint" "endpoint_1" {
+  name        = "tf-test-dns-oe-1-%s"
+  location    = "us-central1"
+  network     = google_compute_network.default.id
+  subnetwork  = google_compute_subnetwork.default.id
+  endpoint_ip = "10.10.0.5"
+  depends_on  = [google_compute_subnetwork.proxy_subnet]
+}
+
+resource "google_dns_outbound_endpoint" "endpoint_2" {
+  name        = "tf-test-dns-oe-2-%s"
+  location    = "us-central1"
+  network     = google_compute_network.default.id
+  subnetwork  = google_compute_subnetwork.default.id
+  endpoint_ip = "10.10.0.6"
+  depends_on  = [google_compute_subnetwork.proxy_subnet]
+}
+
+resource "google_dns_managed_zone" "forwarding_zone" {
+  name       = "tf-test-forwarding-zone-%s"
+  dns_name   = "onprem.example.com."
+  visibility = "private"
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.default.id
+    }
+  }
+  forwarding_config {
+    target_name_servers {
+      ipv4_address    = "192.168.1.1"
+      forwarding_path = "private"
+    }
+    outbound_endpoints {
+      name = google_dns_outbound_endpoint.%s.id
+    }
+  }
+}
+`, suffix, suffix, suffix, suffix, suffix, suffix, endpoint)
+}

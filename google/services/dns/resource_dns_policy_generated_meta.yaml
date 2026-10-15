@@ -7,6 +7,7 @@ api_service_name: dns.googleapis.com
 api_version: v1
 api_resource_type_kind: Policy
 fields:
+    - api_field: alternativeNameServerConfig.outboundEndpoints.name
     - api_field: alternativeNameServerConfig.targetNameServers.forwardingPath
     - api_field: alternativeNameServerConfig.targetNameServers.ipv4Address
     - api_field: description

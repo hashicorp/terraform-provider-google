@@ -22,6 +22,7 @@ fields:
       provider_only: true
     - field: force_destroy
       provider_only: true
+    - api_field: forwardingConfig.outboundEndpoints.name
     - api_field: forwardingConfig.targetNameServers.domainName
     - api_field: forwardingConfig.targetNameServers.forwardingPath
     - api_field: forwardingConfig.targetNameServers.ipv4Address
