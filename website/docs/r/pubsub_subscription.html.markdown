@@ -533,6 +533,74 @@ resource "google_storage_bucket_iam_member" "admin" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_subscription_push_bigtable&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Subscription Push Bigtable
+
+
+```hcl
+resource "google_bigtable_instance" "example" {
+  name = "example-bt"
+
+  cluster {
+    cluster_id = "example-bt"
+    zone       = "us-central1-b"
+    num_nodes  = 1
+  }
+
+  deletion_protection = false
+}
+
+resource "google_bigtable_app_profile" "example" {
+  instance       = google_bigtable_instance.example.name
+  app_profile_id = "example-profile"
+
+  single_cluster_routing {
+    cluster_id = "example-bt"
+  }
+
+  ignore_warnings = true
+}
+
+resource "google_bigtable_table" "example" {
+  name          = "example-table"
+  instance_name = google_bigtable_instance.example.name
+
+  column_family {
+    family = "data"
+  }
+
+  column_family {
+    family = "pubsub_metadata"
+  }
+}
+
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.id
+
+  bigtable_config {
+    table          = google_bigtable_table.example.id
+    app_profile_id = google_bigtable_app_profile.example.app_profile_id
+    write_metadata = true
+
+    column_family_mapping {
+      delimited_key {
+        key_fields = ["user_id", "event_id"]
+        # base64 encoding of "#"
+        delimiter  = "Iw=="
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_subscription_single_smt&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -716,16 +784,23 @@ The following arguments are supported:
 * `bigquery_config` -
   (Optional)
   If delivery to BigQuery is used with this subscription, this field is used to configure it.
-  Either pushConfig, bigQueryConfig or cloudStorageConfig can be set, but not combined.
-  If all three are empty, then the subscriber will pull and ack messages using API methods.
+  Only one of pushConfig, bigqueryConfig, cloudStorageConfig, or bigtableConfig can be set.
+  If none of them are set, then the subscriber will pull and ack messages using API methods.
   Structure is [documented below](#nested_bigquery_config).
 
 * `cloud_storage_config` -
   (Optional)
   If delivery to Cloud Storage is used with this subscription, this field is used to configure it.
-  Either pushConfig, bigQueryConfig or cloudStorageConfig can be set, but not combined.
-  If all three are empty, then the subscriber will pull and ack messages using API methods.
+  Only one of pushConfig, bigqueryConfig, cloudStorageConfig, or bigtableConfig can be set.
+  If none of them are set, then the subscriber will pull and ack messages using API methods.
   Structure is [documented below](#nested_cloud_storage_config).
+
+* `bigtable_config` -
+  (Optional)
+  If delivery to Bigtable is used with this subscription, this field is used to configure it.
+  Only one of pushConfig, bigqueryConfig, cloudStorageConfig, or bigtableConfig can be set.
+  If none of them are set, then the subscriber will pull and ack messages using API methods.
+  Structure is [documented below](#nested_bigtable_config).
 
 * `push_config` -
   (Optional)
@@ -951,6 +1026,78 @@ The following arguments are supported:
 * `state` -
   (Output)
   Output only. Placeholder to allow the empty text_config block.
+
+<a name="nested_bigtable_config"></a>The `bigtable_config` block supports:
+
+* `table` -
+  (Required)
+  The unique name of the table to write messages to, of the form
+  `projects/{project}/instances/{instance}/tables/{table}`.
+
+* `app_profile_id` -
+  (Optional)
+  The app profile to use for the Bigtable writes. If not specified, the "default" application
+  profile will be used. The app profile must use single-cluster routing.
+
+* `service_account_email` -
+  (Optional)
+  The service account to use to write to Bigtable. The subscription creator or updater that
+  specifies this field must have `iam.serviceAccounts.actAs` permission on the service account.
+  If not specified, the Pub/Sub [service agent](https://cloud.google.com/iam/docs/service-agents),
+  service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.
+
+* `write_metadata` -
+  (Optional)
+  When true, write the subscription name, messageId, publishTime, attributes, and orderingKey to
+  additional columns in the table under the `pubsub_metadata` column family. The subscription name,
+  messageId, and publishTime fields are put in their own columns while all other message properties
+  (other than data) are written to a JSON object in the attributes column.
+
+* `column_family_mapping` -
+  (Optional)
+  Configuration that allows writing row keys and/or columns based on fields in the input message.
+  The input message format must be JSON if this field is set.
+  If this field is set, top-level message fields are written to the `data` column family with
+  the field name as the column qualifier by default, or to an existing column family whose name
+  matches the field name. The cell timestamp is the message publish time.
+  If this field is not set, the row key is constructed from the subscription name, message ID hash,
+  and message ID delimited by `#`, and the message bytes are written to the `data` column family
+  with an empty-string column qualifier.
+  Structure is [documented below](#nested_bigtable_config_column_family_mapping).
+
+* `state` -
+  (Output)
+  An output-only field that indicates whether or not the subscription can receive messages.
+
+
+<a name="nested_bigtable_config_column_family_mapping"></a>The `column_family_mapping` block supports:
+
+* `row_key_schema` -
+  (Optional)
+  If set, the row key is constructed from the field names of the table's
+  [structured row key](https://cloud.google.com/bigtable/docs/manage-row-key-schemas).
+  If a field is nullable in the structured row key, it need not be present in the message;
+  null will be used instead.
+
+* `delimited_key` -
+  (Optional)
+  If set, the row key is constructed from the given key fields and delimiter. All key fields
+  must be present in the message; otherwise, the message remains in the subscription backlog.
+  Structure is [documented below](#nested_bigtable_config_column_family_mapping_delimited_key).
+
+
+<a name="nested_bigtable_config_column_family_mapping_delimited_key"></a>The `delimited_key` block supports:
+
+* `key_fields` -
+  (Required)
+  The key fields to construct the row key from. The fields must be present in the message
+  as top-level fields; JSON path expressions will not traverse into nested objects.
+
+* `delimiter` -
+  (Optional)
+  The byte sequence used to delimit concatenated key fields, as a base64-encoded string
+  (for example, `Iw==` for `#`). Must be specified if multiple key fields are used. The
+  delimiter must contain at least 1 character and at most 50 characters.
 
 <a name="nested_push_config"></a>The `push_config` block supports:
 

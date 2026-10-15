@@ -14,6 +14,14 @@ fields:
     - api_field: bigqueryConfig.useTableSchema
     - api_field: bigqueryConfig.useTopicSchema
     - api_field: bigqueryConfig.writeMetadata
+    - api_field: bigtableConfig.appProfileId
+    - api_field: bigtableConfig.columnFamilyMapping.delimitedKey.delimiter
+    - api_field: bigtableConfig.columnFamilyMapping.delimitedKey.keyFields
+    - api_field: bigtableConfig.columnFamilyMapping.rowKeySchema
+    - api_field: bigtableConfig.serviceAccountEmail
+    - api_field: bigtableConfig.state
+    - api_field: bigtableConfig.table
+    - api_field: bigtableConfig.writeMetadata
     - api_field: cloudStorageConfig.avroConfig.useTopicSchema
     - api_field: cloudStorageConfig.avroConfig.writeMetadata
     - api_field: cloudStorageConfig.bucket
