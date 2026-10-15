@@ -8,7 +8,7 @@
 package generated
 
 // specifies the default level of parallelism for per-service-package test builds, unless overridden in ServiceParallelism below
-const val DefaultServiceParallelism = 12
+const val DefaultServiceParallelism = 20
 
 var ServiceParallelism = mapOf(
     // Packages with quota failures in nightly tests are kept at the previous default of 6.
@@ -19,5 +19,7 @@ var ServiceParallelism = mapOf(
     // osconfig: OS Config API quota exhausted
     "osconfig" to 6,
 
-    "looker" to 1
+    "looker" to 1,
+    // dataprocmetastore: ;Create Bucket quota limit limit exceeded on the Google Cloud project. Please slow down execution and try again.
+    "dataprocmetastore" to 6
 )

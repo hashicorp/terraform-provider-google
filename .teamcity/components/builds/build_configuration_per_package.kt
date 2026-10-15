@@ -51,10 +51,7 @@ class PackageDetails(private val packageName: String, private val displayName: S
         val testPrefix = "TestAcc"
         val testTimeout = "12"
 
-        var parallelism = DefaultServiceParallelism
-        if (ServiceParallelism.containsKey(packageName)){
-            parallelism = ServiceParallelism.getValue(packageName)
-        }
+        val parallelism = ServiceParallelism[packageName] ?: DefaultServiceParallelism
 
         return BuildType {
             // TC needs a consistent ID for dynamically generated packages
