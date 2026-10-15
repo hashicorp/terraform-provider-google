@@ -1,0 +1,3 @@
+```release-note:new-resource
+dns: added `google_dns_outbound_endpoint`
+```
