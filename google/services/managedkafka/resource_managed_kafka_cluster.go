@@ -108,7 +108,7 @@ func ResourceManagedKafkaCluster() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(150 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -250,10 +250,12 @@ func ResourceManagedKafkaCluster() *schema.Resource {
 				},
 			},
 			"kafka_version": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				Description: `The Apache Kafka version of the cluster (for example, '3.7.x', '4.3.x'). If not specified during cluster creation, defaults to '3.7.x'.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `The Apache Kafka version of the cluster. Specifically, this value is the finalized metadata version.
+If not specified during cluster creation, defaults to '3.7.x'.
+If you manage Kafka versions outside of Terraform, leave this field unset to avoid a permanent diff.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,

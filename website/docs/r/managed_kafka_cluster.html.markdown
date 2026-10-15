@@ -54,7 +54,6 @@ resource "google_managed_kafka_cluster" "example" {
   labels = {
     key = "value"
   }
-  kafka_version = "3.7.x"
 }
 
 data "google_project" "project" {
@@ -222,7 +221,9 @@ The following arguments are supported:
 
 * `kafka_version` -
   (Optional)
-  The Apache Kafka version of the cluster (for example, `3.7.x`, `4.3.x`). If not specified during cluster creation, defaults to `3.7.x`.
+  The Apache Kafka version of the cluster. Specifically, this value is the finalized metadata version.
+  If not specified during cluster creation, defaults to `3.7.x`.
+  If you manage Kafka versions outside of Terraform, leave this field unset to avoid a permanent diff.
 
 * `tls_config` -
   (Optional)
@@ -374,7 +375,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 60 minutes.
-- `update` - Default is 30 minutes.
+- `update` - Default is 150 minutes.
 - `delete` - Default is 30 minutes.
 
 ## Import
