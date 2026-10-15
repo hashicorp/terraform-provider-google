@@ -1,0 +1,31 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dns_outbound_endpoint
+generation_type: mmv1
+source_file: products/dns/OutboundEndpoint.yaml
+api_service_name: dns.googleapis.com
+api_version: v1
+api_resource_type_kind: OutboundEndpoint
+autogen_status: true
+autogen_version: 2
+fields:
+    - api_field: annotations
+    - api_field: createTime
+    - api_field: description
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: endpointIp
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - api_field: network
+    - api_field: subnetwork
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
