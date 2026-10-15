@@ -58,7 +58,7 @@ func listAndActionComputeRegionBackendService(action sweeper.ResourceAction) err
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	// Build URL substitution maps individually to ensure proper formatting
-	intermediateValues := make([]map[string]string, 6)
+	intermediateValues := make([]map[string]string, 7)
 	intermediateValues[0] = map[string]string{}
 	intermediateValues[0]["region"] = "us-west2"
 	intermediateValues[1] = map[string]string{}
@@ -71,6 +71,8 @@ func listAndActionComputeRegionBackendService(action sweeper.ResourceAction) err
 	intermediateValues[4]["region"] = "us-west1"
 	intermediateValues[5] = map[string]string{}
 	intermediateValues[5]["region"] = "europe-north1"
+	intermediateValues[6] = map[string]string{}
+	intermediateValues[6]["region"] = "us-east4"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {

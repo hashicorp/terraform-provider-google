@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where removing `security_policy` from an external UDP `google_compute_region_backend_service` failed
+```
