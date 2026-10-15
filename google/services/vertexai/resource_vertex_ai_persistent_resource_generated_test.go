@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -68,6 +69,11 @@ func TestAccVertexAIPersistentResource_vertexAiPersistentResourceExample(t *test
 		"random_suffix":          randomSuffix,
 	}
 
+	context_1 := map[string]interface{}{
+		"persistent_resource_id": "tf-test-example-persistent-resource" + randomSuffix,
+		"random_suffix":          randomSuffix,
+	}
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -75,6 +81,26 @@ func TestAccVertexAIPersistentResource_vertexAiPersistentResourceExample(t *test
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIPersistentResource_vertexAiPersistentResourceExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_persistent_resource.persistent_resource",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_persistent_resource.persistent_resource",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccVertexAIPersistentResource_vertexAiPersistentResourceUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_vertex_ai_persistent_resource.persistent_resource", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_vertex_ai_persistent_resource.persistent_resource",
@@ -101,10 +127,40 @@ resource "google_vertex_ai_persistent_resource" "persistent_resource" {
 
   resource_pools {
     machine_spec {
-      machine_type = "n1-standard-4"
+      machine_type = "n1-standard-8"
+    }
+
+    replica_count = 2
+  }
+
+  resource_runtime_spec {
+    ray_spec {
+      image_uri = "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-33.py310:latest"
+    }
+  }
+}
+`, context)
+}
+
+func testAccVertexAIPersistentResource_vertexAiPersistentResourceUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_persistent_resource" "persistent_resource" {
+  name         = "%{persistent_resource_id}"
+  location     = "us-central1"
+  display_name = "Example persistent resource"
+
+  resource_pools {
+    machine_spec {
+      machine_type = "n1-standard-8"
     }
 
     replica_count = 1
+  }
+
+  resource_runtime_spec {
+    ray_spec {
+      image_uri = "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-33.py310:latest"
+    }
   }
 }
 `, context)

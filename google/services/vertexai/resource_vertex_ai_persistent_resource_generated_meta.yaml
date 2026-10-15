@@ -37,6 +37,7 @@ fields:
     - api_field: resourcePools.replicaCount
     - api_field: resourcePools.usedReplicaCount
     - api_field: resourceRuntime.accessUris
+    - api_field: resourceRuntimeSpec.raySpec.imageUri
     - api_field: resourceRuntimeSpec.serviceAccountSpec.enableCustomServiceAccount
     - api_field: satisfiesPzi
     - api_field: satisfiesPzs

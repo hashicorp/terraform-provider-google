@@ -177,6 +177,9 @@ func ReplaceVarsForTest(config *transport_tpg.Config, rs *terraform.ResourceStat
 
 	if strings.Contains(linkTmpl, "{{region}}") {
 		region = GetResourceNameFromSelfLink(rs.Primary.Attributes["region"])
+		if region == "" {
+			region = GetResourceNameFromSelfLink(rs.Primary.Attributes["location"])
+		}
 	}
 
 	if strings.Contains(linkTmpl, "{{zone}}") {

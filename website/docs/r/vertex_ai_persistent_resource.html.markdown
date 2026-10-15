@@ -47,10 +47,16 @@ resource "google_vertex_ai_persistent_resource" "persistent_resource" {
 
   resource_pools {
     machine_spec {
-      machine_type = "n1-standard-4"
+      machine_type = "n1-standard-8"
     }
 
-    replica_count = 1
+    replica_count = 2
+  }
+
+  resource_runtime_spec {
+    ray_spec {
+      image_uri = "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-33.py310:latest"
+    }
   }
 }
 ```
@@ -487,6 +493,11 @@ The following arguments are supported:
   Configuration for the use of custom service account to run the workloads.
   Structure is [documented below](#nested_resource_runtime_spec_service_account_spec).
 
+* `ray_spec` -
+  (Optional)
+  Configuration information for the Ray cluster.
+  Structure is [documented below](#nested_resource_runtime_spec_ray_spec).
+
 
 <a name="nested_resource_runtime_spec_service_account_spec"></a>The `service_account_spec` block supports:
 
@@ -496,6 +507,17 @@ The following arguments are supported:
   workloads (for example, Vertex Jobs) on the resource.
   Otherwise, uses the [Vertex AI Custom Code Service
   Agent](https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents).
+
+<a name="nested_resource_runtime_spec_ray_spec"></a>The `ray_spec` block supports:
+
+* `image_uri` -
+  (Optional)
+  Default image for user to choose a preferred ML framework
+  (for example, TensorFlow or Pytorch) by choosing from [Vertex prebuilt
+  images](https://cloud.google.com/vertex-ai/docs/training/pre-built-containers).
+  Either this or the resource_pool_images is required. Use this field if
+  you need all the resource pools to have the same Ray image. Otherwise, use
+  the `resource_pool_images` field.
 
 ## Attributes Reference
 
