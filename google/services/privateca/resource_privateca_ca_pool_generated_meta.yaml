@@ -10,6 +10,7 @@ fields:
     - field: effective_labels
       provider_only: true
     - api_field: encryptionSpec.cloudKmsKey
+    - api_field: issuancePolicy.allowRequesterSpecifiedNotBeforeTime
     - api_field: issuancePolicy.allowedIssuanceModes.allowConfigBasedIssuance
     - api_field: issuancePolicy.allowedIssuanceModes.allowCsrBasedIssuance
     - api_field: issuancePolicy.allowedKeyTypes.ellipticCurve.signatureAlgorithm

@@ -762,6 +762,14 @@ fractional digits, terminated by 's'. Example: "3.5s".`,
 				Description:  `Immutable. A pem-encoded X.509 certificate signing request (CSR).`,
 				ExactlyOneOf: []string{"config", "pem_csr"},
 			},
+			"requested_not_before_time": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `The requested not_before_time of this Certificate. This field may only be set
+if the allow_requester_specified_not_before_time field is set to true for the
+issuing CaPool.`,
+			},
 			"certificate_description": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -1416,6 +1424,12 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("lifetime"); !tpgresource.IsEmptyValue(reflect.ValueOf(lifetimeProp)) && (ok || !reflect.DeepEqual(v, lifetimeProp)) {
 		obj["lifetime"] = lifetimeProp
 	}
+	requestedNotBeforeTimeProp, err := expandPrivatecaCertificateRequestedNotBeforeTime(d.Get("requested_not_before_time"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("requested_not_before_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(requestedNotBeforeTimeProp)) && (ok || !reflect.DeepEqual(v, requestedNotBeforeTimeProp)) {
+		obj["requestedNotBeforeTime"] = requestedNotBeforeTimeProp
+	}
 	certificateTemplateProp, err := expandPrivatecaCertificateCertificateTemplate(d.Get("certificate_template"), d, config)
 	if err != nil {
 		return err
@@ -1803,6 +1817,10 @@ func flattenPrivatecaCertificateIssuerCertificateAuthority(v interface{}, d *sch
 }
 
 func flattenPrivatecaCertificateLifetime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCertificateRequestedNotBeforeTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2529,7 +2547,7 @@ func flattenPrivatecaCertificateConfig(v interface{}, d *schema.ResourceData, co
 
 func flattenPrivatecaCertificateConfigX509Config(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		v = make(map[string]interface{})
+		return nil
 	}
 	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
@@ -2716,6 +2734,10 @@ func flattenPrivatecaCertificateEffectiveLabels(v interface{}, d *schema.Resourc
 }
 
 func expandPrivatecaCertificateLifetime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPrivatecaCertificateRequestedNotBeforeTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3095,6 +3117,9 @@ func ResourcePrivatecaCertificateFlatten(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err = d.Set("lifetime", flattenPrivatecaCertificateLifetime(res["lifetime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err = d.Set("requested_not_before_time", flattenPrivatecaCertificateRequestedNotBeforeTime(res["requestedNotBeforeTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err = d.Set("revocation_details", flattenPrivatecaCertificateRevocationDetails(res["revocationDetails"], d, config)); err != nil {

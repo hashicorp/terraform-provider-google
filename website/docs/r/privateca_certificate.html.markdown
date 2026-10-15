@@ -608,6 +608,114 @@ resource "google_privateca_certificate" "default" {
   depends_on = [google_privateca_certificate_authority.default]
 }
 ```
+## Example Usage - Privateca Certificate With Requested Not Before Time
+
+
+```hcl
+resource "google_privateca_ca_pool" "default" {
+  location = "us-central1"
+  name     = "my-pool"
+  tier     = "ENTERPRISE"
+  issuance_policy {
+    allow_requester_specified_not_before_time = true
+  }
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority_id = "my-authority"
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+}
+
+resource "google_privateca_certificate" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority = google_privateca_certificate_authority.default.certificate_authority_id
+  lifetime = "86000s"
+  name = "my-certificate"
+  requested_not_before_time = google_privateca_certificate_authority.default.update_time
+  config {
+    subject_config  {
+      subject {
+        common_name = "san1.example.com"
+        country_code = "us"
+        organization = "google"
+        organizational_unit = "enterprise"
+        locality = "mountain view"
+        province = "california"
+        street_address = "1600 amphitheatre parkway"
+      } 
+      subject_alt_name {
+        email_addresses = ["email@example.com"]
+        ip_addresses = ["127.0.0.1"]
+        uris = ["http://www.ietf.org/rfc/rfc3986.txt"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          crl_sign = false
+          decipher_only = false
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
+      name_constraints {
+        critical                  = true
+        permitted_dns_names       = ["*.example.com"]
+        excluded_dns_names        = ["*.deny.example.com"]
+        permitted_ip_ranges       = ["10.0.0.0/8"]
+        excluded_ip_ranges        = ["10.1.1.0/24"]
+        permitted_email_addresses = [".example.com"]
+        excluded_email_addresses  = [".deny.example.com"]
+        permitted_uris            = [".example.com"]
+        excluded_uris             = [".deny.example.com"]
+      }
+    }
+    public_key {
+      format = "PEM"
+      key = filebase64("test-fixtures/rsa_public.pem")
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -633,6 +741,12 @@ The following arguments are supported:
   The desired lifetime of the CA certificate. Used to create the "notBeforeTime" and
   "notAfterTime" fields inside an X.509 certificate. A duration in seconds with up to nine
   fractional digits, terminated by 's'. Example: "3.5s".
+
+* `requested_not_before_time` -
+  (Optional)
+  The requested not_before_time of this Certificate. This field may only be set
+  if the allow_requester_specified_not_before_time field is set to true for the
+  issuing CaPool.
 
 * `certificate_template` -
   (Optional)

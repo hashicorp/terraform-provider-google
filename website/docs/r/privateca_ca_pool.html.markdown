@@ -248,6 +248,13 @@ The following arguments are supported:
   time minus the backdate_duration. The not_after_time will be adjusted to preserve the
   requested lifetime. The backdate_duration must be less than or equal to 48 hours.
 
+* `allow_requester_specified_not_before_time` -
+  (Optional)
+  If set to true, allows requesters to specify the requested_not_before_time
+  field when creating a Certificate. Certificates requested with this
+  option enabled will have a 'not_before_time' equal to the value
+  specified in the request.
+
 * `maximum_lifetime` -
   (Optional)
   The maximum lifetime allowed for issued Certificates. Note that if the issuing CertificateAuthority

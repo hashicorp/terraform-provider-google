@@ -187,6 +187,15 @@ customer data will remain unencrypted.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"allow_requester_specified_not_before_time": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `If set to true, allows requesters to specify the requested_not_before_time
+field when creating a Certificate. Certificates requested with this
+option enabled will have a 'not_before_time' equal to the value
+specified in the request.`,
+							ConflictsWith: []string{"issuance_policy.0.backdate_duration"},
+						},
 						"allowed_issuance_modes": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -263,6 +272,7 @@ certificates will be issued with a not_before_time of the issuance time (i.e. th
 time). If set, the certificates will be issued with a not_before_time of the issuance
 time minus the backdate_duration. The not_after_time will be adjusted to preserve the
 requested lifetime. The backdate_duration must be less than or equal to 48 hours.`,
+							ConflictsWith: []string{"issuance_policy.0.allow_requester_specified_not_before_time"},
 						},
 						"baseline_values": {
 							Type:     schema.TypeList,
@@ -1192,6 +1202,8 @@ func flattenPrivatecaCaPoolIssuancePolicy(v interface{}, d *schema.ResourceData,
 		flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(original["allowedKeyTypes"], d, config)
 	transformed["backdate_duration"] =
 		flattenPrivatecaCaPoolIssuancePolicyBackdateDuration(original["backdateDuration"], d, config)
+	transformed["allow_requester_specified_not_before_time"] =
+		flattenPrivatecaCaPoolIssuancePolicyAllowRequesterSpecifiedNotBeforeTime(original["allowRequesterSpecifiedNotBeforeTime"], d, config)
 	transformed["maximum_lifetime"] =
 		flattenPrivatecaCaPoolIssuancePolicyMaximumLifetime(original["maximumLifetime"], d, config)
 	transformed["allowed_issuance_modes"] =
@@ -1263,6 +1275,10 @@ func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAl
 }
 
 func flattenPrivatecaCaPoolIssuancePolicyBackdateDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCaPoolIssuancePolicyAllowRequesterSpecifiedNotBeforeTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1355,7 +1371,7 @@ func flattenPrivatecaCaPoolIssuancePolicyIdentityConstraintsCelExpressionLocatio
 
 func flattenPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		v = make(map[string]interface{})
+		return nil
 	}
 	original := v.(map[string]interface{})
 	transformed := make(map[string]interface{})
@@ -1481,6 +1497,13 @@ func expandPrivatecaCaPoolIssuancePolicy(v interface{}, d tpgresource.TerraformR
 		return nil, err
 	} else if val := reflect.ValueOf(transformedBackdateDuration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["backdateDuration"] = transformedBackdateDuration
+	}
+
+	transformedAllowRequesterSpecifiedNotBeforeTime, err := expandPrivatecaCaPoolIssuancePolicyAllowRequesterSpecifiedNotBeforeTime(original["allow_requester_specified_not_before_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowRequesterSpecifiedNotBeforeTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowRequesterSpecifiedNotBeforeTime"] = transformedAllowRequesterSpecifiedNotBeforeTime
 	}
 
 	transformedMaximumLifetime, err := expandPrivatecaCaPoolIssuancePolicyMaximumLifetime(original["maximum_lifetime"], d, config)
@@ -1610,6 +1633,10 @@ func expandPrivatecaCaPoolIssuancePolicyAllowedKeyTypesEllipticCurveSignatureAlg
 }
 
 func expandPrivatecaCaPoolIssuancePolicyBackdateDuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPrivatecaCaPoolIssuancePolicyAllowRequesterSpecifiedNotBeforeTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
