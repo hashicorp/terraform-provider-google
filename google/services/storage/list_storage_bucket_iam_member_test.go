@@ -99,15 +99,17 @@ resource "google_storage_bucket_iam_member" "member" {
 }
 
 resource "google_storage_bucket_iam_member" "same-role" {
-  bucket = google_storage_bucket.bucket.name
-  role   = "%s"
-  member = "serviceAccount:${google_service_account.other-account.email}"
+  bucket     = google_storage_bucket.bucket.name
+  role       = "%s"
+  member     = "serviceAccount:${google_service_account.other-account.email}"
+  depends_on = [google_storage_bucket_iam_member.member]
 }
 
 resource "google_storage_bucket_iam_member" "same-member" {
-  bucket = google_storage_bucket.bucket.name
-  role   = "%s"
-  member = "serviceAccount:${google_service_account.test-account.email}"
+  bucket     = google_storage_bucket.bucket.name
+  role       = "%s"
+  member     = "serviceAccount:${google_service_account.test-account.email}"
+  depends_on = [google_storage_bucket_iam_member.same-role]
 }
 `, bucket, account, otherAccount, role, role, otherRole)
 }
