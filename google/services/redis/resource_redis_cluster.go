@@ -164,9 +164,8 @@ projects/{projectId}/locations/{locationId}/clusters/{clusterId}`,
 			"authorization_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"AUTH_MODE_UNSPECIFIED", "AUTH_MODE_IAM_AUTH", "AUTH_MODE_DISABLED", ""}),
-				Description:  `Optional. The authorization mode of the Redis cluster. If not provided, auth feature is disabled for the cluster. Default value: "AUTH_MODE_DISABLED" Possible values: ["AUTH_MODE_UNSPECIFIED", "AUTH_MODE_IAM_AUTH", "AUTH_MODE_DISABLED"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"AUTH_MODE_UNSPECIFIED", "AUTH_MODE_IAM_AUTH", "AUTH_MODE_DISABLED", "AUTH_MODE_TOKEN_AUTH", ""}),
+				Description:  `Optional. The authorization mode of the Redis cluster. If not provided, auth feature is disabled for the cluster. Default value: "AUTH_MODE_DISABLED" Possible values: ["AUTH_MODE_UNSPECIFIED", "AUTH_MODE_IAM_AUTH", "AUTH_MODE_DISABLED", "AUTH_MODE_TOKEN_AUTH"]`,
 				Default:      "AUTH_MODE_DISABLED",
 			},
 			"automated_backup_config": {
@@ -1307,6 +1306,12 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("automated_backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, automatedBackupConfigProp)) {
 		obj["automatedBackupConfig"] = automatedBackupConfigProp
 	}
+	authorizationModeProp, err := expandRedisClusterAuthorizationMode(d.Get("authorization_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("authorization_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorizationModeProp)) {
+		obj["authorizationMode"] = authorizationModeProp
+	}
 	aclPolicyProp, err := expandRedisClusterAclPolicy(d.Get("acl_policy"), d, config)
 	if err != nil {
 		return err
@@ -1414,6 +1419,10 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("automated_backup_config") {
 		updateMask = append(updateMask, "automatedBackupConfig")
+	}
+
+	if d.HasChange("authorization_mode") {
+		updateMask = append(updateMask, "authorizationMode")
 	}
 
 	if d.HasChange("acl_policy") {
