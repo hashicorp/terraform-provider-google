@@ -298,6 +298,7 @@ pool. Will replace idle_replica_count.`,
 			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Description: `The display name of the PersistentResource.
 The name can be up to 128 characters long and can consist of any UTF-8
 characters.`,
@@ -447,6 +448,28 @@ Example: ['vertex-ai-ip-range'].`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"ray_spec": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Configuration information for the Ray cluster.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"image_uri": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+										Description: `Default image for user to choose a preferred ML framework
+(for example, TensorFlow or Pytorch) by choosing from [Vertex prebuilt
+images](https://cloud.google.com/vertex-ai/docs/training/pre-built-containers).
+Either this or the resource_pool_images is required. Use this field if
+you need all the resource pools to have the same Ray image. Otherwise, use
+the 'resource_pool_images' field.`,
+									},
+								},
+							},
+						},
 						"service_account_spec": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -878,59 +901,16 @@ func resourceVertexAIPersistentResourceUpdate(d *schema.ResourceData, meta inter
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandVertexAIPersistentResourceName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
-	displayNameProp, err := expandVertexAIPersistentResourceDisplayName(d.Get("display_name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
-		obj["displayName"] = displayNameProp
-	}
 	resourcePoolsProp, err := expandVertexAIPersistentResourceResourcePools(d.Get("resource_pools"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("resource_pools"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, resourcePoolsProp)) {
 		obj["resourcePools"] = resourcePoolsProp
 	}
-	networkProp, err := expandVertexAIPersistentResourceNetwork(d.Get("network"), d, config)
+
+	obj, err = resourceVertexAIPersistentResourceUpdateEncoder(d, meta, obj)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
-		obj["network"] = networkProp
-	}
-	pscInterfaceConfigProp, err := expandVertexAIPersistentResourcePscInterfaceConfig(d.Get("psc_interface_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("psc_interface_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pscInterfaceConfigProp)) {
-		obj["pscInterfaceConfig"] = pscInterfaceConfigProp
-	}
-	encryptionSpecProp, err := expandVertexAIPersistentResourceEncryptionSpec(d.Get("encryption_spec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
-		obj["encryptionSpec"] = encryptionSpecProp
-	}
-	resourceRuntimeSpecProp, err := expandVertexAIPersistentResourceResourceRuntimeSpec(d.Get("resource_runtime_spec"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("resource_runtime_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, resourceRuntimeSpecProp)) {
-		obj["resourceRuntimeSpec"] = resourceRuntimeSpecProp
-	}
-	reservedIpRangesProp, err := expandVertexAIPersistentResourceReservedIpRanges(d.Get("reserved_ip_ranges"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("reserved_ip_ranges"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, reservedIpRangesProp)) {
-		obj["reservedIpRanges"] = reservedIpRangesProp
-	}
-	effectiveLabelsProp, err := expandVertexAIPersistentResourceEffectiveLabels(d.Get("effective_labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
-		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/persistentResources/{{name}}")
@@ -943,27 +923,51 @@ func resourceVertexAIPersistentResourceUpdate(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Updating PersistentResource %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+	updateMask := []string{}
+
+	if d.HasChange("resource_pools") {
+		updateMask = append(updateMask, "resource_pools.replica_count")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PUT",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-		Headers:   headers,
-	})
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
 
-	if err != nil {
-		return fmt.Errorf("Error updating PersistentResource %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating PersistentResource %q: %#v", d.Id(), res)
+		if err != nil {
+			return fmt.Errorf("Error updating PersistentResource %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating PersistentResource %q: %#v", d.Id(), res)
+		}
+
+		// Derive location for use in REP endpoints
+		endpointLocation := tpgresource.LocationFromId(d.Id())
+		err = VertexAIOperationWaitTime(
+			config, res, project, endpointLocation, "Updating PersistentResource", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return resourceVertexAIPersistentResourceRead(d, meta)
@@ -1303,6 +1307,8 @@ func flattenVertexAIPersistentResourceResourceRuntimeSpec(v interface{}, d *sche
 	transformed := make(map[string]interface{})
 	transformed["service_account_spec"] =
 		flattenVertexAIPersistentResourceResourceRuntimeSpecServiceAccountSpec(original["serviceAccountSpec"], d, config)
+	transformed["ray_spec"] =
+		flattenVertexAIPersistentResourceResourceRuntimeSpecRaySpec(original["raySpec"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIPersistentResourceResourceRuntimeSpecServiceAccountSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1319,6 +1325,23 @@ func flattenVertexAIPersistentResourceResourceRuntimeSpecServiceAccountSpec(v in
 	return []interface{}{transformed}
 }
 func flattenVertexAIPersistentResourceResourceRuntimeSpecServiceAccountSpecEnableCustomServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIPersistentResourceResourceRuntimeSpecRaySpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["image_uri"] =
+		flattenVertexAIPersistentResourceResourceRuntimeSpecRaySpecImageUri(original["imageUri"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIPersistentResourceResourceRuntimeSpecRaySpecImageUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1757,6 +1780,13 @@ func expandVertexAIPersistentResourceResourceRuntimeSpec(v interface{}, d tpgres
 		transformed["serviceAccountSpec"] = transformedServiceAccountSpec
 	}
 
+	transformedRaySpec, err := expandVertexAIPersistentResourceResourceRuntimeSpecRaySpec(original["ray_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRaySpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["raySpec"] = transformedRaySpec
+	}
+
 	return transformed, nil
 }
 
@@ -1786,6 +1816,32 @@ func expandVertexAIPersistentResourceResourceRuntimeSpecServiceAccountSpecEnable
 	return v, nil
 }
 
+func expandVertexAIPersistentResourceResourceRuntimeSpecRaySpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedImageUri, err := expandVertexAIPersistentResourceResourceRuntimeSpecRaySpecImageUri(original["image_uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedImageUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["imageUri"] = transformedImageUri
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIPersistentResourceResourceRuntimeSpecRaySpecImageUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandVertexAIPersistentResourceReservedIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1799,6 +1855,50 @@ func expandVertexAIPersistentResourceEffectiveLabels(v interface{}, d tpgresourc
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceVertexAIPersistentResourceUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// The Vertex AI backend matches each ResourcePool in the PATCH request against
+	// existing pools by its "id" field. When "resource_pools.id" (Optional + Computed)
+	// is omitted in config and a sibling field like "replica_count" is updated,
+	// Terraform SDKv2 marks "resource_pools.<i>.id" as NewComputed ("") in the diff,
+	// causing d.Get("resource_pools") and the expander to omit "id" from the payload.
+	// Restore the server-generated "id" from prior state via d.GetChange so the API
+	// can identify which resource pool to resize.
+	if pools, ok := obj["resourcePools"].([]interface{}); ok {
+		oldRaw, _ := d.GetChange("resource_pools")
+		var oldPools []interface{}
+		if oldRaw != nil {
+			oldPools = oldRaw.([]interface{})
+		}
+		for i, p := range pools {
+			pool, ok := p.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if id, ok := pool["id"].(string); !ok || id == "" {
+				if i < len(oldPools) {
+					if oldPool, ok := oldPools[i].(map[string]interface{}); ok {
+						if oldId, ok := oldPool["id"].(string); ok && oldId != "" {
+							pool["id"] = oldId
+						}
+					}
+				}
+				if pool["id"] == nil || pool["id"] == "" {
+					if stateId, ok := d.GetOk(fmt.Sprintf("resource_pools.%d.id", i)); ok && stateId.(string) != "" {
+						pool["id"] = stateId.(string)
+					}
+				}
+			}
+		}
+	}
+	// "name" is immutable so MMv1 excludes it from PATCH bodies, and state only
+	// stores the short name via name_from_self_link. Ensure the full resource path
+	// (stored in d.Id()) is included in the request body.
+	if _, ok := obj["name"]; !ok {
+		obj["name"] = d.Id()
+	}
+	return obj, nil
 }
 
 func ResourceVertexAIPersistentResourceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {

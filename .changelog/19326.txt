@@ -1,0 +1,7 @@
+```release-note:enhancement
+vertexai: added support for updating `resource_pools.replica_count` in-place on `google_vertex_ai_persistent_resource` resource
+```
+
+```release-note:enhancement
+vertexai: added `resource_runtime_spec.ray_spec` field to `google_vertex_ai_persistent_resource` resource
+```
