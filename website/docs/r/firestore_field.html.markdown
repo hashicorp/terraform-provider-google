@@ -88,7 +88,7 @@ resource "google_firestore_database" "database" {
 resource "google_firestore_field" "timestamp-enterprise" {
   project    = "my-project-name"
   database   = google_firestore_database.database.name
-  collection = "chatrooms"
+  collection = "chatrooms_%{random_suffix}"
   field      = "timestamp"
 
   # Enable a TTL policy with no expiration offset for the collection based on
@@ -117,7 +117,7 @@ resource "google_firestore_database" "database" {
 resource "google_firestore_field" "timestamp-with-offset-enterprise" {
   project    = "my-project-name"
   database   = google_firestore_database.database.name
-  collection = "chatrooms"
+  collection = "chatrooms_%{random_suffix}"
   field      = "timestamp"
 
   # Enable a TTL policy for the collection based on timestamp values in the field.
@@ -148,7 +148,7 @@ resource "google_firestore_database" "database" {
 resource "google_firestore_field" "timestamp" {
   project    = "my-project-name"
   database   = google_firestore_database.database.name
-  collection = "chatrooms"
+  collection = "chatrooms_%{random_suffix}"
   field      = "timestamp"
 
   # Enable a TTL policy with no expiration offset for the collection based on
@@ -179,7 +179,7 @@ resource "google_firestore_database" "database" {
 resource "google_firestore_field" "timestamp-with-offset" {
   project    = "my-project-name"
   database   = google_firestore_database.database.name
-  collection = "chatrooms"
+  collection = "chatrooms_%{random_suffix}"
   field      = "timestamp"
 
   # Enable a TTL policy for the collection based on timestamp values in the field.

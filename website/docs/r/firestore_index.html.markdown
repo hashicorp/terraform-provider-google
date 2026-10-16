@@ -336,7 +336,7 @@ resource "google_firestore_index" "my-index" {
     field_path = "description"
     order      = "DESCENDING"
   }
-  deletion_policy = ""PREVENT""
+  deletion_policy = "PREVENT"
 }
 ```
 ## Example Usage - Firestore Index Text Search
