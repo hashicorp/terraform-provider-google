@@ -225,7 +225,7 @@ func dataSourceGoogleComputeReservationSubBlockRead(d *schema.ResourceData, meta
 	reservationBlock := d.Get("reservation_block").(string)
 	reservation := d.Get("reservation").(string)
 
-	url := fmt.Sprintf("https://compute.googleapis.com/compute/v1/projects/%s/zones/%s/reservations%%2F%s%%2FreservationBlocks%%2F%s/reservationSubBlocks/%s", project, zone, reservation, reservationBlock, name)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/reservations%%2F%s%%2FreservationBlocks%%2F%s/reservationSubBlocks/%s", transport_tpg.BaseUrl(Product, config), project, zone, reservation, reservationBlock, name)
 
 	log.Printf("[DEBUG] URL  %s ", url)
 
