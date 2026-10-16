@@ -2414,3 +2414,87 @@ resource "google_compute_instance_group_manager" "igm-tsp" {
 }
 `, template, igm)
 }
+
+func TestAccInstanceGroupManager_deletionPolicyForce(t *testing.T) {
+	t.Parallel()
+
+	templateName := fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10))
+	igmName := fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccInstanceGroupManager_deletionPolicyForce(templateName, igmName, "DELETE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_instance_group_manager.igm-force", "deletion_policy", "DELETE"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_instance_group_manager.igm-force",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				Config: testAccInstanceGroupManager_deletionPolicyForce(templateName, igmName, "FORCE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_instance_group_manager.igm-force", "deletion_policy", "FORCE"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance_group_manager.igm-force",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// deletion_policy is a client-side field that defaults to DELETE on import
+				ImportStateVerifyIgnore: []string{"status", "deletion_policy"},
+			},
+		},
+	})
+}
+
+func testAccInstanceGroupManager_deletionPolicyForce(template, igm, deletionPolicy string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-force" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+
+resource "google_compute_instance_group_manager" "igm-force" {
+  description        = "Terraform test instance group manager"
+  name               = "%s"
+  base_instance_name = "tf-test-igm-force"
+  zone               = "us-central1-c"
+  target_size        = 1
+  deletion_policy    = "%s"
+
+  version {
+    name              = "prod"
+    instance_template = google_compute_instance_template.igm-force.self_link
+  }
+}
+`, template, igm, deletionPolicy)
+}

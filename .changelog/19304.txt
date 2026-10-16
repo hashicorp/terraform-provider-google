@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: added `FORCE` `deletion_policy` support to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager`
+```
+
+```release-note:bug
+compute: fixed a bug where `google_compute_instance_group_manager` ignored the `PREVENT` `deletion_policy`
+```

@@ -33,6 +33,15 @@ import (
 )
 
 func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
+	deletionPolicySchema := tpgresource.DeletionPolicySchemaEntry("DELETE")
+	deletionPolicySchema.Description = `Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+When a 'terraform destroy' or 'terraform apply' would delete the instance,
+the command will fail if this field is set to "PREVENT" in Terraform state.
+When set to "ABANDON", the command will remove the resource from Terraform
+management without updating or deleting the resource in the API.
+When set to "DELETE", deleting the resource is allowed. If graceful shutdown is configured, the MIG deletion waits for all instances to shut down gracefully before deletion.
+When set to "FORCE", deleting the resource is allowed, and graceful shutdown is skipped for instance deletion even if it's configured for the instances.
+`
 	return &schema.Resource{
 		Create: resourceComputeRegionInstanceGroupManagerCreate,
 		Read:   resourceComputeRegionInstanceGroupManagerRead,
@@ -681,8 +690,9 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 					},
 				},
 			},
+
 			//UDP schema start
-			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
+			"deletion_policy": deletionPolicySchema,
 			//UDP schema end
 		},
 		UseJSONNumber: true,
@@ -1262,6 +1272,13 @@ func resourceComputeRegionInstanceGroupManagerDelete(d *schema.ResourceData, met
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{name}}")
 	if err != nil {
 		return err
+	}
+
+	if d.Get("deletion_policy").(string) == "FORCE" {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"noGracefulShutdown": "true"})
+		if err != nil {
+			return err
+		}
 	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
