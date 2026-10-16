@@ -1,0 +1,3 @@
+```release-note:bug
+compute: `google_compute_disk`, `google_compute_region_disk` and `google_compute_snapshot` now reject a KMS key with a `/cryptoKeyVersions/` suffix at plan time, instead of recreating the resource on every apply
+```

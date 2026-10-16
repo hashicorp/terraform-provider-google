@@ -98,6 +98,15 @@ var Rfc1918Networks = []string{
 	"192.168.0.0/16",
 }
 
+// ValidateKmsKeyWithoutVersion rejects Cloud KMS key names that include a
+// crypto key version.
+func ValidateKmsKeyWithoutVersion(v interface{}, k string) (ws []string, errors []error) {
+	if strings.Contains(v.(string), "/cryptoKeyVersions/") {
+		errors = append(errors, fmt.Errorf("%q must specify a KMS Key, not a KMS KeyVersion; remove the /cryptoKeyVersions/ suffix", k))
+	}
+	return
+}
+
 // validateGCEName ensures that a field matches the requirements for Compute Engine resource names
 // https://cloud.google.com/compute/docs/naming-resources#resource-name-format
 func ValidateGCEName(v interface{}, k string) (ws []string, errors []error) {
