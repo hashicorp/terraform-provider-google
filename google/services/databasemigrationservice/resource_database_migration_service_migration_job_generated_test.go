@@ -35,7 +35,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/services/databasemigrationservice"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/sql"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -507,6 +507,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 		"destination_alloydb": "tf-test-destination-alloydb" + randomSuffix,
 		"destination_cp":      "tf-test-destination-cp" + randomSuffix,
 		"migration_id":        "tf-test-my-migrationid" + randomSuffix,
+		"network_name":        servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 		"source_cp":           "tf-test-source-cp" + randomSuffix,
 		"source_csql":         "tf-test-source-csql" + randomSuffix,
 		"source_sqldb_cert":   "tf-test-cert" + randomSuffix,
@@ -597,7 +598,7 @@ resource "google_alloydb_cluster" "destination_alloydb" {
   cluster_id = "%{destination_alloydb}"
   location   = "us-central1"
   network_config {
-    network = google_compute_network.default.id
+    network = data.google_compute_network.default.id
   }
   database_version = "POSTGRES_15"
 
@@ -613,26 +614,10 @@ resource "google_alloydb_instance" "destination_alloydb_primary" {
   cluster       = google_alloydb_cluster.destination_alloydb.name
   instance_id   = "%{destination_alloydb}-primary"
   instance_type = "PRIMARY"
-
-  depends_on = [google_service_networking_connection.vpc_connection]
 }
 
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          =  "%{destination_alloydb}"
-  address_type  = "INTERNAL"
-  purpose       = "VPC_PEERING"
-  prefix_length = 16
-  network       = google_compute_network.default.id
-}
-
-resource "google_service_networking_connection" "vpc_connection" {
-  network                 = google_compute_network.default.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
-}
-
-resource "google_compute_network" "default" {
-  name = "%{destination_alloydb}"
+data "google_compute_network" "default" {
+  name = "%{network_name}"
 }
 
 resource "google_database_migration_service_connection_profile" "destination_cp" {
