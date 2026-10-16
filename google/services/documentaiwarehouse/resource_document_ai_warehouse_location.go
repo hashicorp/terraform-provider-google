@@ -256,7 +256,6 @@ func resourceDocumentAIWarehouseLocationCreate(d *schema.ResourceData, meta inte
 
 func resourceDocumentAIWarehouseLocationRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
-	return nil
 
 	return nil
 }

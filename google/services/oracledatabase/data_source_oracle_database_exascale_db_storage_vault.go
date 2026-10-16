@@ -51,8 +51,6 @@ func dataSourceOracleDatabaseExascaleDbStorageVaultRead(d *schema.ResourceData, 
 		return fmt.Errorf("%s not found", id)
 	}
 	return nil
-
-	return nil
 }
 
 func init() {

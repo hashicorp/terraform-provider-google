@@ -223,7 +223,6 @@ func resourceBackupDRServiceConfigCreate(d *schema.ResourceData, meta interface{
 
 func resourceBackupDRServiceConfigRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
-	return nil
 
 	return nil
 }

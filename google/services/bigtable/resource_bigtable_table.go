@@ -225,11 +225,11 @@ func abpDiffFunc(ctx context.Context, diff *schema.ResourceDiff, meta interface{
 	old, new := diff.GetChange("automated_backup_policy")
 	oldAbpSet, ok := old.(*schema.Set)
 	if !ok {
-		fmt.Errorf("error parsing old automated backup policy: %v", old)
+		return fmt.Errorf("error parsing old automated backup policy: %v", old)
 	}
 	newAbpSet, ok := new.(*schema.Set)
 	if !ok {
-		fmt.Errorf("error parsing new automated backup policy: %v", new)
+		return fmt.Errorf("error parsing new automated backup policy: %v", new)
 	}
 
 	// If the state contains nil automated_backup_policy and configuration contains

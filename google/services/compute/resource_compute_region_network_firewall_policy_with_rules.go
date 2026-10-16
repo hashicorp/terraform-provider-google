@@ -966,7 +966,9 @@ func resourceComputeRegionNetworkFirewallPolicyWithRulesCreate(d *schema.Resourc
 	}
 
 	log.Printf("[DEBUG] Updating RegionNetworkFirewallPolicyWithRules %q", d.Id())
-	return resourceComputeRegionNetworkFirewallPolicyWithRulesUpdate(d, meta)
+	if err := resourceComputeRegionNetworkFirewallPolicyWithRulesUpdate(d, meta); err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Finished creating RegionNetworkFirewallPolicyWithRules %q: %#v", d.Id(), res)
 

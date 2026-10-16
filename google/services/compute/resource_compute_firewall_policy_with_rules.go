@@ -946,7 +946,9 @@ func resourceComputeFirewallPolicyWithRulesCreate(d *schema.ResourceData, meta i
 	}
 
 	log.Printf("[DEBUG] Updating FirewallPolicyWithRules %q", d.Id())
-	return resourceComputeFirewallPolicyWithRulesUpdate(d, meta)
+	if err := resourceComputeFirewallPolicyWithRulesUpdate(d, meta); err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Finished creating FirewallPolicyWithRules %q: %#v", d.Id(), res)
 
