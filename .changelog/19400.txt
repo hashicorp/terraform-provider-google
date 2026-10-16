@@ -1,0 +1,3 @@
+```release-note:bug
+compute: increased default create, update, and delete timeouts from 20m to 30m on `google_compute_snapshot_settings`
+```
