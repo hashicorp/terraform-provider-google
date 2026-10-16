@@ -181,6 +181,13 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `scheduling_policy` -
+  (Optional)
+  The scheduling policy to use for jobs and queries running under this
+  reservation. The scheduling policy controls how the reservation's resources
+  are distributed.
+  Structure is [documented below](#nested_scheduling_policy).
+
 * `location` -
   (Optional)
   The geographic location where the transfer config should reside.
@@ -206,6 +213,19 @@ The following arguments are supported:
 * `max_slots` -
   (Optional)
   Number of slots to be scaled when needed.
+
+<a name="nested_scheduling_policy"></a>The `scheduling_policy` block supports:
+
+* `concurrency` -
+  (Optional)
+  If present and > 0, the reservation will attempt to limit the concurrency
+  of jobs running for any particular project within it to the given value.
+
+* `max_slots` -
+  (Optional)
+  If present and > 0, the reservation will attempt to limit the slot
+  consumption of queries running for any particular project within it to
+  the given value.
 
 ## Attributes Reference
 

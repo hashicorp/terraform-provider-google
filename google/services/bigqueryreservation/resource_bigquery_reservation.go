@@ -220,6 +220,33 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The reservation group that this reservation belongs to.`,
 			},
+			"scheduling_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The scheduling policy to use for jobs and queries running under this
+reservation. The scheduling policy controls how the reservation's resources
+are distributed.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"concurrency": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `If present and > 0, the reservation will attempt to limit the concurrency
+of jobs running for any particular project within it to the given value.`,
+							AtLeastOneOf: []string{"scheduling_policy.0.concurrency", "scheduling_policy.0.max_slots"},
+						},
+						"max_slots": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `If present and > 0, the reservation will attempt to limit the slot
+consumption of queries running for any particular project within it to
+the given value.`,
+							AtLeastOneOf: []string{"scheduling_policy.0.concurrency", "scheduling_policy.0.max_slots"},
+						},
+					},
+				},
+			},
 			"secondary_location": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -373,6 +400,12 @@ func resourceBigqueryReservationReservationCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("reservation_group"); !tpgresource.IsEmptyValue(reflect.ValueOf(reservationGroupProp)) && (ok || !reflect.DeepEqual(v, reservationGroupProp)) {
 		obj["reservationGroup"] = reservationGroupProp
+	}
+	schedulingPolicyProp, err := expandBigqueryReservationReservationSchedulingPolicy(d.Get("scheduling_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scheduling_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(schedulingPolicyProp)) && (ok || !reflect.DeepEqual(v, schedulingPolicyProp)) {
+		obj["schedulingPolicy"] = schedulingPolicyProp
 	}
 	effectiveLabelsProp, err := expandBigqueryReservationReservationEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -622,6 +655,12 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("reservation_group"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, reservationGroupProp)) {
 		obj["reservationGroup"] = reservationGroupProp
 	}
+	schedulingPolicyProp, err := expandBigqueryReservationReservationSchedulingPolicy(d.Get("scheduling_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scheduling_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, schedulingPolicyProp)) {
+		obj["schedulingPolicy"] = schedulingPolicyProp
+	}
 	effectiveLabelsProp, err := expandBigqueryReservationReservationEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -660,6 +699,11 @@ func resourceBigqueryReservationReservationUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("reservation_group") {
 		updateMask = append(updateMask, "reservationGroup")
+	}
+
+	if d.HasChange("scheduling_policy") {
+		updateMask = append(updateMask, "schedulingPolicy.concurrency",
+			"schedulingPolicy.maxSlots")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -961,6 +1005,55 @@ func flattenBigqueryReservationReservationLabels(v interface{}, d *schema.Resour
 	return transformed
 }
 
+func flattenBigqueryReservationReservationSchedulingPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["concurrency"] =
+		flattenBigqueryReservationReservationSchedulingPolicyConcurrency(original["concurrency"], d, config)
+	transformed["max_slots"] =
+		flattenBigqueryReservationReservationSchedulingPolicyMaxSlots(original["maxSlots"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryReservationReservationSchedulingPolicyConcurrency(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBigqueryReservationReservationSchedulingPolicyMaxSlots(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenBigqueryReservationReservationTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1041,6 +1134,43 @@ func expandBigqueryReservationReservationReservationGroup(v interface{}, d tpgre
 	return v, nil
 }
 
+func expandBigqueryReservationReservationSchedulingPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedConcurrency, err := expandBigqueryReservationReservationSchedulingPolicyConcurrency(original["concurrency"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConcurrency); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["concurrency"] = transformedConcurrency
+	}
+
+	transformedMaxSlots, err := expandBigqueryReservationReservationSchedulingPolicyMaxSlots(original["max_slots"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxSlots); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxSlots"] = transformedMaxSlots
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryReservationReservationSchedulingPolicyConcurrency(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryReservationReservationSchedulingPolicyMaxSlots(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandBigqueryReservationReservationEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1086,6 +1216,9 @@ func ResourceBigqueryReservationReservationFlatten(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 	if err = d.Set("labels", flattenBigqueryReservationReservationLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+	if err = d.Set("scheduling_policy", flattenBigqueryReservationReservationSchedulingPolicy(res["schedulingPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenBigqueryReservationReservationTerraformLabels(res["labels"], d, config)); err != nil {

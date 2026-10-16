@@ -139,6 +139,87 @@ resource "google_bigquery_reservation" "reservation" {
 `, context)
 }
 
+func TestAccBigqueryReservation_schedulingPolicy_update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryReservation_schedulingPolicy_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_reservation.reservation", "scheduling_policy.0.concurrency", "10"),
+					resource.TestCheckResourceAttr("google_bigquery_reservation.reservation", "scheduling_policy.0.max_slots", "100"),
+				),
+			},
+			{
+				ResourceName:      "google_bigquery_reservation.reservation",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBigqueryReservation_schedulingPolicy_update(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_reservation.reservation", "scheduling_policy.0.concurrency", "20"),
+					resource.TestCheckResourceAttr("google_bigquery_reservation.reservation", "scheduling_policy.0.max_slots", "200"),
+				),
+			},
+			{
+				ResourceName:      "google_bigquery_reservation.reservation",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigqueryReservation_schedulingPolicy_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_reservation" "reservation" {
+  name              = "tf-test-reservation-%{random_suffix}"
+  location          = "us-west2"
+  slot_capacity     = 0
+  edition           = "ENTERPRISE"
+  ignore_idle_slots = true
+
+  autoscale {
+    max_slots = 100
+  }
+
+  scheduling_policy {
+    concurrency = 10
+    max_slots   = 100
+  }
+}
+`, context)
+}
+
+func testAccBigqueryReservation_schedulingPolicy_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_reservation" "reservation" {
+  name              = "tf-test-reservation-%{random_suffix}"
+  location          = "us-west2"
+  slot_capacity     = 0
+  edition           = "ENTERPRISE"
+  ignore_idle_slots = true
+
+  autoscale {
+    max_slots = 100
+  }
+
+  scheduling_policy {
+    concurrency = 20
+    max_slots   = 200
+  }
+}
+`, context)
+}
+
 func TestAccBigqueryReservation_reservationGroup_update(t *testing.T) {
 	t.Parallel()
 
