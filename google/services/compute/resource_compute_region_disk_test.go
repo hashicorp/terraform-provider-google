@@ -19,6 +19,7 @@ package compute_test
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strconv"
 	"testing"
 	"time"
@@ -310,6 +311,11 @@ func TestAccComputeRegionDisk_encryptionKMSUpdate(t *testing.T) {
 						plancheck.ExpectResourceAction("google_compute_region_disk.regiondisk", plancheck.ResourceActionUpdate),
 					},
 				},
+			},
+			{
+				Config:      testAccComputeRegionDisk_encryptionKMSUpdateKey(diskName, key2+"/cryptoKeyVersions/1"),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("remove the /cryptoKeyVersions/ suffix"),
 			},
 			{
 				Config: testAccComputeRegionDisk_encryptionKMSUpdateNoKey(diskName),

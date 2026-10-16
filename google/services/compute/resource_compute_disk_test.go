@@ -20,6 +20,7 @@ import (
 	"fmt"
 	neturl "net/url"
 	"os"
+	"regexp"
 	"testing"
 	"time"
 
@@ -778,6 +779,11 @@ func TestAccComputeDisk_encryptionKMSUpdate(t *testing.T) {
 						plancheck.ExpectResourceAction("google_compute_disk.foobar", plancheck.ResourceActionUpdate),
 					},
 				},
+			},
+			{
+				Config:      testAccComputeDisk_encryptionKMSUpdateKey(diskName, key2+"/cryptoKeyVersions/1"),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("remove the /cryptoKeyVersions/ suffix"),
 			},
 			{
 				Config: testAccComputeDisk_encryptionKMSUpdateNoKey(diskName),

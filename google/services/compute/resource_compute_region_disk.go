@@ -232,9 +232,12 @@ in place; other changes to this block recreate the disk.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"kms_key_name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `The name of the encryption key that is stored in Google Cloud KMS.`,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateKmsKeyWithoutVersion,
+							Description: `The name of the encryption key that is stored in Google Cloud KMS.
+
+Specify the key without a '/cryptoKeyVersions/' suffix.`,
 						},
 						"raw_key": {
 							Type:     schema.TypeString,

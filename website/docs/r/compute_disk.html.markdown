@@ -469,6 +469,7 @@ The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
   (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`) must have
   `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
   See https://cloud.google.com/compute/docs/disks/customer-managed-encryption#encrypt_a_new_persistent_disk_with_your_own_keys
+  Specify the key without a `/cryptoKeyVersions/` suffix.
 
 * `kms_key_service_account` -
   (Optional)

@@ -445,6 +445,7 @@ The name of the snapshot by default will be `{{disk-name}}-YYYYMMDD-HHmm`
 * `kms_key_name` -
   (Optional)
   The name of the encryption key that is stored in Google Cloud KMS.
+  Specify the key without a `/cryptoKeyVersions/` suffix.
 
 * `raw_key_wo` -
   (Optional, Write-Only)

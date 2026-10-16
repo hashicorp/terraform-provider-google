@@ -450,3 +450,13 @@ func TestValidateServiceAccountKeyName(t *testing.T) {
 		t.Errorf("Failed to validate service account key names: %v", es)
 	}
 }
+
+func TestValidateKmsKeyWithoutVersion(t *testing.T) {
+	key := "projects/p/locations/us-central1/keyRings/r/cryptoKeys/k"
+	if _, errs := ValidateKmsKeyWithoutVersion(key, "k"); len(errs) != 0 {
+		t.Errorf("unexpected errors for %q: %v", key, errs)
+	}
+	if _, errs := ValidateKmsKeyWithoutVersion(key+"/cryptoKeyVersions/1", "k"); len(errs) != 1 {
+		t.Errorf("expected an error for a versioned key, got %v", errs)
+	}
+}
