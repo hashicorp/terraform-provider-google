@@ -101,15 +101,7 @@ func TestAccComputeSnapshot_encryptionCMEKUpdate(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeSnapshotDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSnapshot_encryptionCMEKUpdateNoKey(snapshotName, diskName),
-			},
-			{
 				Config: testAccComputeSnapshot_encryptionCMEKUpdateKey(snapshotName, diskName, key1),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_snapshot.foobar", plancheck.ResourceActionReplace),
-					},
-				},
 			},
 			{
 				ResourceName:      "google_compute_snapshot.foobar",
@@ -139,18 +131,51 @@ func TestAccComputeSnapshot_encryptionCMEKUpdate(t *testing.T) {
 				ExpectError: regexp.MustCompile("remove the /cryptoKeyVersions/ suffix"),
 			},
 			{
-				Config: testAccComputeSnapshot_encryptionCMEKUpdateNoKey(snapshotName, diskName),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_snapshot.foobar", plancheck.ResourceActionReplace),
-					},
-				},
+				Config:      testAccComputeSnapshot_encryptionCMEKUpdateNoKey(snapshotName, diskName),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("removing the Cloud KMS key isn't supported"),
 			},
 		},
 	})
 }
 
-// updateKmsKey drops kms_key_service_account, so key changes with a service account set still recreate the snapshot.
+func TestAccComputeSnapshot_encryptionCMEKAdd(t *testing.T) {
+	t.Skip("updateKmsKey doesn't support adding a key to a snapshot yet; see b/550374864")
+	t.Parallel()
+
+	key1 := kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name
+	suffix := acctest.RandString(t, 10)
+	snapshotName := fmt.Sprintf("tf-test-%s", suffix)
+	diskName := fmt.Sprintf("tf-test-%s", suffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSnapshotDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSnapshot_encryptionCMEKUpdateNoKey(snapshotName, diskName),
+			},
+			{
+				Config: testAccComputeSnapshot_encryptionCMEKUpdateKey(snapshotName, diskName, key1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_snapshot.foobar", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_snapshot.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Not returned by the API.
+				ImportStateVerifyIgnore: []string{"zone", "source_disk"},
+			},
+		},
+	})
+}
+
+// updateKmsKey drops kms_key_service_account, so key changes with a service account set fail at plan time.
 func TestAccComputeSnapshot_encryptionCMEKUpdateWithServiceAccount(t *testing.T) {
 	t.Parallel()
 
@@ -188,12 +213,9 @@ func TestAccComputeSnapshot_encryptionCMEKUpdateWithServiceAccount(t *testing.T)
 				ImportStateVerifyIgnore: []string{"zone", "source_disk"},
 			},
 			{
-				Config: testAccComputeSnapshot_encryptionCMEKUpdateKeyWithServiceAccount(snapshotName, diskName, key2, serviceAccount),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_snapshot.foobar", plancheck.ResourceActionReplace),
-					},
-				},
+				Config:      testAccComputeSnapshot_encryptionCMEKUpdateKeyWithServiceAccount(snapshotName, diskName, key2, serviceAccount),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("while kms_key_service_account is set"),
 			},
 		},
 	})

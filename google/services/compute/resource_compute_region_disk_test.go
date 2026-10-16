@@ -274,15 +274,7 @@ func TestAccComputeRegionDisk_encryptionKMSUpdate(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRegionDisk_encryptionKMSUpdateNoKey(diskName),
-			},
-			{
 				Config: testAccComputeRegionDisk_encryptionKMSUpdateKey(diskName, key1),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_region_disk.regiondisk", plancheck.ResourceActionReplace),
-					},
-				},
 			},
 			{
 				ResourceName:      "google_compute_region_disk.regiondisk",
@@ -318,12 +310,41 @@ func TestAccComputeRegionDisk_encryptionKMSUpdate(t *testing.T) {
 				ExpectError: regexp.MustCompile("remove the /cryptoKeyVersions/ suffix"),
 			},
 			{
+				Config:      testAccComputeRegionDisk_encryptionKMSUpdateNoKey(diskName),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("removing the Cloud KMS key isn't supported"),
+			},
+		},
+	})
+}
+
+func TestAccComputeRegionDisk_encryptionKMSAdd(t *testing.T) {
+	t.Skip("updateKmsKey doesn't support adding a key to a disk yet; see b/550374864")
+	t.Parallel()
+
+	key1 := kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
 				Config: testAccComputeRegionDisk_encryptionKMSUpdateNoKey(diskName),
+			},
+			{
+				Config: testAccComputeRegionDisk_encryptionKMSUpdateKey(diskName, key1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectResourceAction("google_compute_region_disk.regiondisk", plancheck.ResourceActionReplace),
+						plancheck.ExpectResourceAction("google_compute_region_disk.regiondisk", plancheck.ResourceActionUpdate),
 					},
 				},
+			},
+			{
+				ResourceName:      "google_compute_region_disk.regiondisk",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

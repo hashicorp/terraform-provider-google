@@ -36,26 +36,30 @@ func TestKmsKeyChangeRequiresReplacement(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]struct {
-		oldKey, newKey    string
-		newKeyKnown       bool
-		serviceAccountSet bool
-		want              bool
+		newKey              string
+		newKeyKnown         bool
+		serviceAccountSet   bool
+		customerSuppliedKey bool
+		wantForceNew        bool
+		wantErr             bool
 	}{
-		"key to key":                              {testKmsKeyA, testKmsKeyB, true, false, false},
-		"key to unknown key":                      {testKmsKeyA, "", false, false, true},
-		"no key to key":                           {"", testKmsKeyB, true, false, true},
-		"no key to unknown key":                   {"", "", false, false, true},
-		"key to no key":                           {testKmsKeyA, "", true, false, true},
-		"key to key version":                      {testKmsKeyA, testKmsKeyB + "/cryptoKeyVersions/1", true, false, true},
-		"key to key with service account":         {testKmsKeyA, testKmsKeyB, true, true, true},
-		"key to unknown key with service account": {testKmsKeyA, "", false, true, true},
+		"key to key updates in place":             {newKey: testKmsKeyB, newKeyKnown: true},
+		"unknown key updates in place":            {newKeyKnown: false},
+		"removing the key errors":                 {newKey: "", newKeyKnown: true, wantErr: true},
+		"key change with service account errors":  {newKey: testKmsKeyB, newKeyKnown: true, serviceAccountSet: true, wantErr: true},
+		"unknown key with service account errors": {newKeyKnown: false, serviceAccountSet: true, wantErr: true},
+		"replacing a CSEK recreates":              {newKey: testKmsKeyB, newKeyKnown: true, customerSuppliedKey: true, wantForceNew: true},
 	}
 	for name, tc := range cases {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			if got := kmsKeyChangeRequiresReplacement(tc.oldKey, tc.newKey, tc.newKeyKnown, tc.serviceAccountSet); got != tc.want {
-				t.Errorf("kmsKeyChangeRequiresReplacement(%q, %q, %t, %t) = %t, want %t", tc.oldKey, tc.newKey, tc.newKeyKnown, tc.serviceAccountSet, got, tc.want)
+			forceNew, err := kmsKeyChangeRequiresReplacement(tc.newKey, tc.newKeyKnown, tc.serviceAccountSet, tc.customerSuppliedKey)
+			if (err != nil) != tc.wantErr {
+				t.Fatalf("got error %v, want error: %t", err, tc.wantErr)
+			}
+			if forceNew != tc.wantForceNew {
+				t.Errorf("got forceNew %t, want %t", forceNew, tc.wantForceNew)
 			}
 		})
 	}
@@ -65,20 +69,18 @@ func TestKmsKeyUpdateRequestBody(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]struct {
-		oldKey, newKey, serviceAccount string
-		wantErr                        bool
+		newKey, serviceAccount string
+		wantErr                bool
 	}{
-		"key to key":                      {testKmsKeyA, testKmsKeyB, "", false},
-		"no key to key":                   {"", testKmsKeyB, "", true},
-		"key to no key":                   {testKmsKeyA, "", "", true},
-		"key to key version":              {testKmsKeyA, testKmsKeyB + "/cryptoKeyVersions/3", "", true},
-		"key to key with service account": {testKmsKeyA, testKmsKeyB, testKmsSA, true},
+		"key":                      {testKmsKeyB, "", false},
+		"no key":                   {"", "", true},
+		"key with service account": {testKmsKeyB, testKmsSA, true},
 	}
 	for name, tc := range cases {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			body, err := kmsKeyUpdateRequestBody(tc.oldKey, tc.newKey, tc.serviceAccount)
+			body, err := kmsKeyUpdateRequestBody(tc.newKey, tc.serviceAccount)
 			if tc.wantErr {
 				if err == nil {
 					t.Fatalf("expected an error, got body %v", body)
@@ -99,6 +101,7 @@ func TestKmsKeyUpdateRequestBody(t *testing.T) {
 func testKmsKeyResource(withServiceAccount bool) *schema.Resource {
 	keySchema := map[string]*schema.Schema{
 		"raw_key":           {Type: schema.TypeString, Optional: true, ForceNew: true},
+		"sha256":            {Type: schema.TypeString, Computed: true},
 		"kms_key_self_link": {Type: schema.TypeString, Optional: true},
 	}
 	serviceAccountPath := ""
@@ -112,16 +115,15 @@ func testKmsKeyResource(withServiceAccount bool) *schema.Resource {
 			"encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem:     &schema.Resource{Schema: keySchema},
 			},
 		},
-		CustomizeDiff: forceNewOnUnsupportedKmsKeyChange("encryption_key.0.kms_key_self_link", serviceAccountPath),
+		CustomizeDiff: kmsKeyUpdateCustomDiff("encryption_key.0.kms_key_self_link", serviceAccountPath, "encryption_key.0.sha256"),
 	}
 }
 
-func TestForceNewOnUnsupportedKmsKeyChange(t *testing.T) {
+func TestKmsKeyUpdateCustomDiff(t *testing.T) {
 	t.Parallel()
 
 	type action int
@@ -129,6 +131,7 @@ func TestForceNewOnUnsupportedKmsKeyChange(t *testing.T) {
 		noChange action = iota
 		update
 		replace
+		planError
 	)
 
 	keyState := func(key, serviceAccount string) map[string]string {
@@ -150,10 +153,10 @@ func TestForceNewOnUnsupportedKmsKeyChange(t *testing.T) {
 		}
 		return c
 	}
+	noKeyState := map[string]string{"name": "r", "encryption_key.#": "0"}
 
 	cases := map[string]struct {
 		withServiceAccount bool
-		id                 string
 		state              map[string]string
 		config             map[string]interface{}
 		want               action
@@ -168,21 +171,27 @@ func TestForceNewOnUnsupportedKmsKeyChange(t *testing.T) {
 			config: keyConfig(map[string]interface{}{"kms_key_self_link": testKmsKeyB}),
 			want:   update,
 		},
-		"key to unknown key replaces": {
+		"key to unknown key updates in place": {
 			state:  keyState(testKmsKeyA, ""),
 			config: keyConfig(map[string]interface{}{"kms_key_self_link": testUnknownValue}),
-			want:   replace,
+			want:   update,
 		},
 		"unchanged key": {
 			state:  keyState(testKmsKeyA, ""),
 			config: keyConfig(map[string]interface{}{"kms_key_self_link": testKmsKeyA}),
 			want:   noChange,
 		},
-		"key to key with a service account replaces": {
+		"key to key with a service account errors": {
 			withServiceAccount: true,
 			state:              keyState(testKmsKeyA, testKmsSA),
 			config:             keyConfig(map[string]interface{}{"kms_key_self_link": testKmsKeyB, "kms_key_service_account": testKmsSA}),
-			want:               replace,
+			want:               planError,
+		},
+		"key to unknown key with a service account errors": {
+			withServiceAccount: true,
+			state:              keyState(testKmsKeyA, testKmsSA),
+			config:             keyConfig(map[string]interface{}{"kms_key_self_link": testUnknownValue, "kms_key_service_account": testKmsSA}),
+			want:               planError,
 		},
 		"key to key without a service account set updates in place": {
 			withServiceAccount: true,
@@ -190,29 +199,24 @@ func TestForceNewOnUnsupportedKmsKeyChange(t *testing.T) {
 			config:             keyConfig(map[string]interface{}{"kms_key_self_link": testKmsKeyB}),
 			want:               update,
 		},
-		"key to key version replaces": {
-			state:  keyState(testKmsKeyA, ""),
-			config: keyConfig(map[string]interface{}{"kms_key_self_link": testKmsKeyB + "/cryptoKeyVersions/1"}),
-			want:   replace,
-		},
-		"empty key to key replaces": {
-			state:  keyState("", ""),
-			config: keyConfig(map[string]interface{}{"kms_key_self_link": testKmsKeyB}),
-			want:   replace,
-		},
-		"key to empty key in a remaining block replaces": {
+		"key to empty key in a remaining block errors": {
 			state:  keyState(testKmsKeyA, ""),
 			config: keyConfig(map[string]interface{}{}),
-			want:   replace,
+			want:   planError,
 		},
-		"adding the block replaces": {
-			state:  map[string]string{"name": "r", "encryption_key.#": "0"},
-			config: keyConfig(map[string]interface{}{"kms_key_self_link": testKmsKeyB}),
-			want:   replace,
-		},
-		"removing the block replaces": {
+		"removing the block errors": {
 			state:  keyState(testKmsKeyA, ""),
 			config: keyConfig(nil),
+			want:   planError,
+		},
+		"adding a key to a resource without one updates in place": {
+			state:  noKeyState,
+			config: keyConfig(map[string]interface{}{"kms_key_self_link": testKmsKeyB}),
+			want:   update,
+		},
+		"replacing a raw CSEK with a key replaces": {
+			state:  map[string]string{"name": "r", "encryption_key.#": "1", "encryption_key.0.raw_key": "secret", "encryption_key.0.sha256": "hash"},
+			config: keyConfig(map[string]interface{}{"kms_key_self_link": testKmsKeyB}),
 			want:   replace,
 		},
 	}
@@ -224,24 +228,23 @@ func TestForceNewOnUnsupportedKmsKeyChange(t *testing.T) {
 			r := testKmsKeyResource(tc.withServiceAccount)
 			state := &terraform.InstanceState{ID: "r", Attributes: tc.state}
 			diff, err := r.SimpleDiff(context.Background(), state, terraform.NewResourceConfigRaw(tc.config), nil)
-			if err != nil {
-				t.Fatalf("unexpected error: %s", err)
-			}
 			got := noChange
-			if diff != nil && !diff.Empty() {
+			switch {
+			case err != nil:
+				got = planError
+			case diff != nil && !diff.Empty() && diff.RequiresNew():
+				got = replace
+			case diff != nil && !diff.Empty():
 				got = update
-				if diff.RequiresNew() {
-					got = replace
-				}
 			}
 			if got != tc.want {
-				t.Errorf("got action %d, want %d (0=no change, 1=update, 2=replace); diff: %#v", got, tc.want, diff)
+				t.Errorf("got action %d, want %d (0=no change, 1=update, 2=replace, 3=error); err: %v; diff: %#v", got, tc.want, err, diff)
 			}
 		})
 	}
 }
 
-func TestForceNewOnUnsupportedKmsKeyChange_create(t *testing.T) {
+func TestKmsKeyUpdateCustomDiff_create(t *testing.T) {
 	t.Parallel()
 
 	r := testKmsKeyResource(true)
