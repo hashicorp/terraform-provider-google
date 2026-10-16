@@ -3090,68 +3090,31 @@ func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, 
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
 	for i, raw := range l {
-		_ = i
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
-			"api_key_header":  flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyHeader(original["apiKeyHeader"], d, config),
-			"api_key_name":    flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyName(original["apiKeyName"], d, config),
-			"client_id":       flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesClientId(original["clientId"], d, config),
-			"description":     flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesDescription(original["description"], d, config),
-			"display_name":    flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesDisplayName(original["displayName"], d, config),
-			"enabled":         flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesEnabled(original["enabled"], d, config),
-			"oauth_token_url": flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesOauthTokenUrl(original["oauthTokenUrl"], d, config),
-			"prompt":          flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesPrompt(original["prompt"], d, config),
-			"server_url":      flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesServerUrl(original["serverUrl"], d, config),
-		})
+		item := map[string]interface{}{
+			"api_key_header":  original["apiKeyHeader"],
+			"api_key_name":    original["apiKeyName"],
+			"client_id":       original["clientId"],
+			"description":     original["description"],
+			"display_name":    original["displayName"],
+			"enabled":         original["enabled"],
+			"oauth_token_url": original["oauthTokenUrl"],
+			"prompt":          original["prompt"],
+			"server_url":      original["serverUrl"],
+		}
+		if apiKey, ok := d.GetOk(fmt.Sprintf("mcp_data_sources.%d.api_key", i)); ok {
+			item["api_key"] = apiKey
+		}
+		if clientSecret, ok := d.GetOk(fmt.Sprintf("mcp_data_sources.%d.client_secret", i)); ok {
+			item["client_secret"] = clientSecret
+		}
+		transformed = append(transformed, item)
 	}
 	return transformed
-}
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("mcp_data_sources.0.api_key")
-}
-
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesApiKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesClientSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("mcp_data_sources.0.client_secret")
-}
-
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesOauthTokenUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesPrompt(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesServerUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenAgenticApplicationsAnalystAgentPersonaModelDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

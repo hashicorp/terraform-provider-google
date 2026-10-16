@@ -63,6 +63,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaBasicExamp
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"project_number":      envvar.GetTestProjectNumberFromEnv(),
 		"additional_context":  "Initial additional context",
 		"customer_context":    "Sample customer context for testing",
 		"display_name":        "Test Analyst Persona",
@@ -75,6 +76,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaBasicExamp
 	}
 
 	context_1 := map[string]interface{}{
+		"project_number":      envvar.GetTestProjectNumberFromEnv(),
 		"additional_context":  "Updated additional context",
 		"customer_context":    "Updated customer context for testing",
 		"display_name":        "Updated Test Analyst Persona",
@@ -133,6 +135,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaBasicExamp
 func testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "%{project_number}"
   location                 = "us"
   analyst_agent_persona_id = "%{persona_id}"
   display_name             = "%{display_name}"
@@ -175,19 +178,21 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaFullExampl
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"bucket_name":   "tf-test-bucket" + randomSuffix,
-		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
-		"persona_id":    "tf-test-full" + randomSuffix,
-		"table_id":      "tf-test-table" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"bucket_name":    "tf-test-bucket" + randomSuffix,
+		"dataset_id":     "tf_test_dataset_id" + randomSuffix,
+		"persona_id":     "tf-test-full" + randomSuffix,
+		"table_id":       "tf-test-table" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"bucket_name":   "tf-test-bucket" + randomSuffix,
-		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
-		"persona_id":    "tf-test-full" + randomSuffix,
-		"table_id":      "tf-test-table" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"bucket_name":    "tf-test-bucket" + randomSuffix,
+		"dataset_id":     "tf_test_dataset_id" + randomSuffix,
+		"persona_id":     "tf-test-full" + randomSuffix,
+		"table_id":       "tf-test-table" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -202,7 +207,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaFullExampl
 				ResourceName:            "google_agentic_applications_analyst_agent_persona.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"analyst_agent_persona_id", "location"},
+				ImportStateVerifyIgnore: []string{"analyst_agent_persona_id", "location", "mcp_data_sources"},
 			},
 			{
 				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
@@ -222,7 +227,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaFullExampl
 				ResourceName:            "google_agentic_applications_analyst_agent_persona.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"analyst_agent_persona_id", "location"},
+				ImportStateVerifyIgnore: []string{"analyst_agent_persona_id", "location", "mcp_data_sources"},
 			},
 			{
 				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
@@ -261,6 +266,7 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "%{project_number}"
   location                 = "us"
   analyst_agent_persona_id = "%{persona_id}"
   display_name             = "Full Test Analyst Persona"
@@ -377,6 +383,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     api_key_name    = "x-api-key"
     api_key_header  = "x-api-key-header"
     client_id       = "sample-client-id"
+    client_secret   = "sample-client-secret"
     oauth_token_url = "https://example.com/oauth/token"
   }
 
@@ -467,6 +474,7 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "%{project_number}"
   location                 = "us"
   analyst_agent_persona_id = "%{persona_id}"
   display_name             = "Full Test Analyst Persona Updated"
@@ -583,6 +591,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     api_key_name    = "x-api-key"
     api_key_header  = "x-api-key-header-updated"
     client_id       = "sample-client-id"
+    client_secret   = "sample-client-secret"
     oauth_token_url = "https://example.com/oauth/token"
   }
 
@@ -652,13 +661,15 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodolog
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"persona_id":    "tf-test-methodology" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"persona_id":     "tf-test-methodology" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"persona_id":    "tf-test-methodology" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"persona_id":     "tf-test-methodology" + randomSuffix,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -708,6 +719,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodolog
 func testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodologyExportOptionsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "%{project_number}"
   location                 = "us"
   analyst_agent_persona_id = "%{persona_id}"
   display_name             = "Test Analyst Persona Methodology Export"
@@ -729,6 +741,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
 func testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodologyExportOptionsUpdateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "%{project_number}"
   location                 = "us"
   analyst_agent_persona_id = "%{persona_id}"
   display_name             = "Test Analyst Persona Methodology Export Updated"

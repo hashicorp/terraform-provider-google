@@ -23,22 +23,20 @@ description: |-
 
 Represents a persona configuration for an analyst agent in Agentic Applications.
 
+~> **Note:** The `project` field must be set to the numeric project number (not the project ID).
+
 
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `mcp_data_sources.api_key`, `mcp_data_sources.client_secret`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=analyst_agent_persona_basic&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Analyst Agent Persona Basic
 
 
 ```hcl
 resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "1111111111111"
   location                 = "us"
   analyst_agent_persona_id = "basic"
   display_name             = "Test Analyst Persona"
@@ -73,11 +71,6 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=analyst_agent_persona_full&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Analyst Agent Persona Full
 
 
@@ -107,6 +100,7 @@ resource "google_storage_bucket_object" "object" {
 }
 
 resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "1111111111111"
   location                 = "us"
   analyst_agent_persona_id = "full"
   display_name             = "Full Test Analyst Persona"
@@ -223,6 +217,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     api_key_name    = "x-api-key"
     api_key_header  = "x-api-key-header"
     client_id       = "sample-client-id"
+    client_secret   = "sample-client-secret"
     oauth_token_url = "https://example.com/oauth/token"
   }
 
@@ -284,16 +279,12 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=analyst_agent_persona_methodology_export_options&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Analyst Agent Persona Methodology Export Options
 
 
 ```hcl
 resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "1111111111111"
   location                 = "us"
   analyst_agent_persona_id = "methodology"
   display_name             = "Test Analyst Persona Methodology Export"

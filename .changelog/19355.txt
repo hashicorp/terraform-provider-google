@@ -1,0 +1,3 @@
+```release-note:bug
+agenticapplications: fixed a bug where `mcp_data_sources.0.api_key` and `mcp_data_sources.0.client_secret` were attempting to read from the API
+```
