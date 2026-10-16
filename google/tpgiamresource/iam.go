@@ -29,12 +29,12 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
 
-const maxBackoffSeconds = 30
+const maxBackoffTimeout = 90 * time.Second
 const IamPolicyVersion = 3
 
 // These types are implemented per GCP resource type and specify how to do per-resource IAM operations.
@@ -105,102 +105,68 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 	transport_tpg.MutexStore.Lock(mutexKey)
 	defer transport_tpg.MutexStore.Unlock(mutexKey)
 
-	backoff := time.Second
-	for {
+	err := retry.Retry(maxBackoffTimeout, func() *retry.RetryError {
 		log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
 		p, err := updater.GetResourceIamPolicy()
-		if transport_tpg.IsGoogleApiErrorWithCode(err, 429) {
-			log.Printf("[DEBUG] 429 while attempting to read policy for %s, waiting %v before attempting again", updater.DescribeResource(), backoff)
-			time.Sleep(backoff)
-			continue
-		} else if err != nil {
-			return err
+		if err != nil {
+			return retry.NonRetryableError(err)
 		}
 		log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
 
 		err = modify(p)
 		if err != nil {
-			return err
+			return retry.NonRetryableError(err)
 		}
 
 		log.Printf("[DEBUG]: Setting policy for %s to %+v\n", updater.DescribeResource(), p)
 		err = updater.SetResourceIamPolicy(p)
 		if err == nil {
-			fetchBackoff := 1 * time.Second
-			for successfulFetches := 0; successfulFetches < 3; {
-				if fetchBackoff > maxBackoffSeconds*time.Second {
-					return fmt.Errorf("Error applying IAM policy to %s: Waited too long for propagation.\n", updater.DescribeResource())
-				}
-				time.Sleep(fetchBackoff)
-				log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
-				new_p, err := updater.GetResourceIamPolicy()
-				if err != nil {
-					// Quota for Read is pretty limited, so watch out for running out of quota.
-					if transport_tpg.IsGoogleApiErrorWithCode(err, 429) {
-						fetchBackoff = fetchBackoff * 2
-					} else {
-						return err
-					}
-				}
-				log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
-				if new_p == nil {
-					// https://github.com/hashicorp/terraform-provider-google/issues/2625
-					fetchBackoff = fetchBackoff * 2
-					continue
-				}
-				modified_p := new_p
-				// This relies on the fact that `modify` is idempotent: since other changes might have
-				// happened between the call to set the policy and now, we just need to make sure that
-				// our change has been made.  'modify(p) == p' is our check for whether this has been
-				// correctly applied.
-				err = modify(modified_p)
-				if err != nil {
-					return err
-				}
-				if modified_p == new_p {
-					successfulFetches += 1
-				} else {
-					fetchBackoff = fetchBackoff * 2
-				}
-			}
-			break
+			return nil
 		}
 		if tpgresource.IsConflictError(err) {
-			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write after %s\n", backoff)
-			time.Sleep(backoff)
-			backoff = backoff * 2
-			if backoff > 30*time.Second {
-				return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy to %s: Too many conflicts.  Latest error: {{err}}", updater.DescribeResource()), err)
-			}
-			continue
-		}
-
-		// retry in the case that a service account is not found. This can happen when a service account is deleted
-		// out of band.
-		if isServiceAccountNotFoundError, _ := transport_tpg.IamServiceAccountNotFound(err); isServiceAccountNotFoundError {
-			// calling a retryable function within a retry loop is not
-			// strictly the _best_ idea, but this error only happens in
-			// high-traffic projects anyways
-			currentPolicy, rerr := iamPolicyReadWithRetry(updater)
-			if rerr != nil {
-				if p.Etag != currentPolicy.Etag {
-					// not matching indicates that there is a new state to attempt to apply
-					log.Printf("current and old etag did not match for %s, retrying", updater.DescribeResource())
-					time.Sleep(backoff)
-					backoff = backoff * 2
-					continue
-				}
-
-				log.Printf("current and old etag matched for %s, not retrying", updater.DescribeResource())
-			} else {
-				// if the error is non-nil, just fall through and return the base error
-				log.Printf("[DEBUG]: error checking etag for policy %s. error: %v", updater.DescribeResource(), rerr)
-			}
+			log.Printf("[DEBUG]: Concurrent policy changes, restarting read-modify-write\n")
+			return retry.RetryableError(fmt.Errorf("Error applying IAM policy to %s: Last error: %w", updater.DescribeResource(), err))
 		}
 
 		log.Printf("[DEBUG]: not retrying IAM policy for %s. error: %v", updater.DescribeResource(), err)
-		return errwrap.Wrapf(fmt.Sprintf("Error applying IAM policy for %s: {{err}}", updater.DescribeResource()), err)
+		return retry.NonRetryableError(fmt.Errorf("Error applying IAM policy for %s: %w", updater.DescribeResource(), err))
+	})
+	if err != nil {
+		return err
 	}
+
+	fetchConf := &retry.StateChangeConf{
+		Pending:                   []string{"retrying"},
+		Target:                    []string{"done"},
+		Delay:                     1 * time.Second,
+		Timeout:                   maxBackoffTimeout,
+		MinTimeout:                1 * time.Second,
+		ContinuousTargetOccurence: 3,
+		Refresh: func() (interface{}, string, error) {
+			log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
+			new_p, err := updater.GetResourceIamPolicy()
+			if err != nil {
+				return nil, "", err
+			}
+			log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), new_p)
+			if new_p == nil {
+				// https://github.com/hashicorp/terraform-provider-google/issues/2625
+				return "", "retrying", nil
+			}
+
+			return new_p, "done", nil
+		},
+	}
+	if _, err := fetchConf.WaitForState(); err != nil {
+		if tErr, ok := err.(*retry.TimeoutError); ok {
+			if tErr.LastError != nil {
+				return tErr.LastError
+			}
+			return fmt.Errorf("Error applying IAM policy to %s: Waited too long for propagation.\n", updater.DescribeResource())
+		}
+		return err
+	}
+
 	log.Printf("[DEBUG]: Set policy for %s", updater.DescribeResource())
 	return nil
 }

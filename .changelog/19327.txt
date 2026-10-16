@@ -1,0 +1,7 @@
+```release-note:bug
+provider: fixed an unbound retry in IAM writes when hitting API quotas (429 error). Now, IAM read-modify-writes will exponentially backoff, and terminate.
+```
+
+```release-note:bug
+provider: removed an extra sleep on IAM writes while several concurrent changes are happening, backoff and terminate for a longer window (90s + grace period)
+```
