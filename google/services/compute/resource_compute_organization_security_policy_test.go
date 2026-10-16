@@ -24,13 +24,14 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
 
 func TestAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyUpdateExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -50,6 +51,11 @@ func TestAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyUpdateEx
 			},
 			{
 				Config: testAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyPostUpdateExample(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_organization_security_policy.policy", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_compute_organization_security_policy.policy",
@@ -61,60 +67,7 @@ func TestAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyUpdateEx
 	})
 }
 
-func TestAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyShortName(t *testing.T) {
-	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeOrganizationSecurityPolicyDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyShortName(context),
-			},
-			{
-				ResourceName:            "google_compute_organization_security_policy.policy",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"display_name", "parent"},
-			},
-		},
-	})
-}
-
-func TestAccComputeOrganizationSecurityPolicy_advancedOptionsConfigUpdate(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeOrganizationSecurityPolicyDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeOrganizationSecurityPolicy_advancedOptionsConfigPreUpdate(context),
-			},
-			{
-				Config: testAccComputeOrganizationSecurityPolicy_advancedOptionsConfigPostUpdate(context),
-			},
-			{
-				ResourceName:            "google_compute_organization_security_policy.policy",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"display_name", "parent"},
-			},
-		},
-	})
-}
-
-func testAccComputeOrganizationSecurityPolicy_advancedOptionsConfigPreUpdate(context map[string]interface{}) string {
+func testAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyPreUpdateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_organization_security_policy" "policy" {
   short_name = "tf-test%{random_suffix}"
@@ -132,12 +85,13 @@ resource "google_compute_organization_security_policy" "policy" {
 `, context)
 }
 
-func testAccComputeOrganizationSecurityPolicy_advancedOptionsConfigPostUpdate(context map[string]interface{}) string {
+func testAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyPostUpdateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_organization_security_policy" "policy" {
-  short_name = "tf-test%{random_suffix}"
-  parent     = "organizations/%{org_id}"
-  type       = "CLOUD_ARMOR"
+  short_name  = "tf-test%{random_suffix}"
+  parent      = "organizations/%{org_id}"
+  description = "Updated description."
+  type        = "CLOUD_ARMOR"
 
   advanced_options_config {
     json_parsing = "STANDARD_WITH_GRAPHQL"
@@ -150,36 +104,6 @@ resource "google_compute_organization_security_policy" "policy" {
     user_ip_request_headers      = ["X-Forwarded-For", "True-Client-IP"]
     request_body_inspection_size = "64KB"
   }
-}
-`, context)
-}
-
-func testAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyPreUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_compute_organization_security_policy" "policy" {
-  short_name = "tf-test%{random_suffix}"
-  parent     = "organizations/%{org_id}"
-}
-`, context)
-}
-
-func testAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyPostUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_compute_organization_security_policy" "policy" {
-  short_name  = "tf-test%{random_suffix}"
-  parent      = "organizations/%{org_id}"
-  description = "Updated description."
-}
-`, context)
-}
-
-func testAccComputeOrganizationSecurityPolicy_organizationSecurityPolicyShortName(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_compute_organization_security_policy" "policy" {
-  short_name  = "tf-test%{random_suffix}"
-  parent      = "organizations/%{org_id}"
-  description = "org security policy description"
-  type        = "CLOUD_ARMOR"
 }
 `, context)
 }

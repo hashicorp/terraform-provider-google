@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -53,6 +54,11 @@ func TestAccComputeOrganizationSecurityPolicyAssociation_excludeFields(t *testin
 			},
 			{
 				Config: testAccComputeOrganizationSecurityPolicyAssociation_excludeFieldsUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_organization_security_policy_association.policy", plancheck.ResourceActionReplace),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_compute_organization_security_policy_association.policy",
