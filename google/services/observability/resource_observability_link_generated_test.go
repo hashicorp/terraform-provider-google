@@ -57,6 +57,7 @@ var (
 )
 
 func TestAccObservabilityLink_observabilityLinkBasicExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
