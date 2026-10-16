@@ -120,9 +120,6 @@ resource "google_looker_instance" "looker-instance" {
     client_id = "my-client-id"
     client_secret = "my-client-secret"
   }
-  custom_domain {
-    domain = "my-custom-domain.com"
-  }
   deletion_policy = "FORCE"
 }
 ```
@@ -175,6 +172,9 @@ resource "google_looker_instance" "looker-instance" {
   oauth_config {
     client_id = "my-client-id"
     client_secret = "my-client-secret"
+  }
+  custom_domain {
+    domain = "my-custom-domain.com"
   }
   depends_on   = [
     google_service_networking_connection.looker_vpc_connection
