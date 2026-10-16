@@ -639,7 +639,7 @@ func testAccNetappVolume_volumeBasicExample_cleanupScheduledBackup(t *testing.T,
 			backupCreateTimeStr := backup["createTime"].(string)
 			backupCreateTime, err := time.Parse(time.RFC3339, backupCreateTimeStr)
 			if err != nil {
-				fmt.Errorf("Failed to parse backup create time : %v", err)
+				return fmt.Errorf("Failed to parse backup create time : %v", err)
 			}
 			backupData := BackupData{
 				name:       backupName,

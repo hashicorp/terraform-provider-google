@@ -149,9 +149,6 @@ func dataSourceGoogleCloudBackupDrBackupRead(d *schema.ResourceData, meta interf
 
 	billingProject := project
 	url, err := tpgresource.ReplaceVars(d, config, "{{BackupDRBasePath}}projects/{{project}}/locations/{{location}}/backupVaults/{{backup_vault_id}}/dataSources/{{data_source_id}}/backups")
-
-	fmt.Sprintf("url: %s", url)
-
 	if err != nil {
 		return err
 	}

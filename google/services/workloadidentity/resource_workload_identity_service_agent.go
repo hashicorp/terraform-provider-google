@@ -270,8 +270,6 @@ func resourceWorkloadIdentityServiceAgentCreate(d *schema.ResourceData, meta int
 
 	log.Printf("[DEBUG] ServiceAgentPostCreate: Successfully set service_agents.")
 
-	return nil
-
 	log.Printf("[DEBUG] Finished creating ServiceAgent %q: %#v", d.Id(), res)
 
 	identity, err := d.Identity()
@@ -290,7 +288,6 @@ func resourceWorkloadIdentityServiceAgentCreate(d *schema.ResourceData, meta int
 
 func resourceWorkloadIdentityServiceAgentRead(d *schema.ResourceData, meta interface{}) error {
 	// This resource could not be read from the API.
-	return nil
 
 	return nil
 }
