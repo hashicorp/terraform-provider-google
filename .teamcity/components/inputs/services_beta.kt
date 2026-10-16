@@ -691,6 +691,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Networkservices",
         "path" to "./google-beta/services/networkservices"
     ),
+    "networkservices2" to mapOf(
+        "name" to "networkservices2",
+        "displayName" to "Networkservices2",
+        "path" to "./google-beta/services/networkservices2"
+    ),
     "observability" to mapOf(
         "name" to "observability",
         "displayName" to "Observability",
