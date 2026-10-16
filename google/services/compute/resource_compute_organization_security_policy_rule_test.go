@@ -24,13 +24,35 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
 
 func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleUpdate(t *testing.T) {
 	t.Parallel()
 
+	testCases := map[string]func(t *testing.T){
+		"basic":                    testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleUpdateTest,
+		"expression":               testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleExpressionUpdateTest,
+		"preconfigured_waf_config": testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfigTest,
+		"header_action":            testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithHeaderActionTest,
+		"redirect":                 testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithRedirectTest,
+	}
+
+	for name, tc := range testCases {
+		// shadow the tc variable into scope so that when
+		// the loop continues, if t.Run hasn't executed tc(t)
+		// yet, we don't have a race condition
+		// see https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			tc(t)
+		})
+	}
+}
+
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleUpdateTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -49,6 +71,11 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 			},
 			{
 				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRulePostUpdateExample(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_organization_security_policy_rule.policy", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_organization_security_policy_rule.policy",
@@ -118,11 +145,9 @@ resource "google_compute_organization_security_policy_rule" "policy" {
 `, context)
 }
 
-func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleExpressionUpdate(t *testing.T) {
-	t.Parallel()
-
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleExpressionUpdateTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -141,6 +166,11 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 			},
 			{
 				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleExpressionUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_organization_security_policy_rule.policy", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_organization_security_policy_rule.policy",
@@ -151,11 +181,9 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 	})
 }
 
-func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfig(t *testing.T) {
-	t.Parallel()
-
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfigTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -174,6 +202,11 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 			},
 			{
 				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfigUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_organization_security_policy_rule.policy", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_organization_security_policy_rule.policy",
@@ -182,6 +215,11 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 			},
 			{
 				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithPreconfiguredWafConfigClear(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_organization_security_policy_rule.policy", plancheck.ResourceActionUpdate),
+					},
+				},
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_compute_organization_security_policy_rule.policy", "preconfigured_waf_config.#", "0"),
 				),
@@ -348,11 +386,9 @@ resource "google_compute_organization_security_policy_rule" "policy" {
 `, context)
 }
 
-func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithHeaderAction(t *testing.T) {
-	t.Parallel()
-
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithHeaderActionTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -371,6 +407,11 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 			},
 			{
 				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithHeaderActionUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_organization_security_policy_rule.policy", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_organization_security_policy_rule.policy",
@@ -381,11 +422,9 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 	})
 }
 
-func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithRedirect(t *testing.T) {
-	t.Parallel()
-
+func testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithRedirectTest(t *testing.T) {
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -404,6 +443,11 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 			},
 			{
 				Config: testAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRuleWithRedirectUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_organization_security_policy_rule.policy", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:      "google_compute_organization_security_policy_rule.policy",
