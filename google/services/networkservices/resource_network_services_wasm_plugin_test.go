@@ -17,18 +17,9 @@
 package networkservices_test
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
-	"log"
-	"mime/multipart"
-	"net/http"
-	"net/textproto"
-	"os"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -39,7 +30,6 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
-	"google.golang.org/api/googleapi"
 )
 
 func TestAccNetworkServicesWasmPlugin_wasmPluginLogConfigUpdate(t *testing.T) {
@@ -59,7 +49,7 @@ func TestAccNetworkServicesWasmPlugin_wasmPluginLogConfigUpdate(t *testing.T) {
 				Config: testAccNetworkServicesWasmPlugin_artifactRegistryRepositorySetup(context),
 				Check: resource.ComposeTestCheckFunc(
 					// Upload the compiled plugin code to Artifact Registry
-					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+					acctest.TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
 						t,
 						"google_artifact_registry_repository.test_repository",
 						"my-wasm-plugin",
@@ -114,7 +104,7 @@ func TestAccNetworkServicesWasmPlugin_wasmPluginVersionUpdate(t *testing.T) {
 				Config: testAccNetworkServicesWasmPlugin_artifactRegistryRepositorySetup(context),
 				Check: resource.ComposeTestCheckFunc(
 					// Upload the compiled plugin code to Artifact Registry
-					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+					acctest.TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
 						t,
 						"google_artifact_registry_repository.test_repository",
 						"my-wasm-plugin",
@@ -122,7 +112,7 @@ func TestAccNetworkServicesWasmPlugin_wasmPluginVersionUpdate(t *testing.T) {
 						"test-fixtures/compiled-package/plugin.wasm",
 						"plugin.wasm",
 					),
-					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+					acctest.TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
 						t,
 						"google_artifact_registry_repository.test_repository",
 						"my-wasm-plugin",
@@ -130,7 +120,7 @@ func TestAccNetworkServicesWasmPlugin_wasmPluginVersionUpdate(t *testing.T) {
 						"test-fixtures/compiled-package/plugin.wasm",
 						"plugin.wasm",
 					),
-					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+					acctest.TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
 						t,
 						"google_artifact_registry_repository.test_repository",
 						"my-wasm-plugin",
@@ -179,7 +169,7 @@ func TestAccNetworkServicesWasmPlugin_wasmPluginConfigUpdate(t *testing.T) {
 				Config: testAccNetworkServicesWasmPlugin_artifactRegistryRepositorySetup(context),
 				Check: resource.ComposeTestCheckFunc(
 					// Upload the compiled plugin code to Artifact Registry
-					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+					acctest.TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
 						t,
 						"google_artifact_registry_repository.test_repository",
 						"my-wasm-plugin",
@@ -187,7 +177,7 @@ func TestAccNetworkServicesWasmPlugin_wasmPluginConfigUpdate(t *testing.T) {
 						"test-fixtures/compiled-package/plugin.wasm",
 						"plugin.wasm",
 					),
-					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+					acctest.TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
 						t,
 						"google_artifact_registry_repository.test_repository",
 						"my-wasm-plugin",
@@ -195,7 +185,7 @@ func TestAccNetworkServicesWasmPlugin_wasmPluginConfigUpdate(t *testing.T) {
 						"test-fixtures/compiled-package/plugin.wasm",
 						"plugin.wasm",
 					),
-					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+					acctest.TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
 						t,
 						"google_artifact_registry_repository.test_repository",
 						"my-wasm-plugin",
@@ -203,7 +193,7 @@ func TestAccNetworkServicesWasmPlugin_wasmPluginConfigUpdate(t *testing.T) {
 						"test-fixtures/compiled-package/plugin.wasm",
 						"plugin.wasm",
 					),
-					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+					acctest.TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
 						t,
 						"google_artifact_registry_repository.test_repository",
 						"my-wasm-config",
@@ -261,7 +251,7 @@ func TestAccNetworkServicesWasmPlugin_wasmPluginLocation(t *testing.T) {
 				Config: testAccNetworkServicesWasmPlugin_artifactRegistryRepositorySetup(context),
 				Check: resource.ComposeTestCheckFunc(
 					// Upload the compiled plugin code to Artifact Registry
-					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+					acctest.TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
 						t,
 						"google_artifact_registry_repository.test_repository",
 						"my-wasm-plugin",
@@ -534,145 +524,6 @@ resource "google_artifact_registry_repository" "test_repository" {
   }
 }
 `, context)
-}
-
-func testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(t *testing.T, resourceName string, packageName string, version string, packageFilePath string, packageFileName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("Resource not found: %s", resourceName)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set for Artifact Registry Repository")
-		}
-
-		config := acctest.GoogleProviderConfig(t)
-
-		// Extract the instance name, project, and region from the resource
-		project, err := acctest.GetTestProject(rs.Primary, config)
-		if err != nil {
-			return err
-		}
-
-		location := rs.Primary.Attributes["location"]
-		repository_id := rs.Primary.Attributes["repository_id"]
-
-		//Geting the compiled code file
-		mediaBody, err := os.ReadFile(packageFilePath)
-		if err != nil {
-			return fmt.Errorf("Could not read the target file: %s", err.Error())
-		}
-
-		// Construct the upload request
-		jsonBody := fmt.Sprintf(`{"packageId": "%s", "versionId": "%s", "filename": "%s"}`, packageName, version, packageFileName)
-
-		// Make the API call to upload the compiled code
-		url := fmt.Sprintf("https://artifactregistry.googleapis.com/upload/v1/projects/%s/locations/%s/repositories/%s/genericArtifacts:create?alt=json&uploadType=multipart", project, location, repository_id)
-
-		// New multipart writer.
-		body := &bytes.Buffer{}
-		writer := multipart.NewWriter(body)
-
-		// Metadata part.
-		metadataHeader := textproto.MIMEHeader{}
-		metadataHeader.Set("Content-Type", "application/json")
-		metadataHeader.Set("MIME-Version", "1.0")
-		part, _ := writer.CreatePart(metadataHeader)
-		part.Write([]byte(jsonBody))
-
-		// Media Files.
-		mediaHeader := textproto.MIMEHeader{}
-		mediaHeader.Set("Content-Type", "application/octet-stream")
-		mediaHeader.Set("Content-Transfer-Encoding", "binary")
-		mediaHeader.Set("MIME-Version", "1.0")
-
-		mediaPart, _ := writer.CreatePart(mediaHeader)
-		io.Copy(mediaPart, bytes.NewReader(mediaBody))
-
-		// Close multipart writer.
-		writer.Close()
-
-		contentTypeHeader := fmt.Sprintf("multipart/related; boundary='%s'", writer.Boundary())
-
-		res, err := sendRequestRawBodyWithTimeout(config, "POST", config.BillingProject, url, config.UserAgent, bytes.NewReader(body.Bytes()), contentTypeHeader, time.Minute*20)
-
-		if err != nil {
-			return fmt.Errorf("Error uploading the compiled file to the Artifact Registry Repository %s: %s", repository_id, err)
-		}
-
-		log.Printf("[DEBUG] Finished uploading the compiled file: %#v", res)
-
-		return nil
-	}
-}
-
-// sendRequestRawBodyWithTimeout is derived from sendRequestWithTimeout with direct pass through of request body
-func sendRequestRawBodyWithTimeout(config *transport_tpg.Config, method, project, rawurl, userAgent string, body io.Reader, contentType string, timeout time.Duration, errorRetryPredicates ...transport_tpg.RetryErrorPredicateFunc) (map[string]interface{}, error) {
-	log.Printf("[DEBUG] sendRequestRawBodyWithTimeout start")
-	reqHeaders := make(http.Header)
-	reqHeaders.Set("User-Agent", userAgent)
-	reqHeaders.Set("Content-Type", contentType)
-
-	if config.UserProjectOverride && project != "" {
-		// Pass the project into this fn instead of parsing it from the URL because
-		// both project names and URLs can have colons in them.
-		reqHeaders.Set("X-Goog-User-Project", project)
-	}
-
-	if timeout == 0 {
-		timeout = time.Duration(1) * time.Minute
-	}
-
-	var res *http.Response
-
-	log.Printf("[DEBUG] sendRequestRawBodyWithTimeout sending request")
-
-	err := transport_tpg.Retry(transport_tpg.RetryOptions{
-		RetryFunc: func() error {
-			req, err := http.NewRequest(method, rawurl, body)
-			if err != nil {
-				return err
-			}
-
-			req.Header = reqHeaders
-			res, err = config.Client.Do(req)
-			if err != nil {
-				return err
-			}
-
-			if err := googleapi.CheckResponse(res); err != nil {
-				googleapi.CloseBody(res)
-				return err
-			}
-
-			return nil
-		},
-		Timeout:              timeout,
-		ErrorRetryPredicates: errorRetryPredicates,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	if res == nil {
-		return nil, fmt.Errorf("Unable to parse server response. This is most likely a terraform problem, please file a bug at https://github.com/hashicorp/terraform-provider-google/issues.")
-	}
-
-	// The defer call must be made outside of the retryFunc otherwise it's closed too soon.
-	defer googleapi.CloseBody(res)
-
-	// 204 responses will have no body, so we're going to error with "EOF" if we
-	// try to parse it. Instead, we can just return nil.
-	if res.StatusCode == 204 {
-		return nil, nil
-	}
-	result := make(map[string]interface{})
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return nil, err
-	}
-	log.Printf("[DEBUG] sendRequestRawBodyWithTimeout returning")
-	return result, nil
 }
 
 func testAccCheckNetworkServicesWasmPluginDestroyProducer(t *testing.T) func(s *terraform.State) error {

@@ -17,9 +17,14 @@
 package acctest
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"log"
+	"mime/multipart"
+	"net/textproto"
 	"os"
 	"slices"
 	"testing"
@@ -149,4 +154,75 @@ func testStringValue(sPtr *string) string {
 	}
 
 	return *sPtr
+}
+
+func TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(t *testing.T, resourceName string, packageName string, version string, packageFilePath string, packageFileName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Resource not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set for Artifact Registry Repository")
+		}
+
+		config := GoogleProviderConfig(t)
+
+		// Extract the instance name, project, and region from the resource
+		project, err := GetTestProject(rs.Primary, config)
+		if err != nil {
+			return err
+		}
+
+		location := rs.Primary.Attributes["location"]
+		repository_id := rs.Primary.Attributes["repository_id"]
+
+		//Geting the compiled code file
+		mediaBody, err := os.ReadFile(packageFilePath)
+		if err != nil {
+			return fmt.Errorf("Could not read the target file: %s", err.Error())
+		}
+
+		// Construct the upload request
+		jsonBody := fmt.Sprintf(`{"packageId": "%s", "versionId": "%s", "filename": "%s"}`, packageName, version, packageFileName)
+
+		// Make the API call to upload the compiled code
+		url := fmt.Sprintf("https://artifactregistry.googleapis.com/upload/v1/projects/%s/locations/%s/repositories/%s/genericArtifacts:create?alt=json&uploadType=multipart", project, location, repository_id)
+
+		// New multipart writer.
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		// Metadata part.
+		metadataHeader := textproto.MIMEHeader{}
+		metadataHeader.Set("Content-Type", "application/json")
+		metadataHeader.Set("MIME-Version", "1.0")
+		part, _ := writer.CreatePart(metadataHeader)
+		part.Write([]byte(jsonBody))
+
+		// Media Files.
+		mediaHeader := textproto.MIMEHeader{}
+		mediaHeader.Set("Content-Type", "application/octet-stream")
+		mediaHeader.Set("Content-Transfer-Encoding", "binary")
+		mediaHeader.Set("MIME-Version", "1.0")
+
+		mediaPart, _ := writer.CreatePart(mediaHeader)
+		io.Copy(mediaPart, bytes.NewReader(mediaBody))
+
+		// Close multipart writer.
+		writer.Close()
+
+		contentTypeHeader := fmt.Sprintf("multipart/related; boundary='%s'", writer.Boundary())
+
+		res, err := transport_tpg.SendRequestRawBodyWithTimeout(config, "POST", config.BillingProject, url, config.UserAgent, bytes.NewReader(body.Bytes()), contentTypeHeader, time.Minute*20)
+
+		if err != nil {
+			return fmt.Errorf("Error uploading the compiled file to the Artifact Registry Repository %s: %s", repository_id, err)
+		}
+
+		log.Printf("[DEBUG] Finished uploading the compiled file: %#v", res)
+
+		return nil
+	}
 }

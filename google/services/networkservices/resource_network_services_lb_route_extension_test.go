@@ -906,7 +906,7 @@ func TestAccNetworkServicesLbRouteExtension_crossRegionInternalPluginExtension(t
 				Config: testAccNetworkServicesWasmPlugin_artifactRegistryRepositorySetup(context),
 				Check: resource.ComposeTestCheckFunc(
 					// Upload the compiled plugin code to Artifact Registry
-					testAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
+					acctest.TestAccCheckNetworkServicesWasmPlugin_uploadCompiledCode(
 						t,
 						"google_artifact_registry_repository.test_repository",
 						"my-wasm-plugin",
