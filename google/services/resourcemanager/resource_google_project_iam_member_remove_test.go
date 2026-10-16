@@ -255,9 +255,10 @@ resource "google_project_iam_binding" "bar" {
 }
 
 resource "google_project_iam_binding" "baz" {
-  project = google_project.project.project_id
-  members = ["user:gterraformtest1@gmail.com"]
-  role    = "roles/viewer"
+  project    = google_project.project.project_id
+  members    = ["user:gterraformtest1@gmail.com"]
+  role       = "roles/viewer"
+  depends_on = [google_project_iam_binding.bar]
 }
 
 resource "time_sleep" "wait_20s" {
@@ -290,9 +291,10 @@ resource "google_project_iam_binding" "bar" {
 }
 
 resource "google_project_iam_binding" "baz" {
-  project = google_project.project.project_id
-  members = ["user:gterraformtest1@gmail.com"]
-  role    = "roles/viewer"
+  project    = google_project.project.project_id
+  members    = ["user:gterraformtest1@gmail.com"]
+  role       = "roles/viewer"
+  depends_on = [google_project_iam_binding.bar]
 }
 
 resource "time_sleep" "wait_20s" {
