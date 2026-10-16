@@ -1,0 +1,3 @@
+```release-note:bug
+datastream: fixed a permadiff on `mongodb_profile.secret_manager_stored_password` and `mongodb_profile.password` in `google_datastream_connection_profile`
+```

@@ -31,7 +31,7 @@ To get more information about ConnectionProfile, see:
     * [Official Documentation](https://cloud.google.com/datastream/docs/create-connection-profiles)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `oracle_profile.password`, `mysql_profile.password`, `mysql_profile.ssl_config.client_key`, `mysql_profile.ssl_config.client_certificate`, `mysql_profile.ssl_config.ca_certificate`, `postgresql_profile.password`, `postgresql_profile.ssl_config.server_verification.ca_certificate`, `postgresql_profile.ssl_config.server_and_client_verification.client_certificate`, `postgresql_profile.ssl_config.server_and_client_verification.client_key`, `postgresql_profile.ssl_config.server_and_client_verification.ca_certificate`, `sql_server_profile.password`, `mongodb_profile.password`, `mongodb_profile.ssl_config.client_key`, `mongodb_profile.ssl_config.client_certificate`, `mongodb_profile.ssl_config.ca_certificate`, `mongodb_profile.ssl_config.secret_manager_stored_client_key`, `forward_ssh_connectivity.password`, `forward_ssh_connectivity.private_key`.
+values will be stored in the raw state as plain text: `oracle_profile.password`, `mysql_profile.password`, `mysql_profile.ssl_config.client_key`, `mysql_profile.ssl_config.client_certificate`, `mysql_profile.ssl_config.ca_certificate`, `postgresql_profile.password`, `postgresql_profile.ssl_config.server_verification.ca_certificate`, `postgresql_profile.ssl_config.server_and_client_verification.client_certificate`, `postgresql_profile.ssl_config.server_and_client_verification.client_key`, `postgresql_profile.ssl_config.server_and_client_verification.ca_certificate`, `sql_server_profile.password`, `mongodb_profile.password`, `mongodb_profile.secret_manager_stored_password`, `mongodb_profile.ssl_config.client_key`, `mongodb_profile.ssl_config.client_certificate`, `mongodb_profile.ssl_config.ca_certificate`, `mongodb_profile.ssl_config.secret_manager_stored_client_key`, `forward_ssh_connectivity.password`, `forward_ssh_connectivity.private_key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -917,6 +917,7 @@ The following arguments are supported:
   (Optional)
   A reference to a Secret Manager resource name storing the MongoDB
   connection password. Mutually exclusive with password.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 * `ssl_config` -
   (Optional)
