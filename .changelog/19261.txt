@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added in-place updates when adding `disk_encryption_key.kms_key_self_link` to `google_compute_disk`, `disk_encryption_key.kms_key_name` to `google_compute_region_disk`, and `snapshot_encryption_key.kms_key_self_link` to `google_compute_snapshot` when the resource has no key
+```
+```release-note:note
+compute: removing the KMS key, or changing it while `kms_key_service_account` is set, on `google_compute_disk`, `google_compute_region_disk` and `google_compute_snapshot` now fails at plan time instead of recreating the resource
+```

@@ -119,7 +119,7 @@ func ResourceComputeRegionDisk() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("size", IsDiskShrinkage),
 			hyperDiskIopsUpdateDiffSuppress,
-			forceNewOnUnsupportedKmsKeyChange("disk_encryption_key.0.kms_key_name", ""),
+			kmsKeyUpdateCustomDiff("disk_encryption_key.0.kms_key_name", "", "disk_encryption_key.0.sha256"),
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
@@ -212,7 +212,6 @@ you create the resource.`,
 			"disk_encryption_key": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `Encrypts the disk using a customer-supplied encryption key.
 
 After you encrypt a disk with a customer-supplied key, you must
@@ -226,8 +225,8 @@ If you do not provide an encryption key when creating the disk, then
 the disk will be encrypted using an automatically generated key and
 you do not need to provide a key to use the disk later.
 
-~>**NOTE** Only changing 'kms_key_name' between Cloud KMS keys is done
-in place; other changes to this block recreate the disk.`,
+~>**NOTE** 'kms_key_name' can be added or changed in place. Removing it
+fails at plan time. Other changes to this block recreate the disk.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1152,8 +1151,7 @@ func resourceComputeRegionDiskUpdate(d *schema.ResourceData, meta interface{}) e
 
 	// 5. KMS key (POST updateKmsKey)
 	if d.HasChange("disk_encryption_key.0.kms_key_name") {
-		oldKey, newKey := d.GetChange("disk_encryption_key.0.kms_key_name")
-		obj, err := kmsKeyUpdateRequestBody(oldKey.(string), newKey.(string), "")
+		obj, err := kmsKeyUpdateRequestBody(d.Get("disk_encryption_key.0.kms_key_name").(string), "")
 		if err != nil {
 			return fmt.Errorf("error updating RegionDisk %q KMS key: %w", d.Id(), err)
 		}
