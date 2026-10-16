@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed `google_compute_reservation`, `data.google_compute_reservation_block`, and `data.google_compute_reservation_sub_block` to respect `compute_custom_endpoint` when querying reservation blocks and sub-blocks
+```

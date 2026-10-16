@@ -221,7 +221,7 @@ func dataSourceGoogleComputeReservationBlockRead(d *schema.ResourceData, meta in
 	block_name := d.Get("name").(string)
 	reservation := d.Get("reservation").(string)
 
-	url := fmt.Sprintf("https://compute.googleapis.com/compute/v1/projects/%s/zones/%s/reservations/%s/reservationBlocks/%s", project, zone, reservation, block_name)
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/reservations/%s/reservationBlocks/%s", transport_tpg.BaseUrl(Product, config), project, zone, reservation, block_name)
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -331,7 +331,7 @@ func dataSourceGoogleComputeReservationBlockRead(d *schema.ResourceData, meta in
 		}
 	}
 
-	listUrl := fmt.Sprintf("https://compute.googleapis.com/compute/v1/projects/%s/zones/%s/reservations%%2F%s%%2FreservationBlocks%%2F%s/reservationSubBlocks?alt=json&maxResults=500", project, zone, reservation, block_name)
+	listUrl := fmt.Sprintf("%sprojects/%s/zones/%s/reservations%%2F%s%%2FreservationBlocks%%2F%s/reservationSubBlocks?alt=json&maxResults=500", transport_tpg.BaseUrl(Product, config), project, zone, reservation, block_name)
 
 	listRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,

@@ -795,7 +795,7 @@ func resourceComputeReservationRead(d *schema.ResourceData, meta interface{}) er
 	name := d.Get("name").(string)
 
 	// Fetch the list of all reservation blocks from this reservation
-	listUrl := fmt.Sprintf("https://compute.googleapis.com/compute/v1/projects/%s/zones/%s/reservations/%s/reservationBlocks?alt=json&maxResults=500", project, zone, name)
+	listUrl := fmt.Sprintf("%sprojects/%s/zones/%s/reservations/%s/reservationBlocks?alt=json&maxResults=500", transport_tpg.BaseUrl(Product, config), project, zone, name)
 
 	listRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
