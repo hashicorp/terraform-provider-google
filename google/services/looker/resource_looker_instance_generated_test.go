@@ -82,7 +82,6 @@ func TestAccLookerInstance_lookerInstanceBasicExample(t *testing.T) {
 	context_2 := map[string]interface{}{
 		"client_id":     "tf-test-my-client-id" + randomSuffix,
 		"client_secret": "tf-test-my-client-secret" + randomSuffix,
-		"custom_domain": "tf-test-my-custom-domain" + randomSuffix,
 		"instance_name": "tf-test-my-instance" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
@@ -223,9 +222,6 @@ resource "google_looker_instance" "looker-instance" {
     client_id = "%{client_id}"
     client_secret = "%{client_secret}"
   }
-  custom_domain {
-    domain = "%{custom_domain}.com"
-  }
   deletion_policy = "FORCE"
 }
 `, context)
@@ -240,6 +236,7 @@ func TestAccLookerInstance_lookerInstanceEnterpriseFullTestExample(t *testing.T)
 		"address_name":      compute.BootstrapSharedTestGlobalAddress(t, "looker-vpc-network-3", compute.AddressWithPrefixLength(8)),
 		"client_id":         "tf-test-my-client-id" + randomSuffix,
 		"client_secret":     "tf-test-my-client-secret" + randomSuffix,
+		"custom_domain":     "tf-test-my-custom-domain" + randomSuffix,
 		"instance_name":     "tf-test-my-instance" + randomSuffix,
 		"kms_key_name":      kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"kms_key_ring_name": "tf-test-looker-kms-ring" + randomSuffix,
@@ -318,6 +315,9 @@ resource "google_looker_instance" "looker-instance" {
   oauth_config {
     client_id = "%{client_id}"
     client_secret = "%{client_secret}"
+  }
+  custom_domain {
+    domain = "%{custom_domain}.com"
   }
 
   depends_on = [google_kms_crypto_key_iam_member.crypto_key]
