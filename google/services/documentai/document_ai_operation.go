@@ -58,10 +58,17 @@ func (w *DocumentAIOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := transport_tpg.BaseUrl(Product, w.Config)
 	url += fmt.Sprintf("%s", w.CommonOperationWaiter.Op.Name)
-	if strings.Contains(url, "{{location}}") && w.Location == "" {
+	location := w.Location
+	if location == "" {
+		// Fall back to the location in the operation name
+		// (projects/PROJECT/locations/LOCATION/operations/OPERATION) for
+		// resources whose id doesn't contain a location.
+		location = tpgresource.LocationFromId(w.CommonOperationWaiter.Op.Name)
+	}
+	if strings.Contains(url, "{{location}}") && location == "" {
 		return nil, fmt.Errorf("failed to find location for a resource with a regionalized endpoint %s", url)
 	}
-	url = strings.ReplaceAll(url, "{{location}}", w.Location)
+	url = strings.ReplaceAll(url, "{{location}}", location)
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,
 		Method:    "GET",
