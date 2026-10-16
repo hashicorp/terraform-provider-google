@@ -270,6 +270,13 @@ func mergeSurvivor(oldEl, newEl interface{}, ipCidrExplicit bool) interface{} {
 				continue
 			}
 		}
+		if k == "ip_collection" || k == "reserved_internal_range" {
+			oldVal, _ := oldMap[k].(string)
+			newVal, _ := v.(string)
+			if tpgresource.CompareSelfLinkOrResourceName("", oldVal, newVal, nil) {
+				continue
+			}
+		}
 		merged[k] = v
 	}
 

@@ -501,7 +501,7 @@ func TestAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExample(t *test
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"ip_collection_url": "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/internal-ipv6-subnet-mode-test-sub-pdp",
+		"ip_collection_url": "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/terraform-v6-internal-sub-pdp",
 		"network_name":      "tf-test-network-byoipv6-internal" + randomSuffix,
 		"subnetwork_name":   "tf-test-internal-subnet-mode-pdp-subnet" + randomSuffix,
 		"random_suffix":     randomSuffix,
@@ -555,8 +555,8 @@ func TestAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExplicitIpPrefi
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"internal_ipv6_prefix": fmt.Sprintf("2001:db8:1:%d::/64", acctest.RandIntRange(t, 0, 9999)),
-		"ip_collection_url":    "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/internal-ipv6-subnet-mode-test-sub-pdp-explicit-prefix",
+		"internal_ipv6_prefix": fmt.Sprintf("2600:1904:9:%x::/64", acctest.RandIntRange(t, 16, 95)),
+		"ip_collection_url":    "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/terraform-v6-internal-sub-pdp",
 		"network_name":         "tf-test-network-byoipv6-internal-prefix" + randomSuffix,
 		"subnetwork_name":      "tf-test-subnet-mode-pdp-subnet-internal-prefix" + randomSuffix,
 		"random_suffix":        randomSuffix,

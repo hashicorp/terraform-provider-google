@@ -372,50 +372,22 @@ resource "google_compute_subnetwork" "subnetwork_with_secondary_ipv6_range" {
   secondary_ip_range {
     range_name    = "v6-byogua-auto"
     ip_version    = "IPV6"
-    ip_collection = google_compute_public_delegated_prefix.ipv6_sub_pdp.self_link
+    ip_collection = "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/terraform-v6-internal-sub-pdp"
   }
 
   secondary_ip_range {
     range_name    = "v6-byogua-manual"
     ip_version    = "IPV6"
-    ip_collection = google_compute_public_delegated_prefix.ipv6_sub_pdp.self_link
-    ip_cidr_range = "2001:db8:0:2::/64"
+    ip_collection = "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/terraform-v6-internal-sub-pdp"
+    ip_cidr_range = "2600:1904:9:60::/64"
   }
 }
 
 resource "google_compute_network" "custom-test" {
-  provider                = google-beta
-  name                    = "network-with-secondary-ranges"
-  auto_create_subnetworks = false
+  provider                 = google-beta
+  name                     = "network-with-secondary-ranges"
+  auto_create_subnetworks  = false
   enable_ula_internal_ipv6 = true
-}
-
-resource "google_compute_public_advertised_prefix" "ipv6_pap" {
-  provider         = google-beta
-  name             = "pap-for-secondary-ranges"
-  ip_cidr_range    = "2001:db8::/40"
-  pdp_scope        = "REGIONAL"
-  ipv6_access_type = "INTERNAL"
-  description      = "GOOGLE_INTERNAL_TEST_PREFIX"
-}
-
-resource "google_compute_public_delegated_prefix" "ipv6_pdp" {
-  provider         = google-beta
-  name             = "pdp-for-secondary-ranges"
-  region           = "us-central1"
-  description      = "PDP in internal subnet mode"
-  ip_cidr_range    = "2001:db8::/48"
-  parent_prefix    = google_compute_public_advertised_prefix.ipv6_pap.id
-  mode             = "DELEGATION"
-}
-
-resource "google_compute_public_delegated_prefix" "ipv6_sub_pdp" {
-  provider      = google-beta
-  name          = "sub-pdp-for-secondary-ranges"
-  region        = "us-central1"
-  ip_cidr_range = "2001:db8::/56"
-  parent_prefix = google_compute_public_delegated_prefix.ipv6_pdp.id
-  mode          = "INTERNAL_IPV6_SUBNETWORK_CREATION"
 }
 ```
 
