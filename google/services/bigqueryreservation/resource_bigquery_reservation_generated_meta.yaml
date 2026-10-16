@@ -26,6 +26,8 @@ fields:
     - api_field: replicationStatus.lastErrorTime
     - api_field: replicationStatus.lastReplicationTime
     - api_field: reservationGroup
+    - api_field: schedulingPolicy.concurrency
+    - api_field: schedulingPolicy.maxSlots
     - api_field: secondaryLocation
     - api_field: slotCapacity
     - field: terraform_labels

@@ -58,14 +58,14 @@ The following arguments are supported:
   (Required)
   The resource which will use the reservation. E.g. projects/myproject, folders/123, organizations/456.
 
-* `job_type` -
-  (Required)
-  Types of job, which could be specified when using the reservation. Possible values: JOB_TYPE_UNSPECIFIED, PIPELINE, QUERY, CONTINUOUS
-
 * `reservation` -
   (Required)
   The reservation for the resource
 
+
+* `job_type` -
+  (Optional)
+  Types of job, which could be specified when using the reservation. Possible values: JOB_TYPE_UNSPECIFIED, PIPELINE, QUERY, CONTINUOUS
 
 * `principal` -
   (Optional)
@@ -74,6 +74,14 @@ The following arguments are supported:
   * `principal://iam.googleapis.com/projects/-/serviceAccounts/SA_EMAIL_ADDRESS` for service accounts,
   * `principal://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/subject/SUBJECT_ID` for workload identity pool identities.
   * The special value `unknown_or_deleted_user` represents principals which cannot be read from the user info service, for example deleted users.
+
+* `scheduling_policy` -
+  (Optional)
+  The scheduling policy to use for jobs and queries of this assignee when
+  running under the associated reservation. The scheduling policy controls
+  how the reservation's resources are distributed. This overrides the default
+  scheduling policy specified on the reservation.
+  Structure is [documented below](#nested_scheduling_policy).
 
 * `location` -
   (Optional)
@@ -89,6 +97,19 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
+
+<a name="nested_scheduling_policy"></a>The `scheduling_policy` block supports:
+
+* `concurrency` -
+  (Optional)
+  If present and > 0, the reservation will attempt to limit the concurrency
+  of jobs running for any particular project within it to the given value.
+
+* `max_slots` -
+  (Optional)
+  If present and > 0, the reservation will attempt to limit the slot
+  consumption of queries running for any particular project within it to
+  the given value.
 
 ## Attributes Reference
 

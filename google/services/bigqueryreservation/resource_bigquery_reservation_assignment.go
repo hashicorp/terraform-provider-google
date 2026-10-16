@@ -151,18 +151,19 @@ func ResourceBigqueryReservationReservationAssignment() *schema.Resource {
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The resource which will use the reservation. E.g. projects/myproject, folders/123, organizations/456.`,
 			},
-			"job_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Types of job, which could be specified when using the reservation. Possible values: JOB_TYPE_UNSPECIFIED, PIPELINE, QUERY, CONTINUOUS`,
-			},
 			"reservation": {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The reservation for the resource`,
+			},
+			"job_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Description:  `Types of job, which could be specified when using the reservation. Possible values: JOB_TYPE_UNSPECIFIED, PIPELINE, QUERY, CONTINUOUS`,
+				ExactlyOneOf: []string{"job_type", "scheduling_policy"},
 			},
 			"location": {
 				Type:        schema.TypeString,
@@ -180,6 +181,38 @@ func ResourceBigqueryReservationReservationAssignment() *schema.Resource {
 * 'principal://iam.googleapis.com/projects/-/serviceAccounts/SA_EMAIL_ADDRESS' for service accounts,
 * 'principal://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/subject/SUBJECT_ID' for workload identity pool identities.
 * The special value 'unknown_or_deleted_user' represents principals which cannot be read from the user info service, for example deleted users.`,
+			},
+			"scheduling_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `The scheduling policy to use for jobs and queries of this assignee when
+running under the associated reservation. The scheduling policy controls
+how the reservation's resources are distributed. This overrides the default
+scheduling policy specified on the reservation.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"concurrency": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+							Description: `If present and > 0, the reservation will attempt to limit the concurrency
+of jobs running for any particular project within it to the given value.`,
+							AtLeastOneOf: []string{"scheduling_policy.0.concurrency", "scheduling_policy.0.max_slots"},
+						},
+						"max_slots": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+							Description: `If present and > 0, the reservation will attempt to limit the slot
+consumption of queries running for any particular project within it to
+the given value.`,
+							AtLeastOneOf: []string{"scheduling_policy.0.concurrency", "scheduling_policy.0.max_slots"},
+						},
+					},
+				},
+				ExactlyOneOf: []string{"job_type", "scheduling_policy"},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -240,6 +273,12 @@ func resourceBigqueryReservationReservationAssignmentCreate(d *schema.ResourceDa
 		return err
 	} else if v, ok := d.GetOkExists("principal"); !tpgresource.IsEmptyValue(reflect.ValueOf(principalProp)) && (ok || !reflect.DeepEqual(v, principalProp)) {
 		obj["principal"] = principalProp
+	}
+	schedulingPolicyProp, err := expandNestedBigqueryReservationReservationAssignmentSchedulingPolicy(d.Get("scheduling_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scheduling_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(schedulingPolicyProp)) && (ok || !reflect.DeepEqual(v, schedulingPolicyProp)) {
+		obj["schedulingPolicy"] = schedulingPolicyProp
 	}
 
 	url, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments")
@@ -547,6 +586,55 @@ func flattenNestedBigqueryReservationReservationAssignmentPrincipal(v interface{
 	return v
 }
 
+func flattenNestedBigqueryReservationReservationAssignmentSchedulingPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["concurrency"] =
+		flattenNestedBigqueryReservationReservationAssignmentSchedulingPolicyConcurrency(original["concurrency"], d, config)
+	transformed["max_slots"] =
+		flattenNestedBigqueryReservationReservationAssignmentSchedulingPolicyMaxSlots(original["maxSlots"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNestedBigqueryReservationReservationAssignmentSchedulingPolicyConcurrency(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenNestedBigqueryReservationReservationAssignmentSchedulingPolicyMaxSlots(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenNestedBigqueryReservationReservationAssignmentState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -560,6 +648,43 @@ func expandNestedBigqueryReservationReservationAssignmentJobType(v interface{}, 
 }
 
 func expandNestedBigqueryReservationReservationAssignmentPrincipal(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedBigqueryReservationReservationAssignmentSchedulingPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedConcurrency, err := expandNestedBigqueryReservationReservationAssignmentSchedulingPolicyConcurrency(original["concurrency"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConcurrency); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["concurrency"] = transformedConcurrency
+	}
+
+	transformedMaxSlots, err := expandNestedBigqueryReservationReservationAssignmentSchedulingPolicyMaxSlots(original["max_slots"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxSlots); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxSlots"] = transformedMaxSlots
+	}
+
+	return transformed, nil
+}
+
+func expandNestedBigqueryReservationReservationAssignmentSchedulingPolicyConcurrency(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedBigqueryReservationReservationAssignmentSchedulingPolicyMaxSlots(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -642,6 +767,9 @@ func ResourceBigqueryReservationReservationAssignmentFlatten(d *schema.ResourceD
 		return fmt.Errorf("Error reading ReservationAssignment: %s", err)
 	}
 	if err = d.Set("principal", flattenNestedBigqueryReservationReservationAssignmentPrincipal(res["principal"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ReservationAssignment: %s", err)
+	}
+	if err = d.Set("scheduling_policy", flattenNestedBigqueryReservationReservationAssignmentSchedulingPolicy(res["schedulingPolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ReservationAssignment: %s", err)
 	}
 	if err = d.Set("state", flattenNestedBigqueryReservationReservationAssignmentState(res["state"], d, config)); err != nil {
