@@ -30,7 +30,7 @@ import (
 func TestAccEphemeralServiceAccountKey_create(t *testing.T) {
 	t.Parallel()
 
-	accountID := "a" + acctest.RandString(t, 10)
+	accountID := "tf-test-a" + acctest.RandString(t, 10)
 	displayName := "Terraform Test"
 	project := envvar.GetTestProjectFromEnv()
 	expectedServiceAccountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountID, project)
@@ -95,7 +95,7 @@ ephemeral "google_service_account_key" "key" {
 func TestAccEphemeralServiceAccountKey_upload(t *testing.T) {
 	t.Parallel()
 
-	accountID := "b" + acctest.RandString(t, 10)
+	accountID := "tf-test-b" + acctest.RandString(t, 10)
 	displayName := "Terraform Test Two"
 	project := envvar.GetTestProjectFromEnv()
 	expectedServiceAccountEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", accountID, project)
