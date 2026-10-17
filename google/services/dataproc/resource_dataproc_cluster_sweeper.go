@@ -37,105 +37,110 @@ func testSweepDataprocCluster(region string) error {
 	resourceName := "DataprocCluster"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
-	config, err := sweeper.SharedConfigForRegion(region)
-	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
-		return err
-	}
-
-	err = config.LoadAndValidate(context.Background())
-	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] error loading: %s", err)
-		return err
-	}
-
-	t := &testing.T{}
-	billingId := envvar.GetTestBillingAccountFromEnv(t)
-
-	// Setup variables to replace in list template
-	d := &tpgresource.ResourceDataMock{
-		FieldsInSchema: map[string]interface{}{
-			"project":         config.Project,
-			"region":          region,
-			"location":        region,
-			"zone":            "-",
-			"billing_account": billingId,
-		},
-	}
-
-	listTemplate := strings.Split("https://dataproc.googleapis.com/v1/projects/{{project}}/regions/{{region}}/clusters", "?")[0]
-	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
-	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
-		return nil
-	}
-
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   config.Project,
-		RawURL:    listUrl,
-		UserAgent: config.UserAgent,
-	})
-	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
-		return nil
-	}
-
-	resourceList, ok := res["clusters"]
-	if !ok {
-		log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-		return nil
-	}
-
-	rl := resourceList.([]interface{})
-
-	log.Printf("[INFO][SWEEPER_LOG] Found %d items in %s list response.", len(rl), resourceName)
-	// Keep count of items that aren't sweepable for logging.
-	nonPrefixCount := 0
-	for _, ri := range rl {
-		obj := ri.(map[string]interface{})
-		var name string
-		// Id detected in the delete URL, attempt to use id.
-		if obj["id"] != nil {
-			name = tpgresource.GetResourceNameFromSelfLink(obj["id"].(string))
-		} else if obj["name"] != nil {
-			name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
-		} else {
-			log.Printf("[INFO][SWEEPER_LOG] %s resource name and id were nil", resourceName)
-			return nil
-		}
-		// Skip resources that shouldn't be sweeped
-		if !sweeper.IsSweepableTestResource(name) {
-			nonPrefixCount++
-			continue
-		}
-
-		deleteTemplate := "https://dataproc.googleapis.com/v1/projects/{{project}}/regions/{{region}}/clusters/{cluster_id}"
-		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+	regions := []string{"us-central1", "us-west1", "us-east1"}
+	for _, r := range regions {
+		config, err := sweeper.SharedConfigForRegion(r)
 		if err != nil {
-			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
+			log.Printf("[INFO][SWEEPER_LOG] error getting shared config for region: %s", err)
+			return err
+		}
+
+		err = config.LoadAndValidate(context.Background())
+		if err != nil {
+			log.Printf("[INFO][SWEEPER_LOG] error loading: %s", err)
+			return err
+		}
+
+		t := &testing.T{}
+		billingId := envvar.GetTestBillingAccountFromEnv(t)
+
+		// Setup variables to replace in list template
+		d := &tpgresource.ResourceDataMock{
+			FieldsInSchema: map[string]interface{}{
+				"project":         config.Project,
+				"region":          r,
+				"location":        r,
+				"zone":            "-",
+				"billing_account": billingId,
+			},
+		}
+
+		listTemplate := strings.Split("https://dataproc.googleapis.com/v1/projects/{{project}}/regions/{{region}}/clusters", "?")[0]
+		listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
+		if err != nil {
+			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
 			return nil
 		}
-		deleteUrl = deleteUrl + name
 
-		// Don't wait on operations as we may have a lot to delete
-		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
-			Method:    "DELETE",
+			Method:    "GET",
 			Project:   config.Project,
-			RawURL:    deleteUrl,
+			RawURL:    listUrl,
 			UserAgent: config.UserAgent,
 		})
 		if err != nil {
-			log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
-		} else {
-			log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
+			log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
+			return nil
 		}
-	}
 
-	if nonPrefixCount > 0 {
-		log.Printf("[INFO][SWEEPER_LOG] %d items were non-sweepable and skipped.", nonPrefixCount)
+		resourceList, ok := res["clusters"]
+		if !ok {
+			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
+			continue
+		}
+
+		rl := resourceList.([]interface{})
+
+		log.Printf("[INFO][SWEEPER_LOG] Found %d items in %s list response.", len(rl), resourceName)
+		// Keep count of items that aren't sweepable for logging.
+		nonPrefixCount := 0
+		for _, ri := range rl {
+			obj, ok := ri.(map[string]interface{})
+			if !ok {
+				log.Printf("[INFO][SWEEPER_LOG] Item was not a map: %T", ri)
+				continue
+			}
+
+			// Clusters are identified by clusterName. The list response has no
+			// "name" or "id" field, so reading those matched nothing.
+			name, ok := obj["clusterName"].(string)
+			if !ok || name == "" {
+				log.Printf("[INFO][SWEEPER_LOG] %s resource clusterName was nil, skipping", resourceName)
+				continue
+			}
+			// Skip resources that shouldn't be sweeped
+			if !sweeper.IsSweepableTestResource(name) {
+				nonPrefixCount++
+				continue
+			}
+
+			deleteTemplate := "https://dataproc.googleapis.com/v1/projects/{{project}}/regions/{{region}}/clusters/"
+			deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
+			if err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
+				continue
+			}
+			deleteUrl = deleteUrl + name
+
+			// Don't wait on operations as we may have a lot to delete
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				Project:   config.Project,
+				RawURL:    deleteUrl,
+				UserAgent: config.UserAgent,
+			})
+			if err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
+			} else {
+				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
+			}
+		}
+
+		if nonPrefixCount > 0 {
+			log.Printf("[INFO][SWEEPER_LOG] %d items were non-sweepable and skipped.", nonPrefixCount)
+		}
 	}
 
 	return nil
