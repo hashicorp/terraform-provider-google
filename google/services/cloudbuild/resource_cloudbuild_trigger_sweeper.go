@@ -144,9 +144,9 @@ func listAndActionCloudBuildTrigger(action sweeper.ResourceAction) error {
 			}
 
 			// First try the expected resource key
-			resourceList, ok := res["buildTriggers"]
+			resourceList, ok := res["triggers"]
 			if ok {
-				log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'buildTriggers'")
+				log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'triggers'")
 			} else {
 				// Next, try the common "items" pattern
 				resourceList, ok = res["items"]
@@ -199,14 +199,23 @@ func deleteResourceCloudBuildTrigger(config *transport_tpg.Config, d *tpgresourc
 	var deletionerror error
 	resourceName := "CloudBuildTrigger"
 	var name string
-	// Id detected in the delete URL, attempt to use id.
-	if obj["id"] != nil {
-		name = tpgresource.GetResourceNameFromSelfLink(obj["id"].(string))
-	} else if obj["name"] != nil {
-		name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
-	} else {
-		log.Printf("[INFO][SWEEPER_LOG] %s resource name and id were nil", resourceName)
+	var deleteId string
+	if obj["name"] == nil {
+		log.Printf("[INFO][SWEEPER_LOG] %s resource name was nil", resourceName)
 		return fmt.Errorf("%s resource name was nil", resourceName)
+	}
+	name = obj["name"].(string)
+
+	// name decides whether this resource is sweepable, but the delete
+	// URL needs the resource's own id, which is usually a different value.
+	if obj["name"] != nil {
+		deleteId = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
+	} else if obj["id"] != nil {
+		deleteId = tpgresource.GetResourceNameFromSelfLink(obj["id"].(string))
+	} else {
+		// The list response carries no id of its own, so name is all
+		// there is to delete by.
+		deleteId = name
 	}
 
 	// Skip resources that shouldn't be sweeped
@@ -221,7 +230,7 @@ func deleteResourceCloudBuildTrigger(config *transport_tpg.Config, d *tpgresourc
 		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 		deletionerror = err
 	}
-	url = url + name
+	url = url + deleteId
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

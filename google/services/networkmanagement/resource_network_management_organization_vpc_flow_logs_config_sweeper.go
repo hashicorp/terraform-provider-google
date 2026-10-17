@@ -57,11 +57,10 @@ func listAndActionNetworkManagementOrganizationVpcFlowLogsConfig(action sweeper.
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	// Build URL substitution maps individually to ensure proper formatting
-	intermediateValues := make([]map[string]string, 2)
+	intermediateValues := make([]map[string]string, 1)
 	intermediateValues[0] = map[string]string{}
-	intermediateValues[0]["parent"] = "organizations/" + envvar.GetTestOrgFromEnv(t)
-	intermediateValues[1] = map[string]string{}
-	intermediateValues[1]["region"] = "global"
+	intermediateValues[0]["organization"] = envvar.GetTestOrgFromEnv(t)
+	intermediateValues[0]["region"] = "global"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {
@@ -144,9 +143,9 @@ func listAndActionNetworkManagementOrganizationVpcFlowLogsConfig(action sweeper.
 			}
 
 			// First try the expected resource key
-			resourceList, ok := res["organizationVpcFlowLogsConfigs"]
+			resourceList, ok := res["vpcFlowLogsConfigs"]
 			if ok {
-				log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'organizationVpcFlowLogsConfigs'")
+				log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'vpcFlowLogsConfigs'")
 			} else {
 				// Next, try the common "items" pattern
 				resourceList, ok = res["items"]

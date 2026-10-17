@@ -144,9 +144,9 @@ func listAndActionMonitoringGroup(action sweeper.ResourceAction) error {
 			}
 
 			// First try the expected resource key
-			resourceList, ok := res["groups"]
+			resourceList, ok := res["group"]
 			if ok {
-				log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'groups'")
+				log.Printf("[INFO][SWEEPER_LOG] Found resources under expected key 'group'")
 			} else {
 				// Next, try the common "items" pattern
 				resourceList, ok = res["items"]
