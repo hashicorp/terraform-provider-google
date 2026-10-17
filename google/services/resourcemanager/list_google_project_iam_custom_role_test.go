@@ -34,7 +34,7 @@ func TestAccProjectIamCustomRoleListResource_queryIdentity(t *testing.T) {
 	t.Parallel()
 
 	project := envvar.GetTestProjectFromEnv()
-	roleID := "tfTestRole" + acctest.RandString(t, 10)
+	roleID := "tf_test_Role" + acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
