@@ -62,7 +62,7 @@ func TestAccParameterManagerParameterVersion_parameterVersionBasicExample(t *tes
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_id":         "tf-test-parameter" + randomSuffix,
 		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
@@ -105,7 +105,7 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithJsonFormatExamp
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_id":         "tf-test-parameter" + randomSuffix,
 		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
@@ -159,7 +159,7 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithKmsKeyExample(t
 
 	context := map[string]interface{}{
 		"kms_key":              kms.BootstrapKMSKey(t).CryptoKey.Name,
-		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_id":         "tf-test-parameter" + randomSuffix,
 		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
@@ -205,7 +205,7 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithYamlFormatExamp
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_id":         "tf-test-parameter" + randomSuffix,
 		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
@@ -253,7 +253,7 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithJsonFormatWithF
 
 	context := map[string]interface{}{
 		"data":                 "./test-fixtures/parameter_data_json_format.json",
-		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_id":         "tf-test-parameter" + randomSuffix,
 		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
@@ -298,7 +298,7 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithYamlFormatWithF
 
 	context := map[string]interface{}{
 		"data":                 "./test-fixtures/parameter_data_yaml_format.yaml",
-		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_id":         "tf-test-parameter" + randomSuffix,
 		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
@@ -342,7 +342,7 @@ func TestAccParameterManagerParameterVersion_parameterVersionWithDataCrc32cExamp
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"parameter_id":         "parameter" + randomSuffix,
+		"parameter_id":         "tf-test-parameter" + randomSuffix,
 		"parameter_version_id": "tf_test_parameter_version" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
