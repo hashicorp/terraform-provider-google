@@ -195,7 +195,7 @@ func TestAccSpannerBackupSchedule_MRCMEKFullBackup(t *testing.T) {
 func testAccSpannerBackupSchedule_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "instance" {
-  name         = "my-instance-%{random_suffix}"
+  name         = "tf-test-instance-%{random_suffix}"
   config       = "regional-us-central1"
   display_name = "My Instance"
   num_nodes    = 1
@@ -204,7 +204,7 @@ resource "google_spanner_instance" "instance" {
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
-  name     = "my-database-%{random_suffix}"
+  name     = "tf-test-db-%{random_suffix}"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
   ]
@@ -214,7 +214,7 @@ resource "google_spanner_database" "database" {
 resource "google_spanner_backup_schedule" "backup_schedule" {
   instance = google_spanner_instance.instance.name
   database = google_spanner_database.database.name
-  name     = "my-backup-schedule-%{random_suffix}"
+  name     = "tf-test-schedule-%{random_suffix}"
 
   retention_duration = "172800s"
 
@@ -232,7 +232,7 @@ resource "google_spanner_backup_schedule" "backup_schedule" {
 func testAccSpannerBackupSchedule_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "instance" {
-  name         = "my-instance-%{random_suffix}"
+  name         = "tf-test-instance-%{random_suffix}"
   config       = "regional-us-central1"
   display_name = "My Instance"
   num_nodes    = 1
@@ -241,7 +241,7 @@ resource "google_spanner_instance" "instance" {
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
-  name     = "my-database-%{random_suffix}"
+  name     = "tf-test-db-%{random_suffix}"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
   ]
@@ -251,7 +251,7 @@ resource "google_spanner_database" "database" {
 resource "google_spanner_backup_schedule" "backup_schedule" {
   instance = google_spanner_instance.instance.name
   database = google_spanner_database.database.name
-  name     = "my-backup-schedule-%{random_suffix}"
+  name     = "tf-test-schedule-%{random_suffix}"
 
   retention_duration = "172900s"
 
@@ -269,7 +269,7 @@ resource "google_spanner_backup_schedule" "backup_schedule" {
 func testAccSpannerBackupSchedule_CMEKIncremental(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "instance" {
-  name         = "my-instance-%{random_suffix}"
+  name         = "tf-test-instance-%{random_suffix}"
   config       = "regional-us-central1"
   display_name = "My Instance"
   num_nodes    = 1
@@ -278,7 +278,7 @@ resource "google_spanner_instance" "instance" {
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
-  name     = "my-database-%{random_suffix}"
+  name     = "tf-test-db-%{random_suffix}"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
   ]
@@ -292,7 +292,7 @@ resource "google_spanner_database" "database" {
 resource "google_spanner_backup_schedule" "backup_schedule" {
   instance = google_spanner_instance.instance.name
   database = google_spanner_database.database.name
-  name     = "my-backup-schedule-%{random_suffix}"
+  name     = "tf-test-schedule-%{random_suffix}"
 
   retention_duration = "172800s"
 
@@ -314,7 +314,7 @@ resource "google_spanner_backup_schedule" "backup_schedule" {
 func testAccSpannerBackupSchedule_CMEKFull(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "instance" {
-  name         = "my-instance-%{random_suffix}"
+  name         = "tf-test-instance-%{random_suffix}"
   config       = "regional-us-central1"
   display_name = "My Instance"
   num_nodes    = 1
@@ -323,7 +323,7 @@ resource "google_spanner_instance" "instance" {
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
-  name     = "my-database-%{random_suffix}"
+  name     = "tf-test-db-%{random_suffix}"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
   ]
@@ -333,7 +333,7 @@ resource "google_spanner_database" "database" {
 resource "google_spanner_backup_schedule" "backup_schedule" {
   instance = google_spanner_instance.instance.name
   database = google_spanner_database.database.name
-  name     = "my-backup-schedule-%{random_suffix}"
+  name     = "tf-test-schedule-%{random_suffix}"
 
   retention_duration = "172800s"
 
@@ -356,7 +356,7 @@ resource "google_spanner_backup_schedule" "backup_schedule" {
 func testAccSpannerBackupSchedule_MRCMEKIncremental(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "instance" {
-  name         = "my-instance-%{random_suffix}"
+  name         = "tf-test-instance-%{random_suffix}"
   config       = "nam3"
   display_name = "My Instance"
   num_nodes    = 1
@@ -365,7 +365,7 @@ resource "google_spanner_instance" "instance" {
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
-  name     = "my-database-%{random_suffix}"
+  name     = "tf-test-db-%{random_suffix}"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
   ]
@@ -383,7 +383,7 @@ resource "google_spanner_database" "database" {
 resource "google_spanner_backup_schedule" "backup_schedule" {
   instance = google_spanner_instance.instance.name
   database = google_spanner_database.database.name
-  name     = "my-backup-schedule-%{random_suffix}"
+  name     = "tf-test-schedule-%{random_suffix}"
 
   retention_duration = "172800s"
 
@@ -405,7 +405,7 @@ resource "google_spanner_backup_schedule" "backup_schedule" {
 func testAccSpannerBackupSchedule_MRCMEKFull(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_spanner_instance" "instance" {
-  name         = "my-instance-%{random_suffix}"
+  name         = "tf-test-instance-%{random_suffix}"
   config       = "nam3"
   display_name = "My Instance"
   num_nodes    = 1
@@ -414,7 +414,7 @@ resource "google_spanner_instance" "instance" {
 
 resource "google_spanner_database" "database" {
   instance = google_spanner_instance.instance.name
-  name     = "my-database-%{random_suffix}"
+  name     = "tf-test-db-%{random_suffix}"
   ddl = [
     "CREATE TABLE t1 (t1 INT64 NOT NULL,) PRIMARY KEY(t1)",
   ]
@@ -432,7 +432,7 @@ resource "google_spanner_database" "database" {
 resource "google_spanner_backup_schedule" "backup_schedule" {
   instance = google_spanner_instance.instance.name
   database = google_spanner_database.database.name
-  name     = "my-backup-schedule-%{random_suffix}"
+  name     = "tf-test-schedule-%{random_suffix}"
 
   retention_duration = "172800s"
 
