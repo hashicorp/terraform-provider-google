@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -798,6 +799,11 @@ func getAnywhereCacheListResult(d *schema.ResourceData, config *transport_tpg.Co
 }
 
 func deleteAnywhereCacheIfAny(d *schema.ResourceData, config *transport_tpg.Config) error {
+	sleepDuration := 1 * time.Minute
+	if os.Getenv("VCR_MODE") == "REPLAYING" {
+		sleepDuration = config.PollInterval
+	}
+
 	for {
 		// Get the list of Anywhere Caches
 		cacheList, err := getAnywhereCacheListResult(d, config)
@@ -851,7 +857,7 @@ func deleteAnywhereCacheIfAny(d *schema.ResourceData, config *transport_tpg.Conf
 		}
 
 		// Sleep for 1 minute
-		time.Sleep(1 * time.Minute)
+		time.Sleep(sleepDuration)
 	}
 
 	return nil

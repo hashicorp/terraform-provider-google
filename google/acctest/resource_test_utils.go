@@ -110,13 +110,17 @@ func SkipIfVcr(t *testing.T) {
 	}
 }
 
-func SleepInSecondsForTest(t int) resource.TestCheckFunc {
+func Sleep(d time.Duration) {
+	// Assume we never want to sleep when we're in replaying mode.
+	if IsVcrEnabled() && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return
+	}
+	time.Sleep(d)
+}
+
+func SleepTestCheckFunc(d time.Duration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		// Assume we never want to sleep when we're in replaying mode.
-		if IsVcrEnabled() && os.Getenv("VCR_MODE") == "REPLAYING" {
-			return nil
-		}
-		time.Sleep(time.Duration(t) * time.Second)
+		Sleep(d)
 		return nil
 	}
 }

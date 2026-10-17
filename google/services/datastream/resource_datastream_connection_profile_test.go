@@ -187,7 +187,7 @@ QC3v6moZVb2wrgGkfwAAAAR1c2VyAQIDBAU=
 			{
 				PreConfig: func() {
 					fmt.Println("Waiting before proceeding to the next step...")
-					time.Sleep(150 * time.Second) // Delay before the next step
+					acctest.Sleep(150 * time.Second) // Delay before the next step
 				},
 				Config: testAccDatastreamConnectionProfile_sshKey_update(context, true, randomPrivKey2, randomPubKey2),
 			},
@@ -200,7 +200,7 @@ QC3v6moZVb2wrgGkfwAAAAR1c2VyAQIDBAU=
 			{
 				PreConfig: func() {
 					fmt.Println("Waiting before proceeding to the next step...")
-					time.Sleep(150 * time.Second) // Delay before the next step
+					acctest.Sleep(150 * time.Second) // Delay before the next step
 				},
 				Config: testAccDatastreamConnectionProfile_sshKey_update(context, false, randomPrivKey2, randomPubKey2),
 			},

@@ -153,7 +153,7 @@ func testAccCheckDocumentAIProcessorDestroyProducer(t *testing.T) func(s *terraf
 			}
 
 			// Delete is eventually consistent; wait for a moment.
-			time.Sleep(10 * time.Second)
+			acctest.Sleep(10 * time.Second)
 
 			config := acctest.GoogleProviderConfig(t)
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(documentai.Product, config)+"projects/{{project}}/locations/{{location}}/processors/{{name}}")

@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/netapp"
@@ -428,11 +427,8 @@ data "google_compute_network" "default" {
 }
 
 func testAccNetappStoragePool_FlexRegionalStoragePoolCreateExample_sleep_5_mins() resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		// wait 5 minutes before executing the switchback due to api zone switch issues
-		time.Sleep(5 * time.Minute)
-		return nil
-	}
+	// wait 5 minutes before executing the switchback due to api zone switch issues
+	return acctest.SleepTestCheckFunc(5 * time.Minute)
 }
 
 func testAccNetappStoragePool_FlexRegionalStoragePoolCreateExample_switchBackZone(context map[string]interface{}) string {

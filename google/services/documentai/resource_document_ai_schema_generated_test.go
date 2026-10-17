@@ -111,7 +111,7 @@ func testAccCheckDocumentAISchemaDestroyProducer(t *testing.T) func(s *terraform
 			}
 
 			// Delete is eventually consistent; wait for a moment.
-			time.Sleep(10 * time.Second)
+			acctest.Sleep(10 * time.Second)
 
 			config := acctest.GoogleProviderConfig(t)
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(documentai.Product, config)+"projects/{{project}}/locations/{{location}}/schemas/{{name}}")
