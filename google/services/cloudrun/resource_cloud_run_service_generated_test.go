@@ -899,7 +899,7 @@ func testAccCheckCloudRunServiceDestroyProducer(t *testing.T) func(s *terraform.
 			}
 
 			// Delete is eventually-consistent; wait for a moment.
-			time.Sleep(10 * time.Second)
+			acctest.Sleep(10 * time.Second)
 
 			config := acctest.GoogleProviderConfig(t)
 			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(cloudrun.Product, config)+"apis/serving.knative.dev/v1/namespaces/{{project}}/services/{{name}}")

@@ -189,6 +189,8 @@ func VcrTest(t *testing.T, c resource.TestCase) {
 		if IsVcrEnabled() && os.Getenv("VCR_MODE") == "REPLAYING" {
 			re := regexp.MustCompile(`create_duration = "\d+[sm]"`)
 			s.Config = re.ReplaceAllString(s.Config, `create_duration = "1s"`)
+			re = regexp.MustCompile(`destroy_duration = "\d+[sm]"`)
+			s.Config = re.ReplaceAllString(s.Config, `destroy_duration = "1s"`)
 		}
 		// deletion_policy is a universal virtual attribute for managing the behavior of resources when a delete is attempted
 		// in Terraform. Because it is a virtual attribute, it needs to be excluded from these ImportStateVerifys.

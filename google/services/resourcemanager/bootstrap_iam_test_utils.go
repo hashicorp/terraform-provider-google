@@ -18,6 +18,7 @@ package resourcemanager
 
 import (
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -142,8 +143,10 @@ func applyProjectIamBindings(t *testing.T,
 		setPolicyRequest := &cloudresourcemanager.SetIamPolicyRequest{Policy: policy}
 		policy, err = client.Projects.SetIamPolicy(projectId, setPolicyRequest).Do()
 		if err == nil {
-			log.Printf("[DEBUG] Waiting for IAM bootstrapping to propagate for project %s.", projectId)
-			time.Sleep(3 * time.Minute)
+			if os.Getenv("VCR_MODE") != "REPLAYING" {
+				log.Printf("[DEBUG] Waiting for IAM bootstrapping to propagate for project %s.", projectId)
+				time.Sleep(3 * time.Minute)
+			}
 			break
 		}
 		if tpgresource.IsConflictError(err) {
@@ -189,8 +192,10 @@ func applyOrgIamBindings(
 		setPolicyRequest := &cloudresourcemanager.SetIamPolicyRequest{Policy: policy}
 		policy, err = client.Organizations.SetIamPolicy(orgName, setPolicyRequest).Do()
 		if err == nil {
-			log.Printf("[DEBUG] Waiting for IAM bootstrapping to propagate for org %s.", orgName)
-			time.Sleep(3 * time.Minute)
+			if os.Getenv("VCR_MODE") != "REPLAYING" {
+				log.Printf("[DEBUG] Waiting for IAM bootstrapping to propagate for org %s.", orgName)
+				time.Sleep(3 * time.Minute)
+			}
 			break
 		}
 		if tpgresource.IsConflictError(err) {
