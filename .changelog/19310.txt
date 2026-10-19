@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: promoted `instance_flexibility_policy.instance_selections.min_cpu_platform` and `instance_flexibility_policy.instance_selections.disks` to GA in `google_compute_region_instance_group_manager`
+```

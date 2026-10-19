@@ -19,6 +19,8 @@ package compute
 import (
 	"fmt"
 	"log"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -149,6 +151,276 @@ When set to "FORCE", deleting the resource is allowed, and graceful shutdown is 
 											Type: schema.TypeString,
 										},
 										Description: `Full machine-type names, e.g. "n1-standard-16"`,
+									},
+
+									"min_cpu_platform": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Name of the minimum CPU platform to be used by this instance selection. e.g. 'Intel Ice Lake'`,
+									},
+
+									"disks": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `List of disks to be attached to the instances created from this selection.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"auto_delete": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     true,
+													Description: `Whether or not the disk should be auto-deleted. This defaults to true.`,
+												},
+
+												"boot": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     false,
+													Description: `Indicates that this is a boot disk. This defaults to false.`,
+												},
+
+												"device_name": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `A unique device name that is reflected into the /dev/ tree of a Linux operating system running within the instance. If not specified, the server chooses a default device name to apply to this disk.`,
+												},
+
+												"disk_name": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Name of the disk. When not provided, this defaults to the name of the instance.`,
+												},
+
+												"architecture": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validation.StringInSlice([]string{"ARM64", "X86_64"}, true),
+													Description:  `The architecture of the image. Allowed values are ARM64 or X86_64.`,
+												},
+
+												"disk_size_gb": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `The size of the image in gigabytes. If not specified, it will inherit the size of its base image. For SCRATCH disks, the size must be one of 375 or 3000 GB, with a default of 375 GB.`,
+												},
+
+												"disk_type": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The Google Compute Engine disk type. Such as "pd-ssd", "local-ssd", "pd-balanced" or "pd-standard".`,
+												},
+
+												"labels": {
+													Type:        schema.TypeSet,
+													Optional:    true,
+													Description: `A set of key/value label pairs to assign to disks.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"key": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The unique key of the label to assign to disks.`,
+															},
+															"value": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The value of the label to assign to disks.`,
+															},
+														},
+													},
+												},
+
+												"provisioned_iops": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk) or the [Hyperdisk documentation](https://cloud.google.com/compute/docs/disks/hyperdisks) depending on the selected disk_type.`,
+												},
+
+												"provisioned_throughput": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Indicates how much throughput to provision for the disk, in MB/s. This sets the amount of data that can be read or written from the disk per second. Values must greater than or equal to 1. For more details, see the [Hyperdisk documentation](https://cloud.google.com/compute/docs/disks/hyperdisks).`,
+												},
+
+												"resource_manager_tags": {
+													Type:        schema.TypeSet,
+													Optional:    true,
+													Description: `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"key": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The unique key of the resource manager tag to assign to disks. Keys must be in the format tagKeys/{tag_key_id}.`,
+															},
+															"value": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `The value of the resource manager tag to assign to disks. Values must be in the format tagValues/456.`,
+															},
+														},
+													},
+												},
+
+												"guest_os_features": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `A list of features to enable on the guest operating system. Applicable only for bootable images.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+
+												"source_image": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The image from which to initialize this disk. This can be one of: the image's self_link, projects/{project}/global/images/{image}, projects/{project}/global/images/family/{family}, global/images/{image}, global/images/family/{family}, family/{family}, {project}/{family}, {project}/{image}, {family}, or {image}. ~> Note: Either source or source_image is required when creating a new instance except for when creating a local SSD.`,
+												},
+
+												"source_image_encryption_key": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The customer-supplied encryption key of the source image. Required if the source image is protected by a customer-supplied encryption key. Instance templates do not store customer-supplied encryption keys, so you cannot create disks for instances in a managed instance group if the source images are encrypted with your own keys.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"raw_key": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+																Sensitive:   true,
+															},
+															"rsa_encrypted_key": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+																Sensitive:   true,
+															},
+															"kms_key_service_account": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.`,
+															},
+															"kms_key_self_link": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The self link of the encryption key that is stored in Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+															},
+														},
+													},
+												},
+
+												"source_snapshot": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The source snapshot to create this disk. When creating a new instance, one of initializeParams.sourceSnapshot, initializeParams.sourceImage, or disks.source is required except for local SSD.`,
+												},
+
+												"source_snapshot_encryption_key": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The customer-supplied encryption key of the source snapshot.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"raw_key": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+																Sensitive:   true,
+															},
+															"rsa_encrypted_key": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+																Sensitive:   true,
+															},
+															"kms_key_service_account": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.`,
+															},
+															"kms_key_self_link": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The self link of the encryption key that is stored in Google Cloud KMS. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+															},
+														},
+													},
+												},
+
+												"interface": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Specifies the disk interface to use for attaching this disk.`,
+												},
+
+												"mode": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, true),
+													Description:  `The mode in which to attach this disk, either READ_WRITE or READ_ONLY. If you are attaching or creating a boot disk, this must read-write mode.`,
+												},
+
+												"source": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The name (not self_link) of the disk (such as those managed by google_compute_disk) to attach. ~> Note: Either source or source_image is required when creating a new instance except for when creating a local SSD.`,
+												},
+
+												"type": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validation.StringInSlice([]string{"SCRATCH", "PERSISTENT"}, true),
+													Description:  `The type of Google Compute Engine disk, can be either "SCRATCH" or "PERSISTENT".`,
+												},
+
+												"disk_encryption_key": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													MaxItems:    1,
+													Description: `Encrypts or decrypts a disk using a customer-supplied encryption key.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"raw_key": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64 to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+																Sensitive:   true,
+															},
+															"rsa_encrypted_key": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption key to either encrypt or decrypt this resource. Only one of kms_key_self_link, rsa_encrypted_key and raw_key may be set.`,
+																Sensitive:   true,
+															},
+															"kms_key_service_account": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The service account being used for the encryption request for the given KMS key. If absent, the Compute Engine default service account is used.`,
+															},
+															"kms_key_self_link": {
+																Type:             schema.TypeString,
+																Optional:         true,
+																DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
+																Description:      `The self link of the encryption key that is stored in Google Cloud KMS.`,
+															},
+														},
+													},
+												},
+
+												"resource_policies": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													MaxItems:    1,
+													Description: `A list (short name or id) of resource policies to attach to this disk. Currently a max of 1 resource policy is supported.`,
+													Elem: &schema.Schema{
+														Type:             schema.TypeString,
+														DiffSuppressFunc: tpgresource.CompareResourceNames,
+													},
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1420,15 +1692,238 @@ func expandInstanceSelections(instanceSelections []any) (map[string]interface{},
 	for _, instanceSelectionRaw := range instanceSelections {
 		instanceSelectionData := instanceSelectionRaw.(map[string]any)
 
+		disks, err := expandInstanceSelectionDisks(instanceSelectionData["disks"].([]any))
+		if err != nil {
+			return nil, err
+		}
+
 		instanceSelection := map[string]interface{}{
 			"machineTypes": tpgresource.ConvertStringSet(instanceSelectionData["machine_types"].(*schema.Set)),
 		}
 		if rank := int64(instanceSelectionData["rank"].(int)); rank != 0 {
 			instanceSelection["rank"] = rank
 		}
+		if mcp := instanceSelectionData["min_cpu_platform"].(string); mcp != "" {
+			instanceSelection["minCpuPlatform"] = mcp
+		}
+		if len(disks) > 0 {
+			instanceSelection["disks"] = disks
+		}
 		instanceSelectionsMap[instanceSelectionData["name"].(string)] = instanceSelection
 	}
 	return instanceSelectionsMap, nil
+}
+
+func expandInstanceSelectionDisks(disks []any) ([]interface{}, error) {
+	attachedDisks := make([]interface{}, 0, len(disks))
+	for _, diskRaw := range disks {
+		diskData := diskRaw.(map[string]any)
+		disk := map[string]interface{}{
+			"autoDelete": diskData["auto_delete"].(bool),
+		}
+		if v := diskData["device_name"].(string); v != "" {
+			disk["deviceName"] = v
+		}
+		if v := diskData["boot"].(bool); v {
+			disk["boot"] = v
+		}
+		if v := diskData["interface"].(string); v != "" {
+			disk["interface"] = v
+		}
+		if v := diskData["mode"].(string); v != "" {
+			disk["mode"] = v
+		}
+		if v := diskData["type"].(string); v != "" {
+			disk["type"] = v
+		}
+		if v := diskData["architecture"].(string); v != "" {
+			disk["architecture"] = v
+		}
+
+		if v, exists := diskData["disk_size_gb"]; exists && v.(int) != 0 {
+			disk["diskSizeGb"] = strconv.Itoa(v.(int))
+		}
+
+		if v, exists := diskData["disk_encryption_key"]; exists && v != nil {
+			keys := v.([]any)
+			if len(keys) > 0 && keys[0] != nil {
+				keyData := keys[0].(map[string]any)
+				encKey := map[string]interface{}{}
+				if k := keyData["raw_key"].(string); k != "" {
+					encKey["rawKey"] = k
+				}
+				if k := keyData["rsa_encrypted_key"].(string); k != "" {
+					encKey["rsaEncryptedKey"] = k
+				}
+				if k := keyData["kms_key_service_account"].(string); k != "" {
+					encKey["kmsKeyServiceAccount"] = k
+				}
+				if k := keyData["kms_key_self_link"].(string); k != "" {
+					encKey["kmsKeyName"] = k
+				}
+				if len(encKey) > 0 {
+					disk["diskEncryptionKey"] = encKey
+				}
+			}
+		}
+
+		if v, exists := diskData["source"]; exists && v.(string) != "" {
+			disk["source"] = v.(string)
+			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "provisioned_iops", "provisioned_throughput", "source_image", "source_snapshot", "labels"}
+			var foundConflicts []string
+			for _, conflict := range conflicts {
+				if v, exists := diskData[conflict]; exists && hasFieldSet(v) {
+					foundConflicts = append(foundConflicts, conflict)
+				}
+			}
+			if len(foundConflicts) > 0 {
+				return nil, fmt.Errorf("Cannot use `source` with conflicting fields: [%s]", strings.Join(foundConflicts, ", "))
+			}
+		} else {
+			initializeParams := map[string]interface{}{}
+			hasInitializeParams := false
+
+			if v, exists := diskData["disk_name"]; exists && v.(string) != "" {
+				initializeParams["diskName"] = v.(string)
+				hasInitializeParams = true
+			}
+
+			if v, exists := diskData["disk_size_gb"]; exists && v.(int) != 0 {
+				initializeParams["diskSizeGb"] = strconv.Itoa(v.(int))
+				hasInitializeParams = true
+			}
+
+			if v, exists := diskData["disk_type"]; exists && v.(string) != "" {
+				initializeParams["diskType"] = v.(string)
+				hasInitializeParams = true
+			}
+
+			if v, exists := diskData["provisioned_iops"]; exists && v.(int) != 0 {
+				initializeParams["provisionedIops"] = strconv.Itoa(v.(int))
+				hasInitializeParams = true
+			}
+
+			if v, exists := diskData["provisioned_throughput"]; exists && v.(int) != 0 {
+				initializeParams["provisionedThroughput"] = strconv.Itoa(v.(int))
+				hasInitializeParams = true
+			}
+
+			if v, exists := diskData["resource_manager_tags"]; exists && v != nil && v.(*schema.Set).Len() > 0 {
+				rmTags := make(map[string]string)
+				for _, rmTagRaw := range v.(*schema.Set).List() {
+					rmTag := rmTagRaw.(map[string]any)
+					rmTags[rmTag["key"].(string)] = rmTag["value"].(string)
+				}
+				initializeParams["resourceManagerTags"] = rmTags
+				hasInitializeParams = true
+			}
+
+			if v, exists := diskData["labels"]; exists && v != nil && v.(*schema.Set).Len() > 0 {
+				labels := make(map[string]string)
+				for _, labelRaw := range v.(*schema.Set).List() {
+					label := labelRaw.(map[string]any)
+					labels[label["key"].(string)] = label["value"].(string)
+				}
+				initializeParams["labels"] = labels
+				hasInitializeParams = true
+			}
+
+			if v, exists := diskData["source_image"]; exists && v.(string) != "" {
+				initializeParams["sourceImage"] = v.(string)
+				hasInitializeParams = true
+			}
+
+			if v, exists := diskData["source_image_encryption_key"]; exists && v != nil {
+				keys := v.([]any)
+				if len(keys) > 0 && keys[0] != nil {
+					keyData := keys[0].(map[string]any)
+					encKey := map[string]interface{}{}
+					if k := keyData["raw_key"].(string); k != "" {
+						encKey["rawKey"] = k
+					}
+					if k := keyData["rsa_encrypted_key"].(string); k != "" {
+						encKey["rsaEncryptedKey"] = k
+					}
+					if k := keyData["kms_key_service_account"].(string); k != "" {
+						encKey["kmsKeyServiceAccount"] = k
+					}
+					if k := keyData["kms_key_self_link"].(string); k != "" {
+						encKey["kmsKeyName"] = k
+					}
+					if len(encKey) > 0 {
+						initializeParams["sourceImageEncryptionKey"] = encKey
+						hasInitializeParams = true
+					}
+				}
+			}
+
+			if v, exists := diskData["source_snapshot"]; exists && v.(string) != "" {
+				initializeParams["sourceSnapshot"] = v.(string)
+				hasInitializeParams = true
+			}
+
+			if v, exists := diskData["source_snapshot_encryption_key"]; exists && v != nil {
+				keys := v.([]any)
+				if len(keys) > 0 && keys[0] != nil {
+					keyData := keys[0].(map[string]any)
+					encKey := map[string]interface{}{}
+					if k := keyData["raw_key"].(string); k != "" {
+						encKey["rawKey"] = k
+					}
+					if k := keyData["rsa_encrypted_key"].(string); k != "" {
+						encKey["rsaEncryptedKey"] = k
+					}
+					if k := keyData["kms_key_service_account"].(string); k != "" {
+						encKey["kmsKeyServiceAccount"] = k
+					}
+					if k := keyData["kms_key_self_link"].(string); k != "" {
+						encKey["kmsKeyName"] = k
+					}
+					if len(encKey) > 0 {
+						initializeParams["sourceSnapshotEncryptionKey"] = encKey
+						hasInitializeParams = true
+					}
+				}
+			}
+
+			if v, exists := diskData["architecture"]; exists && v.(string) != "" {
+				initializeParams["architecture"] = v.(string)
+				hasInitializeParams = true
+			}
+
+			if v, exists := diskData["guest_os_features"]; exists && len(v.([]any)) > 0 {
+				features := make([]interface{}, 0)
+				for _, feature := range v.([]any) {
+					features = append(features, map[string]interface{}{"type": feature.(string)})
+				}
+				disk["guestOsFeatures"] = features
+			}
+
+			if v, exists := diskData["resource_policies"]; exists && len(v.([]any)) > 0 {
+				initializeParams["resourcePolicies"] = tpgresource.ConvertStringArr(v.([]any))
+				hasInitializeParams = true
+			}
+
+			if hasInitializeParams {
+				disk["initializeParams"] = initializeParams
+			}
+		}
+		attachedDisks = append(attachedDisks, disk)
+	}
+	return attachedDisks, nil
+}
+
+func hasFieldSet(d any) bool {
+	switch val := d.(type) {
+	case int:
+		return val != 0
+	case string:
+		return val != ""
+	case *schema.Set:
+		return val.Len() > 0
+	default:
+		return val != nil
+	}
 }
 
 func expandDistributionPolicyForUpdate(d *schema.ResourceData) map[string]interface{} {
@@ -1487,11 +1982,192 @@ func flattenInstanceSelections(instanceSelectionsRaw interface{}) []map[string]a
 		}
 		instanceSelectionData := make(map[string]any)
 		instanceSelectionData["name"] = instanceSelectionName
-		instanceSelectionData["rank"] = getInt(instanceSelection["rank"])
+		instanceSelectionData["rank"] = int(getInt(instanceSelection["rank"]))
 		instanceSelectionData["machine_types"] = instanceSelection["machineTypes"]
+		if v, ok := instanceSelection["minCpuPlatform"].(string); ok && v != "" {
+			instanceSelectionData["min_cpu_platform"] = v
+		}
+		instanceSelectionData["disks"] = flattenInstanceSelectionDisks(instanceSelection["disks"])
 		instanceSelectionsMap = append(instanceSelectionsMap, instanceSelectionData)
 	}
 	return instanceSelectionsMap
+}
+
+func flattenInstanceSelectionDisks(disksRaw interface{}) []map[string]any {
+	flattenedDisks := make([]map[string]any, 0)
+	disks, ok := disksRaw.([]interface{})
+	if !ok {
+		return flattenedDisks
+	}
+	for _, diskRaw := range disks {
+		disk, ok := diskRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		diskData := make(map[string]any)
+
+		if autoDelete, ok := disk["autoDelete"].(bool); ok {
+			diskData["auto_delete"] = autoDelete
+		} else {
+			diskData["auto_delete"] = true
+		}
+		if boot, ok := disk["boot"].(bool); ok {
+			diskData["boot"] = boot
+		} else {
+			diskData["boot"] = false
+		}
+		if v, ok := disk["deviceName"].(string); ok && v != "" {
+			diskData["device_name"] = v
+		}
+		if v, ok := disk["interface"].(string); ok && v != "" {
+			diskData["interface"] = v
+		}
+		if v, ok := disk["mode"].(string); ok && v != "" {
+			diskData["mode"] = v
+		}
+		if v, ok := disk["type"].(string); ok && v != "" {
+			diskData["type"] = v
+		}
+		if v, ok := disk["architecture"].(string); ok && v != "" {
+			diskData["architecture"] = v
+		}
+
+		if v := int(getInt(disk["diskSizeGb"])); v != 0 {
+			diskData["disk_size_gb"] = v
+		}
+
+		var guestOsRaw []interface{}
+		if g, ok := disk["guestOsFeatures"].([]interface{}); ok && g != nil {
+			guestOsRaw = g
+		}
+
+		if encKey, ok := disk["diskEncryptionKey"].(map[string]interface{}); ok && encKey != nil {
+			kMap := map[string]any{}
+			if v, ok := encKey["rawKey"].(string); ok && v != "" {
+				kMap["raw_key"] = v
+			}
+			if v, ok := encKey["rsaEncryptedKey"].(string); ok && v != "" {
+				kMap["rsa_encrypted_key"] = v
+			}
+			if v, ok := encKey["kmsKeyName"].(string); ok && v != "" {
+				kMap["kms_key_self_link"] = v
+			}
+			if v, ok := encKey["kmsKeyServiceAccount"].(string); ok && v != "" {
+				kMap["kms_key_service_account"] = v
+			}
+			if len(kMap) > 0 {
+				diskData["disk_encryption_key"] = []map[string]any{kMap}
+			}
+		}
+
+		if source, ok := disk["source"].(string); ok && source != "" {
+			diskData["source"] = source
+		} else if initParams, ok := disk["initializeParams"].(map[string]interface{}); ok && initParams != nil {
+			if v, ok := initParams["diskName"].(string); ok && v != "" {
+				diskData["disk_name"] = v
+			}
+			if v := int(getInt(initParams["diskSizeGb"])); v != 0 {
+				diskData["disk_size_gb"] = v
+			}
+			if v, ok := initParams["diskType"].(string); ok && v != "" {
+				diskData["disk_type"] = v
+			}
+			if v := int(getInt(initParams["provisionedIops"])); v != 0 {
+				diskData["provisioned_iops"] = v
+			}
+			if v := int(getInt(initParams["provisionedThroughput"])); v != 0 {
+				diskData["provisioned_throughput"] = v
+			}
+			if rmTagsRaw, ok := initParams["resourceManagerTags"].(map[string]interface{}); ok && rmTagsRaw != nil {
+				keys := make([]string, 0, len(rmTagsRaw))
+				for k := range rmTagsRaw {
+					keys = append(keys, k)
+				}
+				sort.Strings(keys)
+				rmTags := make([]any, 0, len(keys))
+				for _, k := range keys {
+					rmTags = append(rmTags, map[string]any{"key": k, "value": rmTagsRaw[k]})
+				}
+				diskData["resource_manager_tags"] = rmTags
+			}
+			if labelsRaw, ok := initParams["labels"].(map[string]interface{}); ok && labelsRaw != nil {
+				keys := make([]string, 0, len(labelsRaw))
+				for k := range labelsRaw {
+					keys = append(keys, k)
+				}
+				sort.Strings(keys)
+				labels := make([]any, 0, len(keys))
+				for _, k := range keys {
+					labels = append(labels, map[string]any{"key": k, "value": labelsRaw[k]})
+				}
+				diskData["labels"] = labels
+			}
+			if rpRaw, ok := initParams["resourcePolicies"].([]interface{}); ok && rpRaw != nil {
+				diskData["resource_policies"] = rpRaw
+			}
+			if v, ok := initParams["sourceImage"].(string); ok && v != "" {
+				diskData["source_image"] = v
+			}
+			if encKey, ok := initParams["sourceImageEncryptionKey"].(map[string]interface{}); ok && encKey != nil {
+				kMap := map[string]any{}
+				if v, ok := encKey["rawKey"].(string); ok && v != "" {
+					kMap["raw_key"] = v
+				}
+				if v, ok := encKey["rsaEncryptedKey"].(string); ok && v != "" {
+					kMap["rsa_encrypted_key"] = v
+				}
+				if v, ok := encKey["kmsKeyServiceAccount"].(string); ok && v != "" {
+					kMap["kms_key_service_account"] = v
+				}
+				if v, ok := encKey["kmsKeyName"].(string); ok && v != "" {
+					kMap["kms_key_self_link"] = v
+				}
+				if len(kMap) > 0 {
+					diskData["source_image_encryption_key"] = []map[string]any{kMap}
+				}
+			}
+			if v, ok := initParams["sourceSnapshot"].(string); ok && v != "" {
+				diskData["source_snapshot"] = v
+			}
+			if encKey, ok := initParams["sourceSnapshotEncryptionKey"].(map[string]interface{}); ok && encKey != nil {
+				kMap := map[string]any{}
+				if v, ok := encKey["rawKey"].(string); ok && v != "" {
+					kMap["raw_key"] = v
+				}
+				if v, ok := encKey["rsaEncryptedKey"].(string); ok && v != "" {
+					kMap["rsa_encrypted_key"] = v
+				}
+				if v, ok := encKey["kmsKeyServiceAccount"].(string); ok && v != "" {
+					kMap["kms_key_service_account"] = v
+				}
+				if v, ok := encKey["kmsKeyName"].(string); ok && v != "" {
+					kMap["kms_key_self_link"] = v
+				}
+				if len(kMap) > 0 {
+					diskData["source_snapshot_encryption_key"] = []map[string]any{kMap}
+				}
+			}
+			if v, ok := initParams["architecture"].(string); ok && v != "" {
+				diskData["architecture"] = v
+			}
+			if guestOsRaw == nil {
+				if g, ok := initParams["guestOsFeatures"].([]interface{}); ok && g != nil {
+					guestOsRaw = g
+				}
+			}
+		}
+		if guestOsRaw != nil {
+			features := make([]any, 0, len(guestOsRaw))
+			for _, featureRaw := range guestOsRaw {
+				if feature, ok := featureRaw.(map[string]interface{}); ok {
+					features = append(features, feature["type"])
+				}
+			}
+			diskData["guest_os_features"] = features
+		}
+		flattenedDisks = append(flattenedDisks, diskData)
+	}
+	return flattenedDisks
 }
 
 func flattenDistributionPolicy(distributionPolicyRaw interface{}) []string {

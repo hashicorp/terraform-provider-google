@@ -511,6 +511,99 @@ func TestAccRegionInstanceGroupManager_instanceFlexibilityPolicy(t *testing.T) {
 	})
 }
 
+func TestAccRegionInstanceGroupManager_instanceFlexibilityPolicyAdditionalOverrides(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]any{
+		"random_suffix":     acctest.RandString(t, 10),
+		"raw_key":           "SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=",
+		"rsa_encrypted_key": "ieCx/NcW06PcT7Ep1X6LUTc/hLvUDYyzSZPPVCVPTVEohpeHASqC8uw5TzyO9U+Fka9JFHz0mBibXUInrC/jEk014kCK/NPjYgEMOyssZ4ZINPKxlUh2zn1bV+MCaTICrdmuSBTWlUUiFoDD6PYznLwh8ZNdaheCeZ8ewEXgFQ8V+sDroLaN3Xs3MDTXQEMMoNUXMCZEIpg9Vtp9x2oeQ5lAbtt7bYAAHf5l+gJWw3sUfs0/Glw5fpdjT8Uggrr+RMZezGrltJEF293rvTIjWOEB3z5OHyHwQkvdrPDFcTqsLfh+8Hr8g+mf+7zVPEC8nEbqpdl3GPv3A7AwpFp7MA==",
+		"network_name":      fmt.Sprintf("tf-test-rigm-%s", acctest.RandString(t, 10)),
+		"template_name":     fmt.Sprintf("tf-test-rigm-%s", acctest.RandString(t, 10)),
+		"igm_name":          fmt.Sprintf("tf-test-rigm-%s", acctest.RandString(t, 10)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRegionInstanceGroupManager_instanceFlexibilityPolicyAdditionalOverrides(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"google_compute_region_instance_group_manager.igm-basic",
+						"instance_flexibility_policy.0.instance_selections.*",
+						map[string]string{
+							"name":                "instance_selection_name_1",
+							"disks.0.device_name": "boot-disk",
+							"disks.0.boot":        "true",
+							"disks.0.auto_delete": "true",
+							"disks.1.device_name": "additional-disk-with-resource-policy",
+							"disks.1.boot":        "false",
+							"disks.1.auto_delete": "true",
+							"disks.2.device_name": "local-ssd-disk",
+							"disks.2.boot":        "false",
+							"disks.2.auto_delete": "true",
+						},
+					),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"google_compute_region_instance_group_manager.igm-basic",
+						"instance_flexibility_policy.0.instance_selections.*",
+						map[string]string{
+							"name":                "instance_selection_name_2",
+							"disks.0.device_name": "additional-disk",
+							"disks.0.boot":        "false",
+							"disks.0.auto_delete": "true",
+						},
+					),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				Config: testAccRegionInstanceGroupManager_instanceFlexibilityPolicyAdditionalOverridesUpdate(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"google_compute_region_instance_group_manager.igm-basic",
+						"instance_flexibility_policy.0.instance_selections.*",
+						map[string]string{
+							"name":                "instance_selection_name_1",
+							"disks.0.device_name": "boot-disk",
+							"disks.0.boot":        "true",
+							"disks.0.auto_delete": "true",
+							"disks.1.boot":        "false",
+							"disks.1.auto_delete": "true",
+							"disks.2.device_name": "additional-disk",
+							"disks.2.boot":        "false",
+							"disks.2.auto_delete": "true",
+						},
+					),
+				),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				Config: testAccRegionInstanceGroupManager_instanceFlexibilityPolicyAdditionalOverridesRemove(context),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+		},
+	})
+}
+
 func TestAccRegionInstanceGroupManager_APISideListRecordering(t *testing.T) {
 	t.Parallel()
 
@@ -2211,6 +2304,323 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
 	}
 }
 `, network, template, igm)
+}
+
+func testAccRegionInstanceGroupManager_instanceFlexibilityPolicyAdditionalOverrides(context map[string]any) string {
+	return acctest.Nprintf(`
+
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy" {
+  name    = "tf-test-test-policy-%{random_suffix}"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "11:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_network" "igm-basic" {
+  name = "%{network_name}"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%{template_name}"
+  machine_type   = "e2-medium"
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "boot-disk"
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%{igm_name}"
+
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "primary"
+  }
+
+  base_instance_name        = "tf-test-igm-basic"
+  region                    = "us-central1"
+  target_size               = 2
+  distribution_policy_target_shape = "BALANCED"
+
+  update_policy {
+    instance_redistribution_type = "NONE"
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 6
+  }
+
+  instance_lifecycle_policy {
+    force_update_on_repair = "YES"
+  }
+
+  instance_flexibility_policy {
+    instance_selections {
+      name = "instance_selection_name_1"
+      machine_types = ["n2-standard-2", "n2-standard-4"]
+      disks {
+        auto_delete = true
+        boot        = true
+        device_name = "boot-disk"
+        source_image =  data.google_compute_image.my_image.self_link
+        architecture = "ARM64"
+        disk_size_gb = 375
+      }
+      disks {
+        device_name = "additional-disk-with-resource-policy"
+        resource_policies = [google_compute_resource_policy.test-snapshot-policy.id]
+        source_image =  data.google_compute_image.my_image.self_link
+      }
+      disks {
+        device_name = "local-ssd-disk"
+        type = "SCRATCH"
+        disk_type = "local-ssd"
+        disk_size_gb = 375
+        interface =  "SCSI"
+      }
+    }
+    instance_selections {
+      name = "instance_selection_name_2"
+      machine_types = ["n1-standard-1", "n1-standard-2", "n1-standard-4"]
+      min_cpu_platform = "Intel Skylake"
+      disks {
+        auto_delete = true
+        boot        = false
+        device_name = "additional-disk"
+        disk_name   = "example-disk-name"
+        source_image =  data.google_compute_image.my_image.self_link
+        architecture = "ARM64"
+        disk_size_gb = 375
+        disk_type    = "pd-balanced"
+        provisioned_iops = 4
+        provisioned_throughput = 100
+        guest_os_features = ["GVNIC"]
+        labels {
+          key = "created-by"
+          value = "terraform-insert"
+        }
+        mode = "READ_WRITE"
+        type = "PERSISTENT"
+        source_image_encryption_key {
+          raw_key = "%{raw_key}"
+        }
+      }
+    }
+	}
+}
+`, context)
+}
+
+func testAccRegionInstanceGroupManager_instanceFlexibilityPolicyAdditionalOverridesUpdate(context map[string]any) string {
+	return acctest.Nprintf(`
+
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "igm-basic" {
+  name = "%{network_name}"
+}
+
+resource "google_compute_disk" "persistent-disk" {
+  name  = "tf-test-debian-disk-%{random_suffix}"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  disk_encryption_key {
+    raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_disk" "pd-balanced-disk" {
+  name = "tf-test-debian-pd-disk-%{random_suffix}"
+  size = 100
+  type = "pd-balanced"
+  zone = "us-central1-a"
+}
+
+resource "google_compute_snapshot" "snapshot" {
+  name        = "tf-test-my-snapshot-%{random_suffix}"
+  source_disk = google_compute_disk.persistent-disk.id
+  zone        = "us-central1-a"
+  source_disk_encryption_key {
+    raw_key = "%{raw_key}"
+  }
+  snapshot_encryption_key {
+    raw_key = "%{raw_key}"
+  }
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%{template_name}"
+  machine_type   = "e2-medium"
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "boot-disk"
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%{igm_name}"
+
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "primary"
+  }
+
+  base_instance_name        = "tf-test-igm-basic"
+  region                    = "us-central1"
+  target_size               = 4
+  distribution_policy_target_shape = "BALANCED"
+  update_policy {
+    instance_redistribution_type = "NONE"
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 6
+  }
+
+  instance_lifecycle_policy {
+    force_update_on_repair = "YES"
+  }
+
+  instance_flexibility_policy {
+    instance_selections {
+      name = "instance_selection_name_1"
+      machine_types = ["n2-standard-2", "n2-standard-8"]
+      rank = 1
+      min_cpu_platform = "Intel Cascadelake"
+      disks {
+        auto_delete = true
+        boot        = true
+        device_name = "boot-disk"
+        source_snapshot =  google_compute_snapshot.snapshot.self_link
+        disk_encryption_key {
+          raw_key = "%{raw_key}"
+        }
+        source_snapshot_encryption_key {
+          rsa_encrypted_key = "%{rsa_encrypted_key}"
+        }
+      }
+      disks{
+        source = google_compute_disk.pd-balanced-disk.name
+      }
+      disks {
+        auto_delete = true
+        boot        = false
+        device_name = "additional-disk"
+        disk_name   = "example-disk-name"
+        source_image =  data.google_compute_image.my_image.self_link
+        architecture = "ARM64"
+        disk_size_gb = 375
+        disk_type    = "pd-balanced"
+        provisioned_iops = 4
+        provisioned_throughput = 100
+        guest_os_features = ["GVNIC"]
+        labels {
+          key = "created-by"
+          value = "terraform-update"
+        }
+        mode = "READ_WRITE"
+        type = "PERSISTENT"
+      }
+    }
+    instance_selections {
+      name = "instance_selection_name_2_version_2"
+      machine_types = ["n1-standard-2", "n1-standard-4"]
+      rank = 2
+    }
+  }
+}
+`, context)
+}
+
+func testAccRegionInstanceGroupManager_instanceFlexibilityPolicyAdditionalOverridesRemove(context map[string]any) string {
+	return acctest.Nprintf(`
+
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "igm-basic" {
+  name = "%{network_name}"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%{template_name}"
+  machine_type   = "e2-medium"
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "boot-disk"
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-basic" {
+	description = "Terraform test instance group manager"
+	name        = "%{igm_name}"
+
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "primary"
+  }
+
+  base_instance_name        = "tf-test-igm-basic"
+  region                    = "us-central1"
+  target_size               = 0
+  distribution_policy_target_shape = "BALANCED"
+
+  update_policy {
+    instance_redistribution_type = "NONE"
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 6
+  }
+
+  instance_flexibility_policy {
+    instance_selections {
+      name = "instance_selection_name_1"
+      machine_types = ["n2-standard-2", "n2-standard-8"]
+      rank = 1
+    }
+    instance_selections {
+      name = "instance_selection_name_2_version_2"
+      machine_types = ["n1-standard-2", "n1-standard-4"]
+      rank = 2
+    }
+  }
+}
+`, context)
 }
 
 func TestAccRegionInstanceGroupManager_targetSizePolicy(t *testing.T) {
