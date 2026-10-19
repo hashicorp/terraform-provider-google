@@ -20,12 +20,14 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/iambeta"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -201,6 +203,95 @@ func TestAccServiceAccountIamMember_withAndWithoutCondition(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccServiceAccountIamMember_concurrentConflicts(t *testing.T) {
+	// Spawns a time-bounded background goroutine that mutates the IAM policy concurrently to induce RMW etag conflicts
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	email := envvar.ServiceAccountCanonicalEmail(account)
+	identity := fmt.Sprintf("serviceAccount:%s", email)
+	stopCh := make(chan struct{})
+	defer close(stopCh)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccServiceAccountIamMember_accountOnly(account),
+			},
+			{
+				PreConfig: triggerConcurrentServiceAccountIamConflicts(t, account, stopCh),
+				// The service account already exists from the first step, and PreConfig starts a background
+				// goroutine that rapidly re-writes its IAM policy for 25s to keep rotating the policy etag.
+				// Applying google_service_account_iam_member.foo during this window forces repeated 409 ABORTED
+				// RMW conflicts that previously exhausted the 5-attempt cap (~15s), verifying the retry loop
+				// backs off across the conflict window and succeeds once the concurrent writes subside.
+				Config: testAccServiceAccountIamMember_basic(account, email),
+				Check:  testAccCheckGoogleServiceAccountIam(t, account, 1),
+			},
+			{
+				ResourceName:      "google_service_account_iam_member.foo",
+				ImportStateId:     fmt.Sprintf("%s %s %s", serviceAccountCanonicalId(account), "roles/iam.serviceAccountUser", identity),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func triggerConcurrentServiceAccountIamConflicts(t *testing.T, account string, stopCh <-chan struct{}) func() {
+	return func() {
+		config := acctest.GoogleProviderConfig(t)
+		url := fmt.Sprintf("https://iam.googleapis.com/v1/%s", serviceAccountCanonicalId(account))
+		go func() {
+			deadline := time.Now().Add(25 * time.Second)
+			var policy map[string]interface{}
+			for time.Now().Before(deadline) {
+				select {
+				case <-stopCh:
+					return
+				default:
+				}
+				if policy == nil {
+					var err error
+					policy, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+						Config:    config,
+						Method:    "POST",
+						RawURL:    fmt.Sprintf("%s:getIamPolicy?options.requestedPolicyVersion=%d", url, tpgiamresource.IamPolicyVersion),
+						UserAgent: config.UserAgent,
+					})
+					if err != nil {
+						continue
+					}
+				}
+				updated, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "POST",
+					RawURL:    url + ":setIamPolicy",
+					UserAgent: config.UserAgent,
+					Body:      map[string]interface{}{"policy": policy},
+				})
+				if err != nil {
+					policy = nil
+					continue
+				}
+				policy = updated
+			}
+		}()
+	}
+}
+
+func testAccServiceAccountIamMember_accountOnly(account string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "test_account" {
+  account_id   = "%s"
+  display_name = "Service Account Iam Testing Account"
+}
+`, account)
 }
 
 func TestAccServiceAccountIamPolicy(t *testing.T) {
