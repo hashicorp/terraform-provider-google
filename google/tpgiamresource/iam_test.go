@@ -17,11 +17,23 @@
 package tpgiamresource
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
+	"sync/atomic"
 	"testing"
+	"time"
+
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
+	"google.golang.org/api/googleapi"
 )
 
 func TestIamMergeBindings(t *testing.T) {
@@ -1118,5 +1130,249 @@ func TestIamListFromIamAuditConfigsMap(t *testing.T) {
 			t.Errorf("Unexpected value for listFromIamAuditConfigMap(%+v).\nActual: %s\nExpected: %s\n",
 				tc.input, DebugPrintAuditConfigs(got), DebugPrintAuditConfigs(tc.expect))
 		}
+	}
+}
+
+type timeoutRoundTripper struct {
+	timeout  time.Duration
+	internal http.RoundTripper
+}
+
+func (t *timeoutRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	ctx, cancel := context.WithTimeout(req.Context(), t.timeout)
+	defer cancel()
+	return t.internal.RoundTrip(req.WithContext(ctx))
+}
+
+type httpTestIamUpdater struct {
+	resourceId string
+	url        string
+	client     *http.Client
+}
+
+func (u *httpTestIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.Policy, error) {
+	req, err := http.NewRequest("POST", u.url+":getIamPolicy", nil)
+	if err != nil {
+		return nil, err
+	}
+	res, err := u.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	var p cloudresourcemanager.Policy
+	if err := json.NewDecoder(res.Body).Decode(&p); err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
+func (u *httpTestIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
+	body, err := json.Marshal(policy)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("POST", u.url+":setIamPolicy", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	res, err := u.client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer googleapi.CloseBody(res)
+	return googleapi.CheckResponse(res)
+}
+
+func (u *httpTestIamUpdater) GetResourceId() string    { return u.resourceId }
+func (u *httpTestIamUpdater) GetMutexKey() string      { return "iam-test-" + u.resourceId }
+func (u *httpTestIamUpdater) DescribeResource() string { return "test resource " + u.resourceId }
+
+func TestIamPolicyReadModifyWrite_429(t *testing.T) {
+	t.Parallel()
+
+	t.Run("transient 429 is retried by transport and succeeds", func(t *testing.T) {
+		t.Parallel()
+
+		var getCalls int32
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			if r.URL.Path == "/resource:getIamPolicy" {
+				if atomic.AddInt32(&getCalls, 1) == 1 {
+					w.WriteHeader(http.StatusTooManyRequests)
+					_, _ = w.Write([]byte(`{"error":{"code":429,"message":"Quota exceeded"}}`))
+					return
+				}
+			}
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{"etag":"e1"}`))
+		}))
+		defer ts.Close()
+
+		updater := &httpTestIamUpdater{
+			resourceId: "transient-429",
+			url:        ts.URL + "/resource",
+			client: &http.Client{
+				Transport: &timeoutRoundTripper{
+					timeout:  2 * time.Second,
+					internal: transport_tpg.NewTransportWithDefaultRetries(ts.Client().Transport),
+				},
+			},
+		}
+
+		// Stop inside modify once GetResourceIamPolicy succeeds so the unit test
+		// avoids the hardcoded 3s post-write propagation wait in iamPolicyReadModifyWrite.
+		errStopAfterRead := errors.New("stop after read")
+		var gotEtag string
+		err := iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+			gotEtag = p.Etag
+			return errStopAfterRead
+		})
+		if !errors.Is(err, errStopAfterRead) {
+			t.Fatalf("expected %v after transient 429 retry, got: %v", errStopAfterRead, err)
+		}
+		if gotEtag != "e1" {
+			t.Fatalf("expected policy etag %q, got %q", "e1", gotEtag)
+		}
+		if got := atomic.LoadInt32(&getCalls); got != 2 {
+			t.Fatalf("expected 2 getIamPolicy calls (1x 429 + 1x 200 retry at 500ms), got %d", got)
+		}
+	})
+
+	t.Run("persistent 429 terminates after transport retries exhaust", func(t *testing.T) {
+		t.Parallel()
+
+		var getCalls int32
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			atomic.AddInt32(&getCalls, 1)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusTooManyRequests)
+			_, _ = w.Write([]byte(`{"error":{"code":429,"message":"Quota exceeded"}}`))
+		}))
+		defer ts.Close()
+
+		updater := &httpTestIamUpdater{
+			resourceId: "persistent-429",
+			url:        ts.URL + "/resource",
+			client: &http.Client{
+				Transport: &timeoutRoundTripper{
+					// retryTransport's first backoff is 500ms; 550ms lets it complete 1 retry
+					// at t=500ms and then immediately cancel the second backoff wait via ctx.Done().
+					timeout:  550 * time.Millisecond,
+					internal: transport_tpg.NewTransportWithDefaultRetries(ts.Client().Transport),
+				},
+			},
+		}
+
+		errCh := make(chan error, 1)
+		go func() {
+			errCh <- iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+				return nil
+			})
+		}()
+
+		select {
+		case err := <-errCh:
+			if !transport_tpg.IsGoogleApiErrorWithCode(err, http.StatusTooManyRequests) {
+				t.Fatalf("expected 429 googleapi.Error, got: %v", err)
+			}
+			if got := atomic.LoadInt32(&getCalls); got < 2 {
+				t.Fatalf("expected retryTransport to retry at least once (got %d calls)", got)
+			}
+		case <-time.After(900 * time.Millisecond):
+			t.Fatalf("iamPolicyReadModifyWrite did not terminate after transport 429 retries exhausted (%d calls made)", atomic.LoadInt32(&getCalls))
+		}
+	})
+}
+
+func TestIamPolicyReadModifyWrite_serviceAccountNotFoundDoesNotDeadlock(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/resource:setIamPolicy" {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":{"code":400,"message":"Service account foo@example.iam.gserviceaccount.com does not exist."}}`))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"etag":"e1"}`))
+	}))
+	defer ts.Close()
+
+	updater := &httpTestIamUpdater{
+		resourceId: "sa-not-found-deadlock",
+		url:        ts.URL + "/resource",
+		client:     ts.Client(),
+	}
+
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+			return nil
+		})
+	}()
+
+	select {
+	case err := <-errCh:
+		if !transport_tpg.IsGoogleApiErrorWithCode(err, http.StatusBadRequest) {
+			t.Fatalf("expected 400 googleapi.Error, got: %v", err)
+		}
+	case <-time.After(100 * time.Millisecond):
+		t.Fatal("iamPolicyReadModifyWrite deadlocked after 400 Service account does not exist error")
+	}
+}
+
+func TestIamPolicyReadModifyWrite_conflictRetry(t *testing.T) {
+	t.Parallel()
+
+	var getCalls, setCalls int32
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/resource:getIamPolicy":
+			call := atomic.AddInt32(&getCalls, 1)
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(fmt.Sprintf(`{"etag":"e%d"}`, call)))
+		case "/resource:setIamPolicy":
+			if atomic.AddInt32(&setCalls, 1) == 1 {
+				w.WriteHeader(http.StatusConflict)
+				_, _ = w.Write([]byte(`{"error":{"code":409,"message":"There were concurrent policy changes."}}`))
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{"etag":"e2"}`))
+		}
+	}))
+	defer ts.Close()
+
+	updater := &httpTestIamUpdater{
+		resourceId: "conflict-retry",
+		url:        ts.URL + "/resource",
+		client:     ts.Client(),
+	}
+
+	// Stop inside modify on the second RMW attempt once the updated etag ("e2") is
+	// fetched, avoiding the hardcoded 3s post-write propagation wait.
+	errStopAfterConflictRetry := errors.New("stop after conflict retry")
+	var seenEtags []string
+	err := iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+		seenEtags = append(seenEtags, p.Etag)
+		if len(seenEtags) == 2 {
+			return errStopAfterConflictRetry
+		}
+		return nil
+	})
+	if !errors.Is(err, errStopAfterConflictRetry) {
+		t.Fatalf("expected %v after conflict retry, got: %v", errStopAfterConflictRetry, err)
+	}
+	if !reflect.DeepEqual(seenEtags, []string{"e1", "e2"}) {
+		t.Fatalf("expected modify to see etags [e1 e2] across conflict retry, got %v", seenEtags)
+	}
+	if got := atomic.LoadInt32(&setCalls); got != 1 {
+		t.Fatalf("expected 1 setIamPolicy call before stopping on second modify, got %d", got)
 	}
 }
