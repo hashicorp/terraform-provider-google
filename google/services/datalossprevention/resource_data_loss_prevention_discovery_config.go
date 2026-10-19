@@ -225,8 +225,8 @@ and table will be named 'discovery_profiles'. This table will be placed in the s
 									"detail_of_message": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"TABLE_PROFILE", "RESOURCE_NAME", ""}),
-										Description:  `How much data to include in the pub/sub message. Possible values: ["TABLE_PROFILE", "RESOURCE_NAME"]`,
+										ValidateFunc: verify.ValidateEnum([]string{"TABLE_PROFILE", "RESOURCE_NAME", "FILE_STORE_PROFILE", ""}),
+										Description:  `How much data to include in the pub/sub message. Possible values: ["TABLE_PROFILE", "RESOURCE_NAME", "FILE_STORE_PROFILE"]`,
 									},
 									"event": {
 										Type:         schema.TypeString,
