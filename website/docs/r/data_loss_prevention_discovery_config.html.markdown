@@ -702,7 +702,7 @@ The following arguments are supported:
 * `detail_of_message` -
   (Optional)
   How much data to include in the pub/sub message.
-  Possible values are: `TABLE_PROFILE`, `RESOURCE_NAME`.
+  Possible values are: `TABLE_PROFILE`, `RESOURCE_NAME`, `FILE_STORE_PROFILE`.
 
 
 <a name="nested_actions_pub_sub_notification_pubsub_condition"></a>The `pubsub_condition` block supports:
