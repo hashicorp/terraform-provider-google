@@ -13,7 +13,6 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
----
 subcategory: "Secret Manager"
 description: |-
   List the Secret Manager Regional Secrets.

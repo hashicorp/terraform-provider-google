@@ -13,7 +13,6 @@
 #     overwritten during the next generation cycle.
 #
 # ----------------------------------------------------------------------------
----
 subcategory: "Secret Manager"
 page_title: "Google: google_secret_manager_regional_secret_version_access"
 description: |-
