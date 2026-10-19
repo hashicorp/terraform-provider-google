@@ -15,7 +15,7 @@
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
 description: |-
-Get a Compute Region Instance Group within GCE.
+  Get a Compute Region Instance Group within GCE.
 ---
 
 # google_compute_region_instance_group_manager
