@@ -2204,7 +2204,7 @@ func ResourceContainerCluster() *schema.Resource {
 							ForceNew:     true,
 							AtLeastOneOf: privateClusterConfigKeys,
 							ValidateFunc: verify.OrEmpty(validation.IsCIDRNetwork(28, 28)),
-							Description:  `The IP range in CIDR notation to use for the hosted master network. This range will be used for assigning private IP addresses to the cluster master(s) and the ILB VIP. This range must not overlap with any other ranges in use within the cluster's network, and it must be a /28 subnet. See Private Cluster Limitations for more details. This field only applies to private clusters, when enable_private_nodes is true.`,
+							Description:  `The IP range in CIDR notation to use for the hosted master network. This range will be used for assigning private IP addresses to the cluster master(s) and the ILB VIP. This range must not overlap with any other ranges in use within the cluster's network, and it must be a /28 subnet. See Private Cluster Limitations for more details. This field only applies to private clusters, when enable_private_nodes is true. On GKE versions 1.29 and later, this field is optional when private_endpoint_subnetwork is specified. It is also optional for Autopilot clusters.`,
 						},
 						"peering_name": {
 							Type:        schema.TypeString,
