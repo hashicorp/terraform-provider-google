@@ -78,6 +78,119 @@ func TestCanonicalizeKeyDesiredStatePreservesInitialActionSettings(t *testing.T)
 	}
 }
 
+func TestExpandAndFlattenKeyExpressSettings(t *testing.T) {
+	if got := expandRecaptchaEnterpriseKeyExpressSettings(nil); !got.Empty() {
+		t.Fatalf("expected nil input to expand to EmptyKeyExpressSettings")
+	}
+	if got := expandRecaptchaEnterpriseKeyExpressSettings([]interface{}{}); !got.Empty() {
+		t.Fatalf("expected empty slice input to expand to EmptyKeyExpressSettings")
+	}
+	// Terraform Plugin SDK v2 represents an empty schema block (express_settings {}) as []interface{}{nil}.
+	expanded := expandRecaptchaEnterpriseKeyExpressSettings([]interface{}{nil})
+	if expanded == nil || expanded.Empty() {
+		t.Fatalf("expected configured empty block to expand to non-empty KeyExpressSettings")
+	}
+
+	c := &Client{}
+	key := &Key{
+		Project:           stringPtr("example-project"),
+		DisplayName:       stringPtr("express-key"),
+		WebSettings:       EmptyKeyWebSettings,
+		AndroidSettings:   EmptyKeyAndroidSettings,
+		IosSettings:       EmptyKeyIosSettings,
+		ExpressSettings:   expanded,
+		UniversalSettings: EmptyKeyUniversalSettings,
+	}
+	if err := key.validate(); err != nil {
+		t.Fatalf("expected express key to validate cleanly, got error: %v", err)
+	}
+
+	m, err := expandKey(c, key)
+	if err != nil {
+		t.Fatalf("expandKey failed: %v", err)
+	}
+	if _, ok := m["expressSettings"]; !ok {
+		t.Fatalf("expected expanded key map to contain expressSettings, got: %#v", m)
+	}
+	if _, ok := m["universalSettings"]; ok {
+		t.Fatalf("did not expect expanded key map to contain universalSettings, got: %#v", m)
+	}
+
+	flattenedKey := flattenKey(c, map[string]interface{}{
+		"name":            "projects/example-project/keys/test-key",
+		"displayName":     "express-key",
+		"expressSettings": map[string]interface{}{},
+	}, key)
+	if flattenedKey.ExpressSettings == nil || flattenedKey.ExpressSettings.Empty() {
+		t.Fatalf("expected flattened key to have non-empty ExpressSettings")
+	}
+	if flattenedKey.UniversalSettings != nil {
+		t.Fatalf("expected flattened key UniversalSettings to be nil, got: %#v", flattenedKey.UniversalSettings)
+	}
+
+	tfStateVal := flattenRecaptchaEnterpriseKeyExpressSettings(flattenedKey.ExpressSettings)
+	arr, ok := tfStateVal.([]interface{})
+	if !ok || len(arr) != 1 {
+		t.Fatalf("expected flattened state value to be single-element slice, got: %#v", tfStateVal)
+	}
+}
+
+func TestExpandAndFlattenKeyUniversalSettings(t *testing.T) {
+	if got := expandRecaptchaEnterpriseKeyUniversalSettings(nil); !got.Empty() {
+		t.Fatalf("expected nil input to expand to EmptyKeyUniversalSettings")
+	}
+	if got := expandRecaptchaEnterpriseKeyUniversalSettings([]interface{}{}); !got.Empty() {
+		t.Fatalf("expected empty slice input to expand to EmptyKeyUniversalSettings")
+	}
+	expanded := expandRecaptchaEnterpriseKeyUniversalSettings([]interface{}{nil})
+	if expanded == nil || expanded.Empty() {
+		t.Fatalf("expected configured empty block to expand to non-empty KeyUniversalSettings")
+	}
+
+	c := &Client{}
+	key := &Key{
+		Project:           stringPtr("example-project"),
+		DisplayName:       stringPtr("universal-key"),
+		WebSettings:       EmptyKeyWebSettings,
+		AndroidSettings:   EmptyKeyAndroidSettings,
+		IosSettings:       EmptyKeyIosSettings,
+		ExpressSettings:   EmptyKeyExpressSettings,
+		UniversalSettings: expanded,
+	}
+	if err := key.validate(); err != nil {
+		t.Fatalf("expected universal key to validate cleanly, got error: %v", err)
+	}
+
+	m, err := expandKey(c, key)
+	if err != nil {
+		t.Fatalf("expandKey failed: %v", err)
+	}
+	if _, ok := m["universalSettings"]; !ok {
+		t.Fatalf("expected expanded key map to contain universalSettings, got: %#v", m)
+	}
+	if _, ok := m["expressSettings"]; ok {
+		t.Fatalf("did not expect expanded key map to contain expressSettings, got: %#v", m)
+	}
+
+	flattenedKey := flattenKey(c, map[string]interface{}{
+		"name":              "projects/example-project/keys/test-key",
+		"displayName":       "universal-key",
+		"universalSettings": map[string]interface{}{},
+	}, key)
+	if flattenedKey.UniversalSettings == nil || flattenedKey.UniversalSettings.Empty() {
+		t.Fatalf("expected flattened key to have non-empty UniversalSettings")
+	}
+	if flattenedKey.ExpressSettings != nil {
+		t.Fatalf("expected flattened key ExpressSettings to be nil, got: %#v", flattenedKey.ExpressSettings)
+	}
+
+	tfStateVal := flattenRecaptchaEnterpriseKeyUniversalSettings(flattenedKey.UniversalSettings)
+	arr, ok := tfStateVal.([]interface{})
+	if !ok || len(arr) != 1 {
+		t.Fatalf("expected flattened state value to be single-element slice, got: %#v", tfStateVal)
+	}
+}
+
 func float64Ptr(v float64) *float64 {
 	return &v
 }

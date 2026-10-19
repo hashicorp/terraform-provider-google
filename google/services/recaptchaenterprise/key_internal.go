@@ -29,7 +29,7 @@ import (
 
 func (r *Key) validate() error {
 
-	if err := dcl.ValidateExactlyOneOfFieldsSet([]string{"WebSettings", "AndroidSettings", "IosSettings"}, r.WebSettings, r.AndroidSettings, r.IosSettings); err != nil {
+	if err := dcl.ValidateExactlyOneOfFieldsSet([]string{"WebSettings", "AndroidSettings", "IosSettings", "ExpressSettings", "UniversalSettings"}, r.WebSettings, r.AndroidSettings, r.IosSettings, r.ExpressSettings, r.UniversalSettings); err != nil {
 		return err
 	}
 	if err := dcl.Required(r, "displayName"); err != nil {
@@ -60,6 +60,16 @@ func (r *Key) validate() error {
 	}
 	if !dcl.IsEmptyValueIndirect(r.WafSettings) {
 		if err := r.WafSettings.validate(); err != nil {
+			return err
+		}
+	}
+	if !dcl.IsEmptyValueIndirect(r.ExpressSettings) {
+		if err := r.ExpressSettings.validate(); err != nil {
+			return err
+		}
+	}
+	if !dcl.IsEmptyValueIndirect(r.UniversalSettings) {
+		if err := r.UniversalSettings.validate(); err != nil {
 			return err
 		}
 	}
@@ -115,6 +125,12 @@ func (r *KeyWafSettings) validate() error {
 	if err := dcl.Required(r, "wafFeature"); err != nil {
 		return err
 	}
+	return nil
+}
+func (r *KeyExpressSettings) validate() error {
+	return nil
+}
+func (r *KeyUniversalSettings) validate() error {
 	return nil
 }
 func (r *Key) basePath() string {
@@ -483,22 +499,36 @@ func canonicalizeKeyInitialState(rawInitial, rawDesired *Key) (*Key, error) {
 
 	if !dcl.IsZeroValue(rawInitial.WebSettings) {
 		// Check if anything else is set.
-		if dcl.AnySet(rawInitial.AndroidSettings, rawInitial.IosSettings) {
+		if dcl.AnySet(rawInitial.AndroidSettings, rawInitial.IosSettings, rawInitial.ExpressSettings, rawInitial.UniversalSettings) {
 			rawInitial.WebSettings = EmptyKeyWebSettings
 		}
 	}
 
 	if !dcl.IsZeroValue(rawInitial.AndroidSettings) {
 		// Check if anything else is set.
-		if dcl.AnySet(rawInitial.WebSettings, rawInitial.IosSettings) {
+		if dcl.AnySet(rawInitial.WebSettings, rawInitial.IosSettings, rawInitial.ExpressSettings, rawInitial.UniversalSettings) {
 			rawInitial.AndroidSettings = EmptyKeyAndroidSettings
 		}
 	}
 
 	if !dcl.IsZeroValue(rawInitial.IosSettings) {
 		// Check if anything else is set.
-		if dcl.AnySet(rawInitial.WebSettings, rawInitial.AndroidSettings) {
+		if dcl.AnySet(rawInitial.WebSettings, rawInitial.AndroidSettings, rawInitial.ExpressSettings, rawInitial.UniversalSettings) {
 			rawInitial.IosSettings = EmptyKeyIosSettings
+		}
+	}
+
+	if !dcl.IsZeroValue(rawInitial.ExpressSettings) {
+		// Check if anything else is set.
+		if dcl.AnySet(rawInitial.WebSettings, rawInitial.AndroidSettings, rawInitial.IosSettings, rawInitial.UniversalSettings) {
+			rawInitial.ExpressSettings = EmptyKeyExpressSettings
+		}
+	}
+
+	if !dcl.IsZeroValue(rawInitial.UniversalSettings) {
+		// Check if anything else is set.
+		if dcl.AnySet(rawInitial.WebSettings, rawInitial.AndroidSettings, rawInitial.IosSettings, rawInitial.ExpressSettings) {
+			rawInitial.UniversalSettings = EmptyKeyUniversalSettings
 		}
 	}
 
@@ -522,6 +552,8 @@ func canonicalizeKeyDesiredState(rawDesired, rawInitial *Key, opts ...dcl.ApplyO
 		rawDesired.IosSettings = canonicalizeKeyIosSettings(rawDesired.IosSettings, nil, opts...)
 		rawDesired.TestingOptions = canonicalizeKeyTestingOptions(rawDesired.TestingOptions, nil, opts...)
 		rawDesired.WafSettings = canonicalizeKeyWafSettings(rawDesired.WafSettings, nil, opts...)
+		rawDesired.ExpressSettings = canonicalizeKeyExpressSettings(rawDesired.ExpressSettings, nil, opts...)
+		rawDesired.UniversalSettings = canonicalizeKeyUniversalSettings(rawDesired.UniversalSettings, nil, opts...)
 
 		return rawDesired, nil
 	}
@@ -553,25 +585,41 @@ func canonicalizeKeyDesiredState(rawDesired, rawInitial *Key, opts ...dcl.ApplyO
 	} else {
 		canonicalDesired.Project = rawDesired.Project
 	}
+	canonicalDesired.ExpressSettings = canonicalizeKeyExpressSettings(rawDesired.ExpressSettings, rawInitial.ExpressSettings, opts...)
+	canonicalDesired.UniversalSettings = canonicalizeKeyUniversalSettings(rawDesired.UniversalSettings, rawInitial.UniversalSettings, opts...)
 
 	if canonicalDesired.WebSettings != nil {
 		// Check if anything else is set.
-		if dcl.AnySet(rawDesired.AndroidSettings, rawDesired.IosSettings) {
+		if dcl.AnySet(rawDesired.AndroidSettings, rawDesired.IosSettings, rawDesired.ExpressSettings, rawDesired.UniversalSettings) {
 			canonicalDesired.WebSettings = EmptyKeyWebSettings
 		}
 	}
 
 	if canonicalDesired.AndroidSettings != nil {
 		// Check if anything else is set.
-		if dcl.AnySet(rawDesired.WebSettings, rawDesired.IosSettings) {
+		if dcl.AnySet(rawDesired.WebSettings, rawDesired.IosSettings, rawDesired.ExpressSettings, rawDesired.UniversalSettings) {
 			canonicalDesired.AndroidSettings = EmptyKeyAndroidSettings
 		}
 	}
 
 	if canonicalDesired.IosSettings != nil {
 		// Check if anything else is set.
-		if dcl.AnySet(rawDesired.WebSettings, rawDesired.AndroidSettings) {
+		if dcl.AnySet(rawDesired.WebSettings, rawDesired.AndroidSettings, rawDesired.ExpressSettings, rawDesired.UniversalSettings) {
 			canonicalDesired.IosSettings = EmptyKeyIosSettings
+		}
+	}
+
+	if canonicalDesired.ExpressSettings != nil {
+		// Check if anything else is set.
+		if dcl.AnySet(rawDesired.WebSettings, rawDesired.AndroidSettings, rawDesired.IosSettings, rawDesired.UniversalSettings) {
+			canonicalDesired.ExpressSettings = EmptyKeyExpressSettings
+		}
+	}
+
+	if canonicalDesired.UniversalSettings != nil {
+		// Check if anything else is set.
+		if dcl.AnySet(rawDesired.WebSettings, rawDesired.AndroidSettings, rawDesired.IosSettings, rawDesired.ExpressSettings) {
+			canonicalDesired.UniversalSettings = EmptyKeyUniversalSettings
 		}
 	}
 
@@ -634,6 +682,18 @@ func canonicalizeKeyNewState(c *Client, rawNew, rawDesired *Key) (*Key, error) {
 	}
 
 	rawNew.Project = rawDesired.Project
+
+	if dcl.IsEmptyValueIndirect(rawNew.ExpressSettings) && dcl.IsEmptyValueIndirect(rawDesired.ExpressSettings) {
+		rawNew.ExpressSettings = rawDesired.ExpressSettings
+	} else {
+		rawNew.ExpressSettings = canonicalizeNewKeyExpressSettings(c, rawDesired.ExpressSettings, rawNew.ExpressSettings)
+	}
+
+	if dcl.IsEmptyValueIndirect(rawNew.UniversalSettings) && dcl.IsEmptyValueIndirect(rawDesired.UniversalSettings) {
+		rawNew.UniversalSettings = rawDesired.UniversalSettings
+	} else {
+		rawNew.UniversalSettings = canonicalizeNewKeyUniversalSettings(c, rawDesired.UniversalSettings, rawNew.UniversalSettings)
+	}
 
 	return rawNew, nil
 }
@@ -1458,6 +1518,222 @@ func canonicalizeNewKeyWafSettingsSlice(c *Client, des, nw []KeyWafSettings) []K
 	return items
 }
 
+func canonicalizeKeyExpressSettings(des, initial *KeyExpressSettings, opts ...dcl.ApplyOption) *KeyExpressSettings {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &KeyExpressSettings{}
+
+	return cDes
+}
+
+func canonicalizeKeyExpressSettingsSlice(des, initial []KeyExpressSettings, opts ...dcl.ApplyOption) []KeyExpressSettings {
+	if des == nil {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+
+		items := make([]KeyExpressSettings, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeKeyExpressSettings(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]KeyExpressSettings, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeKeyExpressSettings(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+
+}
+
+func canonicalizeNewKeyExpressSettings(c *Client, des, nw *KeyExpressSettings) *KeyExpressSettings {
+
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for KeyExpressSettings while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	return nw
+}
+
+func canonicalizeNewKeyExpressSettingsSet(c *Client, des, nw []KeyExpressSettings) []KeyExpressSettings {
+	if des == nil {
+		return nw
+	}
+
+	// Find the elements in des that are also in nw and canonicalize them. Remove matched elements from nw.
+	var items []KeyExpressSettings
+	for _, d := range des {
+		matchedIndex := -1
+		for i, n := range nw {
+			if diffs, _ := compareKeyExpressSettingsNewStyle(&d, &n, dcl.FieldName{}); len(diffs) == 0 {
+				matchedIndex = i
+				break
+			}
+		}
+		if matchedIndex != -1 {
+			items = append(items, *canonicalizeNewKeyExpressSettings(c, &d, &nw[matchedIndex]))
+			nw = append(nw[:matchedIndex], nw[matchedIndex+1:]...)
+		}
+	}
+	// Also include elements in nw that are not matched in des.
+	items = append(items, nw...)
+
+	return items
+}
+
+func canonicalizeNewKeyExpressSettingsSlice(c *Client, des, nw []KeyExpressSettings) []KeyExpressSettings {
+	if des == nil {
+		return nw
+	}
+
+	// Lengths are unequal. A diff will occur later, so we shouldn't canonicalize.
+	// Return the original array.
+	if len(des) != len(nw) {
+		return nw
+	}
+
+	var items []KeyExpressSettings
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewKeyExpressSettings(c, &d, &n))
+	}
+
+	return items
+}
+
+func canonicalizeKeyUniversalSettings(des, initial *KeyUniversalSettings, opts ...dcl.ApplyOption) *KeyUniversalSettings {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+
+	if initial == nil {
+		return des
+	}
+
+	cDes := &KeyUniversalSettings{}
+
+	return cDes
+}
+
+func canonicalizeKeyUniversalSettingsSlice(des, initial []KeyUniversalSettings, opts ...dcl.ApplyOption) []KeyUniversalSettings {
+	if des == nil {
+		return initial
+	}
+
+	if len(des) != len(initial) {
+
+		items := make([]KeyUniversalSettings, 0, len(des))
+		for _, d := range des {
+			cd := canonicalizeKeyUniversalSettings(&d, nil, opts...)
+			if cd != nil {
+				items = append(items, *cd)
+			}
+		}
+		return items
+	}
+
+	items := make([]KeyUniversalSettings, 0, len(des))
+	for i, d := range des {
+		cd := canonicalizeKeyUniversalSettings(&d, &initial[i], opts...)
+		if cd != nil {
+			items = append(items, *cd)
+		}
+	}
+	return items
+
+}
+
+func canonicalizeNewKeyUniversalSettings(c *Client, des, nw *KeyUniversalSettings) *KeyUniversalSettings {
+
+	if des == nil {
+		return nw
+	}
+
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for KeyUniversalSettings while comparing non-nil desired to nil actual.  Returning desired object.")
+			return des
+		}
+		return nil
+	}
+
+	return nw
+}
+
+func canonicalizeNewKeyUniversalSettingsSet(c *Client, des, nw []KeyUniversalSettings) []KeyUniversalSettings {
+	if des == nil {
+		return nw
+	}
+
+	// Find the elements in des that are also in nw and canonicalize them. Remove matched elements from nw.
+	var items []KeyUniversalSettings
+	for _, d := range des {
+		matchedIndex := -1
+		for i, n := range nw {
+			if diffs, _ := compareKeyUniversalSettingsNewStyle(&d, &n, dcl.FieldName{}); len(diffs) == 0 {
+				matchedIndex = i
+				break
+			}
+		}
+		if matchedIndex != -1 {
+			items = append(items, *canonicalizeNewKeyUniversalSettings(c, &d, &nw[matchedIndex]))
+			nw = append(nw[:matchedIndex], nw[matchedIndex+1:]...)
+		}
+	}
+	// Also include elements in nw that are not matched in des.
+	items = append(items, nw...)
+
+	return items
+}
+
+func canonicalizeNewKeyUniversalSettingsSlice(c *Client, des, nw []KeyUniversalSettings) []KeyUniversalSettings {
+	if des == nil {
+		return nw
+	}
+
+	// Lengths are unequal. A diff will occur later, so we shouldn't canonicalize.
+	// Return the original array.
+	if len(des) != len(nw) {
+		return nw
+	}
+
+	var items []KeyUniversalSettings
+	for i, d := range des {
+		n := nw[i]
+		items = append(items, *canonicalizeNewKeyUniversalSettings(c, &d, &n))
+	}
+
+	return items
+}
+
 // The differ returns a list of diffs, along with a list of operations that should be taken
 // to remedy them. Right now, it does not attempt to consolidate operations - if several
 // fields can be fixed with a patch update, it will perform the patch several times.
@@ -1540,6 +1816,20 @@ func diffKey(c *Client, desired, actual *Key, opts ...dcl.ApplyOption) ([]*dcl.F
 	}
 
 	if ds, err := dcl.Diff(desired.Project, actual.Project, dcl.DiffInfo{Type: "ReferenceType", OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("Project")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		newDiffs = append(newDiffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.ExpressSettings, actual.ExpressSettings, dcl.DiffInfo{ObjectFunction: compareKeyExpressSettingsNewStyle, EmptyObject: EmptyKeyExpressSettings, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ExpressSettings")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		newDiffs = append(newDiffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.UniversalSettings, actual.UniversalSettings, dcl.DiffInfo{ObjectFunction: compareKeyUniversalSettingsNewStyle, EmptyObject: EmptyKeyUniversalSettings, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("UniversalSettings")); len(ds) != 0 || err != nil {
 		if err != nil {
 			return nil, err
 		}
@@ -1901,6 +2191,68 @@ func compareKeyWafSettingsNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.F
 	return diffs, nil
 }
 
+func compareKeyExpressSettingsNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*KeyExpressSettings)
+	if !ok {
+		desiredNotPointer, ok := d.(KeyExpressSettings)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a KeyExpressSettings or *KeyExpressSettings", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*KeyExpressSettings)
+	if !ok {
+		actualNotPointer, ok := a.(KeyExpressSettings)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a KeyExpressSettings", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if desired.Empty() != actual.Empty() {
+		diffs = append(diffs, &dcl.FieldDiff{
+			FieldName:          fn.FieldName,
+			Desired:            d,
+			Actual:             a,
+			ResultingOperation: dcl.RequiresRecreate()(nil),
+		})
+	}
+	return diffs, nil
+}
+
+func compareKeyUniversalSettingsNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*KeyUniversalSettings)
+	if !ok {
+		desiredNotPointer, ok := d.(KeyUniversalSettings)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a KeyUniversalSettings or *KeyUniversalSettings", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*KeyUniversalSettings)
+	if !ok {
+		actualNotPointer, ok := a.(KeyUniversalSettings)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a KeyUniversalSettings", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if desired.Empty() != actual.Empty() {
+		diffs = append(diffs, &dcl.FieldDiff{
+			FieldName:          fn.FieldName,
+			Desired:            d,
+			Actual:             a,
+			ResultingOperation: dcl.RequiresRecreate()(nil),
+		})
+	}
+	return diffs, nil
+}
+
 // urlNormalized returns a copy of the resource struct with values normalized
 // for URL substitutions. For instance, it converts long-form self-links to
 // short-form so they can be substituted in.
@@ -2002,6 +2354,16 @@ func expandKey(c *Client, f *Key) (map[string]interface{}, error) {
 	} else if !dcl.IsEmptyValueIndirect(v) {
 		m["project"] = v
 	}
+	if v, err := expandKeyExpressSettings(c, f.ExpressSettings, res); err != nil {
+		return nil, fmt.Errorf("error expanding ExpressSettings into expressSettings: %w", err)
+	} else if v != nil {
+		m["expressSettings"] = v
+	}
+	if v, err := expandKeyUniversalSettings(c, f.UniversalSettings, res); err != nil {
+		return nil, fmt.Errorf("error expanding UniversalSettings into universalSettings: %w", err)
+	} else if v != nil {
+		m["universalSettings"] = v
+	}
 
 	return m, nil
 }
@@ -2028,6 +2390,8 @@ func flattenKey(c *Client, i interface{}, res *Key) *Key {
 	resultRes.TestingOptions = flattenKeyTestingOptions(c, m["testingOptions"], res)
 	resultRes.WafSettings = flattenKeyWafSettings(c, m["wafSettings"], res)
 	resultRes.Project = dcl.FlattenString(m["project"])
+	resultRes.ExpressSettings = flattenKeyExpressSettings(c, m["expressSettings"], res)
+	resultRes.UniversalSettings = flattenKeyUniversalSettings(c, m["universalSettings"], res)
 
 	return resultRes
 }
@@ -2772,6 +3136,218 @@ func flattenKeyWafSettings(c *Client, i interface{}, res *Key) *KeyWafSettings {
 	return r
 }
 
+// expandKeyExpressSettingsMap expands the contents of KeyExpressSettings into a JSON
+// request object.
+func expandKeyExpressSettingsMap(c *Client, f map[string]KeyExpressSettings, res *Key) (map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := make(map[string]interface{})
+	for k, item := range f {
+		i, err := expandKeyExpressSettings(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items[k] = i
+		}
+	}
+
+	return items, nil
+}
+
+// expandKeyExpressSettingsSlice expands the contents of KeyExpressSettings into a JSON
+// request object.
+func expandKeyExpressSettingsSlice(c *Client, f []KeyExpressSettings, res *Key) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandKeyExpressSettings(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+// flattenKeyExpressSettingsMap flattens the contents of KeyExpressSettings from a JSON
+// response object.
+func flattenKeyExpressSettingsMap(c *Client, i interface{}, res *Key) map[string]KeyExpressSettings {
+	a, ok := i.(map[string]interface{})
+	if !ok {
+		return map[string]KeyExpressSettings{}
+	}
+
+	if len(a) == 0 {
+		return map[string]KeyExpressSettings{}
+	}
+
+	items := make(map[string]KeyExpressSettings)
+	for k, item := range a {
+		items[k] = *flattenKeyExpressSettings(c, item.(map[string]interface{}), res)
+	}
+
+	return items
+}
+
+// flattenKeyExpressSettingsSlice flattens the contents of KeyExpressSettings from a JSON
+// response object.
+func flattenKeyExpressSettingsSlice(c *Client, i interface{}, res *Key) []KeyExpressSettings {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []KeyExpressSettings{}
+	}
+
+	if len(a) == 0 {
+		return []KeyExpressSettings{}
+	}
+
+	items := make([]KeyExpressSettings, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenKeyExpressSettings(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+// expandKeyExpressSettings expands an instance of KeyExpressSettings into a JSON
+// request object.
+func expandKeyExpressSettings(c *Client, f *KeyExpressSettings, res *Key) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return m, nil
+}
+
+// flattenKeyExpressSettings flattens an instance of KeyExpressSettings from a JSON
+// response object.
+func flattenKeyExpressSettings(c *Client, i interface{}, res *Key) *KeyExpressSettings {
+	_, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &KeyExpressSettings{}
+
+	return r
+}
+
+// expandKeyUniversalSettingsMap expands the contents of KeyUniversalSettings into a JSON
+// request object.
+func expandKeyUniversalSettingsMap(c *Client, f map[string]KeyUniversalSettings, res *Key) (map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := make(map[string]interface{})
+	for k, item := range f {
+		i, err := expandKeyUniversalSettings(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+		if i != nil {
+			items[k] = i
+		}
+	}
+
+	return items, nil
+}
+
+// expandKeyUniversalSettingsSlice expands the contents of KeyUniversalSettings into a JSON
+// request object.
+func expandKeyUniversalSettingsSlice(c *Client, f []KeyUniversalSettings, res *Key) ([]map[string]interface{}, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	items := []map[string]interface{}{}
+	for _, item := range f {
+		i, err := expandKeyUniversalSettings(c, &item, res)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
+// flattenKeyUniversalSettingsMap flattens the contents of KeyUniversalSettings from a JSON
+// response object.
+func flattenKeyUniversalSettingsMap(c *Client, i interface{}, res *Key) map[string]KeyUniversalSettings {
+	a, ok := i.(map[string]interface{})
+	if !ok {
+		return map[string]KeyUniversalSettings{}
+	}
+
+	if len(a) == 0 {
+		return map[string]KeyUniversalSettings{}
+	}
+
+	items := make(map[string]KeyUniversalSettings)
+	for k, item := range a {
+		items[k] = *flattenKeyUniversalSettings(c, item.(map[string]interface{}), res)
+	}
+
+	return items
+}
+
+// flattenKeyUniversalSettingsSlice flattens the contents of KeyUniversalSettings from a JSON
+// response object.
+func flattenKeyUniversalSettingsSlice(c *Client, i interface{}, res *Key) []KeyUniversalSettings {
+	a, ok := i.([]interface{})
+	if !ok {
+		return []KeyUniversalSettings{}
+	}
+
+	if len(a) == 0 {
+		return []KeyUniversalSettings{}
+	}
+
+	items := make([]KeyUniversalSettings, 0, len(a))
+	for _, item := range a {
+		items = append(items, *flattenKeyUniversalSettings(c, item.(map[string]interface{}), res))
+	}
+
+	return items
+}
+
+// expandKeyUniversalSettings expands an instance of KeyUniversalSettings into a JSON
+// request object.
+func expandKeyUniversalSettings(c *Client, f *KeyUniversalSettings, res *Key) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return m, nil
+}
+
+// flattenKeyUniversalSettings flattens an instance of KeyUniversalSettings from a JSON
+// response object.
+func flattenKeyUniversalSettings(c *Client, i interface{}, res *Key) *KeyUniversalSettings {
+	_, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &KeyUniversalSettings{}
+
+	return r
+}
+
 // flattenKeyWebSettingsIntegrationTypeEnumMap flattens the contents of KeyWebSettingsIntegrationTypeEnum from a JSON
 // response object.
 func flattenKeyWebSettingsIntegrationTypeEnumMap(c *Client, i interface{}, res *Key) map[string]KeyWebSettingsIntegrationTypeEnum {
@@ -3168,6 +3744,26 @@ func extractKeyFields(r *Key) error {
 	if !dcl.IsEmptyValueIndirect(vWafSettings) {
 		r.WafSettings = vWafSettings
 	}
+	vExpressSettings := r.ExpressSettings
+	if vExpressSettings == nil {
+		vExpressSettings = EmptyKeyExpressSettings
+	}
+	if err := extractKeyExpressSettingsFields(r, vExpressSettings); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vExpressSettings) {
+		r.ExpressSettings = vExpressSettings
+	}
+	vUniversalSettings := r.UniversalSettings
+	if vUniversalSettings == nil {
+		vUniversalSettings = EmptyKeyUniversalSettings
+	}
+	if err := extractKeyUniversalSettingsFields(r, vUniversalSettings); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vUniversalSettings) {
+		r.UniversalSettings = vUniversalSettings
+	}
 	return nil
 }
 func extractKeyWebSettingsFields(r *Key, o *KeyWebSettings) error {
@@ -3183,6 +3779,12 @@ func extractKeyTestingOptionsFields(r *Key, o *KeyTestingOptions) error {
 	return nil
 }
 func extractKeyWafSettingsFields(r *Key, o *KeyWafSettings) error {
+	return nil
+}
+func extractKeyExpressSettingsFields(r *Key, o *KeyExpressSettings) error {
+	return nil
+}
+func extractKeyUniversalSettingsFields(r *Key, o *KeyUniversalSettings) error {
 	return nil
 }
 
@@ -3242,6 +3844,26 @@ func postReadExtractKeyFields(r *Key) error {
 	if !dcl.IsEmptyValueIndirect(vWafSettings) {
 		r.WafSettings = vWafSettings
 	}
+	vExpressSettings := r.ExpressSettings
+	if vExpressSettings == nil {
+		vExpressSettings = EmptyKeyExpressSettings
+	}
+	if err := postReadExtractKeyExpressSettingsFields(r, vExpressSettings); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vExpressSettings) {
+		r.ExpressSettings = vExpressSettings
+	}
+	vUniversalSettings := r.UniversalSettings
+	if vUniversalSettings == nil {
+		vUniversalSettings = EmptyKeyUniversalSettings
+	}
+	if err := postReadExtractKeyUniversalSettingsFields(r, vUniversalSettings); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vUniversalSettings) {
+		r.UniversalSettings = vUniversalSettings
+	}
 	return nil
 }
 func postReadExtractKeyWebSettingsFields(r *Key, o *KeyWebSettings) error {
@@ -3257,5 +3879,11 @@ func postReadExtractKeyTestingOptionsFields(r *Key, o *KeyTestingOptions) error 
 	return nil
 }
 func postReadExtractKeyWafSettingsFields(r *Key, o *KeyWafSettings) error {
+	return nil
+}
+func postReadExtractKeyExpressSettingsFields(r *Key, o *KeyExpressSettings) error {
+	return nil
+}
+func postReadExtractKeyUniversalSettingsFields(r *Key, o *KeyUniversalSettings) error {
 	return nil
 }

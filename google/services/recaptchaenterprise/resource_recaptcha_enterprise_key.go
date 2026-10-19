@@ -68,7 +68,7 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 				Description:   "Settings for keys that can be used by Android apps.",
 				MaxItems:      1,
 				Elem:          RecaptchaEnterpriseKeyAndroidSettingsSchema(),
-				ConflictsWith: []string{"web_settings", "ios_settings"},
+				ConflictsWith: []string{"web_settings", "ios_settings", "express_settings", "universal_settings"},
 			},
 
 			"effective_labels": {
@@ -77,13 +77,23 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
+			"express_settings": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   "Settings for keys that can be used by reCAPTCHA Express.",
+				MaxItems:      1,
+				Elem:          RecaptchaEnterpriseKeyExpressSettingsSchema(),
+				ConflictsWith: []string{"web_settings", "android_settings", "ios_settings", "universal_settings"},
+			},
+
 			"ios_settings": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				Description:   "Settings for keys that can be used by iOS apps.",
 				MaxItems:      1,
 				Elem:          RecaptchaEnterpriseKeyIosSettingsSchema(),
-				ConflictsWith: []string{"web_settings", "android_settings"},
+				ConflictsWith: []string{"web_settings", "android_settings", "express_settings", "universal_settings"},
 			},
 
 			"project": {
@@ -104,6 +114,16 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 				Elem:        RecaptchaEnterpriseKeyTestingOptionsSchema(),
 			},
 
+			"universal_settings": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   "Settings for keys that can be used by universal frontend integrations.",
+				MaxItems:      1,
+				Elem:          RecaptchaEnterpriseKeyUniversalSettingsSchema(),
+				ConflictsWith: []string{"web_settings", "android_settings", "ios_settings", "express_settings"},
+			},
+
 			"waf_settings": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -119,7 +139,7 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 				Description:   "Settings for keys that can be used by websites.",
 				MaxItems:      1,
 				Elem:          RecaptchaEnterpriseKeyWebSettingsSchema(),
-				ConflictsWith: []string{"android_settings", "ios_settings"},
+				ConflictsWith: []string{"android_settings", "ios_settings", "express_settings", "universal_settings"},
 			},
 
 			"create_time": {
@@ -172,6 +192,12 @@ func RecaptchaEnterpriseKeyAndroidSettingsSchema() *schema.Resource {
 	}
 }
 
+func RecaptchaEnterpriseKeyExpressSettingsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{},
+	}
+}
+
 func RecaptchaEnterpriseKeyIosSettingsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -209,6 +235,12 @@ func RecaptchaEnterpriseKeyTestingOptionsSchema() *schema.Resource {
 				Description: "All assessments for this Key will return this score. Must be between 0 (likely not legitimate) and 1 (likely legitimate) inclusive.",
 			},
 		},
+	}
+}
+
+func RecaptchaEnterpriseKeyUniversalSettingsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{},
 	}
 }
 
@@ -339,14 +371,16 @@ func resourceRecaptchaEnterpriseKeyCreate(d *schema.ResourceData, meta interface
 	}
 
 	obj := &Key{
-		DisplayName:     dcl.String(d.Get("display_name").(string)),
-		AndroidSettings: expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
-		Labels:          tpgresource.CheckStringMap(d.Get("effective_labels")),
-		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
-		Project:         dcl.String(project),
-		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
-		WafSettings:     expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
-		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
+		DisplayName:       dcl.String(d.Get("display_name").(string)),
+		AndroidSettings:   expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
+		Labels:            tpgresource.CheckStringMap(d.Get("effective_labels")),
+		ExpressSettings:   expandRecaptchaEnterpriseKeyExpressSettings(d.Get("express_settings")),
+		IosSettings:       expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
+		Project:           dcl.String(project),
+		TestingOptions:    expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
+		UniversalSettings: expandRecaptchaEnterpriseKeyUniversalSettings(d.Get("universal_settings")),
+		WafSettings:       expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
+		WebSettings:       expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
 	}
 
 	id, err := obj.ID()
@@ -405,15 +439,17 @@ func resourceRecaptchaEnterpriseKeyRead(d *schema.ResourceData, meta interface{}
 	}
 
 	obj := &Key{
-		DisplayName:     dcl.String(d.Get("display_name").(string)),
-		AndroidSettings: expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
-		Labels:          tpgresource.CheckStringMap(d.Get("effective_labels")),
-		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
-		Project:         dcl.String(project),
-		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
-		WafSettings:     expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
-		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
-		Name:            dcl.StringOrNil(d.Get("name").(string)),
+		DisplayName:       dcl.String(d.Get("display_name").(string)),
+		AndroidSettings:   expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
+		Labels:            tpgresource.CheckStringMap(d.Get("effective_labels")),
+		ExpressSettings:   expandRecaptchaEnterpriseKeyExpressSettings(d.Get("express_settings")),
+		IosSettings:       expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
+		Project:           dcl.String(project),
+		TestingOptions:    expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
+		UniversalSettings: expandRecaptchaEnterpriseKeyUniversalSettings(d.Get("universal_settings")),
+		WafSettings:       expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
+		WebSettings:       expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
+		Name:              dcl.StringOrNil(d.Get("name").(string)),
 	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -447,6 +483,9 @@ func resourceRecaptchaEnterpriseKeyRead(d *schema.ResourceData, meta interface{}
 	if err = d.Set("effective_labels", res.Labels); err != nil {
 		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
+	if err = d.Set("express_settings", flattenRecaptchaEnterpriseKeyExpressSettings(res.ExpressSettings)); err != nil {
+		return fmt.Errorf("error setting express_settings in state: %s", err)
+	}
 	if err = d.Set("ios_settings", flattenRecaptchaEnterpriseKeyIosSettings(res.IosSettings)); err != nil {
 		return fmt.Errorf("error setting ios_settings in state: %s", err)
 	}
@@ -455,6 +494,9 @@ func resourceRecaptchaEnterpriseKeyRead(d *schema.ResourceData, meta interface{}
 	}
 	if err = d.Set("testing_options", flattenRecaptchaEnterpriseKeyTestingOptions(res.TestingOptions)); err != nil {
 		return fmt.Errorf("error setting testing_options in state: %s", err)
+	}
+	if err = d.Set("universal_settings", flattenRecaptchaEnterpriseKeyUniversalSettings(res.UniversalSettings)); err != nil {
+		return fmt.Errorf("error setting universal_settings in state: %s", err)
 	}
 	if err = d.Set("waf_settings", flattenRecaptchaEnterpriseKeyWafSettings(res.WafSettings)); err != nil {
 		return fmt.Errorf("error setting waf_settings in state: %s", err)
@@ -494,15 +536,17 @@ func resourceRecaptchaEnterpriseKeyUpdate(d *schema.ResourceData, meta interface
 	}
 
 	obj := &Key{
-		DisplayName:     dcl.String(d.Get("display_name").(string)),
-		AndroidSettings: expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
-		Labels:          tpgresource.CheckStringMap(d.Get("effective_labels")),
-		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
-		Project:         dcl.String(project),
-		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
-		WafSettings:     expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
-		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
-		Name:            dcl.StringOrNil(d.Get("name").(string)),
+		DisplayName:       dcl.String(d.Get("display_name").(string)),
+		AndroidSettings:   expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
+		Labels:            tpgresource.CheckStringMap(d.Get("effective_labels")),
+		ExpressSettings:   expandRecaptchaEnterpriseKeyExpressSettings(d.Get("express_settings")),
+		IosSettings:       expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
+		Project:           dcl.String(project),
+		TestingOptions:    expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
+		UniversalSettings: expandRecaptchaEnterpriseKeyUniversalSettings(d.Get("universal_settings")),
+		WafSettings:       expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
+		WebSettings:       expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
+		Name:              dcl.StringOrNil(d.Get("name").(string)),
 	}
 	directive := tpgdclresource.UpdateDirective
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -549,15 +593,17 @@ func resourceRecaptchaEnterpriseKeyDelete(d *schema.ResourceData, meta interface
 	}
 
 	obj := &Key{
-		DisplayName:     dcl.String(d.Get("display_name").(string)),
-		AndroidSettings: expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
-		Labels:          tpgresource.CheckStringMap(d.Get("effective_labels")),
-		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
-		Project:         dcl.String(project),
-		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
-		WafSettings:     expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
-		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
-		Name:            dcl.StringOrNil(d.Get("name").(string)),
+		DisplayName:       dcl.String(d.Get("display_name").(string)),
+		AndroidSettings:   expandRecaptchaEnterpriseKeyAndroidSettings(d.Get("android_settings")),
+		Labels:            tpgresource.CheckStringMap(d.Get("effective_labels")),
+		ExpressSettings:   expandRecaptchaEnterpriseKeyExpressSettings(d.Get("express_settings")),
+		IosSettings:       expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
+		Project:           dcl.String(project),
+		TestingOptions:    expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
+		UniversalSettings: expandRecaptchaEnterpriseKeyUniversalSettings(d.Get("universal_settings")),
+		WafSettings:       expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
+		WebSettings:       expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
+		Name:              dcl.StringOrNil(d.Get("name").(string)),
 	}
 
 	log.Printf("[DEBUG] Deleting Key %q", d.Id())
@@ -633,6 +679,27 @@ func flattenRecaptchaEnterpriseKeyAndroidSettings(obj *KeyAndroidSettings) inter
 
 }
 
+func expandRecaptchaEnterpriseKeyExpressSettings(o interface{}) *KeyExpressSettings {
+	if o == nil {
+		return EmptyKeyExpressSettings
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return EmptyKeyExpressSettings
+	}
+	return &KeyExpressSettings{}
+}
+
+func flattenRecaptchaEnterpriseKeyExpressSettings(obj *KeyExpressSettings) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{}
+
+	return []interface{}{transformed}
+
+}
+
 func expandRecaptchaEnterpriseKeyIosSettings(o interface{}) *KeyIosSettings {
 	if o == nil {
 		return EmptyKeyIosSettings
@@ -684,6 +751,27 @@ func flattenRecaptchaEnterpriseKeyTestingOptions(obj *KeyTestingOptions) interfa
 		"testing_challenge": obj.TestingChallenge,
 		"testing_score":     obj.TestingScore,
 	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandRecaptchaEnterpriseKeyUniversalSettings(o interface{}) *KeyUniversalSettings {
+	if o == nil {
+		return EmptyKeyUniversalSettings
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 {
+		return EmptyKeyUniversalSettings
+	}
+	return &KeyUniversalSettings{}
+}
+
+func flattenRecaptchaEnterpriseKeyUniversalSettings(obj *KeyUniversalSettings) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{}
 
 	return []interface{}{transformed}
 

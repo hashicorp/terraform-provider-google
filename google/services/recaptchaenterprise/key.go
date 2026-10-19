@@ -28,16 +28,18 @@ import (
 )
 
 type Key struct {
-	Name            *string             `json:"name"`
-	DisplayName     *string             `json:"displayName"`
-	WebSettings     *KeyWebSettings     `json:"webSettings"`
-	AndroidSettings *KeyAndroidSettings `json:"androidSettings"`
-	IosSettings     *KeyIosSettings     `json:"iosSettings"`
-	Labels          map[string]string   `json:"labels"`
-	CreateTime      *string             `json:"createTime"`
-	TestingOptions  *KeyTestingOptions  `json:"testingOptions"`
-	WafSettings     *KeyWafSettings     `json:"wafSettings"`
-	Project         *string             `json:"project"`
+	Name              *string               `json:"name"`
+	DisplayName       *string               `json:"displayName"`
+	WebSettings       *KeyWebSettings       `json:"webSettings"`
+	AndroidSettings   *KeyAndroidSettings   `json:"androidSettings"`
+	IosSettings       *KeyIosSettings       `json:"iosSettings"`
+	Labels            map[string]string     `json:"labels"`
+	CreateTime        *string               `json:"createTime"`
+	TestingOptions    *KeyTestingOptions    `json:"testingOptions"`
+	WafSettings       *KeyWafSettings       `json:"wafSettings"`
+	Project           *string               `json:"project"`
+	ExpressSettings   *KeyExpressSettings   `json:"expressSettings"`
+	UniversalSettings *KeyUniversalSettings `json:"universalSettings"`
 }
 
 func (r *Key) String() string {
@@ -549,6 +551,92 @@ func (r *KeyWafSettings) String() string {
 }
 
 func (r *KeyWafSettings) HashCode() string {
+	// Placeholder for a more complex hash method that handles ordering, etc
+	// Hash resource body for easy comparison later
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type KeyExpressSettings struct {
+	empty bool `json:"-"`
+}
+
+type jsonKeyExpressSettings KeyExpressSettings
+
+func (r *KeyExpressSettings) UnmarshalJSON(data []byte) error {
+	var res jsonKeyExpressSettings
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if m == nil {
+		*r = *EmptyKeyExpressSettings
+	} else {
+		*r = KeyExpressSettings(res)
+	}
+	return nil
+}
+
+// This object is used to assert a desired state where this KeyExpressSettings is
+// empty. Go lacks global const objects, but this object should be treated
+// as one. Modifying this object will have undesirable results.
+var EmptyKeyExpressSettings *KeyExpressSettings = &KeyExpressSettings{empty: true}
+
+func (r *KeyExpressSettings) Empty() bool {
+	return r.empty
+}
+
+func (r *KeyExpressSettings) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *KeyExpressSettings) HashCode() string {
+	// Placeholder for a more complex hash method that handles ordering, etc
+	// Hash resource body for easy comparison later
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type KeyUniversalSettings struct {
+	empty bool `json:"-"`
+}
+
+type jsonKeyUniversalSettings KeyUniversalSettings
+
+func (r *KeyUniversalSettings) UnmarshalJSON(data []byte) error {
+	var res jsonKeyUniversalSettings
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if m == nil {
+		*r = *EmptyKeyUniversalSettings
+	} else {
+		*r = KeyUniversalSettings(res)
+	}
+	return nil
+}
+
+// This object is used to assert a desired state where this KeyUniversalSettings is
+// empty. Go lacks global const objects, but this object should be treated
+// as one. Modifying this object will have undesirable results.
+var EmptyKeyUniversalSettings *KeyUniversalSettings = &KeyUniversalSettings{empty: true}
+
+func (r *KeyUniversalSettings) Empty() bool {
+	return r.empty
+}
+
+func (r *KeyUniversalSettings) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *KeyUniversalSettings) HashCode() string {
 	// Placeholder for a more complex hash method that handles ordering, etc
 	// Hash resource body for easy comparison later
 	hash := sha256.Sum256([]byte(r.String()))
