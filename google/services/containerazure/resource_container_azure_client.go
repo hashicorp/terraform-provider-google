@@ -278,7 +278,6 @@ func resourceContainerAzureClientDelete(d *schema.ResourceData, meta interface{}
 	}
 	client := NewDCLContainerAzureClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutDelete))
 	if bp, err := tpgresource.ReplaceVars(d, config, client.Config.BasePath); err != nil {
-		d.SetId("")
 		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
 	} else {
 		client.Config.BasePath = bp
