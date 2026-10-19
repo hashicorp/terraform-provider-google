@@ -666,7 +666,13 @@ func IsEmptyValueIndirect(i any) bool {
 		return false
 	}
 
-	if !iv.IsValid() || iv.IsZero() {
+	if !iv.IsValid() {
+		return true
+	}
+	if iv.Kind() == reflect.Struct && iv.NumField() == 1 && iv.FieldByName("empty").IsValid() {
+		return iv.FieldByName("empty").Bool()
+	}
+	if iv.IsZero() {
 		return true
 	}
 	if hasEmptyStructField(i) {

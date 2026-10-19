@@ -169,6 +169,38 @@ resource "google_recaptcha_enterprise_key" "primary" {
 
 
 ```
+## Example Usage - express_key
+A basic test of recaptcha enterprise key that can be used by reCAPTCHA Express
+```hcl
+resource "google_recaptcha_enterprise_key" "primary" {
+  display_name = "display-name-one"
+  project      = "my-project-name"
+
+  express_settings {}
+
+  labels = {
+    label-one = "value-one"
+  }
+}
+
+
+```
+## Example Usage - universal_key
+A basic test of recaptcha enterprise key that can be used by universal frontend integrations
+```hcl
+resource "google_recaptcha_enterprise_key" "primary" {
+  display_name = "display-name-one"
+  project      = "my-project-name"
+
+  universal_settings {}
+
+  labels = {
+    label-one = "value-one"
+  }
+}
+
+
+```
 
 ## Argument Reference
 
@@ -186,6 +218,10 @@ The following arguments are supported:
   (Optional)
   Settings for keys that can be used by Android apps.
   
+* `express_settings` -
+  (Optional)
+  Settings for keys that can be used by reCAPTCHA Express.
+
 * `ios_settings` -
   (Optional)
   Settings for keys that can be used by iOS apps.
@@ -204,6 +240,10 @@ Please refer to the field `effective_labels` for all of the labels present on th
 * `testing_options` -
   (Optional)
   Options for user acceptance testing.
+
+* `universal_settings` -
+  (Optional)
+  Settings for keys that can be used by universal frontend integrations.
   
 * `waf_settings` -
   (Optional)

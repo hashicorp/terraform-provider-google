@@ -12,6 +12,7 @@ fields:
   - api_field: 'displayName'
   - field: 'effective_labels'
     provider_only: true
+  - api_field: 'expressSettings'
   - api_field: 'iosSettings.allowAllBundleIds'
   - api_field: 'iosSettings.allowedBundleIds'
   - api_field: 'labels'
@@ -21,6 +22,7 @@ fields:
     provider_only: true
   - api_field: 'testingOptions.testingChallenge'
   - api_field: 'testingOptions.testingScore'
+  - api_field: 'universalSettings'
   - api_field: 'wafSettings.wafFeature'
   - api_field: 'wafSettings.wafService'
   - api_field: 'webSettings.allowAllDomains'

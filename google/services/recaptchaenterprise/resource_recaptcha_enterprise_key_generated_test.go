@@ -250,6 +250,56 @@ func TestAccRecaptchaEnterpriseKey_WebPolicyBasedChallengeKey(t *testing.T) {
 		},
 	})
 }
+func TestAccRecaptchaEnterpriseKey_ExpressKey(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRecaptchaEnterpriseKey_ExpressKey(context),
+			},
+			{
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+func TestAccRecaptchaEnterpriseKey_UniversalKey(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRecaptchaEnterpriseKey_UniversalKey(context),
+			},
+			{
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
 
 func testAccRecaptchaEnterpriseKey_AndroidKey(context map[string]interface{}) string {
 	return acctest.Nprintf(`
@@ -605,6 +655,36 @@ resource "google_recaptcha_enterprise_key" "primary" {
       }
     }
   }
+
+  labels = {
+    label-one = "value-one"
+  }
+}
+`, context)
+}
+
+func testAccRecaptchaEnterpriseKey_ExpressKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_recaptcha_enterprise_key" "primary" {
+  display_name = "display-name-one"
+  project      = "%{project_name}"
+
+  express_settings {}
+
+  labels = {
+    label-one = "value-one"
+  }
+}
+`, context)
+}
+
+func testAccRecaptchaEnterpriseKey_UniversalKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_recaptcha_enterprise_key" "primary" {
+  display_name = "display-name-one"
+  project      = "%{project_name}"
+
+  universal_settings {}
 
   labels = {
     label-one = "value-one"
