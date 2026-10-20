@@ -1,0 +1,3 @@
+```release-note:bug
+healthcare: fixed an issue where `google_healthcare_dataset` creation did not wait for the create long-running operation and could fail after 5 minutes with `Root object was present, but now absent`
+```

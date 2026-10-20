@@ -384,6 +384,7 @@ When set to "DELETE", deleting the resource is allowed.
 }
 
 func resourceHealthcarePipelineJobCreate(d *schema.ResourceData, meta interface{}) error {
+	var project string
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -464,7 +465,7 @@ func resourceHealthcarePipelineJobCreate(d *schema.ResourceData, meta interface{
 	d.SetId(id)
 
 	err = HealthcareOperationWaitTime(
-		config, res, "Creating PipelineJob", userAgent,
+		config, res, project, "Creating PipelineJob", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -593,7 +594,7 @@ func resourceHealthcarePipelineJobUpdate(d *schema.ResourceData, meta interface{
 		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
 		return resourceHealthcarePipelineJobRead(d, meta)
 	}
-
+	var project string
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -719,7 +720,7 @@ func resourceHealthcarePipelineJobUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		err = HealthcareOperationWaitTime(
-			config, res, "Updating PipelineJob", userAgent,
+			config, res, project, "Updating PipelineJob", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
