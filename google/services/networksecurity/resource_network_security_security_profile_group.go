@@ -197,6 +197,11 @@ Format: 'organizations/{organization_id}' or 'projects/{project_id}'.`,
 				Optional:    true,
 				Description: `Reference to a SecurityProfile with the URL filtering configuration for the SecurityProfileGroup.`,
 			},
+			"wildfire_analysis_profile": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Reference to a SecurityProfile with the WildFire configuration for the SecurityProfileGroup.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -283,6 +288,12 @@ func resourceNetworkSecuritySecurityProfileGroupCreate(d *schema.ResourceData, m
 		return err
 	} else if v, ok := d.GetOkExists("custom_intercept_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(customInterceptProfileProp)) && (ok || !reflect.DeepEqual(v, customInterceptProfileProp)) {
 		obj["customInterceptProfile"] = customInterceptProfileProp
+	}
+	wildfireAnalysisProfileProp, err := expandNetworkSecuritySecurityProfileGroupWildfireAnalysisProfile(d.Get("wildfire_analysis_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("wildfire_analysis_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(wildfireAnalysisProfileProp)) && (ok || !reflect.DeepEqual(v, wildfireAnalysisProfileProp)) {
+		obj["wildfireAnalysisProfile"] = wildfireAnalysisProfileProp
 	}
 	effectiveLabelsProp, err := expandNetworkSecuritySecurityProfileGroupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -515,6 +526,12 @@ func resourceNetworkSecuritySecurityProfileGroupUpdate(d *schema.ResourceData, m
 	} else if v, ok := d.GetOkExists("custom_intercept_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customInterceptProfileProp)) {
 		obj["customInterceptProfile"] = customInterceptProfileProp
 	}
+	wildfireAnalysisProfileProp, err := expandNetworkSecuritySecurityProfileGroupWildfireAnalysisProfile(d.Get("wildfire_analysis_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("wildfire_analysis_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, wildfireAnalysisProfileProp)) {
+		obj["wildfireAnalysisProfile"] = wildfireAnalysisProfileProp
+	}
 	effectiveLabelsProp, err := expandNetworkSecuritySecurityProfileGroupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -549,6 +566,10 @@ func resourceNetworkSecuritySecurityProfileGroupUpdate(d *schema.ResourceData, m
 
 	if d.HasChange("custom_intercept_profile") {
 		updateMask = append(updateMask, "customInterceptProfile")
+	}
+
+	if d.HasChange("wildfire_analysis_profile") {
+		updateMask = append(updateMask, "wildfireAnalysisProfile")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -720,6 +741,10 @@ func flattenNetworkSecuritySecurityProfileGroupCustomInterceptProfile(v interfac
 	return v
 }
 
+func flattenNetworkSecuritySecurityProfileGroupWildfireAnalysisProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecuritySecurityProfileGroupTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -756,6 +781,10 @@ func expandNetworkSecuritySecurityProfileGroupCustomMirroringProfile(v interface
 }
 
 func expandNetworkSecuritySecurityProfileGroupCustomInterceptProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecuritySecurityProfileGroupWildfireAnalysisProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -798,6 +827,9 @@ func ResourceNetworkSecuritySecurityProfileGroupFlatten(d *schema.ResourceData, 
 		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
 	}
 	if err = d.Set("custom_intercept_profile", flattenNetworkSecuritySecurityProfileGroupCustomInterceptProfile(res["customInterceptProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
+	}
+	if err = d.Set("wildfire_analysis_profile", flattenNetworkSecuritySecurityProfileGroupWildfireAnalysisProfile(res["wildfireAnalysisProfile"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenNetworkSecuritySecurityProfileGroupTerraformLabels(res["labels"], d, config)); err != nil {

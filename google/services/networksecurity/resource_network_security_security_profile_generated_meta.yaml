@@ -38,5 +38,23 @@ fields:
     - api_field: urlFilteringProfile.urlFilters.filteringAction
     - api_field: urlFilteringProfile.urlFilters.priority
     - api_field: urlFilteringProfile.urlFilters.urls
+    - api_field: wildfireAnalysisProfile.wildfireInlineCloudAnalysisRules.action
+    - api_field: wildfireAnalysisProfile.wildfireInlineCloudAnalysisRules.customFileTypes.fileTypes
+    - api_field: wildfireAnalysisProfile.wildfireInlineCloudAnalysisRules.direction
+    - api_field: wildfireAnalysisProfile.wildfireInlineCloudAnalysisRules.fileSelectionMode
+    - api_field: wildfireAnalysisProfile.wildfireInlineMlOverrides.action
+    - api_field: wildfireAnalysisProfile.wildfireInlineMlOverrides.protocol
+    - api_field: wildfireAnalysisProfile.wildfireInlineMlSetting.fileExceptions.filename
+    - api_field: wildfireAnalysisProfile.wildfireInlineMlSetting.fileExceptions.partialHash
+    - api_field: wildfireAnalysisProfile.wildfireInlineMlSetting.inlineMlConfigs.action
+    - api_field: wildfireAnalysisProfile.wildfireInlineMlSetting.inlineMlConfigs.fileType
+    - api_field: wildfireAnalysisProfile.wildfireOverrides.action
+    - api_field: wildfireAnalysisProfile.wildfireOverrides.protocol
+    - api_field: wildfireAnalysisProfile.wildfireRealtimeLookup
+    - api_field: wildfireAnalysisProfile.wildfireSubmissionRules.customFileTypes.fileTypes
+    - api_field: wildfireAnalysisProfile.wildfireSubmissionRules.direction
+    - api_field: wildfireAnalysisProfile.wildfireSubmissionRules.fileSelectionMode
+    - api_field: wildfireAnalysisProfile.wildfireThreatOverrides.action
+    - api_field: wildfireAnalysisProfile.wildfireThreatOverrides.threatId
     - field: deletion_policy
       provider_only: true

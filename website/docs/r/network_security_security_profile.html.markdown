@@ -213,7 +213,6 @@ resource "google_network_security_security_profile" "default" {
 
 ```hcl
 resource "google_network_security_security_profile" "default" {
-  provider    = google-beta
   name        = "my-security-profile"
   parent      = "projects/my-project-name"
   description = "my description"
@@ -287,7 +286,7 @@ The following arguments are supported:
 
 * `type` -
   (Required)
-  The type of security profile. `WILDFIRE_ANALYSIS` is beta-only.
+  The type of security profile.
   Possible values are: `THREAT_PREVENTION`, `URL_FILTERING`, `CUSTOM_MIRRORING`, `CUSTOM_INTERCEPT`, `WILDFIRE_ANALYSIS`.
 
 * `name` -
@@ -329,7 +328,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_custom_intercept_profile).
 
 * `wildfire_analysis_profile` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The wildfire analysis configuration for the security profile.
   Structure is [documented below](#nested_wildfire_analysis_profile).
 

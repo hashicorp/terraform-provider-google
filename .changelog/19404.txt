@@ -1,0 +1,11 @@
+```release-note:enhancement
+networksecurity: promoted `wildfire_analysis_profile` to GA on `google_network_security_security_profile` resource
+```
+
+```release-note:enhancement
+networksecurity: promoted `wildfire_analysis_profile` field to GA on `google_network_security_security_profile_group` resource
+```
+
+```release-note:enhancement
+networksecurity: promoted `wildfire_settings` and `endpoint_settings.content_cloud_region`, `endpoint_settings.http_partial_response_blocked` fields to GA on `google_network_security_firewall_endpoint` resource
+```

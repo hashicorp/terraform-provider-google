@@ -12,6 +12,8 @@ fields:
     - api_field: createTime
     - field: effective_labels
       provider_only: true
+    - api_field: endpointSettings.contentCloudRegion
+    - api_field: endpointSettings.httpPartialResponseBlocked
     - api_field: endpointSettings.jumboFramesEnabled
     - api_field: labels
     - field: location
@@ -26,5 +28,12 @@ fields:
     - field: terraform_labels
       provider_only: true
     - api_field: updateTime
+    - api_field: wildfireSettings.enabled
+    - api_field: wildfireSettings.wildfireInlineCloudAnalysisSettings.maxAnalysisDuration
+    - api_field: wildfireSettings.wildfireInlineCloudAnalysisSettings.submissionTimeoutLoggingDisabled
+    - api_field: wildfireSettings.wildfireInlineCloudAnalysisSettings.timeoutAction
+    - api_field: wildfireSettings.wildfireRealtimeLookupDuration
+    - api_field: wildfireSettings.wildfireRealtimeLookupTimeoutAction
+    - api_field: wildfireSettings.wildfireRegion
     - field: deletion_policy
       provider_only: true
