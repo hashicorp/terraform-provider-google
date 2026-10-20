@@ -20,10 +20,38 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"testing"
 )
 
 const TestEnvVar = "TF_ACC"
+
+// AccTestPreCheck ensures required environment variables are set before running acceptance tests.
+func AccTestPreCheck(t *testing.T) {
+	if v := os.Getenv("GOOGLE_CREDENTIALS_FILE"); v != "" {
+		creds, err := os.ReadFile(v)
+		if err != nil {
+			t.Fatalf("Error reading GOOGLE_CREDENTIALS_FILE path: %s", err)
+		}
+		os.Setenv("GOOGLE_CREDENTIALS", string(creds))
+	}
+
+	if v := MultiEnvSearch(CredsEnvVars); v == "" {
+		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(CredsEnvVars, ", "))
+	}
+
+	if v := MultiEnvSearch(ProjectEnvVars); v == "" {
+		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(ProjectEnvVars, ", "))
+	}
+
+	if v := MultiEnvSearch(RegionEnvVars); v == "" {
+		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(RegionEnvVars, ", "))
+	}
+
+	if v := MultiEnvSearch(ZoneEnvVars); v == "" {
+		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(ZoneEnvVars, ", "))
+	}
+}
 
 var CredsEnvVars = []string{
 	"GOOGLE_CREDENTIALS",

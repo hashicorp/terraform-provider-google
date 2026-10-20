@@ -257,40 +257,50 @@ const ProactiveAttributionStrategy = "PROACTIVE"
 
 func HandleSDKDefaults(d *schema.ResourceData) error {
 	if d.Get("impersonate_service_account") == "" {
-		d.Set("impersonate_service_account", envvar.MultiEnvDefault([]string{
+		if err := d.Set("impersonate_service_account", envvar.MultiEnvDefault([]string{
 			"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT",
-		}, nil))
+		}, nil)); err != nil {
+			return err
+		}
 	}
 
 	if d.Get("project") == "" {
-		d.Set("project", envvar.MultiEnvDefault([]string{
+		if err := d.Set("project", envvar.MultiEnvDefault([]string{
 			"GOOGLE_PROJECT",
 			"GOOGLE_CLOUD_PROJECT",
 			"GCLOUD_PROJECT",
 			"CLOUDSDK_CORE_PROJECT",
-		}, nil))
+		}, nil)); err != nil {
+			return err
+		}
 	}
 
 	if d.Get("billing_project") == "" {
-		d.Set("billing_project", envvar.MultiEnvDefault([]string{
+		if err := d.Set("billing_project", envvar.MultiEnvDefault([]string{
 			"GOOGLE_BILLING_PROJECT",
-		}, nil))
+		}, nil)); err != nil {
+			return err
+		}
 	}
 
 	if d.Get("region") == "" {
-		d.Set("region", envvar.MultiEnvDefault([]string{
+		if err := d.Set("region", envvar.MultiEnvDefault([]string{
 			"GOOGLE_REGION",
 			"GCLOUD_REGION",
 			"CLOUDSDK_COMPUTE_REGION",
-		}, nil))
+		}, nil)); err != nil {
+			return err
+		}
 	}
 
 	if d.Get("zone") == "" {
-		d.Set("zone", envvar.MultiEnvDefault([]string{
+		if err := d.Set("zone", envvar.MultiEnvDefault([]string{
 			"GOOGLE_ZONE",
 			"GCLOUD_ZONE",
 			"CLOUDSDK_COMPUTE_ZONE",
-		}, nil))
+		}, nil)); err != nil {
+			return err
+		}
 	}
 
 	if _, ok := d.GetOkExists("user_project_override"); !ok {
@@ -303,14 +313,18 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 			if err != nil {
 				return err
 			}
-			d.Set("user_project_override", b)
+			if err := d.Set("user_project_override", b); err != nil {
+				return err
+			}
 		}
 	}
 
 	if d.Get("request_reason") == "" {
-		d.Set("request_reason", envvar.MultiEnvDefault([]string{
+		if err := d.Set("request_reason", envvar.MultiEnvDefault([]string{
 			"CLOUDSDK_CORE_REQUEST_REASON",
-		}, nil))
+		}, nil)); err != nil {
+			return err
+		}
 	}
 	return nil
 }

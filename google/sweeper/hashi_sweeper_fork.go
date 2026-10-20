@@ -20,6 +20,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"maps"
 	"strings"
 	"testing"
 
@@ -118,6 +119,12 @@ func GetSweeper(name string) (*Sweeper, bool) {
 	return s, ok
 }
 
+// GetSweeperInventory returns a shallow copy of the map of registered sweepers
+// to protect the global sweeper registry from accidental mutation by callers.
+func GetSweeperInventory() map[string]*Sweeper {
+	return maps.Clone(sweeperInventory)
+}
+
 // ExecuteSweepers runs registered sweepers for specified regions
 func ExecuteSweepers(t *testing.T) {
 	registerFlags()
@@ -127,7 +134,7 @@ func ExecuteSweepers(t *testing.T) {
 		regions := strings.Split(*flagSweep, ",")
 
 		// get filtered list of sweepers to run based on sweep-run flag
-		sweepers := filterSweepers(*flagSweepRun, sweeperInventory)
+		sweepers := FilterSweepers(*flagSweepRun, sweeperInventory)
 
 		if err := runSweepers(t, regions, sweepers, *flagSweepAllowFailures); err != nil {
 			t.Errorf("error running sweepers: %v", err)
@@ -144,7 +151,7 @@ func runSweepers(t *testing.T, regions []string, sweepers map[string]*Sweeper, a
 	}
 
 	// Sort sweepers by dependency order, considering both dependencies and parents
-	sorted, err := validateAndOrderSweepersWithDependencies(sweepers)
+	sorted, err := ValidateAndOrderSweepersWithDependencies(sweepers)
 	if err != nil {
 		return fmt.Errorf("failed to sort sweepers: %v", err)
 	}
@@ -171,8 +178,8 @@ func runSweepers(t *testing.T, regions []string, sweepers map[string]*Sweeper, a
 	return nil
 }
 
-// filterSweepers takes a comma separated string listing the sweepers to run
-func filterSweepers(f string, source map[string]*Sweeper) map[string]*Sweeper {
+// FilterSweepers takes a comma separated string listing the sweepers to run
+func FilterSweepers(f string, source map[string]*Sweeper) map[string]*Sweeper {
 	filterSlice := strings.Split(strings.ToLower(f), ",")
 	if len(filterSlice) == 1 && filterSlice[0] == "" {
 		// if the filter slice is a single element of "" then no sweeper list was
@@ -181,7 +188,7 @@ func filterSweepers(f string, source map[string]*Sweeper) map[string]*Sweeper {
 	}
 
 	// First convert to the unified model to ensure we include all relationships
-	unifiedSource := unifyRelationships(source)
+	unifiedSource := UnifyRelationships(source)
 
 	// Then filter based on the unified model
 	sweepers := make(map[string]*Sweeper)
@@ -227,9 +234,9 @@ func filterSweeperWithDependencies(name string, source map[string]*Sweeper) map[
 	return result
 }
 
-// validateAndOrderSweepersWithDependencies orders sweepers based on dependencies
+// ValidateAndOrderSweepersWithDependencies orders sweepers based on dependencies
 // including implicit dependencies from parent-child relationships
-func validateAndOrderSweepersWithDependencies(sweepers map[string]*Sweeper) ([]*Sweeper, error) {
+func ValidateAndOrderSweepersWithDependencies(sweepers map[string]*Sweeper) ([]*Sweeper, error) {
 	// First check for contradictions that need to be caught before unification
 	if err := validateDependenciesAndParents(sweepers); err != nil {
 		return nil, err
@@ -237,19 +244,20 @@ func validateAndOrderSweepersWithDependencies(sweepers map[string]*Sweeper) ([]*
 
 	// Create a copy of the sweepers map with parent relationships
 	// converted to reverse dependencies
-	unifiedSweepers := unifyRelationships(sweepers)
+	unifiedSweepers := UnifyRelationships(sweepers)
 
 	// Check for cycles in the unified dependency graph
-	if err := detectCycles(unifiedSweepers); err != nil {
+	if err := DetectCycles(unifiedSweepers); err != nil {
 		return nil, err
 	}
 
 	// Build dependency graph and perform topological sort
-	return topologicalSort(unifiedSweepers), nil
+	return TopologicalSort(unifiedSweepers), nil
 }
 
-// Add this to the unifyRelationships function
-func unifyRelationships(sweepers map[string]*Sweeper) map[string]*Sweeper {
+// UnifyRelationships returns a copy of the sweepers map with parent relationships
+// converted to reverse dependencies.
+func UnifyRelationships(sweepers map[string]*Sweeper) map[string]*Sweeper {
 	// Create a copy of the original sweepers
 	unified := make(map[string]*Sweeper, len(sweepers))
 	for name, sweeper := range sweepers {
@@ -292,7 +300,8 @@ func unifyRelationships(sweepers map[string]*Sweeper) map[string]*Sweeper {
 	return unified
 }
 
-func detectCycles(sweepers map[string]*Sweeper) error {
+// DetectCycles checks for circular dependencies in the given sweeper graph.
+func DetectCycles(sweepers map[string]*Sweeper) error {
 	// Build a directed graph
 	graph := make(map[string][]string)
 
@@ -403,8 +412,8 @@ func detectCycles(sweepers map[string]*Sweeper) error {
 	return nil
 }
 
-// topologicalSort implements Kahn's algorithm to order the sweepers
-func topologicalSort(sweepers map[string]*Sweeper) []*Sweeper {
+// TopologicalSort implements Kahn's algorithm to order the sweepers
+func TopologicalSort(sweepers map[string]*Sweeper) []*Sweeper {
 	// Build the graph - if A depends on B, then B → A
 	graph := make(map[string][]string)
 	inDegree := make(map[string]int)
