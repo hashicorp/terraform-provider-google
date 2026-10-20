@@ -1,0 +1,26 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_network_services_service_lb_policies
+generation_type: mmv1
+source_file: products/networkservices/ServiceLbPolicies.yaml
+api_service_name: networkservices.googleapis.com
+api_version: v1
+api_resource_type_kind: ServiceLbPolicy
+fields:
+    - api_field: autoCapacityDrain.enable
+    - api_field: createTime
+    - api_field: description
+    - field: effective_labels
+      provider_only: true
+    - api_field: failoverConfig.failoverHealthThreshold
+    - api_field: labels
+    - api_field: loadBalancingAlgorithm
+    - field: location
+      provider_only: true
+    - field: name
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
