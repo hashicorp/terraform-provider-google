@@ -26,7 +26,7 @@ EgressPolicies match requests based on egressFrom and egressTo stanzas.
 For an EgressPolicy to match, both egressFrom and egressTo stanzas must be matched.
 If an EgressPolicy matches a request, the request is allowed to span the ServicePerimeter
 boundary. For example, an EgressPolicy can be used to allow VMs on networks
-within the ServicePerimeter to access a defined set of projects outside the
+within the ServicePerimeter to access a defined set of resources (projects, folders, or organizations) outside the
 perimeter in certain contexts (e.g. to read data from a Cloud Storage bucket
 or query against a BigQuery dataset).
 
