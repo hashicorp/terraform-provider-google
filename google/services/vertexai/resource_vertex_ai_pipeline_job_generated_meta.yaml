@@ -1,0 +1,85 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_pipeline_job
+generation_type: mmv1
+source_file: products/vertexai/PipelineJob.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: PipelineJob
+fields:
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: endTime
+    - api_field: error.code
+    - api_field: error.details
+    - api_field: error.message
+    - api_field: jobDetail.pipelineContext.createTime
+    - api_field: jobDetail.pipelineContext.description
+    - api_field: jobDetail.pipelineContext.displayName
+    - api_field: jobDetail.pipelineContext.etag
+    - api_field: jobDetail.pipelineContext.labels
+    - api_field: jobDetail.pipelineContext.metadata
+      json: true
+    - api_field: jobDetail.pipelineContext.name
+    - api_field: jobDetail.pipelineContext.parentContexts
+    - api_field: jobDetail.pipelineContext.schemaTitle
+    - api_field: jobDetail.pipelineContext.schemaVersion
+    - api_field: jobDetail.pipelineContext.updateTime
+    - api_field: jobDetail.pipelineRunContext.createTime
+    - api_field: jobDetail.pipelineRunContext.description
+    - api_field: jobDetail.pipelineRunContext.displayName
+    - api_field: jobDetail.pipelineRunContext.etag
+    - api_field: jobDetail.pipelineRunContext.labels
+    - api_field: jobDetail.pipelineRunContext.metadata
+      json: true
+    - api_field: jobDetail.pipelineRunContext.name
+    - api_field: jobDetail.pipelineRunContext.parentContexts
+    - api_field: jobDetail.pipelineRunContext.schemaTitle
+    - api_field: jobDetail.pipelineRunContext.schemaVersion
+    - api_field: jobDetail.pipelineRunContext.updateTime
+    - api_field: jobDetail.taskDetails.createTime
+    - api_field: jobDetail.taskDetails.endTime
+    - api_field: jobDetail.taskDetails.error.code
+    - api_field: jobDetail.taskDetails.error.message
+    - api_field: jobDetail.taskDetails.parentTaskId
+    - api_field: jobDetail.taskDetails.startTime
+    - api_field: jobDetail.taskDetails.state
+    - api_field: jobDetail.taskDetails.taskId
+    - api_field: jobDetail.taskDetails.taskName
+    - api_field: jobDetail.taskDetails.taskUniqueName
+    - api_field: labels
+    - api_field: name
+    - api_field: network
+    - field: pipeline_job_id
+      provider_only: true
+    - api_field: pipelineSpec
+      json: true
+    - api_field: preflightValidations
+    - api_field: pscInterfaceConfig.dnsPeeringConfigs.domain
+    - api_field: pscInterfaceConfig.dnsPeeringConfigs.targetNetwork
+    - api_field: pscInterfaceConfig.dnsPeeringConfigs.targetProject
+    - api_field: pscInterfaceConfig.networkAttachment
+    - field: region
+      provider_only: true
+    - api_field: reservedIpRanges
+    - api_field: runtimeConfig.failurePolicy
+    - api_field: runtimeConfig.gcsOutputDirectory
+    - api_field: runtimeConfig.inputArtifacts.key
+      field: runtime_config.input_artifacts.artifact_key
+    - api_field: runtimeConfig.inputArtifacts.value.artifactId
+      field: runtime_config.input_artifacts.artifact_id
+    - api_field: runtimeConfig.parameterValues
+    - api_field: scheduleName
+    - api_field: serviceAccount
+    - api_field: startTime
+    - api_field: state
+    - api_field: templateMetadata.version
+    - api_field: templateUri
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
