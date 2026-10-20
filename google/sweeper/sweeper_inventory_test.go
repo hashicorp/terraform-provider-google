@@ -14,10 +14,12 @@
 //	overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
-package sweeper
+package sweeper_test
 
 import (
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 )
 
 // TestActualSweeperInventoryValidation performs various validations on the actual sweeper inventory
@@ -26,6 +28,8 @@ func TestActualSweeperInventoryValidation(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode")
 	}
+
+	sweeperInventory := sweeper.GetSweeperInventory()
 
 	// Make sure the sweeper inventory is populated
 	if len(sweeperInventory) == 0 {
@@ -36,8 +40,8 @@ func TestActualSweeperInventoryValidation(t *testing.T) {
 
 	// Test 1: Check that all dependencies exist
 	t.Run("dependencies_exist", func(t *testing.T) {
-		for name, sweeper := range sweeperInventory {
-			for _, dep := range sweeper.Dependencies {
+		for name, s := range sweeperInventory {
+			for _, dep := range s.Dependencies {
 				if _, exists := sweeperInventory[dep]; !exists {
 					t.Errorf("Sweeper %s has dependency %s which doesn't exist in the inventory",
 						name, dep)
@@ -48,8 +52,8 @@ func TestActualSweeperInventoryValidation(t *testing.T) {
 
 	// Test 2: Check that all parents exist
 	t.Run("parents_exist", func(t *testing.T) {
-		for name, sweeper := range sweeperInventory {
-			for _, parent := range sweeper.Parents {
+		for name, s := range sweeperInventory {
+			for _, parent := range s.Parents {
 				if _, exists := sweeperInventory[parent]; !exists {
 					t.Errorf("Sweeper %s has parent %s which doesn't exist in the inventory",
 						name, parent)
@@ -60,13 +64,13 @@ func TestActualSweeperInventoryValidation(t *testing.T) {
 
 	// Test 3: Check that each resource doesn't list the same resource as both a dependency and a parent
 	t.Run("no_self_contradictions", func(t *testing.T) {
-		for name, sweeper := range sweeperInventory {
+		for name, s := range sweeperInventory {
 			depMap := make(map[string]bool)
-			for _, dep := range sweeper.Dependencies {
+			for _, dep := range s.Dependencies {
 				depMap[dep] = true
 			}
 
-			for _, parent := range sweeper.Parents {
+			for _, parent := range s.Parents {
 				if depMap[parent] {
 					t.Errorf("Sweeper %s lists %s as both a dependency and a parent, which is contradictory",
 						name, parent)
@@ -77,8 +81,8 @@ func TestActualSweeperInventoryValidation(t *testing.T) {
 
 	// Test 4: Check that parent resources have a ListAndAction function
 	t.Run("parents_have_list_action", func(t *testing.T) {
-		for name, sweeper := range sweeperInventory {
-			for _, parentName := range sweeper.Parents {
+		for name, s := range sweeperInventory {
+			for _, parentName := range s.Parents {
 				parent, exists := sweeperInventory[parentName]
 				if !exists {
 					continue // Already caught by parents_exist test
@@ -95,10 +99,10 @@ func TestActualSweeperInventoryValidation(t *testing.T) {
 	// Test 5: Verify the topological sort produces a valid ordering
 	t.Run("valid_topological_ordering", func(t *testing.T) {
 		// Unify relationships
-		unified := unifyRelationships(sweeperInventory)
+		unified := sweeper.UnifyRelationships(sweeperInventory)
 
 		// Get ordering
-		sorted := topologicalSort(unified)
+		sorted := sweeper.TopologicalSort(unified)
 
 		// Verify ordering is valid (each resource comes after its dependencies)
 		resourcePos := make(map[string]int)
@@ -125,8 +129,8 @@ func TestActualSweeperInventoryValidation(t *testing.T) {
 
 	// Test 6: Ensure no cycles after unification (comprehensive check)
 	t.Run("no_cycles_after_unification", func(t *testing.T) {
-		unified := unifyRelationships(sweeperInventory)
-		err := detectCycles(unified)
+		unified := sweeper.UnifyRelationships(sweeperInventory)
+		err := sweeper.DetectCycles(unified)
 		if err != nil {
 			t.Fatalf("Cycle detected in unified sweeper inventory: %v", err)
 		}

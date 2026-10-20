@@ -14,12 +14,14 @@
 //	overwritten during the next generation cycle.
 //
 // ----------------------------------------------------------------------------
-package sweeper
+package sweeper_test
 
 import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 )
 
 // TestUnifyRelationships verifies that parent relationships are correctly
@@ -27,12 +29,12 @@ import (
 func TestUnifyRelationships(t *testing.T) {
 	testCases := []struct {
 		name         string
-		sweepers     map[string]*Sweeper
+		sweepers     map[string]*sweeper.Sweeper
 		expectedDeps map[string][]string
 	}{
 		{
 			name: "simple_parent_relationship",
-			sweepers: map[string]*Sweeper{
+			sweepers: map[string]*sweeper.Sweeper{
 				"A": {
 					Name:           "A",
 					Dependencies:   []string{},
@@ -51,7 +53,7 @@ func TestUnifyRelationships(t *testing.T) {
 		},
 		{
 			name: "chain_of_parents",
-			sweepers: map[string]*Sweeper{
+			sweepers: map[string]*sweeper.Sweeper{
 				"A": {
 					Name:           "A",
 					DeleteFunction: func(region string) error { return nil },
@@ -77,19 +79,19 @@ func TestUnifyRelationships(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			unified := unifyRelationships(tc.sweepers)
+			unified := sweeper.UnifyRelationships(tc.sweepers)
 
 			// Verify unified dependencies
 			for name, expectedDeps := range tc.expectedDeps {
-				sweeper, ok := unified[name]
+				s, ok := unified[name]
 				if !ok {
 					t.Fatalf("Sweeper %s missing from unified result", name)
 				}
 
 				// Use equal content comparison rather than exact slice equality
-				if !hasSameDependencies(sweeper.Dependencies, expectedDeps) {
+				if !hasSameDependencies(s.Dependencies, expectedDeps) {
 					t.Errorf("For sweeper %s, expected dependencies %v, got %v",
-						name, expectedDeps, sweeper.Dependencies)
+						name, expectedDeps, s.Dependencies)
 				}
 			}
 		})
@@ -120,13 +122,13 @@ func hasSameDependencies(a, b []string) bool {
 func TestCycleDetectionBasic(t *testing.T) {
 	testCases := []struct {
 		name     string
-		sweepers map[string]*Sweeper
+		sweepers map[string]*sweeper.Sweeper
 		wantErr  bool
 		errMsg   string
 	}{
 		{
 			name: "direct_dependency_cycle",
-			sweepers: map[string]*Sweeper{
+			sweepers: map[string]*sweeper.Sweeper{
 				"A": {
 					Name:           "A",
 					Dependencies:   []string{"B"},
@@ -143,7 +145,7 @@ func TestCycleDetectionBasic(t *testing.T) {
 		},
 		{
 			name: "self_dependency",
-			sweepers: map[string]*Sweeper{
+			sweepers: map[string]*sweeper.Sweeper{
 				"A": {
 					Name:           "A",
 					Dependencies:   []string{"A"},
@@ -155,7 +157,7 @@ func TestCycleDetectionBasic(t *testing.T) {
 		},
 		{
 			name: "no_cycle",
-			sweepers: map[string]*Sweeper{
+			sweepers: map[string]*sweeper.Sweeper{
 				"A": {
 					Name:           "A",
 					DeleteFunction: func(region string) error { return nil },
@@ -178,10 +180,10 @@ func TestCycleDetectionBasic(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// First unify relationships
-			unified := unifyRelationships(tc.sweepers)
+			unified := sweeper.UnifyRelationships(tc.sweepers)
 
 			// Then check for cycles
-			err := detectCycles(unified)
+			err := sweeper.DetectCycles(unified)
 
 			if tc.wantErr {
 				if err == nil {
@@ -201,12 +203,12 @@ func TestCycleDetectionBasic(t *testing.T) {
 func TestTopologicalSortWithUnifiedModel(t *testing.T) {
 	tests := []struct {
 		name     string
-		sweepers map[string]*Sweeper
+		sweepers map[string]*sweeper.Sweeper
 		expected []string
 	}{
 		{
 			name: "simple_dependencies",
-			sweepers: map[string]*Sweeper{
+			sweepers: map[string]*sweeper.Sweeper{
 				"A": {
 					Name:           "A",
 					DeleteFunction: func(region string) error { return nil },
@@ -226,7 +228,7 @@ func TestTopologicalSortWithUnifiedModel(t *testing.T) {
 		},
 		{
 			name: "simple_parent_relationships",
-			sweepers: map[string]*Sweeper{
+			sweepers: map[string]*sweeper.Sweeper{
 				"A": {
 					Name:           "A",
 					DeleteFunction: func(region string) error { return nil },
@@ -249,10 +251,10 @@ func TestTopologicalSortWithUnifiedModel(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Unify relationships
-			unified := unifyRelationships(tt.sweepers)
+			unified := sweeper.UnifyRelationships(tt.sweepers)
 
 			// Get sorted result
-			sorted := topologicalSort(unified)
+			sorted := sweeper.TopologicalSort(unified)
 
 			// Extract names for comparison
 			actual := make([]string, len(sorted))
@@ -272,7 +274,7 @@ func TestTopologicalSortWithUnifiedModel(t *testing.T) {
 func TestValidateAndOrderSweepers(t *testing.T) {
 	// Test valid parent-child relationships
 	t.Run("parent_child_relationships", func(t *testing.T) {
-		sweepers := map[string]*Sweeper{
+		sweepers := map[string]*sweeper.Sweeper{
 			"A": {
 				Name:           "A",
 				DeleteFunction: func(region string) error { return nil },
@@ -289,7 +291,7 @@ func TestValidateAndOrderSweepers(t *testing.T) {
 			},
 		}
 
-		sorted, err := validateAndOrderSweepersWithDependencies(sweepers)
+		sorted, err := sweeper.ValidateAndOrderSweepersWithDependencies(sweepers)
 		if err != nil {
 			t.Fatalf("Expected no error, got: %v", err)
 		}
@@ -309,7 +311,7 @@ func TestValidateAndOrderSweepers(t *testing.T) {
 
 	// Test direct cycle
 	t.Run("direct_cycle", func(t *testing.T) {
-		sweepers := map[string]*Sweeper{
+		sweepers := map[string]*sweeper.Sweeper{
 			"A": {
 				Name:           "A",
 				Dependencies:   []string{"B"},
@@ -322,7 +324,7 @@ func TestValidateAndOrderSweepers(t *testing.T) {
 			},
 		}
 
-		_, err := validateAndOrderSweepersWithDependencies(sweepers)
+		_, err := sweeper.ValidateAndOrderSweepersWithDependencies(sweepers)
 		if err == nil {
 			t.Error("Expected error for cycle, got nil")
 		} else if !strings.Contains(err.Error(), "dependency cycle detected") {
@@ -333,7 +335,7 @@ func TestValidateAndOrderSweepers(t *testing.T) {
 
 // TestFilterSweepers verifies that filtering sweepers includes dependencies
 func TestFilterSweepers(t *testing.T) {
-	sweepers := map[string]*Sweeper{
+	sweepers := map[string]*sweeper.Sweeper{
 		"resource_a": {
 			Name:           "resource_a",
 			DeleteFunction: func(region string) error { return nil },
@@ -350,7 +352,7 @@ func TestFilterSweepers(t *testing.T) {
 	}
 
 	// Filter on resource_b should include resource_a
-	filtered := filterSweepers("resource_b", sweepers)
+	filtered := sweeper.FilterSweepers("resource_b", sweepers)
 	if _, ok := filtered["resource_a"]; !ok {
 		t.Error("Filtering for resource_b should include its dependency resource_a")
 	}

@@ -18,7 +18,6 @@ package acctest
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -68,30 +67,11 @@ func GoogleProviderConfig(t *testing.T) *transport_tpg.Config {
 	return sdkProvider.Meta().(*transport_tpg.Config)
 }
 
+// AccTestPreCheck wraps envvar.AccTestPreCheck for backwards compatibility with existing
+// acceptance tests. Tests in lower-level packages (e.g., transport) that acctest transitively
+// depends on should call envvar.AccTestPreCheck directly to avoid import cycles.
 func AccTestPreCheck(t *testing.T) {
-	if v := os.Getenv("GOOGLE_CREDENTIALS_FILE"); v != "" {
-		creds, err := ioutil.ReadFile(v)
-		if err != nil {
-			t.Fatalf("Error reading GOOGLE_CREDENTIALS_FILE path: %s", err)
-		}
-		os.Setenv("GOOGLE_CREDENTIALS", string(creds))
-	}
-
-	if v := envvar.MultiEnvSearch(envvar.CredsEnvVars); v == "" {
-		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(envvar.CredsEnvVars, ", "))
-	}
-
-	if v := envvar.MultiEnvSearch(envvar.ProjectEnvVars); v == "" {
-		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(envvar.ProjectEnvVars, ", "))
-	}
-
-	if v := envvar.MultiEnvSearch(envvar.RegionEnvVars); v == "" {
-		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(envvar.RegionEnvVars, ", "))
-	}
-
-	if v := envvar.MultiEnvSearch(envvar.ZoneEnvVars); v == "" {
-		t.Fatalf("One of %s must be set for acceptance tests", strings.Join(envvar.ZoneEnvVars, ", "))
-	}
+	envvar.AccTestPreCheck(t)
 }
 
 // AccTestPreCheck_AdcCredentialsOnly is a PreCheck function for acceptance tests that use ADCs when
