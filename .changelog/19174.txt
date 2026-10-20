@@ -1,0 +1,3 @@
+```release-note:bug
+firebaseapphosting: fixed spurious diff on `google_firebase_app_hosting_domain` create by polling until configuration is materialized
+```
