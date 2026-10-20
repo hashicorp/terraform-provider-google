@@ -124,7 +124,7 @@ resource "google_scc_v2_project_notification_config" "custom_notification_config
 func testAccSecurityCenterV2ProjectNotificationConfig_withLocation(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "scc_v2_project_notification" {
-  name =   name = "%{topic_name}"
+  name = "%{topic_name}"
 }
 
 resource "google_scc_v2_project_notification_config" "custom_notification_config" {
