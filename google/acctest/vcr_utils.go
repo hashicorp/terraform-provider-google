@@ -56,6 +56,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func IsVcrEnabled() bool {
@@ -175,7 +176,9 @@ func VcrTest(t *testing.T, c resource.TestCase) {
 		c = initializeReleaseDiffTest(c, t.Name(), tempOutputFile)
 	}
 
-	c = extendWithTGCData(t, c)
+	if !(IsVcrEnabled() && os.Getenv("VCR_MODE") == "REPLAYING") {
+		c = extendWithTGCData(t, c)
+	}
 
 	// terraform_labels is a computed field to which "goog-terraform-provisioned": "true" is always
 	// added by the provider. ImportStateVerify "checks for strict equality and does not respect
@@ -191,6 +194,13 @@ func VcrTest(t *testing.T, c resource.TestCase) {
 			s.Config = re.ReplaceAllString(s.Config, `create_duration = "1s"`)
 			re = regexp.MustCompile(`destroy_duration = "\d+[sm]"`)
 			s.Config = re.ReplaceAllString(s.Config, `destroy_duration = "1s"`)
+			// During RECORDING, extendWithTGCData attaches a non-nil Check function to steps
+			// containing resources, which causes terraform-plugin-testing to run a pre-destroy
+			// refresh on Destroy: true steps. Since extendWithTGCData is skipped in REPLAYING
+			// mode, set a no-op Check to preserve the recorded pre-destroy refresh behavior.
+			if s.Destroy && s.Config != "" && !s.PlanOnly && s.Check == nil && strings.Contains(s.Config, "resource \"") {
+				s.Check = func(*terraform.State) error { return nil }
+			}
 		}
 		// deletion_policy is a universal virtual attribute for managing the behavior of resources when a delete is attempted
 		// in Terraform. Because it is a virtual attribute, it needs to be excluded from these ImportStateVerifys.
@@ -221,7 +231,7 @@ func closeRecorder(t *testing.T) {
 	configsLock.RUnlock()
 	if ok {
 		// We did not cache the config if it does not use VCR
-		if !t.Failed() && IsVcrEnabled() {
+		if !t.Failed() && IsVcrEnabled() && os.Getenv("VCR_MODE") == "RECORDING" {
 			// If a test succeeds, write new seed/yaml to files
 			err := config.Client.Transport.(*recorder.Recorder).Stop()
 			if err != nil {
