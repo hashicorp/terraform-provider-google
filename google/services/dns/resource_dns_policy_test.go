@@ -60,7 +60,7 @@ func TestAccDNSPolicy_update(t *testing.T) {
 func testAccDnsPolicy_privateUpdate(suffix, forwarding, first_nameserver, second_nameserver, network string) string {
 	return fmt.Sprintf(`
 resource "google_dns_policy" "example-policy" {
-  name                      = "example-policy-%s"
+  name                      = "tf-test-example-policy-%s"
   enable_inbound_forwarding = %s
 
   alternative_name_server_config {

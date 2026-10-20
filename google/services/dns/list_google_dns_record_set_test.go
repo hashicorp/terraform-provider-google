@@ -32,7 +32,7 @@ import (
 func TestAccDNSRecordSetListResource_queryIdentity(t *testing.T) {
 	t.Parallel()
 
-	zoneName := "list-dnszone-test-" + acctest.RandString(t, 10)
+	zoneName := "tf-test-list-dnszone-" + acctest.RandString(t, 10)
 	project := envvar.GetTestProjectFromEnv()
 	t.Logf("Using project %s for testing", project)
 	recordName := fmt.Sprintf("test-record.%s.hashicorptest.com.", zoneName)

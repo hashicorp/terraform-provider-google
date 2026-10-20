@@ -82,7 +82,7 @@ func TestIpv6AddressDiffSuppress(t *testing.T) {
 func TestAccDNSRecordSet_basic(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -111,7 +111,7 @@ func TestAccDNSRecordSet_basic(t *testing.T) {
 func TestAccDNSRecordSet_Update(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -151,7 +151,7 @@ func TestAccDNSRecordSet_Update(t *testing.T) {
 func TestAccDNSRecordSet_changeType(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -182,7 +182,7 @@ func TestAccDNSRecordSet_changeType(t *testing.T) {
 func TestAccDNSRecordSet_nestedNS(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-ns-%s", acctest.RandString(t, 10))
 	recordSetName := fmt.Sprintf("\"nested.%s.hashicorptest.com.\"", zoneName)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -205,7 +205,7 @@ func TestAccDNSRecordSet_nestedNS(t *testing.T) {
 func TestAccDNSRecordSet_secondaryNS(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-ns-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-ns-%s", acctest.RandString(t, 10))
 	recordSetName := "google_dns_managed_zone.parent-zone.dns_name"
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -229,7 +229,7 @@ func TestAccDNSRecordSet_secondaryNS(t *testing.T) {
 func TestAccDNSRecordSet_deletionSOA(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-soa-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-soa-%s", acctest.RandString(t, 10))
 	recordSetName := "google_dns_managed_zone.parent-zone.dns_name"
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -252,7 +252,7 @@ func TestAccDNSRecordSet_deletionSOA(t *testing.T) {
 func TestAccDNSRecordSet_quotedTXT(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-txt-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-txt-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -274,7 +274,7 @@ func TestAccDNSRecordSet_quotedTXT(t *testing.T) {
 func TestAccDNSRecordSet_uppercaseMX(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-txt-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-txt-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -304,7 +304,7 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 	urlMapName := fmt.Sprintf("tf-test-url-map-%s", acctest.RandString(t, 10))
 	httpProxyName := fmt.Sprintf("tf-test-http-proxy-%s", acctest.RandString(t, 10))
 	forwardingRuleName := fmt.Sprintf("tf-test-forwarding-rule-%s", acctest.RandString(t, 10))
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -374,7 +374,7 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 func TestAccDNSRecordSet_changeRouting(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -415,7 +415,7 @@ func TestAccDNSRecordSet_changeRouting(t *testing.T) {
 func TestAccDNSRecordSet_interpolated(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -437,7 +437,7 @@ func TestAccDNSRecordSet_interpolated(t *testing.T) {
 func TestAccDNSRecordSet_readOutOfBandRoutingPolicyChange(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-%s", acctest.RandString(t, 10))
 	rrsetName := fmt.Sprintf("test-record.%s.hashicorptest.com.", zoneName)
 	ttl := 300
 	rrdata := []string{"127.0.0.1", "127.0.0.10"}
@@ -486,7 +486,7 @@ func TestAccDNSRecordSet_readOutOfBandRoutingPolicyChange(t *testing.T) {
 func TestAccDNSRecordSet_readOutOfBandRrDataChange(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-%s", acctest.RandString(t, 10))
 	rrsetName := fmt.Sprintf("test-record.%s.hashicorptest.com.", zoneName)
 	ttl := 300
 	rrdata := []string{"127.0.0.1", "127.0.0.10"}
@@ -613,7 +613,7 @@ func testAccCheckDnsRecordSetSetRrdataOutOfBand(t *testing.T, zoneName, rrsetNam
 func TestAccDNSRecordSet_importBlockWithResourceIdentity(t *testing.T) {
 	t.Parallel()
 
-	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	zoneName := fmt.Sprintf("tf-test-dnszone-%s", acctest.RandString(t, 10))
 	project := envvar.GetTestProjectFromEnv()
 	recordName := fmt.Sprintf("test-record.%s.hashicorptest.com.", zoneName)
 
