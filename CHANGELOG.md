@@ -50,7 +50,6 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * compute: fixed an issue causing `google_compute_region_backend_service` update to fail when `params.resource_manager_tags` is set ([#29967](https://github.com/hashicorp/terraform-provider-google/pull/29967))
-* compute: fixed an issue where removing `security_policy` from an external UDP `google_compute_region_backend_service` failed ([#30013](https://github.com/hashicorp/terraform-provider-google/pull/30013))
 * compute: fixed an issue where setting `security_policy` on `google_compute_region_backend_service` failed during creation when `protocol` was set to `UDP` ([#29972](https://github.com/hashicorp/terraform-provider-google/pull/29972))
 * container: fixed a permadiff on `dns_config.cluster_dns` in `google_container_cluster` when omitted, set to `null`, or set to `PROVIDER_UNSPECIFIED` ([#30021](https://github.com/hashicorp/terraform-provider-google/pull/30021))
 * container: fixed permadiff and update error on `google_container_cluster` when `managed_opentelemetry_config` is empty or `managed_opentelemetry_config.scope` is omitted ([#29962](https://github.com/hashicorp/terraform-provider-google/pull/29962))
