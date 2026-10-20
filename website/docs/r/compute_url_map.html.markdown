@@ -665,7 +665,6 @@ resource "google_compute_http_health_check" "default" {
 
 ```hcl
 resource "google_compute_url_map" "urlmap" {
-  provider    = google-beta
   name        = "urlmap"
   description = "Test for default route action mirror percent"
   
@@ -690,7 +689,6 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "home" {
-  provider    = google-beta
   name        = "home"
   port_name   = "http"
   protocol    = "HTTP"
@@ -701,7 +699,6 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_backend_service" "mirror" {
-  provider    = google-beta
   name        = "mirror"
   port_name   = "http"
   protocol    = "HTTP"
@@ -712,7 +709,6 @@ resource "google_compute_backend_service" "mirror" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider    = google-beta
   name               = "health-check"
   http_health_check {
     port = 80
@@ -730,7 +726,6 @@ resource "google_compute_health_check" "default" {
 
 ```hcl
 resource "google_compute_url_map" "urlmap" {
-  provider    = google-beta
   name        = "urlmap"
   description = "Test for default route action mirror percent"
   
@@ -755,7 +750,6 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "home" {
-  provider    = google-beta
   name        = "home"
   port_name   = "http"
   protocol    = "HTTP"
@@ -766,7 +760,6 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_backend_service" "mirror" {
-  provider    = google-beta
   name        = "mirror"
   port_name   = "http"
   protocol    = "HTTP"
@@ -777,7 +770,6 @@ resource "google_compute_backend_service" "mirror" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
   name               = "health-check"
   http_health_check {
     port = 80
@@ -1145,7 +1137,6 @@ resource "google_compute_health_check" "default" {
 
 ```hcl
 resource "google_compute_url_map" "urlmap" {
-  provider    = google-beta
   name        = "urlmap"
   description = "Test for path matcher default route action mirror percent"
   
@@ -1170,7 +1161,6 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "home" {
-  provider    = google-beta
   name        = "home"
   port_name   = "http"
   protocol    = "HTTP"
@@ -1181,7 +1171,6 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_backend_service" "mirror" {
-  provider    = google-beta
   name        = "mirror"
   port_name   = "http"
   protocol    = "HTTP"
@@ -1192,7 +1181,6 @@ resource "google_compute_backend_service" "mirror" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider    = google-beta 
   name               = "health-check"
   http_health_check {
     port = 80
@@ -1210,7 +1198,6 @@ resource "google_compute_health_check" "default" {
 
 ```hcl
 resource "google_compute_url_map" "urlmap" {
-  provider    = google-beta
   name        = "urlmap"
   description = "Test for path rule route action mirror percent"
 
@@ -1239,7 +1226,6 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "home" {
-  provider    = google-beta
   name        = "home"
   port_name   = "http"
   protocol    = "HTTP"
@@ -1250,7 +1236,6 @@ resource "google_compute_backend_service" "home" {
 }
 
 resource "google_compute_backend_service" "mirror" {
-  provider    = google-beta
   name        = "mirror"
   port_name   = "http"
   protocol    = "HTTP"
@@ -1261,7 +1246,6 @@ resource "google_compute_backend_service" "mirror" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
   name               = "health-check"
   http_health_check {
     port = 80
@@ -2572,7 +2556,7 @@ The following arguments are supported:
   The BackendService resource being mirrored to.
 
 * `mirror_percent` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 
@@ -3583,7 +3567,7 @@ The following arguments are supported:
   The BackendService resource being mirrored to.
 
 * `mirror_percent` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 
@@ -4482,7 +4466,7 @@ The following arguments are supported:
   The full or partial URL to the BackendService resource being mirrored to.
 
 * `mirror_percent` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 
@@ -5225,7 +5209,7 @@ The following arguments are supported:
   The full or partial URL to the BackendService resource being mirrored to.
 
 * `mirror_percent` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   The percentage of requests to be mirrored to backendService.
   The value must be between 0.0 and 100.0 inclusive.
 

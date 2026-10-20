@@ -349,6 +349,13 @@ Not supported when the URL map is bound to a target gRPC proxy that has the vali
 The backend service configured for a mirroring policy must reference backends that are of the same type as the original backend service matched in the URL map.
 Serverless NEG backends are not currently supported as a mirrored backend service.`,
 									},
+									"mirror_percent": {
+										Type:         schema.TypeFloat,
+										Optional:     true,
+										ValidateFunc: validation.FloatBetween(0, 100),
+										Description: `The percentage of requests to be mirrored to backendService.
+The value must be between 0.0 and 100.0 inclusive.`,
+									},
 								},
 							},
 							AtLeastOneOf: []string{"default_route_action.0.cors_policy", "default_route_action.0.fault_injection_policy", "default_route_action.0.request_mirror_policy", "default_route_action.0.retry_policy", "default_route_action.0.timeout", "default_route_action.0.url_rewrite", "default_route_action.0.weighted_backend_services"},
@@ -983,6 +990,13 @@ the host / authority header is suffixed with -shadow.`,
 													DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 													Description:      `The full or partial URL to the BackendService resource being mirrored to.`,
 												},
+												"mirror_percent": {
+													Type:         schema.TypeFloat,
+													Optional:     true,
+													ValidateFunc: validation.FloatBetween(0, 100),
+													Description: `The percentage of requests to be mirrored to backendService.
+The value must be between 0.0 and 100.0 inclusive.`,
+												},
 											},
 										},
 									},
@@ -1615,6 +1629,13 @@ service, the host / authority header is suffixed with -shadow.`,
 																Required:         true,
 																DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 																Description:      `The RegionBackendService resource being mirrored to.`,
+															},
+															"mirror_percent": {
+																Type:         schema.TypeFloat,
+																Optional:     true,
+																ValidateFunc: validation.FloatBetween(0, 100),
+																Description: `The percentage of requests to be mirrored to backendService.
+The value must be between 0.0 and 100.0 inclusive.`,
 															},
 														},
 													},
@@ -2485,6 +2506,13 @@ service, the host / authority header is suffixed with -shadow.`,
 																Required:         true,
 																DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 																Description:      `The RegionBackendService resource being mirrored to.`,
+															},
+															"mirror_percent": {
+																Type:         schema.TypeFloat,
+																Optional:     true,
+																ValidateFunc: validation.FloatBetween(0, 100),
+																Description: `The percentage of requests to be mirrored to backendService.
+The value must be between 0.0 and 100.0 inclusive.`,
 															},
 														},
 													},
@@ -4272,6 +4300,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPoli
 	transformed := make(map[string]interface{})
 	transformed["backend_service"] =
 		flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(original["backendService"], d, config)
+	transformed["mirror_percent"] =
+		flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyMirrorPercent(original["mirrorPercent"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4279,6 +4309,10 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPoli
 		return v
 	}
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyMirrorPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4880,6 +4914,8 @@ func flattenComputeRegionUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy
 	transformed := make(map[string]interface{})
 	transformed["backend_service"] =
 		flattenComputeRegionUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(original["backendService"], d, config)
+	transformed["mirror_percent"] =
+		flattenComputeRegionUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyMirrorPercent(original["mirrorPercent"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRegionUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -4887,6 +4923,10 @@ func flattenComputeRegionUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy
 		return v
 	}
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeRegionUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyMirrorPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeRegionUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5605,6 +5645,8 @@ func flattenComputeRegionUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicy(
 	transformed := make(map[string]interface{})
 	transformed["backend_service"] =
 		flattenComputeRegionUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBackendService(original["backendService"], d, config)
+	transformed["mirror_percent"] =
+		flattenComputeRegionUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyMirrorPercent(original["mirrorPercent"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRegionUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5612,6 +5654,10 @@ func flattenComputeRegionUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyB
 		return v
 	}
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeRegionUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyMirrorPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeRegionUrlMapPathMatcherDefaultRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -6187,6 +6233,8 @@ func flattenComputeRegionUrlMapDefaultRouteActionRequestMirrorPolicy(v interface
 	transformed := make(map[string]interface{})
 	transformed["backend_service"] =
 		flattenComputeRegionUrlMapDefaultRouteActionRequestMirrorPolicyBackendService(original["backendService"], d, config)
+	transformed["mirror_percent"] =
+		flattenComputeRegionUrlMapDefaultRouteActionRequestMirrorPolicyMirrorPercent(original["mirrorPercent"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRegionUrlMapDefaultRouteActionRequestMirrorPolicyBackendService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -6194,6 +6242,10 @@ func flattenComputeRegionUrlMapDefaultRouteActionRequestMirrorPolicyBackendServi
 		return v
 	}
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeRegionUrlMapDefaultRouteActionRequestMirrorPolicyMirrorPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeRegionUrlMapDefaultRouteActionCorsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -7708,6 +7760,13 @@ func expandComputeRegionUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolic
 		transformed["backendService"] = transformedBackendService
 	}
 
+	transformedMirrorPercent, err := expandComputeRegionUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyMirrorPercent(original["mirror_percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMirrorPercent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mirrorPercent"] = transformedMirrorPercent
+	}
+
 	return transformed, nil
 }
 
@@ -7717,6 +7776,10 @@ func expandComputeRegionUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolic
 		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeRegionUrlMapPathMatcherRouteRulesRouteActionRequestMirrorPolicyMirrorPercent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionUrlMapPathMatcherRouteRulesRouteActionRetryPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -8595,6 +8658,13 @@ func expandComputeRegionUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicy(
 		transformed["backendService"] = transformedBackendService
 	}
 
+	transformedMirrorPercent, err := expandComputeRegionUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyMirrorPercent(original["mirror_percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMirrorPercent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mirrorPercent"] = transformedMirrorPercent
+	}
+
 	return transformed, nil
 }
 
@@ -8604,6 +8674,10 @@ func expandComputeRegionUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyB
 		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeRegionUrlMapPathMatcherPathRuleRouteActionRequestMirrorPolicyMirrorPercent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionUrlMapPathMatcherPathRuleRouteActionRetryPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -9648,6 +9722,13 @@ func expandComputeRegionUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicy(v
 		transformed["backendService"] = transformedBackendService
 	}
 
+	transformedMirrorPercent, err := expandComputeRegionUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyMirrorPercent(original["mirror_percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMirrorPercent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mirrorPercent"] = transformedMirrorPercent
+	}
+
 	return transformed, nil
 }
 
@@ -9681,6 +9762,10 @@ func expandComputeRegionUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyBa
 	}
 
 	return f.RelativeLink(), nil
+}
+
+func expandComputeRegionUrlMapPathMatcherDefaultRouteActionRequestMirrorPolicyMirrorPercent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionUrlMapPathMatcherDefaultRouteActionCorsPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -10511,6 +10596,13 @@ func expandComputeRegionUrlMapDefaultRouteActionRequestMirrorPolicy(v interface{
 		transformed["backendService"] = transformedBackendService
 	}
 
+	transformedMirrorPercent, err := expandComputeRegionUrlMapDefaultRouteActionRequestMirrorPolicyMirrorPercent(original["mirror_percent"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMirrorPercent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mirrorPercent"] = transformedMirrorPercent
+	}
+
 	return transformed, nil
 }
 
@@ -10520,6 +10612,10 @@ func expandComputeRegionUrlMapDefaultRouteActionRequestMirrorPolicyBackendServic
 		return nil, fmt.Errorf("Invalid value for backend_service: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeRegionUrlMapDefaultRouteActionRequestMirrorPolicyMirrorPercent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionUrlMapDefaultRouteActionCorsPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
