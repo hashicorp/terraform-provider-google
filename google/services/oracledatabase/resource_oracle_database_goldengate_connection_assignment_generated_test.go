@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -61,9 +62,20 @@ func TestAccOracleDatabaseGoldengateConnectionAssignment_oracledatabaseGoldengat
 
 	context := map[string]interface{}{
 		"deletion_protection":                 false,
-		"goldengate_connection_assignment_id": fmt.Sprintf("tf-gcca-%s", acctest.RandString(t, 10)),
+		"goldengate_connection_assignment_id": fmt.Sprintf("tf-gcca-%s", randomSuffix),
 		"goldengate_connection_id":            "tf-test-permanent-connection",
 		"goldengate_deployment_id":            "tf-test-permanent-deployment",
+		"label_value":                         "value-one",
+		"project":                             "oasis-terraform-testing-prod",
+		"random_suffix":                       randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"deletion_protection":                 false,
+		"goldengate_connection_assignment_id": fmt.Sprintf("tf-gcca-%s", randomSuffix),
+		"goldengate_connection_id":            "tf-test-permanent-connection",
+		"goldengate_deployment_id":            "tf-test-permanent-deployment",
+		"label_value":                         "value-two",
 		"project":                             "oasis-terraform-testing-prod",
 		"random_suffix":                       randomSuffix,
 	}
@@ -75,6 +87,26 @@ func TestAccOracleDatabaseGoldengateConnectionAssignment_oracledatabaseGoldengat
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOracleDatabaseGoldengateConnectionAssignment_oracledatabaseGoldengateConnectionAssignmentFullExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_goldengate_connection_assignment.assignment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "goldengate_connection_assignment_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_goldengate_connection_assignment.assignment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccOracleDatabaseGoldengateConnectionAssignment_oracledatabaseGoldengateConnectionAssignmentFullExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_oracle_database_goldengate_connection_assignment.assignment", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_oracle_database_goldengate_connection_assignment.assignment",
@@ -100,7 +132,7 @@ resource "google_oracle_database_goldengate_connection_assignment" "assignment" 
   location                            = "us-east4"
   project                             = "%{project}"
   labels = {
-    "label-one" = "value-one"
+    "label-one" = "%{label_value}"
   }
 
   properties {

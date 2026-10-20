@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -62,8 +63,18 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 
 	context := map[string]interface{}{
 		"autonomous_database_id": "tf-test-my-instance" + randomSuffix,
-		"database_name":          fmt.Sprintf("tftestdatabase%s", acctest.RandString(t, 10)),
+		"database_name":          fmt.Sprintf("tftestdatabase%s", randomSuffix),
 		"deletion_protection":    false,
+		"label_value":            "value-one",
+		"project":                "oasis-terraform-testing-prod",
+		"random_suffix":          randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"autonomous_database_id": "tf-test-my-instance" + randomSuffix,
+		"database_name":          fmt.Sprintf("tftestdatabase%s", randomSuffix),
+		"deletion_protection":    false,
+		"label_value":            "value-two",
 		"project":                "oasis-terraform-testing-prod",
 		"random_suffix":          randomSuffix,
 	}
@@ -75,6 +86,26 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBasicExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_autonomous_database.myADB",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"admin_password", "autonomous_database_id", "deletion_protection", "labels", "location", "source_config", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_autonomous_database.myADB",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_oracle_database_autonomous_database.myADB", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_oracle_database_autonomous_database.myADB",
@@ -109,6 +140,10 @@ resource "google_oracle_database_autonomous_database" "myADB"{
     db_workload = "OLTP"
     license_type = "LICENSE_INCLUDED"
     }
+  labels = {
+    "label-one" = "%{label_value}"
+  }
+
   deletion_protection = "%{deletion_protection}"
 }
 

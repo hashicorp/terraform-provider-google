@@ -52,6 +52,10 @@ resource "google_oracle_database_goldengate_connection" "connection" {
       password          = "GenerateWallet@123"
     }
   }
+  labels = {
+    "label-one" = "value-one"
+  }
+
   deletion_protection = "true"
 }
 ```

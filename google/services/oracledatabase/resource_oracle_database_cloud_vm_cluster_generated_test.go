@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -61,9 +62,19 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExampl
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-for-vmcluster-basic-%s", acctest.RandString(t, 10)),
-		"cloud_vm_cluster_id":             fmt.Sprintf("ofake-tf-test-vmcluster-basic-%s", acctest.RandString(t, 10)),
+		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-for-vmcluster-basic-%s", randomSuffix),
+		"cloud_vm_cluster_id":             fmt.Sprintf("ofake-tf-test-vmcluster-basic-%s", randomSuffix),
 		"deletion_protection":             false,
+		"label_value":                     "value-one",
+		"project":                         "oasis-terraform-testing-prod",
+		"random_suffix":                   randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-for-vmcluster-basic-%s", randomSuffix),
+		"cloud_vm_cluster_id":             fmt.Sprintf("ofake-tf-test-vmcluster-basic-%s", randomSuffix),
+		"deletion_protection":             false,
+		"label_value":                     "value-two",
 		"project":                         "oasis-terraform-testing-prod",
 		"random_suffix":                   randomSuffix,
 	}
@@ -75,6 +86,26 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExampl
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_cloud_vm_cluster.my_vmcluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_vm_cluster_id", "deletion_protection", "labels", "location", "properties.0.gi_version", "properties.0.hostname_prefix", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_oracle_database_cloud_vm_cluster.my_vmcluster", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_oracle_database_cloud_vm_cluster.my_vmcluster",
@@ -109,6 +140,10 @@ resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
     cpu_core_count = "4"
     gi_version = "19.0.0.0"
     hostname_prefix = "hostname1"
+  }
+
+  labels = {
+    "label-one" = "%{label_value}"
   }
 
   deletion_protection = "%{deletion_protection}"

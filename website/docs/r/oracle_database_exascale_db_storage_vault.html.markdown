@@ -46,6 +46,10 @@ resource "google_oracle_database_exascale_db_storage_vault" "my_storage_vault"{
     }
   }
 
+  labels = {
+    "label-one" = "value-one"
+  }
+
   deletion_protection = "true"
 }
 ```

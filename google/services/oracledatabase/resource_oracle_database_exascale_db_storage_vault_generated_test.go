@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -61,7 +62,16 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 
 	context := map[string]interface{}{
 		"deletion_protection":          false,
-		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-basic-%s", acctest.RandString(t, 10)),
+		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-basic-%s", randomSuffix),
+		"label_value":                  "value-one",
+		"project":                      "oasis-terraform-testing-prod",
+		"random_suffix":                randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"deletion_protection":          false,
+		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-basic-%s", randomSuffix),
+		"label_value":                  "value-two",
 		"project":                      "oasis-terraform-testing-prod",
 		"random_suffix":                randomSuffix,
 	}
@@ -73,6 +83,26 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorageVaultBasicExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "exadata_infrastructure", "exascale_db_storage_vault_id", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorageVaultBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_oracle_database_exascale_db_storage_vault.my_storage_vault", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
@@ -101,6 +131,10 @@ resource "google_oracle_database_exascale_db_storage_vault" "my_storage_vault"{
     exascale_db_storage_details {
         total_size_gbs = 512
     }
+  }
+
+  labels = {
+    "label-one" = "%{label_value}"
   }
 
   deletion_protection = "%{deletion_protection}"

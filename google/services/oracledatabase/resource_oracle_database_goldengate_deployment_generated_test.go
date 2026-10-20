@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -61,7 +62,17 @@ func TestAccOracleDatabaseGoldengateDeployment_oracledatabaseGoldengateDeploymen
 
 	context := map[string]interface{}{
 		"deletion_policy":          "DELETE",
-		"goldengate_deployment_id": fmt.Sprintf("tf-ggdep-basic-%s", acctest.RandString(t, 10)),
+		"goldengate_deployment_id": fmt.Sprintf("tf-ggdep-basic-%s", randomSuffix),
+		"label_value":              "value-one",
+		"odb_subnet":               "projects/oasis-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":                  "oasis-terraform-testing-prod",
+		"random_suffix":            randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"deletion_policy":          "DELETE",
+		"goldengate_deployment_id": fmt.Sprintf("tf-ggdep-basic-%s", randomSuffix),
+		"label_value":              "value-two",
 		"odb_subnet":               "projects/oasis-terraform-testing-prod/locations/us-east4/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
 		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
@@ -74,6 +85,26 @@ func TestAccOracleDatabaseGoldengateDeployment_oracledatabaseGoldengateDeploymen
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOracleDatabaseGoldengateDeployment_oracledatabaseGoldengateDeploymentBasicExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_goldengate_deployment.deployment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "goldengate_deployment_id", "labels", "location", "properties.0.deployment_backup_id", "properties.0.ogg_data", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_goldengate_deployment.deployment",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccOracleDatabaseGoldengateDeployment_oracledatabaseGoldengateDeploymentBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_oracle_database_goldengate_deployment.deployment", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_oracle_database_goldengate_deployment.deployment",
@@ -108,6 +139,10 @@ resource "google_oracle_database_goldengate_deployment" "deployment" {
       deployment     = "deployment"
     }
   }
+  labels = {
+    "label-one" = "%{label_value}"
+  }
+
   deletion_policy = "%{deletion_policy}"
 }
 `, context)

@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -61,7 +62,16 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 
 	context := map[string]interface{}{
 		"deletion_protection":      false,
-		"goldengate_connection_id": fmt.Sprintf("tf-conn-basic-%s", acctest.RandString(t, 10)),
+		"goldengate_connection_id": fmt.Sprintf("tf-conn-basic-%s", randomSuffix),
+		"label_value":              "value-one",
+		"project":                  "oasis-terraform-testing-prod",
+		"random_suffix":            randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"deletion_protection":      false,
+		"goldengate_connection_id": fmt.Sprintf("tf-conn-basic-%s", randomSuffix),
+		"label_value":              "value-two",
 		"project":                  "oasis-terraform-testing-prod",
 		"random_suffix":            randomSuffix,
 	}
@@ -73,6 +83,26 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectionBasicExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_goldengate_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "goldengate_connection_id", "labels", "location", "properties.0.iceberg_connection_properties.0.storage.0.amazon_s3_iceberg_storage.0.secret_access_key_secret", "properties.0.java_message_service_connection_properties.0.jndi_security_credentials_secret", "properties.0.java_message_service_connection_properties.0.key_store_file", "properties.0.java_message_service_connection_properties.0.key_store_password", "properties.0.java_message_service_connection_properties.0.key_store_password_secret_version", "properties.0.java_message_service_connection_properties.0.password", "properties.0.java_message_service_connection_properties.0.password_secret_version", "properties.0.java_message_service_connection_properties.0.ssl_key_password", "properties.0.java_message_service_connection_properties.0.ssl_key_password_secret_version", "properties.0.java_message_service_connection_properties.0.trust_store_file", "properties.0.java_message_service_connection_properties.0.trust_store_password", "properties.0.java_message_service_connection_properties.0.trust_store_password_secret_version", "properties.0.kafka_connection_properties.0.bootstrap_servers", "properties.0.kafka_connection_properties.0.consumer_properties_file", "properties.0.kafka_connection_properties.0.key_store_file", "properties.0.kafka_connection_properties.0.key_store_password", "properties.0.kafka_connection_properties.0.key_store_password_secret_version", "properties.0.kafka_connection_properties.0.password", "properties.0.kafka_connection_properties.0.password_secret_version", "properties.0.kafka_connection_properties.0.producer_properties_file", "properties.0.kafka_connection_properties.0.ssl_key_password", "properties.0.kafka_connection_properties.0.ssl_key_password_secret_version", "properties.0.kafka_connection_properties.0.trust_store_file", "properties.0.kafka_connection_properties.0.trust_store_password", "properties.0.kafka_connection_properties.0.trust_store_password_secret_version", "properties.0.mysql_connection_properties.0.password", "properties.0.mysql_connection_properties.0.password_secret_version", "properties.0.mysql_connection_properties.0.ssl_ca_file", "properties.0.mysql_connection_properties.0.ssl_cert_file", "properties.0.mysql_connection_properties.0.ssl_crl_file", "properties.0.mysql_connection_properties.0.ssl_key_file", "properties.0.oracle_connection_properties.0.connection_string", "properties.0.oracle_connection_properties.0.gcp_oracle_database_id", "properties.0.oracle_connection_properties.0.password", "properties.0.postgresql_connection_properties.0.password", "properties.0.postgresql_connection_properties.0.password_secret_version", "properties.0.redis_connection_properties.0.password", "properties.0.redis_connection_properties.0.password_secret_version", "properties.0.snowflake_connection_properties.0.password", "properties.0.snowflake_connection_properties.0.password_secret_version", "properties.0.snowflake_connection_properties.0.private_key_file", "properties.0.snowflake_connection_properties.0.private_key_passphrase_secret", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_goldengate_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectionBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_oracle_database_goldengate_connection.connection", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_oracle_database_goldengate_connection.connection",
@@ -109,6 +139,10 @@ resource "google_oracle_database_goldengate_connection" "connection" {
       password          = "GenerateWallet@123"
     }
   }
+  labels = {
+    "label-one" = "%{label_value}"
+  }
+
   deletion_protection = "%{deletion_protection}"
 }
 `, context)
