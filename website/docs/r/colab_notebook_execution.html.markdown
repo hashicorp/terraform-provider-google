@@ -217,6 +217,175 @@ resource "google_colab_notebook_execution" "notebook-execution" {
 }
 ```
 
+## Example Usage - Colab Notebook Execution Workbench Runtime Custom Container
+
+
+```hcl
+resource "google_storage_bucket" "output_bucket" {
+  name          = "my_bucket"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_colab_notebook_execution" "notebook-execution" {
+  display_name = "Notebook execution workbench runtime custom container"
+  location = "us-central1"
+
+  direct_notebook_source {
+    content = base64encode(<<EOT
+    {
+      "cells": [
+        {
+          "cell_type": "code",
+          "execution_count": null,
+          "metadata": {},
+          "outputs": [],
+          "source": [
+            "print(\"Hello, World!\")"
+          ]
+        }
+      ],
+      "metadata": {
+        "kernelspec": {
+          "display_name": "Python 3",
+          "language": "python",
+          "name": "python3"
+        },
+        "language_info": {
+          "codemirror_mode": {
+            "name": "ipython",
+            "version": 3
+          },
+          "file_extension": ".py",
+          "mimetype": "text/x-python",
+          "name": "python",
+          "nbconvert_exporter": "python",
+          "pygments_lexer": "ipython3",
+          "version": "3.8.5"
+        }
+      },
+      "nbformat": 4,
+      "nbformat_minor": 4
+    }
+    EOT
+    )
+  }
+
+  custom_environment_spec {
+    machine_spec {
+      machine_type = "n1-standard-2"
+    }
+
+    persistent_disk_spec {
+      disk_type    = "pd-ssd"
+      disk_size_gb = 100
+    }
+  }
+
+  workbench_runtime {
+    custom_container_image {
+      repository = "gcr.io/deeplearning-platform-release/base-cpu"
+      tag        = "latest"
+    }
+  }
+
+  kernel_name = "python3"
+
+  gcs_output_uri = "gs://${google_storage_bucket.output_bucket.name}"
+
+  service_account = "my@service-account.com"
+
+  depends_on = [
+    google_storage_bucket.output_bucket,
+  ]
+}
+```
+
+## Example Usage - Colab Notebook Execution Workbench Runtime Custom Container No Tag
+
+
+```hcl
+resource "google_storage_bucket" "output_bucket" {
+  name          = "my_bucket"
+  location      = "US"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_colab_notebook_execution" "notebook-execution" {
+  display_name = "Notebook execution workbench runtime custom container no tag"
+  location = "us-central1"
+
+  direct_notebook_source {
+    content = base64encode(<<EOT
+    {
+      "cells": [
+        {
+          "cell_type": "code",
+          "execution_count": null,
+          "metadata": {},
+          "outputs": [],
+          "source": [
+            "print(\"Hello, World!\")"
+          ]
+        }
+      ],
+      "metadata": {
+        "kernelspec": {
+          "display_name": "Python 3",
+          "language": "python",
+          "name": "python3"
+        },
+        "language_info": {
+          "codemirror_mode": {
+            "name": "ipython",
+            "version": 3
+          },
+          "file_extension": ".py",
+          "mimetype": "text/x-python",
+          "name": "python",
+          "nbconvert_exporter": "python",
+          "pygments_lexer": "ipython3",
+          "version": "3.8.5"
+        }
+      },
+      "nbformat": 4,
+      "nbformat_minor": 4
+    }
+    EOT
+    )
+  }
+
+  custom_environment_spec {
+    machine_spec {
+      machine_type = "n1-standard-2"
+    }
+
+    persistent_disk_spec {
+      disk_type    = "pd-ssd"
+      disk_size_gb = 100
+    }
+  }
+
+  workbench_runtime {
+    custom_container_image {
+      repository = "gcr.io/deeplearning-platform-release/base-cpu"
+    }
+  }
+
+  kernel_name = "python3"
+
+  gcs_output_uri = "gs://${google_storage_bucket.output_bucket.name}"
+
+  service_account = "my@service-account.com"
+
+  depends_on = [
+    google_storage_bucket.output_bucket,
+  ]
+}
+```
+
 ## Example Usage - Colab Notebook Execution Workbench Runtime Vm
 
 
@@ -624,6 +793,10 @@ The following arguments are supported:
   Configuration for a Workbench Instances-based environment.
   Structure is [documented below](#nested_workbench_runtime).
 
+* `kernel_name` -
+  (Optional)
+  The name of the kernel to use during notebook execution. If unset, the default kernel is used.
+
 * `execution_user` -
   (Optional)
   The user email to run the execution as.
@@ -751,9 +924,14 @@ The following arguments are supported:
 <a name="nested_workbench_runtime"></a>The `workbench_runtime` block supports:
 
 * `vm_image` -
-  (Required)
+  (Optional)
   Custom Compute Engine VM image for the Workbench instance.
   Structure is [documented below](#nested_workbench_runtime_vm_image).
+
+* `custom_container_image` -
+  (Optional)
+  Use a container image to start the workbench instance.
+  Structure is [documented below](#nested_workbench_runtime_custom_container_image).
 
 
 <a name="nested_workbench_runtime_vm_image"></a>The `vm_image` block supports:
@@ -769,6 +947,17 @@ The following arguments are supported:
 * `project` -
   (Optional)
   The name of the Google Cloud project that this VM image belongs to. Format: {project_id}
+
+<a name="nested_workbench_runtime_custom_container_image"></a>The `custom_container_image` block supports:
+
+* `repository` -
+  (Required)
+  The path to the container image repository.
+  For example: gcr.io/{project_id}/{imageName}
+
+* `tag` -
+  (Optional)
+  The tag of the container image. If not specified, this defaults to the latest tag.
 
 ## Attributes Reference
 

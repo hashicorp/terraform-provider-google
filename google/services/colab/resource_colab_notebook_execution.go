@@ -362,6 +362,12 @@ func ResourceColabNotebookExecution() *schema.Resource {
 				},
 				ExactlyOneOf: []string{"dataform_repository_source", "direct_notebook_source", "gcs_notebook_source"},
 			},
+			"kernel_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The name of the kernel to use during notebook execution. If unset, the default kernel is used.`,
+			},
 			"notebook_execution_job_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -391,9 +397,34 @@ func ResourceColabNotebookExecution() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"custom_container_image": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Use a container image to start the workbench instance.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"repository": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The path to the container image repository.
+For example: gcr.io/{project_id}/{imageName}`,
+									},
+									"tag": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The tag of the container image. If not specified, this defaults to the latest tag.`,
+									},
+								},
+							},
+							ExactlyOneOf: []string{"workbench_runtime.0.custom_container_image", "workbench_runtime.0.vm_image"},
+						},
 						"vm_image": {
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							ForceNew:    true,
 							Description: `Custom Compute Engine VM image for the Workbench instance.`,
 							MaxItems:    1,
@@ -421,6 +452,7 @@ func ResourceColabNotebookExecution() *schema.Resource {
 									},
 								},
 							},
+							ExactlyOneOf: []string{"workbench_runtime.0.custom_container_image", "workbench_runtime.0.vm_image"},
 						},
 					},
 				},
@@ -503,6 +535,12 @@ func resourceColabNotebookExecutionCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("workbench_runtime"); !tpgresource.IsEmptyValue(reflect.ValueOf(workbenchRuntimeProp)) && (ok || !reflect.DeepEqual(v, workbenchRuntimeProp)) {
 		obj["workbenchRuntime"] = workbenchRuntimeProp
+	}
+	kernelNameProp, err := expandColabNotebookExecutionKernelName(d.Get("kernel_name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kernel_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(kernelNameProp)) && (ok || !reflect.DeepEqual(v, kernelNameProp)) {
+		obj["kernelName"] = kernelNameProp
 	}
 	gcsOutputUriProp, err := expandColabNotebookExecutionGcsOutputUri(d.Get("gcs_output_uri"), d, config)
 	if err != nil {
@@ -1021,6 +1059,10 @@ func flattenColabNotebookExecutionCustomEnvironmentSpecShieldedInstanceConfigEna
 	return v
 }
 
+func flattenColabNotebookExecutionKernelName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenColabNotebookExecutionGcsOutputUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1388,6 +1430,13 @@ func expandColabNotebookExecutionWorkbenchRuntime(v interface{}, d tpgresource.T
 		transformed["vmImage"] = transformedVmImage
 	}
 
+	transformedCustomContainerImage, err := expandColabNotebookExecutionWorkbenchRuntimeCustomContainerImage(original["custom_container_image"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomContainerImage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["customContainerImage"] = transformedCustomContainerImage
+	}
+
 	return transformed, nil
 }
 
@@ -1439,6 +1488,47 @@ func expandColabNotebookExecutionWorkbenchRuntimeVmImageProject(v interface{}, d
 	return v, nil
 }
 
+func expandColabNotebookExecutionWorkbenchRuntimeCustomContainerImage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRepository, err := expandColabNotebookExecutionWorkbenchRuntimeCustomContainerImageRepository(original["repository"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRepository); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["repository"] = transformedRepository
+	}
+
+	transformedTag, err := expandColabNotebookExecutionWorkbenchRuntimeCustomContainerImageTag(original["tag"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTag); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tag"] = transformedTag
+	}
+
+	return transformed, nil
+}
+
+func expandColabNotebookExecutionWorkbenchRuntimeCustomContainerImageRepository(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabNotebookExecutionWorkbenchRuntimeCustomContainerImageTag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandColabNotebookExecutionKernelName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandColabNotebookExecutionGcsOutputUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1480,6 +1570,9 @@ func ResourceColabNotebookExecutionFlatten(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading NotebookExecution: %s", err)
 	}
 	if err = d.Set("custom_environment_spec", flattenColabNotebookExecutionCustomEnvironmentSpec(res["customEnvironmentSpec"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NotebookExecution: %s", err)
+	}
+	if err = d.Set("kernel_name", flattenColabNotebookExecutionKernelName(res["kernelName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NotebookExecution: %s", err)
 	}
 	if err = d.Set("gcs_output_uri", flattenColabNotebookExecutionGcsOutputUri(res["gcsOutputUri"], d, config)); err != nil {

@@ -1,0 +1,3 @@
+```release-note:enhancement
+colab: added `workbench_runtime.custom_container_image` and `kernel_name` fields to `google_colab_notebook_execution` resource
+```

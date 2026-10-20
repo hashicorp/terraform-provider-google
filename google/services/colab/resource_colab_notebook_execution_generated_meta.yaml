@@ -27,12 +27,15 @@ fields:
     - api_field: gcsNotebookSource.generation
     - api_field: gcsNotebookSource.uri
     - api_field: gcsOutputUri
+    - api_field: kernelName
     - field: location
       provider_only: true
     - field: notebook_execution_job_id
       provider_only: true
     - api_field: notebookRuntimeTemplateResourceName
     - api_field: serviceAccount
+    - api_field: workbenchRuntime.customContainerImage.repository
+    - api_field: workbenchRuntime.customContainerImage.tag
     - api_field: workbenchRuntime.vmImage.family
     - api_field: workbenchRuntime.vmImage.name
     - api_field: workbenchRuntime.vmImage.project
