@@ -5096,7 +5096,7 @@ func TestAccContainerCluster_withDefaultComputeClassEnabled(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, true, false),
+				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, true),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "cluster_autoscaling.0.default_compute_class_enabled", "true"),
 				),
@@ -5108,7 +5108,7 @@ func TestAccContainerCluster_withDefaultComputeClassEnabled(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection", "node_pool"},
 			},
 			{
-				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, false, false),
+				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, false),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionUpdate),
@@ -5141,7 +5141,7 @@ func TestAccContainerCluster_withAutopilotDefaultComputeClassEnabled(t *testing.
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, true, true),
+				Config: testAccContainerCluster_withAutopilotDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, true),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "cluster_autoscaling.0.default_compute_class_enabled", "true"),
 				),
@@ -5153,7 +5153,7 @@ func TestAccContainerCluster_withAutopilotDefaultComputeClassEnabled(t *testing.
 				ImportStateVerifyIgnore: []string{"deletion_protection", "node_pool"},
 			},
 			{
-				Config: testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, false, true),
+				Config: testAccContainerCluster_withAutopilotDefaultComputeClassEnabled(clusterName, networkName, subnetworkName, false),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionUpdate),
@@ -5173,35 +5173,18 @@ func TestAccContainerCluster_withAutopilotDefaultComputeClassEnabled(t *testing.
 	})
 }
 
-func testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName string, enabled, autopilot bool) string {
-	var location string
-	if autopilot {
-		location = "us-east1"
-	} else {
-		location = "us-east1-b"
-	}
-	res := fmt.Sprintf(`
+func testAccContainerCluster_withDefaultComputeClassEnabled(clusterName, networkName, subnetworkName string, enabled bool) string {
+	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%s"
-  location           = "%s"
+  location           = "us-east1-b"
   initial_node_count = 1
   network            = "%s"
   subnetwork         = "%s"
   deletion_protection = false
-`, clusterName, location, networkName, subnetworkName)
 
-	if autopilot {
-		res += `
-  enable_autopilot = true
-`
-	}
-
-	res += fmt.Sprintf(`
   cluster_autoscaling {
     default_compute_class_enabled = %t
-`, enabled)
-	if !autopilot {
-		res += `
     enabled                         = true
     resource_limits {
       resource_type = "cpu"
@@ -5213,12 +5196,26 @@ resource "google_container_cluster" "primary" {
       minimum       = 10
       maximum       = 100
     }
-`
-	}
-	res += `
   }
-}`
-	return res
+}`, clusterName, networkName, subnetworkName, enabled)
+}
+
+func testAccContainerCluster_withAutopilotDefaultComputeClassEnabled(clusterName, networkName, subnetworkName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-east1"
+  initial_node_count = 1
+  network            = "%s"
+  subnetwork         = "%s"
+  deletion_protection = false
+
+  enable_autopilot = true
+
+  cluster_autoscaling {
+    default_compute_class_enabled = %t
+  }
+}`, clusterName, networkName, subnetworkName, enabled)
 }
 
 func TestAccContainerCluster_withAutopilotClusterPolicy(t *testing.T) {
@@ -8207,7 +8204,7 @@ func TestAccContainerCluster_autopilot_withDNSConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, false, false, ""),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, false, false, ""),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -8216,7 +8213,7 @@ func TestAccContainerCluster_autopilot_withDNSConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, true, false, ""),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, false, ""),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionNoop),
@@ -8230,7 +8227,7 @@ func TestAccContainerCluster_autopilot_withDNSConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, false, true, ""),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, false, true, ""),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionNoop),
@@ -8244,7 +8241,7 @@ func TestAccContainerCluster_autopilot_withDNSConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, true, true, ""),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, ""),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionNoop),
@@ -8275,7 +8272,7 @@ func TestAccContainerCluster_autopilot_withAdditiveVPC(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, false, false, domain),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, false, false, domain),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "dns_config.0.additive_vpc_scope_dns_domain", domain),
 				),
@@ -8287,7 +8284,7 @@ func TestAccContainerCluster_autopilot_withAdditiveVPC(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, true, false, domain),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, false, domain),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionNoop),
@@ -8304,7 +8301,7 @@ func TestAccContainerCluster_autopilot_withAdditiveVPC(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, false, true, domain),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, false, true, domain),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionNoop),
@@ -8321,7 +8318,7 @@ func TestAccContainerCluster_autopilot_withAdditiveVPC(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, true, true, domain),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, domain),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionNoop),
@@ -8433,7 +8430,7 @@ func TestAccContainerCluster_autopilot_withAdditiveVPCMutation(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, false, false, ""),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, false, false, ""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "dns_config.0.additive_vpc_scope_dns_domain", ""),
 				),
@@ -8445,7 +8442,7 @@ func TestAccContainerCluster_autopilot_withAdditiveVPCMutation(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, false, false, domain),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, false, false, domain),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "dns_config.0.additive_vpc_scope_dns_domain", domain),
 				),
@@ -8458,7 +8455,7 @@ func TestAccContainerCluster_autopilot_withAdditiveVPCMutation(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, true, true, false, false, ""),
+				Config: testAccContainerCluster_withAdvancedDNSConfig(clusterName, networkName, subnetworkName, false, false, ""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.primary", "dns_config.0.additive_vpc_scope_dns_domain", ""),
 				),
@@ -11639,7 +11636,28 @@ resource "google_container_cluster" "autoscaling_with_profile" {
 }
 
 func testAccContainerCluster_autoprovisioning(cluster, networkName, subnetworkName string, autoprovisioning, withNetworkTag, withLimits bool) string {
-	config := fmt.Sprintf(`
+	resourceLimits := ""
+	if withLimits {
+		resourceLimits = `
+    resource_limits {
+      resource_type = "cpu"
+      maximum       = 2
+    }
+    resource_limits {
+      resource_type = "memory"
+      maximum       = 2048
+    }`
+	}
+	nodePoolAutoConfig := ""
+	if withNetworkTag {
+		nodePoolAutoConfig = `
+  node_pool_auto_config {
+    network_tags {
+      tags = ["test-network-tag"]
+    }
+  }`
+	}
+	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-east1-b"
 }
@@ -11654,48 +11672,21 @@ resource "google_container_cluster" "with_autoprovisioning" {
   subnetwork = "%s"
 
   deletion_protection = false
-`, cluster, networkName, subnetworkName)
-	limits := `
-    resource_limits {
-      resource_type = "cpu"
-      maximum       = 2
-    }
-    resource_limits {
-      resource_type = "memory"
-      maximum       = 2048
-    }
-`
-	var enabled string
-	if autoprovisioning {
-		enabled = "true"
-	} else {
-		enabled = "false"
-	}
-	config += fmt.Sprintf(`
-  cluster_autoscaling {
-    enabled = %s
-  `, enabled)
-	if withLimits {
-		config += limits
-	}
-	config += `
-	}`
 
-	if withNetworkTag {
-		config += `
-  node_pool_auto_config {
-    network_tags {
-      tags = ["test-network-tag"]
-    }
-  }`
-	}
-	config += `
-}`
-	return config
+  cluster_autoscaling {
+    enabled = %t
+%s
+  }
+%s
+}`, cluster, networkName, subnetworkName, autoprovisioning, resourceLimits, nodePoolAutoConfig)
 }
 
 func testAccContainerCluster_autoprovisioningDefaults(cluster, networkName, subnetworkName string, monitoringWrite bool) string {
-	config := fmt.Sprintf(`
+	monitoringWriteScope := ""
+	if monitoringWrite {
+		monitoringWriteScope = `"https://www.googleapis.com/auth/monitoring.write",`
+	}
+	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-east1-b"
 }
@@ -11726,21 +11717,13 @@ resource "google_container_cluster" "with_autoprovisioning" {
     auto_provisioning_defaults {
       oauth_scopes = [
         "https://www.googleapis.com/auth/pubsub",
-        "https://www.googleapis.com/auth/devstorage.read_only",`,
-		cluster, networkName, subnetworkName)
-
-	if monitoringWrite {
-		config += `
-        "https://www.googleapis.com/auth/monitoring.write",
-`
-	}
-	config += `
+        "https://www.googleapis.com/auth/devstorage.read_only",
+        %s
       ]
     }
   }
   deletion_protection = false
-}`
-	return config
+}`, cluster, networkName, subnetworkName, monitoringWriteScope)
 }
 
 func testAccContainerCluster_autoprovisioningDefaultsMinCpuPlatform(cluster, networkName, subnetworkName string, includeMinCpuPlatform bool) string {
@@ -14010,10 +13993,10 @@ resource "google_container_cluster" "primary" {
 }
 
 func testAccContainerCluster_withAutopilot(projectID string, containerNetName string, clusterName string, location string, enabled bool, withNetworkTag bool, serviceAccount string) string {
-	config := ""
+	serviceAccountConfig := ""
 	clusterAutoscaling := ""
 	if serviceAccount != "" {
-		config += fmt.Sprintf(`
+		serviceAccountConfig = fmt.Sprintf(`
 resource "google_service_account" "service_account" {
   account_id   = "%[1]s"
   project      = "%[2]s"
@@ -14034,8 +14017,18 @@ resource "google_project_iam_member" "project" {
     }
   }`, serviceAccount, projectID)
 	}
+	nodePoolAutoConfig := ""
+	if withNetworkTag {
+		nodePoolAutoConfig = `
+  node_pool_auto_config {
+    network_tags {
+      tags = ["test-network-tag"]
+    }
+  }`
+	}
 
-	config += fmt.Sprintf(`
+	return fmt.Sprintf(`
+%s
 
 resource "google_compute_network" "container_network" {
   name                    = "%s"
@@ -14089,23 +14082,26 @@ resource "google_container_cluster" "with_autopilot" {
   %s
   vertical_pod_autoscaling {
     enabled = true
-  }`, containerNetName, clusterName, location, enabled, clusterAutoscaling)
-	if withNetworkTag {
-		config += `
-  node_pool_auto_config {
-    network_tags {
-      tags = ["test-network-tag"]
-    }
-  }`
-	}
-	config += `
-}`
-	return config
+  }
+%s
+}`, serviceAccountConfig, containerNetName, clusterName, location, enabled, clusterAutoscaling, nodePoolAutoConfig)
 }
 
 // Empty string passed to clusterDns* arguments means the field should be absent.
 func testAccContainerCluster_withDNSConfig(clusterName, clusterDns, clusterDnsDomain, clusterDnsScope, networkName, subnetworkName string) string {
-	config := fmt.Sprintf(`
+	clusterDnsConfig := ""
+	if clusterDns != "" {
+		clusterDnsConfig = fmt.Sprintf(`cluster_dns = "%s"`, clusterDns)
+	}
+	clusterDnsDomainConfig := ""
+	if clusterDnsDomain != "" {
+		clusterDnsDomainConfig = fmt.Sprintf(`cluster_dns_domain = "%s"`, clusterDnsDomain)
+	}
+	clusterDnsScopeConfig := ""
+	if clusterDnsScope != "" {
+		clusterDnsScopeConfig = fmt.Sprintf(`cluster_dns_scope = "%s"`, clusterDnsScope)
+	}
+	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%s"
   location           = "us-east1-b"
@@ -14113,24 +14109,13 @@ resource "google_container_cluster" "primary" {
   network    = "%s"
   subnetwork = "%s"
   deletion_protection = false
-  dns_config {`, clusterName, networkName, subnetworkName)
-	if clusterDns != "" {
-		config += fmt.Sprintf(`
-    cluster_dns = "%s"`, clusterDns)
-	}
-	if clusterDnsDomain != "" {
-		config += fmt.Sprintf(`
-    cluster_dns_domain = "%s"`, clusterDnsDomain)
-	}
-	if clusterDnsScope != "" {
-		config += fmt.Sprintf(`
-    cluster_dns_scope = "%s"`, clusterDnsScope)
-	}
-	config += `
+  dns_config {
+    %s
+    %s
+    %s
   }
 }
-`
-	return config
+`, clusterName, networkName, subnetworkName, clusterDnsConfig, clusterDnsDomainConfig, clusterDnsScopeConfig)
 }
 
 func testAccContainerCluster_withGatewayApiConfig(clusterName, gatewayApiChannel, networkName, subnetworkName string) string {
@@ -14742,50 +14727,33 @@ resource "google_container_cluster" "primary" {
 }`, name, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_withAdvancedDNSConfig(name, networkName, subnetworkName string, autopilot, dnsConfigSectionPresent, clusterDnsPresent, clusterDnsScopePresent bool, additiveVpcDnsDomain string) string {
-	config := fmt.Sprintf(`
+func testAccContainerCluster_withAdvancedDNSConfig(name, networkName, subnetworkName string, clusterDnsPresent, clusterDnsScopePresent bool, additiveVpcDnsDomain string) string {
+	clusterDnsConfig := ""
+	if clusterDnsPresent {
+		clusterDnsConfig = `cluster_dns = "CLOUD_DNS"`
+	}
+	clusterDnsScopeConfig := ""
+	if clusterDnsScopePresent {
+		clusterDnsScopeConfig = `cluster_dns_scope = "CLUSTER_SCOPE"`
+	}
+	additiveVpcScopeDnsDomainConfig := ""
+	if additiveVpcDnsDomain != "" {
+		additiveVpcScopeDnsDomainConfig = fmt.Sprintf(`additive_vpc_scope_dns_domain = "%s"`, additiveVpcDnsDomain)
+	}
+	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
   name                = "%s"
   location            = "us-east1"
   network    = "%s"
   subnetwork = "%s"
   deletion_protection = false
-`, name, networkName, subnetworkName)
-	if autopilot {
-		config += `
   enable_autopilot    = true
-`
-	} else {
-		config += `
-  initial_node_count = 2
-`
-	}
-	if dnsConfigSectionPresent {
-		config += `
   dns_config {
-`
-		if clusterDnsPresent {
-			config += `
-    cluster_dns = "CLOUD_DNS"
-`
-		}
-		if clusterDnsScopePresent {
-			config += `
-    cluster_dns_scope = "CLUSTER_SCOPE"
-`
-		}
-		if additiveVpcDnsDomain != "" {
-			config += fmt.Sprintf(`
-    additive_vpc_scope_dns_domain = "%s"
-`, additiveVpcDnsDomain)
-		}
-		config += `
+    %s
+    %s
+    %s
   }
-`
-	}
-	config += `
-}`
-	return config
+}`, name, networkName, subnetworkName, clusterDnsConfig, clusterDnsScopeConfig, additiveVpcScopeDnsDomainConfig)
 }
 
 func testAccContainerCluster_autopilot_net_admin(name, networkName, subnetworkName string, enabled bool) string {
