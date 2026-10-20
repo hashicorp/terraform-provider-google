@@ -305,6 +305,29 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
 }
 ```
 
+## Example Usage - Analyst Agent Persona Audit Trail Export Options
+
+
+```hcl
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "1111111111111"
+  location                 = "us"
+  analyst_agent_persona_id = "audit_trail"
+  display_name             = "Test Analyst Persona Audit Trail Export"
+  display_description      = "Sample analyst agent persona description"
+  model_description        = "Sample model description"
+  role                     = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+
+  artifacts_config {
+    audit_trail_export_options {
+      append_audit_trail          = true
+      export_format               = "MARKDOWN"
+      export_audit_trail_artifact = true
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -558,6 +581,11 @@ The following arguments are supported:
 
 <a name="nested_artifacts_config"></a>The `artifacts_config` block supports:
 
+* `audit_trail_export_options` -
+  (Optional)
+  Options for audit trail export.
+  Structure is [documented below](#nested_artifacts_config_audit_trail_export_options).
+
 * `document_generation_options` -
   (Optional)
   Options for document generation.
@@ -578,6 +606,24 @@ The following arguments are supported:
   Options for visualizations.
   Structure is [documented below](#nested_artifacts_config_visualization_options).
 
+
+<a name="nested_artifacts_config_audit_trail_export_options"></a>The `audit_trail_export_options` block supports:
+
+* `append_audit_trail` -
+  (Optional)
+  If true, append the audit trail to the final response.
+
+* `export_audit_trail_artifact` -
+  (Optional)
+  If true, export the audit trail as a separate artifact.
+
+* `export_format` -
+  (Optional)
+  Format for audit trail export.
+  Possible values:
+  MARKDOWN
+  HTML
+  PDF
 
 <a name="nested_artifacts_config_document_generation_options"></a>The `document_generation_options` block supports:
 
