@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -63,8 +64,19 @@ func TestAccOracleDatabaseOdbSubnet_oracledatabaseOdbsubnetExample(t *testing.T)
 	context := map[string]interface{}{
 		"cidr_range":          fmt.Sprintf("10.1.%d.0/24", acctest.RandInt(t)%200+10),
 		"deletion_protection": false,
+		"label_value":         true,
 		"odb_network_id":      "tf-test-permanent-odbnetwork",
-		"odb_subnet_id":       fmt.Sprintf("tf-test-odbsubnet-%s", acctest.RandString(t, 10)),
+		"odb_subnet_id":       fmt.Sprintf("tf-test-odbsubnet-%s", randomSuffix),
+		"project":             "oasis-terraform-testing-prod",
+		"random_suffix":       randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"cidr_range":          context["cidr_range"],
+		"deletion_protection": false,
+		"label_value":         "updated",
+		"odb_network_id":      "tf-test-permanent-odbnetwork",
+		"odb_subnet_id":       fmt.Sprintf("tf-test-odbsubnet-%s", randomSuffix),
 		"project":             "oasis-terraform-testing-prod",
 		"random_suffix":       randomSuffix,
 	}
@@ -76,6 +88,26 @@ func TestAccOracleDatabaseOdbSubnet_oracledatabaseOdbsubnetExample(t *testing.T)
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOracleDatabaseOdbSubnet_oracledatabaseOdbsubnetExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_odb_subnet.my-odbsubnet",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "labels", "location", "odb_subnet_id", "odbnetwork", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_odb_subnet.my-odbsubnet",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccOracleDatabaseOdbSubnet_oracledatabaseOdbsubnetExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_oracle_database_odb_subnet.my-odbsubnet", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_oracle_database_odb_subnet.my-odbsubnet",
@@ -103,7 +135,7 @@ resource "google_oracle_database_odb_subnet" "my-odbsubnet"{
   cidr_range = "%{cidr_range}"
   purpose = "CLIENT_SUBNET"
   labels = {
-    terraform_created = "true"
+    terraform_created = "%{label_value}"
   }
   deletion_protection = "%{deletion_protection}"
 }

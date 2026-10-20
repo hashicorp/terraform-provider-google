@@ -63,6 +63,10 @@ resource "google_oracle_database_db_system" "my_db_system"{
             }
         }
     }
+    labels = {
+      "label-one" = "value-one"
+    }
+
     deletion_protection = "true"
 }
 

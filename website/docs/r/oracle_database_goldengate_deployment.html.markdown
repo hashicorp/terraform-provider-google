@@ -50,6 +50,10 @@ resource "google_oracle_database_goldengate_deployment" "deployment" {
       deployment     = "deployment"
     }
   }
+  labels = {
+    "label-one" = "value-one"
+  }
+
   deletion_policy = "PREVENT"
 }
 ```

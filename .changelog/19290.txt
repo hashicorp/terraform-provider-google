@@ -1,0 +1,3 @@
+```release-note:enhancement
+oracledatabase: added in-place update support for `labels` on `google_oracle_database_cloud_exadata_infrastructure`, `google_oracle_database_cloud_vm_cluster`, `google_oracle_database_exascale_db_storage_vault`, `google_oracle_database_db_system`, `google_oracle_database_odb_subnet`, `google_oracle_database_goldengate_deployment`, `google_oracle_database_goldengate_connection`, `google_oracle_database_goldengate_connection_assignment` and `google_oracle_database_autonomous_database`
+```

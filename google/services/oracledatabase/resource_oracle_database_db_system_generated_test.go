@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -60,10 +61,23 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"database_id":         fmt.Sprintf("ofake-tf-test-database-basic-%s", acctest.RandString(t, 10)),
-		"db_system_id":        fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", acctest.RandString(t, 10)),
-		"db_unique_name":      fmt.Sprintf("db%s", acctest.RandString(t, 10)),
+		"database_id":         fmt.Sprintf("ofake-tf-test-database-basic-%s", randomSuffix),
+		"db_system_id":        fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", randomSuffix),
+		"db_unique_name":      fmt.Sprintf("db%s", randomSuffix),
 		"deletion_protection": false,
+		"label_value":         "value-one",
+		"odb_network":         "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":          "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":             "oasis-terraform-testing-prod",
+		"random_suffix":       randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"database_id":         fmt.Sprintf("ofake-tf-test-database-basic-%s", randomSuffix),
+		"db_system_id":        fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", randomSuffix),
+		"db_unique_name":      fmt.Sprintf("db%s", randomSuffix),
+		"deletion_protection": false,
+		"label_value":         "value-two",
 		"odb_network":         "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
 		"odb_subnet":          "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
 		"project":             "oasis-terraform-testing-prod",
@@ -77,6 +91,26 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(t *testing
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_db_system.my_db_system",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"db_system_id", "deletion_protection", "labels", "location", "properties.0.database_edition", "properties.0.db_home", "properties.0.hostname_prefix", "properties.0.initial_data_storage_size_gb", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_db_system.my_db_system",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_oracle_database_db_system.my_db_system", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_oracle_database_db_system.my_db_system",
@@ -124,6 +158,10 @@ resource "google_oracle_database_db_system" "my_db_system"{
             }
         }
     }
+    labels = {
+      "label-one" = "%{label_value}"
+    }
+
     deletion_protection = "%{deletion_protection}"
 }
 

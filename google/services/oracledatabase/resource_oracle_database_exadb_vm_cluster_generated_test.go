@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -62,8 +63,21 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterBasicExampl
 	context := map[string]interface{}{
 		"backup_odb_subnet":            "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-backup-odbsubnet",
 		"deletion_protection":          false,
-		"exadb_vm_cluster_id":          fmt.Sprintf("ofake-tf-test-exadb-vm-cluster-basic-%s", acctest.RandString(t, 10)),
-		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-basic-%s", acctest.RandString(t, 10)),
+		"exadb_vm_cluster_id":          fmt.Sprintf("ofake-tf-test-exadb-vm-cluster-basic-%s", randomSuffix),
+		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-basic-%s", randomSuffix),
+		"label_value":                  "value-one",
+		"odb_network":                  "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":                   "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":                      "oasis-terraform-testing-prod",
+		"random_suffix":                randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"backup_odb_subnet":            "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-backup-odbsubnet",
+		"deletion_protection":          false,
+		"exadb_vm_cluster_id":          fmt.Sprintf("ofake-tf-test-exadb-vm-cluster-basic-%s", randomSuffix),
+		"exascale_db_storage_vault_id": fmt.Sprintf("ofake-tf-test-storage-vault-basic-%s", randomSuffix),
+		"label_value":                  "value-two",
 		"odb_network":                  "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
 		"odb_subnet":                   "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
 		"project":                      "oasis-terraform-testing-prod",
@@ -77,6 +91,26 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterBasicExampl
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterBasicExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_exadb_vm_cluster.my_exadb_vm_cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "exadb_vm_cluster_id", "labels", "location", "properties.0.hostname_prefix", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_exadb_vm_cluster.my_exadb_vm_cluster",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_oracle_database_exadb_vm_cluster.my_exadb_vm_cluster", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_oracle_database_exadb_vm_cluster.my_exadb_vm_cluster",
@@ -105,7 +139,7 @@ resource "google_oracle_database_exadb_vm_cluster" "my_exadb_vm_cluster"{
     odb_subnet = "%{odb_subnet}"
     backup_odb_subnet = "%{backup_odb_subnet}"
     labels = {
-        "label-one" = "value-one"
+        "label-one" = "%{label_value}"
     }
     properties {
         ssh_public_keys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz1X2744t+6vRLmE5u6nHi6/QWh8bQDgHmd+OIxRQIGA/IWUtCs2FnaCNZcqvZkaeyjk5v0lTA/n+9jvO42Ipib53athrfVG8gRt8fzPL66C6ZqHq+6zZophhrCdfJh/0G4x9xJh5gdMprlaCR1P8yAaVvhBQSKGc4SiIkyMNBcHJ5YTtMQMTfxaB4G1sHZ6SDAY9a6Cq/zNjDwfPapWLsiP4mRhE5SSjJX6l6EYbkm0JeLQg+AbJiNEPvrvDp1wtTxzlPJtIivthmLMThFxK7+DkrYFuLvN5AHUdo9KTDLvHtDCvV70r8v0gafsrKkM/OE9Jtzoo0e1N/5K/ZdyFRbAkFT4QSF3nwpbmBWLf2Evg//YyEuxnz4CwPqFST2mucnrCCGCVWp1vnHZ0y30nM35njLOmWdRDFy5l27pKUTwLp02y3UYiiZyP7d3/u5pKiN4vC27VuvzprSdJxWoAvluOiDeRh+/oeQDowxoT/Oop8DzB9uJmjktXw8jyMW2+Rpg+ENQqeNgF1OGlEzypaWiRskEFlkpLb4v/s3ZDYkL1oW0Nv/J8LTjTOTEaYt2Udjoe9x2xWiGnQixhdChWuG+MaoWffzUgx1tsVj/DBXijR5DjkPkrA1GA98zd3q8GKEaAdcDenJjHhNYSd4+rE9pIsnYn7fo5X/tFfcQH1XQ== nobody@google.com"]

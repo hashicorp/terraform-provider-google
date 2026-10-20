@@ -503,7 +503,6 @@ Infrastructure.`,
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -760,7 +759,103 @@ func resourceOracleDatabaseCloudExadataInfrastructureRead(d *schema.ResourceData
 }
 
 func resourceOracleDatabaseCloudExadataInfrastructureUpdate(d *schema.ResourceData, meta interface{}) error {
-	// Only the root field "deletion_policy", "labels", "terraform_labels", and virtual fields are mutable
+	clientSideFields := map[string]bool{"deletion_policy": true}
+	clientSideOnly := true
+	for field := range ResourceOracleDatabaseCloudExadataInfrastructure().Schema {
+		if d.HasChange(field) && !clientSideFields[field] {
+			clientSideOnly = false
+			break
+		}
+	}
+	if clientSideOnly {
+		log.Print("[DEBUG] Only client-side changes detected. Cancelling update operation.")
+		return resourceOracleDatabaseCloudExadataInfrastructureRead(d, meta)
+	}
+
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+	identity, err := d.Identity()
+	if err == nil && identity != nil {
+		if locationValue, ok := d.GetOk("location"); ok && locationValue.(string) != "" {
+			if err = identity.Set("location", locationValue.(string)); err != nil {
+				return fmt.Errorf("Error setting location: %s", err)
+			}
+		}
+		if cloudExadataInfrastructureIdValue, ok := d.GetOk("cloud_exadata_infrastructure_id"); ok && cloudExadataInfrastructureIdValue.(string) != "" {
+			if err = identity.Set("cloud_exadata_infrastructure_id", cloudExadataInfrastructureIdValue.(string)); err != nil {
+				return fmt.Errorf("Error setting cloud_exadata_infrastructure_id: %s", err)
+			}
+		}
+		if projectValue, ok := d.GetOk("project"); ok && projectValue.(string) != "" {
+			if err = identity.Set("project", projectValue.(string)); err != nil {
+				return fmt.Errorf("Error setting project: %s", err)
+			}
+		}
+	} else {
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for CloudExadataInfrastructure: %s", err)
+	}
+	billingProject = project
+
+	d.Partial(true)
+
+	if d.HasChange("effective_labels") {
+		obj := make(map[string]interface{})
+
+		labelsProp, err := expandOracleDatabaseCloudExadataInfrastructureEffectiveLabels(d.Get("effective_labels"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+			obj["labels"] = labelsProp
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/cloudExadataInfrastructures/{{cloud_exadata_infrastructure_id}}?updateMask=labels")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating CloudExadataInfrastructure %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating CloudExadataInfrastructure %q: %#v", d.Id(), res)
+		}
+
+		err = OracleDatabaseOperationWaitTime(
+			config, res, project, "Updating CloudExadataInfrastructure", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	d.Partial(false)
+
 	return resourceOracleDatabaseCloudExadataInfrastructureRead(d, meta)
 }
 

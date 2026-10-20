@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -60,8 +61,17 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-basic-%s", acctest.RandString(t, 10)),
+		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-basic-%s", randomSuffix),
 		"deletion_protection":             false,
+		"label_value":                     "value-one",
+		"project":                         "oasis-terraform-testing-prod",
+		"random_suffix":                   randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-basic-%s", randomSuffix),
+		"deletion_protection":             false,
+		"label_value":                     "value-two",
 		"project":                         "oasis-terraform-testing-prod",
 		"random_suffix":                   randomSuffix,
 	}
@@ -73,6 +83,26 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 		Steps: []resource.TestStep{
 			{
 				Config: testAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataInfrastructureBasicExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_exadata_infrastructure_id", "deletion_protection", "labels", "location", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataInfrastructureBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata",
@@ -101,6 +131,10 @@ resource "google_oracle_database_cloud_exadata_infrastructure" "my-cloud-exadata
     shape = "Exadata.X9M"
     compute_count= "2"
     storage_count= "3"
+  }
+
+  labels = {
+    "label-one" = "%{label_value}"
   }
 
   deletion_protection = "%{deletion_protection}"
