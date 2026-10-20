@@ -25,6 +25,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -333,11 +334,38 @@ resource "echo" "test" {}
 // Nprintf("Hello %{target}!", map[string]interface{}{"target":"world"}) == "Hello world!".
 // This is particularly useful for generated tests, where we don't want to use Printf,
 // since that would require us to generate a very particular ordering of arguments.
+//
+// When a parameter value is nil (either untyped nil or a typed nil pointer, slice, map,
+// channel, function, or interface), Nprintf replaces both quoted placeholders ("%{key}")
+// and unquoted placeholders (%{key}) with unquoted HCL null. This allows a single HCL
+// template (e.g. `field = "%{key}"` or `field = %{key}`) to set an attribute in one test
+// step and unset it (`field = null`) in another. Empty strings ("") are not nil and
+// continue to produce `""`. Note that if a nil placeholder is embedded within a larger
+// quoted string literal (e.g. `"prefix-%{key}"`), only the `%{key}` token is replaced,
+// yielding `"prefix-null"`.
 func Nprintf(format string, params map[string]interface{}) string {
 	for key, val := range params {
-		format = strings.Replace(format, "%{"+key+"}", fmt.Sprintf("%v", val), -1)
+		if isNilValue(val) {
+			format = strings.ReplaceAll(format, `"%{`+key+`}"`, "null")
+			format = strings.ReplaceAll(format, "%{"+key+"}", "null")
+		} else {
+			format = strings.ReplaceAll(format, "%{"+key+"}", fmt.Sprintf("%v", val))
+		}
 	}
 	return format
+}
+
+func isNilValue(val interface{}) bool {
+	if val == nil {
+		return true
+	}
+	v := reflect.ValueOf(val)
+	switch v.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
+		return v.IsNil()
+	default:
+		return false
+	}
 }
 
 func TestBucketName(t *testing.T) string {
