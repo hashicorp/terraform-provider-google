@@ -403,7 +403,8 @@ resource "google_folder_iam_audit_config" "acceptance" {
   folder = google_folder.acceptance.name
   service = "%s"
   audit_log_config {
-    log_type = "DATA_READ"%s
+    log_type = "DATA_READ"
+%s
   }
 }
 `, org, fname, service, memberStr)

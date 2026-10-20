@@ -437,7 +437,8 @@ resource "google_project_iam_audit_config" "acceptance" {
   project = google_project.acceptance.project_id
   service = "%s"
   audit_log_config {
-    log_type = "DATA_READ"%s
+    log_type = "DATA_READ"
+%s
   }
 }
 `, pid, pid, org, service, memberStr)
