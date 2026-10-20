@@ -23,8 +23,6 @@ description: |-
 
 ServiceLbPolicy holds global load balancing and traffic distribution configuration that can be applied to a BackendService.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about ServiceLbPolicies, see:
 
@@ -41,8 +39,6 @@ To get more information about ServiceLbPolicies, see:
 
 ```hcl
 resource "google_network_services_service_lb_policies" "default" {
-  provider = google-beta
-  
   name        = "my-lb-policy"
   location    = "global"
 }
@@ -58,8 +54,6 @@ resource "google_network_services_service_lb_policies" "default" {
 
 ```hcl
 resource "google_network_services_service_lb_policies" "default" {
-  provider = google-beta
-
   name                     = "my-lb-policy"
   location                 = "global"
   description              = "my description"
@@ -79,8 +73,6 @@ resource "google_network_services_service_lb_policies" "default" {
 }
 
 resource "google_compute_backend_service" "default" {
-  provider = google-beta
-  
 	name                  = "my-lb-backend"
 	description           = "my description"
 	load_balancing_scheme = "INTERNAL_SELF_MANAGED"
@@ -217,7 +209,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_failover_config).
 
 * `isolation_config` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   Configuration to provide isolation support for the associated Backend Service.
   Structure is [documented below](#nested_isolation_config).
 
@@ -247,12 +239,12 @@ The following arguments are supported:
 <a name="nested_isolation_config"></a>The `isolation_config` block supports:
 
 * `isolation_granularity` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The isolation granularity of the load balancer.
   Possible values are: `ISOLATION_GRANULARITY_UNSPECIFIED`, `REGION`.
 
 * `isolation_mode` -
-  (Optional)
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
   The isolation mode of the load balancer.
   Default value is `NEAREST`.
   Possible values are: `ISOLATION_MODE_UNSPECIFIED`, `NEAREST`, `STRICT`.
