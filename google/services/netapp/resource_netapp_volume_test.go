@@ -365,7 +365,7 @@ func testAccNetappVolume_volumeBasicExample_updatesnapshot(context map[string]in
         depends_on = [google_netapp_volume.test_volume]
         location = google_netapp_volume.test_volume.location
         volume_name = google_netapp_volume.test_volume.name
-        name = "test-snapshot"
+        name = "tf-test-snapshot%{random_suffix}"
     }
 
     data "google_compute_network" "default" {
@@ -424,7 +424,7 @@ func testAccNetappVolume_volumeBasicExample_createclonevolume(context map[string
         depends_on = [google_netapp_volume.test_volume]
         location = google_netapp_volume.test_volume.location
         volume_name = google_netapp_volume.test_volume.name
-        name = "test-snapshot"
+        name = "tf-test-snapshot%{random_suffix}"
     }
 
     resource "google_netapp_volume" "test_volume_clone" {

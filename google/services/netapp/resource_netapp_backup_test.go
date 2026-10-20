@@ -104,7 +104,7 @@ resource "google_netapp_volume_snapshot" "default" {
   location = google_netapp_volume.default.location
   volume_name = google_netapp_volume.default.name
   description = "This is a test description"
-  name = "testvolumesnap%{random_suffix}"
+  name = "tf-test-testvolumesnap%{random_suffix}"
   labels = {
     key= "test"
     value= "snapshot"
@@ -168,7 +168,7 @@ resource "google_netapp_volume_snapshot" "default" {
   location = google_netapp_volume.default.location
   volume_name = google_netapp_volume.default.name
   description = "This is a test description"
-  name = "testvolumesnap%{random_suffix}"
+  name = "tf-test-testvolumesnap%{random_suffix}"
   labels = {
     key= "test"
     value= "snapshot"
@@ -261,7 +261,7 @@ resource "google_netapp_volume_snapshot" "default" {
     location = google_netapp_volume.default.location
     volume_name = google_netapp_volume.default.name
     description = "This is a test description"
-    name = "testvolumesnap%{random_suffix}"
+    name = "tf-test-testvolumesnap%{random_suffix}"
     labels = {
       key= "test"
       value= "snapshot"
@@ -349,7 +349,7 @@ resource "google_netapp_volume_snapshot" "default" {
   location = google_netapp_volume.default.location
   volume_name = google_netapp_volume.default.name
   description = "This is a test description"
-  name = "testvolumesnap%{random_suffix}"
+  name = "tf-test-testvolumesnap%{random_suffix}"
   labels = {
     key= "test"
     value= "snapshot"
@@ -452,7 +452,7 @@ resource "google_netapp_volume_snapshot" "default" {
   location = "us-central1"
   volume_name = google_netapp_volume.default.name
   description = "This is a test description"
-  name = "testvolumesnap%{random_suffix}"
+  name = "tf-test-testvolumesnap%{random_suffix}"
   labels = {
     key= "test"
     value= "snapshot"
@@ -519,7 +519,7 @@ resource "google_netapp_volume_snapshot" "default" {
   location = "us-central1"
   volume_name = google_netapp_volume.default.name
   description = "This is a test description"
-  name = "testvolumesnap%{random_suffix}"
+  name = "tf-test-testvolumesnap%{random_suffix}"
   labels = {
     key= "test"
     value= "snapshot"
