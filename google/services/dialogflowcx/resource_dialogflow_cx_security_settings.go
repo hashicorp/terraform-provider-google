@@ -409,7 +409,7 @@ func resourceDialogflowCXSecuritySettingsCreate(d *schema.ResourceData, meta int
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * config.SleepUnit)
 
 	log.Printf("[DEBUG] Finished creating SecuritySettings %q: %#v", d.Id(), res)
 
@@ -726,7 +726,7 @@ func resourceDialogflowCXSecuritySettingsUpdate(d *schema.ResourceData, meta int
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * config.SleepUnit)
 	return resourceDialogflowCXSecuritySettingsRead(d, meta)
 }
 

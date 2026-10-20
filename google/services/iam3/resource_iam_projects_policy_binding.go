@@ -759,7 +759,7 @@ func resourceIAM3ProjectsPolicyBindingDelete(d *schema.ResourceData, meta interf
 	}
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, if the deletion of a dependent resource has not propagated.
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * config.SleepUnit)
 
 	log.Printf("[DEBUG] Finished deleting ProjectsPolicyBinding %q: %#v", d.Id(), res)
 	return nil

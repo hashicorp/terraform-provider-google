@@ -98,7 +98,7 @@ func NetappVolumeReplicationWaitForMirror(d *schema.ResourceData, meta interface
 			break
 		}
 
-		time.Sleep(30 * time.Second)
+		time.Sleep(30 * config.SleepUnit)
 		// This method can potentially run for days, e.g. when setting up a replication for a source volume
 		// with dozens of TiB of data. Timeout handling yes/no?
 	}

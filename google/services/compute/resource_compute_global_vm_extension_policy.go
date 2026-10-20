@@ -795,7 +795,7 @@ func resourceComputeGlobalVmExtensionPolicyDelete(d *schema.ResourceData, meta i
 			return fmt.Errorf("timeout waiting for GlobalVmExtensionPolicy %q to be deleted", d.Id())
 		}
 		log.Printf("[DEBUG] GlobalVmExtensionPolicy %q is still deleting, waiting...", d.Id())
-		time.Sleep(5 * time.Second)
+		time.Sleep(5 * config.SleepUnit)
 	}
 
 	// Clean up any historical rollout records owned by this GlobalVmExtensionPolicy

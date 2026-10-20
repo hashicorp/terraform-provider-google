@@ -359,7 +359,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 	// We can't guarantee complete consistency even after polling,
 	// so sleep for some additional time to reduce the likelihood of
 	// eventual consistency failures.
-	time.Sleep(10 * time.Second)
+	time.Sleep(10 * config.SleepUnit)
 
 	// Store the ID now
 	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/repos/{{name}}")

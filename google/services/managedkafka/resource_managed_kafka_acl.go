@@ -325,7 +325,7 @@ func resourceManagedKafkaAclCreate(d *schema.ResourceData, meta interface{}) err
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * config.SleepUnit)
 
 	log.Printf("[DEBUG] Finished creating Acl %q: %#v", d.Id(), res)
 
@@ -572,7 +572,7 @@ func resourceManagedKafkaAclUpdate(d *schema.ResourceData, meta interface{}) err
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * config.SleepUnit)
 	return resourceManagedKafkaAclRead(d, meta)
 }
 

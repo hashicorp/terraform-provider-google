@@ -714,7 +714,7 @@ func resourceGKEHub2RolloutSequenceCreate(d *schema.ResourceData, meta interface
 
 		// There is a delay between the state of a RolloutSequence switching to ACTIVE, and the UpdateRolloutSequence endpoint
 		// releasing the lock on the resource. We sleep here to avoid conflict errors when making the UpgradeRolloutSequence call.
-		time.Sleep(1 * time.Minute)
+		time.Sleep(60 * config.SleepUnit)
 
 		log.Printf("[DEBUG] Fetching current RolloutSequence target versions.")
 		targetCPVer, targetNodeVer, err := fetchCurrentTargetVersions(d, meta)
@@ -1012,7 +1012,7 @@ func resourceGKEHub2RolloutSequenceUpdate(d *schema.ResourceData, meta interface
 
 	// There is a delay between the state of a RolloutSequence switching to ACTIVE, and the UpdateRolloutSequence endpoint
 	// releasing the lock on the resource. We sleep here to avoid conflict errors when making the UpgradeRolloutSequence call.
-	time.Sleep(1 * time.Minute)
+	time.Sleep(60 * config.SleepUnit)
 
 	log.Printf("[DEBUG] Fetching current RolloutSequence target versions.")
 	targetCPVer, targetNodeVer, err := fetchCurrentTargetVersions(d, meta)
