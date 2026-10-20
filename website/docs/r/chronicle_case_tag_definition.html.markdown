@@ -41,6 +41,7 @@ resource "google_chronicle_case_tag_definition" "example" {
 
   display_name = "tag_%{random_suffix}"
   match_criteria = "BY_VENDOR"
+  property_name = null
   value = "test_value"
   comparison_type = "EXACT"
   priority = 1

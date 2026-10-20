@@ -50,6 +50,7 @@ func TestAccMigrationCenterDiscoveryClientListQuery_generated(t *testing.T) {
 		"description":         "Terraform integration test description",
 		"discovery_client_id": "tf-test-discovery-client-test" + randomSuffix,
 		"display_name":        "Terraform integration test display",
+		"expire_time":         nil,
 		"label_value":         "value",
 		"sa_id":               "tf-test-sa-test" + randomSuffix,
 		"sa_id_2":             "tf-test-sa-test-two" + randomSuffix,

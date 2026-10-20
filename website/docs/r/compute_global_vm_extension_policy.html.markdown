@@ -43,6 +43,7 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
   extension_policies {
     extension_name = "ops-agent"
     pinned_version = "2.66.0"
+    string_config  = null
   }
 
   instance_selectors {
@@ -55,7 +56,9 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
 
   rollout_operation {
     rollout_input {
+      conflict_behavior       = null
       predefined_rollout_plan = "FAST_ROLLOUT"
+      retry_uuid              = null
     }
   }
 }
@@ -78,6 +81,7 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
   extension_policies {
     extension_name = "ops-agent"
     pinned_version = "2.66.0"
+    string_config  = null
   }
 
   instance_selectors {
@@ -90,7 +94,9 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
 
   rollout_operation {
     rollout_input {
+      conflict_behavior       = null
       predefined_rollout_plan = "FAST_ROLLOUT"
+      retry_uuid              = null
     }
   }
 }

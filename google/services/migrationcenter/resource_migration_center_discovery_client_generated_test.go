@@ -65,6 +65,7 @@ func TestAccMigrationCenterDiscoveryClient_migrationCenterDiscoveryClientBasicEx
 		"description":         "Terraform integration test description",
 		"discovery_client_id": "tf-test-discovery-client-test" + randomSuffix,
 		"display_name":        "Terraform integration test display",
+		"expire_time":         nil,
 		"label_value":         "value",
 		"sa_id":               "tf-test-sa-test" + randomSuffix,
 		"sa_id_2":             "tf-test-sa-test-two" + randomSuffix,
@@ -84,6 +85,7 @@ func TestAccMigrationCenterDiscoveryClient_migrationCenterDiscoveryClientBasicEx
 		"sa_id_2":             "tf-test-sa-test-two" + randomSuffix,
 		"service_account":     "google_service_account.default_2.email",
 		"source_id":           "tf-test-source-test" + randomSuffix,
+		"ttl":                 nil,
 		"random_suffix":       randomSuffix,
 	}
 
@@ -108,7 +110,7 @@ func TestAccMigrationCenterDiscoveryClient_migrationCenterDiscoveryClientBasicEx
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccMigrationCenterDiscoveryClient_migrationCenterDiscoveryClientUpdateExample(context_1),
+				Config: testAccMigrationCenterDiscoveryClient_migrationCenterDiscoveryClientBasicExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_migration_center_discovery_client.default", plancheck.ResourceActionUpdate),
@@ -157,39 +159,6 @@ resource "google_migration_center_discovery_client" "default" {
   display_name        = "%{display_name}"
   description         = "%{description}"
   ttl                 = "%{ttl}"
-  labels = {
-    my_key     = "%{label_value}"
-    second_key = "second_value"
-  }
-}
-`, context)
-}
-
-func testAccMigrationCenterDiscoveryClient_migrationCenterDiscoveryClientUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_migration_center_source" "default" {
-  location  = "us-central1"
-  source_id = "%{source_id}"
-  type      = "SOURCE_TYPE_DISCOVERY_CLIENT"
-}
-
-resource "google_service_account" "default" {
-  account_id   = "%{sa_id}"
-  display_name = "Service Account for Discovery Client"
-}
-
-resource "google_service_account" "default_2" {
-  account_id   = "%{sa_id_2}"
-  display_name = "Second Service Account for Discovery Client"
-}
-
-resource "google_migration_center_discovery_client" "default" {
-  location            = "us-central1"
-  discovery_client_id = "%{discovery_client_id}"
-  source              = google_migration_center_source.default.id
-  service_account     = %{service_account}
-  display_name        = "%{display_name}"
-  description         = "%{description}"
   expire_time         = "%{expire_time}"
   labels = {
     my_key     = "%{label_value}"

@@ -59,6 +59,7 @@ resource "google_migration_center_discovery_client" "default" {
   display_name        = "Terraform integration test display"
   description         = "Terraform integration test description"
   ttl                 = "86400s"
+  expire_time         = null
   labels = {
     my_key     = "value"
     second_key = "second_value"
