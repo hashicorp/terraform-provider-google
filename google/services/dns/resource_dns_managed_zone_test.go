@@ -242,7 +242,7 @@ func TestAccDNSManagedZone_forceDestroy(t *testing.T) {
 func testAccCheckManagedZoneCreateRRs(t *testing.T, suffix string, project string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-		zone := fmt.Sprintf("mzone-test-%s", suffix)
+		zone := fmt.Sprintf("tf-test-mzone-%s", suffix)
 		// Build the change
 		chg := &dns.Change{
 			Additions: []*dns.ResourceRecordSet{
@@ -290,7 +290,7 @@ func testAccCheckManagedZoneCreateRRs(t *testing.T, suffix string, project strin
 func testAccDNSManagedZone_forceDestroy(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
-  name        = "mzone-test-%s"
+  name        = "tf-test-mzone-%s"
   dns_name    = "%s.hashicorptest.com."
   labels = {
     foo = "bar"
@@ -308,7 +308,7 @@ func testAccDnsManagedZone_basic(suffix, description string, labels map[string]s
 	}
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
-  name        = "mzone-test-%s"
+  name        = "tf-test-mzone-%s"
   dns_name    = "tf-acctest-%s.hashicorptest.com."
   description = "%s"
   labels 	  = {%s}
@@ -320,7 +320,7 @@ resource "google_dns_managed_zone" "foobar" {
 func testAccDnsManagedZone_dnssec_on(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
-  name     = "mzone-test-%s"
+  name     = "tf-test-mzone-%s"
   dns_name = "tf-acctest-%s.hashicorptest.com."
 
   dnssec_config {
@@ -345,7 +345,7 @@ resource "google_dns_managed_zone" "foobar" {
 func testAccDnsManagedZone_dnssec_off(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
-  name     = "mzone-test-%s"
+  name     = "tf-test-mzone-%s"
   dns_name = "tf-acctest-%s.hashicorptest.com."
 
   dnssec_config {
@@ -370,7 +370,7 @@ resource "google_dns_managed_zone" "foobar" {
 func testAccDnsManagedZone_dnssec_empty(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
-  name     = "mzone-test-%s"
+  name     = "tf-test-mzone-%s"
   dns_name = "tf-acctest-%s.hashicorptest.com."
 
   dnssec_config {
@@ -383,7 +383,7 @@ resource "google_dns_managed_zone" "foobar" {
 func testAccDnsManagedZone_privateUpdate(suffix, first_network, second_network string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "private" {
-  name        = "private-zone-%s"
+  name        = "tf-test-private-zone-%s"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
   visibility  = "private"
@@ -467,7 +467,7 @@ resource "google_container_cluster" "cluster-1" {
 func testAccDnsManagedZone_privateForwardingUpdate(suffix, first_nameserver, second_nameserver, third_nameserver, first_forwarding_path, second_forwarding_path, third_forwarding_path string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "private" {
-  name        = "private-zone-%s"
+  name        = "tf-test-private-zone-%s"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
   visibility  = "private"
@@ -491,7 +491,7 @@ resource "google_dns_managed_zone" "private" {
 }
 
 resource "google_dns_managed_zone" "private_ipv6" {
-  name        = "private-zone-ipv6-%s"
+  name        = "tf-test-private-zone-ipv6-%s"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
   visibility  = "private"
@@ -525,7 +525,7 @@ resource "google_compute_network" "network_2" {
 func testAccDnsManagedZone_cloudLoggingConfig_basic(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
-  name        = "mzone-test-%s"
+  name        = "tf-test-mzone-%s"
   dns_name    = "tf-acctest-%s.hashicorptest.com."
   description = "Example DNS zone"
   labels = {
@@ -538,7 +538,7 @@ resource "google_dns_managed_zone" "foobar" {
 func testAccDnsManagedZone_cloudLoggingConfig_update(suffix string, enableCloudLogging bool) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
-  name        = "mzone-test-%s"
+  name        = "tf-test-mzone-%s"
   dns_name    = "tf-acctest-%s.hashicorptest.com."
   description = "Example DNS zone"
   labels = {
@@ -655,7 +655,7 @@ func TestAccDNSManagedZone_importWithProject(t *testing.T) {
 func testAccDnsManagedZone_basicWithProject(suffix, description, project string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
-  name        = "mzone-test-%s"
+  name        = "tf-test-mzone-%s"
   dns_name    = "tf-acctest-%s.hashicorptest.com."
   description = "%s"
   project     = "%s"
@@ -696,7 +696,7 @@ func TestAccDNSManagedZone_privateForwardingWithDomainNameUpdate(t *testing.T) {
 func testAccDnsManagedZone_privateForwardingWithDomainNameUpdate(suffix, domain_name, forwarding_path string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "private" {
-  name        = "private-zone-%s"
+  name        = "tf-test-private-zone-%s"
   dns_name    = "private.example.com."
   description = "Example private DNS zone"
   visibility  = "private"
