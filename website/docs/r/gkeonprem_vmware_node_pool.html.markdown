@@ -28,6 +28,7 @@ To get more information about VmwareNodePool, see:
 
 * [API documentation](https://cloud.google.com/kubernetes-engine/distributed-cloud/reference/on-prem-api/rest/v1/projects.locations.vmwareClusters.vmwareNodePools)
 
+
 ## Example Usage - Gkeonprem Vmware Node Pool Basic
 
 
@@ -81,6 +82,7 @@ resource "google_gkeonprem_vmware_node_pool" "nodepool-basic" {
   }
 }
 ```
+
 ## Example Usage - Gkeonprem Vmware Node Pool Full
 
 

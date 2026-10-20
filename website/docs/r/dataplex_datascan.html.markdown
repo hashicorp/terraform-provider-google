@@ -30,6 +30,7 @@ To get more information about Datascan, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dataplex/docs)
 
+
 ## Example Usage - Dataplex Datascan Basic Profile
 
 
@@ -53,6 +54,7 @@ data_profile_spec {}
   project = "my-project-name"
 }
 ```
+
 ## Example Usage - Dataplex Datascan Full Profile
 
 
@@ -110,6 +112,7 @@ resource "google_bigquery_dataset" "source" {
   delete_contents_on_destroy = true
 }
 ```
+
 ## Example Usage - Dataplex Datascan Onetime Profile
 
 
@@ -135,6 +138,7 @@ data_profile_spec {}
   project = "my-project-name"
 }
 ```
+
 ## Example Usage - Dataplex Datascan Basic Quality
 
 
@@ -167,6 +171,7 @@ resource "google_dataplex_datascan" "basic_quality" {
   project = "my-project-name"
 }
 ```
+
 ## Example Usage - Dataplex Datascan Full Quality
 
 
@@ -296,6 +301,7 @@ resource "google_dataplex_datascan" "full_quality" {
   project = "my-project-name"
 }
 ```
+
 ## Example Usage - Dataplex Datascan Onetime Quality
 
 
@@ -330,6 +336,7 @@ resource "google_dataplex_datascan" "onetime_quality" {
   project = "my-project-name"
 }
 ```
+
 ## Example Usage - Dataplex Datascan Basic Discovery
 
 
@@ -359,6 +366,7 @@ resource "google_storage_bucket" "tf_test_bucket" {
   uniform_bucket_level_access = true
 }
 ```
+
 ## Example Usage - Dataplex Datascan Full Discovery
 
 
@@ -432,6 +440,7 @@ resource "google_bigquery_connection" "tf_test_connection" {
    cloud_resource {}
 }
 ```
+
 ## Example Usage - Dataplex Datascan Onetime Discovery
 
 
@@ -463,6 +472,7 @@ resource "google_storage_bucket" "tf_test_bucket" {
   uniform_bucket_level_access = true
 }
 ```
+
 ## Example Usage - Dataplex Datascan Documentation
 
 
@@ -551,6 +561,7 @@ resource "google_dataplex_datascan" "documentation" {
   project = "my-project-name"
 }
 ```
+
 ## Example Usage - Dataplex Datascan Onetime Documentation
 
 
@@ -638,6 +649,7 @@ resource "google_dataplex_datascan" "onetime_documentation" {
   project = "my-project-name"
 }
 ```
+
 ## Example Usage - Dataplex Datascan Execution Identity User Credential
 
 
@@ -697,6 +709,7 @@ resource "google_dataplex_datascan" "identity_user_credential" {
   ]
 }
 ```
+
 ## Example Usage - Dataplex Datascan Execution Identity Service Account
 
 
@@ -798,6 +811,7 @@ resource "google_dataplex_datascan" "identity_service_account" {
   ]
 }
 ```
+
 ## Example Usage - Dataplex Datascan Quality Reusable Rules Catalog Based
 
 
@@ -990,6 +1004,7 @@ resource "google_dataplex_datascan" "reusable_rules_catalog_based" {
   ]
 }
 ```
+
 ## Example Usage - Dataplex Datascan Data Quality Template Reference
 
 

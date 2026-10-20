@@ -32,6 +32,7 @@ To get more information about CapabilityConfig, see:
 * How-to Guides
     * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/manage-applications)
 
+
 ## Example Usage - Resource Manager Capability Config Basic
 
 
@@ -43,6 +44,7 @@ resource "google_resource_manager_capability_config" "capability_config" {
   types                = ["AGENT_MANAGEMENT"]
 }
 ```
+
 ## Example Usage - Resource Manager Capability Config Folder
 
 
@@ -78,6 +80,7 @@ resource "google_resource_manager_capability_config" "capability_config" {
   depends_on = [time_sleep.wait_60_seconds]
 }
 ```
+
 ## Example Usage - Resource Manager Capability Config Project
 
 

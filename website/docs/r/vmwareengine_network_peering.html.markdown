@@ -28,6 +28,7 @@ To get more information about NetworkPeering, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/networks/addPeering)
 
+
 ## Example Usage - Vmware Engine Network Peering Ven
 
 
@@ -54,6 +55,7 @@ resource "google_vmwareengine_network_peering" "vmw-engine-network-peering" {
     import_custom_routes_with_public_ip = false
 }
 ```
+
 ## Example Usage - Vmware Engine Network Peering Standard
 
 

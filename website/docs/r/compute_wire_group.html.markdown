@@ -30,6 +30,7 @@ To get more information about WireGroup, see:
 * How-to Guides
     * [Create a WireGroup](https://cloud.google.com/network-connectivity/docs/interconnect/how-to/cross-site/modify-network#add-wire-group)
 
+
 ## Example Usage - Compute Wire Group Basic
 
 
@@ -57,6 +58,7 @@ resource "google_compute_wire_group" "example-test-wire-group" {
   admin_enabled = true
 }
 ```
+
 ## Example Usage - Compute Wire Group Basic Beta
 
 

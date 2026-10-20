@@ -30,6 +30,7 @@ To get more information about SnapshotSettings, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/compute/docs/disks/snapshot-settings#snapshot_settings_how_to_update)
 
+
 ## Example Usage - Snapshot Settings Specific Locations
 
 

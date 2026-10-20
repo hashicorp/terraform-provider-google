@@ -25,6 +25,7 @@ Bucket configuration for storing observability data.
 
 
 
+
 ## Example Usage - Observability Bucket Basic
 
 

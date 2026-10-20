@@ -30,6 +30,7 @@ To get more information about OrganizationSettings, see:
 * How-to Guides
     * [Configure default settings for organizations and folders](https://cloud.google.com/logging/docs/default-settings)
 
+
 ## Example Usage - Logging Organization Settings All
 
 

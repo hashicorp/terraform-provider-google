@@ -30,6 +30,7 @@ To get more information about AppGroup, see:
 * How-to Guides
     * [Organizing client app ownership](https://cloud.google.com/apigee/docs/api-platform/publish/organizing-client-app-ownership)
 
+
 ## Example Usage - Apigee App Group Basic
 
 
@@ -80,6 +81,7 @@ resource "google_apigee_app_group" "apigee_app_group" {
   ]
 }
 ```
+
 ## Example Usage - Apigee App Group With Attributes
 
 

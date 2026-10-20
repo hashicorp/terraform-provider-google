@@ -30,6 +30,7 @@ To get more information about Task, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dataplex/docs)
 
+
 ## Example Usage - Dataplex Task Basic
 
 
@@ -81,6 +82,7 @@ resource "google_dataplex_task" "example" {
     
 }
 ```
+
 ## Example Usage - Dataplex Task Spark
 
 
@@ -147,6 +149,7 @@ resource "google_dataplex_task" "example_spark" {
     
 }
 ```
+
 ## Example Usage - Dataplex Task Notebook
 
 

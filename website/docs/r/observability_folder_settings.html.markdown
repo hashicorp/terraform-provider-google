@@ -25,6 +25,7 @@ Manages Cloud Observability settings for a folder.
 
 
 
+
 ## Example Usage - Observability Folder Settings Basic
 
 
@@ -67,6 +68,7 @@ resource "google_observability_folder_settings" "primary" {
   depends_on   = [google_kms_crypto_key_iam_member.iam]
 }
 ```
+
 ## Example Usage - Observability Folder Settings Basic Global
 
 

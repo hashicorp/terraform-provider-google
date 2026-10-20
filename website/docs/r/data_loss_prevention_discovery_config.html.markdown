@@ -30,6 +30,7 @@ To get more information about DiscoveryConfig, see:
 * How-to Guides
     * [Schedule inspection scan](https://cloud.google.com/dlp/docs/schedule-inspection-scan)
 
+
 ## Example Usage - Dlp Discovery Config Basic
 
 
@@ -61,6 +62,7 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
     }
 }
 ```
+
 ## Example Usage - Dlp Discovery Config Actions
 
 
@@ -165,6 +167,7 @@ resource "google_project_iam_member" "tag_role" {
   member  = "serviceAccount:service-${data.google_project.project.number}@dlp-api.iam.gserviceaccount.com"
 }
 ```
+
 ## Example Usage - Dlp Discovery Config Org Running
 
 
@@ -202,6 +205,7 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
     }
 }
 ```
+
 ## Example Usage - Dlp Discovery Config Org Folder Paused
 
 
@@ -239,6 +243,7 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
     }
 }
 ```
+
 ## Example Usage - Dlp Discovery Config Conditions Cadence
 
 
@@ -287,6 +292,7 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
     }
 }
 ```
+
 ## Example Usage - Dlp Discovery Config Filter Regexes And Conditions
 
 
@@ -343,6 +349,7 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
     }
 }
 ```
+
 ## Example Usage - Dlp Discovery Config Cloud Sql
 
 
@@ -426,6 +433,7 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
     }
 }
 ```
+
 ## Example Usage - Dlp Discovery Config Cloud Storage
 
 

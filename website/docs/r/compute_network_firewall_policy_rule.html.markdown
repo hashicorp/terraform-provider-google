@@ -28,6 +28,7 @@ To get more information about NetworkFirewallPolicyRule, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/networkFirewallPolicies/addRule)
 
+
 ## Example Usage - Network Firewall Policy Rule
 
 
@@ -97,6 +98,7 @@ resource "google_tags_tag_value" "basic_value" {
   short_name  = "tag-value"
 }
 ```
+
 ## Example Usage - Network Firewall Policy Rule Network Scope Egress
 
 
@@ -129,6 +131,7 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
   }
 }
 ```
+
 ## Example Usage - Network Firewall Policy Rule Network Scope Ingress
 
 
@@ -167,6 +170,7 @@ resource "google_compute_network" "network" {
   name     = "network"
 }
 ```
+
 ## Example Usage - Network Firewall Policy Rule Network Context Egress
 
 
@@ -197,6 +201,7 @@ resource "google_compute_network_firewall_policy_rule" "primary" {
   }
 }
 ```
+
 ## Example Usage - Network Firewall Policy Rule Network Context Ingress
 
 
@@ -232,6 +237,7 @@ resource "google_compute_network" "network" {
   name     = "network"
 }
 ```
+
 ## Example Usage - Network Firewall Policy Rule Target Type Internal Managed Lb
 
 

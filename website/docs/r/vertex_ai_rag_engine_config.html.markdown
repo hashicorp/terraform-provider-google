@@ -30,6 +30,7 @@ To get more information about RagEngineConfig, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/rag-engine/understanding-ragmanageddb)
 
+
 ## Example Usage - Vertex Ai Rag Engine Config Basic
 
 
@@ -42,6 +43,7 @@ resource "google_vertex_ai_rag_engine_config" "" {
   }
 }
 ```
+
 ## Example Usage - Vertex Ai Rag Engine Config Scaled
 
 
@@ -54,6 +56,7 @@ resource "google_vertex_ai_rag_engine_config" "" {
   }
 }
 ```
+
 ## Example Usage - Vertex Ai Rag Engine Config Unprovisioned
 
 

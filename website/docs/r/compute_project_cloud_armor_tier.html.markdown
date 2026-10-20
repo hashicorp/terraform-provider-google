@@ -30,6 +30,7 @@ To get more information about ProjectCloudArmorTier, see:
 * How-to Guides
     * [Subscribing to Cloud Armor Enterprise](https://cloud.google.com/armor/docs/managed-protection-overview#subscribing_to_plus)
 
+
 ## Example Usage - Compute Project Cloud Armor Tier Basic
 
 
@@ -38,6 +39,7 @@ resource "google_compute_project_cloud_armor_tier" "cloud_armor_tier_config" {
   cloud_armor_tier  = "CA_STANDARD"
 }
 ```
+
 ## Example Usage - Compute Project Cloud Armor Tier Project Set
 
 

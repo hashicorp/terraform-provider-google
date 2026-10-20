@@ -30,6 +30,7 @@ To get more information about CacheConfig, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/reference/rest/Shared.Types/CacheConfig)
 
+
 ## Example Usage - Vertex Ai Cache Config
 
 

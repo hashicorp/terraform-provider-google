@@ -28,6 +28,7 @@ To get more information about LicenseConfig, see:
 
 * [API documentation](https://cloud.google.com/generative-ai-app-builder/docs/reference/rest/v1/projects.locations.licenseConfigs)
 
+
 ## Example Usage - Discoveryengine Licenseconfig Basic
 
 

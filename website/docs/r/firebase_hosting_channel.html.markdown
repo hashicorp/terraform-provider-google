@@ -34,6 +34,7 @@ To get more information about Channel, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/hosting)
 
+
 ## Example Usage - Firebasehosting Channel Basic
 
 
@@ -50,6 +51,7 @@ resource "google_firebase_hosting_channel" "default" {
   channel_id = "channel-basic"
 }
 ```
+
 ## Example Usage - Firebasehosting Channel Full
 
 

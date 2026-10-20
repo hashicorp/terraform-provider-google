@@ -38,6 +38,7 @@ To get more information about OrganizationKajPolicyConfig, see:
 * How-to Guides
     * [Set default Key Access Justifications policy](https://cloud.google.com/assured-workloads/key-access-justifications/docs/set-default-policy)
 
+
 ## Example Usage - Kms Organization Kaj Policy Config Basic
 
 

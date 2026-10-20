@@ -25,6 +25,7 @@ Represents a Service project attachment to the Host Project.
 
 
 
+
 ## Example Usage - Service Project Attachment Basic
 
 
@@ -47,6 +48,7 @@ resource "time_sleep" "wait_120s" {
   create_duration = "120s"
 }
 ```
+
 ## Example Usage - Service Project Attachment Full
 
 

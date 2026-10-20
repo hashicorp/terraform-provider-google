@@ -30,6 +30,7 @@ To get more information about EntityType, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dialogflow/docs/)
 
+
 ## Example Usage - Dialogflow Entity Type Basic
 
 

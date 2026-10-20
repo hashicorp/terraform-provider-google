@@ -32,6 +32,7 @@ To get more information about CapacityCommitment, see:
 * How-to Guides
     * [Introduction to Reservations](https://cloud.google.com/bigquery/docs/reservations-intro)
 
+
 ## Example Usage - Bigquery Reservation Capacity Commitment Docs
 
 

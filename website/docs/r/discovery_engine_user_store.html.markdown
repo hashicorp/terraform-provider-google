@@ -28,6 +28,7 @@ To get more information about UserStore, see:
 
 * [API documentation](https://cloud.google.com/gemini/enterprise/docs/reference/rest/v1/projects.locations.userStores)
 
+
 ## Example Usage - Discoveryengine Userstore Basic
 
 

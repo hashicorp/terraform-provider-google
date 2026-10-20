@@ -34,6 +34,7 @@ To get more information about WorkforcePool, see:
 ~> **Note:** Ask your Google Cloud account team to request access to workforce identity federation for
 your billing/quota project. The account team notifies you when the project is granted access.
 
+
 ## Example Usage - Iam Workforce Pool Basic
 
 
@@ -44,6 +45,7 @@ resource "google_iam_workforce_pool" "example" {
   location          = "global"
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Full
 
 

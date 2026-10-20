@@ -28,6 +28,7 @@ To get more information about FolderSettings, see:
 
 * [API documentation](https://cloud.google.com/access-approval/docs/reference/rest/v1/folders)
 
+
 ## Example Usage - Folder Access Approval Full
 
 
@@ -47,6 +48,7 @@ resource "google_folder_access_approval_settings" "folder_access_approval" {
   }
 }
 ```
+
 ## Example Usage - Folder Access Approval Active Key Version
 
 

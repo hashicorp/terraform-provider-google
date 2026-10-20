@@ -32,6 +32,7 @@ To get more information about Version, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/hosting)
 
+
 ## Example Usage - Firebasehosting Version Redirect
 
 
@@ -61,6 +62,7 @@ resource "google_firebase_hosting_release" "default" {
   message      = "Redirect to Google"
 }
 ```
+
 ## Example Usage - Firebasehosting Version Headers
 
 
@@ -92,6 +94,7 @@ resource "google_firebase_hosting_release" "default" {
   message      = "With custom headers"
 }
 ```
+
 ## Example Usage - Firebasehosting Version Headers Regex
 
 
@@ -123,6 +126,7 @@ resource "google_firebase_hosting_release" "default" {
   message      = "With custom headers"
 }
 ```
+
 ## Example Usage - Firebasehosting Version Path
 
 
@@ -151,6 +155,7 @@ resource "google_firebase_hosting_release" "default" {
   message      = "Path Rewrite"
 }
 ```
+
 ## Example Usage - Firebasehosting Version Cloud Run
 
 
@@ -200,6 +205,7 @@ resource "google_firebase_hosting_release" "default" {
   message      = "Cloud Run Integration"
 }
 ```
+
 ## Example Usage - Firebasehosting Version Cloud Functions
 
 

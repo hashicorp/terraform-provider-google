@@ -37,6 +37,7 @@ To get more information about DeveloperApp, see:
 values will be stored in the raw state as plain text: `consumer_secret`, `credentials.consumer_secret`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+
 ## Example Usage - Apigee Developer App Basic
 
 
@@ -97,6 +98,7 @@ resource "google_apigee_organization" "apigee_org" {
 
 data "google_project" "project" {}
 ```
+
 ## Example Usage - Apigee Developer App Basic Test
 
 

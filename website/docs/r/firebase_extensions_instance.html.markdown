@@ -30,6 +30,7 @@ To get more information about Instance, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/products/extensions)
 
+
 ## Example Usage - Firebase Extensions Instance Resize Image
 
 

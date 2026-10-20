@@ -30,6 +30,7 @@ To get more information about ScopeRBACRoleBinding, see:
 * How-to Guides
     * [Registering a Cluster](https://cloud.google.com/anthos/multicluster-management/connect/registering-a-cluster#register_cluster)
 
+
 ## Example Usage - Gkehub Scope Rbac Role Binding Basic
 
 
@@ -50,6 +51,7 @@ resource "google_gke_hub_scope_rbac_role_binding" "scope_rbac_role_binding" {
   }
 }
 ```
+
 ## Example Usage - Gkehub Scope Rbac Custom Role Binding Basic
 
 

@@ -32,6 +32,7 @@ To get more information about Peering, see:
 * How-to Guides
     * [Active Directory Domain Peering](https://cloud.google.com/managed-microsoft-ad/docs/domain-peering)
 
+
 ## Example Usage - Active Directory Peering Basic
 
 

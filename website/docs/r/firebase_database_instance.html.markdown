@@ -32,6 +32,7 @@ To get more information about Instance, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/products/realtime-database)
 
+
 ## Example Usage - Firebase Database Instance Basic
 
 
@@ -43,6 +44,7 @@ resource "google_firebase_database_instance" "basic" {
   instance_id = "active-db"
 }
 ```
+
 ## Example Usage - Firebase Database Instance Full
 
 
@@ -56,6 +58,7 @@ resource "google_firebase_database_instance" "full" {
   desired_state   = "DISABLED"
 }
 ```
+
 ## Example Usage - Firebase Database Instance Default Database
 
 

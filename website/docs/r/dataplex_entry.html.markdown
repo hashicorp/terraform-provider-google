@@ -39,6 +39,7 @@ To get more information about Entry, see:
 * How-to Guides
     * [Manage entries and ingest custom sources](https://cloud.google.com/dataplex/docs/ingest-custom-sources)
 
+
 ## Example Usage - Dataplex Entry Basic
 
 
@@ -63,6 +64,7 @@ resource "google_dataplex_entry" "test_basic" {
   entry_type = google_dataplex_entry_type.entry-type-basic.name
 }
 ```
+
 ## Example Usage - Dataplex Entry Full
 
 
@@ -201,6 +203,7 @@ resource "google_dataplex_entry" "test_entry_full" {
  depends_on = [google_dataplex_aspect_type.aspect-type-full-two, google_dataplex_aspect_type.aspect-type-full-one]
 }
 ```
+
 ## Example Usage - Dataplex Entry Bigquery Table
 
 
@@ -332,6 +335,7 @@ resource "google_dataplex_entry" "tf_test_table" {
  depends_on = [google_dataplex_aspect_type.aspect-type-full-two, google_dataplex_aspect_type.aspect-type-full-one]
 }
 ```
+
 ## Example Usage - Dataplex Entry Glossary Term
 
 

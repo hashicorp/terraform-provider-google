@@ -31,6 +31,7 @@ To get more information about AppAttestConfig, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/app-check)
 
+
 ## Example Usage - Firebase App Check App Attest Config Minimal
 
 
@@ -67,6 +68,7 @@ resource "google_firebase_app_check_app_attest_config" "default" {
   }
 }
 ```
+
 ## Example Usage - Firebase App Check App Attest Config Full
 
 

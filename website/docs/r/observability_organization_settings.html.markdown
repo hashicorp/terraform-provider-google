@@ -25,6 +25,7 @@ Manages Cloud Observability settings for an organization.
 
 
 
+
 ## Example Usage - Observability Organization Settings Basic
 
 
@@ -54,6 +55,7 @@ resource "google_observability_organization_settings" "primary" {
   depends_on               = [google_kms_crypto_key_iam_member.iam]
 }
 ```
+
 ## Example Usage - Observability Organization Settings Basic Global
 
 

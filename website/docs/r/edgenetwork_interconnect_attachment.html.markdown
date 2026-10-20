@@ -30,6 +30,7 @@ To get more information about InterconnectAttachment, see:
 * How-to Guides
     * [Create and manage interconnect attachments](https://cloud.google.com/distributed-cloud/edge/latest/docs/attachments#api)
 
+
 ## Example Usage - Edgenetwork Interconnect Attachment
 
 

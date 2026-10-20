@@ -30,6 +30,7 @@ To get more information about LogView, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/logging/docs/apis)
 
+
 ## Example Usage - Logging Log View Basic
 
 

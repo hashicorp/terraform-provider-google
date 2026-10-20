@@ -30,6 +30,7 @@ To get more information about EncryptionSpec, see:
 * How-to Guides
     * [Official Documentation](https://docs.cloud.google.com/contact-center/insights/docs/cmek)
 
+
 ## Example Usage - Contact Center Insights Encryption Spec Basic
 
 

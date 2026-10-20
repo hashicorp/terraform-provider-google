@@ -35,6 +35,7 @@ To get more information about FolderCustomModule, see:
 * How-to Guides
     * [Overview of custom modules for Security Health Analytics](https://cloud.google.com/security-command-center/docs/custom-modules-sha-overview)
 
+
 ## Example Usage - Scc Folder Custom Module Basic
 
 
@@ -64,6 +65,7 @@ resource "google_scc_folder_custom_module" "example" {
   }
 }
 ```
+
 ## Example Usage - Scc Folder Custom Module Full
 
 

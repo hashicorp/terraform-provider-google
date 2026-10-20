@@ -35,6 +35,7 @@ To get more information about OrganizationSccBigQueryExport, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/security-command-center/docs/how-to-analyze-findings-in-big-query)
 
+
 ## Example Usage - Scc Organization Big Query Export Config Basic
 
 

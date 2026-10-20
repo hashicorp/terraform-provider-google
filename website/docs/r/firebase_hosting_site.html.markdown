@@ -32,6 +32,7 @@ To get more information about Site, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/hosting)
 
+
 ## Example Usage - Firebasehosting Site Basic
 
 
@@ -42,6 +43,7 @@ resource "google_firebase_hosting_site" "default" {
   site_id = "site-no-app"
 }
 ```
+
 ## Example Usage - Firebasehosting Site Full
 
 
@@ -59,6 +61,7 @@ resource "google_firebase_hosting_site" "full" {
   app_id = google_firebase_web_app.default.app_id
 }
 ```
+
 ## Example Usage - Firebasehosting Site Default
 
 

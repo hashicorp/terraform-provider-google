@@ -33,6 +33,7 @@ To get more information about Settings, see:
     * [Configure Privileged Access Manager settings](https://cloud.google.com/iam/docs/pam-configure-settings)
     * [Official Documentation](https://cloud.google.com/iam/docs/pam-overview)
 
+
 ## Example Usage - Privileged Access Manager Settings Basic
 
 

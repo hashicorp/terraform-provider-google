@@ -32,6 +32,7 @@ To get more information about Config, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dataform/docs/)
 
+
 ## Example Usage - Dataform Config With Kms Key
 
 
@@ -119,6 +120,7 @@ resource "google_dataform_config" "config" {
   ]
 }
 ```
+
 ## Example Usage - Dataform Config Without Kms Key
 
 

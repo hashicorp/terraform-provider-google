@@ -35,6 +35,7 @@ To get more information about WorkforcePoolProviderScimToken, see:
 values will be stored in the raw state as plain text: `security_token`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+
 ## Example Usage - Iam Workforce Pool Provider Scim Token Basic
 
 

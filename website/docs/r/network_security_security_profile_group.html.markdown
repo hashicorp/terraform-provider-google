@@ -31,6 +31,7 @@ To get more information about SecurityProfileGroup, see:
     * [Create and manage security profile groups](https://cloud.google.com/firewall/docs/configure-security-profile-groups)
     * [Security profile groups overview](https://cloud.google.com/firewall/docs/about-security-profile-groups)
 
+
 ## Example Usage - Network Security Security Profile Group Basic
 
 
@@ -53,6 +54,7 @@ resource "google_network_security_security_profile" "security_profile" {
     location    = "global"
 }
 ```
+
 ## Example Usage - Network Security Security Profile Group Mirroring
 
 
@@ -97,6 +99,7 @@ resource "google_network_security_security_profile_group" "default" {
   custom_mirroring_profile = google_network_security_security_profile.default.id
 }
 ```
+
 ## Example Usage - Network Security Security Profile Group Intercept
 
 
@@ -141,6 +144,7 @@ resource "google_network_security_security_profile_group" "default" {
   custom_intercept_profile = google_network_security_security_profile.default.id
 }
 ```
+
 ## Example Usage - Network Security Security Profile Group Url Filtering
 
 
@@ -171,6 +175,7 @@ resource "google_network_security_security_profile" "security_profile" {
   parent = "organizations/123456789"
 }
 ```
+
 ## Example Usage - Network Security Security Profile Group Wildfire
 
 

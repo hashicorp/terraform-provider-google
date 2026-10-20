@@ -41,6 +41,7 @@ To get more information about DatasetAccess, see:
 The API does accept both formats but it will always return the legacy format which results in Terraform
 showing permanent diff on each plan and apply operation.
 
+
 ## Example Usage - Bigquery Dataset Access Basic User
 
 
@@ -59,6 +60,7 @@ resource "google_service_account" "bqowner" {
   account_id = "bqowner"
 }
 ```
+
 ## Example Usage - Bigquery Dataset Access View
 
 
@@ -91,6 +93,7 @@ resource "google_bigquery_table" "public" {
   }
 }
 ```
+
 ## Example Usage - Bigquery Dataset Access Authorized Dataset
 
 
@@ -114,6 +117,7 @@ resource "google_bigquery_dataset" "public" {
   dataset_id = "public"
 }
 ```
+
 ## Example Usage - Bigquery Dataset Access Authorized Routine
 
 

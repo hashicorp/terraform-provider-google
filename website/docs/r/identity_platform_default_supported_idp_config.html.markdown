@@ -29,6 +29,7 @@ the marketplace prior to using this resource.
 
 
 
+
 ## Example Usage - Identity Platform Default Supported Idp Config Basic
 
 

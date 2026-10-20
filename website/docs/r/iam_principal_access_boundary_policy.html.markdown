@@ -34,6 +34,7 @@ To get more information about PrincipalAccessBoundaryPolicy, see:
 * How-to Guides
     * [Create and apply Principal Access Boundaries](https://cloud.google.com/iam/docs/principal-access-boundary-policies-create)
 
+
 ## Example Usage - Iam Principal Access Boundary Policy
 
 
@@ -45,6 +46,7 @@ resource "google_iam_principal_access_boundary_policy" "pab-policy-for-org" {
   principal_access_boundary_policy_id = "pab-policy-for-org"
 }
 ```
+
 ## Example Usage - Iam Organizations Policy Binding
 
 

@@ -28,6 +28,7 @@ To get more information about GibqObservabilitySettingBinding, see:
 * How-to Guides
     * [Gemini Cloud Assist overview](https://cloud.google.com/gemini/docs/cloud-assist/overview)
 
+
 ## Example Usage - Gemini Gibq Observability Setting Binding Basic
 
 

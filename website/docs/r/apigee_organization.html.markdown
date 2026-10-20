@@ -31,6 +31,7 @@ To get more information about Organization, see:
     * [Creating an API organization](https://cloud.google.com/apigee/docs/api-platform/get-started/create-org)
     * [Setting a custom endpoint (required for data residency)](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#advanced-settings-configuration)
 
+
 ## Example Usage - Apigee Organization Cloud Basic
 
 
@@ -62,6 +63,7 @@ resource "google_apigee_organization" "org" {
   depends_on         = [google_service_networking_connection.apigee_vpc_connection]
 }
 ```
+
 ## Example Usage - Apigee Organization Cloud Basic Disable Vpc Peering
 
 
@@ -75,6 +77,7 @@ resource "google_apigee_organization" "org" {
   disable_vpc_peering = true
 }
 ```
+
 ## Example Usage - Apigee Organization Cloud Basic Data Residency
 
 
@@ -93,6 +96,7 @@ resource "google_apigee_organization" "org" {
   disable_vpc_peering        = true
 }
 ```
+
 ## Example Usage - Apigee Organization Cloud Full
 
 
@@ -158,6 +162,7 @@ resource "google_apigee_organization" "org" {
   ]
 }
 ```
+
 ## Example Usage - Apigee Organization Cloud Full Disable Vpc Peering
 
 

@@ -30,6 +30,7 @@ To get more information about NatAddress, see:
 * How-to Guides
     * [Provisioning NAT IPs](https://cloud.google.com/apigee/docs/api-platform/security/nat-provisioning)
 
+
 ## Example Usage - Apigee Nat Address Basic
 
 
@@ -109,6 +110,7 @@ resource "google_apigee_nat_address" "apigee-nat" {
   instance_id = google_apigee_instance.apigee_instance.id
 }
 ```
+
 ## Example Usage - Apigee Nat Address With Activate
 
 

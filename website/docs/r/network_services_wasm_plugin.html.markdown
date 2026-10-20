@@ -30,6 +30,7 @@ To get more information about WasmPlugin, see:
 * How-to Guides
     * [Configure a route extension](https://cloud.google.com/service-extensions/docs/create-plugin)
 
+
 ## Example Usage - Wasm Plugin Basic Docker Repository
 
 
@@ -62,6 +63,7 @@ resource "google_network_services_wasm_plugin" "wasm_plugin" {
   }
 }
 ```
+
 ## Example Usage - Wasm Plugin Basic Generic Repository
 
 

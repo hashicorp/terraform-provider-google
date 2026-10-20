@@ -30,6 +30,7 @@ To get more information about ApiDeployment, see:
 * How-to Guides
     * [QUICKSTART_TITLE](https://cloud.google.com/apigee/docs/api-platform/deploy/ui-deploy-overview)
 
+
 ## Example Usage - Apigee Api Deployment Basic
 
 
@@ -73,6 +74,7 @@ resource "google_apigee_api_deployment" "test_apigee_api_deployment" {
   proxy_id = google_apigee_api.test_apigee_api.name
 }
 ```
+
 ## Example Usage - Apigee Api Deployment Service Account
 
 

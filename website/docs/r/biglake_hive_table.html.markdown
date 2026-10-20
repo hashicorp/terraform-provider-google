@@ -25,6 +25,7 @@ Hive Tables in BigLake Metastore that exist within a Hive Catalog and Database.
 
 
 
+
 ## Example Usage - Biglake Hive Table
 
 

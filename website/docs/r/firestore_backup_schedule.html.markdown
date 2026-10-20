@@ -37,6 +37,7 @@ a Firestore database.
 This resource is owned by the database it is backing up, and is deleted along
 with the database. The actual backups are not though.
 
+
 ## Example Usage - Firestore Backup Schedule Daily
 
 
@@ -60,6 +61,7 @@ resource "google_firestore_backup_schedule" "daily-backup" {
   daily_recurrence {}
 }
 ```
+
 ## Example Usage - Firestore Backup Schedule Weekly
 
 

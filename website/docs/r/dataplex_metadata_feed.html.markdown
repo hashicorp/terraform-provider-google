@@ -25,6 +25,7 @@ A Dataplex Metadata Feed monitors Dataplex metadata entries in a specified scope
 
 
 
+
 ## Example Usage - Dataplex Metadata Feed Basic
 
 

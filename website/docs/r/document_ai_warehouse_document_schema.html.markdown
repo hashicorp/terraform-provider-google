@@ -30,6 +30,7 @@ To get more information about DocumentSchema, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/document-warehouse/docs/manage-document-schemas)
 
+
 ## Example Usage - Document Ai Warehouse Document Schema Text
 
 

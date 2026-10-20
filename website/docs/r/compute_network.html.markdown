@@ -30,11 +30,12 @@ To get more information about Network, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vpc/docs/vpc)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_basic&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_basic&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
 </div>
+
 ## Example Usage - Network Basic
 
 
@@ -43,6 +44,7 @@ resource "google_compute_network" "vpc_network" {
   name = "vpc-network"
 }
 ```
+
 ## Example Usage - Network Custom Mtu
 
 
@@ -54,6 +56,7 @@ resource "google_compute_network" "vpc_network" {
   mtu                     = 1460
 }
 ```
+
 ## Example Usage - Network Custom Firewall Enforcement Order
 
 
@@ -65,6 +68,7 @@ resource "google_compute_network" "vpc_network" {
   network_firewall_policy_enforcement_order = "BEFORE_CLASSIC_FIREWALL"
 }
 ```
+
 ## Example Usage - Network Bgp Best Path Selection Mode
 
 
@@ -75,6 +79,7 @@ resource "google_compute_network" "vpc_network" {
   routing_mode                              = "GLOBAL"
 }
 ```
+
 ## Example Usage - Network Bgp Best Path Selection Mode Standard
 
 
@@ -86,6 +91,7 @@ resource "google_compute_network" "vpc_network" {
   bgp_best_path_selection_mode              = "STANDARD"
 }
 ```
+
 ## Example Usage - Network Bgp Best Path Selection Mode Standard Custom Fields
 
 
@@ -99,6 +105,7 @@ resource "google_compute_network" "vpc_network" {
   bgp_inter_region_cost                     = "ADD_COST_TO_MED"
 }
 ```
+
 ## Example Usage - Network Bgp Standard Mode Delete Med
 
 

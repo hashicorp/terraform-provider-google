@@ -30,6 +30,7 @@ To get more information about Space, see:
 * How-to Guides
     * [Managing Spaces](https://cloud.google.com/apigee/docs/api-platform/system-administration/spaces/manage-spaces)
 
+
 ## Example Usage - Apigee Space Basic
 
 

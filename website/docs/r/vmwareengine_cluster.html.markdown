@@ -28,6 +28,7 @@ To get more information about Cluster, see:
 
 * [API documentation](https://cloud.google.com/vmware-engine/docs/reference/rest/v1/projects.locations.privateClouds.clusters)
 
+
 ## Example Usage - Vmware Engine Cluster Basic
 
 
@@ -66,6 +67,7 @@ resource "google_vmwareengine_network" "cluster-nw" {
   description = "PC network description."
 }
 ```
+
 ## Example Usage - Vmware Engine Cluster Full
 
 
@@ -127,6 +129,7 @@ resource "google_vmwareengine_network" "cluster-nw" {
   description = "PC network description."
 }
 ```
+
 ## Example Usage - Vmware Engine Cluster Nfs Datastore Filestore
 
 
@@ -248,6 +251,7 @@ resource "google_vmwareengine_cluster" "vmw-ext-cluster" {
 
 
 ```
+
 ## Example Usage - Vmware Engine Cluster Nfs Datastore Netapp
 
 

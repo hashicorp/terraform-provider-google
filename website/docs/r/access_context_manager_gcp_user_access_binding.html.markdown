@@ -28,6 +28,7 @@ To get more information about GcpUserAccessBinding, see:
 
 * [API documentation](https://cloud.google.com/access-context-manager/docs/reference/rest/v1/organizations.gcpUserAccessBindings)
 
+
 ## Example Usage - Access Context Manager Gcp User Access Binding Basic
 
 

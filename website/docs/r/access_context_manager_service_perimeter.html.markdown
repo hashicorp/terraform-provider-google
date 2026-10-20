@@ -47,6 +47,7 @@ in the provider configuration. Otherwise the ACM API will return a 403 error.
 Your account must have the `serviceusage.services.use` permission on the
 `billing_project` you defined.
 
+
 ## Example Usage - Access Context Manager Service Perimeter Basic
 
 
@@ -86,6 +87,7 @@ resource "google_access_context_manager_access_policy" "access-policy" {
   title  = "my policy"
 }
 ```
+
 ## Example Usage - Access Context Manager Service Perimeter Secure Data Exchange
 
 
@@ -198,6 +200,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
   }
 }
 ```
+
 ## Example Usage - Access Context Manager Service Perimeter Dry-Run
 
 
@@ -226,6 +229,7 @@ resource "google_access_context_manager_access_policy" "access-policy" {
   title  = "my policy"
 }
 ```
+
 ## Example Usage - Access Context Manager Service Perimeter Granular Controls
 
 

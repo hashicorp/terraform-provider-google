@@ -33,6 +33,7 @@ To get more information about StoragePool, see:
 * How-to Guides
     * [Create Hyperdisk Storage Pools](https://cloud.google.com/compute/docs/disks/create-storage-pools)
 
+
 ## Example Usage - Compute Storage Pool Basic
 
 
@@ -60,6 +61,7 @@ resource "google_compute_storage_pool" "test-storage-pool-basic" {
 
 data "google_project" "project" {}
 ```
+
 ## Example Usage - Compute Storage Pool Full
 
 

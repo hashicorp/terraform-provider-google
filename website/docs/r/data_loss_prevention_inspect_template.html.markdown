@@ -30,6 +30,7 @@ To get more information about InspectTemplate, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dlp/docs/creating-templates-inspect)
 
+
 ## Example Usage - Dlp Inspect Template Basic
 
 
@@ -139,6 +140,7 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 	}
 }
 ```
+
 ## Example Usage - Dlp Inspect Template Custom Type
 
 
@@ -206,6 +208,7 @@ resource "google_data_loss_prevention_inspect_template" "custom" {
 	}
 }
 ```
+
 ## Example Usage - Dlp Inspect Template Custom Type Surrogate
 
 
@@ -271,6 +274,7 @@ resource "google_data_loss_prevention_inspect_template" "custom_type_surrogate" 
   }
 }
 ```
+
 ## Example Usage - Dlp Inspect Template Max Infotype Per Finding Default
 
 

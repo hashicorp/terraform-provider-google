@@ -30,6 +30,7 @@ To get more information about RegionHealthAggregationPolicy, see:
 * How-to Guides
     * [Health checks overview](https://cloud.google.com/load-balancing/docs/health-check-concepts)
 
+
 ## Example Usage - Compute Region Health Aggregation Policy Basic
 
 

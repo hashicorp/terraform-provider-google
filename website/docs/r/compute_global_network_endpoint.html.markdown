@@ -32,6 +32,7 @@ To get more information about GlobalNetworkEndpoint, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/load-balancing/docs/negs/)
 
+
 ## Example Usage - Global Network Endpoint
 
 

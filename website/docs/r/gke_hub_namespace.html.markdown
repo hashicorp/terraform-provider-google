@@ -30,6 +30,7 @@ To get more information about Namespace, see:
 * How-to Guides
     * [Registering a Cluster](https://cloud.google.com/anthos/multicluster-management/connect/registering-a-cluster#register_cluster)
 
+
 ## Example Usage - Gkehub Namespace Basic
 
 

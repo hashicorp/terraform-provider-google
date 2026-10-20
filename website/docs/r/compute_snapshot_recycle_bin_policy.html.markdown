@@ -34,6 +34,7 @@ To get more information about SnapshotRecycleBinPolicy, see:
 * How-to Guides
     * [Official Documentation](https://docs.cloud.google.com/compute/docs/disks/configure-recycle-bin)
 
+
 ## Example Usage - Snapshot Recycle Bin Policy Basic
 
 
@@ -49,6 +50,7 @@ resource "google_compute_snapshot_recycle_bin_policy" "default" {
   }
 }
 ```
+
 ## Example Usage - Snapshot Recycle Bin Policy Multiple
 
 

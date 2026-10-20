@@ -28,6 +28,7 @@ To get more information about HiveCatalog, see:
 * How-to Guides
     * [QUICKSTART_TITLE](https://docs.cloud.google.com/lakehouse/docs/about-spark-hive-metastore)
 
+
 ## Example Usage - Biglake Hive Catalog
 
 
@@ -48,6 +49,7 @@ resource "google_biglake_hive_catalog" "my_hive_catalog" {
   ]
 }
 ```
+
 ## Example Usage - Biglake Hive Catalog Full
 
 

@@ -30,6 +30,7 @@ To get more information about FoldersPolicyBinding, see:
 * How-to Guides
     * [Apply a policy binding](https://cloud.google.com/iam/docs/principal-access-boundary-policies-create#create_binding)
 
+
 ## Example Usage - Iam Folders Policy Binding
 
 
@@ -65,6 +66,7 @@ resource "google_iam_folders_policy_binding" "binding-for-all-folder-principals"
   depends_on = [time_sleep.wait_120s]
 }
 ```
+
 ## Example Usage - Iam Folders Policy Binding Access Policy
 
 

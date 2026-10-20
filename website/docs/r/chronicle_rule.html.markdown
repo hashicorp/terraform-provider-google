@@ -30,6 +30,7 @@ To get more information about Rule, see:
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
+
 ## Example Usage - Chronicle Rule Basic
 
 
@@ -43,6 +44,7 @@ resource "google_chronicle_rule" "example" {
          EOT
 }
 ```
+
 ## Example Usage - Chronicle Rule With Force Deletion
 
 
@@ -56,6 +58,7 @@ resource "google_chronicle_rule" "example" {
          EOT
 }
 ```
+
 ## Example Usage - Chronicle Rule With Data Access Scope
 
 

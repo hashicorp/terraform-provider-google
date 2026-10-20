@@ -34,6 +34,7 @@ To get more information about RouterNatAddress, see:
 * How-to Guides
     * [Google Cloud Router](https://cloud.google.com/router/docs/)
 
+
 ## Example Usage - Router Nat Address Count
 
 

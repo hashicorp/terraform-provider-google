@@ -25,6 +25,7 @@ A domain name that is associated with a backend.
 
 
 
+
 ## Example Usage - Firebase App Hosting Domain Minimal
 
 
@@ -58,6 +59,7 @@ resource "google_service_account" "service_account" {
   create_ignore_already_exists = true
 }
 ```
+
 ## Example Usage - Firebase App Hosting Domain Full
 
 

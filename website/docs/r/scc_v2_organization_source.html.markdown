@@ -33,6 +33,7 @@ To get more information about OrganizationSource, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/security-command-center/docs)
 
+
 ## Example Usage - Scc Source Basic
 
 

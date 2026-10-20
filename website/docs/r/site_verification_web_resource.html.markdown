@@ -38,6 +38,7 @@ To get more information about WebResource, see:
 * How-to Guides
     * [Getting Started](https://developers.google.com/site-verification/v1/getting_started)
 
+
 ## Example Usage - Site Verification Domain Record
 
 

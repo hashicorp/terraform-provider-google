@@ -28,6 +28,7 @@ To get more information about BareMetalAdminCluster, see:
 
 * [API documentation](https://cloud.google.com/kubernetes-engine/distributed-cloud/reference/on-prem-api/rest/v1/projects.locations.bareMetalAdminClusters)
 
+
 ## Example Usage - Gkeonprem Bare Metal Admin Cluster Basic
 
 
@@ -91,6 +92,7 @@ resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
   }
 }
 ```
+
 ## Example Usage - Gkeonprem Bare Metal Admin Cluster Full
 
 

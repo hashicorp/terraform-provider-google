@@ -32,6 +32,7 @@ To get more information about AndroidApp, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/android/setup)
 
+
 ## Example Usage - Firebase Android App Basic
 
 
@@ -45,6 +46,7 @@ resource "google_firebase_android_app" "basic" {
   sha256_hashes = ["2145bdf698b8715039bd0e83f2069bed435ac21ca1b2c3d4e5f6123456789abc"]
 }
 ```
+
 ## Example Usage - Firebase Android App Custom Api Key
 
 

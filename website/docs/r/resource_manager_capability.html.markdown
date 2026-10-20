@@ -30,6 +30,7 @@ To get more information about Capability, see:
 * How-to Guides
     * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/manage-applications)
 
+
 ## Example Usage - Resource Manager Capability
 
 

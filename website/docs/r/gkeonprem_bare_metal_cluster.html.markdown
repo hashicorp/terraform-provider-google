@@ -28,6 +28,7 @@ To get more information about BareMetalCluster, see:
 
 * [API documentation](https://cloud.google.com/kubernetes-engine/distributed-cloud/reference/on-prem-api/rest/v1/projects.locations.bareMetalClusters)
 
+
 ## Example Usage - Gkeonprem Bare Metal Cluster Basic
 
 
@@ -104,6 +105,7 @@ resource "google_gkeonprem_bare_metal_cluster" "cluster-basic" {
   }
 }
 ```
+
 ## Example Usage - Gkeonprem Bare Metal Cluster Manuallb
 
 
@@ -171,6 +173,7 @@ resource "google_gkeonprem_bare_metal_cluster" "cluster-manuallb" {
   }
 }
 ```
+
 ## Example Usage - Gkeonprem Bare Metal Cluster Bgplb
 
 

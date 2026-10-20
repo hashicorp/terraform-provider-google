@@ -30,6 +30,7 @@ To get more information about SecurityMonitoringCondition, see:
 * How-to Guides
     * [Creating a security monitoring condition](https://cloud.google.com/apigee/docs/api-security/security-scores#monitoring-conditions)
 
+
 ## Example Usage - Apigee Security Monitoring Condition Basic
 
 

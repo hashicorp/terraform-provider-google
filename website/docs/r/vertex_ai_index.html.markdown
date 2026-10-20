@@ -28,6 +28,7 @@ To get more information about Index, see:
 
 * [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexes/)
 
+
 ## Example Usage - Vertex Ai Index
 
 
@@ -96,6 +97,7 @@ resource "google_vertex_ai_index" "index" {
   ]
 }
 ```
+
 ## Example Usage - Vertex Ai Index Streaming
 
 

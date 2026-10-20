@@ -32,6 +32,7 @@ To get more information about DataProduct, see:
 * How-to Guides
     * [Introduction to Data Products](https://cloud.google.com/dataplex/docs/data-products-overview)
 
+
 ## Example Usage - Dataplex Data Product Basic
 
 
@@ -55,6 +56,7 @@ resource "google_dataplex_data_product" "example" {
 
 }
 ```
+
 ## Example Usage - Dataplex Data Product Full
 
 

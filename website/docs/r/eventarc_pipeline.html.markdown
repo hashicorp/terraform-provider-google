@@ -30,6 +30,7 @@ To get more information about Pipeline, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/eventarc/advanced/docs/receive-events/create-enrollment)
 
+
 ## Example Usage - Eventarc Pipeline With Topic Destination
 
 
@@ -53,6 +54,7 @@ resource "google_eventarc_pipeline" "primary" {
   display_name = "Testing Pipeline"
 }
 ```
+
 ## Example Usage - Eventarc Pipeline With Http Destination
 
 
@@ -70,6 +72,7 @@ resource "google_eventarc_pipeline" "primary" {
   }
 }
 ```
+
 ## Example Usage - Eventarc Pipeline With Workflow Destination
 
 
@@ -115,6 +118,7 @@ resource "google_eventarc_pipeline" "primary" {
   }
 }
 ```
+
 ## Example Usage - Eventarc Pipeline With Oidc And Json Format
 
 
@@ -164,6 +168,7 @@ EOF
   }
 }
 ```
+
 ## Example Usage - Eventarc Pipeline With Oauth And Protobuf Format
 
 
@@ -229,6 +234,7 @@ EOF
   }
 }
 ```
+
 ## Example Usage - Eventarc Pipeline With Cmek And Avro Format
 
 

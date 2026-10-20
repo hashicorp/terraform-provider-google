@@ -30,6 +30,7 @@ To get more information about DataExport, see:
 * How-to Guides
     * [Data Export Overview](https://cloud.google.com/chronicle/docs/secops/data-export-overview)
 
+
 ## Example Usage - Chronicle Data Export Basic
 
 
@@ -53,6 +54,7 @@ resource "google_chronicle_data_export" "example" {
   end_time    = "2025-01-01T12:00:00Z"
 }
 ```
+
 ## Example Usage - Chronicle Data Export Full
 
 

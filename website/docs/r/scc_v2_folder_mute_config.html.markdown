@@ -34,6 +34,7 @@ To get more information about FolderMuteConfig, see:
 
 * [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v2/folders.muteConfigs)
 
+
 ## Example Usage - Scc V2 Folder Mute Config Basic
 
 

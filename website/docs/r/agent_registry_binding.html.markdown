@@ -25,6 +25,7 @@ Represents a user-defined Binding.
 
 
 
+
 ## Example Usage - Agent Registry Binding Basic
 
 
@@ -68,6 +69,7 @@ resource "google_agent_identity_auth_provider" "default" {
   }
 }
 ```
+
 ## Example Usage - Agent Registry Binding Target Only
 
 

@@ -30,6 +30,7 @@ To get more information about Policy, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/binary-authorization/)
 
+
 ## Example Usage - Binary Authorization Policy Basic
 
 
@@ -68,6 +69,7 @@ resource "google_binary_authorization_attestor" "attestor" {
   }
 }
 ```
+
 ## Example Usage - Binary Authorization Policy Global Evaluation
 
 

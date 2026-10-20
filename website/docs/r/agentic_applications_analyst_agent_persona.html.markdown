@@ -31,6 +31,7 @@ Represents a persona configuration for an analyst agent in Agentic Applications.
 values will be stored in the raw state as plain text: `mcp_data_sources.api_key`, `mcp_data_sources.client_secret`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+
 ## Example Usage - Analyst Agent Persona Basic
 
 
@@ -71,6 +72,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
   }
 }
 ```
+
 ## Example Usage - Analyst Agent Persona Full
 
 
@@ -279,6 +281,7 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
   }
 }
 ```
+
 ## Example Usage - Analyst Agent Persona Methodology Export Options
 
 

@@ -30,6 +30,7 @@ To get more information about RuleDeployment, see:
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
+
 ## Example Usage - Chronicle Ruledeployment Basic
 
 
@@ -52,6 +53,7 @@ resource "google_chronicle_rule_deployment" "example" {
  run_frequency = "LIVE"
 }
 ```
+
 ## Example Usage - Chronicle Ruledeployment Disabled
 
 
@@ -72,6 +74,7 @@ resource "google_chronicle_rule_deployment" "example" {
  run_frequency = "LIVE"
 }
 ```
+
 ## Example Usage - Chronicle Ruledeployment Run Frequency Missing
 
 

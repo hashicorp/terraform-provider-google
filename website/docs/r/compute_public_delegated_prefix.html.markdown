@@ -30,6 +30,7 @@ To get more information about PublicDelegatedPrefix, see:
 * How-to Guides
     * [Using bring your own IP](https://cloud.google.com/vpc/docs/using-bring-your-own-ip)
 
+
 ## Example Usage - Public Delegated Prefixes Basic
 
 
@@ -49,6 +50,7 @@ resource "google_compute_public_delegated_prefix" "prefixes" {
   parent_prefix = google_compute_public_advertised_prefix.advertised.id
 }
 ```
+
 ## Example Usage - Public Delegated Prefixes Ipv6
 
 
@@ -80,6 +82,7 @@ resource "google_compute_public_delegated_prefix" "subprefix" {
   mode = "EXTERNAL_IPV6_FORWARDING_RULE_CREATION"
 }
 ```
+
 ## Example Usage - Public Delegated Prefix Ipv6 Subnet Mode
 
 
@@ -110,6 +113,7 @@ resource "google_compute_public_delegated_prefix" "subprefix" {
   mode = "EXTERNAL_IPV6_SUBNETWORK_CREATION"
 }
 ```
+
 ## Example Usage - Public Delegated Prefix Internal Ipv6 Subnet Mode
 
 

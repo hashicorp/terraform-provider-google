@@ -34,6 +34,7 @@ To get more information about DeidentifyTemplate, see:
 values will be stored in the raw state as plain text: `deidentify_config.record_transformations.field_transformations.info_type_transformations.transformations.primitive_transformation.crypto_replace_ffx_fpe_config.crypto_key.unwrapped.key`, `deidentify_config.record_transformations.field_transformations.info_type_transformations.transformations.primitive_transformation.crypto_hash_config.crypto_key.unwrapped.key`, `deidentify_config.record_transformations.field_transformations.info_type_transformations.transformations.primitive_transformation.date_shift_config.crypto_key.unwrapped.key`, `deidentify_config.record_transformations.field_transformations.info_type_transformations.transformations.primitive_transformation.crypto_deterministic_config.crypto_key.unwrapped.key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+
 ## Example Usage - Dlp Deidentify Template Basic
 
 
@@ -135,6 +136,7 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 	}
 }
 ```
+
 ## Example Usage - Dlp Deidentify Template Image Transformations
 
 

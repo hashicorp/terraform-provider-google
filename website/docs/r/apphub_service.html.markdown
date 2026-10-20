@@ -25,6 +25,7 @@ Service is a network/api interface that exposes some functionality to clients fo
 
 
 
+
 ## Example Usage - Apphub Service Basic
 
 
@@ -139,6 +140,7 @@ resource "google_compute_health_check" "default" {
   depends_on = [time_sleep.wait_120s]
 }
 ```
+
 ## Example Usage - Apphub Service Full
 
 

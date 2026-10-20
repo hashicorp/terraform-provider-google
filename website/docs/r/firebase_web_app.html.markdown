@@ -32,6 +32,7 @@ To get more information about WebApp, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/)
 
+
 ## Example Usage - Firebase Web App Basic
 
 
@@ -69,6 +70,7 @@ resource "google_storage_bucket_object" "default" {
     })
 }
 ```
+
 ## Example Usage - Firebase Web App Custom Api Key
 
 

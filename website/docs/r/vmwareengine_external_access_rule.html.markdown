@@ -28,6 +28,7 @@ To get more information about ExternalAccessRule, see:
 
 * [API documentation](https://cloud.google.com/vmware-engine/docs/reference/rest/v1/projects.locations.networkPolicies.externalAccessRules)
 
+
 ## Example Usage - Vmware Engine External Access Rule Basic
 
 
@@ -62,6 +63,7 @@ resource "google_vmwareengine_external_access_rule" "vmw-engine-external-access-
   destination_ports = ["433"]
 }
 ```
+
 ## Example Usage - Vmware Engine External Access Rule Full
 
 

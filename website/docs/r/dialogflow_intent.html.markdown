@@ -31,6 +31,7 @@ To get more information about Intent, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dialogflow/docs/)
 
+
 ## Example Usage - Dialogflow Intent Basic
 
 
@@ -46,6 +47,7 @@ resource "google_dialogflow_intent" "basic_intent" {
   display_name = "basic-intent"
 }
 ```
+
 ## Example Usage - Dialogflow Intent Full
 
 

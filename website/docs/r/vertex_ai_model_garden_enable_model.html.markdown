@@ -42,6 +42,7 @@ To get more information about ModelGardenEnableModel, see:
     * [Overview of Model Garden](https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/explore-models)
     * [Use models in Model Garden](https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/use-models)
 
+
 ## Example Usage - Vertex Ai Model Garden Enable Model Basic
 
 

@@ -32,6 +32,7 @@ To get more information about EndpointAttachment, see:
 * How-to Guides
     * [Creating an environment](https://cloud.google.com/apigee/docs/api-platform/get-started/create-environment)
 
+
 ## Example Usage - Apigee Endpoint Attachment Basic
 
 

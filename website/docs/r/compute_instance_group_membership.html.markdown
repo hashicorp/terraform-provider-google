@@ -41,6 +41,7 @@ To get more information about InstanceGroupMembership, see:
     * [List instances](https://cloud.google.com/compute/docs/reference/rest/v1/instanceGroups/listInstances)
     * [Remove instances](https://cloud.google.com/compute/docs/reference/rest/v1/instanceGroups/removeInstances)
 
+
 ## Example Usage - Instance Group Membership
 
 

@@ -45,6 +45,7 @@ Your account must have the `serviceusage.services.use` permission on the
 ~> **Note:** When importing this resource by ID, use only the numeric access policy ID
 (for example, `123456789`) and omit the `accessPolicies/` prefix.
 
+
 ## Example Usage - Access Context Manager Access Policy Basic
 
 
@@ -54,6 +55,7 @@ resource "google_access_context_manager_access_policy" "access-policy" {
   title  = "Org Access Policy"
 }
 ```
+
 ## Example Usage - Access Context Manager Access Policy Scoped
 
 

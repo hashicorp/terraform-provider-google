@@ -30,6 +30,7 @@ To get more information about DashboardChart, see:
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
+
 ## Example Usage - Chronicle Dashboardchart Basic
 
 
@@ -118,6 +119,7 @@ resource "google_chronicle_dashboard_chart" "my_chart" {
   }
 }
 ```
+
 ## Example Usage - Chronicle Dashboardchart Full
 
 

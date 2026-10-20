@@ -25,6 +25,7 @@ Manages Cloud Observability settings for a project.
 
 
 
+
 ## Example Usage - Observability Project Settings Basic
 
 
@@ -84,6 +85,7 @@ resource "google_observability_project_settings" "primary" {
   ]
 }
 ```
+
 ## Example Usage - Observability Project Settings Basic Global
 
 

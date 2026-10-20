@@ -30,6 +30,7 @@ To get more information about ManagedZone, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/integration-connectors/docs)
 
+
 ## Example Usage - Integration Connectors Managed Zone
 
 

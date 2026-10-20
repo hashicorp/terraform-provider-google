@@ -34,6 +34,7 @@ To get more information about DefaultBucket, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/storage/)
 
+
 ## Example Usage - Firebasestorage Default Bucket Basic
 
 

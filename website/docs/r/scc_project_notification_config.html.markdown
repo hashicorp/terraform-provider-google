@@ -36,6 +36,7 @@ To get more information about ProjectNotificationConfig, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/security-command-center/docs)
 
+
 ## Example Usage - Scc Project Notification Config Basic
 
 

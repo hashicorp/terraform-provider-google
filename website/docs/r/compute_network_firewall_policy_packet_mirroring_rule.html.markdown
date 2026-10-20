@@ -30,6 +30,7 @@ To get more information about NetworkFirewallPolicyPacketMirroringRule, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/networkFirewallPolicies/addPacketMirroringRule)
 
+
 ## Example Usage - Compute Network Firewall Policy Packet Mirroring Rule
 
 

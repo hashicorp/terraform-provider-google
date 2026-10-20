@@ -30,6 +30,7 @@ To get more information about DataAccessScope, see:
 * How-to Guides
     * [Introduction to data RBAC](https://cloud.google.com/chronicle/docs/onboard/onboard-datarbac)
 
+
 ## Example Usage - Chronicle Dataaccessscope With Logtype
 
 
@@ -47,6 +48,7 @@ resource "google_chronicle_data_access_scope" "example" {
   }
 }
 ```
+
 ## Example Usage - Chronicle Dataaccessscope With Dataaccesslabel
 
 
@@ -68,6 +70,7 @@ resource "google_chronicle_data_access_scope" "example" {
   }
 }
 ```
+
 ## Example Usage - Chronicle Dataaccessscope With Asset Namespace
 
 
@@ -82,6 +85,7 @@ resource "google_chronicle_data_access_scope" "example" {
   }
 }
 ```
+
 ## Example Usage - Chronicle Dataaccessscope With Ingestion Label
 
 
@@ -99,6 +103,7 @@ resource "google_chronicle_data_access_scope" "example" {
   }
 }
 ```
+
 ## Example Usage - Chronicle Dataaccessscope With Denied Labels
 
 

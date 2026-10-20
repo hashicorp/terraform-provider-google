@@ -40,6 +40,7 @@ values will be stored in the raw state as plain text: `oidc.client_secret.value.
 ~> **Note:**  All arguments marked as write-only values will not be stored in the state: `oidc.client_secret.value.plain_text_wo`, `extra_attributes_oauth2_client.client_secret.value.plain_text_wo`, `extended_attributes_oauth2_client.client_secret.value.plain_text_wo`.
 [Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
 
+
 ## Example Usage - Iam Workforce Pool Provider Saml Basic
 
 
@@ -62,6 +63,7 @@ resource "google_iam_workforce_pool_provider" "example" {
   }
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Provider Saml Full
 
 
@@ -101,6 +103,7 @@ resource "google_iam_workforce_pool_provider" "example" {
   attribute_condition = "true"
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Provider Oidc Basic
 
 
@@ -133,6 +136,7 @@ resource "google_iam_workforce_pool_provider" "example" {
   }
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Provider Oidc Full
 
 
@@ -183,6 +187,7 @@ resource "google_iam_workforce_pool_provider" "example" {
   attribute_condition = "true"
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Provider Extra Attributes Oauth2 Config Client Basic
 
 
@@ -225,6 +230,7 @@ resource "google_iam_workforce_pool_provider" "example" {
   }
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Provider Extra Attributes Oauth2 Config Client Full
 
 
@@ -270,6 +276,7 @@ resource "google_iam_workforce_pool_provider" "example" {
   }
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Provider Extra Attributes Display Name Oauth2 Config Client Basic
 
 
@@ -312,6 +319,7 @@ resource "google_iam_workforce_pool_provider" "example" {
   }
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Provider Extra Attributes Display Name Oauth2 Config Client Full
 
 
@@ -357,6 +365,7 @@ resource "google_iam_workforce_pool_provider" "example" {
   }
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Provider Extended Attributes Oauth2 Config Client Basic
 
 
@@ -399,6 +408,7 @@ resource "google_iam_workforce_pool_provider" "example" {
   }
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Provider Extended Attributes Oauth2 Config Client Full
 
 
@@ -444,6 +454,7 @@ resource "google_iam_workforce_pool_provider" "example" {
   }
 }
 ```
+
 ## Example Usage - Iam Workforce Pool Provider Oidc Detailed Audit Logging
 
 

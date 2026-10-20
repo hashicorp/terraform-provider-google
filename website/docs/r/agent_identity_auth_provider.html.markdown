@@ -32,6 +32,7 @@ values will be stored in the raw state as plain text: `auth_provider_type_params
 ~> **Note:**  All arguments marked as write-only values will not be stored in the state: `auth_provider_type_params.three_legged_oauth.client_secret_wo`, `auth_provider_type_params.two_legged_oauth.client_secret_wo`.
 [Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
 
+
 ## Example Usage - Agent Identity Auth Provider Basic
 
 

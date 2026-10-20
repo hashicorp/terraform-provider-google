@@ -31,6 +31,7 @@ To get more information about Parser, see:
 * How-to Guides
     * [Custom parsers overview](https://cloud.google.com/chronicle/docs/detection/custom-parsers-overview)
 
+
 ## Example Usage - Chronicle Parser Basic
 
 
@@ -43,6 +44,7 @@ resource "google_chronicle_parser" "example" {
   cbn = "ZHVtbXkgcGFyc2VyIGNvbmZpZw==" # Base64 encoded "dummy parser config"
 }
 ```
+
 ## Example Usage - Chronicle Parser Full
 
 

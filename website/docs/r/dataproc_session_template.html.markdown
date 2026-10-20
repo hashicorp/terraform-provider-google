@@ -32,6 +32,7 @@ To get more information about SessionTemplate, see:
 * How-to Guides
     * [Dataproc Serverless Session Templates](https://cloud.google.com/dataproc-serverless/docs/guides/create-serverless-sessions-templates#create-dataproc-serverless-session-template)
 
+
 ## Example Usage - Dataproc Session Templates Jupyter
 
 
@@ -62,6 +63,7 @@ resource "google_dataproc_session_template" "example_session_templates_jupyter" 
     }
 }
 ```
+
 ## Example Usage - Dataproc Session Templates Jupyter Full
 
 
@@ -184,6 +186,7 @@ resource "google_dataproc_metastore_service" "ms" {
   }
 }
 ```
+
 ## Example Usage - Dataproc Session Templates Spark Connect
 
 
