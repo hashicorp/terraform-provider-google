@@ -760,6 +760,111 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
 `, context)
 }
 
+func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaAuditTrailExportOptionsExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"persona_id":     "tf_test_audit_trail" + randomSuffix,
+		"random_suffix":  randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"persona_id":     "tf_test_audit_trail" + randomSuffix,
+		"random_suffix":  randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAgenticApplicationsAnalystAgentPersonaDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaAuditTrailExportOptionsExample(context),
+			},
+			{
+				ResourceName:            "google_agentic_applications_analyst_agent_persona.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"analyst_agent_persona_id", "location"},
+			},
+			{
+				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaAuditTrailExportOptionsUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_agentic_applications_analyst_agent_persona.example", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_agentic_applications_analyst_agent_persona.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"analyst_agent_persona_id", "location"},
+			},
+			{
+				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaAuditTrailExportOptionsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "%{project_number}"
+  location                 = "us"
+  analyst_agent_persona_id = "%{persona_id}"
+  display_name             = "Test Analyst Persona Audit Trail Export"
+  display_description      = "Sample analyst agent persona description"
+  model_description        = "Sample model description"
+  role                     = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+
+  artifacts_config {
+    audit_trail_export_options {
+      append_audit_trail          = true
+      export_format               = "MARKDOWN"
+      export_audit_trail_artifact = true
+    }
+  }
+}
+`, context)
+}
+
+func testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaAuditTrailExportOptionsUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "%{project_number}"
+  location                 = "us"
+  analyst_agent_persona_id = "%{persona_id}"
+  display_name             = "Test Analyst Persona Audit Trail Export Updated"
+  display_description      = "Updated analyst agent persona description"
+  model_description        = "Updated model description"
+  role                     = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+
+  artifacts_config {
+    audit_trail_export_options {
+      append_audit_trail          = false
+      export_format               = "HTML"
+      export_audit_trail_artifact = false
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckAgenticApplicationsAnalystAgentPersonaDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

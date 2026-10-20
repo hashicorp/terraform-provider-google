@@ -338,6 +338,35 @@ Must only be set for file-based resources.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"audit_trail_export_options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Options for audit trail export.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"append_audit_trail": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If true, append the audit trail to the final response.`,
+									},
+									"export_audit_trail_artifact": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If true, export the audit trail as a separate artifact.`,
+									},
+									"export_format": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Format for audit trail export.
+Possible values:
+MARKDOWN
+HTML
+PDF`,
+									},
+								},
+							},
+						},
 						"document_generation_options": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -2289,6 +2318,8 @@ func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfig(v interface{},
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["audit_trail_export_options"] =
+		flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptions(original["auditTrailExportOptions"], d, config)
 	transformed["document_generation_options"] =
 		flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigDocumentGenerationOptions(original["documentGenerationOptions"], d, config)
 	transformed["methodology_export_options"] =
@@ -2299,6 +2330,35 @@ func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfig(v interface{},
 		flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigVisualizationOptions(original["visualizationOptions"], d, config)
 	return []interface{}{transformed}
 }
+func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["append_audit_trail"] =
+		flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsAppendAuditTrail(original["appendAuditTrail"], d, config)
+	transformed["export_audit_trail_artifact"] =
+		flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsExportAuditTrailArtifact(original["exportAuditTrailArtifact"], d, config)
+	transformed["export_format"] =
+		flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsExportFormat(original["exportFormat"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsAppendAuditTrail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsExportAuditTrailArtifact(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsExportFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAgenticApplicationsAnalystAgentPersonaArtifactsConfigDocumentGenerationOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -3762,6 +3822,13 @@ func expandAgenticApplicationsAnalystAgentPersonaArtifactsConfig(v interface{}, 
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedAuditTrailExportOptions, err := expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptions(original["audit_trail_export_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuditTrailExportOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["auditTrailExportOptions"] = transformedAuditTrailExportOptions
+	}
+
 	transformedDocumentGenerationOptions, err := expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigDocumentGenerationOptions(original["document_generation_options"], d, config)
 	if err != nil {
 		return nil, err
@@ -3791,6 +3858,54 @@ func expandAgenticApplicationsAnalystAgentPersonaArtifactsConfig(v interface{}, 
 	}
 
 	return transformed, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAppendAuditTrail, err := expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsAppendAuditTrail(original["append_audit_trail"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAppendAuditTrail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["appendAuditTrail"] = transformedAppendAuditTrail
+	}
+
+	transformedExportAuditTrailArtifact, err := expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsExportAuditTrailArtifact(original["export_audit_trail_artifact"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExportAuditTrailArtifact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exportAuditTrailArtifact"] = transformedExportAuditTrailArtifact
+	}
+
+	transformedExportFormat, err := expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsExportFormat(original["export_format"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExportFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exportFormat"] = transformedExportFormat
+	}
+
+	return transformed, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsAppendAuditTrail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsExportAuditTrailArtifact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigAuditTrailExportOptionsExportFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandAgenticApplicationsAnalystAgentPersonaArtifactsConfigDocumentGenerationOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

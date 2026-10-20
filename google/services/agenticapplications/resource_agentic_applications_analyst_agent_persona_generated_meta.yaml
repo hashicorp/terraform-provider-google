@@ -25,6 +25,9 @@ fields:
     - api_field: artifactExamples.resource.rawFileResource.fileTitle
     - api_field: artifactExamples.resource.rawFileResource.mimeType
     - api_field: artifactExamples.resource.useRag
+    - api_field: artifactsConfig.auditTrailExportOptions.appendAuditTrail
+    - api_field: artifactsConfig.auditTrailExportOptions.exportAuditTrailArtifact
+    - api_field: artifactsConfig.auditTrailExportOptions.exportFormat
     - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.bigqueryResource.bigqueryDataset
     - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.bigqueryResource.bigqueryTable
     - api_field: artifactsConfig.documentGenerationOptions.documentExamples.resource.bigqueryResource.columnDescriptions
