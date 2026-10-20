@@ -74,7 +74,7 @@ resource "google_compute_ssl_certificate" "default" {
   name_prefix            = "my-certificate-"
   description            = "a description"
   private_key_wo         = file("path/to/private.key")
-  private_key_wo_version = parseint(filesha256("path/to/private.key"),16)%pow(2,32)
+  private_key_wo_version = parseint(filesha256("path/to/private.key"),16) % pow(2,32)
   certificate            = file("path/to/certificate.crt")
 
   lifecycle {
