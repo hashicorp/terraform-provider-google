@@ -207,15 +207,23 @@ resource "google_logging_project_exclusion" "basic" {
 }
 
 func testAccLoggingProjectExclusion_multipleCfg(exclusionName string) string {
-	s := ""
-	for i := 0; i < 3; i++ {
-		s += fmt.Sprintf(`
-resource "google_logging_project_exclusion" "basic%d" {
-	name = "%s%d"
+	return fmt.Sprintf(`
+resource "google_logging_project_exclusion" "basic0" {
+	name = "%[1]s0"
 	description = "Basic Project Logging Exclusion"
-	filter = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+	filter = "logName=\"projects/%[2]s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, i, exclusionName, i, envvar.GetTestProjectFromEnv())
-	}
-	return s
+
+resource "google_logging_project_exclusion" "basic1" {
+	name = "%[1]s1"
+	description = "Basic Project Logging Exclusion"
+	filter = "logName=\"projects/%[2]s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+}
+
+resource "google_logging_project_exclusion" "basic2" {
+	name = "%[1]s2"
+	description = "Basic Project Logging Exclusion"
+	filter = "logName=\"projects/%[2]s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+}
+`, exclusionName, envvar.GetTestProjectFromEnv())
 }
