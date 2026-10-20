@@ -15,12 +15,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Cloud (Stackdriver) Logging"
 description: |-
-  Manages a project-level logging exclusion.
+  Manages a logging exclusion in a project's `_Default` log sink.
 ---
 
 # google_logging_project_exclusion
 
-Manages a project-level logging exclusion. For more information see:
+Manages a logging exclusion in a project's `_Default` log sink. This does **not** apply to other log sinks in the project, or to folder/organization-level sinks. For more information see:
 
 * [API documentation](https://cloud.google.com/logging/docs/reference/v2/rest/v2/projects.exclusions)
 * How-to Guides
