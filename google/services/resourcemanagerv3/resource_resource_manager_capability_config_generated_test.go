@@ -64,19 +64,21 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 	context := map[string]interface{}{
 		"org_id":               envvar.GetTestOrgFromEnv(t),
 		"capability_config_id": "tf-test-capcfg" + randomSuffix,
-		"display_name":         "tf-test-capdisp" + randomSuffix,
+		"display_name":         "capdisp",
 		"random_suffix":        randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
 		"org_id":               envvar.GetTestOrgFromEnv(t),
 		"capability_config_id": "tf-test-capcfg" + randomSuffix,
+		"display_name":         "Updated Display Name",
 		"random_suffix":        randomSuffix,
 	}
 
 	context_2 := map[string]interface{}{
 		"org_id":               envvar.GetTestOrgFromEnv(t),
 		"capability_config_id": "tf-test-capcfg" + randomSuffix,
+		"display_name":         nil,
 		"random_suffix":        randomSuffix,
 	}
 
@@ -101,7 +103,7 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigUpdateExample(context_1),
+				Config: testAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBasicExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_resource_manager_capability_config.capability_config", plancheck.ResourceActionUpdate),
@@ -121,7 +123,7 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigNoDisplayNameExample(context_2),
+				Config: testAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBasicExample(context_2),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_resource_manager_capability_config.capability_config", plancheck.ResourceActionUpdate),
@@ -150,27 +152,6 @@ resource "google_resource_manager_capability_config" "capability_config" {
   parent               = "organizations/%{org_id}"
   capability_config_id = "%{capability_config_id}"
   display_name         = "%{display_name}"
-  types                = ["AGENT_MANAGEMENT"]
-}
-`, context)
-}
-
-func testAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_resource_manager_capability_config" "capability_config" {
-  parent               = "organizations/%{org_id}"
-  capability_config_id = "%{capability_config_id}"
-  display_name         = "Updated Display Name"
-  types                = ["AGENT_MANAGEMENT"]
-}
-`, context)
-}
-
-func testAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigNoDisplayNameExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_resource_manager_capability_config" "capability_config" {
-  parent               = "organizations/%{org_id}"
-  capability_config_id = "%{capability_config_id}"
   types                = ["AGENT_MANAGEMENT"]
 }
 `, context)

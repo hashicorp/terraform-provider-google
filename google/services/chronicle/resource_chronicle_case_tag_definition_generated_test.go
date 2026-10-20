@@ -61,13 +61,25 @@ func TestAccChronicleCaseTagDefinition_chronicleCasetagdefinitionUpdateExample(t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": randomSuffix,
+		"chronicle_id":      envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"can_be_case_title": false,
+		"comparison_type":   "EXACT",
+		"display_name":      "tag",
+		"match_criteria":    "BY_VENDOR",
+		"property_name":     nil,
+		"value":             "test_value",
+		"random_suffix":     randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"random_suffix": randomSuffix,
+		"chronicle_id":      envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"can_be_case_title": true,
+		"comparison_type":   "START_WITH",
+		"display_name":      "updated_tag",
+		"match_criteria":    "BY_ENTITY_PROPERTY_NAME",
+		"property_name":     "test_property",
+		"value":             "updated_value",
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -91,7 +103,7 @@ func TestAccChronicleCaseTagDefinition_chronicleCasetagdefinitionUpdateExample(t
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccChronicleCaseTagDefinition_chronicleCasetagdefinitionFullExample(context_1),
+				Config: testAccChronicleCaseTagDefinition_chronicleCasetagdefinitionBasicExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_chronicle_case_tag_definition.example", plancheck.ResourceActionUpdate),
@@ -120,29 +132,13 @@ resource "google_chronicle_case_tag_definition" "example" {
   location = "us"
   instance = "%{chronicle_id}"
 
-  display_name = "tag_%{random_suffix}"
-  match_criteria = "BY_VENDOR"
-  value = "test_value"
-  comparison_type = "EXACT"
+  display_name = "%{display_name}_%{random_suffix}"
+  match_criteria = "%{match_criteria}"
+  property_name = "%{property_name}"
+  value = "%{value}"
+  comparison_type = "%{comparison_type}"
   priority = 1
-  can_be_case_title = false
-}
-`, context)
-}
-
-func testAccChronicleCaseTagDefinition_chronicleCasetagdefinitionFullExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_chronicle_case_tag_definition" "example" {
-  location = "us"
-  instance = "%{chronicle_id}"
-
-  display_name = "updated_tag_%{random_suffix}"
-  match_criteria = "BY_ENTITY_PROPERTY_NAME"
-  property_name = "test_property"
-  value = "updated_value"
-  comparison_type = "START_WITH"
-  priority = 1
-  can_be_case_title = true
+  can_be_case_title = %{can_be_case_title}
 }
 `, context)
 }

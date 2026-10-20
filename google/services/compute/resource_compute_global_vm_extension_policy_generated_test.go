@@ -62,13 +62,23 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyBasicEx
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"policy_name":   "tf-test-global-ops-agent-policy" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"conflict_behavior":       nil,
+		"policy_name":             "tf-test-global-ops-agent-policy" + randomSuffix,
+		"predefined_rollout_plan": "FAST_ROLLOUT",
+		"priority":                10,
+		"retry_uuid":              nil,
+		"string_config":           nil,
+		"random_suffix":           randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"policy_name":   "tf-test-global-ops-agent-policy" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"conflict_behavior":       nil,
+		"policy_name":             "tf-test-global-ops-agent-policy" + randomSuffix,
+		"predefined_rollout_plan": "FAST_ROLLOUT",
+		"priority":                20,
+		"retry_uuid":              nil,
+		"string_config":           "logging:\\n  receivers:\\n    syslog:\\n      type: files\\n      include_paths:\\n      - /var/log/messages\\n",
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -92,7 +102,7 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyBasicEx
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyUpdateExample(context_1),
+				Config: testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyBasicExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_compute_global_vm_extension_policy.ops_agent_policy", plancheck.ResourceActionUpdate),
@@ -120,11 +130,12 @@ func testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyBasicEx
 resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
   name        = "%{policy_name}"
   description = "A basic global VM extension policy"
-  priority    = 10
+  priority    = %{priority}
 
   extension_policies {
     extension_name = "ops-agent"
     pinned_version = "2.66.0"
+    string_config  = "%{string_config}"
   }
 
   instance_selectors {
@@ -137,37 +148,9 @@ resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
 
   rollout_operation {
     rollout_input {
-      predefined_rollout_plan = "FAST_ROLLOUT"
-    }
-  }
-}
-`, context)
-}
-
-func testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  name        = "%{policy_name}"
-  description = "A basic global VM extension policy"
-  priority    = 20
-
-  extension_policies {
-    extension_name = "ops-agent"
-    pinned_version = "2.66.0"
-    string_config  = "logging:\n  receivers:\n    syslog:\n      type: files\n      include_paths:\n      - /var/log/messages\n"
-  }
-
-  instance_selectors {
-    label_selector {
-      inclusion_labels = {
-        env = "test"
-      }
-    }
-  }
-
-  rollout_operation {
-    rollout_input {
-      predefined_rollout_plan = "FAST_ROLLOUT"
+      conflict_behavior       = "%{conflict_behavior}"
+      predefined_rollout_plan = "%{predefined_rollout_plan}"
+      retry_uuid              = "%{retry_uuid}"
     }
   }
 }
@@ -180,13 +163,23 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyRollout
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"policy_name":   "tf-test-global-ops-agent-policy" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"conflict_behavior":       nil,
+		"policy_name":             "tf-test-global-ops-agent-policy" + randomSuffix,
+		"predefined_rollout_plan": "FAST_ROLLOUT",
+		"priority":                10,
+		"retry_uuid":              nil,
+		"string_config":           nil,
+		"random_suffix":           randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"policy_name":   "tf-test-global-ops-agent-policy" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"conflict_behavior":       "overwrite",
+		"policy_name":             "tf-test-global-ops-agent-policy" + randomSuffix,
+		"predefined_rollout_plan": "SLOW_ROLLOUT",
+		"priority":                10,
+		"retry_uuid":              "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+		"string_config":           nil,
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -210,7 +203,7 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyRollout
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyUpdateRolloutExample(context_1),
+				Config: testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyBasicExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_compute_global_vm_extension_policy.ops_agent_policy", plancheck.ResourceActionUpdate),
@@ -231,37 +224,6 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyRollout
 			},
 		},
 	})
-}
-
-func testAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyUpdateRolloutExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_compute_global_vm_extension_policy" "ops_agent_policy" {
-  name        = "%{policy_name}"
-  description = "A basic global VM extension policy"
-  priority    = 10
-
-  extension_policies {
-    extension_name = "ops-agent"
-    pinned_version = "2.66.0"
-  }
-
-  instance_selectors {
-    label_selector {
-      inclusion_labels = {
-        env = "test"
-      }
-    }
-  }
-
-  rollout_operation {
-    rollout_input {
-      conflict_behavior       = "overwrite"
-      predefined_rollout_plan = "SLOW_ROLLOUT"
-      retry_uuid              = "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
-    }
-  }
-}
-`, context)
 }
 
 func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyCustomRolloutExample(t *testing.T) {
