@@ -31,6 +31,7 @@ To get more information about AuthConfig, see:
     * [Manage authentication profiles](https://cloud.google.com/application-integration/docs/configure-authentication-profiles)
     * [Official Documentation](https://cloud.google.com/application-integration/docs/overview)
 
+
 ## Example Usage - Integrations Auth Config Basic
 
 

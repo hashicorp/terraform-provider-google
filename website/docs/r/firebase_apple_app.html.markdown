@@ -32,6 +32,7 @@ To get more information about AppleApp, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/ios/setup)
 
+
 ## Example Usage - Firebase Apple App Basic
 
 
@@ -43,6 +44,7 @@ resource "google_firebase_apple_app" "default" {
   bundle_id = "apple.app.12345"
 }
 ```
+
 ## Example Usage - Firebase Apple App Full
 
 

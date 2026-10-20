@@ -32,6 +32,7 @@ To get more information about QueuedResource, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/tpu/docs/)
 
+
 ## Example Usage - Tpu V2 Queued Resource Basic
 
 
@@ -56,6 +57,7 @@ resource "google_tpu_v2_queued_resource" "qr" {
   }
 }
 ```
+
 ## Example Usage - Tpu V2 Queued Resource Full
 
 

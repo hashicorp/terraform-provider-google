@@ -33,6 +33,7 @@ To get more information about Config, see:
 * How-to Guides
     * [Official Documentation](https://docs.cloud.google.com/dataplex/docs/about-data-lineage#control-lineage-ingestion)
 
+
 ## Example Usage - Data Lineage Config Project
 
 
@@ -72,6 +73,7 @@ resource "google_data_lineage_config" "default" {
   depends_on = [google_project_service.datalineage_api]
 }
 ```
+
 ## Example Usage - Data Lineage Config Folder
 
 
@@ -110,6 +112,7 @@ resource "google_folder_iam_member" "datalineage_admin" {
   member = "serviceAccount:my@service-account.com"
 }
 ```
+
 ## Example Usage - Data Lineage Config Organization
 
 

@@ -30,6 +30,7 @@ To get more information about Repository, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/build/docs)
 
+
 ## Example Usage - Cloudbuildv2 Repository Ghe Doc
 
 
@@ -104,6 +105,7 @@ resource "google_cloudbuildv2_repository" "my-repository" {
   remote_uri = "https://ghe.com/hashicorp/terraform-provider-google.git"
 }
 ```
+
 ## Example Usage - Cloudbuildv2 Repository Github Doc
 
 

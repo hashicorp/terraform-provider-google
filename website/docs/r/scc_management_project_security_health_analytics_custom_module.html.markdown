@@ -35,6 +35,7 @@ To get more information about ProjectSecurityHealthAnalyticsCustomModule, see:
 * How-to Guides
     * [Overview of custom modules for Security Health Analytics](https://cloud.google.com/security-command-center/docs/custom-modules-sha-overview)
 
+
 ## Example Usage - Scc Management Organization Project Security Health Analytics Custom Module Basic
 
 
@@ -58,6 +59,7 @@ resource "google_scc_management_project_security_health_analytics_custom_module"
   }
 }
 ```
+
 ## Example Usage - Scc Management Organization Project Security Health Analytics Custom Module Full
 
 

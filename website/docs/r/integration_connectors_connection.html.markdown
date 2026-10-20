@@ -30,6 +30,7 @@ To get more information about Connection, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/integration-connectors/docs/createconnection)
 
+
 ## Example Usage - Integration Connectors Connection Basic
 
 
@@ -52,6 +53,7 @@ resource "google_integration_connectors_connection" "pubsubconnection" {
   }
 }
 ```
+
 ## Example Usage - Integration Connectors Connection Advanced
 
 

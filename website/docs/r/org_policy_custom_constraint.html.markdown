@@ -31,6 +31,7 @@ To get more information about CustomConstraint, see:
     * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/organization-policy/creating-managing-custom-constraints)
     * [Supported Services](https://docs.cloud.google.com/resource-manager/docs/organization-policy/custom-constraint-supported-services)
 
+
 ## Example Usage - Org Policy Custom Constraint Basic
 
 
@@ -46,6 +47,7 @@ resource "google_org_policy_custom_constraint" "constraint" {
   resource_types = ["container.googleapis.com/NodePool"]
 }
 ```
+
 ## Example Usage - Org Policy Custom Constraint Full
 
 

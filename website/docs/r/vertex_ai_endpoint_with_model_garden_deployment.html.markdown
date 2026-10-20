@@ -32,6 +32,7 @@ To get more information about EndpointWithModelGardenDeployment, see:
     * [Overview of self-deployed models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/self-deployed-models)
     * [Use models in Model Garden](https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/use-models)
 
+
 ## Example Usage - Vertex Ai Deploy Basic
 
 
@@ -44,6 +45,7 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy" {
   }
 }
 ```
+
 ## Example Usage - Vertex Ai Deploy Huggingface Model
 
 
@@ -56,6 +58,7 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy" {
   }
 }
 ```
+
 ## Example Usage - Vertex Ai Deploy With Configs
 
 
@@ -78,6 +81,7 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy" {
   }
 }
 ```
+
 ## Example Usage - Vertex Ai Deploy Multiple Models In Parallel
 
 
@@ -136,6 +140,7 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-llama-
   }
 }
 ```
+
 ## Example Usage - Vertex Ai Deploy Multiple Models In Sequence
 
 
@@ -196,6 +201,7 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy-llama-
   depends_on = [ google_vertex_ai_endpoint_with_model_garden_deployment.deploy-qwen3-0_6b ]
 }
 ```
+
 ## Example Usage - Vertex Ai Deploy Psc Endpoint
 
 
@@ -216,6 +222,7 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "deploy" {
   }
 }
 ```
+
 ## Example Usage - Vertex Ai Deploy Psc Endpoint Automated
 
 

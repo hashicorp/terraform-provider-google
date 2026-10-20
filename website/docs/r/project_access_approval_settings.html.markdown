@@ -28,6 +28,7 @@ To get more information about ProjectSettings, see:
 
 * [API documentation](https://cloud.google.com/access-approval/docs/reference/rest/v1/projects)
 
+
 ## Example Usage - Project Access Approval Full
 
 
@@ -42,6 +43,7 @@ resource "google_project_access_approval_settings" "project_access_approval" {
   }
 }
 ```
+
 ## Example Usage - Project Access Approval Active Key Version
 
 

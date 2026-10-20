@@ -30,6 +30,7 @@ To get more information about OrganizationSecurityPolicy, see:
 * How-to Guides
     * [Creating a firewall policy](https://cloud.google.com/vpc/docs/using-firewall-policies#create-policy)
 
+
 ## Example Usage - Organization Security Policy Basic
 
 
@@ -40,6 +41,7 @@ resource "google_compute_organization_security_policy" "policy" {
   type       = "CLOUD_ARMOR"
 }
 ```
+
 ## Example Usage - Organization Security Policy With Advanced Options
 
 

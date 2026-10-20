@@ -30,6 +30,7 @@ To get more information about OrganizationsPolicyBinding, see:
 * How-to Guides
     * [Apply a policy binding](https://cloud.google.com/iam/docs/principal-access-boundary-policies-create#create_binding)
 
+
 ## Example Usage - Iam Organizations Policy Binding
 
 
@@ -59,6 +60,7 @@ resource "google_iam_organizations_policy_binding" "binding-for-all-org-principa
   }
 }
 ```
+
 ## Example Usage - Iam Organizations Policy Binding Access Policy
 
 

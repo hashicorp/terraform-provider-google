@@ -40,6 +40,7 @@ If you wish to use App Engine, you may instead create a
 `"CLOUD_FIRESTORE"`. Your Firestore location will be the same as
 the App Engine location specified.
 
+
 ## Example Usage - Firestore Document Basic
 
 
@@ -82,6 +83,7 @@ resource "google_firestore_document" "mydoc" {
   fields      = "{\"something\":{\"mapValue\":{\"fields\":{\"akey\":{\"stringValue\":\"avalue\"}}}}}"
 }
 ```
+
 ## Example Usage - Firestore Document Nested Document
 
 

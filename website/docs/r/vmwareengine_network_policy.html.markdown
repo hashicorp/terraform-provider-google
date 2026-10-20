@@ -28,6 +28,7 @@ To get more information about NetworkPolicy, see:
 
 * [API documentation](https://cloud.google.com/vmware-engine/docs/reference/rest/v1/projects.locations.networkPolicies)
 
+
 ## Example Usage - Vmware Engine Network Policy Basic
 
 
@@ -46,6 +47,7 @@ resource "google_vmwareengine_network_policy" "vmw-engine-network-policy" {
     vmware_engine_network = google_vmwareengine_network.network-policy-nw.id
 }
 ```
+
 ## Example Usage - Vmware Engine Network Policy Full
 
 

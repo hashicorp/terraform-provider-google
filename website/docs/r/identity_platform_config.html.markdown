@@ -40,6 +40,7 @@ To get more information about Config, see:
 values will be stored in the raw state as plain text: `client.api_key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+
 ## Example Usage - Identity Platform Config Basic
 
 

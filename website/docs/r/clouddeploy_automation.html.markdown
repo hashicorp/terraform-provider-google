@@ -30,6 +30,7 @@ To get more information about Automation, see:
 * How-to Guides
     * [Automate your deployment](https://cloud.google.com/deploy/docs/automation)
 
+
 ## Example Usage - Clouddeploy Automation Basic
 
 
@@ -88,6 +89,7 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
   }
  }
 ```
+
 ## Example Usage - Clouddeploy Automation Full
 
 

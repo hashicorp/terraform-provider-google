@@ -30,6 +30,7 @@ To get more information about ApiProduct, see:
 * How-to Guides
     * [Creating an API product](https://cloud.google.com/apigee/docs/api-platform/publish/what-api-product)
 
+
 ## Example Usage - Apigee Api Product Basic
 
 
@@ -80,6 +81,7 @@ resource "google_apigee_api_product" "basic_api_product" {
   ]
 }
 ```
+
 ## Example Usage - Apigee Api Product With Legacy Operation
 
 
@@ -166,6 +168,7 @@ resource "google_apigee_api_product" "full_api_product" {
   ]
 }
 ```
+
 ## Example Usage - Apigee Api Product With Attributes
 
 

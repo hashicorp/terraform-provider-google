@@ -31,6 +31,7 @@ To get more information about Policy, see:
     * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/organization-policy/creating-managing-custom-constraints)
     * [Supported Services](https://docs.cloud.google.com/resource-manager/docs/organization-policy/custom-constraint-supported-services)
 
+
 ## Example Usage - Org Policy Policy Enforce
 
 
@@ -53,6 +54,7 @@ resource "google_project" "basic" {
   deletion_policy = "DELETE"
 }
 ```
+
 ## Example Usage - Org Policy Policy Folder
 
 
@@ -76,6 +78,7 @@ resource "google_folder" "basic" {
   deletion_protection = false
 }
 ```
+
 ## Example Usage - Org Policy Policy Organization
 
 
@@ -89,6 +92,7 @@ resource "google_org_policy_policy" "primary" {
   }
 }
 ```
+
 ## Example Usage - Org Policy Policy Project
 
 
@@ -125,6 +129,7 @@ resource "google_project" "basic" {
   deletion_policy = "DELETE"
 }
 ```
+
 ## Example Usage - Org Policy Policy Dry Run Spec
 
 
@@ -159,6 +164,7 @@ resource "google_org_policy_policy" "primary" {
   }
 }
 ```
+
 ## Example Usage - Org Policy Policy Parameters Enforce
 
 

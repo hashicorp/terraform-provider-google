@@ -25,6 +25,7 @@ Container to store and organize immutable and indelible backups.
 
 
 
+
 ## Example Usage - Backup Dr Backup Vault Simple
 
 
@@ -50,6 +51,7 @@ resource "google_backup_dr_backup_vault" "backup-vault-test" {
   allow_missing = "true"
 }
 ```
+
 ## Example Usage - Backup Dr Backup Vault Cmek
 
 

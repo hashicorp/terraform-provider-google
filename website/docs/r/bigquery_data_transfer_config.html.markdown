@@ -38,6 +38,7 @@ values will be stored in the raw state as plain text: `sensitive_params.secret_a
 ~> **Note:**  All arguments marked as write-only values will not be stored in the state: `sensitive_params.secret_access_key_wo`.
 [Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
 
+
 ## Example Usage - Bigquerydatatransfer Config Scheduled Query
 
 
@@ -75,6 +76,7 @@ resource "google_bigquery_dataset" "my_dataset" {
   location      = "asia-northeast1"
 }
 ```
+
 ## Example Usage - Bigquerydatatransfer Config Cmek
 
 
@@ -126,6 +128,7 @@ resource "google_kms_key_ring" "key_ring" {
   location = "us"
 }
 ```
+
 ## Example Usage - Bigquerydatatransfer Config Salesforce
 
 

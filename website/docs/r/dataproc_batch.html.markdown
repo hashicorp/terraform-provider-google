@@ -32,6 +32,7 @@ To get more information about Batch, see:
 * How-to Guides
     * [Dataproc Serverless Batches Intro](https://cloud.google.com/dataproc-serverless/docs/overview)
 
+
 ## Example Usage - Dataproc Batch Spark
 
 
@@ -61,6 +62,7 @@ resource "google_dataproc_batch" "example_batch_spark" {
     }
 }
 ```
+
 ## Example Usage - Dataproc Batch Spark Full
 
 
@@ -173,6 +175,7 @@ resource "google_dataproc_cluster" "basic" {
   }
 }
 ```
+
 ## Example Usage - Dataproc Batch Sparksql
 
 
@@ -201,6 +204,7 @@ resource "google_dataproc_batch" "example_batch_sparsql" {
     }
 }
 ```
+
 ## Example Usage - Dataproc Batch Pyspark
 
 
@@ -233,6 +237,7 @@ resource "google_dataproc_batch" "example_batch_pyspark" {
     }
 }
 ```
+
 ## Example Usage - Dataproc Batch Sparkr
 
 
@@ -261,6 +266,7 @@ resource "google_dataproc_batch" "example_batch_sparkr" {
     }
 }
 ```
+
 ## Example Usage - Dataproc Batch Autotuning
 
 

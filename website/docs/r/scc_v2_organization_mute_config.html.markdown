@@ -34,6 +34,7 @@ To get more information about OrganizationMuteConfig, see:
 
 * [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v2/organizations.muteConfigs)
 
+
 ## Example Usage - Scc V2 Organization Mute Config Basic
 
 

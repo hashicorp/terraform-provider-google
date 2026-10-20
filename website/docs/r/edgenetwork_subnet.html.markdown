@@ -30,6 +30,7 @@ To get more information about Subnet, see:
 * How-to Guides
     * [Create and manage subnetworks](https://cloud.google.com/distributed-cloud/edge/latest/docs/subnetworks#api)
 
+
 ## Example Usage - Edgenetwork Subnet
 
 
@@ -55,6 +56,7 @@ resource "google_edgenetwork_network" "example_network" {
   mtu         = 9000
 }
 ```
+
 ## Example Usage - Edgenetwork Subnet With Vlan Id
 
 

@@ -30,6 +30,7 @@ To get more information about Fleet, see:
 * How-to Guides
     * [Registering a Cluster to a Fleet](https://cloud.google.com/anthos/multicluster-management/connect/registering-a-cluster#register_cluster)
 
+
 ## Example Usage - Gkehub Fleet Basic
 
 

@@ -30,6 +30,7 @@ To get more information about LinkedDataset, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/logging/docs/apis)
 
+
 ## Example Usage - Logging Linked Dataset Basic
 
 
@@ -47,6 +48,7 @@ resource "google_logging_linked_dataset" "logging_linked_dataset" {
   description = "Linked dataset test"
 }
 ```
+
 ## Example Usage - Logging Linked Dataset All Params
 
 

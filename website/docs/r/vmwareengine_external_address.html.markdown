@@ -28,6 +28,7 @@ To get more information about ExternalAddress, see:
 
 * [API documentation](https://cloud.google.com/vmware-engine/docs/reference/rest/v1/projects.locations.privateClouds.externalAddresses)
 
+
 ## Example Usage - Vmware Engine External Address Basic
 
 

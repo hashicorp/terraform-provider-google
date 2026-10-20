@@ -28,6 +28,7 @@ To get more information about PrivateCloud, see:
 
 * [API documentation](https://cloud.google.com/vmware-engine/docs/reference/rest/v1/projects.locations.privateClouds)
 
+
 ## Example Usage - Vmware Engine Private Cloud Basic
 
 
@@ -56,6 +57,7 @@ resource "google_vmwareengine_network" "pc-nw" {
   description = "PC network description."
 }
 ```
+
 ## Example Usage - Vmware Engine Private Cloud Full
 
 

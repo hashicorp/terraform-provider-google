@@ -28,6 +28,7 @@ To get more information about OrganizationSettings, see:
 
 * [API documentation](https://cloud.google.com/access-approval/docs/reference/rest/v1/organizations)
 
+
 ## Example Usage - Organization Access Approval Full
 
 
@@ -46,6 +47,7 @@ resource "google_organization_access_approval_settings" "organization_access_app
   }
 }
 ```
+
 ## Example Usage - Organization Access Approval Active Key Version
 
 

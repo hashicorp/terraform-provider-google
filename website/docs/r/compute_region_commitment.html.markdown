@@ -34,6 +34,7 @@ To get more information about RegionCommitment, see:
 * How-to Guides
     * [Committed use discounts for Compute Engine](https://cloud.google.com/compute/docs/instances/committed-use-discounts-overview)
 
+
 ## Example Usage - Compute Region Commitment Basic
 
 
@@ -51,6 +52,7 @@ resource "google_compute_region_commitment" "foobar" {
   }
 }
 ```
+
 ## Example Usage - Compute Region Commitment Full
 
 

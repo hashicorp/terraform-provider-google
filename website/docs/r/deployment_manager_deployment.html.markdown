@@ -40,6 +40,7 @@ deployments in preview as recreate-only for any update operation other
 than actually deploying an in-preview deployment (i.e. `preview=true` to
 `preview=false`).
 
+
 ## Example Usage - Deployment Manager Deployment Basic
 
 
@@ -59,6 +60,7 @@ resource "google_deployment_manager_deployment" "deployment" {
   }
 }
 ```
+
 ## Example Usage - Deployment Manager Deployment Imports
 
 

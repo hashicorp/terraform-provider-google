@@ -31,6 +31,7 @@ To get more information about ParserExtension, see:
 * How-to Guides
     * [Custom parsers overview](https://cloud.google.com/chronicle/docs/detection/custom-parsers-overview)
 
+
 ## Example Usage - Chronicle Parserextension Basic
 
 
@@ -43,6 +44,7 @@ resource "google_chronicle_parser_extension" "example" {
   cbn_snippet = "ZHVtbXkgZXh0ZW5zaW9uIHNuaXBwZXQ=" # Base64 encoded "dummy extension snippet"
 }
 ```
+
 ## Example Usage - Chronicle Parserextension Full
 
 
@@ -79,6 +81,7 @@ resource "google_chronicle_parser_extension" "example" {
   }
 }
 ```
+
 ## Example Usage - Chronicle Parserextension Dynamic
 
 

@@ -30,6 +30,7 @@ To get more information about CmekConfig, see:
 
 * [API documentation](https://cloud.google.com/generative-ai-app-builder/docs/reference/rest/v1/projects.locations.cmekConfigs)
 
+
 ## Example Usage - Discoveryengine Cmekconfig Default
 
 

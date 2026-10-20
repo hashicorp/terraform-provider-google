@@ -30,6 +30,7 @@ To get more information about PublicAdvertisedPrefix, see:
 * How-to Guides
     * [Using bring your own IP](https://cloud.google.com/vpc/docs/using-bring-your-own-ip)
 
+
 ## Example Usage - Public Advertised Prefixes Basic
 
 
@@ -41,6 +42,7 @@ resource "google_compute_public_advertised_prefix" "prefixes" {
   ip_cidr_range = "127.127.0.0/16"
 }
 ```
+
 ## Example Usage - Public Advertised Prefixes Pdp Scope
 
 
@@ -53,6 +55,7 @@ resource "google_compute_public_advertised_prefix" "prefixes" {
   pdp_scope = "REGIONAL"
 }
 ```
+
 ## Example Usage - Public Advertised Prefixes Ipv6 Access Type
 
 

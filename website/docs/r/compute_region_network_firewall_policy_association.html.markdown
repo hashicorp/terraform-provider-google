@@ -28,6 +28,7 @@ To get more information about RegionNetworkFirewallPolicyAssociation, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/regionNetworkFirewallPolicies/addAssociation)
 
+
 ## Example Usage - Region Network Firewall Policy Association
 
 
@@ -52,6 +53,7 @@ resource "google_compute_region_network_firewall_policy_association" "default" {
   region = "us-west1"
 }
 ```
+
 ## Example Usage - Region Network Firewall Policy Association Priority
 
 

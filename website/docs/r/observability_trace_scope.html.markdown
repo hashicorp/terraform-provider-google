@@ -25,6 +25,7 @@ A trace scope is a collection of resources whose traces are queried together
 
 
 
+
 ## Example Usage - Observability Trace Scope Basic
 
 

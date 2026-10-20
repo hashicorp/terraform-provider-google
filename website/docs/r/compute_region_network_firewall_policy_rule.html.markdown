@@ -28,6 +28,7 @@ To get more information about RegionNetworkFirewallPolicyRule, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/regionNetworkFirewallPolicies/addRule)
 
+
 ## Example Usage - Region Network Firewall Policy Rule
 
 
@@ -99,6 +100,7 @@ resource "google_tags_tag_value" "basic_value" {
   short_name  = "tag-value"
 }
 ```
+
 ## Example Usage - Region Network Firewall Policy Rule Network Scope Egress
 
 
@@ -133,6 +135,7 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
   }
 }
 ```
+
 ## Example Usage - Region Network Firewall Policy Rule Network Scope Ingress
 
 
@@ -173,6 +176,7 @@ resource "google_compute_network" "network" {
   name     = "network"
 }
 ```
+
 ## Example Usage - Region Network Firewall Policy Rule Network Context Egress
 
 
@@ -205,6 +209,7 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
   }
 }
 ```
+
 ## Example Usage - Region Network Firewall Policy Rule Network Context Ingress
 
 
@@ -237,6 +242,7 @@ resource "google_compute_region_network_firewall_policy_rule" "primary" {
   }
 }
 ```
+
 ## Example Usage - Firewall Policy Rule Target Type Internal Managed Lb Instance Regional
 
 

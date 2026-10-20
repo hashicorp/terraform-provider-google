@@ -30,6 +30,7 @@ To get more information about Developer, see:
 * How-to Guides
     * [Creating a developer](https://cloud.google.com/apigee/docs/api-platform/publish/adding-developers-your-api-product)
 
+
 ## Example Usage - Apigee Developer Basic
 
 
@@ -79,6 +80,7 @@ resource "google_apigee_developer" "apigee_developer" {
   ]
 }
 ```
+
 ## Example Usage - Apigee Developer With Attributes
 
 

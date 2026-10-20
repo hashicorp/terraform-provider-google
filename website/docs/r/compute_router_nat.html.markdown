@@ -33,6 +33,7 @@ To get more information about RouterNat, see:
 * How-to Guides
     * [Google Cloud Router](https://cloud.google.com/router/docs/)
 
+
 ## Example Usage - Router Nat Basic
 
 
@@ -71,6 +72,7 @@ resource "google_compute_router_nat" "nat" {
   }
 }
 ```
+
 ## Example Usage - Router Nat Manual Ips
 
 
@@ -117,6 +119,7 @@ resource "google_compute_router_nat" "nat_manual" {
   }
 }
 ```
+
 ## Example Usage - Router Nat Rules
 
 
@@ -180,6 +183,7 @@ resource "google_compute_router_nat" "nat_rules" {
   enable_endpoint_independent_mapping = false
 }
 ```
+
 ## Example Usage - Router Nat Private
 
 

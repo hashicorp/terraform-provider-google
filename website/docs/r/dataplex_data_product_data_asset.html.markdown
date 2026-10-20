@@ -30,6 +30,7 @@ To get more information about DataProductDataAsset, see:
 * How-to Guides
     * [Official Documentation](https://docs.cloud.google.com/dataplex/docs/manage-data-products)
 
+
 ## Example Usage - Dataplex Data Product Data Asset Basic
 
 
@@ -67,6 +68,7 @@ resource "google_dataplex_data_product_data_asset" "example" {
 
 }
 ```
+
 ## Example Usage - Dataplex Data Product Data Asset Full
 
 

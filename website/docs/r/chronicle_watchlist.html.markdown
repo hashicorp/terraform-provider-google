@@ -30,6 +30,7 @@ To get more information about Watchlist, see:
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
+
 ## Example Usage - Chronicle Watchlist Basic
 
 
@@ -51,6 +52,7 @@ resource "google_chronicle_watchlist" "example" {
   }
 }
 ```
+
 ## Example Usage - Chronicle Watchlist Without Id
 
 

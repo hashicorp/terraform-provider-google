@@ -33,6 +33,7 @@ To get more information about Service, see:
 ~> **Warning:** We recommend using the `google_cloud_run_v2_service` resource which offers a better
 developer experience and broader support of Cloud Run features.
 
+
 ## Example Usage - Cloud Run Service Basic
 
 
@@ -55,6 +56,7 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+
 ## Example Usage - Cloud Run Service Gpu
 
 
@@ -93,11 +95,12 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloud_run_service_sql&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloud_run_service_sql&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
 </div>
+
 ## Example Usage - Cloud Run Service Sql
 
 
@@ -135,6 +138,7 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection  = true
 }
 ```
+
 ## Example Usage - Cloud Run Service Noauth
 
 
@@ -170,11 +174,12 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   policy_data = data.google_iam_policy.noauth.policy_data
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloud_run_service_probes&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloud_run_service_probes&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
 </div>
+
 ## Example Usage - Cloud Run Service Probes
 
 
@@ -217,6 +222,7 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+
 ## Example Usage - Cloud Run Service Readiness Probe
 
 
@@ -254,6 +260,7 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+
 ## Example Usage - Cloud Run Service Multicontainer
 
 
@@ -315,6 +322,7 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+
 ## Example Usage - Cloud Run Service Iap
 
 
@@ -338,6 +346,7 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+
 ## Example Usage - Cloud Run Service Sandbox
 
 

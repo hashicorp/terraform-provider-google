@@ -41,6 +41,7 @@ in the provider configuration. Otherwise the ACM API will return a 403 error.
 Your account must have the `serviceusage.services.use` permission on the
 `billing_project_id` you defined.
 
+
 ## Example Usage - Network Security Firewall Endpoint Basic
 
 
@@ -56,6 +57,7 @@ resource "google_network_security_firewall_endpoint" "default" {
   }
 }
 ```
+
 ## Example Usage - Network Security Firewall Endpoint Project
 
 

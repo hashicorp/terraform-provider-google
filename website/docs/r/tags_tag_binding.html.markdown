@@ -30,6 +30,7 @@ To get more information about TagBinding, see:
 * How-to Guides
     * [Official Documentation](https://docs.cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
 
+
 ## Example Usage - Tag Binding Basic
 
 
@@ -59,6 +60,7 @@ resource "google_tags_tag_binding" "binding" {
   tag_value = google_tags_tag_value.value.id
 }
 ```
+
 ## Example Usage - Tag Binding Using Dynamic Tag Value
 
 

@@ -30,6 +30,7 @@ To get more information about FeaturestoreEntitytype, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vertex-ai/docs)
 
+
 ## Example Usage - Vertex Ai Featurestore Entitytype
 
 
@@ -74,6 +75,7 @@ resource "google_vertex_ai_featurestore_entitytype" "entity" {
   }
 }
 ```
+
 ## Example Usage - Vertex Ai Featurestore Entitytype With Beta Fields
 
 

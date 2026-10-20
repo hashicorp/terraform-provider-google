@@ -25,6 +25,7 @@ Description
 
 
 
+
 ## Example Usage - Developer Connect Insights Config Basic
 
 
@@ -173,6 +174,7 @@ resource "google_developer_connect_insights_config" "insights_config" {
   depends_on = [time_sleep.wait_for_propagation]
 }
 ```
+
 ## Example Usage - Developer Connect Insights Config Projects
 
 

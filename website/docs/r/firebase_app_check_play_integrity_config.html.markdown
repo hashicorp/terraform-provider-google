@@ -31,6 +31,7 @@ To get more information about PlayIntegrityConfig, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/app-check)
 
+
 ## Example Usage - Firebase App Check Play Integrity Config Minimal
 
 
@@ -76,6 +77,7 @@ resource "google_firebase_app_check_play_integrity_config" "default" {
   }
 }
 ```
+
 ## Example Usage - Firebase App Check Play Integrity Config Full
 
 

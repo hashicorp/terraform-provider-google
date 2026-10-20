@@ -28,6 +28,7 @@ To get more information about RepositoryGroup, see:
 
 * [API documentation](https://cloud.google.com/gemini/docs/api/reference/rest/v1/projects.locations.codeRepositoryIndexes.repositoryGroups)
 
+
 ## Example Usage - Gemini Repository Group Basic
 
 

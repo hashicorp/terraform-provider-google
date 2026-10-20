@@ -30,6 +30,7 @@ To get more information about BigQueryExport, see:
 * How-to Guides
     * [BigQuery Export Overview](https://cloud.google.com/chronicle/docs/secops/bigquery-export-overview)
 
+
 ## Example Usage - Chronicle Bigquery Export Basic
 
 
@@ -44,6 +45,7 @@ resource "google_chronicle_big_query_export" "example" {
   }
 }
 ```
+
 ## Example Usage - Chronicle Bigquery Export Full
 
 

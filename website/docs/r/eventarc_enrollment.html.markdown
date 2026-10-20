@@ -30,6 +30,7 @@ To get more information about Enrollment, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/eventarc/advanced/docs/receive-events/create-enrollment)
 
+
 ## Example Usage - Eventarc Enrollment With Pipeline Destination
 
 

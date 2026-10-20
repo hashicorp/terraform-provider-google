@@ -28,6 +28,7 @@ To get more information about HiveDatabase, see:
 * How-to Guides
     * [QUICKSTART_TITLE](https://docs.cloud.google.com/lakehouse/docs/about-spark-hive-metastore)
 
+
 ## Example Usage - Biglake Hive Database
 
 

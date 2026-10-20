@@ -30,6 +30,7 @@ To get more information about CodeRepositoryIndex, see:
 * How-to Guides
     * [Gemini Code Assist overview](https://cloud.google.com/gemini/docs/codeassist/overview)
 
+
 ## Example Usage - Gemini Code Repository Index Basic
 
 

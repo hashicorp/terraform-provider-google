@@ -36,6 +36,7 @@ in the provider configuration. Otherwise the Cloud Identity API will return a 40
 Your account must have the `serviceusage.services.use` permission on the
 `billing_project` you defined.
 
+
 ## Example Usage - Cloud Identity Group Membership
 
 
@@ -80,6 +81,7 @@ resource "google_cloud_identity_group_membership" "cloud_identity_group_membersh
   }
 }
 ```
+
 ## Example Usage - Cloud Identity Group Membership User
 
 

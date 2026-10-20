@@ -30,6 +30,7 @@ To get more information about OrganizationSecurityPolicyRule, see:
 * How-to Guides
     * [Configure hierarchical security policies](https://docs.cloud.google.com/armor/docs/hierarchical-policies-using)
 
+
 ## Example Usage - Organization Security Policy Rule Basic
 
 
@@ -53,6 +54,7 @@ resource "google_compute_organization_security_policy_rule" "policy" {
   priority = 100
 }
 ```
+
 ## Example Usage - Organization Security Policy Rule Expression
 
 
@@ -76,6 +78,7 @@ resource "google_compute_organization_security_policy_rule" "policy" {
   priority = 100
 }
 ```
+
 ## Example Usage - Organization Security Policy Rule With Preconfigured Waf Config
 
 
@@ -121,6 +124,7 @@ resource "google_compute_organization_security_policy_rule" "policy" {
   priority = 100
 }
 ```
+
 ## Example Usage - Organization Security Policy Rule With Header Action
 
 
@@ -156,6 +160,7 @@ resource "google_compute_organization_security_policy_rule" "policy" {
   priority = 100
 }
 ```
+
 ## Example Usage - Organization Security Policy Rule With Redirect
 
 
@@ -185,6 +190,7 @@ resource "google_compute_organization_security_policy_rule" "policy" {
   priority = 100
 }
 ```
+
 ## Example Usage - Organization Security Policy Rule Firewall
 
 

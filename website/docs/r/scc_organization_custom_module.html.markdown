@@ -35,6 +35,7 @@ To get more information about OrganizationCustomModule, see:
 * How-to Guides
     * [Overview of custom modules for Security Health Analytics](https://cloud.google.com/security-command-center/docs/custom-modules-sha-overview)
 
+
 ## Example Usage - Scc Organization Custom Module Basic
 
 
@@ -58,6 +59,7 @@ resource "google_scc_organization_custom_module" "example" {
   }
 }
 ```
+
 ## Example Usage - Scc Organization Custom Module Full
 
 

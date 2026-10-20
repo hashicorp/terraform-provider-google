@@ -32,6 +32,7 @@ To get more information about Datastore, see:
 * How-to Guides
     * [Export analytics data](https://cloud.google.com/apigee/docs/api-platform/analytics/analytics-export)
 
+
 ## Example Usage - Apigee Datastore Basic
 
 
@@ -80,6 +81,7 @@ resource "google_apigee_datastore" "apigee_datastore" {
   }
 }
 ```
+
 ## Example Usage - Apigee Datastore Bigquery
 
 

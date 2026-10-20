@@ -31,6 +31,7 @@ To get more information about WorkforcePoolProviderScimTenant, see:
 * How-to Guides
     * [Configure a SCIM Tenant](https://cloud.google.com/iam/docs/workforce-sign-in-microsoft-entra-id-scalable-groups?group_type=extended#extended-attributes)
 
+
 ## Example Usage - Iam Workforce Pool Provider Scim Tenant Basic
 
 

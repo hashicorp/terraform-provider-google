@@ -25,6 +25,7 @@ A support event subscription for receiving notifications from Cloud Support API.
 
 
 
+
 ## Example Usage - Cloud Support Event Subscription Basic
 
 
@@ -57,6 +58,7 @@ resource "google_cloud_support_support_event_subscription" "subscription" {
   ]
 }
 ```
+
 ## Example Usage - Cloud Support Event Subscription Update
 
 

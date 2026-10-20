@@ -25,6 +25,7 @@ A Managed Service for Kafka Connect Connectors.
 
 
 
+
 ## Example Usage - Managedkafka Connector Basic
 
 

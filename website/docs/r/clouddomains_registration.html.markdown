@@ -34,6 +34,7 @@ To get more information about Registration, see:
 `terraform destroy`. Instead it will "abandon" the resource and remove it from state.
 For information on deleting a registered domain, see https://cloud.google.com/domains/docs/delete-domain
 
+
 ## Example Usage - Clouddomains Registration Full
 
 

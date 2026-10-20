@@ -28,6 +28,7 @@ A Certificate corresponds to a signed X.509 certificate issued by a Certificate.
 
 
 
+
 ## Example Usage - Privateca Certificate Generated Key
 
 
@@ -136,6 +137,7 @@ resource "google_privateca_certificate" "default" {
   }
 }
 ```
+
 ## Example Usage - Privateca Certificate With Template
 
 
@@ -273,6 +275,7 @@ resource "google_privateca_certificate" "default" {
   certificate_template = google_privateca_certificate_template.default.id
 }
 ```
+
 ## Example Usage - Privateca Certificate Csr
 
 
@@ -334,6 +337,7 @@ resource "google_privateca_certificate" "default" {
   pem_csr = file("test-fixtures/rsa_csr.pem")
 }
 ```
+
 ## Example Usage - Privateca Certificate No Authority
 
 
@@ -427,6 +431,7 @@ resource "google_privateca_certificate" "default" {
   depends_on = [google_privateca_certificate_authority.default]
 }
 ```
+
 ## Example Usage - Privateca Certificate Custom Ski
 
 
@@ -523,6 +528,7 @@ resource "google_privateca_certificate" "default" {
   depends_on = [google_privateca_certificate_authority.default]
 }
 ```
+
 ## Example Usage - Privateca Certificate Subject Config Org Optional
 
 
@@ -608,6 +614,7 @@ resource "google_privateca_certificate" "default" {
   depends_on = [google_privateca_certificate_authority.default]
 }
 ```
+
 ## Example Usage - Privateca Certificate With Requested Not Before Time
 
 

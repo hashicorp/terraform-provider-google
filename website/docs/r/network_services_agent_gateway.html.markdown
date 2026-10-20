@@ -28,6 +28,7 @@ To get more information about AgentGateway, see:
 
 * [API documentation](https://cloud.google.com/network-services/docs/reference/network-services/rest/v1/projects.locations.agentGateways)
 
+
 ## Example Usage - Network Services Agent Gateway Full
 
 
@@ -117,6 +118,7 @@ resource "google_dns_managed_zone" "default" {
   }
 }
 ```
+
 ## Example Usage - Network Services Agent Gateway Client To Agent
 
 
@@ -141,6 +143,7 @@ resource "google_project_service" "agent_registry" {
   disable_on_destroy = false
 }
 ```
+
 ## Example Usage - Network Services Agent Gateway Self Managed
 
 

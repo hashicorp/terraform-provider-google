@@ -30,6 +30,7 @@ To get more information about Subnet, see:
 
 * [API documentation](https://cloud.google.com/vmware-engine/docs/reference/rest/v1/projects.locations.privateClouds.subnets)
 
+
 ## Example Usage - Vmware Engine Subnet User Defined
 
 

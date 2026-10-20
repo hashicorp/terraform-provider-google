@@ -33,6 +33,7 @@ To get more information about DataAsset, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dataplex/docs)
 
+
 ## Example Usage - Dataplex Data Asset Basic
 
 
@@ -73,6 +74,7 @@ resource "google_dataplex_data_asset" "example" {
   provider = google-beta
 }
 ```
+
 ## Example Usage - Dataplex Data Asset Full
 
 

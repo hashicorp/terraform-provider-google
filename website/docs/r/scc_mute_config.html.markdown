@@ -34,6 +34,7 @@ To get more information about MuteConfig, see:
 
 * [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v1/organizations.muteConfigs)
 
+
 ## Example Usage - Scc Mute Config
 
 

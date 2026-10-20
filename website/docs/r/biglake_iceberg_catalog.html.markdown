@@ -34,6 +34,7 @@ in the provider configuration. Otherwise the IAM API will return 403s.
 Your account must have the `serviceusage.services.use` permission on the
 `billing_project` you defined.
 
+
 ## Example Usage - Biglake Iceberg Catalog
 
 
@@ -63,6 +64,7 @@ resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
 #  member = "serviceAccount:${google_biglake_iceberg_catalog.my_iceberg_catalog.biglake_service_account}"
 #}
 ```
+
 ## Example Usage - Biglake Iceberg Catalog Primary Location
 
 
@@ -84,6 +86,7 @@ resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
     ]
 }
 ```
+
 ## Example Usage - Biglake Iceberg Catalog Biglake
 
 
@@ -115,6 +118,7 @@ resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
     }
 }
 ```
+
 ## Example Usage - Biglake Iceberg Catalog Federated Unity
 
 
@@ -138,6 +142,7 @@ resource "google_biglake_iceberg_catalog" "my_iceberg_catalog" {
   }
 }
 ```
+
 ## Example Usage - Biglake Iceberg Catalog Federated Glue
 
 

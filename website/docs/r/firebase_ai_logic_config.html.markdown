@@ -39,6 +39,7 @@ values will be stored in the raw state as plain text: `generative_language_confi
 ~> **Note:**  All arguments marked as write-only values will not be stored in the state: `generative_language_config.api_key_wo`.
 [Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
 
+
 ## Example Usage - Firebaseailogic Config Basic
 
 
@@ -92,6 +93,7 @@ resource "google_firebase_ai_logic_config" "default" {
   depends_on = [time_sleep.wait_30s]
 }
 ```
+
 ## Example Usage - Firebaseailogic Config Full
 
 

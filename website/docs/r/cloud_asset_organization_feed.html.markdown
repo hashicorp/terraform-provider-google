@@ -30,6 +30,7 @@ To get more information about OrganizationFeed, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/asset-inventory/docs)
 
+
 ## Example Usage - Cloud Asset Organization Feed
 
 

@@ -30,6 +30,7 @@ To get more information about ReservationAssignment, see:
 * How-to Guides
     * [Work with reservation assignments](https://cloud.google.com/bigquery/docs/reservations-assignments)
 
+
 ## Example Usage - Bigquery Reservation Assignment Basic
 
 

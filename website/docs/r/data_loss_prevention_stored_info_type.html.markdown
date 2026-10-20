@@ -30,6 +30,7 @@ To get more information about StoredInfoType, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dlp/docs/creating-stored-infotypes)
 
+
 ## Example Usage - Dlp Stored Info Type Basic
 
 
@@ -45,6 +46,7 @@ resource "google_data_loss_prevention_stored_info_type" "basic" {
 	}
 }
 ```
+
 ## Example Usage - Dlp Stored Info Type Dictionary
 
 
@@ -61,6 +63,7 @@ resource "google_data_loss_prevention_stored_info_type" "dictionary" {
 	}
 }
 ```
+
 ## Example Usage - Dlp Stored Info Type Large Custom Dictionary
 
 
@@ -92,6 +95,7 @@ resource "google_storage_bucket_object" "object" {
   source = "./test-fixtures/words.txt"
 }
 ```
+
 ## Example Usage - Dlp Stored Info Type With Id
 
 

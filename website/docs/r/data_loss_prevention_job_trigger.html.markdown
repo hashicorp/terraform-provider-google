@@ -30,6 +30,7 @@ To get more information about JobTrigger, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dlp/docs/creating-job-triggers)
 
+
 ## Example Usage - Dlp Job Trigger Basic
 
 
@@ -67,6 +68,7 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 	}
 }
 ```
+
 ## Example Usage - Dlp Job Trigger Bigquery Row Limit
 
 
@@ -109,6 +111,7 @@ resource "google_data_loss_prevention_job_trigger" "bigquery_row_limit" {
 	}
 }
 ```
+
 ## Example Usage - Dlp Job Trigger Bigquery Row Limit Percentage
 
 
@@ -151,6 +154,7 @@ resource "google_data_loss_prevention_job_trigger" "bigquery_row_limit_percentag
 	}
 }
 ```
+
 ## Example Usage - Dlp Job Trigger Job Notification Emails
 
 
@@ -181,6 +185,7 @@ resource "google_data_loss_prevention_job_trigger" "job_notification_emails" {
   }
 }
 ```
+
 ## Example Usage - Dlp Job Trigger Deidentify
 
 
@@ -269,6 +274,7 @@ resource "google_bigquery_table" "default" {
   EOF
 }
 ```
+
 ## Example Usage - Dlp Job Trigger Hybrid
 
 
@@ -311,6 +317,7 @@ resource "google_data_loss_prevention_job_trigger" "hybrid_trigger" {
   }
 }
 ```
+
 ## Example Usage - Dlp Job Trigger Inspect
 
 
@@ -404,6 +411,7 @@ resource "google_data_loss_prevention_job_trigger" "inspect" {
   }
 }
 ```
+
 ## Example Usage - Dlp Job Trigger Publish To Stackdriver
 
 
@@ -434,6 +442,7 @@ resource "google_data_loss_prevention_job_trigger" "publish_to_stackdriver" {
   }
 }
 ```
+
 ## Example Usage - Dlp Job Trigger With Id
 
 
@@ -472,6 +481,7 @@ resource "google_data_loss_prevention_job_trigger" "with_trigger_id" {
   }
 }
 ```
+
 ## Example Usage - Dlp Job Trigger Multiple Actions
 
 
@@ -517,6 +527,7 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 	}
 }
 ```
+
 ## Example Usage - Dlp Job Trigger Cloud Storage Optional Timespan Autopopulation
 
 
@@ -558,6 +569,7 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 	}
 }
 ```
+
 ## Example Usage - Dlp Job Trigger Timespan Config Big Query
 
 

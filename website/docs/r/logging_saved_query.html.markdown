@@ -32,6 +32,7 @@ To get more information about SavedQuery, see:
     * [Save and share SQL queries](https://docs.cloud.google.com/logging/docs/analyze/save-share-query)
     * [Save and share queries](https://docs.cloud.google.com/logging/docs/view/building-queries#saved-queries)
 
+
 ## Example Usage - Logging Saved Query Basic
 
 
@@ -48,6 +49,7 @@ resource "google_logging_saved_query" "saved_query" {
   visibility = "SHARED"
 }
 ```
+
 ## Example Usage - Logging Saved Query Private
 
 
@@ -64,6 +66,7 @@ resource "google_logging_saved_query" "saved_query" {
   visibility = "PRIVATE"
 }
 ```
+
 ## Example Usage - Logging Saved Query Summary Fields
 
 
@@ -87,6 +90,7 @@ resource "google_logging_saved_query" "saved_query" {
   visibility = "SHARED"
 }
 ```
+
 ## Example Usage - Logging Saved Query Sql Basic
 
 

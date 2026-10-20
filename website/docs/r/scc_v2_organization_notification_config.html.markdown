@@ -30,6 +30,7 @@ To get more information about OrganizationNotificationConfig, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/security-command-center/docs)
 
+
 ## Example Usage - Scc V2 Organization Notification Config Basic
 
 

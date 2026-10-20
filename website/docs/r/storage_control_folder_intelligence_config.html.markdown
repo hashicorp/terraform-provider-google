@@ -30,6 +30,7 @@ Storage Intelligence is for Storage Admins to manage GCP storage assets at scale
 ~> **Warning:** Storage Intelligence Config is a singleton resource which cannot be created or deleted. A single instance of Storage Intelligence Config exist for each GCP Folder. Terraform does not create or destroy this resource.
 Terraform resource creation for this resource is simply an update operation on existing resource with specified properties, absense of any optional field in the create operation will result in clearance of that field. Terraform deletion won't have any effect on this resource rather it will only remove it from the state file.
 
+
 ## Example Usage - Storage Control Folder Intelligence Config Basic
 
 

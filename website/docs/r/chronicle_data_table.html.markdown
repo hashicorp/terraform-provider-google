@@ -30,6 +30,7 @@ To get more information about DataTable, see:
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
+
 ## Example Usage - Chronicle Data Table Basic
 
 
@@ -76,6 +77,7 @@ output "data_table_create_time" {
   value = google_chronicle_data_table.example.create_time
 }
 ```
+
 ## Example Usage - Chronicle Data Table With Optional Fields
 
 

@@ -33,6 +33,7 @@ To get more information about EvaluationMetric, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/evaluation/overview)
 
+
 ## Example Usage - Vertex Ai Evaluation Metric
 
 
@@ -50,6 +51,7 @@ resource "google_vertex_ai_evaluation_metric" "example" {
   })
 }
 ```
+
 ## Example Usage - Vertex Ai Evaluation Metric Full
 
 

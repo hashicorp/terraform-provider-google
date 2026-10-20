@@ -34,6 +34,7 @@ To get more information about ProjectMuteConfig, see:
 
 * [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v2/projects.muteConfigs)
 
+
 ## Example Usage - Scc V2 Project Mute Config Basic
 
 

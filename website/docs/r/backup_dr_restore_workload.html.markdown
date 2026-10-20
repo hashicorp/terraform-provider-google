@@ -31,6 +31,7 @@ The resource represents the restore operation and its result.
 values will be stored in the raw state as plain text: `compute_instance_restore_properties.disks.disk_encryption_key.raw_key`, `compute_instance_restore_properties.disks.disk_encryption_key.rsa_encrypted_key`, `compute_instance_restore_properties.instance_encryption_key.raw_key`, `compute_instance_restore_properties.instance_encryption_key.rsa_encrypted_key`, `disk_restore_properties.disk_encryption_key.raw_key`, `disk_restore_properties.disk_encryption_key.rsa_encrypted_key`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+
 ## Example Usage - Backup Dr Restore Workload Compute Instance Basic
 
 
@@ -52,6 +53,7 @@ resource "google_backup_dr_restore_workload" "restore_compute_basic" {
   }
 }
 ```
+
 ## Example Usage - Backup Dr Restore Workload Compute Instance Full
 
 
@@ -143,6 +145,7 @@ resource "google_backup_dr_restore_workload" "restore_compute_full" {
   }
 }
 ```
+
 ## Example Usage - Backup Dr Restore Workload Disk Basic
 
 
@@ -172,6 +175,7 @@ resource "google_backup_dr_restore_workload" "restore_disk_basic" {
   }
 }
 ```
+
 ## Example Usage - Backup Dr Restore Workload Regional Disk
 
 
@@ -208,6 +212,7 @@ resource "google_backup_dr_restore_workload" "restore_regional_disk" {
   }
 }
 ```
+
 ## Example Usage - Backup Dr Restore Workload Without Delete
 
 

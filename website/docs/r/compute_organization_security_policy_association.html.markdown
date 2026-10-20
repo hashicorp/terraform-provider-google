@@ -30,6 +30,7 @@ To get more information about OrganizationSecurityPolicyAssociation, see:
 * How-to Guides
     * [Associating a policy with the organization or folder](https://cloud.google.com/vpc/docs/using-firewall-policies#associate)
 
+
 ## Example Usage - Organization Security Policy Association Basic
 
 
@@ -52,6 +53,7 @@ resource "google_compute_organization_security_policy_association" "policy" {
   policy_id     = google_compute_organization_security_policy.policy.id
 }
 ```
+
 ## Example Usage - Organization Security Policy Association Excluded
 
 

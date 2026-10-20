@@ -30,6 +30,7 @@ To get more information about VpnConnection, see:
 * How-to Guides
     * [Google Distributed Cloud Edge](https://cloud.google.com/distributed-cloud/edge/latest/docs)
 
+
 ## Example Usage - Edgecontainer Vpn Connection
 
 

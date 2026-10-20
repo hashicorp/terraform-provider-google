@@ -25,6 +25,7 @@ An Entry Group represents a logical grouping of one or more Entries.
 
 
 
+
 ## Example Usage - Dataplex Entry Group Basic
 
 
@@ -35,6 +36,7 @@ resource "google_dataplex_entry_group" "test_entry_group_basic" {
   location = "us-central1"
 }
 ```
+
 ## Example Usage - Dataplex Entry Group Full
 
 

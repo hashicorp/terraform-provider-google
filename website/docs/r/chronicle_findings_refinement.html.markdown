@@ -30,6 +30,7 @@ To get more information about FindingsRefinement, see:
 * How-to Guides
     * [Google SecOps Guides](https://cloud.google.com/chronicle/docs/secops/secops-overview)
 
+
 ## Example Usage - Chronicle Findings Refinement Basic
 
 
@@ -47,6 +48,7 @@ resource "google_chronicle_findings_refinement" "findings_refinement_example" {
   }
 }
 ```
+
 ## Example Usage - Chronicle Findings Refinement Full
 
 

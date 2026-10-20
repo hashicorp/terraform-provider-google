@@ -30,6 +30,7 @@ To get more information about Service, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/data-connect)
 
+
 ## Example Usage - Firebasedataconnect Service Basic
 
 
@@ -59,6 +60,7 @@ resource "google_firebase_data_connect_service" "default" {
   depends_on = [google_project_service.fdc]
 }
 ```
+
 ## Example Usage - Firebasedataconnect Service With Force Deletion
 
 

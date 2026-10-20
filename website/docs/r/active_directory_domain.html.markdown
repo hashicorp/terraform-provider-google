@@ -30,6 +30,7 @@ To get more information about Domain, see:
 * How-to Guides
     * [Managed Microsoft Active Directory Quickstart](https://cloud.google.com/managed-microsoft-ad/docs/quickstarts)
 
+
 ## Example Usage - Active Directory Domain Basic
 
 

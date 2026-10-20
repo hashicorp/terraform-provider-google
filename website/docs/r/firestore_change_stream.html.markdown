@@ -35,6 +35,7 @@ To get more information about ChangeStream, see:
 ~> **Warning:** This resource creates a Firestore Change Stream on a project that already has
 a Firestore database.
 
+
 ## Example Usage - Firestore Change Stream Basic
 
 
@@ -66,6 +67,7 @@ resource "google_firestore_change_stream" "change_stream" {
   depends_on = [time_sleep.wait_30_seconds]
 }
 ```
+
 ## Example Usage - Firestore Change Stream Full
 
 

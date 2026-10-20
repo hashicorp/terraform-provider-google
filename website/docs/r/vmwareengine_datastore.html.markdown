@@ -41,6 +41,7 @@ datastore_mount_config {
 
 
 
+
 ## Example Usage - Vmware Engine Datastore Thirdparty
 
 
@@ -76,6 +77,7 @@ resource "google_vmwareengine_datastore" "example_thirdparty" {
   }
 }
 ```
+
 ## Example Usage - Vmware Engine Datastore Filestore
 
 
@@ -110,6 +112,7 @@ resource "google_vmwareengine_datastore" "example_filestore" {
   }
 }
 ```
+
 ## Example Usage - Vmware Engine Datastore Netapp
 
 

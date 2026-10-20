@@ -37,6 +37,7 @@ values will be stored in the raw state as plain text: `password`.
 ~> **Note:**  All arguments marked as write-only values will not be stored in the state: `password_wo`.
 [Read more about Write-only Arguments](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/write-only-arguments).
 
+
 ## Example Usage - Alloydb User Builtin
 
 
@@ -92,6 +93,7 @@ resource "google_alloydb_user" "user1" {
   depends_on = [google_alloydb_instance.default]
 }
 ```
+
 ## Example Usage - Alloydb User Iam
 
 

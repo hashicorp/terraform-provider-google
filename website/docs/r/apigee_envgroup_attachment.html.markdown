@@ -30,6 +30,7 @@ To get more information about EnvgroupAttachment, see:
 * How-to Guides
     * [Creating an environment](https://cloud.google.com/apigee/docs/api-platform/get-started/create-environment)
 
+
 ## Example Usage - Apigee Environment Group Attachment Basic
 
 

@@ -33,6 +33,7 @@ To get more information about NetworkMonitoringProvider, see:
 * How-to Guides
     * [Network Intelligence Center Documentation](https://cloud.google.com/network-intelligence-center/docs)
 
+
 ## Example Usage - Network Management Network Monitoring Provider Basic
 
 

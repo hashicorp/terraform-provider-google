@@ -34,6 +34,7 @@ To get more information about RecaptchaV3Config, see:
 values will be stored in the raw state as plain text: `site_secret`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+
 ## Example Usage - Firebase App Check Recaptcha V3 Config Basic
 
 

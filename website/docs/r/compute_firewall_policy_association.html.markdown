@@ -29,6 +29,7 @@ To get more information about FirewallPolicyAssociation, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/firewallPolicies/addAssociation)
 
+
 ## Example Usage - Firewall Policy Association
 
 
@@ -51,6 +52,7 @@ resource "google_compute_firewall_policy_association" "default" {
   name = "my-association"
 }
 ```
+
 ## Example Usage - Firewall Policy Association Swapover
 
 

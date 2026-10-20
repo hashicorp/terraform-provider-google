@@ -30,6 +30,7 @@ To get more information about AddressGroup, see:
 * How-to Guides
     * [Use AddressGroups](https://cloud.google.com/vpc/docs/use-address-groups-firewall-policies)
 
+
 ## Example Usage - Network Security Address Groups Basic
 
 
@@ -43,6 +44,7 @@ resource "google_network_security_address_group" "default" {
   items       = ["208.80.154.224/32"]
 }
 ```
+
 ## Example Usage - Network Security Address Groups Organization Basic
 
 
@@ -56,6 +58,7 @@ resource "google_network_security_address_group" "default" {
   items       = ["208.80.154.224/32"]
 }
 ```
+
 ## Example Usage - Network Security Address Groups Advanced
 
 
@@ -70,6 +73,7 @@ resource "google_network_security_address_group" "default" {
   items       = ["208.80.154.224/32"]
 }
 ```
+
 ## Example Usage - Network Security Address Groups Cloud Armor
 
 

@@ -34,6 +34,7 @@ To get more information about Cluster, see:
 values will be stored in the raw state as plain text: `cluster_ca_certificate`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+
 ## Example Usage - Edgecontainer Local Control Plane Cluster
 
 

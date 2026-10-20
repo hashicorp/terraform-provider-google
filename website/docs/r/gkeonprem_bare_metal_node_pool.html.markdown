@@ -28,6 +28,7 @@ To get more information about BareMetalNodePool, see:
 
 * [API documentation](https://cloud.google.com/kubernetes-engine/distributed-cloud/reference/on-prem-api/rest/v1/projects.locations.bareMetalClusters.bareMetalNodePools)
 
+
 ## Example Usage - Gkeonprem Bare Metal Node Pool Basic
 
 
@@ -114,6 +115,7 @@ resource "google_gkeonprem_bare_metal_node_pool" "nodepool-basic" {
   }
 }
 ```
+
 ## Example Usage - Gkeonprem Bare Metal Node Pool Full
 
 

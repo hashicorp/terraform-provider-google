@@ -30,6 +30,7 @@ To get more information about BackupPlan, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/backup-disaster-recovery/docs)
 
+
 ## Example Usage - Backup Dr Backup Plan Simple
 
 
@@ -64,6 +65,7 @@ resource "google_backup_dr_backup_plan" "my-backup-plan-1" {
   }
 }
 ```
+
 ## Example Usage - Backup Dr Backup Plan For Disk Resource
 
 
@@ -101,6 +103,7 @@ resource "google_backup_dr_backup_plan" "my-disk-backup-plan-1" {
   }
 }
 ```
+
 ## Example Usage - Backup Dr Backup Plan For Csql Resource
 
 
@@ -136,6 +139,7 @@ resource "google_backup_dr_backup_plan" "my-csql-backup-plan-1" {
   log_retention_days = 4
 }
 ```
+
 ## Example Usage - Backup Dr Backup Plan For Filestore Resource
 
 

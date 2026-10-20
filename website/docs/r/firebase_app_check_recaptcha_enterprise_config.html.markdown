@@ -30,6 +30,7 @@ To get more information about RecaptchaEnterpriseConfig, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/app-check)
 
+
 ## Example Usage - Firebase App Check Recaptcha Enterprise Config Basic
 
 

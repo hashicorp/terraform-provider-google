@@ -36,6 +36,7 @@ To get more information about Database, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/firestore/docs/)
 
+
 ## Example Usage - Firestore Default Database
 
 
@@ -47,6 +48,7 @@ resource "google_firestore_database" "database" {
   type        = "FIRESTORE_NATIVE"
 }
 ```
+
 ## Example Usage - Firestore Database
 
 
@@ -63,6 +65,7 @@ resource "google_firestore_database" "database" {
   deletion_policy                   = "DELETE"
 }
 ```
+
 ## Example Usage - Firestore Database With Tags
 
 
@@ -79,6 +82,7 @@ resource "google_firestore_database" "database" {
   }
 }
 ```
+
 ## Example Usage - Firestore Cmek Database
 
 
@@ -125,6 +129,7 @@ resource "google_kms_crypto_key_iam_binding" "firestore_cmek_keyuser" {
   ]
 }
 ```
+
 ## Example Usage - Firestore Default Database In Datastore Mode
 
 
@@ -136,6 +141,7 @@ resource "google_firestore_database" "datastore_mode_database" {
   type        = "DATASTORE_MODE"
 }
 ```
+
 ## Example Usage - Firestore Database In Datastore Mode
 
 
@@ -152,6 +158,7 @@ resource "google_firestore_database" "datastore_mode_database" {
   deletion_policy                   = "DELETE"
 }
 ```
+
 ## Example Usage - Firestore Cmek Database In Datastore Mode
 
 
@@ -198,6 +205,7 @@ resource "google_kms_crypto_key_iam_binding" "firestore_cmek_keyuser" {
   ]
 }
 ```
+
 ## Example Usage - Firestore Database Enterprise
 
 
@@ -211,6 +219,7 @@ resource "google_firestore_database" "enterprise-db" {
 	deletion_policy          = "DELETE"
 }
 ```
+
 ## Example Usage - Firestore Database Data Access
 
 

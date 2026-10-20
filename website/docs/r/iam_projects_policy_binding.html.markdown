@@ -30,6 +30,7 @@ To get more information about ProjectsPolicyBinding, see:
 * How-to Guides
     * [Apply a policy binding](https://cloud.google.com/iam/docs/principal-access-boundary-policies-create#create_binding)
 
+
 ## Example Usage - Iam Projects Policy Binding
 
 
@@ -63,6 +64,7 @@ resource "google_iam_projects_policy_binding" "binding-for-all-project-principal
   }
 }
 ```
+
 ## Example Usage - Iam Projects Policy Binding Access Policy
 
 

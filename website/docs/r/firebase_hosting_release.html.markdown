@@ -32,6 +32,7 @@ To get more information about Release, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/docs/hosting)
 
+
 ## Example Usage - Firebasehosting Release In Site
 
 
@@ -61,6 +62,7 @@ resource "google_firebase_hosting_release" "default" {
   message      = "Test release"
 }
 ```
+
 ## Example Usage - Firebasehosting Release In Channel
 
 
@@ -97,6 +99,7 @@ resource "google_firebase_hosting_release" "default" {
   message      = "Test release in channel"
 }
 ```
+
 ## Example Usage - Firebasehosting Release Disable
 
 

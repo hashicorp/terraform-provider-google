@@ -27,6 +27,7 @@ The Tenant resource represents the service producer's view of a service instance
 See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
+
 ## Example Usage - Saas Runtime Tenant Basic
 
 

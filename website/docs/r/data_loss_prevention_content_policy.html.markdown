@@ -30,6 +30,7 @@ To get more information about ContentPolicy, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/sensitive-data-protection/docs)
 
+
 ## Example Usage - Dlp Content Policy Basic
 
 
@@ -64,6 +65,7 @@ resource "google_data_loss_prevention_content_policy" "basic" {
   }
 }
 ```
+
 ## Example Usage - Dlp Content Policy Full
 
 

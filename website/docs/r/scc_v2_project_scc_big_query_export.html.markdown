@@ -35,6 +35,7 @@ To get more information about ProjectSccBigQueryExport, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/security-command-center/docs/how-to-analyze-findings-in-big-query)
 
+
 ## Example Usage - Scc V2 Project Big Query Export Config Basic
 
 

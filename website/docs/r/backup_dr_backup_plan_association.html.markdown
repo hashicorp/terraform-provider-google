@@ -30,6 +30,7 @@ To get more information about BackupPlanAssociation, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/backup-disaster-recovery/docs)
 
+
 ## Example Usage - Backup Dr Bpa
 
 
@@ -104,6 +105,7 @@ resource "google_backup_dr_backup_plan_association" "my-backup-plan-association"
   backup_plan  = google_backup_dr_backup_plan.bp1.name
 }
 ```
+
 ## Example Usage - Backup Dr Bpa Filestore
 
 

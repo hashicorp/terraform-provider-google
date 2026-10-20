@@ -35,6 +35,7 @@ To get more information about UserCreds, see:
 values will be stored in the raw state as plain text: `secure_password`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
+
 ## Example Usage - Firestore User Creds Basic
 
 
@@ -56,6 +57,7 @@ resource "google_firestore_user_creds" "my-user-creds" {
   name     = "my-username"
 }
 ```
+
 ## Example Usage - Firestore User Creds With Secret Manager
 
 

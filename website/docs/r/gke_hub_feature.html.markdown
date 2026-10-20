@@ -30,6 +30,7 @@ To get more information about Feature, see:
 * How-to Guides
     * [Registering a Cluster](https://cloud.google.com/anthos/multicluster-management/connect/registering-a-cluster#register_cluster)
 
+
 ## Example Usage - Gkehub Feature Multi Cluster Ingress
 
 
@@ -59,6 +60,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Gkehub Feature Multi Cluster Service Discovery
 
 
@@ -71,6 +73,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Gkehub Feature Anthos Service Mesh
 
 
@@ -80,6 +83,7 @@ resource "google_gke_hub_feature" "feature" {
   location = "global"
 }
 ```
+
 ## Example Usage - Enable Fleet Observability For Default Logs With Copy
 
 
@@ -98,6 +102,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Enable Fleet Observability For Scope Logs With Move
 
 
@@ -116,6 +121,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Enable Fleet Observability For Both Default And Scope Logs
 
 
@@ -137,6 +143,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Enable Fleet Default Member Config Service Mesh
 
 
@@ -151,6 +158,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Enable Fleet Default Member Config Configmanagement
 
 
@@ -169,6 +177,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Enable Fleet Default Member Config Policycontroller
 
 
@@ -197,6 +206,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Enable Fleet Default Member Config Policycontroller Full
 
 
@@ -259,6 +269,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Enable Fleet Default Member Config Policycontroller Minimal
 
 
@@ -284,6 +295,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Gkehub Feature Clusterupgrade
 
 
@@ -301,6 +313,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Gkehub Feature Rbacrolebinding Actuation
 
 
@@ -315,6 +328,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+
 ## Example Usage - Gkehub Feature Workload Identity
 
 

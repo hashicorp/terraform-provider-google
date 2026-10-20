@@ -43,6 +43,7 @@ To get more information about SemanticGovernancePolicyEngine, see:
 * How-to Guides
     * [Semantic governance overview](https://docs.cloud.google.com/gemini-enterprise-agent-platform/govern/policies/semantic-governance-overview)
 
+
 ## Example Usage - Vertex Ai Semantic Governance Policy Engine Basic
 
 

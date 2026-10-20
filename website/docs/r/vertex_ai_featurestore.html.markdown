@@ -30,6 +30,7 @@ To get more information about Featurestore, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/vertex-ai/docs)
 
+
 ## Example Usage - Vertex Ai Featurestore
 
 
@@ -49,6 +50,7 @@ resource "google_vertex_ai_featurestore" "featurestore" {
   force_destroy = true
 }
 ```
+
 ## Example Usage - Vertex Ai Featurestore With Beta Fields
 
 
@@ -70,6 +72,7 @@ resource "google_vertex_ai_featurestore" "featurestore" {
   force_destroy = true
 }
 ```
+
 ## Example Usage - Vertex Ai Featurestore Scaling
 
 

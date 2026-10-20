@@ -40,6 +40,7 @@ to your chosen location. If you wish to use App Engine, you may
 instead create a `google_app_engine_application` resource.
 Your Firestore location will be the same as the App Engine location specified.
 
+
 ## Example Usage - Firestore Index Basic
 
 
@@ -70,6 +71,7 @@ resource "google_firestore_index" "my-index" {
   }
 }
 ```
+
 ## Example Usage - Firestore Index Datastore Mode
 
 
@@ -104,6 +106,7 @@ resource "google_firestore_index" "my-index" {
   }
 }
 ```
+
 ## Example Usage - Firestore Index Vector
 
 
@@ -142,6 +145,7 @@ resource "google_firestore_index" "my-index" {
   }
 }
 ```
+
 ## Example Usage - Firestore Index Name Descending
 
 
@@ -167,6 +171,7 @@ resource "google_firestore_index" "my-index" {
   }
 }
 ```
+
 ## Example Usage - Firestore Index Mongodb Compatible Scope
 
 
@@ -203,6 +208,7 @@ resource "google_firestore_index" "my-index" {
 	}
 }
 ```
+
 ## Example Usage - Firestore Index Sparse Any
 
 
@@ -239,6 +245,7 @@ resource "google_firestore_index" "my-index" {
 	}
 }
 ```
+
 ## Example Usage - Firestore Index Unique
 
 
@@ -276,6 +283,7 @@ resource "google_firestore_index" "my-index" {
 	}
 }
 ```
+
 ## Example Usage - Firestore Index Skip Wait
 
 
@@ -308,6 +316,7 @@ resource "google_firestore_index" "my-index" {
   skip_wait = true
 }
 ```
+
 ## Example Usage - Firestore Index Deletion Policy
 
 
@@ -339,6 +348,7 @@ resource "google_firestore_index" "my-index" {
   deletion_policy = "PREVENT"
 }
 ```
+
 ## Example Usage - Firestore Index Text Search
 
 
@@ -376,6 +386,7 @@ resource "google_firestore_index" "my-index" {
 	}
 }
 ```
+
 ## Example Usage - Firestore Index Suppress Geojson Indexing
 
 
@@ -410,6 +421,7 @@ resource "google_firestore_index" "my-index" {
 	}
 }
 ```
+
 ## Example Usage - Firestore Index Geo Search
 
 

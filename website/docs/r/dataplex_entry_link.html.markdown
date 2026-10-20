@@ -30,6 +30,7 @@ To get more information about EntryLink, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dataplex/docs)
 
+
 ## Example Usage - Dataplex Entry Link Basic
 
 
@@ -79,6 +80,7 @@ resource "google_dataplex_entry_link" "basic_entry_link" {
   }
 }
 ```
+
 ## Example Usage - Dataplex Entry Link Full
 
 
@@ -138,6 +140,7 @@ resource "google_dataplex_entry_link" "full_entry_link" {
   depends_on = [time_sleep.wait-for-sync]
 }
 ```
+
 ## Example Usage - Dataplex Entry Link With Aspect
 
 

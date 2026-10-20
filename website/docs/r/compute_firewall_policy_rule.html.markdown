@@ -28,6 +28,7 @@ To get more information about FirewallPolicyRule, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/firewallPolicies/addRule)
 
+
 ## Example Usage - Firewall Policy Rule
 
 
@@ -101,6 +102,7 @@ resource "google_tags_tag_value" "basic_value" {
   short_name  = "tag-value"
 }
 ```
+
 ## Example Usage - Firewall Policy Rule Network Scope
 
 
@@ -151,6 +153,7 @@ resource "google_compute_network" "network" {
   auto_create_subnetworks = false
 }
 ```
+
 ## Example Usage - Firewall Policy Rule Network Context
 
 
@@ -228,6 +231,7 @@ resource "google_compute_firewall_policy_rule" "unset-primary" {
 }
 
 ```
+
 ## Example Usage - Firewall Policy Rule Secure Tags
 
 

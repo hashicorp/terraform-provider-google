@@ -30,11 +30,12 @@ To get more information about Stream, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/datastream/docs/create-a-stream)
 
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_stream_full&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_stream_full&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
 </div>
+
 ## Example Usage - Datastream Stream Full
 
 
@@ -238,6 +239,7 @@ resource "google_datastream_stream" "default" {
     customer_managed_encryption_key = "kms-name"
 }
 ```
+
 ## Example Usage - Datastream Stream Postgresql
 
 
@@ -328,6 +330,7 @@ resource "google_datastream_stream" "default"  {
     }
 }
 ```
+
 ## Example Usage - Datastream Stream Oracle
 
 
@@ -418,6 +421,7 @@ resource "google_datastream_stream" "stream5" {
     }
 }
 ```
+
 ## Example Usage - Datastream Stream Sql Server
 
 
@@ -526,6 +530,7 @@ resource "google_datastream_stream" "default" {
     backfill_none {}
 }
 ```
+
 ## Example Usage - Datastream Stream Sql Server Change Tables
 
 
@@ -634,6 +639,7 @@ resource "google_datastream_stream" "default" {
     backfill_none {}
 }
 ```
+
 ## Example Usage - Datastream Stream Mysql Gtid
 
 
@@ -742,11 +748,12 @@ resource "google_datastream_stream" "default" {
     backfill_none {}
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_stream_postgresql_bigquery_dataset_id&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_stream_postgresql_bigquery_dataset_id&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
 </div>
+
 ## Example Usage - Datastream Stream Postgresql Bigquery Dataset Id
 
 
@@ -858,11 +865,12 @@ resource "google_datastream_connection_profile" "source_connection_profile" {
     }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_stream_bigquery&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_stream_bigquery&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
 </div>
+
 ## Example Usage - Datastream Stream Bigquery
 
 
@@ -982,6 +990,7 @@ resource "google_datastream_stream" "default" {
     }
 }
 ```
+
 ## Example Usage - Datastream Stream Bigquery Cross Project Source Hierachy
 
 
@@ -1116,11 +1125,12 @@ resource "google_datastream_stream" "default" {
     }
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_stream_bigquery_append_only&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=datastream_stream_bigquery_append_only&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
 </div>
+
 ## Example Usage - Datastream Stream Bigquery Append Only
 
 
@@ -1228,6 +1238,7 @@ resource "google_datastream_stream" "default" {
     }
 }
 ```
+
 ## Example Usage - Datastream Stream Bigquery Blmt
 
 
@@ -1359,6 +1370,7 @@ resource "google_datastream_stream" "default" {
     }
 }
 ```
+
 ## Example Usage - Datastream Stream Rule Sets Bigquery
 
 
@@ -1441,6 +1453,7 @@ resource "google_datastream_stream" "stream" {
     }
 }
 ```
+
 ## Example Usage - Datastream Stream Salesforce
 
 
@@ -1476,6 +1489,7 @@ resource "google_datastream_stream" "default" {
     backfill_none {}
 }
 ```
+
 ## Example Usage - Datastream Stream Spanner
 
 
@@ -1543,6 +1557,7 @@ mmv1/templates/terraform/examples/datastream_stream_spanner.tf.tmplresource "goo
     }
 }
 ```
+
 ## Example Usage - Datastream Stream Mongodb
 
 

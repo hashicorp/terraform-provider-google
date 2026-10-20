@@ -36,6 +36,7 @@ in the provider configuration. Otherwise the Billing Budgets API will return a 4
 Your account must have the `serviceusage.services.use` permission on the
 `billing_project` you defined.
 
+
 ## Example Usage - Billing Budget Basic
 
 
@@ -58,6 +59,7 @@ resource "google_billing_budget" "budget" {
   }
 }
 ```
+
 ## Example Usage - Billing Budget Lastperiod
 
 
@@ -89,6 +91,7 @@ resource "google_billing_budget" "budget" {
   }
 }
 ```
+
 ## Example Usage - Billing Budget Filter
 
 
@@ -128,6 +131,7 @@ resource "google_billing_budget" "budget" {
   }
 }
 ```
+
 ## Example Usage - Billing Budget Notify
 
 
@@ -179,6 +183,7 @@ resource "google_monitoring_notification_channel" "notification_channel" {
   }
 }
 ```
+
 ## Example Usage - Billing Budget Notify Project Recipient
 
 
@@ -211,6 +216,7 @@ resource "google_billing_budget" "budget" {
   }
 }
 ```
+
 ## Example Usage - Billing Budget Customperiod
 
 

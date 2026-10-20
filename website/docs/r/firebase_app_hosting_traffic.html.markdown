@@ -25,6 +25,7 @@ Controls traffic configuration for a backend.
 
 
 
+
 ## Example Usage - Firebase App Hosting Traffic Target
 
 
@@ -94,6 +95,7 @@ resource "google_project_service" "fah" {
 }
 ###
 ```
+
 ## Example Usage - Firebase App Hosting Traffic Rollout Policy
 
 
@@ -147,6 +149,7 @@ resource "google_project_service" "fah" {
 }
 ###
 ```
+
 ## Example Usage - Firebase App Hosting Traffic Rollout Policy Disabled
 
 

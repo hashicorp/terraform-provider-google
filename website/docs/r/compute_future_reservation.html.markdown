@@ -40,6 +40,7 @@ To get more information about FutureReservation, see:
 * How-to Guides
     * [Future Reservations Guide](https://cloud.google.com/compute/docs/instances/future-reservations-overview)
 
+
 ## Example Usage - Future Reservation Basic
 
 
@@ -65,6 +66,7 @@ resource "google_compute_future_reservation" "gce_future_reservation" {
   }
 }
 ```
+
 ## Example Usage - Future Reservation Aggregate Reservation
 
 

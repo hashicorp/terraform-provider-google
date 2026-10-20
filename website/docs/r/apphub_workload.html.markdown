@@ -25,6 +25,7 @@ Workload represents a binary deployment (such as Managed Instance Groups (MIGs),
 
 
 
+
 ## Example Usage - Apphub Workload Basic
 
 
@@ -157,6 +158,7 @@ resource "google_compute_region_instance_group_manager" "mig" {
   target_size        = 2
 }
 ```
+
 ## Example Usage - Apphub Workload Full
 
 

@@ -30,6 +30,7 @@ To get more information about AddonsConfig, see:
 * How-to Guides
     * [Creating an API organization](https://cloud.google.com/apigee/docs/api-platform/get-started/create-org)
 
+
 ## Example Usage - Apigee Addons Basic
 
 
@@ -47,6 +48,7 @@ resource "google_apigee_addons_config" "test_organization" {
   }
 }
 ```
+
 ## Example Usage - Apigee Addons Full
 
 

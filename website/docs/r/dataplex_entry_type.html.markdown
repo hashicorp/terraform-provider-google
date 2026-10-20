@@ -25,6 +25,7 @@ An Entry Type is a template for creating Entries.
 
 
 
+
 ## Example Usage - Dataplex Entry Type Basic
 
 
@@ -35,6 +36,7 @@ resource "google_dataplex_entry_type" "test_entry_type_basic" {
   location = "us-central1"
 }
 ```
+
 ## Example Usage - Dataplex Entry Type Full
 
 

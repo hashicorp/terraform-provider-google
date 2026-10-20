@@ -25,6 +25,7 @@ IcebergNamespaces are containers for Apache Iceberg Tables within an IcebergCata
 
 
 
+
 ## Example Usage - Biglake Iceberg Namespace
 
 

@@ -28,6 +28,7 @@ To get more information about AgentConnectivityTemplate, see:
 
 * [API documentation](https://cloud.google.com/network-services/docs/reference/network-services/rest/v1/projects.locations.agentConnectivityTemplates)
 
+
 ## Example Usage - Network Services Agent Connectivity Template Basic
 
 
@@ -48,6 +49,7 @@ resource "google_network_services_agent_connectivity_template" "default" {
   access_path      = "CLIENT_TO_AGENT"
 }
 ```
+
 ## Example Usage - Network Services Agent Connectivity Template Advanced
 
 
