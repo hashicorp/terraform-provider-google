@@ -277,23 +277,32 @@ resource "google_folder" "my-folder" {
 }
 
 func testAccLoggingFolderExclusion_multipleCfg(folderName, folderParent, exclusionName string) string {
-	s := fmt.Sprintf(`
+	return fmt.Sprintf(`
 resource "google_folder" "my-folder" {
-	display_name = "%s"
-	parent       = "%s"
+	display_name = "%[1]s"
+	parent       = "%[2]s"
 	deletion_protection = false
 }
-`, folderName, folderParent)
 
-	for i := 0; i < 3; i++ {
-		s += fmt.Sprintf(`
-resource "google_logging_folder_exclusion" "basic%d" {
-  name        = "%s%d"
+resource "google_logging_folder_exclusion" "basic0" {
+  name        = "%[3]s0"
   folder      = element(split("/", google_folder.my-folder.name), 1)
   description = "Basic Folder Logging Exclusion"
-  filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  filter      = "logName=\"projects/%[4]s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, i, exclusionName, i, envvar.GetTestProjectFromEnv())
-	}
-	return s
+
+resource "google_logging_folder_exclusion" "basic1" {
+  name        = "%[3]s1"
+  folder      = element(split("/", google_folder.my-folder.name), 1)
+  description = "Basic Folder Logging Exclusion"
+  filter      = "logName=\"projects/%[4]s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+}
+
+resource "google_logging_folder_exclusion" "basic2" {
+  name        = "%[3]s2"
+  folder      = element(split("/", google_folder.my-folder.name), 1)
+  description = "Basic Folder Logging Exclusion"
+  filter      = "logName=\"projects/%[4]s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+}
+`, folderName, folderParent, exclusionName, envvar.GetTestProjectFromEnv())
 }
