@@ -372,6 +372,20 @@ NORMAL`,
 							ForceNew:    true,
 							Description: `OCPU count per VM. Minimum is 0.1.`,
 						},
+						"scan_listener_port_tcp": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `SCAN listener port - TCP`,
+						},
+						"scan_listener_port_tcp_ssl": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `SCAN listener port - TLS`,
+						},
 						"sparse_diskgroup_enabled": {
 							Type:        schema.TypeBool,
 							Computed:    true,
@@ -487,16 +501,6 @@ ex: sp2-yi0xq-scan.ocispdelegated.ocisp10jvnet.oraclevcn.com`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-						},
-						"scan_listener_port_tcp": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: `SCAN listener port - TCP`,
-						},
-						"scan_listener_port_tcp_ssl": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: `SCAN listener port - TLS`,
 						},
 						"shape": {
 							Type:        schema.TypeString,

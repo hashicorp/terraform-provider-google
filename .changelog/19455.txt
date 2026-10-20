@@ -1,0 +1,3 @@
+```release-note:enhancement
+oracledatabase: added support for setting `properties.scan_listener_port_tcp` and `properties.scan_listener_port_tcp_ssl` on `google_oracle_database_cloud_vm_cluster` creation
+```

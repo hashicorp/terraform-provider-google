@@ -165,7 +165,9 @@ resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
       health_monitoring_enabled  = true
       incident_logs_enabled      = true
     }
-    memory_size_gb = 60
+    memory_size_gb             = 60
+    scan_listener_port_tcp     = 1521
+    scan_listener_port_tcp_ssl = 2484
   }
 
   deletion_protection = "true"
@@ -476,11 +478,11 @@ The following arguments are supported:
   MAINTENANCE_IN_PROGRESS
 
 * `scan_listener_port_tcp` -
-  (Output)
+  (Optional)
   SCAN listener port - TCP
 
 * `scan_listener_port_tcp_ssl` -
-  (Output)
+  (Optional)
   SCAN listener port - TLS
 
 * `domain` -
