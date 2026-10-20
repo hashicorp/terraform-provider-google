@@ -131,7 +131,7 @@ resource "google_ces_toolset" "ces_toolset_for_agent" {
 
 
 resource "google_ces_agent" "ces_child_agent" {
-  agent_id = "child-agent-id%{random_suffix}"
+  agent_id = "tf-test-child-agent-id%{random_suffix}"
   location = "us"
   app      = google_ces_app.ces_app_for_agent.app_id
   display_name = "child agent"
@@ -339,7 +339,7 @@ resource "google_ces_toolset" "ces_toolset_for_agent" {
 
 
 resource "google_ces_agent" "ces_child_agent" {
-  agent_id = "child-agent-id%{random_suffix}"
+  agent_id = "tf-test-child-agent-id%{random_suffix}"
   location = "us"
   app      = google_ces_app.ces_app_for_agent.app_id
   display_name = "child agent"

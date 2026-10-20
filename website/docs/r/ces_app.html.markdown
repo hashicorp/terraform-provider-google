@@ -40,7 +40,7 @@ To get more information about App, see:
 data "google_project" "project" {}
 
 resource "google_secret_manager_secret" "fake_private_key_secret" {
-  secret_id = "fake-pk-secret-app-tf1"
+  secret_id = "fake-pk-secret-app-tf"
 
   replication {
     auto{}

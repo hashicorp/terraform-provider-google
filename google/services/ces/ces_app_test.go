@@ -81,7 +81,7 @@ func testAccCESApp_cesAppBasicExample_full(context map[string]interface{}) strin
 data "google_project" "project" {}
 
 resource "google_secret_manager_secret" "fake_private_key_secret" {
-  secret_id = "fake-pk-secret-app-tf%{random_suffix}"
+  secret_id = "tf-test-fake-pk-secret-app-tf%{random_suffix}"
 
   replication {
     auto{}
@@ -308,7 +308,7 @@ func testAccCESApp_cesAppBasicExample_update(context map[string]interface{}) str
 data "google_project" "project" {}
 
 resource "google_secret_manager_secret" "fake_private_key_secret" {
-  secret_id = "fake-pk-secret-app-tf%{random_suffix}"
+  secret_id = "tf-test-fake-pk-secret-app-tf%{random_suffix}"
 
   replication {
     auto{}
