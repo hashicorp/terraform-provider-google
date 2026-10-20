@@ -347,7 +347,8 @@ resource "google_organization_iam_audit_config" "acceptance" {
   org_id = "%s"
   service = "%s"
   audit_log_config {
-    log_type = "DATA_READ"%s
+    log_type = "DATA_READ"
+%s
   }
 }
 `, org, service, memberStr)
