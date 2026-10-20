@@ -37,7 +37,7 @@ import (
 
 func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
-	vpcName := fmt.Sprintf("test-vpc-%s", acctest.RandString(t, 10))
+	vpcName := fmt.Sprintf("tf-test-vpc-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -45,7 +45,7 @@ func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 		CheckDestroy:             testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerAccessLevel_basic(org, "my policy", "level", vpcName),
+				Config: testAccAccessContextManagerAccessLevel_basic(org, "my policy", "tf_test_level", vpcName),
 			},
 			{
 				ResourceName:      "google_access_context_manager_access_level.test-access",
@@ -53,7 +53,7 @@ func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerAccessLevel_basicUpdated(org, "my new policy", "level"),
+				Config: testAccAccessContextManagerAccessLevel_basicUpdated(org, "my new policy", "tf_test_level"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_access_level.test-access",
@@ -70,7 +70,7 @@ func testAccAccessContextManagerAccessLevel_fullTest(t *testing.T) {
 		"billing_account":  envvar.GetTestBillingAccountFromEnv(t),
 		"random_suffix":    acctest.RandString(t, 10),
 		"policy_title":     "my policy",
-		"level_title_name": "level",
+		"level_title_name": "tf_test_level",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -128,7 +128,7 @@ func testAccAccessContextManagerAccessLevel_customTest(t *testing.T) {
 		CheckDestroy:             testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerAccessLevel_custom(org, "my policy", "level"),
+				Config: testAccAccessContextManagerAccessLevel_custom(org, "my policy", "tf_test_level"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_access_level.test-access",

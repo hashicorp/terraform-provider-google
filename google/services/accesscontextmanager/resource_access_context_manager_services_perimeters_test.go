@@ -41,7 +41,7 @@ func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 		CheckDestroy:             testAccCheckAccessContextManagerServicePerimetersDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerServicePerimeters_basic(org, "my policy", "level", "storage_perimeter", "bigtable_perimeter", "bigquery_omni_perimeter"),
+				Config: testAccAccessContextManagerServicePerimeters_basic(org, "my policy", "tf_test_level", "tf_test_storage_perimeter", "tf_test_bigtable_perimeter", "tf_test_bigquery_omni_perimeter"),
 			},
 			{
 				ResourceName:            "google_access_context_manager_service_perimeters.test-access",
@@ -50,7 +50,7 @@ func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"service_perimeters"},
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeters_update(org, "my policy", "level", "storage_perimeter", "bigquery_perimeter", "bigtable_perimeter", "bigquery_omni_perimeter", projectNumber),
+				Config: testAccAccessContextManagerServicePerimeters_update(org, "my policy", "tf_test_level", "tf_test_storage_perimeter", "tf_test_bigquery_perimeter", "tf_test_bigtable_perimeter", "tf_test_bigquery_omni_perimeter", projectNumber),
 			},
 			{
 				ResourceName:            "google_access_context_manager_service_perimeters.test-access",
@@ -59,7 +59,7 @@ func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"service_perimeters"},
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeters_empty(org, "my policy", "level"),
+				Config: testAccAccessContextManagerServicePerimeters_empty(org, "my policy", "tf_test_level"),
 			},
 			{
 				ResourceName:            "google_access_context_manager_service_perimeters.test-access",

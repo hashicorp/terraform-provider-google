@@ -41,7 +41,7 @@ func testAccAccessContextManagerAccessLevelCondition_basicTest(t *testing.T) {
 	project := envvar.GetTestProjectFromEnv()
 
 	serviceAccountName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
-	vpcName := fmt.Sprintf("test-vpc-%s", acctest.RandString(t, 10))
+	vpcName := fmt.Sprintf("tf-test-vpc-%s", acctest.RandString(t, 10))
 
 	expected := map[string]interface{}{
 		"members": []interface{}{fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", serviceAccountName, project)},
@@ -70,7 +70,7 @@ func testAccAccessContextManagerAccessLevelCondition_basicTest(t *testing.T) {
 		CheckDestroy:             testAccCheckAccessContextManagerAccessLevelConditionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerAccessLevelCondition_basic(org, "my policy", "level", serviceAccountName, vpcName),
+				Config: testAccAccessContextManagerAccessLevelCondition_basic(org, "my policy", "tf_test_level", serviceAccountName, vpcName),
 				Check:  testAccCheckAccessContextManagerAccessLevelConditionPresent(t, "google_access_context_manager_access_level_condition.access-level-condition", expected),
 			},
 		},

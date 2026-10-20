@@ -42,7 +42,7 @@ func testAccAccessContextManagerServicePerimeter_basicTest(t *testing.T) {
 		CheckDestroy:             testAccCheckAccessContextManagerServicePerimeterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerServicePerimeter_basic(org, "my policy", "level", "perimeter"),
+				Config: testAccAccessContextManagerServicePerimeter_basic(org, "my policy", "tf_test_level", "tf_test_perimeter"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_access_context_manager_service_perimeter.test-access", "etag"),
 				),
@@ -66,7 +66,7 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 		CheckDestroy:             testAccCheckAccessContextManagerServicePerimeterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerServicePerimeter_basic(org, "my policy", "level", "perimeter"),
+				Config: testAccAccessContextManagerServicePerimeter_basic(org, "my policy", "tf_test_level", "tf_test_perimeter"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_access_context_manager_service_perimeter.test-access", "etag"),
 				),
@@ -77,7 +77,7 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeter_update(org, "my policy", "level", "perimeter"),
+				Config: testAccAccessContextManagerServicePerimeter_update(org, "my policy", "tf_test_level", "tf_test_perimeter"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_access_context_manager_service_perimeter.test-access", "etag"),
 				),
@@ -88,7 +88,7 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "level", "perimeter", projectNumber),
+				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "tf_test_level", "tf_test_perimeter", projectNumber),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -96,7 +96,7 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeter_updateDryrun(org, "my policy", "level", "perimeter"),
+				Config: testAccAccessContextManagerServicePerimeter_updateDryrun(org, "my policy", "tf_test_level", "tf_test_perimeter"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -104,7 +104,7 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "level", "perimeter", projectNumber),
+				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "tf_test_level", "tf_test_perimeter", projectNumber),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -552,7 +552,7 @@ func testAccAccessContextManagerServicePerimeter_nonGcpServicePatternsTest(t *te
 		CheckDestroy:             testAccCheckAccessContextManagerServicePerimeterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerServicePerimeter_nonGcpServicePatterns(org, "policy", "level", "perimeter"),
+				Config: testAccAccessContextManagerServicePerimeter_nonGcpServicePatterns(org, "policy", "tf_test_level", "tf_test_perimeter"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -570,7 +570,7 @@ func testAccAccessContextManagerServicePerimeter_pscEndpointTest(t *testing.T) {
 		t.Skip("PSC_FORWARDING_RULE is not set; skipping test to avoid using internal hardcoded fallbacks.")
 	}
 	policyTitle := acctest.RandString(t, 10)
-	perimeterTitle := "perimeter"
+	perimeterTitle := "tf_test_perimeter"
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -790,7 +790,7 @@ func testAccAccessContextManagerServicePerimeters_nonGcpServicePatternsTest(t *t
 		CheckDestroy:             testAccCheckAccessContextManagerServicePerimeterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerServicePerimeters_nonGcpServicePatterns(org, "policy", "level", "perimeter"),
+				Config: testAccAccessContextManagerServicePerimeters_nonGcpServicePatterns(org, "policy", "tf_test_level", "tf_test_perimeter"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeters.test-access",
