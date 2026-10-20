@@ -157,7 +157,7 @@ func TestAccDataplexAssetIamPolicyGenerated(t *testing.T) {
 func testAccDataplexAssetIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "primary_bucket" {
-  name          = "dataplex-bucket-%{random_suffix}"
+  name          = "tf-test-dataplex-bucket-%{random_suffix}"
   location      = "us-central1"
   uniform_bucket_level_access = true
   lifecycle {
@@ -207,7 +207,7 @@ resource "google_dataplex_asset" "example" {
   }
 
   resource_spec {
-    name = "projects/%{project_name}/buckets/dataplex-bucket-%{random_suffix}"
+    name = "projects/%{project_name}/buckets/tf-test-dataplex-bucket-%{random_suffix}"
     type = "STORAGE_BUCKET"
   }
 
@@ -232,7 +232,7 @@ resource "google_dataplex_asset_iam_member" "foo" {
 func testAccDataplexAssetIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "primary_bucket" {
-  name          = "dataplex-bucket-%{random_suffix}"
+  name          = "tf-test-dataplex-bucket-%{random_suffix}"
   location      = "us-central1"
   uniform_bucket_level_access = true
   lifecycle {
@@ -282,7 +282,7 @@ resource "google_dataplex_asset" "example" {
   }
 
   resource_spec {
-    name = "projects/%{project_name}/buckets/dataplex-bucket-%{random_suffix}"
+    name = "projects/%{project_name}/buckets/tf-test-dataplex-bucket-%{random_suffix}"
     type = "STORAGE_BUCKET"
   }
 
@@ -324,7 +324,7 @@ data "google_dataplex_asset_iam_policy" "foo" {
 func testAccDataplexAssetIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "primary_bucket" {
-  name          = "dataplex-bucket-%{random_suffix}"
+  name          = "tf-test-dataplex-bucket-%{random_suffix}"
   location      = "us-central1"
   uniform_bucket_level_access = true
   lifecycle {
@@ -374,7 +374,7 @@ resource "google_dataplex_asset" "example" {
   }
 
   resource_spec {
-    name = "projects/%{project_name}/buckets/dataplex-bucket-%{random_suffix}"
+    name = "projects/%{project_name}/buckets/tf-test-dataplex-bucket-%{random_suffix}"
     type = "STORAGE_BUCKET"
   }
 
@@ -401,7 +401,7 @@ resource "google_dataplex_asset_iam_policy" "foo" {
 func testAccDataplexAssetIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "primary_bucket" {
-  name          = "dataplex-bucket-%{random_suffix}"
+  name          = "tf-test-dataplex-bucket-%{random_suffix}"
   location      = "us-central1"
   uniform_bucket_level_access = true
   lifecycle {
@@ -451,7 +451,7 @@ resource "google_dataplex_asset" "example" {
   }
 
   resource_spec {
-    name = "projects/%{project_name}/buckets/dataplex-bucket-%{random_suffix}"
+    name = "projects/%{project_name}/buckets/tf-test-dataplex-bucket-%{random_suffix}"
     type = "STORAGE_BUCKET"
   }
 
@@ -476,7 +476,7 @@ resource "google_dataplex_asset_iam_binding" "foo" {
 func testAccDataplexAssetIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_storage_bucket" "primary_bucket" {
-  name          = "dataplex-bucket-%{random_suffix}"
+  name          = "tf-test-dataplex-bucket-%{random_suffix}"
   location      = "us-central1"
   uniform_bucket_level_access = true
   lifecycle {
@@ -526,7 +526,7 @@ resource "google_dataplex_asset" "example" {
   }
 
   resource_spec {
-    name = "projects/%{project_name}/buckets/dataplex-bucket-%{random_suffix}"
+    name = "projects/%{project_name}/buckets/tf-test-dataplex-bucket-%{random_suffix}"
     type = "STORAGE_BUCKET"
   }
 

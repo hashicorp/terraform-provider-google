@@ -283,7 +283,7 @@ resource "google_bigquery_dataset" "bq_dataset" {
 resource "google_bigquery_table" "table1" {
   deletion_protection = false
   dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
-  table_id   = "table1_%{random_suffix}"
+  table_id   = "tf_test_table1_%{random_suffix}"
   project    = "%{project_number}"
   schema = jsonencode([
     {
@@ -298,7 +298,7 @@ resource "google_bigquery_table" "table1" {
 resource "google_bigquery_table" "table2" {
   deletion_protection = false
   dataset_id = google_bigquery_dataset.bq_dataset.dataset_id
-  table_id   = "table2_%{random_suffix}"
+  table_id   = "tf_test_table2_%{random_suffix}"
   project    = "%{project_number}"
   schema = jsonencode([
     {

@@ -80,14 +80,14 @@ data "google_project" "project" {
 
 resource "google_dataplex_entry_group" "test_group" {
   location       = "us-central1"
-  entry_group_id = "test-group-%{random_suffix}"
+  entry_group_id = "tf-test-group-%{random_suffix}"
   project        = data.google_project.project.project_id
 }
 
 resource "google_dataplex_entry" "test_entry" {
   location       = "us-central1"
   entry_group_id = google_dataplex_entry_group.test_group.entry_group_id
-  entry_id       = "test-entry-%{random_suffix}"
+  entry_id       = "tf-test-entry-%{random_suffix}"
   entry_type     = "projects/655216118709/locations/global/entryTypes/data-quality-rule-template"
   project        = data.google_project.project.number
   aspects {
@@ -325,14 +325,14 @@ data "google_project" "project" {
 
 resource "google_dataplex_entry_group" "test_group" {
   location       = "us-central1"
-  entry_group_id = "test-group-%{random_suffix}"
+  entry_group_id = "tf-test-group-%{random_suffix}"
   project        = data.google_project.project.project_id
 }
 
 resource "google_dataplex_entry" "test_entry" {
   location       = "us-central1"
   entry_group_id = google_dataplex_entry_group.test_group.entry_group_id
-  entry_id       = "test-entry-%{random_suffix}"
+  entry_id       = "tf-test-entry-%{random_suffix}"
   entry_type     = "projects/655216118709/locations/global/entryTypes/data-quality-rule-template"
   project        = data.google_project.project.number
   aspects {
@@ -882,14 +882,14 @@ resource "google_bigquery_table" "tf_test_table" {
 
 resource "google_dataplex_entry_group" "test_group" {
   location       = "us-central1"
-  entry_group_id = "test-group-%{random_suffix}"
+  entry_group_id = "tf-test-group-%{random_suffix}"
   project        = "%{project_name}"
 }
 
 resource "google_dataplex_entry" "test_entry" {
   location       = "us-central1"
   entry_group_id = google_dataplex_entry_group.test_group.entry_group_id
-  entry_id       = "test-entry-%{random_suffix}"
+  entry_id       = "tf-test-entry-%{random_suffix}"
   entry_type     = "projects/655216118709/locations/global/entryTypes/data-quality-rule-template"
   project        = data.google_project.project.number
   aspects {
@@ -1074,14 +1074,14 @@ resource "google_bigquery_table" "tf_test_table" {
 
 resource "google_dataplex_entry_group" "test_group" {
   location       = "us-central1"
-  entry_group_id = "test-group-%{random_suffix}"
+  entry_group_id = "tf-test-group-%{random_suffix}"
   project        = "%{project_name}"
 }
 
 resource "google_dataplex_entry" "test_entry" {
   location       = "us-central1"
   entry_group_id = google_dataplex_entry_group.test_group.entry_group_id
-  entry_id       = "test-entry-%{random_suffix}"
+  entry_id       = "tf-test-entry-%{random_suffix}"
   entry_type     = "projects/655216118709/locations/global/entryTypes/data-quality-rule-template"
   project        = data.google_project.project.number
   aspects {
@@ -1295,14 +1295,14 @@ resource "google_project_iam_member" "sa_bq_job_user" {
 
 resource "google_dataplex_entry_group" "test_group" {
   location       = "us-central1"
-  entry_group_id = "test-group-%{random_suffix}"
+  entry_group_id = "tf-test-group-%{random_suffix}"
   project        = data.google_project.project.project_id
 }
 
 resource "google_dataplex_entry" "test_entry" {
   location       = "us-central1"
   entry_group_id = google_dataplex_entry_group.test_group.entry_group_id
-  entry_id       = "test-entry-%{random_suffix}"
+  entry_id       = "tf-test-entry-%{random_suffix}"
   entry_type     = "projects/655216118709/locations/global/entryTypes/data-quality-rule-template"
   project        = data.google_project.project.number
   aspects {
@@ -1323,7 +1323,7 @@ resource "google_dataplex_entry" "test_entry" {
 resource "google_dataplex_entry" "test_entry_2" {
   location       = "us-central1"
   entry_group_id = google_dataplex_entry_group.test_group.entry_group_id
-  entry_id       = "test-entry-2-%{random_suffix}"
+  entry_id       = "tf-test-entry-2-%{random_suffix}"
   entry_type     = "projects/655216118709/locations/global/entryTypes/data-quality-rule-template"
   project        = data.google_project.project.number
   aspects {
@@ -1454,14 +1454,14 @@ resource "google_project_iam_member" "sa_bq_job_user" {
 
 resource "google_dataplex_entry_group" "test_group" {
   location       = "us-central1"
-  entry_group_id = "test-group-%{random_suffix}"
+  entry_group_id = "tf-test-group-%{random_suffix}"
   project        = data.google_project.project.project_id
 }
 
 resource "google_dataplex_entry" "test_entry" {
   location       = "us-central1"
   entry_group_id = google_dataplex_entry_group.test_group.entry_group_id
-  entry_id       = "test-entry-%{random_suffix}"
+  entry_id       = "tf-test-entry-%{random_suffix}"
   entry_type     = "projects/655216118709/locations/global/entryTypes/data-quality-rule-template"
   project        = data.google_project.project.number
   aspects {
@@ -1482,7 +1482,7 @@ resource "google_dataplex_entry" "test_entry" {
 resource "google_dataplex_entry" "test_entry_2" {
   location       = "us-central1"
   entry_group_id = google_dataplex_entry_group.test_group.entry_group_id
-  entry_id       = "test-entry-2-%{random_suffix}"
+  entry_id       = "tf-test-entry-2-%{random_suffix}"
   entry_type     = "projects/655216118709/locations/global/entryTypes/data-quality-rule-template"
   project        = data.google_project.project.number
   aspects {
