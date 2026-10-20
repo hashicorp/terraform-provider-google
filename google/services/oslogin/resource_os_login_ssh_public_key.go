@@ -272,7 +272,7 @@ func resourceOSLoginSSHPublicKeyCreate(d *schema.ResourceData, meta interface{})
 	d.SetId(id)
 
 	// Wait 10s for write propagation; should be usually done in ~7s max.
-	time.Sleep(10 * time.Second)
+	time.Sleep(10 * config.SleepUnit)
 
 	log.Printf("[DEBUG] Finished creating SSHPublicKey %q: %#v", d.Id(), res)
 

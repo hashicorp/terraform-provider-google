@@ -1380,7 +1380,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 	attempt := 0
 	for err != nil && attempt < 20 {
 		attempt++
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(2 * config.SleepUnit)
 		op, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "DELETE",

@@ -816,7 +816,7 @@ func resourceNetworkConnectivityv1InternalRangeDelete(d *schema.ResourceData, me
 			// If operation wait failed with "already being used", retry the whole delete
 			if gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok && gerr != nil && gerr.Code == 400 && strings.Contains(gerr.Message, "already being used") {
 				log.Printf("[DEBUG] InternalRange %q is still in use during operation wait, retrying in 5s...", d.Id())
-				time.Sleep(5 * time.Second)
+				time.Sleep(5 * config.SleepUnit)
 				continue
 			}
 			return err
@@ -825,7 +825,7 @@ func resourceNetworkConnectivityv1InternalRangeDelete(d *schema.ResourceData, me
 		// If DELETE request failed with "already being used", retry
 		if gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok && gerr != nil && gerr.Code == 400 && strings.Contains(gerr.Message, "already being used") {
 			log.Printf("[DEBUG] InternalRange %q is still in use, retrying in 5s...", d.Id())
-			time.Sleep(5 * time.Second)
+			time.Sleep(5 * config.SleepUnit)
 			continue
 		}
 

@@ -267,7 +267,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenCreate(d *schema.Reso
 	d.SetId(id)
 
 	// Sleep to wait for the token to be replicated.
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * config.SleepUnit)
 
 	// Save the security_token to state
 	if val, ok := res["securityToken"]; ok {
@@ -524,7 +524,7 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenUpdate(d *schema.Reso
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * config.SleepUnit)
 	return resourceIAMWorkforcePoolWorkforcePoolProviderScimTokenRead(d, meta)
 }
 

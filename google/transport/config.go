@@ -227,6 +227,10 @@ type Config struct {
 	// It controls the interval at which we poll for successful operations
 	PollInterval time.Duration
 
+	// SleepUnit is the base time unit used for time.Sleep calls in resources,
+	// defaulting to time.Second
+	SleepUnit time.Duration
+
 	Client             *http.Client
 	Context            context.Context
 	UserAgent          string
@@ -406,6 +410,9 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	// Set default of 10s if unset by user in provider.go or LoadAndValidate was invoked directly
 	if c.PollInterval == 0 {
 		c.PollInterval = 10 * time.Second
+	}
+	if c.SleepUnit == 0 {
+		c.SleepUnit = time.Second
 	}
 
 	c.setRPCClients()

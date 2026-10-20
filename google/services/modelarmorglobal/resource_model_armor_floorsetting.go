@@ -506,7 +506,7 @@ func resourceModelArmorGlobalFloorsettingCreate(d *schema.ResourceData, meta int
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(30 * time.Second)
+	time.Sleep(30 * config.SleepUnit)
 
 	log.Printf("[DEBUG] Finished creating Floorsetting %q: %#v", d.Id(), res)
 
@@ -720,7 +720,7 @@ func resourceModelArmorGlobalFloorsettingUpdate(d *schema.ResourceData, meta int
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(30 * time.Second)
+	time.Sleep(30 * config.SleepUnit)
 	return resourceModelArmorGlobalFloorsettingRead(d, meta)
 }
 

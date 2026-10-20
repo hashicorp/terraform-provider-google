@@ -508,7 +508,7 @@ func resourceComputeInstanceSettingsDelete(d *schema.ResourceData, meta interfac
 		log.Printf("[DEBUG] Finished emptying InstanceSettings %#v", res)
 	}
 
-	time.Sleep(1 * time.Minute)
+	time.Sleep(60 * config.SleepUnit)
 
 	return nil
 }

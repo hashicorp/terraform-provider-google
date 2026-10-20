@@ -286,7 +286,7 @@ func resourceIAMWorkforcePoolOauthClientCredentialCreate(d *schema.ResourceData,
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * config.SleepUnit)
 
 	log.Printf("[DEBUG] Finished creating OauthClientCredential %q: %#v", d.Id(), res)
 
@@ -545,7 +545,7 @@ func resourceIAMWorkforcePoolOauthClientCredentialUpdate(d *schema.ResourceData,
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * config.SleepUnit)
 	return resourceIAMWorkforcePoolOauthClientCredentialRead(d, meta)
 }
 
@@ -602,7 +602,7 @@ func resourceIAMWorkforcePoolOauthClientCredentialDelete(d *schema.ResourceData,
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(5 * time.Second)
+	time.Sleep(5 * config.SleepUnit)
 
 	log.Printf("[DEBUG] Finished deleting OauthClientCredential %q: %#v", d.Id(), res)
 	return nil

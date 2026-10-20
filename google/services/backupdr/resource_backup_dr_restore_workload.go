@@ -2595,7 +2595,7 @@ func resourceBackupDRRestoreWorkloadDelete(d *schema.ResourceData, meta interfac
 								break
 							}
 
-							time.Sleep(time.Second)
+							time.Sleep(config.SleepUnit)
 						}
 					}
 				}
@@ -2649,7 +2649,7 @@ func resourceBackupDRRestoreWorkloadDelete(d *schema.ResourceData, meta interfac
 								break
 							}
 
-							time.Sleep(time.Second)
+							time.Sleep(config.SleepUnit)
 						}
 					}
 				}

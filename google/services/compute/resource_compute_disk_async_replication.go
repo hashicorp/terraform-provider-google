@@ -207,19 +207,19 @@ func resourceDiskAsyncReplicationCreate(d *schema.ResourceData, meta interface{}
 		}
 		asyncSecondaryDisks, ok := resourceStatus["asyncSecondaryDisks"].(map[string]interface{})
 		if !ok {
-			time.Sleep(5 * time.Second)
+			time.Sleep(5 * config.SleepUnit)
 			return retry.RetryableError(fmt.Errorf("secondary disk %s state not available", secondaryDisk))
 		}
 		if rawState, ok := asyncSecondaryDisks[secondaryDisk]; ok {
 			stateMap, _ := rawState.(map[string]interface{})
 			state, _ := stateMap["state"].(string)
 			if state != "ACTIVE" {
-				time.Sleep(5 * time.Second)
+				time.Sleep(5 * config.SleepUnit)
 				return retry.RetryableError(fmt.Errorf("secondary disk %s state (%s) is not: ACTIVE", secondaryDisk, state))
 			}
 			return nil
 		}
-		time.Sleep(5 * time.Second)
+		time.Sleep(5 * config.SleepUnit)
 		return retry.RetryableError(fmt.Errorf("secondary disk %s state not available", secondaryDisk))
 	})
 	if err != nil {
@@ -402,7 +402,7 @@ func resourceDiskAsyncReplicationDelete(d *schema.ResourceData, meta interface{}
 					sm, _ := rawState.(map[string]interface{})
 					st, _ := sm["state"].(string)
 					if st != "STOPPED" {
-						time.Sleep(5 * time.Second)
+						time.Sleep(5 * config.SleepUnit)
 						return retry.RetryableError(fmt.Errorf("secondary disk %s state (%s) is not STOPPED", secondaryDisk, st))
 					}
 					return nil
@@ -419,7 +419,7 @@ func resourceDiskAsyncReplicationDelete(d *schema.ResourceData, meta interface{}
 
 	if replicationStopped {
 		// Allow the replication to quiescence
-		time.Sleep(5000 * time.Millisecond)
+		time.Sleep(5 * config.SleepUnit)
 	}
 	return nil
 }

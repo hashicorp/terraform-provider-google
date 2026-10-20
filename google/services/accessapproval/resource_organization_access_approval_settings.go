@@ -317,7 +317,7 @@ func resourceAccessApprovalOrganizationSettingsCreate(d *schema.ResourceData, me
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(4 * time.Minute)
+	time.Sleep(240 * config.SleepUnit)
 
 	log.Printf("[DEBUG] Finished creating OrganizationSettings %q: %#v", d.Id(), res)
 
@@ -511,7 +511,7 @@ func resourceAccessApprovalOrganizationSettingsUpdate(d *schema.ResourceData, me
 	// This is useful if the resource in question doesn't have a perfectly consistent API
 	// That is, the Operation for Create might return before the Get operation shows the
 	// completed state of the resource.
-	time.Sleep(4 * time.Minute)
+	time.Sleep(240 * config.SleepUnit)
 	return resourceAccessApprovalOrganizationSettingsRead(d, meta)
 }
 
