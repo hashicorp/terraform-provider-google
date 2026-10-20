@@ -53,6 +53,7 @@ fields:
     - api_field: defaultRouteAction.maxStreamDuration.nanos
     - api_field: defaultRouteAction.maxStreamDuration.seconds
     - api_field: defaultRouteAction.requestMirrorPolicy.backendService
+    - api_field: defaultRouteAction.requestMirrorPolicy.mirrorPercent
     - api_field: defaultRouteAction.retryPolicy.numRetries
     - api_field: defaultRouteAction.retryPolicy.perTryTimeout.nanos
     - api_field: defaultRouteAction.retryPolicy.perTryTimeout.seconds
@@ -181,6 +182,8 @@ fields:
       field: path_matcher.default_route_action.max_stream_duration.seconds
     - api_field: pathMatchers.defaultRouteAction.requestMirrorPolicy.backendService
       field: path_matcher.default_route_action.request_mirror_policy.backend_service
+    - api_field: pathMatchers.defaultRouteAction.requestMirrorPolicy.mirrorPercent
+      field: path_matcher.default_route_action.request_mirror_policy.mirror_percent
     - api_field: pathMatchers.defaultRouteAction.retryPolicy.numRetries
       field: path_matcher.default_route_action.retry_policy.num_retries
     - api_field: pathMatchers.defaultRouteAction.retryPolicy.perTryTimeout.nanos
@@ -337,6 +340,8 @@ fields:
       field: path_matcher.path_rule.route_action.max_stream_duration.seconds
     - api_field: pathMatchers.pathRules.routeAction.requestMirrorPolicy.backendService
       field: path_matcher.path_rule.route_action.request_mirror_policy.backend_service
+    - api_field: pathMatchers.pathRules.routeAction.requestMirrorPolicy.mirrorPercent
+      field: path_matcher.path_rule.route_action.request_mirror_policy.mirror_percent
     - api_field: pathMatchers.pathRules.routeAction.retryPolicy.numRetries
       field: path_matcher.path_rule.route_action.retry_policy.num_retries
     - api_field: pathMatchers.pathRules.routeAction.retryPolicy.perTryTimeout.nanos
@@ -531,6 +536,8 @@ fields:
       field: path_matcher.route_rules.route_action.max_stream_duration.seconds
     - api_field: pathMatchers.routeRules.routeAction.requestMirrorPolicy.backendService
       field: path_matcher.route_rules.route_action.request_mirror_policy.backend_service
+    - api_field: pathMatchers.routeRules.routeAction.requestMirrorPolicy.mirrorPercent
+      field: path_matcher.route_rules.route_action.request_mirror_policy.mirror_percent
     - api_field: pathMatchers.routeRules.routeAction.retryPolicy.numRetries
       field: path_matcher.route_rules.route_action.retry_policy.num_retries
     - api_field: pathMatchers.routeRules.routeAction.retryPolicy.perTryTimeout.nanos
