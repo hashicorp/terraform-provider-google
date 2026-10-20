@@ -3071,14 +3071,6 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				niPatchMap["networkIP"] = networkInterface["networkIP"]
 			}
 
-			if d.HasChange(prefix + ".internal_ipv6_prefix_length") {
-				niPatchMap["ipv6Address"] = networkInterface["ipv6Address"]
-			}
-
-			if d.HasChange(prefix + ".ipv6_address") {
-				niPatchMap["ipv6Address"] = networkInterface["ipv6Address"]
-			}
-
 			// Access config can run into some issues since we can't tell the difference between
 			// the users declared intent (config within their hcl file) and what we have inferred from the
 			// server (terraform state). Access configs contain an ip subproperty that can be incompatible
