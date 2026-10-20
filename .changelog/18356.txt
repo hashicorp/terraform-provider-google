@@ -1,0 +1,3 @@
+```release-note:bug
+vertexai: fixed an issue where `GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY` environment variable in `google_vertex_ai_reasoning_engine` was ignored in state when explicitly configured
+```

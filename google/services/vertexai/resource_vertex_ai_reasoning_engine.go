@@ -2258,6 +2258,24 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpecEnv(v interface{}, d *schem
 	if v == nil {
 		return nil
 	}
+	hasTelemetryConfig := false
+	if envRaw, ok := d.GetOk("spec.0.deployment_spec.0.env"); ok && envRaw != nil {
+		var envList []any
+		if set, ok := envRaw.(*schema.Set); ok {
+			envList = set.List()
+		} else if list, ok := envRaw.([]any); ok {
+			envList = list
+		}
+		for _, e := range envList {
+			if m, ok := e.(map[string]any); ok {
+				if m["name"] == "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY" {
+					hasTelemetryConfig = true
+					break
+				}
+			}
+		}
+	}
+
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -2265,7 +2283,7 @@ func flattenVertexAIReasoningEngineSpecDeploymentSpecEnv(v interface{}, d *schem
 			continue
 		}
 		original := raw.(map[string]interface{})
-		if original["name"] == "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY" {
+		if original["name"] == "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY" && !hasTelemetryConfig {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
