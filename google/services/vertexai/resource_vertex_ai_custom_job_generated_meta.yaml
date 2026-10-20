@@ -1,0 +1,75 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_custom_job
+generation_type: mmv1
+source_file: products/vertexai/CustomJob.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: CustomJob
+autogen_status: true
+autogen_version: 2
+fields:
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: endTime
+    - api_field: error.code
+    - api_field: error.message
+    - api_field: jobSpec.baseOutputDirectory.outputUriPrefix
+    - api_field: jobSpec.enableDashboardAccess
+    - api_field: jobSpec.enableWebAccess
+    - api_field: jobSpec.network
+    - api_field: jobSpec.pscInterfaceConfig.dnsPeeringConfigs.domain
+    - api_field: jobSpec.pscInterfaceConfig.dnsPeeringConfigs.targetNetwork
+    - api_field: jobSpec.pscInterfaceConfig.dnsPeeringConfigs.targetProject
+    - api_field: jobSpec.pscInterfaceConfig.networkAttachment
+    - api_field: jobSpec.reservedIpRanges
+    - api_field: jobSpec.scheduling.disableRetries
+    - api_field: jobSpec.scheduling.maxWaitDuration
+    - api_field: jobSpec.scheduling.restartJobOnWorkerRestart
+    - api_field: jobSpec.scheduling.strategy
+    - api_field: jobSpec.scheduling.timeout
+    - api_field: jobSpec.serviceAccount
+    - api_field: jobSpec.tensorboard
+    - api_field: jobSpec.workerPoolSpecs.containerSpec.args
+    - api_field: jobSpec.workerPoolSpecs.containerSpec.command
+    - api_field: jobSpec.workerPoolSpecs.containerSpec.env.name
+    - api_field: jobSpec.workerPoolSpecs.containerSpec.env.value
+    - api_field: jobSpec.workerPoolSpecs.containerSpec.imageUri
+    - api_field: jobSpec.workerPoolSpecs.diskSpec.bootDiskSizeGb
+    - api_field: jobSpec.workerPoolSpecs.diskSpec.bootDiskType
+    - api_field: jobSpec.workerPoolSpecs.lustreMounts.filesystem
+    - api_field: jobSpec.workerPoolSpecs.lustreMounts.instanceIp
+    - api_field: jobSpec.workerPoolSpecs.lustreMounts.mountPoint
+    - api_field: jobSpec.workerPoolSpecs.lustreMounts.volumeHandle
+    - api_field: jobSpec.workerPoolSpecs.machineSpec.acceleratorCount
+    - api_field: jobSpec.workerPoolSpecs.machineSpec.acceleratorType
+    - api_field: jobSpec.workerPoolSpecs.machineSpec.machineType
+    - api_field: jobSpec.workerPoolSpecs.machineSpec.reservationAffinity.key
+    - api_field: jobSpec.workerPoolSpecs.machineSpec.reservationAffinity.reservationAffinityType
+    - api_field: jobSpec.workerPoolSpecs.machineSpec.reservationAffinity.values
+    - api_field: jobSpec.workerPoolSpecs.machineSpec.tpuTopology
+    - api_field: jobSpec.workerPoolSpecs.nfsMounts.mountPoint
+    - api_field: jobSpec.workerPoolSpecs.nfsMounts.path
+    - api_field: jobSpec.workerPoolSpecs.nfsMounts.server
+    - api_field: jobSpec.workerPoolSpecs.pythonPackageSpec.args
+    - api_field: jobSpec.workerPoolSpecs.pythonPackageSpec.env.name
+    - api_field: jobSpec.workerPoolSpecs.pythonPackageSpec.env.value
+    - api_field: jobSpec.workerPoolSpecs.pythonPackageSpec.executorImageUri
+    - api_field: jobSpec.workerPoolSpecs.pythonPackageSpec.packageUris
+    - api_field: jobSpec.workerPoolSpecs.pythonPackageSpec.pythonModule
+    - api_field: jobSpec.workerPoolSpecs.replicaCount
+    - api_field: labels
+    - api_field: name
+    - field: region
+      provider_only: true
+    - api_field: startTime
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: webAccessUris
+    - field: deletion_policy
+      provider_only: true
