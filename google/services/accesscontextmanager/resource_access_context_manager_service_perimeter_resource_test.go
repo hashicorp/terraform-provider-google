@@ -36,7 +36,7 @@ func testAccAccessContextManagerServicePerimeterResource_basicTest(t *testing.T)
 	org := envvar.GetTestOrgFromEnv(t)
 	projects := BootstrapServicePerimeterProjects(t, 2)
 	policyTitle := "my policy"
-	perimeterTitle := "perimeter"
+	perimeterTitle := "tf_test_perimeter"
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
