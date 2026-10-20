@@ -66,7 +66,8 @@ func TestAccIntegrationConnectorsManagedZone_integrationConnectorsManagedZoneExa
 	context := map[string]interface{}{
 		"billing_account":   envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":            envvar.GetTestOrgFromEnv(t),
-		"managed_zone_name": "test" + randomSuffix,
+		"managed_zone_name": "tf-test-test" + randomSuffix,
+		"network_name":      "tf-test-test-vpc" + randomSuffix,
 		"random_suffix":     randomSuffix,
 	}
 
@@ -122,7 +123,7 @@ resource "google_project_service" "compute" {
 
 resource "google_compute_network" "network" {
   project = google_project.target_project.project_id
-  name                    = "test"
+  name                    = "%{network_name}"
   auto_create_subnetworks = false
   depends_on = [google_project_service.compute]
 }
@@ -150,7 +151,7 @@ resource "google_integration_connectors_managed_zone" "testmanagedzone" {
     intent = "example"
   }
   target_project = google_project.target_project.project_id
-  target_vpc = "test"
+  target_vpc = "%{network_name}"
   dns = google_dns_managed_zone.zone.dns_name
   depends_on = [google_project_iam_member.dns_peer_binding,google_dns_managed_zone.zone]
 }

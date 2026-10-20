@@ -60,7 +60,7 @@ resource "google_project_service" "compute" {
 
 resource "google_compute_network" "network" {
   project = google_project.target_project.project_id
-  name                    = "test"
+  name                    = "test-vpc"
   auto_create_subnetworks = false
   depends_on = [google_project_service.compute]
 }
@@ -88,7 +88,7 @@ resource "google_integration_connectors_managed_zone" "testmanagedzone" {
     intent = "example"
   }
   target_project = google_project.target_project.project_id
-  target_vpc = "test"
+  target_vpc = "test-vpc"
   dns = google_dns_managed_zone.zone.dns_name
   depends_on = [google_project_iam_member.dns_peer_binding,google_dns_managed_zone.zone]
 }
