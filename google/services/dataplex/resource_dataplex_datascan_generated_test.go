@@ -797,7 +797,7 @@ func TestAccDataplexDatascan_dataplexDatascanDocumentationExample(t *testing.T) 
 	context := map[string]interface{}{
 		"location":      envvar.GetTestRegionFromEnv(),
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"datascan_name": "datadocumentation" + randomSuffix,
+		"datascan_name": "tf-test-datadocumentation" + randomSuffix,
 		"sql_dialect":   "GOOGLE_SQL",
 		"random_suffix": randomSuffix,
 	}
@@ -805,7 +805,7 @@ func TestAccDataplexDatascan_dataplexDatascanDocumentationExample(t *testing.T) 
 	context_1 := map[string]interface{}{
 		"location":      envvar.GetTestRegionFromEnv(),
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"datascan_name": "datadocumentation" + randomSuffix,
+		"datascan_name": "tf-test-datadocumentation" + randomSuffix,
 		"sql_dialect":   "SPARK_SQL",
 		"random_suffix": randomSuffix,
 	}
@@ -857,13 +857,13 @@ func TestAccDataplexDatascan_dataplexDatascanDocumentationExample(t *testing.T) 
 func testAccDataplexDatascan_dataplexDatascanDocumentationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "tf_dataplex_test_dataset" {
-  dataset_id = "tf_dataplex_test_dataset_id_%{random_suffix}"
+  dataset_id = "tf_test_dataplex_dataset_id_%{random_suffix}"
   default_table_expiration_ms = 3600000
 }
 
 resource "google_bigquery_table" "tf_dataplex_test_table" {
   dataset_id          = google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id
-  table_id            = "tf_dataplex_test_table_id_%{random_suffix}"
+  table_id            = "tf_test_dataplex_table_id_%{random_suffix}"
   deletion_protection = false
   schema              = <<EOF
     [
@@ -981,13 +981,13 @@ func TestAccDataplexDatascan_dataplexDatascanOnetimeDocumentationExample(t *test
 func testAccDataplexDatascan_dataplexDatascanOnetimeDocumentationExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_dataset" "tf_dataplex_test_dataset" {
-  dataset_id = "tf_dataplex_test_dataset_id_%{random_suffix}"
+  dataset_id = "tf_test_dataplex_dataset_id_%{random_suffix}"
   default_table_expiration_ms = 3600000
 }
 
 resource "google_bigquery_table" "tf_dataplex_test_table" {
   dataset_id          = google_bigquery_dataset.tf_dataplex_test_dataset.dataset_id
-  table_id            = "tf_dataplex_test_table_id_%{random_suffix}"
+  table_id            = "tf_test_dataplex_table_id_%{random_suffix}"
   deletion_protection = false
   schema              = <<EOF
     [
@@ -1400,14 +1400,14 @@ resource "google_bigquery_table" "tf_test_table" {
 
 resource "google_dataplex_entry_group" "test_group" {
   location       = "us-central1"
-  entry_group_id = "test-group-%{random_suffix}"
+  entry_group_id = "tf-test-group-%{random_suffix}"
   project        = "%{project_name}"
 }
 
 resource "google_dataplex_entry" "test_entry" {
   location       = "us-central1"
   entry_group_id = google_dataplex_entry_group.test_group.entry_group_id
-  entry_id       = "test-entry-%{random_suffix}"
+  entry_id       = "tf-test-entry-%{random_suffix}"
   entry_type     = "projects/655216118709/locations/global/entryTypes/data-quality-rule-template"
   project        = data.google_project.project.number
   aspects {
@@ -1605,14 +1605,14 @@ resource "google_project_iam_member" "sa_bq_job_user" {
 
 resource "google_dataplex_entry_group" "test_group" {
   location       = "us-central1"
-  entry_group_id = "test-group-%{random_suffix}"
+  entry_group_id = "tf-test-group-%{random_suffix}"
   project        = data.google_project.project.project_id
 }
 
 resource "google_dataplex_entry" "test_entry" {
   location       = "us-central1"
   entry_group_id = google_dataplex_entry_group.test_group.entry_group_id
-  entry_id       = "test-entry-%{random_suffix}"
+  entry_id       = "tf-test-entry-%{random_suffix}"
   entry_type     = "projects/655216118709/locations/global/entryTypes/data-quality-rule-template"
   project        = data.google_project.project.number
   aspects {
