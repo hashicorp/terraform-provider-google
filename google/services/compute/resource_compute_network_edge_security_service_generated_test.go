@@ -78,7 +78,7 @@ func TestAccComputeNetworkEdgeSecurityService_computeNetworkEdgeSecurityServiceB
 				ResourceName:            "google_compute_network_edge_security_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"params", "region"},
 			},
 			{
 				ResourceName:       "google_compute_network_edge_security_service.default",

@@ -11,6 +11,7 @@ fields:
     - api_field: description
     - api_field: fingerprint
     - api_field: name
+    - api_field: params.resourceManagerTags
     - field: region
       provider_only: true
     - api_field: securityPolicy

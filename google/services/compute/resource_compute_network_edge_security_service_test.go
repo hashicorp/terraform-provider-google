@@ -30,6 +30,8 @@ func TestAccComputeNetworkEdgeSecurityService_update(t *testing.T) {
 
 	pName := fmt.Sprintf("tf-test-security-policy-%s", acctest.RandString(t, 10))
 	nesName := fmt.Sprintf("tf-test-edge-security-services-%s", acctest.RandString(t, 10))
+	tagKey := fmt.Sprintf("tf-test-key-%s", acctest.RandString(t, 10))
+	tagValue := fmt.Sprintf("tf-test-value-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -37,27 +39,42 @@ func TestAccComputeNetworkEdgeSecurityService_update(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeNetworkEdgeSecurityServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkEdgeSecurityService_basic(pName, nesName),
+				Config: testAccNetworkEdgeSecurityService_basic(pName, nesName, tagKey, tagValue),
 			},
 			{
-				ResourceName:      "google_compute_network_edge_security_service.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network_edge_security_service.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 			{
-				Config: testAccNetworkEdgeSecurityService_update(pName, nesName),
+				Config: testAccNetworkEdgeSecurityService_update(pName, nesName, tagKey, tagValue),
 			},
 			{
-				ResourceName:      "google_compute_network_edge_security_service.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_network_edge_security_service.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"params"},
 			},
 		},
 	})
 }
 
-func testAccNetworkEdgeSecurityService_basic(pName, nesName string) string {
+func testAccNetworkEdgeSecurityService_basic(pName, nesName, tagKey, tagValue string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {
+}
+
+resource "google_tags_tag_key" "tag_key1" {
+  parent     = "projects/${data.google_project.project.number}"
+  short_name = "%s"
+}
+
+resource "google_tags_tag_value" "tag_value1" {
+  parent     = google_tags_tag_key.tag_key1.id
+  short_name = "%s"
+}
+
 resource "google_compute_region_security_policy" "foobar" {
   name        = "%s"
   description = "basic region security policy"
@@ -71,12 +88,30 @@ resource "google_compute_network_edge_security_service" "foobar" {
   region          = "us-central1"
   description     = "My basic resource using security policy"
   security_policy = google_compute_region_security_policy.foobar.self_link
+  params {
+    resource_manager_tags = {
+      (google_tags_tag_key.tag_key1.id) = (google_tags_tag_value.tag_value1.id)
+    }
+  }
 }
-`, pName, nesName)
+`, tagKey, tagValue, pName, nesName)
 }
 
-func testAccNetworkEdgeSecurityService_update(pName, nesName string) string {
+func testAccNetworkEdgeSecurityService_update(pName, nesName, tagKey, tagValue string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {
+}
+
+resource "google_tags_tag_key" "tag_key1" {
+  parent     = "projects/${data.google_project.project.number}"
+  short_name = "%s"
+}
+
+resource "google_tags_tag_value" "tag_value1" {
+  parent     = google_tags_tag_key.tag_key1.id
+  short_name = "%s"
+}
+
 resource "google_compute_region_security_policy" "foobar" {
   name        = "%s"
   description = "basic region security policy"
@@ -89,6 +124,11 @@ resource "google_compute_network_edge_security_service" "foobar" {
   region          = "us-central1"
   description     = "My basic updated resource using security policy"
   security_policy = google_compute_region_security_policy.foobar.self_link
+  params {
+    resource_manager_tags = {
+      (google_tags_tag_key.tag_key1.id) = (google_tags_tag_value.tag_value1.id)
+    }
+  }
 }
-`, pName, nesName)
+`, tagKey, tagValue, pName, nesName)
 }
