@@ -176,7 +176,6 @@ resource "google_network_security_security_profile" "security_profile" {
 
 ```hcl
 resource "google_network_security_security_profile_group" "default" {
-  provider                  = google-beta
   name                      = "sec-profile-group"
   parent                    = "projects/my-project-name"
   description               = "my description"
@@ -189,7 +188,6 @@ resource "google_network_security_security_profile_group" "default" {
 }
 
 resource "google_network_security_security_profile" "threat_prevention_profile" {
-  provider = google-beta
   name     = "tp-sec-profile"
   type     = "THREAT_PREVENTION"
   parent   = "projects/my-project-name"
@@ -197,7 +195,6 @@ resource "google_network_security_security_profile" "threat_prevention_profile" 
 }
 
 resource "google_network_security_security_profile" "wildfire_profile" {
-  provider = google-beta
   name     = "wf-sec-profile"
   type     = "WILDFIRE_ANALYSIS"
   parent   = "projects/my-project-name"
@@ -252,7 +249,7 @@ The following arguments are supported:
   Reference to a SecurityProfile with the CustomIntercept configuration.
 
 * `wildfire_analysis_profile` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Reference to a SecurityProfile with the WildFire configuration for the SecurityProfileGroup.
 
 * `location` -

@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -374,6 +375,320 @@ resource "google_network_security_security_profile" "default" {
     mirroring_endpoint_group    = google_network_security_mirroring_endpoint_group.default.id
     mirroring_deployment_groups = [google_network_security_mirroring_deployment_group.default.id]
   }
+}
+`, context)
+}
+
+func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"resource_name": "tf-test-my-security-profile" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"resource_name": "tf-test-my-security-profile" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"resource_name": "tf-test-my-security-profile" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_3 := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"resource_name": "tf-test-my-security-profile" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkSecuritySecurityProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireExample(context),
+			},
+			{
+				ResourceName:            "google_network_security_security_profile.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_security_profile.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_security_security_profile.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_security_security_profile.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_security_profile.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireRemoveBlocksExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_security_security_profile.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_security_security_profile.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_security_profile.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireRemoveProfileExample(context_3),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_security_security_profile.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_security_security_profile.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_security_profile.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_security_security_profile" "default" {
+  name        = "%{resource_name}"
+  parent      = "projects/%{project}"
+  description = "my description"
+  type        = "WILDFIRE_ANALYSIS"
+
+  wildfire_analysis_profile {
+    wildfire_realtime_lookup = true
+
+    wildfire_submission_rules {
+      direction           = "BOTH"
+      file_selection_mode = "ALL_FILE_TYPES"
+    }
+
+    wildfire_submission_rules {
+      direction           = "UPLOAD"
+      file_selection_mode = "CUSTOM_FILE_TYPES"
+      custom_file_types {
+        file_types = ["PDF", "SCRIPT"]
+      }
+    }
+
+    wildfire_inline_cloud_analysis_rules {
+      direction           = "BOTH"
+      action              = "ALLOW"
+      file_selection_mode = "ALL_FILE_TYPES"
+    }
+
+    wildfire_inline_cloud_analysis_rules {
+      direction           = "DOWNLOAD"
+      action              = "DENY"
+      file_selection_mode = "CUSTOM_FILE_TYPES"
+      custom_file_types {
+        file_types = ["PE"]
+      }
+    }
+
+    wildfire_overrides {
+      protocol = "WILDFIRE_HTTP"
+      action   = "WILDFIRE_DENY"
+    }
+
+    wildfire_inline_ml_overrides {
+      protocol = "WILDFIRE_FTP"
+      action   = "WILDFIRE_ALERT"
+    }
+
+    wildfire_threat_overrides {
+      threat_id = "12345"
+      action    = "WILDFIRE_ALLOW"
+    }
+
+    wildfire_inline_ml_setting {
+      inline_ml_configs {
+        file_type = "WINDOWS_EXECUTABLE"
+        action    = "ENABLE"
+      }
+
+      file_exceptions {
+        partial_hash = "12345abcdef"
+        filename     = "virus.exe"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_security_security_profile" "default" {
+  name        = "%{resource_name}"
+  parent      = "projects/%{project}"
+  description = "my updated description"
+  type        = "WILDFIRE_ANALYSIS"
+
+  wildfire_analysis_profile {
+    wildfire_realtime_lookup = false
+
+    wildfire_submission_rules {
+      direction           = "DOWNLOAD"
+      file_selection_mode = "CUSTOM_FILE_TYPES"
+      custom_file_types {
+        file_types = ["APK", "JAR"]
+      }
+    }
+
+    wildfire_inline_cloud_analysis_rules {
+      direction           = "DOWNLOAD"
+      action              = "ALERT"
+      file_selection_mode = "CUSTOM_FILE_TYPES"
+      custom_file_types {
+        file_types = ["PE"]
+      }
+    }
+
+    wildfire_overrides {
+      protocol = "WILDFIRE_SMTP"
+      action   = "WILDFIRE_ALLOW"
+    }
+
+    wildfire_inline_ml_overrides {
+      protocol = "WILDFIRE_HTTP2"
+      action   = "WILDFIRE_DENY"
+    }
+
+    wildfire_threat_overrides {
+      threat_id = "67890"
+      action    = "WILDFIRE_DEFAULT_ACTION"
+    }
+
+    wildfire_inline_ml_setting {
+      inline_ml_configs {
+        file_type = "SHELL"
+        action    = "DISABLE"
+      }
+
+      file_exceptions {
+        partial_hash = "fedcba54321"
+        filename     = "updated.exe"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireRemoveBlocksExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_security_security_profile" "default" {
+  name        = "%{resource_name}"
+  parent      = "projects/%{project}"
+  description = "my updated description"
+  type        = "WILDFIRE_ANALYSIS"
+
+  wildfire_analysis_profile {
+    wildfire_realtime_lookup = true
+  }
+}
+`, context)
+}
+
+func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireRemoveProfileExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_security_security_profile" "default" {
+  name        = "%{resource_name}"
+  parent      = "projects/%{project}"
+  description = "my description"
+  type        = "WILDFIRE_ANALYSIS"
+}
+`, context)
+}
+
+func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireMinimalExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"resource_name": "tf-test-my-security-profile" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkSecuritySecurityProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireMinimalExample(context),
+			},
+			{
+				ResourceName:            "google_network_security_security_profile.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_security_profile.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfireMinimalExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_security_security_profile" "default" {
+  name        = "%{resource_name}"
+  parent      = "projects/%{project}"
+  description = "my description"
+  type        = "WILDFIRE_ANALYSIS"
 }
 `, context)
 }
