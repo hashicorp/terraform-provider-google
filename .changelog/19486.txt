@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed `resourceNotReady` errors across Compute Engine resources by retrying HTTP 400 `resourceNotReady` responses globally
+```
