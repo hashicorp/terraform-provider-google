@@ -279,6 +279,16 @@ func resourceHealthcareDatasetCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	err = HealthcareOperationWaitTime(
+		config, res, project, "Creating Dataset", userAgent,
+		d.Timeout(schema.TimeoutCreate))
+
+	if err != nil {
+		// The resource didn't actually create
+		d.SetId("")
+		return fmt.Errorf("Error waiting to create Dataset: %s", err)
+	}
+
 	log.Printf("[DEBUG] Finished creating Dataset %q: %#v", d.Id(), res)
 
 	identity, err := d.Identity()

@@ -46,6 +46,7 @@ var (
 type HealthcareOperationWaiter struct {
 	Config    *transport_tpg.Config
 	UserAgent string
+	Project   string
 	tpgresource.CommonOperationWaiter
 }
 
@@ -57,17 +58,20 @@ func (w *HealthcareOperationWaiter) QueryOp() (interface{}, error) {
 	url := transport_tpg.BaseUrl(Product, w.Config)
 	url += fmt.Sprintf("%s", w.CommonOperationWaiter.Op.Name)
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    w.Config,
-		Method:    "GET",
-		RawURL:    url,
-		UserAgent: w.UserAgent,
+		Config:               w.Config,
+		Method:               "GET",
+		Project:              w.Project,
+		RawURL:               url,
+		UserAgent:            w.UserAgent,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.HealthcareDatasetNotInitialized},
 	})
 }
 
-func createHealthcareWaiter(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string) (*HealthcareOperationWaiter, error) {
+func createHealthcareWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*HealthcareOperationWaiter, error) {
 	w := &HealthcareOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
+		Project:   project,
 	}
 	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
 		return nil, err
@@ -76,8 +80,8 @@ func createHealthcareWaiter(config *transport_tpg.Config, op map[string]interfac
 }
 
 // nolint: deadcode,unused
-func HealthcareOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
-	w, err := createHealthcareWaiter(config, op, activity, userAgent)
+func HealthcareOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+	w, err := createHealthcareWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		return err
 	}
@@ -91,12 +95,12 @@ func HealthcareOperationWaitTimeWithResponse(config *transport_tpg.Config, op ma
 	return json.Unmarshal(rawResponse, response)
 }
 
-func HealthcareOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+func HealthcareOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil
 	}
-	w, err := createHealthcareWaiter(config, op, activity, userAgent)
+	w, err := createHealthcareWaiter(config, op, project, activity, userAgent)
 	if err != nil {
 		// If w is nil, the op was synchronous.
 		return err
