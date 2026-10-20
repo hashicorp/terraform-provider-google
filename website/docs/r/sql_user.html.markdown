@@ -173,7 +173,8 @@ The following arguments are supported:
     include "BUILT_IN", "CLOUD_IAM_USER", "CLOUD_IAM_SERVICE_ACCOUNT", "CLOUD_IAM_GROUP",
     "CLOUD_IAM_GROUP_USER" and "CLOUD_IAM_GROUP_SERVICE_ACCOUNT" for
     [Postgres](https://cloud.google.com/sql/docs/postgres/admin-api/rest/v1beta4/users#sqlusertype)
-    and [MySQL](https://cloud.google.com/sql/docs/mysql/admin-api/rest/v1beta4/users#sqlusertype).
+    and [MySQL](https://cloud.google.com/sql/docs/mysql/admin-api/rest/v1beta4/users#sqlusertype),
+    and "BUILT_IN" and "ENTRAID_USER" for [SQL Server](https://cloud.google.com/sql/docs/sqlserver/admin-api/rest/v1beta4/users#sqlusertype).
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
     When a 'terraform destroy' or 'terraform apply' would delete the resource,

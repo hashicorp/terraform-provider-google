@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed issue where creating SQL Server Entra ID users (`google_sql_user` with `type = "ENTRAID_USER"`) failed state refresh due to username domain truncation
+```
