@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed a crash when empty configuration blocks such as `node_config {}` are specified on `google_container_cluster` or `google_container_node_pool`, or blocks with zero values are specified like `authenticator_groups_config {}`
+```

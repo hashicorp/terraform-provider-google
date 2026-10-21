@@ -1576,7 +1576,7 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 		// Defaults can't be set on a list/set in the schema, so set the default on create here.
 		OauthScopes: defaultOauthScopes,
 	}
-	if len(nodeConfigs) == 0 {
+	if len(nodeConfigs) == 0 || nodeConfigs[0] == nil {
 		return nc
 	}
 
@@ -1852,49 +1852,50 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 
 	if v, ok := nodeConfig["kubelet_config"]; ok {
 		nc.KubeletConfig = expandKubeletConfig(v)
+		if nc.KubeletConfig != nil {
+			// start cpu_cfs_quota fix https://github.com/hashicorp/terraform-provider-google/issues/15767
+			// this makes the field conditional on appearance in configuration. This allows the API `true` default
+			// to override null, where currently we force-send null as false, which is wrong.
+			rawConfigNPRoot := d.GetRawConfig()
+			// if we have a prefix, we're in `node_pool.N.` in GKE Cluster. Traverse the RawConfig object to reach that
+			// root, at which point local references work going forwards.
+			if prefix != "" {
+				parts := strings.Split(prefix, ".") // "node_pool.N." -> ["node_pool" "N", ""]
+				npIndex, err := strconv.Atoi(parts[1])
+				if err != nil { // no error return from expander
+					panic(fmt.Errorf("unexpected format for node pool path prefix: %w. value: %v", err, prefix))
+				}
 
-		// start cpu_cfs_quota fix https://github.com/hashicorp/terraform-provider-google/issues/15767
-		// this makes the field conditional on appearance in configuration. This allows the API `true` default
-		// to override null, where currently we force-send null as false, which is wrong.
-		rawConfigNPRoot := d.GetRawConfig()
-		// if we have a prefix, we're in `node_pool.N.` in GKE Cluster. Traverse the RawConfig object to reach that
-		// root, at which point local references work going forwards.
-		if prefix != "" {
-			parts := strings.Split(prefix, ".") // "node_pool.N." -> ["node_pool" "N", ""]
-			npIndex, err := strconv.Atoi(parts[1])
-			if err != nil { // no error return from expander
-				panic(fmt.Errorf("unexpected format for node pool path prefix: %w. value: %v", err, prefix))
+				rawConfigNPRoot = rawConfigNPRoot.GetAttr("node_pool").Index(cty.NumberIntVal(int64(npIndex)))
 			}
 
-			rawConfigNPRoot = rawConfigNPRoot.GetAttr("node_pool").Index(cty.NumberIntVal(int64(npIndex)))
-		}
-
-		if vNC := rawConfigNPRoot.GetAttr("node_config"); vNC.LengthInt() > 0 {
-			if vKC := vNC.Index(cty.NumberIntVal(0)).GetAttr("kubelet_config"); vKC.LengthInt() > 0 {
-				v := vKC.Index(cty.NumberIntVal(0)).GetAttr("cpu_cfs_quota")
-				if v == cty.NullVal(cty.Bool) {
-					nc.KubeletConfig.CpuCfsQuota = true
-				} else if v.False() { // force-send explicit false to API
-					nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "CpuCfsQuota")
+			if vNC := rawConfigNPRoot.GetAttr("node_config"); vNC.LengthInt() > 0 {
+				if vKC := vNC.Index(cty.NumberIntVal(0)).GetAttr("kubelet_config"); vKC.LengthInt() > 0 {
+					v := vKC.Index(cty.NumberIntVal(0)).GetAttr("cpu_cfs_quota")
+					if v == cty.NullVal(cty.Bool) {
+						nc.KubeletConfig.CpuCfsQuota = true
+					} else if v.False() { // force-send explicit false to API
+						nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "CpuCfsQuota")
+					}
 				}
 			}
-		}
-		// end cpu_cfs_quota fix
+			// end cpu_cfs_quota fix
 
-		// start shutdown_grace_period ForceSendFields fix
-		if vNC := rawConfigNPRoot.GetAttr("node_config"); vNC.LengthInt() > 0 {
-			if vKC := vNC.Index(cty.NumberIntVal(0)).GetAttr("kubelet_config"); vKC.LengthInt() > 0 {
-				vSGP := vKC.Index(cty.NumberIntVal(0)).GetAttr("shutdown_grace_period_seconds")
-				if vSGP != cty.NullVal(cty.Number) && !vSGP.IsNull() {
-					nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "ShutdownGracePeriodSeconds")
-				}
-				vSGPC := vKC.Index(cty.NumberIntVal(0)).GetAttr("shutdown_grace_period_critical_pods_seconds")
-				if vSGPC != cty.NullVal(cty.Number) && !vSGPC.IsNull() {
-					nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "ShutdownGracePeriodCriticalPodsSeconds")
+			// start shutdown_grace_period ForceSendFields fix
+			if vNC := rawConfigNPRoot.GetAttr("node_config"); vNC.LengthInt() > 0 {
+				if vKC := vNC.Index(cty.NumberIntVal(0)).GetAttr("kubelet_config"); vKC.LengthInt() > 0 {
+					vSGP := vKC.Index(cty.NumberIntVal(0)).GetAttr("shutdown_grace_period_seconds")
+					if vSGP != cty.NullVal(cty.Number) && !vSGP.IsNull() {
+						nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "ShutdownGracePeriodSeconds")
+					}
+					vSGPC := vKC.Index(cty.NumberIntVal(0)).GetAttr("shutdown_grace_period_critical_pods_seconds")
+					if vSGPC != cty.NullVal(cty.Number) && !vSGPC.IsNull() {
+						nc.KubeletConfig.ForceSendFields = append(nc.KubeletConfig.ForceSendFields, "ShutdownGracePeriodCriticalPodsSeconds")
+					}
 				}
 			}
+			// end shutdown_grace_period ForceSendFields fix
 		}
-		// end shutdown_grace_period ForceSendFields fix
 	}
 
 	if v, ok := nodeConfig["linux_node_config"]; ok {
@@ -1966,7 +1967,7 @@ func expandBootDiskConfig(v interface{}) *container.BootDisk {
 		return nil
 	}
 	ls := v.([]interface{})
-	if len(ls) == 0 {
+	if len(ls) == 0 || ls[0] == nil {
 		return nil
 	}
 	cfg := ls[0].(map[string]interface{})
@@ -2012,7 +2013,7 @@ func expandWorkloadMetadataConfig(v interface{}) *container.WorkloadMetadataConf
 		return nil
 	}
 	ls := v.([]interface{})
-	if len(ls) == 0 {
+	if len(ls) == 0 || ls[0] == nil {
 		return nil
 	}
 	wmc := &container.WorkloadMetadataConfig{}
@@ -2038,7 +2039,7 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 		return nil
 	}
 	ls := v.([]interface{})
-	if len(ls) == 0 {
+	if len(ls) == 0 || ls[0] == nil {
 		return nil
 	}
 	cfg := ls[0].(map[string]interface{})
@@ -2099,7 +2100,7 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 	if shutdownGracePeriodCriticalPodsSeconds, ok := cfg["shutdown_grace_period_critical_pods_seconds"]; ok {
 		kConfig.ShutdownGracePeriodCriticalPodsSeconds = int64(shutdownGracePeriodCriticalPodsSeconds.(int))
 	}
-	if v, ok := cfg["eviction_soft"]; ok && len(v.([]interface{})) > 0 {
+	if v, ok := cfg["eviction_soft"]; ok && len(v.([]interface{})) > 0 && v.([]interface{})[0] != nil {
 		es := v.([]interface{})[0].(map[string]interface{})
 		evictionSoft := &container.EvictionSignals{}
 		if val, ok := es["memory_available"]; ok {
@@ -2130,7 +2131,7 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 		kConfig.TopologyManager = expandTopologyManager(v)
 	}
 
-	if v, ok := cfg["eviction_soft_grace_period"]; ok && len(v.([]interface{})) > 0 {
+	if v, ok := cfg["eviction_soft_grace_period"]; ok && len(v.([]interface{})) > 0 && v.([]interface{})[0] != nil {
 		es := v.([]interface{})[0].(map[string]interface{})
 		periods := &container.EvictionGracePeriod{}
 		if val, ok := es["memory_available"]; ok {
@@ -2153,7 +2154,7 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 		}
 		kConfig.EvictionSoftGracePeriod = periods
 	}
-	if v, ok := cfg["eviction_minimum_reclaim"]; ok && len(v.([]interface{})) > 0 {
+	if v, ok := cfg["eviction_minimum_reclaim"]; ok && len(v.([]interface{})) > 0 && v.([]interface{})[0] != nil {
 		es := v.([]interface{})[0].(map[string]interface{})
 		reclaim := &container.EvictionMinimumReclaim{}
 		if val, ok := es["memory_available"]; ok {
@@ -2176,7 +2177,7 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 		}
 		kConfig.EvictionMinimumReclaim = reclaim
 	}
-	if v, ok := cfg["crash_loop_back_off"]; ok && len(v.([]interface{})) > 0 {
+	if v, ok := cfg["crash_loop_back_off"]; ok && len(v.([]interface{})) > 0 && v.([]interface{})[0] != nil {
 		clb := v.([]interface{})[0].(map[string]interface{})
 		crashLoopBackOff := &container.CrashLoopBackOffConfig{}
 		if val, ok := clb["max_container_restart_period"]; ok {
@@ -2293,7 +2294,7 @@ func expandWindowsNodeConfig(v interface{}) *container.WindowsNodeConfig {
 		return nil
 	}
 	ls := v.([]interface{})
-	if len(ls) == 0 {
+	if len(ls) == 0 || ls[0] == nil {
 		return nil
 	}
 	cfg := ls[0].(map[string]interface{})
@@ -2311,7 +2312,7 @@ func expandNodeImageConfig(v interface{}) *container.CustomImageConfig {
 		return nil
 	}
 	ls := v.([]interface{})
-	if len(ls) == 0 {
+	if len(ls) == 0 || ls[0] == nil {
 		return nil
 	}
 	cfg := ls[0].(map[string]interface{})
@@ -2834,7 +2835,7 @@ func expandSoleTenantConfig(v interface{}) *container.SoleTenantConfig {
 		return nil
 	}
 	ls := v.([]interface{})
-	if len(ls) == 0 {
+	if len(ls) == 0 || ls[0] == nil {
 		return nil
 	}
 	stConfig := &container.SoleTenantConfig{}
