@@ -276,10 +276,10 @@ resource "google_app_engine_standard_app_version" "gae-std-app-ver-vpc-access" {
   provider     = google-beta
   version_id   = "v1"
   service      = "vpc-service"
-  runtime      = "python310"
+  runtime      = "python312"
 
   vpc_access {
-    egress_setting = "ALL_TRAFFIC"
+    vpc_egress = "ALL_TRAFFIC"
     network_interfaces {
       network    = google_compute_network.custom.name
       subnetwork = google_compute_subnetwork.custom.name
@@ -577,8 +577,15 @@ The following arguments are supported:
 <a name="nested_vpc_access"></a>The `vpc_access` block supports:
 
 * `egress_setting` -
-  (Optional)
+  (Optional, Deprecated)
   The egress setting for the VPC Access, controlling what traffic is diverted through it.
+
+  ~> **Warning:** `egress_setting` is deprecated and will be removed in a future major release. Use `vpc_egress` instead.
+
+* `vpc_egress` -
+  (Optional)
+  The traffic egress setting for the VPC network interface, controlling what traffic is diverted through it.
+  Possible values are: `ALL_TRAFFIC`, `PRIVATE_IP_RANGES`.
 
 * `network_interfaces` -
   (Optional)
@@ -590,11 +597,11 @@ The following arguments are supported:
 
 * `network` -
   (Optional)
-  The name of the VPC network to which the version connects (e.g. `projects/my-project/global/networks/default`).
+  The VPC network that the App Engine resource will be able to send traffic to. At least one of network or subnetwork must be specified. If both network and subnetwork are specified, the given VPC subnetwork must belong to the given VPC network. If network is not specified, it will be looked up from the subnetwork. Could be either a short name or a full path (e.g. `default` or `projects/my-project/global/networks/default`).
 
 * `subnetwork` -
   (Optional)
-  The name of the subnetwork to which the version connects (e.g. `projects/my-project/regions/us-central1/subnetworks/default`).
+  The VPC subnetwork that the App Engine resource will get IPs from. At least one of network or subnetwork must be specified. If both network and subnetwork are specified, the given VPC subnetwork must belong to the given VPC network. If subnetwork is not specified, the subnetwork with the same name with the network will be used. Could be either a short name or a full path (e.g. `default` or `projects/my-project/regions/us-central1/subnetworks/default`).
 
 * `tags` -
   (Optional)
