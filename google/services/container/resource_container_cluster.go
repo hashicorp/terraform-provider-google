@@ -6103,7 +6103,7 @@ func shouldInclude(d *schema.ResourceData, key string) bool {
 
 func expandAuthenticatorGroupsConfig(configured interface{}) *container.AuthenticatorGroupsConfig {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
 	result := &container.AuthenticatorGroupsConfig{}
@@ -6147,7 +6147,7 @@ func flattenSecurityPostureConfig(spc *container.SecurityPostureConfig) []map[st
 
 func expandEnterpriseConfig(configured interface{}) *container.EnterpriseConfig {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
 
@@ -6404,7 +6404,7 @@ func flattenManagedOpenTelemetryConfig(c *container.ManagedOpenTelemetryConfig) 
 func expandNetworkPolicy(configured interface{}) *container.NetworkPolicy {
 	result := &container.NetworkPolicy{}
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return result
 	}
 	config := l[0].(map[string]interface{})
@@ -6518,7 +6518,7 @@ func expandControlPlaneEndpointsConfig(d *schema.ResourceData) *container.Contro
 
 func expandVerticalPodAutoscaling(configured interface{}) *container.VerticalPodAutoscaling {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
 	config := l[0].(map[string]interface{})
@@ -6529,7 +6529,7 @@ func expandVerticalPodAutoscaling(configured interface{}) *container.VerticalPod
 
 func expandServiceExternalIpsConfig(configured interface{}) *container.ServiceExternalIPsConfig {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
 	config := l[0].(map[string]interface{})
@@ -6541,7 +6541,7 @@ func expandServiceExternalIpsConfig(configured interface{}) *container.ServiceEx
 
 func expandMeshCertificates(configured interface{}) *container.MeshCertificates {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
 	config := l[0].(map[string]interface{})
@@ -6553,7 +6553,7 @@ func expandMeshCertificates(configured interface{}) *container.MeshCertificates 
 
 func expandDatabaseEncryption(configured interface{}) *container.DatabaseEncryption {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
 	config := l[0].(map[string]interface{})
@@ -6631,6 +6631,9 @@ func expandWorkloadIdentityConfig(configured interface{}) *container.WorkloadIde
 func expandIdentityServiceConfig(configured interface{}) *container.IdentityServiceConfig {
 	l := configured.([]interface{})
 	v := &container.IdentityServiceConfig{}
+	if len(l) == 0 || l[0] == nil {
+		return v
+	}
 
 	config := l[0].(map[string]interface{})
 	v.Enabled = config["enabled"].(bool)
@@ -6734,7 +6737,7 @@ func expandDefaultMaxPodsConstraint(v interface{}) *container.MaxPodsConstraint 
 
 func expandCostManagementConfig(configured interface{}) *container.CostManagementConfig {
 	l := configured.([]interface{})
-	if len(l) == 0 {
+	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
 
@@ -8480,7 +8483,7 @@ func SecretManagerCfgSuppress(k, old, new string, r *schema.ResourceData) bool {
 	if k == "secret_manager_config.#" && old == "1" && new == "0" {
 		if v, ok := r.GetOk("secret_manager_config"); ok {
 			cfgList := v.([]interface{})
-			if len(cfgList) > 0 {
+			if len(cfgList) > 0 && cfgList[0] != nil {
 				d := cfgList[0].(map[string]interface{})
 				// Suppress if old value was {enabled == false}
 				return !d["enabled"].(bool)
@@ -8506,7 +8509,7 @@ func SecretSyncCfgSuppress(k, old, new string, r *schema.ResourceData) bool {
 	if k == "secret_sync_config.#" && old == "1" && new == "0" {
 		if v, ok := r.GetOk("secret_sync_config"); ok {
 			cfgList := v.([]interface{})
-			if len(cfgList) > 0 {
+			if len(cfgList) > 0 && cfgList[0] != nil {
 				d := cfgList[0].(map[string]interface{})
 				// Suppress if old value was {enabled == false}
 				return !d["enabled"].(bool)
