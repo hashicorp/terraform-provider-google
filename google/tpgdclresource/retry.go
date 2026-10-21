@@ -18,11 +18,11 @@ package tpgdclresource
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/cenkalti/backoff"
-	glog "github.com/golang/glog"
 )
 
 // Stop is a value that indicates that no more retries should be attempted.
@@ -147,7 +147,7 @@ func Do(ctx context.Context, op Operation, retryProvider RetryProvider) error {
 		select {
 		case <-ctx.Done():
 			t.Stop()
-			glog.Info("retryable operation canceled by context")
+			log.Print("retryable operation canceled by context")
 			return OperationNotDone{}
 		case <-t.C:
 		}
