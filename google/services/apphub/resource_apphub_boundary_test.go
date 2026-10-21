@@ -53,17 +53,18 @@ var (
 func TestAccApphubBoundary_apphubBoundary_update(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"crm_node_project_number": envvar.GetTestProjectNumberFromEnv(),
-		"random_suffix":           acctest.RandString(t, 10),
-	}
+	crmNode := fmt.Sprintf("projects/%s", envvar.GetTestProjectNumberFromEnv())
+	randomSuffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccApphubBoundary_apphubBoundaryBasicExample(context),
+				Config: testAccApphubBoundary_apphubBoundaryBasicExample(map[string]interface{}{
+					"crm_node":      crmNode,
+					"random_suffix": randomSuffix,
+				}),
 			},
 			{
 				ResourceName:            "google_apphub_boundary.example",
@@ -72,7 +73,10 @@ func TestAccApphubBoundary_apphubBoundary_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"location"},
 			},
 			{
-				Config: testAccApphubBoundary_apphubBoundaryNoCrmNode(context),
+				Config: testAccApphubBoundary_apphubBoundaryBasicExample(map[string]interface{}{
+					"crm_node":      nil,
+					"random_suffix": randomSuffix,
+				}),
 			},
 			{
 				ResourceName:            "google_apphub_boundary.example",
@@ -88,15 +92,7 @@ func testAccApphubBoundary_apphubBoundaryBasicExample(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_apphub_boundary" "example" {
   location = "global"
-  crm_node = "projects/%{crm_node_project_number}"
-}
-`, context)
-}
-
-func testAccApphubBoundary_apphubBoundaryNoCrmNode(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_apphub_boundary" "example" {
-  location = "global"
+  crm_node = "%{crm_node}"
 }
 `, context)
 }
