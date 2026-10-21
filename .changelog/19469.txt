@@ -1,0 +1,11 @@
+```release-note:enhancement
+appengine: added `vpc_access.vpc_egress` field to `google_app_engine_standard_app_version` (beta)
+```
+
+```release-note:bug
+appengine: fixed diff on API-provided values for `vpc_access.network_interfaces.network` and `vpc_access.network_interfaces.subnetwork` in `google_app_engine_standard_app_version` (beta)
+```
+
+```release-note:deprecation
+appengine: deprecated `vpc_access.egress_setting` in `google_app_engine_standard_app_version` (beta); use `vpc_access.vpc_egress` instead
+```
