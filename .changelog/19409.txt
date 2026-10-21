@@ -1,0 +1,3 @@
+```release-note:enhancement
+hypercomputecluster: added `compute_resources.config.new_flex_start_instances.network_tags`, `compute_resources.config.new_on_demand_instances.network_tags`, `compute_resources.config.new_reserved_instances.network_tags`, `compute_resources.config.new_spot_instances.network_tags`, `orchestrator.slurm.login_nodes.network_tags`, and `storage_resources.config.existing_nfs` fields to `google_hypercomputecluster_cluster` resource (beta)
+```
