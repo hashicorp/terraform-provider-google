@@ -185,7 +185,8 @@ resource "google_compute_network" "network2" {
 // redis cluster without endpoint
 resource "google_redis_cluster" "cluster-user-conn" {
   name           = "cluster-user-conn"
-  shard_count    = 3
+  shard_count    = 1
+  node_type = "REDIS_SHARED_CORE_NANO"
   region = "us-east1"
   replica_count = 0
   deletion_protection_enabled = false
@@ -278,7 +279,8 @@ resource "google_compute_network" "network2" {
 // redis cluster without endpoint
 resource "google_redis_cluster" "cluster-user-auto-conn" {
   name           = "cluster-user-auto-conn"
-  shard_count    = 3
+  shard_count    = 1
+  node_type = "REDIS_SHARED_CORE_NANO"
   region = "us-east1"
   replica_count = 0
   deletion_protection_enabled = false

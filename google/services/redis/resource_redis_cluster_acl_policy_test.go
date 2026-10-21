@@ -126,6 +126,7 @@ resource "google_redis_cluster_acl_policy" "test" {
 resource "google_redis_cluster" "test" {
   name                        = "tf-test-redis-%{random_suffix}"
   shard_count                 = 1
+  node_type                   = "REDIS_SHARED_CORE_NANO"
   region                      = "us-east1"
   deletion_protection_enabled = false
 
