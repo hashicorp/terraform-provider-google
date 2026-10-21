@@ -19,12 +19,11 @@ package tpgdclresource
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"reflect"
 	re "regexp"
 	"strconv"
 	"strings"
-
-	glog "github.com/golang/glog"
 )
 
 // MoveMapEntry moves the entry at `from` to `to`.  `from` and `to` are slices
@@ -150,7 +149,7 @@ func deleteIfEmpty(m map[string]any, from []string) error {
 		}
 		smap, ok := sub.(map[string]any)
 		if !ok {
-			glog.Warningf("In deleting empty map while marshalling, %v not map[string]interface{}", sub)
+			log.Printf("In deleting empty map while marshalling, %v not map[string]interface{}", sub)
 			return nil
 		}
 		deleteIfEmpty(smap, from[1:])
@@ -198,7 +197,7 @@ func MapFromListOfKeyValues(rawFetch map[string]any, path []string, keyName, val
 	i, err := GetMapEntry(rawFetch, path)
 	if err != nil {
 		// If there's nothing there, it's okay to ignore.
-		glog.Warningf("In converting a map to [{\"key\": k, ...}, ...] format, no entry at %q in %v", path, rawFetch)
+		log.Printf("In converting a map to [{\"key\": k, ...}, ...] format, no entry at %q in %v", path, rawFetch)
 		return nil, nil
 	}
 	il, ok := i.([]any)

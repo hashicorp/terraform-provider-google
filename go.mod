@@ -12,7 +12,6 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dnaeon/go-vcr v1.2.0
 	github.com/gammazero/workerpool v1.2.2
-	github.com/golang/glog v1.2.5
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-cpy v0.0.0-20211218193943-a9c933c06932
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0

@@ -19,6 +19,7 @@ package tpgdclresource
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"net/http/httputil"
@@ -26,9 +27,6 @@ import (
 	"strings"
 	"time"
 
-	// glog aliased import is necessary since these packages will be open-sourced
-	// and that is the public name of the google logging package.
-	glog "github.com/golang/glog"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 )
@@ -447,42 +445,42 @@ type glogger struct {
 // Fatal records Fatal errors.
 func (l glogger) Fatal(args ...any) {
 	if l.level >= Fatal {
-		glog.Fatal(args...)
+		log.Fatal(args...)
 	}
 }
 
 // Fatalf records Fatal errors with added arguments.
 func (l glogger) Fatalf(format string, args ...any) {
 	if l.level >= Fatal {
-		glog.Fatalf(format, HandleLogArgs(args...)...)
+		log.Fatalf(format, HandleLogArgs(args...)...)
 	}
 }
 
 // Info records Info errors.
 func (l glogger) Info(args ...any) {
 	if l.level >= LoggerInfo {
-		glog.Info(args...)
+		log.Print(args...)
 	}
 }
 
 // Infof records Info errors with added arguments.
 func (l glogger) Infof(format string, args ...any) {
 	if l.level >= LoggerInfo {
-		glog.Infof(format, HandleLogArgs(args...)...)
+		log.Printf(format, HandleLogArgs(args...)...)
 	}
 }
 
 // Warningf records Warning errors with added arguments.
 func (l glogger) Warningf(format string, args ...any) {
 	if l.level >= Warning {
-		glog.Warningf(format, HandleLogArgs(args...)...)
+		log.Printf(format, HandleLogArgs(args...)...)
 	}
 }
 
 // Warning records Warning errors.
 func (l glogger) Warning(args ...any) {
 	if l.level >= Warning {
-		glog.Warning(args...)
+		log.Print(args...)
 	}
 }
 
