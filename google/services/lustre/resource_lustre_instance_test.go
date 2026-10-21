@@ -67,11 +67,11 @@ func testAccLustreInstance_withMaintenancePolicy(context map[string]interface{})
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
   instance_id                 = "tf-test-my-instance%{random_suffix}"
-  location                    = "us-central1-c"
+  location                    = "us-east4-b"
   filesystem                  = "testfs"
   network                     = data.google_compute_network.lustre-network.id
   gke_support_enabled         = false
-  capacity_gib                = 18000
+  capacity_gib                = 9000
   per_unit_storage_throughput = 1000
 
   maintenance_policy {
@@ -155,11 +155,11 @@ func testAccLustreInstance_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
   instance_id                 = "tf-test-my-instance%{random_suffix}"
-  location                    = "us-central1-a"
+  location                    = "us-east4-a"
   filesystem                  = "testfs"
   network                     = data.google_compute_network.lustre-network.id
   gke_support_enabled         = false
-  capacity_gib                = 18000
+  capacity_gib                = 9000
   per_unit_storage_throughput = 1000
   timeouts {
 	create = "120m"
@@ -226,11 +226,11 @@ func testAccLustreInstance_withAccessRulesOptions(context map[string]interface{}
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
   instance_id                 = "tf-test-my-instance%{random_suffix}"
-  location                    = "us-central1-a"
+  location                    = "us-east4-a"
   filesystem                  = "testfs"
   network                     = data.google_compute_network.lustre-network.id
   gke_support_enabled         = false
-  capacity_gib                = 18000
+  capacity_gib                = 9000
   per_unit_storage_throughput = 1000
   
   access_rules_options {
@@ -265,11 +265,11 @@ func testAccLustreInstance_withAccessRulesOptionsUpdate(context map[string]inter
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
   instance_id                 = "tf-test-my-instance%{random_suffix}"
-  location                    = "us-central1-a"
+  location                    = "us-east4-a"
   filesystem                  = "testfs"
   network                     = data.google_compute_network.lustre-network.id
   gke_support_enabled         = false
-  capacity_gib                = 18000
+  capacity_gib                = 9000
   per_unit_storage_throughput = 1000
   
   access_rules_options {
@@ -301,7 +301,7 @@ func TestAccLustreInstance_withKmsKey(t *testing.T) {
 	context := map[string]interface{}{
 		"network_name":  tpgcompute.BootstrapSharedTestNetwork(t, "default-vpc"),
 		"random_suffix": acctest.RandString(t, 10),
-		"kms":           kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"kms":           kms.BootstrapKMSKeyInLocation(t, "us-east4").CryptoKey.Name,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -325,11 +325,11 @@ func testAccLustreInstance_withKmsKey(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
   instance_id                 = "tf-test-my-instance%{random_suffix}"
-  location                    = "us-central1-a"
+  location                    = "us-east4-a"
   filesystem                  = "testfs"
   network                     = data.google_compute_network.lustre-network.id
   gke_support_enabled         = false
-  capacity_gib                = 18000
+  capacity_gib                = 9000
   per_unit_storage_throughput = 1000
   kms_key                     = "%{kms}"
   
@@ -359,9 +359,9 @@ func testAccLustreInstance_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
   instance_id                 = "tf-test-my-instance%{random_suffix}"
-  location                    = "us-central1-a"
+  location                    = "us-east4-a"
   filesystem                  = "testfs"
-  capacity_gib                = 18000
+  capacity_gib                = 9000
   network                     = data.google_compute_network.lustre-network.id
   description                 = "test-description"
   per_unit_storage_throughput = 1000
@@ -417,11 +417,11 @@ func testAccLustreInstance_withPlacementPolicy(context map[string]interface{}) s
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
   instance_id                 = "tf-test-my-instance%{random_suffix}"
-  location                    = "us-central1-a"
+  location                    = "us-east4-a"
   filesystem                  = "testfs"
   network                     = data.google_compute_network.lustre-network.id
   gke_support_enabled         = false
-  capacity_gib                = 18000
+  capacity_gib                = 9000
   per_unit_storage_throughput = 1000
   
   placement_policy  = google_compute_resource_policy.lustre_policy.id
@@ -433,7 +433,7 @@ resource "google_lustre_instance" "instance" {
 
 resource "google_compute_resource_policy" "lustre_policy" {
   name   = "tf-test-gce-policy-%{random_suffix}"
-  region = "us-central1"
+  region = "us-east4"
   snapshot_schedule_policy {
     schedule {
       daily_schedule {

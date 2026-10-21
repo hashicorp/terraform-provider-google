@@ -57,9 +57,9 @@ func testAccLustreInstanceDatasource_basic(context map[string]interface{}) strin
 	return acctest.Nprintf(`
 resource "google_lustre_instance" "instance" {
   instance_id                 = "tf-test-%{random_suffix}"
-  location                    = "us-central1-a"
+  location                    = "us-east4-a"
   filesystem                  = "testfs"
-  capacity_gib                = 18000
+  capacity_gib                = 9000
   network                     = data.google_compute_network.lustre-network.id
   gke_support_enabled         = false
   per_unit_storage_throughput = 1000
@@ -79,7 +79,7 @@ data "google_compute_network" "lustre-network" {
 
 data "google_lustre_instance" "default" {
   instance_id             = google_lustre_instance.instance.instance_id
-  zone                    = "us-central1-a"
+  zone                    = "us-east4-a"
 }
 `, context)
 }
