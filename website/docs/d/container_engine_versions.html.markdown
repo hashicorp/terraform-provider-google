@@ -81,9 +81,11 @@ The following attributes are exported:
 
 * `valid_master_versions` - A list of versions available in the given zone for use with master instances.
 * `valid_node_versions` - A list of versions available in the given zone for use with node instances.
+* `valid_image_types` - A list of the valid image types available in the given zone.
 * `latest_master_version` - The latest version available in the given zone for use with master instances.
 * `latest_node_version` - The latest version available in the given zone for use with node instances.
 * `default_cluster_version` - Version of Kubernetes the service deploys by default.
+* `default_image_type` - The default image type provided by this version of the API.
 * `release_channel_default_version` - A map from a release channel name to the channel's default version. See the docs on [available release channel names](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters#Cluster.Channel_1) for more details.
 * `release_channel_latest_version` - A map from a release channel name to the channel's latest version. See the docs on [available release channel names](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters#Cluster.Channel_1) for more details.
 * `release_channel_upgrade_target_version` - A map from a release channel name to the channel's auto upgrade target version. See the docs on [available release channel names](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters#Cluster.Channel_1) for more details.
