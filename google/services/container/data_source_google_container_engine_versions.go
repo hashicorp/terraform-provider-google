@@ -47,6 +47,10 @@ func DataSourceGoogleContainerEngineVersions() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"default_image_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"latest_master_version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -54,6 +58,11 @@ func DataSourceGoogleContainerEngineVersions() *schema.Resource {
 			"latest_node_version": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"valid_image_types": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"valid_master_versions": {
 				Type:     schema.TypeList,
@@ -144,6 +153,14 @@ func dataSourceGoogleContainerEngineVersionsRead(d *schema.ResourceData, meta in
 
 	if err := d.Set("default_cluster_version", resp.DefaultClusterVersion); err != nil {
 		return fmt.Errorf("Error setting default_cluster_version: %s", err)
+	}
+
+	if err := d.Set("default_image_type", resp.DefaultImageType); err != nil {
+		return fmt.Errorf("Error setting default_image_type: %s", err)
+	}
+
+	if err := d.Set("valid_image_types", resp.ValidImageTypes); err != nil {
+		return fmt.Errorf("Error setting valid_image_types: %s", err)
 	}
 
 	releaseChannelDefaultVersion := map[string]string{}

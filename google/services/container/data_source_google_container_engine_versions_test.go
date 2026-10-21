@@ -144,6 +144,24 @@ func testAccCheckGoogleContainerEngineVersionsMeta(n string) resource.TestCheckF
 			return errors.New("failed to read latest STABLE version")
 		}
 
+		_, ok = rs.Primary.Attributes["default_image_type"]
+		if !ok {
+			return errors.New("Didn't get a default image type.")
+		}
+
+		imageTypesCount, ok := rs.Primary.Attributes["valid_image_types.#"]
+		if !ok {
+			return errors.New("can't find 'valid_image_types' attribute")
+		}
+
+		noOfImageTypes, err := strconv.Atoi(imageTypesCount)
+		if err != nil {
+			return errors.New("failed to read number of valid image types")
+		}
+		if noOfImageTypes < 1 {
+			return fmt.Errorf("expected at least 1 valid image types, received %d", noOfImageTypes)
+		}
+
 		return nil
 	}
 }
