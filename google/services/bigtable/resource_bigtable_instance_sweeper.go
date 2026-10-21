@@ -19,12 +19,14 @@ package bigtable
 import (
 	"context"
 	"log"
+	"strings"
 
+	"cloud.google.com/go/bigtable"
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-// This will sweep GCE Disk resources
 func init() {
 	sweeper.AddTestSweepersLegacy("BigtableInstance", testSweepBigtableInstance)
 }
@@ -75,15 +77,19 @@ func testSweepBigtableInstance(region string) error {
 		obj := ri.(map[string]interface{})
 		if obj["name"] == nil {
 			log.Printf("[INFO][SWEEPER_LOG] %s resource id was nil", resourceName)
-			return nil
-		}
-
-		id := obj["displayName"].(string)
-		// Increment count and skip if resource is not sweepable.
-		if !sweeper.IsSweepableTestResource(id) {
 			nonPrefixCount++
 			continue
 		}
+
+		instanceName := obj["name"].(string)
+		id := tpgresource.GetResourceNameFromSelfLink(instanceName)
+		// Increment count and skip if resource is not sweepable.
+		if !sweeper.IsSweepableTestResource(id) && !strings.HasPrefix(id, "tf-bigtable-iam-") {
+			nonPrefixCount++
+			continue
+		}
+
+		sweepBigtableInstanceChildren(config, id, instanceName)
 
 		deleteUrl := servicesUrl + "/" + id
 		// Don't wait on operations as we may have a lot to delete
@@ -106,4 +112,176 @@ func testSweepBigtableInstance(region string) error {
 	}
 
 	return nil
+}
+
+func sweepBigtableInstanceChildren(config *transport_tpg.Config, instanceId, instanceName string) {
+	baseUrl := "https://bigtableadmin.googleapis.com/v2/"
+	instanceUrl := baseUrl + instanceName
+
+	// 1. Sweep logical views before materialized views and tables.
+	sweepBigtableViews(config, instanceUrl+"/logicalViews", "logicalViews", false)
+
+	// 2. Sweep materialized views before tables.
+	sweepBigtableViews(config, instanceUrl+"/materializedViews", "materializedViews", false)
+
+	// 3. Sweep authorized views and clear table-level deletion blockers (deletionProtection, changeStreamConfig, automatedBackupPolicy).
+	tablesUrl := instanceUrl + "/tables?view=SCHEMA_VIEW"
+	tblRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    tablesUrl,
+		UserAgent: config.UserAgent,
+	})
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] Error listing tables for instance %s: %s", instanceId, err)
+	} else if tableList, ok := tblRes["tables"].([]interface{}); ok {
+		var adminClient *bigtable.AdminClient
+		defer func() {
+			if adminClient != nil {
+				adminClient.Close()
+			}
+		}()
+
+		for _, ti := range tableList {
+			tbl, ok := ti.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			tblName, ok := tbl["name"].(string)
+			if !ok || tblName == "" {
+				continue
+			}
+			tableId := tpgresource.GetResourceNameFromSelfLink(tblName)
+			tblUrl := baseUrl + tblName
+
+			// Sweep any authorized views on the table.
+			sweepBigtableViews(config, tblUrl+"/authorizedViews?view=BASIC", "authorizedViews", true)
+
+			needsDeletionProtectionClear := false
+			if dp, ok := tbl["deletionProtection"].(bool); ok && dp {
+				needsDeletionProtectionClear = true
+			}
+			needsChangeStreamClear := tbl["changeStreamConfig"] != nil
+			needsAutomatedBackupClear := tbl["automatedBackupPolicy"] != nil
+
+			if needsDeletionProtectionClear || needsChangeStreamClear || needsAutomatedBackupClear {
+				if adminClient == nil {
+					c, err := NewClientFactory(config, config.UserAgent).NewAdminClient(config.Project, instanceId)
+					if err != nil {
+						log.Printf("[INFO][SWEEPER_LOG] Error starting Bigtable admin client for instance %s: %s", instanceId, err)
+						break
+					}
+					adminClient = c
+				}
+				ctx := context.Background()
+				if needsDeletionProtectionClear {
+					if err := adminClient.UpdateTableWithDeletionProtection(ctx, tableId, bigtable.Unprotected); err != nil {
+						log.Printf("[INFO][SWEEPER_LOG] Error clearing deletion protection on table %s: %s", tblName, err)
+					}
+				}
+				if needsChangeStreamClear {
+					if err := adminClient.UpdateTableDisableChangeStream(ctx, tableId); err != nil {
+						log.Printf("[INFO][SWEEPER_LOG] Error disabling change stream on table %s: %s", tblName, err)
+					}
+				}
+				if needsAutomatedBackupClear {
+					if err := adminClient.UpdateTableDisableAutomatedBackupPolicy(ctx, tableId); err != nil {
+						log.Printf("[INFO][SWEEPER_LOG] Error disabling automated backup policy on table %s: %s", tblName, err)
+					}
+				}
+			}
+		}
+	}
+
+	// 4. Sweep any backups across clusters in the instance.
+	backupsUrl := instanceUrl + "/clusters/-/backups"
+	bkRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    backupsUrl,
+		UserAgent: config.UserAgent,
+	})
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] Error listing backups for instance %s: %s", instanceId, err)
+	} else if backupList, ok := bkRes["backups"].([]interface{}); ok {
+		for _, bi := range backupList {
+			bk, ok := bi.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			bkName, ok := bk["name"].(string)
+			if !ok || bkName == "" {
+				continue
+			}
+			deleteUrl := baseUrl + bkName
+			if _, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				Project:   config.Project,
+				RawURL:    deleteUrl,
+				UserAgent: config.UserAgent,
+			}); err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error deleting backup %s: %s", bkName, err)
+			}
+		}
+	}
+}
+
+func sweepBigtableViews(config *transport_tpg.Config, listUrl, listKey string, ignoreWarnings bool) {
+	baseUrl := "https://bigtableadmin.googleapis.com/v2/"
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    listUrl,
+		UserAgent: config.UserAgent,
+	})
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] Error listing %s at %s: %s", listKey, listUrl, err)
+		return
+	}
+	viewList, ok := res[listKey].([]interface{})
+	if !ok {
+		return
+	}
+	for _, vi := range viewList {
+		view, ok := vi.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		viewName, ok := view["name"].(string)
+		if !ok || viewName == "" {
+			continue
+		}
+		viewUrl := baseUrl + viewName
+		if dp, ok := view["deletionProtection"].(bool); ok && dp {
+			patchUrl := viewUrl + "?updateMask=deletionProtection"
+			if ignoreWarnings {
+				patchUrl += "&ignoreWarnings=true"
+			}
+			if _, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "PATCH",
+				Project:   config.Project,
+				RawURL:    patchUrl,
+				UserAgent: config.UserAgent,
+				Body: map[string]interface{}{
+					"deletionProtection": false,
+				},
+			}); err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error clearing deletionProtection on %s: %s", viewName, err)
+			}
+		}
+		if _, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "DELETE",
+			Project:   config.Project,
+			RawURL:    viewUrl,
+			UserAgent: config.UserAgent,
+		}); err != nil {
+			log.Printf("[INFO][SWEEPER_LOG] Error deleting %s: %s", viewName, err)
+		}
+	}
 }
