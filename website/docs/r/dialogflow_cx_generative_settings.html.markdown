@@ -80,7 +80,7 @@ resource "google_dialogflow_cx_generative_settings" "full_generative_settings" {
   language_code = "en"
 
   llm_model_settings {
-    model = "gemini-2.0-flash-001"
+    model = "gemini-2.5-flash"
     prompt_text = "example prompt text"
   }
 }
