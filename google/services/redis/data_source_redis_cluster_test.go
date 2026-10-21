@@ -50,6 +50,7 @@ func testAccRedisClusterDatasourceConfig(context map[string]interface{}) string 
 resource "google_redis_cluster" "cluster" {
   name                           = "tf-test-redis-cluster-%{random_suffix}"
   shard_count                    = 1
+  node_type                      = "REDIS_SHARED_CORE_NANO"
   region                         = "us-east1"
   deletion_protection_enabled    = false 
   

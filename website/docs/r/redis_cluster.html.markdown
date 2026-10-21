@@ -118,7 +118,7 @@ To [detach](https://cloud.google.com/memorystore/docs/cluster/working-with-cross
 ```hcl
 resource "google_redis_cluster" "cluster-ha-with-labels" {
   name           = "ha-cluster"
-  shard_count    = 3
+  shard_count    = 1
   labels = {
     my_key = "my_val"
     other_key = "other_val" 
@@ -190,7 +190,7 @@ resource "google_compute_network" "consumer_net" {
 ```hcl
 resource "google_redis_cluster" "cluster-ha" {
   name           = "ha-cluster"
-  shard_count    = 3
+  shard_count    = 1
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
@@ -258,11 +258,12 @@ resource "google_compute_network" "consumer_net" {
 ```hcl
 resource "google_redis_cluster" "cluster-ha-single-zone" {
   name           = "ha-cluster-single-zone"
-  shard_count    = 3
+  shard_count    = 1
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
   region = "us-east1"
+  node_type = "REDIS_SHARED_CORE_NANO"
   zone_distribution_config {
     mode = "SINGLE_ZONE"
     zone = "us-east1-b"
@@ -331,11 +332,11 @@ resource "google_redis_cluster" "primary_cluster" {
   // Please see https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#settings_copied_from_the_primary_during_instance_creation for the complete list of such settings.
   authorization_mode = "AUTH_MODE_DISABLED"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
-  shard_count   = 3
+  shard_count   = 1
   redis_configs = {
     maxmemory-policy = "volatile-ttl"
   }
-  node_type = "REDIS_HIGHMEM_MEDIUM"
+  node_type = "REDIS_SHARED_CORE_NANO"
   persistence_config {
     mode = "RDB"
     rdb_config {
@@ -382,11 +383,11 @@ resource "google_redis_cluster" "secondary_cluster" {
   // Please see https://cloud.google.com/memorystore/docs/cluster/about-cross-region-replication#settings_copied_from_the_primary_during_instance_creation for the complete list of such settings.
   authorization_mode = "AUTH_MODE_DISABLED"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
-  shard_count   = 3
+  shard_count   = 1
   redis_configs = {
     maxmemory-policy = "volatile-ttl"
   }
-  node_type = "REDIS_HIGHMEM_MEDIUM"
+  node_type = "REDIS_SHARED_CORE_NANO"
   persistence_config {
     mode = "RDB"
     rdb_config {
@@ -400,7 +401,7 @@ resource "google_redis_cluster" "secondary_cluster" {
   zone_distribution_config {
     mode = "MULTI_ZONE"
   }
-  replica_count = 2
+  replica_count = 1
   maintenance_policy {
     weekly_maintenance_window {
       day = "WEDNESDAY"
@@ -482,7 +483,7 @@ resource "google_compute_network" "consumer_net" {
 ```hcl
 resource "google_redis_cluster" "cluster-rdb" {
   name           = "rdb-cluster"
-  shard_count    = 3
+  shard_count    = 1
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
@@ -557,7 +558,7 @@ resource "google_compute_network" "consumer_net" {
 ```hcl
 resource "google_redis_cluster" "cluster-aof" {
   name           = "aof-cluster"
-  shard_count    = 3
+  shard_count    = 1
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
@@ -630,12 +631,13 @@ resource "google_compute_network" "consumer_net" {
 ```hcl
 resource "google_redis_cluster" "cluster-cmek" {
   name           = "cmek-cluster"
-  shard_count    = 3
+  shard_count    = 1
   psc_configs {
     network = google_compute_network.consumer_net.id
   }
   kms_key = "my-key"
   region = "us-east1"
+  node_type = "REDIS_SHARED_CORE_NANO"
   deletion_protection_enabled = true
   depends_on = [
     google_network_connectivity_service_connection_policy.default
@@ -681,8 +683,9 @@ resource "google_compute_network" "consumer_net" {
 ```hcl
 resource "google_redis_cluster" "test-cluster" {
   name           = "ca-cluster"
-  shard_count    = 3
+  shard_count    = 1
   region         = "us-east1"
+  node_type      = "REDIS_SHARED_CORE_NANO"
   
   psc_configs {
     network = google_compute_network.consumer_net.id
