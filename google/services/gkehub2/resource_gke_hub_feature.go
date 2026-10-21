@@ -1431,9 +1431,6 @@ func flattenGKEHub2FeatureSpecFleetobservability(v interface{}, d *schema.Resour
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["logging_config"] =
 		flattenGKEHub2FeatureSpecFleetobservabilityLoggingConfig(original["loggingConfig"], d, config)
@@ -1608,9 +1605,6 @@ func flattenGKEHub2FeatureSpecWorkloadidentity(v interface{}, d *schema.Resource
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["scope_tenancy_pool"] =
 		flattenGKEHub2FeatureSpecWorkloadidentityScopeTenancyPool(original["scopeTenancyPool"], d, config)
@@ -2288,8 +2282,13 @@ func expandGKEHub2FeatureSpecFleetobservability(v interface{}, d tpgresource.Ter
 		return nil, nil
 	}
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})
@@ -2578,8 +2577,13 @@ func expandGKEHub2FeatureSpecWorkloadidentity(v interface{}, d tpgresource.Terra
 		return nil, nil
 	}
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})

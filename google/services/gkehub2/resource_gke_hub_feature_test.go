@@ -1097,6 +1097,72 @@ resource "google_gke_hub_feature" "feature" {
 `, context)
 }
 
+func TestAccGKEHubFeature_EmptySpecSubBlock(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckGKEHubFeatureDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHubFeature_EmptySpecSubBlock(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_gke_hub_feature.workloadidentity", "spec.0.workloadidentity.#", "1"),
+					resource.TestCheckResourceAttr(
+						"google_gke_hub_feature.fleetobservability", "spec.0.fleetobservability.#", "1"),
+				),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.workloadidentity",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project", "labels", "terraform_labels"},
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.fleetobservability",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEHubFeature_EmptySpecSubBlock(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "workloadidentity" {
+  name     = "workloadidentity"
+  location = "global"
+  project  = google_project.project.project_id
+  spec {
+    workloadidentity {}
+  }
+  depends_on = [time_sleep.wait_for_gkehub_enablement]
+}
+
+resource "google_gke_hub_feature" "fleetobservability" {
+  name     = "fleetobservability"
+  location = "global"
+  project  = google_project.project.project_id
+  spec {
+    fleetobservability {}
+  }
+  depends_on = [time_sleep.wait_for_gkehub_enablement]
+}
+`, context)
+}
+
 func gkeHubFeatureProjectSetupForGA(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_project" "project" {
