@@ -2739,6 +2739,24 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"schedule_upgrade_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				MaxItems:    1,
+				Description: `Configuration for scheduled upgrades on the cluster.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Whether scheduled upgrades are enabled.`,
+						},
+					},
+				},
+			},
 			"enterprise_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -3260,6 +3278,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			cluster.AddonsConfig.GcePersistentDiskCsiDriverConfig = &container.GcePersistentDiskCsiDriverConfig{}
 		}
 		cluster.AddonsConfig.GcePersistentDiskCsiDriverConfig.Enabled = true
+	}
+
+	if v, ok := d.GetOk("schedule_upgrade_config"); ok {
+		cluster.ScheduleUpgradeConfig = expandScheduleUpgradeConfig(v)
 	}
 
 	req := &container.CreateClusterRequest{
@@ -3819,6 +3841,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("security_posture_config", flattenSecurityPostureConfig(cluster.SecurityPostureConfig)); err != nil {
+		return err
+	}
+
+	if err := d.Set("schedule_upgrade_config", flattenScheduleUpgradeConfig(cluster.ScheduleUpgradeConfig)); err != nil {
 		return err
 	}
 
@@ -7058,6 +7084,19 @@ func expandNodePoolAutoConfigNetworkTags(configured interface{}) *container.Netw
 	return nt
 }
 
+func expandScheduleUpgradeConfig(configured interface{}) *container.ScheduleUpgradeConfig {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &container.ScheduleUpgradeConfig{
+		Enabled:         config["enabled"].(bool),
+		ForceSendFields: []string{"Enabled"},
+	}
+}
+
 func expandRBACBindingConfig(configured interface{}) *container.RBACBindingConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -8221,6 +8260,17 @@ func flattenNodePoolAutoConfigNetworkTags(c *container.NetworkTags) []map[string
 		result["tags"] = c.Tags
 	}
 	return []map[string]interface{}{result}
+}
+
+func flattenScheduleUpgradeConfig(c *container.ScheduleUpgradeConfig) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"enabled": c.Enabled,
+		},
+	}
 }
 
 func flattenRBACBindingConfig(c *container.RBACBindingConfig) []map[string]interface{} {

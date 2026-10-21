@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: promoted `schedule_upgrade_config` to GA in `google_container_cluster`
+```

@@ -503,7 +503,7 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
 * `workload_alts_config` - (Optional, [Beta](../guides/provider_versions.html.markdown))
   Configuration for [direct-path (via ALTS) with workload identity.](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#workloadaltsconfig). Structure is [documented below](#nested_workload_alts_config).
 
-* `schedule_upgrade_config` - (Optional, [Beta](../guides/provider_versions.html.markdown))
+* `schedule_upgrade_config` - (Optional)
   Configuration for [scheduled upgrades](https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions#scheduled_upgrades). Structure is [documented below](#nested_schedule_upgrade_config).
 
 * `enterprise_config` - (Optional)

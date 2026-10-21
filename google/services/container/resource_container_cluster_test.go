@@ -7652,6 +7652,32 @@ func TestAccContainerCluster_withFleetConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withScheduleUpgradeConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnetInRegion(t, "gke-cluster", networkName, "us-east1", "10.79.0.0/20")
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withScheduleUpgradeConfig(networkName, subnetworkName, clusterName, true),
+				Check: resource.TestCheckResourceAttr(
+					"google_container_cluster.with_schedule_upgrade_config", "schedule_upgrade_config.0.enabled", "true"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_schedule_upgrade_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func testAccContainerCluster_withFleetConfig(name, projectID, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
@@ -15131,6 +15157,22 @@ resource "google_container_cluster" "without_confidential_boot_disk" {
   deletion_protection = false
 }
 `, clusterName, npName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withScheduleUpgradeConfig(networkName, subnetworkName, name string, enable bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_schedule_upgrade_config" {
+  name               = "%s"
+  location           = "us-east1-b"
+  initial_node_count = 1
+  network            = "%s"
+  subnetwork         = "%s"
+  schedule_upgrade_config {
+    enabled = %v
+  }
+  deletion_protection = false
+}
+`, name, networkName, subnetworkName, enable)
 }
 
 func testAccContainerCluster_withAutopilotKubeletConfigBaseline(name, networkName, subnetworkName string) string {
