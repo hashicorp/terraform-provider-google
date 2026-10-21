@@ -365,9 +365,11 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	}
 
 	// Userinfo is fetched before request logging is enabled to reduce additional noise.
-	err = c.logGoogleIdentities(ctx)
-	if err != nil {
-		return err
+	if logging.IsDebugOrHigher() {
+		err = c.logGoogleIdentities(ctx)
+		if err != nil {
+			return err
+		}
 	}
 
 	// 2. Logging Transport - ensure we log HTTP requests to GCP APIs.
