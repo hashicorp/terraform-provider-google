@@ -1066,9 +1066,7 @@ resource "google_workstations_workstation_config" "default" {
 func TestAccWorkstationsWorkstationConfig_updateWorkingDir(t *testing.T) {
 	t.Parallel()
 
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
+	randomSuffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1076,7 +1074,10 @@ func TestAccWorkstationsWorkstationConfig_updateWorkingDir(t *testing.T) {
 		CheckDestroy:             testAccCheckWorkstationsWorkstationConfigDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWorkstationsWorkstationConfig_withCustomWorkingDir(context),
+				Config: testAccWorkstationsWorkstationConfig_withCustomWorkingDir(map[string]interface{}{
+					"random_suffix": randomSuffix,
+					"working_dir":   "/test",
+				}),
 			},
 			{
 				ResourceName:            "google_workstations_workstation_cluster.default",
@@ -1085,7 +1086,10 @@ func TestAccWorkstationsWorkstationConfig_updateWorkingDir(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"etag"},
 			},
 			{
-				Config: testAccWorkstationsWorkstationConfig_unsetWorkingDir(context),
+				Config: testAccWorkstationsWorkstationConfig_withCustomWorkingDir(map[string]interface{}{
+					"random_suffix": randomSuffix,
+					"working_dir":   nil,
+				}),
 			},
 			{
 				ResourceName:            "google_workstations_workstation_cluster.default",
@@ -1125,40 +1129,7 @@ resource "google_workstations_workstation_config" "default" {
 
   container {
     image       = "us-central1-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest"
-    working_dir = "/test"
-  }
-}
-`, context)
-}
-
-func testAccWorkstationsWorkstationConfig_unsetWorkingDir(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_compute_network" "default" {
-  name                    = "tf-test-workstation-cluster%{random_suffix}"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "default" {
-  name          = "tf-test-workstation-cluster%{random_suffix}"
-  ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
-  network       = google_compute_network.default.name
-}
-
-resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id     = "tf-test-workstation-cluster%{random_suffix}"
-  network                    = google_compute_network.default.id
-  subnetwork                 = google_compute_subnetwork.default.id
-  location                   = "us-central1"
-}
-
-resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "tf-test-workstation-config%{random_suffix}"
-  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location               = "us-central1"
-
-  container {
-    image       = "us-central1-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest"
+    working_dir = "%{working_dir}"
   }
 }
 `, context)
