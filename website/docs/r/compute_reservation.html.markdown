@@ -80,7 +80,7 @@ resource "google_compute_reservation" "gce_reservation" {
     instance_properties {
       min_cpu_platform     = "Intel Cascade Lake"
       machine_type         = "n2-standard-2"
-      maintenance_interval = "PERIODIC"
+      maintenance_interval = "RECURRENT"
     }
   }
 
