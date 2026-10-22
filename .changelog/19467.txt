@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: fixed an issue where `google_alloydb_instance` operations could fail with a 400 or 409 error when the instance is temporarily undergoing another update operation or unable to queue the operation
+```
