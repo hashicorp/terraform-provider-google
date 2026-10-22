@@ -1,0 +1,34 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_rag_file
+generation_type: mmv1
+source_file: products/vertexai/RagFile.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: RagFile
+fields:
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: fileStatus.errorStatus
+    - api_field: fileStatus.state
+    - api_field: gcsSource.uris
+    - api_field: googleDriveSource.resourceIds.resourceId
+    - api_field: googleDriveSource.resourceIds.resourceType
+    - api_field: maxEmbeddingRequestsPerMin
+    - api_field: name
+    - field: rag_corpus
+      provider_only: true
+    - api_field: ragFileParsingConfig.layoutParser.maxParsingRequestsPerMin
+    - api_field: ragFileParsingConfig.layoutParser.processorName
+    - api_field: ragFileParsingConfig.llmParser.customParsingPrompt
+    - api_field: ragFileParsingConfig.llmParser.maxParsingRequestsPerMin
+    - api_field: ragFileParsingConfig.llmParser.modelName
+    - api_field: ragFileTransformationConfig.ragFileChunkingConfig.fixedLengthChunking.chunkOverlap
+    - api_field: ragFileTransformationConfig.ragFileChunkingConfig.fixedLengthChunking.chunkSize
+    - field: region
+      provider_only: true
+    - api_field: updateTime
+    - api_field: userMetadata
+    - field: deletion_policy
+      provider_only: true
