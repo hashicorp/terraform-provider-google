@@ -99,7 +99,7 @@ resource "google_app_engine_standard_app_version" "foo" {
   project    = google_project_service.project.project
   version_id = "v1"
   service    = "default"
-  runtime    = "python310"
+  runtime    = "python312"
 
   entrypoint {
     shell = "gunicorn -b :$PORT main:app"
@@ -216,7 +216,7 @@ resource "google_app_engine_standard_app_version" "foo" {
   project    = google_project_service.project.project
   version_id = "v1"
   service    = "default"
-  runtime    = "python310"
+  runtime    = "python312"
 
   vpc_access_connector {
     name           = "${google_vpc_access_connector.bar.id}"
@@ -309,7 +309,7 @@ resource "google_app_engine_standard_app_version" "foo" {
   project    = google_project_service.project.project
   version_id = "v1"
   service    = "default"
-  runtime    = "python310"
+  runtime    = "python312"
 
   entrypoint {
     shell = "gunicorn -b :$PORT main:app"
@@ -426,7 +426,7 @@ resource "google_app_engine_standard_app_version" "foo" {
   project    = google_project_service.project.project
   version_id = "v1"
   service    = "default"
-  runtime    = "python310"
+  runtime    = "python312"
 
   app_engine_bundled_services = ["BUNDLED_SERVICE_TYPE_MAIL", "BUNDLED_SERVICE_TYPE_USERS"]
 
@@ -494,7 +494,7 @@ resource "google_app_engine_standard_app_version" "foo" {
   project    = google_project_service.project.project
   version_id = "v1"
   service    = "default"
-  runtime    = "python310"
+  runtime    = "python312"
 
   app_engine_bundled_services = ["BUNDLED_SERVICE_TYPE_MAIL", "BUNDLED_SERVICE_TYPE_USERS"]
 

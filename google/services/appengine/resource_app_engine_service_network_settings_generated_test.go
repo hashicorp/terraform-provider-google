@@ -62,6 +62,7 @@ func TestAccAppEngineServiceNetworkSettings_appEngineServiceNetworkSettingsExamp
 
 	context := map[string]interface{}{
 		"bucket_name":   "tf-test-appengine-static-content" + randomSuffix,
+		"service_name":  "tf-test-internalapp" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -102,7 +103,7 @@ resource "google_storage_bucket_object" "object" {
 
 resource "google_app_engine_standard_app_version" "internalapp" {
   version_id = "v1"
-  service = "internalapp"
+  service = "%{service_name}"
   delete_service_on_destroy = true
 
   runtime = "nodejs22"
