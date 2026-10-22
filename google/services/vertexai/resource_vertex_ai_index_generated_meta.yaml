@@ -21,6 +21,7 @@ fields:
     - api_field: indexUpdateMethod
     - api_field: labels
     - api_field: metadata.config.algorithmConfig.bruteForceConfig
+    - api_field: metadata.config.algorithmConfig.treeAhConfig.fractionLeafNodesToSearch
     - api_field: metadata.config.algorithmConfig.treeAhConfig.leafNodeEmbeddingCount
     - api_field: metadata.config.algorithmConfig.treeAhConfig.leafNodesToSearchPercent
     - api_field: metadata.config.approximateNeighborsCount

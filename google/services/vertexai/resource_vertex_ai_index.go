@@ -195,6 +195,15 @@ Please refer to this paper for more details: https://arxiv.org/abs/1908.10396`,
 													MaxItems: 1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
+															"fraction_leaf_nodes_to_search": {
+																Type:     schema.TypeFloat,
+																Computed: true,
+																Optional: true,
+																ForceNew: true,
+																Description: `The default fraction of leaf nodes that any query may be searched. Must be in
+range 0.0-1.0, exclusive. The default value is 0.05 if not set.
+This value can only be set when creating the index.`,
+															},
 															"leaf_node_embedding_count": {
 																Type:        schema.TypeInt,
 																Optional:    true,
@@ -202,8 +211,9 @@ Please refer to this paper for more details: https://arxiv.org/abs/1908.10396`,
 																Default:     1000,
 															},
 															"leaf_nodes_to_search_percent": {
-																Type:     schema.TypeInt,
-																Optional: true,
+																Type:       schema.TypeInt,
+																Optional:   true,
+																Deprecated: "`leaf_nodes_to_search_percent` is deprecated and will be removed in a future major release. Use `fraction_leaf_nodes_to_search` instead.",
 																Description: `The default percentage of leaf nodes that any query may be searched. Must be in
 range 1-100, inclusive. The default value is 10 (means 10%) if not set.`,
 																Default: 10,
@@ -1040,6 +1050,8 @@ func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{}
 		flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbeddingCount(original["leafNodeEmbeddingCount"], d, config)
 	transformed["leaf_nodes_to_search_percent"] =
 		flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSearchPercent(original["leafNodesToSearchPercent"], d, config)
+	transformed["fraction_leaf_nodes_to_search"] =
+		flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigFractionLeafNodesToSearch(original["fractionLeafNodesToSearch"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbeddingCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1074,6 +1086,10 @@ func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSea
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigFractionLeafNodesToSearch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenVertexAIIndexMetadataConfigAlgorithmConfigBruteForceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1399,6 +1415,13 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfig(v interface{},
 		transformed["leafNodesToSearchPercent"] = transformedLeafNodesToSearchPercent
 	}
 
+	transformedFractionLeafNodesToSearch, err := expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigFractionLeafNodesToSearch(original["fraction_leaf_nodes_to_search"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFractionLeafNodesToSearch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fractionLeafNodesToSearch"] = transformedFractionLeafNodesToSearch
+	}
+
 	return transformed, nil
 }
 
@@ -1407,6 +1430,10 @@ func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodeEmbeddi
 }
 
 func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigLeafNodesToSearchPercent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIIndexMetadataConfigAlgorithmConfigTreeAhConfigFractionLeafNodesToSearch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
