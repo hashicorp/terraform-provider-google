@@ -20,6 +20,7 @@ description: |-
 ---
 
 # google_parallelstore_instance
+~> **Warning:** `google_parallelstore_instance` is deprecated and will be removed in a future major release. Use `google_lustre_instance` instead.
 
 A Parallelstore Instance.
 
