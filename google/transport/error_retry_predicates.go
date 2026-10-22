@@ -746,3 +746,15 @@ func IsSubnetworkNotReadyLROError(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+// Dataproc returns a 400 error with reason "badRequest" (instead of GCE's "resourceNotReady")
+// when a referenced GCE resource such as a subnetwork or network is not yet ready.
+func DataprocResourceNotReady(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(gerr.Body, "The resource") && strings.Contains(gerr.Body, "is not ready") {
+			log.Printf("[DEBUG] Dismissed error as a retryable operation: %s", err)
+			return true, "Waiting for Dataproc resource dependency to be ready"
+		}
+	}
+	return false, ""
+}

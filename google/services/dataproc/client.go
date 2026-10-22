@@ -28,7 +28,8 @@ import (
 func NewClient(c *transport_tpg.Config, userAgent string) *dataproc.Service {
 	dataprocClientBasePath := transport_tpg.RemoveBasePathVersion(transport_tpg.BaseUrl(Product, c))
 	log.Printf("[INFO] Instantiating Google Cloud Dataproc client for path %s", dataprocClientBasePath)
-	clientDataproc, err := dataproc.NewService(c.Context, option.WithHTTPClient(c.Client))
+	wrappedDataprocClient := transport_tpg.ClientWithAdditionalRetries(c.Client, transport_tpg.DataprocResourceNotReady)
+	clientDataproc, err := dataproc.NewService(c.Context, option.WithHTTPClient(wrappedDataprocClient))
 	if err != nil {
 		log.Printf("[WARN] Error creating client dataproc: %s", err)
 		return nil

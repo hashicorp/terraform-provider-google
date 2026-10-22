@@ -122,6 +122,28 @@ func TestIsResourceNotReadyError_otherError(t *testing.T) {
 	}
 }
 
+func TestDataprocResourceNotReady_retryable(t *testing.T) {
+	err := googleapi.Error{
+		Code: 400,
+		Body: `{"error":{"code":400,"message":"The resource 'projects/test-project/regions/us-south1/subnetworks/default' is not ready","status":"INVALID_ARGUMENT","errors":[{"message":"The resource 'projects/test-project/regions/us-south1/subnetworks/default' is not ready","domain":"global","reason":"badRequest"}]}}`,
+	}
+	isRetryable, _ := DataprocResourceNotReady(&err)
+	if !isRetryable {
+		t.Errorf("Error not detected as retryable")
+	}
+}
+
+func TestDataprocResourceNotReady_otherError(t *testing.T) {
+	err := googleapi.Error{
+		Code: 400,
+		Body: `{"error":{"code":400,"message":"Invalid value for field 'cluster.name'","status":"INVALID_ARGUMENT"}}`,
+	}
+	isRetryable, _ := DataprocResourceNotReady(&err)
+	if isRetryable {
+		t.Errorf("Error incorrectly detected as retryable")
+	}
+}
+
 func TestIsOperationReadQuotaError_quotaExceeded(t *testing.T) {
 	err := googleapi.Error{
 		Code: 403,
