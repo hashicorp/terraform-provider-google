@@ -305,3 +305,67 @@ func TestEmptyOrDefaultStringSuppress_IAP(t *testing.T) {
 		}
 	}
 }
+
+func TestIpAddressDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"identical IPv6": {
+			Old:                "2600:1900:4000:1::1",
+			New:                "2600:1900:4000:1::1",
+			ExpectDiffSuppress: true,
+		},
+		"IPv6 compressed vs uncompressed": {
+			Old:                "2600:1900:4000:0001:0000:0000:0000:0001",
+			New:                "2600:1900:4000:1::1",
+			ExpectDiffSuppress: true,
+		},
+		"IPv6 trailing zeros uncompressed vs compressed": {
+			Old:                "2600:1900:4000:318:0:0:0:0",
+			New:                "2600:1900:4000:318::",
+			ExpectDiffSuppress: true,
+		},
+		"IPv6 leading zeros omitted": {
+			Old:                "2001:0db8:0000:0000:0000:0000:0000:0001",
+			New:                "2001:db8::1",
+			ExpectDiffSuppress: true,
+		},
+		"IPv6 uppercase vs lowercase hex": {
+			Old:                "2001:DB8::ABCD",
+			New:                "2001:db8::abcd",
+			ExpectDiffSuppress: true,
+		},
+		"different IPv6": {
+			Old:                "2600:1900:4000:1::1",
+			New:                "2600:1900:4000:1::2",
+			ExpectDiffSuppress: false,
+		},
+		"both empty": {
+			Old:                "",
+			New:                "",
+			ExpectDiffSuppress: true,
+		},
+		"one empty": {
+			Old:                "2600:1900:4000:1::1",
+			New:                "",
+			ExpectDiffSuppress: false,
+		},
+		"invalid IP matching": {
+			Old:                "not-an-ip",
+			New:                "not-an-ip",
+			ExpectDiffSuppress: true,
+		},
+		"invalid IP not matching": {
+			Old:                "not-an-ip-1",
+			New:                "not-an-ip-2",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if IpAddressDiffSuppress("ipv6_address", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Errorf("failed case %s: Old='%s', New='%s', expected suppress=%t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}

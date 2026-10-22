@@ -9,6 +9,7 @@ api_resource_type_kind: NetworkEndpointGroup
 fields:
     - api_field: instance
     - api_field: ipAddress
+    - api_field: ipv6Address
     - field: network_endpoint_group
       provider_only: true
     - api_field: port
