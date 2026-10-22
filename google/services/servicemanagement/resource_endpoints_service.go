@@ -402,8 +402,11 @@ func resourceEndpointsServiceDelete(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	_, err = ServiceManagementOperationWaitTime(config, op, "Deleting service.", userAgent, d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return err
+	}
 	d.SetId("")
-	return err
+	return nil
 }
 
 func resourceEndpointsServiceRead(d *schema.ResourceData, meta interface{}) error {

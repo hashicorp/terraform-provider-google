@@ -502,8 +502,6 @@ func resourceComputeFirewallPolicyAssociationDelete(d *schema.ResourceData, meta
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
 		return fmt.Errorf("Error waiting to delete FirewallPolicyAssociation: %s", err)
 	}
 

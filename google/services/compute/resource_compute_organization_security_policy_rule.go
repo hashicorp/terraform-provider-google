@@ -552,8 +552,10 @@ func resourceComputeOrganizationSecurityPolicyRuleCreate(d *schema.ResourceData,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
+		if d.IsNewResource() {
+			// The resource didn't actually create
+			d.SetId("")
+		}
 		return fmt.Errorf("Error waiting to create OrganizationSecurityPolicyRule: %s", err)
 	}
 
@@ -813,8 +815,10 @@ func resourceComputeOrganizationSecurityPolicyRuleUpdate(d *schema.ResourceData,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
+		if d.IsNewResource() {
+			// The resource didn't actually create
+			d.SetId("")
+		}
 		return fmt.Errorf("Error waiting to create OrganizationSecurityPolicyRule: %s", err)
 	}
 	return resourceComputeOrganizationSecurityPolicyRuleRead(d, meta)
@@ -890,8 +894,10 @@ func resourceComputeOrganizationSecurityPolicyRuleDelete(d *schema.ResourceData,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
+		if d.IsNewResource() {
+			// The resource didn't actually create
+			d.SetId("")
+		}
 		return fmt.Errorf("Error waiting to create OrganizationSecurityPolicyRule: %s", err)
 	}
 

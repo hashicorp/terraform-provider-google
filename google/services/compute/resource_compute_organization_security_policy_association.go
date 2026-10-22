@@ -283,8 +283,10 @@ func resourceComputeOrganizationSecurityPolicyAssociationCreate(d *schema.Resour
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
+		if d.IsNewResource() {
+			// The resource didn't actually create
+			d.SetId("")
+		}
 		return fmt.Errorf("Error waiting to create OrganizationSecurityPolicyAssociation: %s", err)
 	}
 
@@ -458,8 +460,10 @@ func resourceComputeOrganizationSecurityPolicyAssociationDelete(d *schema.Resour
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
+		if d.IsNewResource() {
+			// The resource didn't actually create
+			d.SetId("")
+		}
 		return fmt.Errorf("Error waiting to create OrganizationSecurityPolicyAssociation: %s", err)
 	}
 
