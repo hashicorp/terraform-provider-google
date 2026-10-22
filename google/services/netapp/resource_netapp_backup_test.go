@@ -413,12 +413,12 @@ data "google_compute_network" "default" {
 }
 resource "google_netapp_storage_pool" "default" {
   name = "tf-test-backup-pool%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
   service_level = "FLEX"
   capacity_gib = "2048"
   network = data.google_compute_network.default.id
-  zone = "us-central1-a"
-  replica_zone = "us-central1-b"
+  zone = "us-east4-a"
+  replica_zone = "us-east4-b"
 }
 resource "time_sleep" "wait_3_minutes" {
     depends_on = [google_netapp_storage_pool.default]
@@ -426,7 +426,7 @@ resource "time_sleep" "wait_3_minutes" {
 }
 resource "google_netapp_volume" "default" {
   name = "tf-test-backup-volume%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
   capacity_gib = "100"
   share_name = "tf-test-backup-volume%{random_suffix}"
   storage_pool = google_netapp_storage_pool.default.name
@@ -438,7 +438,7 @@ resource "google_netapp_volume" "default" {
 }
 resource "google_netapp_backup_vault" "default" {
   name = "tf-test-backup-vault%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
   backup_retention_policy {
     backup_minimum_enforced_retention_days = 2
     daily_backup_immutable = true
@@ -449,7 +449,7 @@ resource "google_netapp_backup_vault" "default" {
 }
 resource "google_netapp_volume_snapshot" "default" {
   depends_on = [google_netapp_volume.default]
-  location = "us-central1"
+  location = "us-east4"
   volume_name = google_netapp_volume.default.name
   description = "This is a test description"
   name = "tf-test-testvolumesnap%{random_suffix}"
@@ -462,7 +462,7 @@ resource "google_netapp_backup" "test_backup" {
   name = "tf-test-test-backup%{random_suffix}"
   description = "This is a test immutable backup"
   source_volume = google_netapp_volume.default.id
-  location = "us-central1"
+  location = "us-east4"
   vault_name = google_netapp_backup_vault.default.name
   source_snapshot = google_netapp_volume_snapshot.default.id
   labels = {
@@ -480,12 +480,12 @@ data "google_compute_network" "default" {
 }
 resource "google_netapp_storage_pool" "default" {
   name = "tf-test-backup-pool%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
   service_level = "FLEX"
   capacity_gib = "2048"
   network = data.google_compute_network.default.id
-  zone = "us-central1-a"
-  replica_zone = "us-central1-b"
+  zone = "us-east4-a"
+  replica_zone = "us-east4-b"
 }
 resource "time_sleep" "wait_3_minutes" {
     depends_on = [google_netapp_storage_pool.default]
@@ -493,7 +493,7 @@ resource "time_sleep" "wait_3_minutes" {
 }
 resource "google_netapp_volume" "default" {
   name = "tf-test-backup-volume%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
   capacity_gib = "100"
   share_name = "tf-test-backup-volume%{random_suffix}"
   storage_pool = google_netapp_storage_pool.default.name
@@ -505,7 +505,7 @@ resource "google_netapp_volume" "default" {
 }
 resource "google_netapp_backup_vault" "default" {
   name = "tf-test-backup-vault%{random_suffix}"
-  location = "us-central1"
+  location = "us-east4"
   backup_retention_policy {
     backup_minimum_enforced_retention_days = 12
     daily_backup_immutable = true
@@ -516,7 +516,7 @@ resource "google_netapp_backup_vault" "default" {
 }
 resource "google_netapp_volume_snapshot" "default" {
   depends_on = [google_netapp_volume.default]
-  location = "us-central1"
+  location = "us-east4"
   volume_name = google_netapp_volume.default.name
   description = "This is a test description"
   name = "tf-test-testvolumesnap%{random_suffix}"
@@ -529,7 +529,7 @@ resource "google_netapp_backup" "test_backup" {
   name = "tf-test-test-backup%{random_suffix}"
   description = "This is a test immutable backup"
   source_volume = google_netapp_volume.default.id
-  location = "us-central1"
+  location = "us-east4"
   vault_name = google_netapp_backup_vault.default.name
   source_snapshot = google_netapp_volume_snapshot.default.id
   labels = {
