@@ -240,6 +240,7 @@ func ResourceAccessContextManagerServicePerimeterDryRunEgressPolicy() *schema.Re
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
+				ValidateFunc:     verify.ValidateRegexp(`^accessPolicies/[^/]+/servicePerimeters/[^/]+$`),
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The name of the Service Perimeter to add this resource to.`,
 			},
@@ -1352,6 +1353,9 @@ func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyEncoder(d *sc
 	// The is logic is inside the encoder since the access_policy_id field is part of
 	// the mutex lock and encoders run before the lock is set.
 	parts := strings.Split(d.Get("perimeter").(string), "/")
+	if len(parts) != 4 {
+		return nil, fmt.Errorf("unexpected format for perimeter (%s), expected accessPolicies/{accessPolicy}/servicePerimeters/{servicePerimeter}", d.Get("perimeter").(string))
+	}
 	d.Set("access_policy_id", fmt.Sprintf("accessPolicies/%s", parts[1]))
 
 	return obj, nil
