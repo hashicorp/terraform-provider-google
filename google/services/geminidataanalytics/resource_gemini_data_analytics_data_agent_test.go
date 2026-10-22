@@ -54,6 +54,15 @@ func TestAccGeminiDataAnalyticsDataAgent_update(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
+			{
+				Config: testAccGeminiDataAnalyticsDataAgent_studio(context),
+			},
+			{
+				ResourceName:            "google_gemini_data_analytics_data_agent.agent",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
 		},
 	})
 }
@@ -84,6 +93,26 @@ resource "google_bigquery_table" "table" {
     }
   ])
 }
+
+resource "google_bigquery_routine" "routine" {
+  dataset_id      = google_bigquery_dataset.dataset.dataset_id
+  routine_id      = "tf_test_routine_%{random_suffix}"
+  routine_type    = "SCALAR_FUNCTION"
+  language        = "SQL"
+  definition_body = "1"
+  return_type     = "{\"typeKind\" : \"INT64\"}"
+}
+
+resource "google_bigquery_job" "property_graph" {
+  job_id   = "tf_test_job_pg_%{random_suffix}"
+  location = "US"
+
+  query {
+    query              = "CREATE OR REPLACE PROPERTY GRAPH `+"`${google_bigquery_dataset.dataset.project}.${google_bigquery_dataset.dataset.dataset_id}.tf_test_graph_%{random_suffix}`"+` NODE TABLES (`+"`${google_bigquery_dataset.dataset.project}.${google_bigquery_dataset.dataset.dataset_id}.${google_bigquery_table.table.table_id}`"+` KEY (order_id))"
+    create_disposition = ""
+    write_disposition  = ""
+  }
+}
 `, context)
 }
 
@@ -109,11 +138,50 @@ resource "google_gemini_data_analytics_data_agent" "agent" {
             project_id = google_bigquery_dataset.dataset.project
             dataset_id = google_bigquery_dataset.dataset.dataset_id
             table_id   = google_bigquery_table.table.table_id
+
+            schema {
+              description  = "Sales orders table."
+              display_name = "Sales Orders"
+              synonyms     = ["orders", "purchases"]
+              tags         = ["sales", "finance"]
+
+              fields {
+                name         = "order_id"
+                type         = "STRING"
+                description  = "Unique order identifier."
+                mode         = "REQUIRED"
+                synonyms     = ["id"]
+                tags         = ["identifier"]
+                category     = "DIMENSION"
+                value_format = "@"
+                subfields = jsonencode([
+                  {
+                    name        = "nested_id"
+                    type        = "STRING"
+                    description = "Nested identifier."
+                    mode        = "NULLABLE"
+                  }
+                ])
+              }
+
+              filters {
+                field = "order_id"
+                value = "1"
+                type  = "ALWAYS_FILTER"
+              }
+            }
+          }
+
+          property_graph_references {
+            project_id        = google_bigquery_dataset.dataset.project
+            dataset_id        = google_bigquery_dataset.dataset.dataset_id
+            property_graph_id = "tf_test_graph_%{random_suffix}"
           }
         }
       }
 
       options {
+        model = "LATEST_GA_MODEL"
         analysis {
           python {
             enabled = true
@@ -126,7 +194,32 @@ resource "google_gemini_data_analytics_data_agent" "agent" {
 
       example_queries {
         natural_language_question = "What is the total order value?"
-        sql_query                 = "SELECT SUM(order_total) AS total_order_value FROM tf_test_sales_%{random_suffix}"
+        sql_query                 = "SELECT SUM(order_total) AS total_order_value FROM tf_test_sales_%{random_suffix} WHERE order_id = @order_id"
+
+        parameters {
+          name        = "order_id"
+          description = "The order ID to filter by."
+          data_type   = "STRING"
+        }
+      }
+
+      looker_golden_queries {
+        natural_language_questions = ["What are total sales by region?"]
+
+        looker_query {
+          model     = "sales_model"
+          explore   = "orders"
+          fields    = ["orders.region", "orders.total_sales"]
+          sorts     = ["orders.total_sales desc"]
+          limit     = "100"
+          query_id  = "101"
+          client_id = "abc123xyz"
+
+          filters {
+            field = "orders.status"
+            value = "COMPLETE"
+          }
+        }
       }
 
       glossary_terms {
@@ -147,8 +240,143 @@ resource "google_gemini_data_analytics_data_agent" "agent" {
         sources          = ["LLM_SUGGESTED"]
         confidence_score = 0.9
       }
+
+      user_functions {
+        bq_routines {
+          description = "Returns a constant scalar value."
+          routine_reference {
+            project_id = google_bigquery_dataset.dataset.project
+            dataset_id = google_bigquery_dataset.dataset.dataset_id
+            routine_id = google_bigquery_routine.routine.routine_id
+          }
+        }
+      }
+    }
+
+    staging_context {
+      system_instruction = "Answer staging questions about Looker orders."
+
+      datasource_references {
+        looker {
+          explore_references {
+            lookml_model        = "sales_model"
+            explore             = "orders"
+            looker_instance_uri = "https://example.looker.com"
+
+            schema {
+              description  = "Looker orders explore."
+              display_name = "Orders Explore"
+              synonyms     = ["orders_explore"]
+              tags         = ["looker", "sales"]
+
+              fields {
+                name         = "orders.id"
+                type         = "STRING"
+                description  = "Looker order ID."
+                mode         = "NULLABLE"
+                synonyms     = ["order_id"]
+                tags         = ["key"]
+                category     = "DIMENSION"
+                value_format = "@"
+                subfields = jsonencode([
+                  {
+                    name        = "sub_order_id"
+                    type        = "STRING"
+                    description = "Sub order ID."
+                    mode        = "NULLABLE"
+                  }
+                ])
+              }
+
+              filters {
+                field = "orders.id"
+                value = "100"
+                type  = "ALWAYS_FILTER"
+              }
+            }
+          }
+
+          explore_references {
+            lookml_model = "private_sales_model"
+            explore      = "private_orders"
+
+            private_looker_instance_info {
+              looker_instance_id     = "private-instance-1"
+              service_directory_name = "projects/test-proj/locations/us-central1/namespaces/ns/services/svc"
+            }
+          }
+        }
+      }
+
+      options {
+        datasource {
+          big_query_max_billed_bytes = 1000000000
+        }
+      }
+
+      example_queries {
+        natural_language_question = "What is the staging order count?"
+        sql_query                 = "SELECT COUNT(*) FROM tf_test_sales_%{random_suffix} WHERE order_id = @order_id"
+
+        parameters {
+          name        = "order_id"
+          description = "Staging order ID filter."
+          data_type   = "STRING"
+        }
+      }
+
+      looker_golden_queries {
+        natural_language_questions = ["What are staging sales?"]
+
+        looker_query {
+          model     = "sales_model"
+          explore   = "orders"
+          fields    = ["orders.id"]
+          sorts     = ["orders.id asc"]
+          limit     = "50"
+          query_id  = "202"
+          client_id = "def456uvw"
+
+          filters {
+            field = "orders.id"
+            value = "100"
+          }
+        }
+      }
+
+      glossary_terms {
+        display_name = "StagingOrder"
+        description  = "A staging purchase transaction."
+        labels       = ["staging"]
+      }
+
+      schema_relationships {
+        left_schema_paths {
+          table_fqn = "${google_bigquery_dataset.dataset.project}.${google_bigquery_dataset.dataset.dataset_id}.${google_bigquery_table.table.table_id}"
+          paths     = ["order_id"]
+        }
+        right_schema_paths {
+          table_fqn = "${google_bigquery_dataset.dataset.project}.${google_bigquery_dataset.dataset.dataset_id}.${google_bigquery_table.table.table_id}"
+          paths     = ["order_total"]
+        }
+        sources          = ["BIGQUERY_JOB_HISTORY"]
+        confidence_score = 0.8
+      }
+
+      user_functions {
+        bq_routines {
+          description = "Staging scalar function."
+          routine_reference {
+            project_id = google_bigquery_dataset.dataset.project
+            dataset_id = google_bigquery_dataset.dataset.dataset_id
+            routine_id = google_bigquery_routine.routine.routine_id
+          }
+        }
+      }
     }
   }
+
+  depends_on = [google_bigquery_job.property_graph]
 }
 `, context)
 }
@@ -167,20 +395,182 @@ resource "google_gemini_data_analytics_data_agent" "agent" {
   }
 
   data_analytics_agent {
-    staging_context {
-      system_instruction = "Answer concise questions about the sample Shakespeare corpus."
+    published_context {
+      system_instruction = "Updated published instruction for Looker."
 
       datasource_references {
-        bq {
-          table_references {
-            project_id = "bigquery-public-data"
-            dataset_id = "samples"
-            table_id   = "shakespeare"
+        looker {
+          explore_references {
+            lookml_model        = "updated_sales_model"
+            explore             = "updated_orders"
+            looker_instance_uri = "https://updated.looker.com"
+
+            schema {
+              description  = "Updated Looker orders explore."
+              display_name = "Updated Orders Explore"
+              synonyms     = ["updated_orders_explore"]
+              tags         = ["looker", "updated"]
+
+              fields {
+                name         = "orders.total"
+                type         = "FLOAT"
+                description  = "Updated Looker order total."
+                mode         = "REQUIRED"
+                synonyms     = ["total"]
+                tags         = ["metric"]
+                category     = "MEASURE"
+                value_format = "$#,##0.00"
+                subfields = jsonencode([
+                  {
+                    name        = "updated_sub_id"
+                    type        = "INTEGER"
+                    description = "Updated sub ID."
+                    mode        = "REQUIRED"
+                  }
+                ])
+              }
+
+              filters {
+                field = "orders.total"
+                value = "200"
+                type  = "ALWAYS_FILTER"
+              }
+            }
+          }
+
+          explore_references {
+            lookml_model = "updated_private_model"
+            explore      = "updated_private_orders"
+
+            private_looker_instance_info {
+              looker_instance_id     = "private-instance-2"
+              service_directory_name = "projects/test-proj/locations/us-central1/namespaces/ns2/services/svc2"
+            }
           }
         }
       }
 
       options {
+        model = "MODEL_UNSPECIFIED"
+        datasource {
+          big_query_max_billed_bytes = 2000000000
+        }
+      }
+
+      example_queries {
+        natural_language_question = "Updated published question?"
+        sql_query                 = "SELECT COUNT(*) FROM tf_test_sales_%{random_suffix} WHERE order_total > @min_total"
+
+        parameters {
+          name        = "min_total"
+          description = "Updated minimum total."
+          data_type   = "FLOAT64"
+        }
+      }
+
+      looker_golden_queries {
+        natural_language_questions = ["Updated published golden question?"]
+
+        looker_query {
+          model     = "updated_sales_model"
+          explore   = "updated_orders"
+          fields    = ["orders.total"]
+          sorts     = ["orders.total desc"]
+          limit     = "25"
+          query_id  = "303"
+          client_id = "ghi789rst"
+
+          filters {
+            field = "orders.status"
+            value = "SHIPPED"
+          }
+        }
+      }
+
+      glossary_terms {
+        display_name = "UpdatedOrder"
+        description  = "An updated purchase transaction."
+        labels       = ["updated"]
+      }
+
+      schema_relationships {
+        left_schema_paths {
+          table_fqn = "${google_bigquery_dataset.dataset.project}.${google_bigquery_dataset.dataset.dataset_id}.${google_bigquery_table.table.table_id}"
+          paths     = ["order_total"]
+        }
+        right_schema_paths {
+          table_fqn = "${google_bigquery_dataset.dataset.project}.${google_bigquery_dataset.dataset.dataset_id}.${google_bigquery_table.table.table_id}"
+          paths     = ["order_id"]
+        }
+        sources          = ["BIGQUERY_TABLE_CONSTRAINTS"]
+        confidence_score = 0.95
+      }
+
+      user_functions {
+        bq_routines {
+          description = "Updated published scalar function."
+          routine_reference {
+            project_id = google_bigquery_dataset.dataset.project
+            dataset_id = google_bigquery_dataset.dataset.dataset_id
+            routine_id = google_bigquery_routine.routine.routine_id
+          }
+        }
+      }
+    }
+
+    staging_context {
+      system_instruction = "Answer concise questions about BigQuery sales orders."
+
+      datasource_references {
+        bq {
+          table_references {
+            project_id = google_bigquery_dataset.dataset.project
+            dataset_id = google_bigquery_dataset.dataset.dataset_id
+            table_id   = google_bigquery_table.table.table_id
+
+            schema {
+              description  = "Staging sales orders table."
+              display_name = "Staging Sales Orders"
+              synonyms     = ["staging_orders"]
+              tags         = ["staging", "bq"]
+
+              fields {
+                name         = "order_total"
+                type         = "FLOAT"
+                description  = "Staging order total."
+                mode         = "NULLABLE"
+                synonyms     = ["amount"]
+                tags         = ["staging_metric"]
+                category     = "MEASURE"
+                value_format = "$#,##0.00"
+                subfields = jsonencode([
+                  {
+                    name        = "staging_nested_id"
+                    type        = "STRING"
+                    description = "Staging nested ID."
+                    mode        = "NULLABLE"
+                  }
+                ])
+              }
+
+              filters {
+                field = "order_total"
+                value = "10"
+                type  = "ALWAYS_FILTER"
+              }
+            }
+          }
+
+          property_graph_references {
+            project_id        = google_bigquery_dataset.dataset.project
+            dataset_id        = google_bigquery_dataset.dataset.dataset_id
+            property_graph_id = "tf_test_graph_%{random_suffix}"
+          }
+        }
+      }
+
+      options {
+        model = "LATEST_GA_MODEL"
         analysis {
           python {
             enabled = true
@@ -192,8 +582,33 @@ resource "google_gemini_data_analytics_data_agent" "agent" {
       }
 
       example_queries {
-        natural_language_question = "How many words does Hamlet have?"
-        sql_query                 = "SELECT SUM(word_count) FROM samples.shakespeare WHERE corpus = 'hamlet'"
+        natural_language_question = "How many orders exceed threshold?"
+        sql_query                 = "SELECT COUNT(*) FROM tf_test_sales_%{random_suffix} WHERE order_total > @threshold"
+
+        parameters {
+          name        = "threshold"
+          description = "Order total threshold."
+          data_type   = "FLOAT64"
+        }
+      }
+
+      looker_golden_queries {
+        natural_language_questions = ["Updated staging golden question?"]
+
+        looker_query {
+          model     = "staging_model"
+          explore   = "staging_orders"
+          fields    = ["staging_orders.id"]
+          sorts     = ["staging_orders.id desc"]
+          limit     = "10"
+          query_id  = "404"
+          client_id = "jkl012mno"
+
+          filters {
+            field = "staging_orders.id"
+            value = "999"
+          }
+        }
       }
 
       glossary_terms {
@@ -214,8 +629,64 @@ resource "google_gemini_data_analytics_data_agent" "agent" {
         sources          = ["LLM_SUGGESTED"]
         confidence_score = 0.9
       }
+
+      user_functions {
+        bq_routines {
+          description = "Updated staging scalar function."
+          routine_reference {
+            project_id = google_bigquery_dataset.dataset.project
+            dataset_id = google_bigquery_dataset.dataset.dataset_id
+            routine_id = google_bigquery_routine.routine.routine_id
+          }
+        }
+      }
     }
   }
+
+  depends_on = [google_bigquery_job.property_graph]
+}
+`, context)
+}
+
+func testAccGeminiDataAnalyticsDataAgent_studio(context map[string]interface{}) string {
+	return testAccGeminiDataAnalyticsDataAgent_bigQueryResources(context) + acctest.Nprintf(`
+resource "google_gemini_data_analytics_data_agent" "agent" {
+  location      = "global"
+  data_agent_id = "tf-test-data-agent-%{random_suffix}"
+  display_name  = "Studio data agent"
+  description   = "Gemini Data Analytics data agent backed by Looker Studio."
+
+  labels = {
+    env = "studio"
+  }
+
+  data_analytics_agent {
+    published_context {
+      system_instruction = "Answer questions using Looker Studio published datasource."
+
+      datasource_references {
+        studio {
+          studio_references {
+            datasource_id = "studio-published-ds-%{random_suffix}"
+          }
+        }
+      }
+    }
+
+    staging_context {
+      system_instruction = "Answer questions using Looker Studio staging datasource."
+
+      datasource_references {
+        studio {
+          studio_references {
+            datasource_id = "studio-staging-ds-%{random_suffix}"
+          }
+        }
+      }
+    }
+  }
+
+  depends_on = [google_bigquery_job.property_graph]
 }
 `, context)
 }

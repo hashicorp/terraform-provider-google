@@ -1,0 +1,3 @@
+```release-note:enhancement
+geminidataanalytics: added `datasource_references.bq.property_graph_references`, `datasource_references.bq.table_references.schema`, `datasource_references.looker.explore_references`, `datasource_references.studio.studio_references`, `example_queries.parameters`, `looker_golden_queries`, `options.model`, and `user_functions.bq_routines` fields to `published_context` and `staging_context` in `google_gemini_data_analytics_data_agent` resource
+```

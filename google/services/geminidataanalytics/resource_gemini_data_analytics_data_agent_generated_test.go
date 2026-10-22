@@ -205,11 +205,46 @@ resource "google_gemini_data_analytics_data_agent" "example" {
             project_id = google_bigquery_dataset.dataset.project
             dataset_id = google_bigquery_dataset.dataset.dataset_id
             table_id   = google_bigquery_table.table.table_id
+
+            schema {
+              description  = "Sales orders table."
+              display_name = "Sales Orders"
+              synonyms     = ["orders", "purchases"]
+              tags         = ["sales", "finance"]
+
+              fields {
+                name        = "order_id"
+                type        = "STRING"
+                description = "Unique order identifier."
+                mode        = "REQUIRED"
+                synonyms    = ["id"]
+                tags        = ["identifier"]
+                category    = "DIMENSION"
+              }
+
+              fields {
+                name         = "order_total"
+                type         = "FLOAT"
+                description  = "Total order amount."
+                mode         = "NULLABLE"
+                synonyms     = ["revenue", "amount"]
+                tags         = ["metric"]
+                category     = "MEASURE"
+                value_format = "$#,##0.00"
+              }
+
+              filters {
+                field = "order_total"
+                value = "0"
+                type  = "ALWAYS_FILTER"
+              }
+            }
           }
         }
       }
 
       options {
+        model = "LATEST_GA_MODEL"
         analysis {
           python {
             enabled = true
@@ -221,8 +256,14 @@ resource "google_gemini_data_analytics_data_agent" "example" {
       }
 
       example_queries {
-        natural_language_question = "What is the total order value?"
-        sql_query                 = "SELECT SUM(order_total) AS total_order_value FROM sales"
+        natural_language_question = "What is the total order value above a threshold?"
+        sql_query                 = "SELECT SUM(order_total) AS total_order_value FROM sales WHERE order_total > @min_total"
+
+        parameters {
+          name        = "min_total"
+          description = "Minimum order total threshold."
+          data_type   = "FLOAT64"
+        }
       }
 
       glossary_terms {
