@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: fixed creation and update failures when a referenced Compute Engine resource is not ready yet
+```

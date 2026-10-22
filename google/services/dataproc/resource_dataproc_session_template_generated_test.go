@@ -368,11 +368,12 @@ func testAccCheckDataprocSessionTemplateDestroyProducer(t *testing.T) func(s *te
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
+				Config:               config,
+				Method:               "GET",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            config.UserAgent,
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.DataprocResourceNotReady},
 			})
 			if err == nil {
 				return fmt.Errorf("DataprocSessionTemplate still exists at %s", url)
