@@ -37,13 +37,14 @@ func testAccAccessContextManagerServicePerimeterResource_basicTest(t *testing.T)
 	projects := BootstrapServicePerimeterProjects(t, 2)
 	policyTitle := "my policy"
 	perimeterTitle := "tf_test_perimeter"
+	folderSuffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerServicePerimeterResource_basic(org, policyTitle, perimeterTitle, projects[0].ProjectNumber, projects[1].ProjectNumber),
+				Config: testAccAccessContextManagerServicePerimeterResource_basic(org, policyTitle, perimeterTitle, folderSuffix, projects[0].ProjectNumber, projects[1].ProjectNumber),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter_resource.test-access1",
@@ -55,9 +56,14 @@ func testAccAccessContextManagerServicePerimeterResource_basicTest(t *testing.T)
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:      "google_access_context_manager_service_perimeter_resource.test-access3",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the service perimeter to still exist
 			{
-				Config: testAccAccessContextManagerServicePerimeterResource_destroy(org, policyTitle, perimeterTitle),
+				Config: testAccAccessContextManagerServicePerimeterResource_destroy(org, policyTitle, perimeterTitle, folderSuffix),
 				Check:  testAccCheckAccessContextManagerServicePerimeterResourceDestroyProducer(t),
 			},
 		},
@@ -111,7 +117,7 @@ func testAccCheckAccessContextManagerServicePerimeterResourceDestroyProducer(t *
 	}
 }
 
-func testAccAccessContextManagerServicePerimeterResource_basic(org, policyTitle, perimeterTitleName string, projectNumber1, projectNumber2 int64) string {
+func testAccAccessContextManagerServicePerimeterResource_basic(org, policyTitle, perimeterTitleName, folderSuffix string, projectNumber1, projectNumber2 int64) string {
 	return fmt.Sprintf(`
 %s
 
@@ -126,14 +132,27 @@ resource "google_access_context_manager_service_perimeter_resource" "test-access
 
   depends_on = [google_access_context_manager_service_perimeter_resource.test-access1]
 }
-`, testAccAccessContextManagerServicePerimeterResource_destroy(org, policyTitle, perimeterTitleName), projectNumber1, projectNumber2)
+
+resource "google_access_context_manager_service_perimeter_resource" "test-access3" {
+  perimeter_name = google_access_context_manager_service_perimeter.test-access.name
+  resource = google_folder.test-folder.name
+
+  depends_on = [google_access_context_manager_service_perimeter_resource.test-access2]
+}
+`, testAccAccessContextManagerServicePerimeterResource_destroy(org, policyTitle, perimeterTitleName, folderSuffix), projectNumber1, projectNumber2)
 }
 
-func testAccAccessContextManagerServicePerimeterResource_destroy(org, policyTitle, perimeterTitleName string) string {
+func testAccAccessContextManagerServicePerimeterResource_destroy(org, policyTitle, perimeterTitleName, folderSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
   title  = "%s"
+}
+
+resource "google_folder" "test-folder" {
+  parent              = "organizations/%s"
+  display_name        = "tf-test-%s"
+  deletion_protection = false
 }
 
 resource "google_access_context_manager_service_perimeter" "test-access" {
@@ -149,5 +168,5 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
   	ignore_changes = [status[0].resources]
   }
 }
-`, org, policyTitle, perimeterTitleName, perimeterTitleName)
+`, org, policyTitle, org, folderSuffix, perimeterTitleName, perimeterTitleName)
 }
