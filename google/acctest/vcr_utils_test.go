@@ -23,6 +23,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"testing"
 
 	"github.com/dnaeon/go-vcr/cassette"
@@ -441,4 +442,58 @@ func prepareCassetteRequest(d requestDescription) cassette.Request {
 	}
 
 	return req
+}
+
+func TestIsVcrReplaying(t *testing.T) {
+	cases := []struct {
+		name     string
+		vcrPath  string
+		vcrMode  string
+		expected bool
+	}{
+		{"empty", "", "", false},
+		{"path only", "/tmp", "", false},
+		{"mode recording", "/tmp", "RECORDING", false},
+		{"mode replaying no path", "", "REPLAYING", false},
+		{"mode replaying with path", "/tmp", "REPLAYING", true},
+		{"mode other", "/tmp", "OTHER", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Setenv("VCR_PATH", tc.vcrPath)
+			t.Setenv("VCR_MODE", tc.vcrMode)
+			if got := acctest.IsVcrReplaying(); got != tc.expected {
+				t.Errorf("IsVcrReplaying() = %v, expected %v", got, tc.expected)
+			}
+		})
+	}
+}
+
+func TestRunVcrSubtest(t *testing.T) {
+	origPath := os.Getenv("VCR_PATH")
+	origMode := os.Getenv("VCR_MODE")
+	defer func() {
+		os.Setenv("VCR_PATH", origPath)
+		os.Setenv("VCR_MODE", origMode)
+	}()
+
+	os.Setenv("VCR_PATH", "")
+	os.Setenv("VCR_MODE", "")
+	acctest.RunVcrSubtest(t, "disabled when not replaying", func(t *testing.T) {
+		// Calling t.Parallel() here should not panic since RunVcrSubtest didn't call it
+		t.Parallel()
+	})
+
+	os.Setenv("VCR_PATH", "/tmp")
+	os.Setenv("VCR_MODE", "REPLAYING")
+	acctest.RunVcrSubtest(t, "enabled when replaying", func(t *testing.T) {
+		// In Go testing, calling t.Parallel() a second time on the same testing.T panics
+		defer func() {
+			r := recover()
+			if r == nil {
+				t.Errorf("expected panic when calling t.Parallel() a second time, but did not panic")
+			}
+		}()
+		t.Parallel()
+	})
 }

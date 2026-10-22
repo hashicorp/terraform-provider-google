@@ -65,6 +65,11 @@ func IsVcrEnabled() bool {
 	return envPath != "" && vcrMode != ""
 }
 
+// IsVcrReplaying returns true if VCR is enabled and running in REPLAYING mode.
+func IsVcrReplaying() bool {
+	return IsVcrEnabled() && os.Getenv("VCR_MODE") == "REPLAYING"
+}
+
 var configsLock = sync.RWMutex{}
 var sourcesLock = sync.RWMutex{}
 
@@ -189,7 +194,7 @@ func VcrTest(t *testing.T, c resource.TestCase) {
 		if s.ImportStateVerify && !slices.Contains(s.ImportStateVerifyIgnore, "terraform_labels") {
 			s.ImportStateVerifyIgnore = append(s.ImportStateVerifyIgnore, "terraform_labels")
 		}
-		if IsVcrEnabled() && os.Getenv("VCR_MODE") == "REPLAYING" {
+		if IsVcrReplaying() {
 			re := regexp.MustCompile(`create_duration = "\d+[sm]"`)
 			s.Config = re.ReplaceAllString(s.Config, `create_duration = "1s"`)
 			re = regexp.MustCompile(`destroy_duration = "\d+[sm]"`)

@@ -41,7 +41,7 @@ func TestAccAccessApprovalSettings(t *testing.T) {
 
 	for name, tc := range testCases {
 		tc := tc
-		t.Run(name, func(t *testing.T) {
+		acctest.RunVcrSubtest(t, name, func(t *testing.T) {
 			tc(t)
 		})
 	}

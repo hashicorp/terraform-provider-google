@@ -112,10 +112,22 @@ func SkipIfVcr(t *testing.T) {
 
 func Sleep(d time.Duration) {
 	// Assume we never want to sleep when we're in replaying mode.
-	if IsVcrEnabled() && os.Getenv("VCR_MODE") == "REPLAYING" {
+	if IsVcrReplaying() {
 		return
 	}
 	time.Sleep(d)
+}
+
+// RunVcrSubtest runs a subtest via t.Run and enables parallel execution during VCR replay,
+// avoiding quota or concurrency conflicts during live testing.
+func RunVcrSubtest(t *testing.T, name string, f func(t *testing.T)) bool {
+	t.Helper()
+	return t.Run(name, func(t *testing.T) {
+		if IsVcrReplaying() {
+			t.Parallel()
+		}
+		f(t)
+	})
 }
 
 func SleepTestCheckFunc(d time.Duration) resource.TestCheckFunc {
