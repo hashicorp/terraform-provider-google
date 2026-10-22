@@ -67,4 +67,5 @@ exported:
 
 * `self_link` - The URI of the created resource.
 * `address` - The IP of the created resource.
+* `address_id` - The numeric ID of the created resource.
 * `status` - Indicates if the address is used. Possible values are: RESERVED or IN_USE.
