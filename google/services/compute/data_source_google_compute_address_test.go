@@ -133,6 +133,7 @@ func testAccDataSourceComputeAddressCheck(t *testing.T, data_source_name string,
 		address_attrs_to_test := []string{
 			"name",
 			"address",
+			"address_id",
 		}
 
 		for _, attr_to_check := range address_attrs_to_test {
