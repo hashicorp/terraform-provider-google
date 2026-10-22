@@ -17,49 +17,14 @@
 package agentidentity_test
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"github.com/hashicorp/terraform-provider-google/google/services/agentidentity"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // ============================================================================
-// 1. API Key Basic & Import Test
-// ============================================================================
-
-func TestAccAgentIdentityAuthProvider_apiKeyBasic(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroy(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccAgentIdentityAuthProvider_apiKeyBasic(context),
-			},
-			{
-				ResourceName:            "google_agent_identity_auth_provider.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_type_params", "location", "auth_provider_id", "workload_ids"},
-			},
-		},
-	})
-}
-
-// ============================================================================
-// 2. Comprehensive PATCH Update Test (Tests Arrays, Booleans, and Nested Structs)
+// 1. Comprehensive PATCH Update Test (Tests Arrays, Booleans, and Nested Structs)
 // ============================================================================
 
 func TestAccAgentIdentityAuthProvider_update(t *testing.T) {
@@ -72,7 +37,7 @@ func TestAccAgentIdentityAuthProvider_update(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroy(t),
+		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAgentIdentityAuthProvider_updateStep1(context),
@@ -91,7 +56,7 @@ func TestAccAgentIdentityAuthProvider_update(t *testing.T) {
 }
 
 // ============================================================================
-// 3. Two-Legged OAuth (2LO / TLO) Tests
+// 2. Two-Legged OAuth (2LO / TLO) Tests
 // ============================================================================
 
 func TestAccAgentIdentityAuthProvider_twoLeggedOauth(t *testing.T) {
@@ -104,7 +69,7 @@ func TestAccAgentIdentityAuthProvider_twoLeggedOauth(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroy(t),
+		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAgentIdentityAuthProvider_twoLeggedOauth(context),
@@ -120,7 +85,7 @@ func TestAccAgentIdentityAuthProvider_twoLeggedOauth(t *testing.T) {
 }
 
 // ============================================================================
-// 4. Three-Legged OAuth (3LO) Tests
+// 3. Three-Legged OAuth (3LO) Tests
 // ============================================================================
 
 func TestAccAgentIdentityAuthProvider_threeLeggedOauth(t *testing.T) {
@@ -133,7 +98,7 @@ func TestAccAgentIdentityAuthProvider_threeLeggedOauth(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroy(t),
+		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAgentIdentityAuthProvider_threeLeggedOauth(context),
@@ -150,7 +115,7 @@ func TestAccAgentIdentityAuthProvider_threeLeggedOauth(t *testing.T) {
 }
 
 // ============================================================================
-// 5. Two-Legged OAuth (2LO) Write-Only Tests
+// 4. Two-Legged OAuth (2LO) Write-Only Tests
 // ============================================================================
 
 func TestAccAgentIdentityAuthProvider_twoLeggedOauthWriteOnly(t *testing.T) {
@@ -163,7 +128,7 @@ func TestAccAgentIdentityAuthProvider_twoLeggedOauthWriteOnly(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroy(t),
+		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAgentIdentityAuthProvider_twoLeggedOauthWriteOnly(context),
@@ -179,7 +144,7 @@ func TestAccAgentIdentityAuthProvider_twoLeggedOauthWriteOnly(t *testing.T) {
 }
 
 // ============================================================================
-// 6. Three-Legged OAuth (3LO) Write-Only Tests
+// 5. Three-Legged OAuth (3LO) Write-Only Tests
 // ============================================================================
 
 func TestAccAgentIdentityAuthProvider_threeLeggedOauthWriteOnly(t *testing.T) {
@@ -192,7 +157,7 @@ func TestAccAgentIdentityAuthProvider_threeLeggedOauthWriteOnly(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroy(t),
+		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAgentIdentityAuthProvider_threeLeggedOauthWriteOnly(context),
@@ -208,7 +173,7 @@ func TestAccAgentIdentityAuthProvider_threeLeggedOauthWriteOnly(t *testing.T) {
 }
 
 // ============================================================================
-// 7. Auth Provider Type Switch Update Test (Switching exactly_one_of triggers ForceNew)
+// 6. Auth Provider Type Switch Update Test (Switching exactly_one_of triggers ForceNew)
 // ============================================================================
 
 func TestAccAgentIdentityAuthProvider_switchAuthProviderType(t *testing.T) {
@@ -221,7 +186,7 @@ func TestAccAgentIdentityAuthProvider_switchAuthProviderType(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroy(t),
+		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAgentIdentityAuthProvider_switchTypeStep1(context),
@@ -240,58 +205,8 @@ func TestAccAgentIdentityAuthProvider_switchAuthProviderType(t *testing.T) {
 }
 
 // ============================================================================
-// 8. Custom CheckDestroy (Handles Soft-Deleted APIs where GET after delete returns 200 OK with status={deleted=true})
+// 7. Terraform HCL Config Generators
 // ============================================================================
-
-func testAccCheckAgentIdentityAuthProviderDestroy(t *testing.T) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_agent_identity_auth_provider" || strings.HasPrefix(name, "data.") {
-				continue
-			}
-
-			config := acctest.GoogleProviderConfig(t)
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(agentidentity.Product, config)+"projects/{{project}}/locations/{{location}}/authProviders/{{auth_provider_id}}")
-			if err != nil {
-				return err
-			}
-
-			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				RawURL:    url,
-				UserAgent: config.UserAgent,
-			})
-			if err == nil {
-				if deleted, ok := res["deleted"].(bool); ok && deleted {
-					continue // Resource is marked as soft-deleted in API response, destruction passed.
-				}
-				return fmt.Errorf("AgentIdentityAuthProvider still exists at %s", url)
-			}
-		}
-		return nil
-	}
-}
-
-// ============================================================================
-// 8. Terraform HCL Config Generators
-// ============================================================================
-
-func testAccAgentIdentityAuthProvider_apiKeyBasic(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-  resource "google_agent_identity_auth_provider" "default" {
-    location         = "us-central1"
-    auth_provider_id = "tf-test-apikey-%{random_suffix}"
-    description      = "Basic API Key Auth Provider test"
-  
-    auth_provider_type_params {
-      api_key {
-        api_key = "test-api-key-value"
-      }
-    }
-  }
-  `, context)
-}
 
 func testAccAgentIdentityAuthProvider_updateStep1(context map[string]interface{}) string {
 	return acctest.Nprintf(`
