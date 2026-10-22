@@ -131,11 +131,46 @@ resource "google_gemini_data_analytics_data_agent" "example" {
             project_id = google_bigquery_dataset.dataset.project
             dataset_id = google_bigquery_dataset.dataset.dataset_id
             table_id   = google_bigquery_table.table.table_id
+
+            schema {
+              description  = "Sales orders table."
+              display_name = "Sales Orders"
+              synonyms     = ["orders", "purchases"]
+              tags         = ["sales", "finance"]
+
+              fields {
+                name        = "order_id"
+                type        = "STRING"
+                description = "Unique order identifier."
+                mode        = "REQUIRED"
+                synonyms    = ["id"]
+                tags        = ["identifier"]
+                category    = "DIMENSION"
+              }
+
+              fields {
+                name         = "order_total"
+                type         = "FLOAT"
+                description  = "Total order amount."
+                mode         = "NULLABLE"
+                synonyms     = ["revenue", "amount"]
+                tags         = ["metric"]
+                category     = "MEASURE"
+                value_format = "$#,##0.00"
+              }
+
+              filters {
+                field = "order_total"
+                value = "0"
+                type  = "ALWAYS_FILTER"
+              }
+            }
           }
         }
       }
 
       options {
+        model = "LATEST_GA_MODEL"
         analysis {
           python {
             enabled = true
@@ -147,8 +182,14 @@ resource "google_gemini_data_analytics_data_agent" "example" {
       }
 
       example_queries {
-        natural_language_question = "What is the total order value?"
-        sql_query                 = "SELECT SUM(order_total) AS total_order_value FROM sales"
+        natural_language_question = "What is the total order value above a threshold?"
+        sql_query                 = "SELECT SUM(order_total) AS total_order_value FROM sales WHERE order_total > @min_total"
+
+        parameters {
+          name        = "min_total"
+          description = "Minimum order total threshold."
+          data_type   = "FLOAT64"
+        }
       }
 
       glossary_terms {
@@ -306,7 +347,6 @@ The following arguments are supported:
 * `datasource_references` -
   (Required)
   Required. Data sources that are available for answering questions.
-  This Terraform resource currently supports BigQuery table references.
   Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references).
 
 * `options` -
@@ -319,6 +359,11 @@ The following arguments are supported:
   Optional. A list of example queries for BigQuery data sources.
   Structure is [documented below](#nested_data_analytics_agent_staging_context_example_queries).
 
+* `looker_golden_queries` -
+  (Optional)
+  Optional. A list of golden queries for Looker data sources.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_looker_golden_queries).
+
 * `glossary_terms` -
   (Optional)
   Optional. Term definitions for the agent's domain.
@@ -330,13 +375,28 @@ The following arguments are supported:
   and referenced columns.
   Structure is [documented below](#nested_data_analytics_agent_staging_context_schema_relationships).
 
+* `user_functions` -
+  (Optional)
+  Optional. A collection of user functions to be included in context.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_user_functions).
+
 
 <a name="nested_data_analytics_agent_staging_context_datasource_references"></a>The `datasource_references` block supports:
 
 * `bq` -
-  (Required)
-  References to BigQuery tables.
+  (Optional)
+  References to BigQuery tables and property graphs.
   Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_bq).
+
+* `looker` -
+  (Optional)
+  References to Looker explores.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_looker).
+
+* `studio` -
+  (Optional)
+  References to Looker Studio datasources.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_studio).
 
 
 <a name="nested_data_analytics_agent_staging_context_datasource_references_bq"></a>The `bq` block supports:
@@ -345,6 +405,11 @@ The following arguments are supported:
   (Optional)
   Optional. References to BigQuery tables.
   Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_bq_table_references).
+
+* `property_graph_references` -
+  (Optional)
+  Optional. References to BigQuery property graphs.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_bq_property_graph_references).
 
 
 <a name="nested_data_analytics_agent_staging_context_datasource_references_bq_table_references"></a>The `table_references` block supports:
@@ -361,6 +426,245 @@ The following arguments are supported:
   (Required)
   Required. The table ID.
 
+* `schema` -
+  (Optional)
+  Optional. The schema of the datasource.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_bq_table_references_schema).
+
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_bq_table_references_schema"></a>The `schema` block supports:
+
+* `description` -
+  (Optional)
+  Optional. A textual description of the table's content and purpose.
+
+* `display_name` -
+  (Optional)
+  Optional. Table display name.
+
+* `synonyms` -
+  (Optional)
+  Optional. A list of alternative names or synonyms that can be used to refer to the table.
+
+* `tags` -
+  (Optional)
+  Optional. A list of tags or keywords associated with the table, used for categorization.
+
+* `fields` -
+  (Optional)
+  Optional. The fields in the schema.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_bq_table_references_schema_fields).
+
+* `filters` -
+  (Optional)
+  Optional. The filters on the datasource's underlying data.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_bq_table_references_schema_filters).
+
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_bq_table_references_schema_fields"></a>The `fields` block supports:
+
+* `name` -
+  (Optional)
+  Optional. The name of the field.
+
+* `type` -
+  (Optional)
+  Optional. The type of the field.
+
+* `description` -
+  (Optional)
+  Optional. A brief description of the field.
+
+* `mode` -
+  (Optional)
+  Optional. The mode of the field (e.g., NULLABLE, REPEATED).
+
+* `synonyms` -
+  (Optional)
+  Optional. A list of alternative names or synonyms that can be used to refer to this field.
+
+* `tags` -
+  (Optional)
+  Optional. A list of tags or keywords associated with the field, used for categorization.
+
+* `subfields` -
+  (Optional)
+  Optional. Recursive property for nested schema structures, encoded as a JSON string representing a list of Field objects.
+
+* `category` -
+  (Optional)
+  Optional. Field category.
+
+* `value_format` -
+  (Optional)
+  Optional. Value format of the field.
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_bq_table_references_schema_filters"></a>The `filters` block supports:
+
+* `field` -
+  (Optional)
+  Optional. The field to filter on.
+
+* `value` -
+  (Optional)
+  Optional. The default value used for this filter if the filter is not overridden in a query.
+
+* `type` -
+  (Optional)
+  Optional. The type of filter present on a datasource, such as ALWAYS_FILTER.
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_bq_property_graph_references"></a>The `property_graph_references` block supports:
+
+* `project_id` -
+  (Required)
+  Required. The project that the property graph belongs to.
+
+* `dataset_id` -
+  (Required)
+  Required. The dataset that the property graph belongs to.
+
+* `property_graph_id` -
+  (Required)
+  Required. The property graph ID.
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_looker"></a>The `looker` block supports:
+
+* `explore_references` -
+  (Required)
+  Required. References to Looker explores.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_looker_explore_references).
+
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_looker_explore_references"></a>The `explore_references` block supports:
+
+* `lookml_model` -
+  (Required)
+  Required. Name of the LookML model.
+
+* `explore` -
+  (Required)
+  Required. Name of the LookML Explore.
+
+* `looker_instance_uri` -
+  (Optional)
+  Optional. The base URL of the Looker instance.
+
+* `private_looker_instance_info` -
+  (Optional)
+  Optional. Private Looker instance info if the Looker instance is behind a private network.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_looker_explore_references_private_looker_instance_info).
+
+* `schema` -
+  (Optional)
+  Optional. The schema of the datasource.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_looker_explore_references_schema).
+
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_looker_explore_references_private_looker_instance_info"></a>The `private_looker_instance_info` block supports:
+
+* `looker_instance_id` -
+  (Optional)
+  Optional. The Looker instance ID.
+
+* `service_directory_name` -
+  (Optional)
+  Optional. The service directory name of the Looker instance.
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_looker_explore_references_schema"></a>The `schema` block supports:
+
+* `description` -
+  (Optional)
+  Optional. A textual description of the explore's content and purpose.
+
+* `display_name` -
+  (Optional)
+  Optional. Explore display name.
+
+* `synonyms` -
+  (Optional)
+  Optional. A list of alternative names or synonyms that can be used to refer to the explore.
+
+* `tags` -
+  (Optional)
+  Optional. A list of tags or keywords associated with the explore, used for categorization.
+
+* `fields` -
+  (Optional)
+  Optional. The fields in the schema.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_looker_explore_references_schema_fields).
+
+* `filters` -
+  (Optional)
+  Optional. The filters on the datasource's underlying data.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_looker_explore_references_schema_filters).
+
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_looker_explore_references_schema_fields"></a>The `fields` block supports:
+
+* `name` -
+  (Optional)
+  Optional. The name of the field.
+
+* `type` -
+  (Optional)
+  Optional. The type of the field.
+
+* `description` -
+  (Optional)
+  Optional. A brief description of the field.
+
+* `mode` -
+  (Optional)
+  Optional. The mode of the field (e.g., NULLABLE, REPEATED).
+
+* `synonyms` -
+  (Optional)
+  Optional. A list of alternative names or synonyms that can be used to refer to this field.
+
+* `tags` -
+  (Optional)
+  Optional. A list of tags or keywords associated with the field, used for categorization.
+
+* `subfields` -
+  (Optional)
+  Optional. Recursive property for nested schema structures, encoded as a JSON string representing a list of Field objects.
+
+* `category` -
+  (Optional)
+  Optional. Field category.
+
+* `value_format` -
+  (Optional)
+  Optional. Value format of the field.
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_looker_explore_references_schema_filters"></a>The `filters` block supports:
+
+* `field` -
+  (Optional)
+  Optional. The field to filter on.
+
+* `value` -
+  (Optional)
+  Optional. The default value used for this filter if the filter is not overridden in a query.
+
+* `type` -
+  (Optional)
+  Optional. The type of filter present on a datasource, such as ALWAYS_FILTER.
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_studio"></a>The `studio` block supports:
+
+* `studio_references` -
+  (Optional)
+  Optional. The references to the studio datasources.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_datasource_references_studio_studio_references).
+
+
+<a name="nested_data_analytics_agent_staging_context_datasource_references_studio_studio_references"></a>The `studio_references` block supports:
+
+* `datasource_id` -
+  (Required)
+  Required. The ID of the datasource.
+
 <a name="nested_data_analytics_agent_staging_context_options"></a>The `options` block supports:
 
 * `analysis` -
@@ -372,6 +676,10 @@ The following arguments are supported:
   (Optional)
   Optional. Options for datasource configuration.
   Structure is [documented below](#nested_data_analytics_agent_staging_context_options_datasource).
+
+* `model` -
+  (Optional)
+  Optional. The model to use for the agent loop.
 
 
 <a name="nested_data_analytics_agent_staging_context_options_analysis"></a>The `analysis` block supports:
@@ -404,6 +712,84 @@ The following arguments are supported:
   (Optional)
   Optional. The SQL query that should be generated to answer
   the natural language question.
+
+* `parameters` -
+  (Optional)
+  Optional. The list of query parameters.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_example_queries_parameters).
+
+
+<a name="nested_data_analytics_agent_staging_context_example_queries_parameters"></a>The `parameters` block supports:
+
+* `name` -
+  (Required)
+  Required. The name of the parameter reference in the SQL query.
+
+* `description` -
+  (Optional)
+  Optional. The description of the parameter that can be used by the LLM to extract the parameter value from the user question.
+
+* `data_type` -
+  (Required)
+  Required. The data type of the parameter, e.g. "STRING", "INT64", "DATE".
+
+<a name="nested_data_analytics_agent_staging_context_looker_golden_queries"></a>The `looker_golden_queries` block supports:
+
+* `natural_language_questions` -
+  (Optional)
+  Optional. Natural language questions that a user might ask.
+
+* `looker_query` -
+  (Optional)
+  Optional. The Looker Query corresponding to the natural language questions.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_looker_golden_queries_looker_query).
+
+
+<a name="nested_data_analytics_agent_staging_context_looker_golden_queries_looker_query"></a>The `looker_query` block supports:
+
+* `model` -
+  (Required)
+  Required. The LookML model used to generate the query.
+
+* `explore` -
+  (Required)
+  Required. The LookML explore used to generate the query.
+
+* `fields` -
+  (Optional)
+  Optional. The fields to retrieve from the explore.
+
+* `filters` -
+  (Optional)
+  Optional. The filters to apply to the explore.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_looker_golden_queries_looker_query_filters).
+
+* `sorts` -
+  (Optional)
+  Optional. The sorts to apply to the explore.
+
+* `limit` -
+  (Optional)
+  Optional. Limit in the query.
+
+* `query_id` -
+  (Optional)
+  Optional. The primary identifier for the query resource in Looker.
+
+* `client_id` -
+  (Optional)
+  Optional. The short alphanumeric identifier for the query, used for share links and Explore URLs.
+
+
+<a name="nested_data_analytics_agent_staging_context_looker_golden_queries_looker_query_filters"></a>The `filters` block supports:
+
+* `field` -
+  (Required)
+  Required. The field to filter on.
+
+* `value` -
+  (Optional)
+  Optional. The value for the field to filter on.
 
 <a name="nested_data_analytics_agent_staging_context_glossary_terms"></a>The `glossary_terms` block supports:
 
@@ -461,6 +847,40 @@ The following arguments are supported:
   (Required)
   Required. The ordered list of paths within the table schema.
 
+<a name="nested_data_analytics_agent_staging_context_user_functions"></a>The `user_functions` block supports:
+
+* `bq_routines` -
+  (Optional)
+  Optional. A list of BigQuery routines to include in the context.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_user_functions_bq_routines).
+
+
+<a name="nested_data_analytics_agent_staging_context_user_functions_bq_routines"></a>The `bq_routines` block supports:
+
+* `description` -
+  (Optional)
+  Optional. User override or addition to description, to tell the agent when to use the UDF.
+
+* `routine_reference` -
+  (Optional)
+  Optional. The reference to the BigQuery routine.
+  Structure is [documented below](#nested_data_analytics_agent_staging_context_user_functions_bq_routines_routine_reference).
+
+
+<a name="nested_data_analytics_agent_staging_context_user_functions_bq_routines_routine_reference"></a>The `routine_reference` block supports:
+
+* `project_id` -
+  (Optional)
+  Optional. The project ID of the routine.
+
+* `dataset_id` -
+  (Optional)
+  Optional. The dataset ID of the routine.
+
+* `routine_id` -
+  (Optional)
+  Optional. The routine ID of the routine.
+
 <a name="nested_data_analytics_agent_published_context"></a>The `published_context` block supports:
 
 * `system_instruction` -
@@ -471,7 +891,6 @@ The following arguments are supported:
 * `datasource_references` -
   (Required)
   Required. Data sources that are available for answering questions.
-  This Terraform resource currently supports BigQuery table references.
   Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references).
 
 * `options` -
@@ -484,6 +903,11 @@ The following arguments are supported:
   Optional. A list of example queries for BigQuery data sources.
   Structure is [documented below](#nested_data_analytics_agent_published_context_example_queries).
 
+* `looker_golden_queries` -
+  (Optional)
+  Optional. A list of golden queries for Looker data sources.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_looker_golden_queries).
+
 * `glossary_terms` -
   (Optional)
   Optional. Term definitions for the agent's domain.
@@ -495,13 +919,28 @@ The following arguments are supported:
   and referenced columns.
   Structure is [documented below](#nested_data_analytics_agent_published_context_schema_relationships).
 
+* `user_functions` -
+  (Optional)
+  Optional. A collection of user functions to be included in context.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_user_functions).
+
 
 <a name="nested_data_analytics_agent_published_context_datasource_references"></a>The `datasource_references` block supports:
 
 * `bq` -
-  (Required)
-  References to BigQuery tables.
+  (Optional)
+  References to BigQuery tables and property graphs.
   Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_bq).
+
+* `looker` -
+  (Optional)
+  References to Looker explores.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_looker).
+
+* `studio` -
+  (Optional)
+  References to Looker Studio datasources.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_studio).
 
 
 <a name="nested_data_analytics_agent_published_context_datasource_references_bq"></a>The `bq` block supports:
@@ -510,6 +949,11 @@ The following arguments are supported:
   (Optional)
   Optional. References to BigQuery tables.
   Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_bq_table_references).
+
+* `property_graph_references` -
+  (Optional)
+  Optional. References to BigQuery property graphs.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_bq_property_graph_references).
 
 
 <a name="nested_data_analytics_agent_published_context_datasource_references_bq_table_references"></a>The `table_references` block supports:
@@ -526,6 +970,245 @@ The following arguments are supported:
   (Required)
   Required. The table ID.
 
+* `schema` -
+  (Optional)
+  Optional. The schema of the datasource.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_bq_table_references_schema).
+
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_bq_table_references_schema"></a>The `schema` block supports:
+
+* `description` -
+  (Optional)
+  Optional. A textual description of the table's content and purpose.
+
+* `display_name` -
+  (Optional)
+  Optional. Table display name.
+
+* `synonyms` -
+  (Optional)
+  Optional. A list of alternative names or synonyms that can be used to refer to the table.
+
+* `tags` -
+  (Optional)
+  Optional. A list of tags or keywords associated with the table, used for categorization.
+
+* `fields` -
+  (Optional)
+  Optional. The fields in the schema.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_bq_table_references_schema_fields).
+
+* `filters` -
+  (Optional)
+  Optional. The filters on the datasource's underlying data.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_bq_table_references_schema_filters).
+
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_bq_table_references_schema_fields"></a>The `fields` block supports:
+
+* `name` -
+  (Optional)
+  Optional. The name of the field.
+
+* `type` -
+  (Optional)
+  Optional. The type of the field.
+
+* `description` -
+  (Optional)
+  Optional. A brief description of the field.
+
+* `mode` -
+  (Optional)
+  Optional. The mode of the field (e.g., NULLABLE, REPEATED).
+
+* `synonyms` -
+  (Optional)
+  Optional. A list of alternative names or synonyms that can be used to refer to this field.
+
+* `tags` -
+  (Optional)
+  Optional. A list of tags or keywords associated with the field, used for categorization.
+
+* `subfields` -
+  (Optional)
+  Optional. Recursive property for nested schema structures, encoded as a JSON string representing a list of Field objects.
+
+* `category` -
+  (Optional)
+  Optional. Field category.
+
+* `value_format` -
+  (Optional)
+  Optional. Value format of the field.
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_bq_table_references_schema_filters"></a>The `filters` block supports:
+
+* `field` -
+  (Optional)
+  Optional. The field to filter on.
+
+* `value` -
+  (Optional)
+  Optional. The default value used for this filter if the filter is not overridden in a query.
+
+* `type` -
+  (Optional)
+  Optional. The type of filter present on a datasource, such as ALWAYS_FILTER.
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_bq_property_graph_references"></a>The `property_graph_references` block supports:
+
+* `project_id` -
+  (Required)
+  Required. The project that the property graph belongs to.
+
+* `dataset_id` -
+  (Required)
+  Required. The dataset that the property graph belongs to.
+
+* `property_graph_id` -
+  (Required)
+  Required. The property graph ID.
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_looker"></a>The `looker` block supports:
+
+* `explore_references` -
+  (Required)
+  Required. References to Looker explores.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_looker_explore_references).
+
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_looker_explore_references"></a>The `explore_references` block supports:
+
+* `lookml_model` -
+  (Required)
+  Required. Name of the LookML model.
+
+* `explore` -
+  (Required)
+  Required. Name of the LookML Explore.
+
+* `looker_instance_uri` -
+  (Optional)
+  Optional. The base URL of the Looker instance.
+
+* `private_looker_instance_info` -
+  (Optional)
+  Optional. Private Looker instance info if the Looker instance is behind a private network.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_looker_explore_references_private_looker_instance_info).
+
+* `schema` -
+  (Optional)
+  Optional. The schema of the datasource.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_looker_explore_references_schema).
+
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_looker_explore_references_private_looker_instance_info"></a>The `private_looker_instance_info` block supports:
+
+* `looker_instance_id` -
+  (Optional)
+  Optional. The Looker instance ID.
+
+* `service_directory_name` -
+  (Optional)
+  Optional. The service directory name of the Looker instance.
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_looker_explore_references_schema"></a>The `schema` block supports:
+
+* `description` -
+  (Optional)
+  Optional. A textual description of the explore's content and purpose.
+
+* `display_name` -
+  (Optional)
+  Optional. Explore display name.
+
+* `synonyms` -
+  (Optional)
+  Optional. A list of alternative names or synonyms that can be used to refer to the explore.
+
+* `tags` -
+  (Optional)
+  Optional. A list of tags or keywords associated with the explore, used for categorization.
+
+* `fields` -
+  (Optional)
+  Optional. The fields in the schema.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_looker_explore_references_schema_fields).
+
+* `filters` -
+  (Optional)
+  Optional. The filters on the datasource's underlying data.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_looker_explore_references_schema_filters).
+
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_looker_explore_references_schema_fields"></a>The `fields` block supports:
+
+* `name` -
+  (Optional)
+  Optional. The name of the field.
+
+* `type` -
+  (Optional)
+  Optional. The type of the field.
+
+* `description` -
+  (Optional)
+  Optional. A brief description of the field.
+
+* `mode` -
+  (Optional)
+  Optional. The mode of the field (e.g., NULLABLE, REPEATED).
+
+* `synonyms` -
+  (Optional)
+  Optional. A list of alternative names or synonyms that can be used to refer to this field.
+
+* `tags` -
+  (Optional)
+  Optional. A list of tags or keywords associated with the field, used for categorization.
+
+* `subfields` -
+  (Optional)
+  Optional. Recursive property for nested schema structures, encoded as a JSON string representing a list of Field objects.
+
+* `category` -
+  (Optional)
+  Optional. Field category.
+
+* `value_format` -
+  (Optional)
+  Optional. Value format of the field.
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_looker_explore_references_schema_filters"></a>The `filters` block supports:
+
+* `field` -
+  (Optional)
+  Optional. The field to filter on.
+
+* `value` -
+  (Optional)
+  Optional. The default value used for this filter if the filter is not overridden in a query.
+
+* `type` -
+  (Optional)
+  Optional. The type of filter present on a datasource, such as ALWAYS_FILTER.
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_studio"></a>The `studio` block supports:
+
+* `studio_references` -
+  (Optional)
+  Optional. The references to the studio datasources.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_datasource_references_studio_studio_references).
+
+
+<a name="nested_data_analytics_agent_published_context_datasource_references_studio_studio_references"></a>The `studio_references` block supports:
+
+* `datasource_id` -
+  (Required)
+  Required. The ID of the datasource.
+
 <a name="nested_data_analytics_agent_published_context_options"></a>The `options` block supports:
 
 * `analysis` -
@@ -537,6 +1220,10 @@ The following arguments are supported:
   (Optional)
   Optional. Options for datasource configuration.
   Structure is [documented below](#nested_data_analytics_agent_published_context_options_datasource).
+
+* `model` -
+  (Optional)
+  Optional. The model to use for the agent loop.
 
 
 <a name="nested_data_analytics_agent_published_context_options_analysis"></a>The `analysis` block supports:
@@ -569,6 +1256,84 @@ The following arguments are supported:
   (Optional)
   Optional. The SQL query that should be generated to answer
   the natural language question.
+
+* `parameters` -
+  (Optional)
+  Optional. The list of query parameters.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_example_queries_parameters).
+
+
+<a name="nested_data_analytics_agent_published_context_example_queries_parameters"></a>The `parameters` block supports:
+
+* `name` -
+  (Required)
+  Required. The name of the parameter reference in the SQL query.
+
+* `description` -
+  (Optional)
+  Optional. The description of the parameter that can be used by the LLM to extract the parameter value from the user question.
+
+* `data_type` -
+  (Required)
+  Required. The data type of the parameter, e.g. "STRING", "INT64", "DATE".
+
+<a name="nested_data_analytics_agent_published_context_looker_golden_queries"></a>The `looker_golden_queries` block supports:
+
+* `natural_language_questions` -
+  (Optional)
+  Optional. Natural language questions that a user might ask.
+
+* `looker_query` -
+  (Optional)
+  Optional. The Looker Query corresponding to the natural language questions.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_looker_golden_queries_looker_query).
+
+
+<a name="nested_data_analytics_agent_published_context_looker_golden_queries_looker_query"></a>The `looker_query` block supports:
+
+* `model` -
+  (Required)
+  Required. The LookML model used to generate the query.
+
+* `explore` -
+  (Required)
+  Required. The LookML explore used to generate the query.
+
+* `fields` -
+  (Optional)
+  Optional. The fields to retrieve from the explore.
+
+* `filters` -
+  (Optional)
+  Optional. The filters to apply to the explore.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_looker_golden_queries_looker_query_filters).
+
+* `sorts` -
+  (Optional)
+  Optional. The sorts to apply to the explore.
+
+* `limit` -
+  (Optional)
+  Optional. Limit in the query.
+
+* `query_id` -
+  (Optional)
+  Optional. The primary identifier for the query resource in Looker.
+
+* `client_id` -
+  (Optional)
+  Optional. The short alphanumeric identifier for the query, used for share links and Explore URLs.
+
+
+<a name="nested_data_analytics_agent_published_context_looker_golden_queries_looker_query_filters"></a>The `filters` block supports:
+
+* `field` -
+  (Required)
+  Required. The field to filter on.
+
+* `value` -
+  (Optional)
+  Optional. The value for the field to filter on.
 
 <a name="nested_data_analytics_agent_published_context_glossary_terms"></a>The `glossary_terms` block supports:
 
@@ -625,6 +1390,40 @@ The following arguments are supported:
 * `paths` -
   (Required)
   Required. The ordered list of paths within the table schema.
+
+<a name="nested_data_analytics_agent_published_context_user_functions"></a>The `user_functions` block supports:
+
+* `bq_routines` -
+  (Optional)
+  Optional. A list of BigQuery routines to include in the context.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_user_functions_bq_routines).
+
+
+<a name="nested_data_analytics_agent_published_context_user_functions_bq_routines"></a>The `bq_routines` block supports:
+
+* `description` -
+  (Optional)
+  Optional. User override or addition to description, to tell the agent when to use the UDF.
+
+* `routine_reference` -
+  (Optional)
+  Optional. The reference to the BigQuery routine.
+  Structure is [documented below](#nested_data_analytics_agent_published_context_user_functions_bq_routines_routine_reference).
+
+
+<a name="nested_data_analytics_agent_published_context_user_functions_bq_routines_routine_reference"></a>The `routine_reference` block supports:
+
+* `project_id` -
+  (Optional)
+  Optional. The project ID of the routine.
+
+* `dataset_id` -
+  (Optional)
+  Optional. The dataset ID of the routine.
+
+* `routine_id` -
+  (Optional)
+  Optional. The routine ID of the routine.
 
 <a name="nested_data_analytics_agent_last_published_context"></a>The `last_published_context` block contains:
 

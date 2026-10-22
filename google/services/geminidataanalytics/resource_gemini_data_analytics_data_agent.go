@@ -173,20 +173,43 @@ the Chat API in production.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"datasource_references": {
-										Type:     schema.TypeList,
-										Required: true,
-										Description: `Required. Data sources that are available for answering questions.
-This Terraform resource currently supports BigQuery table references.`,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Required. Data sources that are available for answering questions.`,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"bq": {
 													Type:        schema.TypeList,
-													Required:    true,
-													Description: `References to BigQuery tables.`,
+													Optional:    true,
+													Description: `References to BigQuery tables and property graphs.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
+															"property_graph_references": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. References to BigQuery property graphs.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"dataset_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. The dataset that the property graph belongs to.`,
+																		},
+																		"project_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. The project that the property graph belongs to.`,
+																		},
+																		"property_graph_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. The property graph ID.`,
+																		},
+																	},
+																},
+															},
 															"table_references": {
 																Type:        schema.TypeList,
 																Optional:    true,
@@ -208,6 +231,328 @@ This Terraform resource currently supports BigQuery table references.`,
 																			Required:    true,
 																			Description: `Required. The table ID.`,
 																		},
+																		"schema": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Optional. The schema of the datasource.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"description": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. A textual description of the table's content and purpose.`,
+																					},
+																					"display_name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. Table display name.`,
+																					},
+																					"fields": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. The fields in the schema.`,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"category": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. Field category.`,
+																								},
+																								"description": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. A brief description of the field.`,
+																								},
+																								"mode": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The mode of the field (e.g., NULLABLE, REPEATED).`,
+																								},
+																								"name": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The name of the field.`,
+																								},
+																								"subfields": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validation.StringIsJSON,
+																									StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																									Description:  `Optional. Recursive property for nested schema structures, encoded as a JSON string representing a list of Field objects.`,
+																								},
+																								"synonyms": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Optional. A list of alternative names or synonyms that can be used to refer to this field.`,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeString,
+																									},
+																								},
+																								"tags": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Optional. A list of tags or keywords associated with the field, used for categorization.`,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeString,
+																									},
+																								},
+																								"type": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The type of the field.`,
+																								},
+																								"value_format": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. Value format of the field.`,
+																								},
+																							},
+																						},
+																					},
+																					"filters": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. The filters on the datasource's underlying data.`,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"field": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The field to filter on.`,
+																								},
+																								"type": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The type of filter present on a datasource, such as ALWAYS_FILTER.`,
+																								},
+																								"value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The default value used for this filter if the filter is not overridden in a query.`,
+																								},
+																							},
+																						},
+																					},
+																					"synonyms": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. A list of alternative names or synonyms that can be used to refer to the table.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																					"tags": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. A list of tags or keywords associated with the table, used for categorization.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"looker": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `References to Looker explores.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"explore_references": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `Required. References to Looker explores.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"explore": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. Name of the LookML Explore.`,
+																		},
+																		"lookml_model": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. Name of the LookML model.`,
+																		},
+																		"looker_instance_uri": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Optional. The base URL of the Looker instance.`,
+																		},
+																		"private_looker_instance_info": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Optional. Private Looker instance info if the Looker instance is behind a private network.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"looker_instance_id": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. The Looker instance ID.`,
+																					},
+																					"service_directory_name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. The service directory name of the Looker instance.`,
+																					},
+																				},
+																			},
+																		},
+																		"schema": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Optional. The schema of the datasource.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"description": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. A textual description of the explore's content and purpose.`,
+																					},
+																					"display_name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. Explore display name.`,
+																					},
+																					"fields": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. The fields in the schema.`,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"category": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. Field category.`,
+																								},
+																								"description": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. A brief description of the field.`,
+																								},
+																								"mode": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The mode of the field (e.g., NULLABLE, REPEATED).`,
+																								},
+																								"name": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The name of the field.`,
+																								},
+																								"subfields": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validation.StringIsJSON,
+																									StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																									Description:  `Optional. Recursive property for nested schema structures, encoded as a JSON string representing a list of Field objects.`,
+																								},
+																								"synonyms": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Optional. A list of alternative names or synonyms that can be used to refer to this field.`,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeString,
+																									},
+																								},
+																								"tags": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Optional. A list of tags or keywords associated with the field, used for categorization.`,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeString,
+																									},
+																								},
+																								"type": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The type of the field.`,
+																								},
+																								"value_format": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. Value format of the field.`,
+																								},
+																							},
+																						},
+																					},
+																					"filters": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. The filters on the datasource's underlying data.`,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"field": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The field to filter on.`,
+																								},
+																								"type": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The type of filter present on a datasource, such as ALWAYS_FILTER.`,
+																								},
+																								"value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The default value used for this filter if the filter is not overridden in a query.`,
+																								},
+																							},
+																						},
+																					},
+																					"synonyms": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. A list of alternative names or synonyms that can be used to refer to the explore.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																					"tags": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. A list of tags or keywords associated with the explore, used for categorization.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"studio": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `References to Looker Studio datasources.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"studio_references": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. The references to the studio datasources.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"datasource_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. The ID of the datasource.`,
+																		},
 																	},
 																},
 															},
@@ -227,6 +572,30 @@ This Terraform resource currently supports BigQuery table references.`,
 													Type:        schema.TypeString,
 													Optional:    true,
 													Description: `Optional. A natural language question that a user might ask.`,
+												},
+												"parameters": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. The list of query parameters.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"data_type": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. The data type of the parameter, e.g. "STRING", "INT64", "DATE".`,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. The name of the parameter reference in the SQL query.`,
+															},
+															"description": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. The description of the parameter that can be used by the LLM to extract the parameter value from the user question.`,
+															},
+														},
+													},
 												},
 												"sql_query": {
 													Type:     schema.TypeString,
@@ -257,6 +626,93 @@ the natural language question.`,
 													Type:        schema.TypeList,
 													Optional:    true,
 													Description: `Optional. A list of general purpose labels associated with this term.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+									"looker_golden_queries": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. A list of golden queries for Looker data sources.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"looker_query": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. The Looker Query corresponding to the natural language questions.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"explore": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. The LookML explore used to generate the query.`,
+															},
+															"model": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. The LookML model used to generate the query.`,
+															},
+															"client_id": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. The short alphanumeric identifier for the query, used for share links and Explore URLs.`,
+															},
+															"fields": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. The fields to retrieve from the explore.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+															"filters": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. The filters to apply to the explore.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"field": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. The field to filter on.`,
+																		},
+																		"value": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Optional. The value for the field to filter on.`,
+																		},
+																	},
+																},
+															},
+															"limit": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. Limit in the query.`,
+															},
+															"query_id": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. The primary identifier for the query resource in Looker.`,
+															},
+															"sorts": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. The sorts to apply to the explore.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
+												"natural_language_questions": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. Natural language questions that a user might ask.`,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -310,6 +766,12 @@ the natural language question.`,
 															},
 														},
 													},
+												},
+												"model": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Optional:    true,
+													Description: `Optional. The model to use for the agent loop.`,
 												},
 											},
 										},
@@ -389,6 +851,55 @@ Possible values: BIGQUERY_JOB_HISTORY, LLM_SUGGESTED, BIGQUERY_TABLE_CONSTRAINTS
 										Optional: true,
 										Description: `Optional. The basic entry point for data owners creating domain
 knowledge for the agent.`,
+									},
+									"user_functions": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. A collection of user functions to be included in context.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"bq_routines": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. A list of BigQuery routines to include in the context.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"description": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. User override or addition to description, to tell the agent when to use the UDF.`,
+															},
+															"routine_reference": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. The reference to the BigQuery routine.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"dataset_id": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Optional. The dataset ID of the routine.`,
+																		},
+																		"project_id": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Optional. The project ID of the routine.`,
+																		},
+																		"routine_id": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Optional. The routine ID of the routine.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
 									},
 								},
 							},
@@ -402,20 +913,43 @@ test and validate changes before publishing.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"datasource_references": {
-										Type:     schema.TypeList,
-										Required: true,
-										Description: `Required. Data sources that are available for answering questions.
-This Terraform resource currently supports BigQuery table references.`,
-										MaxItems: 1,
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Required. Data sources that are available for answering questions.`,
+										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"bq": {
 													Type:        schema.TypeList,
-													Required:    true,
-													Description: `References to BigQuery tables.`,
+													Optional:    true,
+													Description: `References to BigQuery tables and property graphs.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
+															"property_graph_references": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. References to BigQuery property graphs.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"dataset_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. The dataset that the property graph belongs to.`,
+																		},
+																		"project_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. The project that the property graph belongs to.`,
+																		},
+																		"property_graph_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. The property graph ID.`,
+																		},
+																	},
+																},
+															},
 															"table_references": {
 																Type:        schema.TypeList,
 																Optional:    true,
@@ -437,6 +971,328 @@ This Terraform resource currently supports BigQuery table references.`,
 																			Required:    true,
 																			Description: `Required. The table ID.`,
 																		},
+																		"schema": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Optional. The schema of the datasource.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"description": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. A textual description of the table's content and purpose.`,
+																					},
+																					"display_name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. Table display name.`,
+																					},
+																					"fields": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. The fields in the schema.`,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"category": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. Field category.`,
+																								},
+																								"description": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. A brief description of the field.`,
+																								},
+																								"mode": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The mode of the field (e.g., NULLABLE, REPEATED).`,
+																								},
+																								"name": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The name of the field.`,
+																								},
+																								"subfields": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validation.StringIsJSON,
+																									StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																									Description:  `Optional. Recursive property for nested schema structures, encoded as a JSON string representing a list of Field objects.`,
+																								},
+																								"synonyms": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Optional. A list of alternative names or synonyms that can be used to refer to this field.`,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeString,
+																									},
+																								},
+																								"tags": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Optional. A list of tags or keywords associated with the field, used for categorization.`,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeString,
+																									},
+																								},
+																								"type": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The type of the field.`,
+																								},
+																								"value_format": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. Value format of the field.`,
+																								},
+																							},
+																						},
+																					},
+																					"filters": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. The filters on the datasource's underlying data.`,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"field": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The field to filter on.`,
+																								},
+																								"type": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The type of filter present on a datasource, such as ALWAYS_FILTER.`,
+																								},
+																								"value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The default value used for this filter if the filter is not overridden in a query.`,
+																								},
+																							},
+																						},
+																					},
+																					"synonyms": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. A list of alternative names or synonyms that can be used to refer to the table.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																					"tags": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. A list of tags or keywords associated with the table, used for categorization.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"looker": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `References to Looker explores.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"explore_references": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: `Required. References to Looker explores.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"explore": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. Name of the LookML Explore.`,
+																		},
+																		"lookml_model": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. Name of the LookML model.`,
+																		},
+																		"looker_instance_uri": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Optional. The base URL of the Looker instance.`,
+																		},
+																		"private_looker_instance_info": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Optional. Private Looker instance info if the Looker instance is behind a private network.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"looker_instance_id": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. The Looker instance ID.`,
+																					},
+																					"service_directory_name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. The service directory name of the Looker instance.`,
+																					},
+																				},
+																			},
+																		},
+																		"schema": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Optional. The schema of the datasource.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"description": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. A textual description of the explore's content and purpose.`,
+																					},
+																					"display_name": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Optional. Explore display name.`,
+																					},
+																					"fields": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. The fields in the schema.`,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"category": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. Field category.`,
+																								},
+																								"description": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. A brief description of the field.`,
+																								},
+																								"mode": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The mode of the field (e.g., NULLABLE, REPEATED).`,
+																								},
+																								"name": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The name of the field.`,
+																								},
+																								"subfields": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validation.StringIsJSON,
+																									StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
+																									Description:  `Optional. Recursive property for nested schema structures, encoded as a JSON string representing a list of Field objects.`,
+																								},
+																								"synonyms": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Optional. A list of alternative names or synonyms that can be used to refer to this field.`,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeString,
+																									},
+																								},
+																								"tags": {
+																									Type:        schema.TypeList,
+																									Optional:    true,
+																									Description: `Optional. A list of tags or keywords associated with the field, used for categorization.`,
+																									Elem: &schema.Schema{
+																										Type: schema.TypeString,
+																									},
+																								},
+																								"type": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The type of the field.`,
+																								},
+																								"value_format": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. Value format of the field.`,
+																								},
+																							},
+																						},
+																					},
+																					"filters": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. The filters on the datasource's underlying data.`,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"field": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The field to filter on.`,
+																								},
+																								"type": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The type of filter present on a datasource, such as ALWAYS_FILTER.`,
+																								},
+																								"value": {
+																									Type:        schema.TypeString,
+																									Optional:    true,
+																									Description: `Optional. The default value used for this filter if the filter is not overridden in a query.`,
+																								},
+																							},
+																						},
+																					},
+																					"synonyms": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. A list of alternative names or synonyms that can be used to refer to the explore.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																					"tags": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional. A list of tags or keywords associated with the explore, used for categorization.`,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"studio": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `References to Looker Studio datasources.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"studio_references": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. The references to the studio datasources.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"datasource_id": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. The ID of the datasource.`,
+																		},
 																	},
 																},
 															},
@@ -456,6 +1312,30 @@ This Terraform resource currently supports BigQuery table references.`,
 													Type:        schema.TypeString,
 													Optional:    true,
 													Description: `Optional. A natural language question that a user might ask.`,
+												},
+												"parameters": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. The list of query parameters.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"data_type": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. The data type of the parameter, e.g. "STRING", "INT64", "DATE".`,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. The name of the parameter reference in the SQL query.`,
+															},
+															"description": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. The description of the parameter that can be used by the LLM to extract the parameter value from the user question.`,
+															},
+														},
+													},
 												},
 												"sql_query": {
 													Type:     schema.TypeString,
@@ -486,6 +1366,93 @@ the natural language question.`,
 													Type:        schema.TypeList,
 													Optional:    true,
 													Description: `Optional. A list of general purpose labels associated with this term.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+									"looker_golden_queries": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. A list of golden queries for Looker data sources.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"looker_query": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. The Looker Query corresponding to the natural language questions.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"explore": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. The LookML explore used to generate the query.`,
+															},
+															"model": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Required. The LookML model used to generate the query.`,
+															},
+															"client_id": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. The short alphanumeric identifier for the query, used for share links and Explore URLs.`,
+															},
+															"fields": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. The fields to retrieve from the explore.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+															"filters": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. The filters to apply to the explore.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"field": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: `Required. The field to filter on.`,
+																		},
+																		"value": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Optional. The value for the field to filter on.`,
+																		},
+																	},
+																},
+															},
+															"limit": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. Limit in the query.`,
+															},
+															"query_id": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. The primary identifier for the query resource in Looker.`,
+															},
+															"sorts": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. The sorts to apply to the explore.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
+												"natural_language_questions": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. Natural language questions that a user might ask.`,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -539,6 +1506,12 @@ the natural language question.`,
 															},
 														},
 													},
+												},
+												"model": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Optional:    true,
+													Description: `Optional. The model to use for the agent loop.`,
 												},
 											},
 										},
@@ -618,6 +1591,55 @@ Possible values: BIGQUERY_JOB_HISTORY, LLM_SUGGESTED, BIGQUERY_TABLE_CONSTRAINTS
 										Optional: true,
 										Description: `Optional. The basic entry point for data owners creating domain
 knowledge for the agent.`,
+									},
+									"user_functions": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Optional. A collection of user functions to be included in context.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"bq_routines": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Optional. A list of BigQuery routines to include in the context.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"description": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Optional. User override or addition to description, to tell the agent when to use the UDF.`,
+															},
+															"routine_reference": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional. The reference to the BigQuery routine.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"dataset_id": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Optional. The dataset ID of the routine.`,
+																		},
+																		"project_id": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Optional. The project ID of the routine.`,
+																		},
+																		"routine_id": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Optional. The routine ID of the routine.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1250,10 +2272,14 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContext(v inter
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptions(original["options"], d, config)
 	transformed["example_queries"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueries(original["exampleQueries"], d, config)
+	transformed["looker_golden_queries"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueries(original["lookerGoldenQueries"], d, config)
 	transformed["glossary_terms"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextGlossaryTerms(original["glossaryTerms"], d, config)
 	transformed["schema_relationships"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextSchemaRelationships(original["schemaRelationships"], d, config)
+	transformed["user_functions"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctions(original["userFunctions"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextSystemInstruction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1271,6 +2297,10 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasour
 	transformed := make(map[string]interface{})
 	transformed["bq"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBq(original["bq"], d, config)
+	transformed["looker"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLooker(original["looker"], d, config)
+	transformed["studio"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudio(original["studio"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBq(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1284,6 +2314,8 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasour
 	transformed := make(map[string]interface{})
 	transformed["table_references"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferences(original["tableReferences"], d, config)
+	transformed["property_graph_references"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferences(original["propertyGraphReferences"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1303,6 +2335,7 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasour
 			"project_id": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesProjectId(original["projectId"], d, config),
 			"dataset_id": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesDatasetId(original["datasetId"], d, config),
 			"table_id":   flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesTableId(original["tableId"], d, config),
+			"schema":     flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchema(original["schema"], d, config),
 		})
 	}
 	return transformed
@@ -1319,6 +2352,432 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasour
 	return v
 }
 
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["description"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaDescription(original["description"], d, config)
+	transformed["display_name"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaDisplayName(original["displayName"], d, config)
+	transformed["synonyms"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaSynonyms(original["synonyms"], d, config)
+	transformed["tags"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaTags(original["tags"], d, config)
+	transformed["fields"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFields(original["fields"], d, config)
+	transformed["filters"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFilters(original["filters"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaSynonyms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsName(original["name"], d, config),
+			"type":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsType(original["type"], d, config),
+			"description":  flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsDescription(original["description"], d, config),
+			"mode":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsMode(original["mode"], d, config),
+			"synonyms":     flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsSynonyms(original["synonyms"], d, config),
+			"tags":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsTags(original["tags"], d, config),
+			"subfields":    flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsSubfields(original["subfields"], d, config),
+			"category":     flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsCategory(original["category"], d, config),
+			"value_format": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsValueFormat(original["valueFormat"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsSynonyms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsSubfields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsCategory(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsValueFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFilters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"field": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersField(original["field"], d, config),
+			"value": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersValue(original["value"], d, config),
+			"type":  flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersType(original["type"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersField(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"project_id":        flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesProjectId(original["projectId"], d, config),
+			"dataset_id":        flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesDatasetId(original["datasetId"], d, config),
+			"property_graph_id": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesPropertyGraphId(original["propertyGraphId"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesPropertyGraphId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLooker(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["explore_references"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferences(original["exploreReferences"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"lookml_model":                 flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesLookmlModel(original["lookmlModel"], d, config),
+			"explore":                      flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesExplore(original["explore"], d, config),
+			"looker_instance_uri":          flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesLookerInstanceUri(original["lookerInstanceUri"], d, config),
+			"private_looker_instance_info": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfo(original["privateLookerInstanceInfo"], d, config),
+			"schema":                       flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchema(original["schema"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesLookmlModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesExplore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesLookerInstanceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["looker_instance_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoLookerInstanceId(original["lookerInstanceId"], d, config)
+	transformed["service_directory_name"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoServiceDirectoryName(original["serviceDirectoryName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoLookerInstanceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoServiceDirectoryName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["description"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaDescription(original["description"], d, config)
+	transformed["display_name"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaDisplayName(original["displayName"], d, config)
+	transformed["synonyms"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaSynonyms(original["synonyms"], d, config)
+	transformed["tags"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaTags(original["tags"], d, config)
+	transformed["fields"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFields(original["fields"], d, config)
+	transformed["filters"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFilters(original["filters"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaSynonyms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsName(original["name"], d, config),
+			"type":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsType(original["type"], d, config),
+			"description":  flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsDescription(original["description"], d, config),
+			"mode":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsMode(original["mode"], d, config),
+			"synonyms":     flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSynonyms(original["synonyms"], d, config),
+			"tags":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsTags(original["tags"], d, config),
+			"subfields":    flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSubfields(original["subfields"], d, config),
+			"category":     flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsCategory(original["category"], d, config),
+			"value_format": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsValueFormat(original["valueFormat"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSynonyms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSubfields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsCategory(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsValueFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFilters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"field": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersField(original["field"], d, config),
+			"value": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersValue(original["value"], d, config),
+			"type":  flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersType(original["type"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersField(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudio(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["studio_references"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudioStudioReferences(original["studioReferences"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudioStudioReferences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"datasource_id": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudioStudioReferencesDatasourceId(original["datasourceId"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudioStudioReferencesDatasourceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1332,6 +2791,8 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptions(
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptionsAnalysis(original["analysis"], d, config)
 	transformed["datasource"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptionsDatasource(original["datasource"], d, config)
+	transformed["model"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptionsModel(original["model"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptionsAnalysis(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1394,6 +2855,10 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptionsD
 	return v // let terraform core handle it otherwise
 }
 
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptionsModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1410,6 +2875,7 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQ
 		transformed = append(transformed, map[string]interface{}{
 			"natural_language_question": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesNaturalLanguageQuestion(original["naturalLanguageQuestion"], d, config),
 			"sql_query":                 flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesSqlQuery(original["sqlQuery"], d, config),
+			"parameters":                flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParameters(original["parameters"], d, config),
 		})
 	}
 	return transformed
@@ -1419,6 +2885,146 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQ
 }
 
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesSqlQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":        flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersName(original["name"], d, config),
+			"description": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersDescription(original["description"], d, config),
+			"data_type":   flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersDataType(original["dataType"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersDataType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"natural_language_questions": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesNaturalLanguageQuestions(original["naturalLanguageQuestions"], d, config),
+			"looker_query":               flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQuery(original["lookerQuery"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesNaturalLanguageQuestions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["model"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryModel(original["model"], d, config)
+	transformed["explore"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryExplore(original["explore"], d, config)
+	transformed["fields"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFields(original["fields"], d, config)
+	transformed["filters"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFilters(original["filters"], d, config)
+	transformed["sorts"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQuerySorts(original["sorts"], d, config)
+	transformed["limit"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryLimit(original["limit"], d, config)
+	transformed["query_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryQueryId(original["queryId"], d, config)
+	transformed["client_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryClientId(original["clientId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryExplore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFilters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"field": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFiltersField(original["field"], d, config),
+			"value": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFiltersValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFiltersField(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFiltersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQuerySorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryQueryId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1531,6 +3137,72 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextSchemaRe
 	return v
 }
 
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bq_routines"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutines(original["bqRoutines"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutines(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"description":       flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesDescription(original["description"], d, config),
+			"routine_reference": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReference(original["routineReference"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["project_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceProjectId(original["projectId"], d, config)
+	transformed["dataset_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceDatasetId(original["datasetId"], d, config)
+	transformed["routine_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceRoutineId(original["routineId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceRoutineId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContext(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1548,10 +3220,14 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContext(v int
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptions(original["options"], d, config)
 	transformed["example_queries"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueries(original["exampleQueries"], d, config)
+	transformed["looker_golden_queries"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueries(original["lookerGoldenQueries"], d, config)
 	transformed["glossary_terms"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextGlossaryTerms(original["glossaryTerms"], d, config)
 	transformed["schema_relationships"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextSchemaRelationships(original["schemaRelationships"], d, config)
+	transformed["user_functions"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctions(original["userFunctions"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextSystemInstruction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1569,6 +3245,10 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDataso
 	transformed := make(map[string]interface{})
 	transformed["bq"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBq(original["bq"], d, config)
+	transformed["looker"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLooker(original["looker"], d, config)
+	transformed["studio"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudio(original["studio"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBq(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1582,6 +3262,8 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDataso
 	transformed := make(map[string]interface{})
 	transformed["table_references"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferences(original["tableReferences"], d, config)
+	transformed["property_graph_references"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferences(original["propertyGraphReferences"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1601,6 +3283,7 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDataso
 			"project_id": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesProjectId(original["projectId"], d, config),
 			"dataset_id": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesDatasetId(original["datasetId"], d, config),
 			"table_id":   flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesTableId(original["tableId"], d, config),
+			"schema":     flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchema(original["schema"], d, config),
 		})
 	}
 	return transformed
@@ -1617,6 +3300,432 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDataso
 	return v
 }
 
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["description"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaDescription(original["description"], d, config)
+	transformed["display_name"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaDisplayName(original["displayName"], d, config)
+	transformed["synonyms"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaSynonyms(original["synonyms"], d, config)
+	transformed["tags"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaTags(original["tags"], d, config)
+	transformed["fields"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFields(original["fields"], d, config)
+	transformed["filters"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFilters(original["filters"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaSynonyms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsName(original["name"], d, config),
+			"type":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsType(original["type"], d, config),
+			"description":  flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsDescription(original["description"], d, config),
+			"mode":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsMode(original["mode"], d, config),
+			"synonyms":     flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsSynonyms(original["synonyms"], d, config),
+			"tags":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsTags(original["tags"], d, config),
+			"subfields":    flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsSubfields(original["subfields"], d, config),
+			"category":     flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsCategory(original["category"], d, config),
+			"value_format": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsValueFormat(original["valueFormat"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsSynonyms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsSubfields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsCategory(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsValueFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFilters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"field": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersField(original["field"], d, config),
+			"value": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersValue(original["value"], d, config),
+			"type":  flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersType(original["type"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersField(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"project_id":        flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesProjectId(original["projectId"], d, config),
+			"dataset_id":        flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesDatasetId(original["datasetId"], d, config),
+			"property_graph_id": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesPropertyGraphId(original["propertyGraphId"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesPropertyGraphId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLooker(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["explore_references"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferences(original["exploreReferences"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"lookml_model":                 flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesLookmlModel(original["lookmlModel"], d, config),
+			"explore":                      flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesExplore(original["explore"], d, config),
+			"looker_instance_uri":          flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesLookerInstanceUri(original["lookerInstanceUri"], d, config),
+			"private_looker_instance_info": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfo(original["privateLookerInstanceInfo"], d, config),
+			"schema":                       flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchema(original["schema"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesLookmlModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesExplore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesLookerInstanceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["looker_instance_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoLookerInstanceId(original["lookerInstanceId"], d, config)
+	transformed["service_directory_name"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoServiceDirectoryName(original["serviceDirectoryName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoLookerInstanceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoServiceDirectoryName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["description"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaDescription(original["description"], d, config)
+	transformed["display_name"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaDisplayName(original["displayName"], d, config)
+	transformed["synonyms"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaSynonyms(original["synonyms"], d, config)
+	transformed["tags"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaTags(original["tags"], d, config)
+	transformed["fields"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFields(original["fields"], d, config)
+	transformed["filters"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFilters(original["filters"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaSynonyms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsName(original["name"], d, config),
+			"type":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsType(original["type"], d, config),
+			"description":  flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsDescription(original["description"], d, config),
+			"mode":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsMode(original["mode"], d, config),
+			"synonyms":     flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSynonyms(original["synonyms"], d, config),
+			"tags":         flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsTags(original["tags"], d, config),
+			"subfields":    flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSubfields(original["subfields"], d, config),
+			"category":     flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsCategory(original["category"], d, config),
+			"value_format": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsValueFormat(original["valueFormat"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSynonyms(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSubfields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
+		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
+	}
+	return string(b)
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsCategory(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsValueFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFilters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"field": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersField(original["field"], d, config),
+			"value": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersValue(original["value"], d, config),
+			"type":  flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersType(original["type"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersField(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudio(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["studio_references"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudioStudioReferences(original["studioReferences"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudioStudioReferences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"datasource_id": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudioStudioReferencesDatasourceId(original["datasourceId"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudioStudioReferencesDatasourceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1630,6 +3739,8 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOption
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptionsAnalysis(original["analysis"], d, config)
 	transformed["datasource"] =
 		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptionsDatasource(original["datasource"], d, config)
+	transformed["model"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptionsModel(original["model"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptionsAnalysis(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1692,6 +3803,10 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOption
 	return v // let terraform core handle it otherwise
 }
 
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptionsModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1708,6 +3823,7 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampl
 		transformed = append(transformed, map[string]interface{}{
 			"natural_language_question": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesNaturalLanguageQuestion(original["naturalLanguageQuestion"], d, config),
 			"sql_query":                 flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesSqlQuery(original["sqlQuery"], d, config),
+			"parameters":                flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParameters(original["parameters"], d, config),
 		})
 	}
 	return transformed
@@ -1717,6 +3833,146 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampl
 }
 
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesSqlQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParameters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":        flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersName(original["name"], d, config),
+			"description": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersDescription(original["description"], d, config),
+			"data_type":   flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersDataType(original["dataType"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersDataType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"natural_language_questions": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesNaturalLanguageQuestions(original["naturalLanguageQuestions"], d, config),
+			"looker_query":               flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQuery(original["lookerQuery"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesNaturalLanguageQuestions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["model"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryModel(original["model"], d, config)
+	transformed["explore"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryExplore(original["explore"], d, config)
+	transformed["fields"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFields(original["fields"], d, config)
+	transformed["filters"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFilters(original["filters"], d, config)
+	transformed["sorts"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQuerySorts(original["sorts"], d, config)
+	transformed["limit"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryLimit(original["limit"], d, config)
+	transformed["query_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryQueryId(original["queryId"], d, config)
+	transformed["client_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryClientId(original["clientId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryExplore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFilters(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"field": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFiltersField(original["field"], d, config),
+			"value": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFiltersValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFiltersField(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFiltersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQuerySorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryQueryId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1826,6 +4082,72 @@ func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextSchema
 }
 
 func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextSchemaRelationshipsConfidenceScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bq_routines"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutines(original["bqRoutines"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutines(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"description":       flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesDescription(original["description"], d, config),
+			"routine_reference": flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReference(original["routineReference"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["project_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceProjectId(original["projectId"], d, config)
+	transformed["dataset_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceDatasetId(original["datasetId"], d, config)
+	transformed["routine_id"] =
+		flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceRoutineId(original["routineId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceDatasetId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceRoutineId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2030,6 +4352,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContext(v interf
 		transformed["exampleQueries"] = transformedExampleQueries
 	}
 
+	transformedLookerGoldenQueries, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueries(original["looker_golden_queries"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLookerGoldenQueries); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["lookerGoldenQueries"] = transformedLookerGoldenQueries
+	}
+
 	transformedGlossaryTerms, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextGlossaryTerms(original["glossary_terms"], d, config)
 	if err != nil {
 		return nil, err
@@ -2042,6 +4371,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContext(v interf
 		return nil, err
 	} else if val := reflect.ValueOf(transformedSchemaRelationships); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["schemaRelationships"] = transformedSchemaRelationships
+	}
+
+	transformedUserFunctions, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctions(original["user_functions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUserFunctions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["userFunctions"] = transformedUserFunctions
 	}
 
 	return transformed, nil
@@ -2070,6 +4406,20 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourc
 		transformed["bq"] = transformedBq
 	}
 
+	transformedLooker, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLooker(original["looker"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLooker); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["looker"] = transformedLooker
+	}
+
+	transformedStudio, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudio(original["studio"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStudio); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["studio"] = transformedStudio
+	}
+
 	return transformed, nil
 }
 
@@ -2090,6 +4440,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourc
 		return nil, err
 	} else if val := reflect.ValueOf(transformedTableReferences); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tableReferences"] = transformedTableReferences
+	}
+
+	transformedPropertyGraphReferences, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferences(original["property_graph_references"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPropertyGraphReferences); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["propertyGraphReferences"] = transformedPropertyGraphReferences
 	}
 
 	return transformed, nil
@@ -2129,6 +4486,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourc
 			transformed["tableId"] = transformedTableId
 		}
 
+		transformedSchema, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchema(original["schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["schema"] = transformedSchema
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2143,6 +4507,730 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourc
 }
 
 func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesTableId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedDisplayName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaDisplayName(original["display_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["displayName"] = transformedDisplayName
+	}
+
+	transformedSynonyms, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaSynonyms(original["synonyms"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSynonyms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["synonyms"] = transformedSynonyms
+	}
+
+	transformedTags, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaTags(original["tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tags"] = transformedTags
+	}
+
+	transformedFields, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFields(original["fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fields"] = transformedFields
+	}
+
+	transformedFilters, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFilters(original["filters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filters"] = transformedFilters
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaSynonyms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedType, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedMode, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsMode(original["mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["mode"] = transformedMode
+		}
+
+		transformedSynonyms, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsSynonyms(original["synonyms"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSynonyms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["synonyms"] = transformedSynonyms
+		}
+
+		transformedTags, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsTags(original["tags"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["tags"] = transformedTags
+		}
+
+		transformedSubfields, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsSubfields(original["subfields"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubfields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subfields"] = transformedSubfields
+		}
+
+		transformedCategory, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsCategory(original["category"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCategory); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["category"] = transformedCategory
+		}
+
+		transformedValueFormat, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsValueFormat(original["value_format"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValueFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["valueFormat"] = transformedValueFormat
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsSynonyms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsSubfields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsCategory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFieldsValueFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedField, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersField(original["field"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedField); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["field"] = transformedField
+		}
+
+		transformedValue, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		transformedType, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersField(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqTableReferencesSchemaFiltersType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedProjectId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesProjectId(original["project_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["projectId"] = transformedProjectId
+		}
+
+		transformedDatasetId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesDatasetId(original["dataset_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["datasetId"] = transformedDatasetId
+		}
+
+		transformedPropertyGraphId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesPropertyGraphId(original["property_graph_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPropertyGraphId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["propertyGraphId"] = transformedPropertyGraphId
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesDatasetId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesBqPropertyGraphReferencesPropertyGraphId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLooker(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExploreReferences, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferences(original["explore_references"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExploreReferences); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exploreReferences"] = transformedExploreReferences
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedLookmlModel, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesLookmlModel(original["lookml_model"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLookmlModel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["lookmlModel"] = transformedLookmlModel
+		}
+
+		transformedExplore, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesExplore(original["explore"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExplore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["explore"] = transformedExplore
+		}
+
+		transformedLookerInstanceUri, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesLookerInstanceUri(original["looker_instance_uri"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLookerInstanceUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["lookerInstanceUri"] = transformedLookerInstanceUri
+		}
+
+		transformedPrivateLookerInstanceInfo, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfo(original["private_looker_instance_info"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrivateLookerInstanceInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["privateLookerInstanceInfo"] = transformedPrivateLookerInstanceInfo
+		}
+
+		transformedSchema, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchema(original["schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["schema"] = transformedSchema
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesLookmlModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesExplore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesLookerInstanceUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLookerInstanceId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoLookerInstanceId(original["looker_instance_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLookerInstanceId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["lookerInstanceId"] = transformedLookerInstanceId
+	}
+
+	transformedServiceDirectoryName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoServiceDirectoryName(original["service_directory_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceDirectoryName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceDirectoryName"] = transformedServiceDirectoryName
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoLookerInstanceId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoServiceDirectoryName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedDisplayName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaDisplayName(original["display_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["displayName"] = transformedDisplayName
+	}
+
+	transformedSynonyms, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaSynonyms(original["synonyms"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSynonyms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["synonyms"] = transformedSynonyms
+	}
+
+	transformedTags, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaTags(original["tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tags"] = transformedTags
+	}
+
+	transformedFields, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFields(original["fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fields"] = transformedFields
+	}
+
+	transformedFilters, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFilters(original["filters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filters"] = transformedFilters
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaSynonyms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedType, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedMode, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsMode(original["mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["mode"] = transformedMode
+		}
+
+		transformedSynonyms, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSynonyms(original["synonyms"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSynonyms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["synonyms"] = transformedSynonyms
+		}
+
+		transformedTags, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsTags(original["tags"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["tags"] = transformedTags
+		}
+
+		transformedSubfields, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSubfields(original["subfields"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubfields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subfields"] = transformedSubfields
+		}
+
+		transformedCategory, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsCategory(original["category"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCategory); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["category"] = transformedCategory
+		}
+
+		transformedValueFormat, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsValueFormat(original["value_format"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValueFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["valueFormat"] = transformedValueFormat
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSynonyms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSubfields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsCategory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFieldsValueFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedField, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersField(original["field"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedField); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["field"] = transformedField
+		}
+
+		transformedValue, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		transformedType, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersField(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesLookerExploreReferencesSchemaFiltersType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudio(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStudioReferences, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudioStudioReferences(original["studio_references"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStudioReferences); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["studioReferences"] = transformedStudioReferences
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudioStudioReferences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDatasourceId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudioStudioReferencesDatasourceId(original["datasource_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDatasourceId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["datasourceId"] = transformedDatasourceId
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextDatasourceReferencesStudioStudioReferencesDatasourceId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2170,6 +5258,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptions(v
 		return nil, err
 	} else if val := reflect.ValueOf(transformedDatasource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["datasource"] = transformedDatasource
+	}
+
+	transformedModel, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptionsModel(original["model"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedModel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["model"] = transformedModel
 	}
 
 	return transformed, nil
@@ -2249,6 +5344,10 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptionsDa
 	return v, nil
 }
 
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextOptionsModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -2276,6 +5375,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQu
 			transformed["sqlQuery"] = transformedSqlQuery
 		}
 
+		transformedParameters, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParameters(original["parameters"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["parameters"] = transformedParameters
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2286,6 +5392,232 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQu
 }
 
 func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesSqlQuery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedDataType, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersDataType(original["data_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDataType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dataType"] = transformedDataType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextExampleQueriesParametersDataType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedNaturalLanguageQuestions, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesNaturalLanguageQuestions(original["natural_language_questions"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNaturalLanguageQuestions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["naturalLanguageQuestions"] = transformedNaturalLanguageQuestions
+		}
+
+		transformedLookerQuery, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQuery(original["looker_query"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLookerQuery); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["lookerQuery"] = transformedLookerQuery
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesNaturalLanguageQuestions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQuery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedModel, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryModel(original["model"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedModel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["model"] = transformedModel
+	}
+
+	transformedExplore, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryExplore(original["explore"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExplore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["explore"] = transformedExplore
+	}
+
+	transformedFields, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFields(original["fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fields"] = transformedFields
+	}
+
+	transformedFilters, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFilters(original["filters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filters"] = transformedFilters
+	}
+
+	transformedSorts, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQuerySorts(original["sorts"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSorts); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sorts"] = transformedSorts
+	}
+
+	transformedLimit, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryLimit(original["limit"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLimit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["limit"] = transformedLimit
+	}
+
+	transformedQueryId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryQueryId(original["query_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQueryId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["queryId"] = transformedQueryId
+	}
+
+	transformedClientId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryClientId(original["client_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientId"] = transformedClientId
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryExplore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedField, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFiltersField(original["field"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedField); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["field"] = transformedField
+		}
+
+		transformedValue, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFiltersValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFiltersField(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryFiltersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQuerySorts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryQueryId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextLookerGoldenQueriesLookerQueryClientId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2468,6 +5800,112 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextSchemaRel
 	return v, nil
 }
 
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBqRoutines, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutines(original["bq_routines"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBqRoutines); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bqRoutines"] = transformedBqRoutines
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutines(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedRoutineReference, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReference(original["routine_reference"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRoutineReference); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["routineReference"] = transformedRoutineReference
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReference(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedProjectId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceProjectId(original["project_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["projectId"] = transformedProjectId
+	}
+
+	transformedDatasetId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceDatasetId(original["dataset_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["datasetId"] = transformedDatasetId
+	}
+
+	transformedRoutineId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceRoutineId(original["routine_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRoutineId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["routineId"] = transformedRoutineId
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceDatasetId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentStagingContextUserFunctionsBqRoutinesRoutineReferenceRoutineId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContext(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -2508,6 +5946,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContext(v inte
 		transformed["exampleQueries"] = transformedExampleQueries
 	}
 
+	transformedLookerGoldenQueries, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueries(original["looker_golden_queries"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLookerGoldenQueries); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["lookerGoldenQueries"] = transformedLookerGoldenQueries
+	}
+
 	transformedGlossaryTerms, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextGlossaryTerms(original["glossary_terms"], d, config)
 	if err != nil {
 		return nil, err
@@ -2520,6 +5965,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContext(v inte
 		return nil, err
 	} else if val := reflect.ValueOf(transformedSchemaRelationships); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["schemaRelationships"] = transformedSchemaRelationships
+	}
+
+	transformedUserFunctions, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctions(original["user_functions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUserFunctions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["userFunctions"] = transformedUserFunctions
 	}
 
 	return transformed, nil
@@ -2548,6 +6000,20 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasou
 		transformed["bq"] = transformedBq
 	}
 
+	transformedLooker, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLooker(original["looker"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLooker); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["looker"] = transformedLooker
+	}
+
+	transformedStudio, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudio(original["studio"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStudio); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["studio"] = transformedStudio
+	}
+
 	return transformed, nil
 }
 
@@ -2568,6 +6034,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasou
 		return nil, err
 	} else if val := reflect.ValueOf(transformedTableReferences); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["tableReferences"] = transformedTableReferences
+	}
+
+	transformedPropertyGraphReferences, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferences(original["property_graph_references"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPropertyGraphReferences); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["propertyGraphReferences"] = transformedPropertyGraphReferences
 	}
 
 	return transformed, nil
@@ -2607,6 +6080,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasou
 			transformed["tableId"] = transformedTableId
 		}
 
+		transformedSchema, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchema(original["schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["schema"] = transformedSchema
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2621,6 +6101,730 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasou
 }
 
 func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesTableId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedDisplayName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaDisplayName(original["display_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["displayName"] = transformedDisplayName
+	}
+
+	transformedSynonyms, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaSynonyms(original["synonyms"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSynonyms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["synonyms"] = transformedSynonyms
+	}
+
+	transformedTags, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaTags(original["tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tags"] = transformedTags
+	}
+
+	transformedFields, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFields(original["fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fields"] = transformedFields
+	}
+
+	transformedFilters, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFilters(original["filters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filters"] = transformedFilters
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaSynonyms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedType, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedMode, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsMode(original["mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["mode"] = transformedMode
+		}
+
+		transformedSynonyms, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsSynonyms(original["synonyms"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSynonyms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["synonyms"] = transformedSynonyms
+		}
+
+		transformedTags, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsTags(original["tags"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["tags"] = transformedTags
+		}
+
+		transformedSubfields, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsSubfields(original["subfields"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubfields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subfields"] = transformedSubfields
+		}
+
+		transformedCategory, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsCategory(original["category"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCategory); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["category"] = transformedCategory
+		}
+
+		transformedValueFormat, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsValueFormat(original["value_format"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValueFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["valueFormat"] = transformedValueFormat
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsSynonyms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsSubfields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsCategory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFieldsValueFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedField, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersField(original["field"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedField); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["field"] = transformedField
+		}
+
+		transformedValue, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		transformedType, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersField(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqTableReferencesSchemaFiltersType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedProjectId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesProjectId(original["project_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["projectId"] = transformedProjectId
+		}
+
+		transformedDatasetId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesDatasetId(original["dataset_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["datasetId"] = transformedDatasetId
+		}
+
+		transformedPropertyGraphId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesPropertyGraphId(original["property_graph_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPropertyGraphId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["propertyGraphId"] = transformedPropertyGraphId
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesDatasetId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesBqPropertyGraphReferencesPropertyGraphId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLooker(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExploreReferences, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferences(original["explore_references"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExploreReferences); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exploreReferences"] = transformedExploreReferences
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedLookmlModel, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesLookmlModel(original["lookml_model"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLookmlModel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["lookmlModel"] = transformedLookmlModel
+		}
+
+		transformedExplore, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesExplore(original["explore"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExplore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["explore"] = transformedExplore
+		}
+
+		transformedLookerInstanceUri, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesLookerInstanceUri(original["looker_instance_uri"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLookerInstanceUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["lookerInstanceUri"] = transformedLookerInstanceUri
+		}
+
+		transformedPrivateLookerInstanceInfo, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfo(original["private_looker_instance_info"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPrivateLookerInstanceInfo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["privateLookerInstanceInfo"] = transformedPrivateLookerInstanceInfo
+		}
+
+		transformedSchema, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchema(original["schema"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["schema"] = transformedSchema
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesLookmlModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesExplore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesLookerInstanceUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLookerInstanceId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoLookerInstanceId(original["looker_instance_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLookerInstanceId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["lookerInstanceId"] = transformedLookerInstanceId
+	}
+
+	transformedServiceDirectoryName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoServiceDirectoryName(original["service_directory_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceDirectoryName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceDirectoryName"] = transformedServiceDirectoryName
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoLookerInstanceId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesPrivateLookerInstanceInfoServiceDirectoryName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaDescription(original["description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["description"] = transformedDescription
+	}
+
+	transformedDisplayName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaDisplayName(original["display_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisplayName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["displayName"] = transformedDisplayName
+	}
+
+	transformedSynonyms, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaSynonyms(original["synonyms"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSynonyms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["synonyms"] = transformedSynonyms
+	}
+
+	transformedTags, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaTags(original["tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tags"] = transformedTags
+	}
+
+	transformedFields, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFields(original["fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fields"] = transformedFields
+	}
+
+	transformedFilters, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFilters(original["filters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filters"] = transformedFilters
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaSynonyms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedType, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedMode, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsMode(original["mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["mode"] = transformedMode
+		}
+
+		transformedSynonyms, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSynonyms(original["synonyms"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSynonyms); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["synonyms"] = transformedSynonyms
+		}
+
+		transformedTags, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsTags(original["tags"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["tags"] = transformedTags
+		}
+
+		transformedSubfields, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSubfields(original["subfields"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubfields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subfields"] = transformedSubfields
+		}
+
+		transformedCategory, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsCategory(original["category"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedCategory); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["category"] = transformedCategory
+		}
+
+		transformedValueFormat, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsValueFormat(original["value_format"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValueFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["valueFormat"] = transformedValueFormat
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSynonyms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsSubfields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	b := []byte(v.(string))
+	if len(b) == 0 {
+		return nil, nil
+	}
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
+		return nil, err
+	}
+	return j, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsCategory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFieldsValueFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedField, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersField(original["field"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedField); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["field"] = transformedField
+		}
+
+		transformedValue, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		transformedType, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersField(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesLookerExploreReferencesSchemaFiltersType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudio(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStudioReferences, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudioStudioReferences(original["studio_references"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStudioReferences); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["studioReferences"] = transformedStudioReferences
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudioStudioReferences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDatasourceId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudioStudioReferencesDatasourceId(original["datasource_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDatasourceId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["datasourceId"] = transformedDatasourceId
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextDatasourceReferencesStudioStudioReferencesDatasourceId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2648,6 +6852,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptions
 		return nil, err
 	} else if val := reflect.ValueOf(transformedDatasource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["datasource"] = transformedDatasource
+	}
+
+	transformedModel, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptionsModel(original["model"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedModel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["model"] = transformedModel
 	}
 
 	return transformed, nil
@@ -2727,6 +6938,10 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptions
 	return v, nil
 }
 
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextOptionsModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -2754,6 +6969,13 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExample
 			transformed["sqlQuery"] = transformedSqlQuery
 		}
 
+		transformedParameters, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParameters(original["parameters"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedParameters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["parameters"] = transformedParameters
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2764,6 +6986,232 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExample
 }
 
 func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesSqlQuery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedDataType, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersDataType(original["data_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDataType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dataType"] = transformedDataType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextExampleQueriesParametersDataType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedNaturalLanguageQuestions, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesNaturalLanguageQuestions(original["natural_language_questions"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNaturalLanguageQuestions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["naturalLanguageQuestions"] = transformedNaturalLanguageQuestions
+		}
+
+		transformedLookerQuery, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQuery(original["looker_query"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedLookerQuery); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["lookerQuery"] = transformedLookerQuery
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesNaturalLanguageQuestions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQuery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedModel, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryModel(original["model"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedModel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["model"] = transformedModel
+	}
+
+	transformedExplore, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryExplore(original["explore"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExplore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["explore"] = transformedExplore
+	}
+
+	transformedFields, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFields(original["fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fields"] = transformedFields
+	}
+
+	transformedFilters, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFilters(original["filters"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFilters); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["filters"] = transformedFilters
+	}
+
+	transformedSorts, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQuerySorts(original["sorts"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSorts); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sorts"] = transformedSorts
+	}
+
+	transformedLimit, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryLimit(original["limit"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLimit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["limit"] = transformedLimit
+	}
+
+	transformedQueryId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryQueryId(original["query_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQueryId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["queryId"] = transformedQueryId
+	}
+
+	transformedClientId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryClientId(original["client_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedClientId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["clientId"] = transformedClientId
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryExplore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFilters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedField, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFiltersField(original["field"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedField); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["field"] = transformedField
+		}
+
+		transformedValue, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFiltersValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFiltersField(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryFiltersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQuerySorts(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryQueryId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextLookerGoldenQueriesLookerQueryClientId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2946,7 +7394,7 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextSchemaR
 	return v, nil
 }
 
-func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContext(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -2958,72 +7406,17 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContext(v 
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedSystemInstruction, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextSystemInstruction(original["system_instruction"], d, config)
+	transformedBqRoutines, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutines(original["bq_routines"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedSystemInstruction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["systemInstruction"] = transformedSystemInstruction
-	}
-
-	transformedDatasourceReferences, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferences(original["datasource_references"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedDatasourceReferences); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["datasourceReferences"] = transformedDatasourceReferences
+	} else if val := reflect.ValueOf(transformedBqRoutines); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bqRoutines"] = transformedBqRoutines
 	}
 
 	return transformed, nil
 }
 
-func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextSystemInstruction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedBq, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferencesBq(original["bq"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedBq); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["bq"] = transformedBq
-	}
-
-	return transformed, nil
-}
-
-func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferencesBq(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedTableReferences, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferencesBqTableReferences(original["table_references"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTableReferences); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["tableReferences"] = transformedTableReferences
-	}
-
-	return transformed, nil
-}
-
-func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferencesBqTableReferences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutines(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -3036,25 +7429,18 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDat
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedProjectId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferencesBqTableReferencesProjectId(original["project_id"], d, config)
+		transformedDescription, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesDescription(original["description"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["projectId"] = transformedProjectId
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
 		}
 
-		transformedDatasetId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferencesBqTableReferencesDatasetId(original["dataset_id"], d, config)
+		transformedRoutineReference, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReference(original["routine_reference"], d, config)
 		if err != nil {
 			return nil, err
-		} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["datasetId"] = transformedDatasetId
-		}
-
-		transformedTableId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferencesBqTableReferencesTableId(original["table_id"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedTableId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["tableId"] = transformedTableId
+		} else if val := reflect.ValueOf(transformedRoutineReference); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["routineReference"] = transformedRoutineReference
 		}
 
 		req = append(req, transformed)
@@ -3062,16 +7448,61 @@ func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDat
 	return req, nil
 }
 
-func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferencesBqTableReferencesProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferencesBqTableReferencesDatasetId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReference(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedProjectId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceProjectId(original["project_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["projectId"] = transformedProjectId
+	}
+
+	transformedDatasetId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceDatasetId(original["dataset_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDatasetId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["datasetId"] = transformedDatasetId
+	}
+
+	transformedRoutineId, err := expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceRoutineId(original["routine_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRoutineId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["routineId"] = transformedRoutineId
+	}
+
+	return transformed, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceProjectId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContextDatasourceReferencesBqTableReferencesTableId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceDatasetId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentPublishedContextUserFunctionsBqRoutinesRoutineReferenceRoutineId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGeminiDataAnalyticsDataAgentDataAnalyticsAgentLastPublishedContext(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	// Output-only field; the API rejects requests that populate last_published_context.
+	return nil, nil
 }
 
 func expandGeminiDataAnalyticsDataAgentKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
