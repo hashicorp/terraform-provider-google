@@ -1,0 +1,3 @@
+```release-note:bug
+ces: fixed an eventual consistency error when deleting `google_ces_app_version` immediately after `google_ces_deployment`
+```

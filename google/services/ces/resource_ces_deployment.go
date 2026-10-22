@@ -907,6 +907,10 @@ func resourceCESDeploymentDelete(d *schema.ResourceData, meta interface{}) error
 		return transport_tpg.HandleNotFoundError(err, d, "Deployment")
 	}
 
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, if the deletion of a dependent resource has not propagated.
+	time.Sleep(5 * config.SleepUnit)
+
 	log.Printf("[DEBUG] Finished deleting Deployment %q: %#v", d.Id(), res)
 	return nil
 }
