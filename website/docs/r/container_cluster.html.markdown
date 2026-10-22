@@ -605,11 +605,12 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
    The status of the slice controller addon.
    It is disabled by default. Set `enabled = true` to enable.
 
-*  `parallelstore_csi_driver_config` - (Optional) The status of the Parallelstore CSI driver addon,
+*  `parallelstore_csi_driver_config` - (Optional, Deprecated) The status of the Parallelstore CSI driver addon,
    which allows the usage of a Parallelstore instances as volumes.
    It is disabled by default for Standard clusters; set `enabled = true` to enable.
    It is enabled by default for Autopilot clusters with version 1.29 or later; set `enabled = true` to enable it explicitly.
    See [Enable the Parallelstore CSI driver](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/parallelstore-csi-new-volume#enable) for more information.
+   `addons_config.parallelstore_csi_driver_config` is deprecated and will be removed in a future major release. Use `addons_config.lustre_csi_driver_config` instead.
 
 *  `high_scale_checkpointing_config` - (Optional) The status of the High Scale Checkpointing addon, which enables Multi-Tier Checkpointing for Machine Learning workloads. Structure is [documented below](#nested_high_scale_checkpointing_config).
 

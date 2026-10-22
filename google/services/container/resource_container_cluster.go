@@ -537,6 +537,7 @@ func ResourceContainerCluster() *schema.Resource {
 							AtLeastOneOf: addonsConfigKeys,
 							MaxItems:     1,
 							Description:  `The status of the Parallelstore CSI driver addon, which allows the usage of Parallelstore instances as volumes. Defaults to disabled; set enabled = true to enable.`,
+							Deprecated:   "`addons_config.parallelstore_csi_driver_config` is deprecated and will be removed in a future major release. Use `addons_config.lustre_csi_driver_config` instead.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {

@@ -1,0 +1,7 @@
+```release-note:deprecation
+parallelstore: deprecated `google_parallelstore_instance`. Use `google_lustre_instance` instead
+```
+
+```release-note:deprecation
+container: deprecated `addons_config.parallelstore_csi_driver_config` on `google_container_cluster`. Use `addons_config.lustre_csi_driver_config` instead
+```

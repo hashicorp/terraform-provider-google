@@ -118,6 +118,8 @@ func ResourceParallelstoreInstance() *schema.Resource {
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
+		DeprecationMessage: "`google_parallelstore_instance` is deprecated and will be removed in a future major release. Use `google_lustre_instance` instead.",
+
 		Identity: &schema.ResourceIdentity{
 			Version: 1,
 			SchemaFunc: func() map[string]*schema.Schema {
