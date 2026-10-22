@@ -97,7 +97,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceBasicExample(context map[string
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name     = "%{cloud_run_instance_name}"
-  location = "us-east4"
+  location = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -144,7 +144,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceLimitsExample(context map[strin
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name     = "%{cloud_run_instance_name}"
-  location = "us-east4"
+  location = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -222,7 +222,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceFullExample(context map[string]
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name                 = "%{cloud_run_instance_name}"
-  location             = "us-east4"
+  location             = "us-west4"
   ingress              = "INGRESS_TRAFFIC_ALL"
   restart_policy       = "ON_FAILURE"
   launch_stage         = "GA"
@@ -257,7 +257,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceFullUpdateExample(context map[s
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name                 = "%{cloud_run_instance_name}"
-  location             = "us-east4"
+  location             = "us-west4"
   ingress              = "INGRESS_TRAFFIC_INTERNAL_ONLY"
   restart_policy       = "ALWAYS"
   launch_stage         = "GA"
@@ -326,7 +326,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceContainerConfigExample(context 
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name                 = "%{cloud_run_instance_name}"
-  location             = "us-east4"
+  location             = "us-west4"
   client               = "terraform"
   client_version       = "1.0.0"
 
@@ -425,7 +425,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceProbesExample(context map[strin
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name                = "%{cloud_run_instance_name}"
-  location            = "us-east4"
+  location            = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -461,7 +461,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceProbesUpdateExample(context map
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name            = "%{cloud_run_instance_name}"
-  location        = "us-east4"
+  location        = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -536,7 +536,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceProbesGrpcExample(context map[s
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name                = "%{cloud_run_instance_name}"
-  location            = "us-east4"
+  location            = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -604,7 +604,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceSecretExample(context map[strin
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name                = "%{cloud_run_instance_name}"
-  location            = "us-east4"
+  location            = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -705,7 +705,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceServiceAccountExample(context m
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name                = "%{cloud_run_instance_name}"
-  location            = "us-east4"
+  location            = "us-west4"
   service_account     = google_service_account.service_account.email
 
   containers {
@@ -792,7 +792,7 @@ resource "google_storage_bucket" "default" {
 
 resource "google_cloud_run_v2_instance" "default" {
   name                = "%{cloud_run_instance_name}"
-  location            = "us-east4"
+  location            = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -825,7 +825,7 @@ resource "google_storage_bucket" "default" {
 
 resource "google_cloud_run_v2_instance" "default" {
   name            = "%{cloud_run_instance_name}"
-  location        = "us-east4"
+  location        = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -882,7 +882,7 @@ func TestAccCloudRunV2Instance_cloudrunv2InstanceCmekExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"cloud_run_instance_name": "tf-test-cloudrun-instance" + randomSuffix,
-		"kms_key_name":            kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east4", "tf-bootstrap-cloudrun-cmek").CryptoKey.Name,
+		"kms_key_name":            kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-west4", "tf-bootstrap-cloudrun-cmek").CryptoKey.Name,
 		"random_suffix":           randomSuffix,
 	}
 
@@ -914,7 +914,7 @@ func testAccCloudRunV2Instance_cloudrunv2InstanceCmekExample(context map[string]
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name                             = "%{cloud_run_instance_name}"
-  location                         = "us-east4"
+  location                         = "us-west4"
   encryption_key                   = "%{kms_key_name}"
   encryption_key_revocation_action = "SHUTDOWN"
   encryption_key_shutdown_duration = "3600s"

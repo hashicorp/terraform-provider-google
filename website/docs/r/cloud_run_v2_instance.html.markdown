@@ -42,7 +42,7 @@ To get more information about Instance, see:
 ```hcl
 resource "google_cloud_run_v2_instance" "default" {
   name     = "cloudrun-instance"
-  location = "us-east4"
+  location = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -61,7 +61,7 @@ resource "google_cloud_run_v2_instance" "default" {
 ```hcl
 resource "google_cloud_run_v2_instance" "default" {
   name     = "cloudrun-instance"
-  location = "us-east4"
+  location = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -86,7 +86,7 @@ resource "google_cloud_run_v2_instance" "default" {
 ```hcl
 resource "google_cloud_run_v2_instance" "default" {
   name                 = "cloudrun-instance"
-  location             = "us-east4"
+  location             = "us-west4"
   ingress              = "INGRESS_TRAFFIC_ALL"
   restart_policy       = "ON_FAILURE"
   launch_stage         = "GA"
@@ -127,7 +127,7 @@ resource "google_cloud_run_v2_instance" "default" {
 ```hcl
 resource "google_cloud_run_v2_instance" "default" {
   name                 = "cloudrun-instance"
-  location             = "us-east4"
+  location             = "us-west4"
   client               = "terraform"
   client_version       = "1.0.0"
 
@@ -173,7 +173,7 @@ resource "google_cloud_run_v2_instance" "default" {
 ```hcl
 resource "google_cloud_run_v2_instance" "default" {
   name                = "cloudrun-instance"
-  location            = "us-east4"
+  location            = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -215,7 +215,7 @@ resource "google_cloud_run_v2_instance" "default" {
 ```hcl
 resource "google_cloud_run_v2_instance" "default" {
   name                = "cloudrun-instance"
-  location            = "us-east4"
+  location            = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -254,7 +254,7 @@ resource "google_cloud_run_v2_instance" "default" {
 ```hcl
 resource "google_cloud_run_v2_instance" "default" {
   name                = "cloudrun-instance"
-  location            = "us-east4"
+  location            = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -326,7 +326,7 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 ```hcl
 resource "google_cloud_run_v2_instance" "default" {
   name                = "cloudrun-instance"
-  location            = "us-east4"
+  location            = "us-west4"
   service_account     = google_service_account.service_account.email
 
   containers {
@@ -358,7 +358,7 @@ resource "google_storage_bucket" "default" {
 
 resource "google_cloud_run_v2_instance" "default" {
   name                = "cloudrun-instance"
-  location            = "us-east4"
+  location            = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -390,7 +390,7 @@ resource "google_cloud_run_v2_instance" "default" {
 ```hcl
 resource "google_cloud_run_v2_instance" "default" {
   name                             = "cloudrun-instance"
-  location                         = "us-east4"
+  location                         = "us-west4"
   encryption_key                   = "my-key"
   encryption_key_revocation_action = "SHUTDOWN"
   encryption_key_shutdown_duration = "3600s"
