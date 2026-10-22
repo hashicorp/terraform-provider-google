@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_resource_manager_boundary`
+```
+
+```release-note:new-resource
+`google_resource_manager_boundary_config`
+```

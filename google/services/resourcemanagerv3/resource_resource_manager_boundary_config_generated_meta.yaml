@@ -1,0 +1,20 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_resource_manager_boundary_config
+generation_type: mmv1
+source_file: products/resourcemanagerv3/BoundaryConfig.yaml
+api_service_name: cloudresourcemanager.googleapis.com
+api_version: v3
+api_resource_type_kind: BoundaryConfig
+api_variant_patterns:
+    - folders/{folder}/boundaryConfig
+    - organizations/{organization}/boundaryConfig
+fields:
+    - api_field: etag
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: tagKey
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
