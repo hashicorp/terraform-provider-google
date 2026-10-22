@@ -112,7 +112,7 @@ resource "google_vertex_ai_index" "index" {
       algorithm_config {
         tree_ah_config {
           leaf_node_embedding_count = 500
-          leaf_nodes_to_search_percent = 7
+          fraction_leaf_nodes_to_search = 0.005
         }
       }
     }
@@ -169,7 +169,7 @@ resource "google_vertex_ai_index" "index" {
       algorithm_config {
         tree_ah_config {
           leaf_node_embedding_count = 500
-          leaf_nodes_to_search_percent = 7
+          fraction_leaf_nodes_to_search = 0.005
         }
       }
     }

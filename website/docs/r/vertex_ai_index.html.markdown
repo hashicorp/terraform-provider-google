@@ -82,7 +82,7 @@ resource "google_vertex_ai_index" "index" {
       algorithm_config {
         tree_ah_config {
           leaf_node_embedding_count = 500
-          leaf_nodes_to_search_percent = 7
+          fraction_leaf_nodes_to_search = 0.07
         }
       }
     }
@@ -279,9 +279,17 @@ The following arguments are supported:
   Number of embeddings on each leaf node. The default value is 1000 if not set.
 
 * `leaf_nodes_to_search_percent` -
-  (Optional)
+  (Optional, Deprecated)
   The default percentage of leaf nodes that any query may be searched. Must be in
   range 1-100, inclusive. The default value is 10 (means 10%) if not set.
+
+  ~> **Warning:** `leaf_nodes_to_search_percent` is deprecated and will be removed in a future major release. Use `fraction_leaf_nodes_to_search` instead.
+
+* `fraction_leaf_nodes_to_search` -
+  (Optional)
+  The default fraction of leaf nodes that any query may be searched. Must be in
+  range 0.0-1.0, exclusive. The default value is 0.05 if not set.
+  This value can only be set when creating the index.
 
 <a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
 
