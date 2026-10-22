@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_agent_identity_auth_provider_iam_binding`
+```
+```release-note:new-resource
+`google_agent_identity_auth_provider_iam_member`
+```
+```release-note:new-resource
+`google_agent_identity_auth_provider_iam_policy`
+```
+```release-note:new-datasource
+`google_agent_identity_auth_provider_iam_policy`
+```
