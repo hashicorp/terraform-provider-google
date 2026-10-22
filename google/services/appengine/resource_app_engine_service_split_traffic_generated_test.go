@@ -64,6 +64,7 @@ func TestAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(t *
 		"org_id":               envvar.GetTestOrgFromEnv(t),
 		"bucket_name":          "tf-test-appengine-static-content" + randomSuffix,
 		"service_id":           "default" + randomSuffix,
+		"service_name":         "tf-test-liveapp" + randomSuffix,
 		"split.allocations.v1": "1" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
@@ -106,7 +107,7 @@ resource "google_storage_bucket_object" "object" {
 
 resource "google_app_engine_standard_app_version" "liveapp_v1" {
   version_id = "v1"
-  service = "liveapp"
+  service = "%{service_name}"
   delete_service_on_destroy = true
 
   runtime = "nodejs22"
@@ -125,7 +126,7 @@ resource "google_app_engine_standard_app_version" "liveapp_v1" {
 
 resource "google_app_engine_standard_app_version" "liveapp_v2" {
   version_id = "v2"
-  service = "liveapp"
+  service = "%{service_name}"
   noop_on_destroy = true
 
   runtime = "nodejs22"

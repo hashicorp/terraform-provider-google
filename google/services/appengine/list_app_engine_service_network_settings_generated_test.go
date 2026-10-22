@@ -48,6 +48,7 @@ func TestAccAppEngineServiceNetworkSettingsListQuery_generated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"bucket_name":   "tf-test-appengine-static-content" + randomSuffix,
+		"service_name":  "tf-test-internalapp" + randomSuffix,
 		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
