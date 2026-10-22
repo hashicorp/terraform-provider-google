@@ -43,7 +43,7 @@ func TestAccLoggingBillingAccountExclusion(t *testing.T) {
 		// yet, we don't have a race condition
 		// see https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
 		tc := tc
-		t.Run(name, func(t *testing.T) {
+		acctest.RunVcrSubtest(t, name, func(t *testing.T) {
 			tc(t)
 		})
 	}

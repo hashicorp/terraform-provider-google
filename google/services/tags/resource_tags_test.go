@@ -71,7 +71,7 @@ func TestAccTags(t *testing.T) {
 		// yet, we don't have a race condition
 		// see https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
 		tc := tc
-		t.Run(name, func(t *testing.T) {
+		acctest.RunVcrSubtest(t, name, func(t *testing.T) {
 			tc(t)
 		})
 	}
@@ -493,8 +493,6 @@ func testAccCheckTagsTagValueDestroyProducer(t *testing.T) func(s *terraform.Sta
 }
 
 func testAccTagsTagBinding_tagBindingBasic(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"project_id":    "tf-test-" + acctest.RandString(t, 10),
@@ -545,8 +543,6 @@ resource "google_tags_tag_binding" "binding" {
 }
 
 func testAccTagsTagBinding_tagBindingBasicDynamic(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"project_id":    "tf-test-" + acctest.RandString(t, 10),
@@ -596,8 +592,6 @@ resource "google_tags_tag_binding" "binding" {
 }
 
 func testAccTagsTagBinding_tagBindingNamespaced(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"project_id":    "tf-test-" + acctest.RandString(t, 10),
@@ -692,8 +686,6 @@ func testAccCheckTagsTagBindingDestroyProducer(t *testing.T) func(s *terraform.S
 }
 
 func testAccTagsTagKeyIamBinding(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/resourcemanager.tagAdmin",
@@ -721,8 +713,6 @@ func testAccTagsTagKeyIamBinding(t *testing.T) {
 }
 
 func testAccTagsTagKeyIamMember(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/resourcemanager.tagAdmin",
@@ -747,8 +737,6 @@ func testAccTagsTagKeyIamMember(t *testing.T) {
 }
 
 func testAccTagsTagKeyIamPolicy(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/resourcemanager.tagAdmin",
@@ -940,8 +928,6 @@ resource "google_tags_tag_key_iam_binding" "foo" {
 }
 
 func testAccTagsTagValueIamBinding(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/resourcemanager.tagAdmin",
@@ -970,8 +956,6 @@ func testAccTagsTagValueIamBinding(t *testing.T) {
 }
 
 func testAccTagsTagValueIamMember(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/resourcemanager.tagAdmin",
@@ -997,8 +981,6 @@ func testAccTagsTagValueIamMember(t *testing.T) {
 }
 
 func testAccTagsTagValueIamPolicy(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/resourcemanager.tagAdmin",
@@ -1231,8 +1213,6 @@ resource "google_tags_tag_value_iam_binding" "foo" {
 }
 
 func testAccTagsLocationTagBinding_locationTagBindingbasic(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		// "org_id":        envvar.GetTestOrgFromEnv(t),
 		// "project_id":    "tf-test-" + acctest.RandString(t, 10),
@@ -1305,8 +1285,6 @@ resource "google_tags_location_tag_binding" "binding" {
 }
 
 func testAccTagsLocationTagBinding_locationTagBindingBasicDynamic(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -1370,8 +1348,6 @@ resource "google_tags_location_tag_binding" "binding" {
 }
 
 func testAccTagsLocationTagBinding_locationTagBindingBasicWithProjectId(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -1440,8 +1416,6 @@ resource "google_tags_location_tag_binding" "binding" {
 }
 
 func testAccTagsLocationTagBinding_locationTagBindingzonal(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
@@ -1503,8 +1477,6 @@ resource "google_tags_location_tag_binding" "binding" {
 }
 
 func testAccTagsLocationTagBinding_locationTagBindingZonalDynamic(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
@@ -1565,8 +1537,6 @@ resource "google_tags_location_tag_binding" "binding" {
 }
 
 func testAccTagsLocationTagBinding_locationTagBindingZonalNamespaced(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
