@@ -329,6 +329,21 @@ protected by the KMS key, as indicated in the cmek_config field.`,
 					},
 				},
 			},
+			"model_configs": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Optional: true,
+				Description: `Maps a model name to its specific configuration for this engine. This
+allows admin users to turn on/off individual models. This only stores
+models whose states are overridden by the admin. When the state is
+unspecified, or 'model_configs' is empty for this model, the system
+decides if this model is available based on the default configuration.
+For example, a preview model is disabled by default if the admin has not
+chosen to enable it. Each value is one of 'MODEL_STATE_UNSPECIFIED',
+'MODEL_ENABLED', or 'MODEL_DISABLED'; see the [ModelState API reference](https://cloud.google.com/generative-ai-app-builder/docs/reference/rest/v1/projects.locations.collections.engines#modelstate)
+for details.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"procurement_contact_emails": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -451,6 +466,12 @@ func resourceDiscoveryEngineSearchEngineCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("procurement_contact_emails"); !tpgresource.IsEmptyValue(reflect.ValueOf(procurementContactEmailsProp)) && (ok || !reflect.DeepEqual(v, procurementContactEmailsProp)) {
 		obj["procurementContactEmails"] = procurementContactEmailsProp
+	}
+	modelConfigsProp, err := expandDiscoveryEngineSearchEngineModelConfigs(d.Get("model_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("model_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(modelConfigsProp)) && (ok || !reflect.DeepEqual(v, modelConfigsProp)) {
+		obj["modelConfigs"] = modelConfigsProp
 	}
 
 	obj, err = resourceDiscoveryEngineSearchEngineEncoder(d, meta, obj)
@@ -745,6 +766,12 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("procurement_contact_emails"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, procurementContactEmailsProp)) {
 		obj["procurementContactEmails"] = procurementContactEmailsProp
 	}
+	modelConfigsProp, err := expandDiscoveryEngineSearchEngineModelConfigs(d.Get("model_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("model_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, modelConfigsProp)) {
+		obj["modelConfigs"] = modelConfigsProp
+	}
 
 	obj, err = resourceDiscoveryEngineSearchEngineEncoder(d, meta, obj)
 	if err != nil {
@@ -793,6 +820,10 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("procurement_contact_emails") {
 		updateMask = append(updateMask, "procurementContactEmails")
+	}
+
+	if d.HasChange("model_configs") {
+		updateMask = append(updateMask, "modelConfigs")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1069,6 +1100,10 @@ func flattenDiscoveryEngineSearchEngineProcurementContactEmails(v interface{}, d
 	return v
 }
 
+func flattenDiscoveryEngineSearchEngineModelConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandDiscoveryEngineSearchEngineIndustryVertical(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1296,6 +1331,17 @@ func expandDiscoveryEngineSearchEngineProcurementContactEmails(v interface{}, d 
 	return v, nil
 }
 
+func expandDiscoveryEngineSearchEngineModelConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func resourceDiscoveryEngineSearchEngineEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	// hard code solutionType to "SOLUTION_TYPE_SEARCH" for search engine resource
 	obj["solutionType"] = "SOLUTION_TYPE_SEARCH"
@@ -1342,6 +1388,9 @@ func ResourceDiscoveryEngineSearchEngineFlatten(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading SearchEngine: %s", err)
 	}
 	if err = d.Set("procurement_contact_emails", flattenDiscoveryEngineSearchEngineProcurementContactEmails(res["procurementContactEmails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SearchEngine: %s", err)
+	}
+	if err = d.Set("model_configs", flattenDiscoveryEngineSearchEngineModelConfigs(res["modelConfigs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SearchEngine: %s", err)
 	}
 
