@@ -193,8 +193,8 @@ func TestAccVmwareengineDatastore_vmwareEngineDatastoreNetapp_update(t *testing.
 	})
 
 	context := map[string]interface{}{
-		"region":        envvar.GetTestRegionFromEnv(),
-		"zone":          envvar.GetTestZoneFromEnv(),
+		"region":        "us-east4",
+		"zone":          "us-east4-a",
 		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "datastore-test", servicenetworking.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -253,7 +253,7 @@ resource "google_netapp_storage_pool" "test_pool" {
 resource "google_netapp_volume" "test_volume" {
   location            = "%{region}"
   name                = "tf-test-netapp-volume%{random_suffix}"
-  capacity_gib        = "1024"
+  capacity_gib        = "100"
   share_name          = "share1"
   storage_pool        = google_netapp_storage_pool.test_pool.name
   protocols           = [ "NFSV3" ]
