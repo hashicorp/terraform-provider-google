@@ -157,7 +157,7 @@ func testAccCloudRunV2InstanceIamMember_basicGenerated(context map[string]interf
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name     = "%{cloud_run_instance_name}"
-  location = "us-east4"
+  location = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -178,7 +178,7 @@ func testAccCloudRunV2InstanceIamPolicy_basicGenerated(context map[string]interf
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name     = "%{cloud_run_instance_name}"
-  location = "us-east4"
+  location = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -214,7 +214,7 @@ func testAccCloudRunV2InstanceIamPolicy_emptyBinding(context map[string]interfac
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name     = "%{cloud_run_instance_name}"
-  location = "us-east4"
+  location = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -237,7 +237,7 @@ func testAccCloudRunV2InstanceIamBinding_basicGenerated(context map[string]inter
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name     = "%{cloud_run_instance_name}"
-  location = "us-east4"
+  location = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -258,7 +258,7 @@ func testAccCloudRunV2InstanceIamBinding_updateGenerated(context map[string]inte
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_instance" "default" {
   name     = "%{cloud_run_instance_name}"
-  location = "us-east4"
+  location = "us-west4"
 
   containers {
     image = "us-docker.pkg.dev/cloudrun/container/hello"
