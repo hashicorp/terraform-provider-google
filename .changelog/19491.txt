@@ -1,0 +1,9 @@
+```release-note:bug
+dataproc: fixed `google_dataproc_cluster` creation failures when the subnetwork is not ready during cluster provisioning
+```
+```release-note:bug
+colab: fixed `google_colab_runtime` and `google_colab_notebook_execution` failures when the subnetwork is not ready during operation execution
+```
+```release-note:bug
+workbench: fixed `google_workbench_instance` creation and update failures when the subnetwork is not ready during operation execution
+```

@@ -285,6 +285,23 @@ func waitForWorkbenchOperation(config *transport_tpg.Config, d *schema.ResourceD
 	return nil
 }
 
+func modifyWorkbenchInstanceStateAndWait(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, state string) error {
+	return transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			dRes, err := modifyWorkbenchInstanceState(config, d, project, billingProject, userAgent, state)
+			if err != nil {
+				return err
+			}
+			if err := waitForWorkbenchOperation(config, d, project, billingProject, userAgent, dRes); err != nil {
+				return fmt.Errorf("Error waiting to modify Workbench Instance state: %s", err)
+			}
+			return nil
+		},
+		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
+	})
+}
+
 func resizeWorkbenchInstanceDisk(config *transport_tpg.Config, d *schema.ResourceData, project string, userAgent string, isBoot bool) error {
 	diskObj := make(map[string]interface{})
 	var sizeString string
@@ -305,29 +322,33 @@ func resizeWorkbenchInstanceDisk(config *transport_tpg.Config, d *schema.Resourc
 		return err
 	}
 
-	dRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:               config,
-		Method:               "POST",
-		RawURL:               resizeUrl,
-		UserAgent:            userAgent,
-		Body:                 diskObj,
+	return transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			dRes, reqErr := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:               config,
+				Method:               "POST",
+				RawURL:               resizeUrl,
+				UserAgent:            userAgent,
+				Body:                 diskObj,
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
+			})
+			if reqErr != nil {
+				return fmt.Errorf("Error resizing disk: %s", reqErr)
+			}
+
+			var opRes map[string]interface{}
+			reqErr = WorkbenchOperationWaitTimeWithResponse(
+				config, dRes, &opRes, project, "Resizing disk", userAgent,
+				d.Timeout(schema.TimeoutUpdate))
+			if reqErr != nil {
+				return fmt.Errorf("Error resizing disk: %s", reqErr)
+			}
+			return nil
+		},
 		Timeout:              d.Timeout(schema.TimeoutUpdate),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
 	})
-
-	if err != nil {
-		return fmt.Errorf("Error resizing disk: %s", err)
-	}
-
-	var opRes map[string]interface{}
-	err = WorkbenchOperationWaitTimeWithResponse(
-		config, dRes, &opRes, project, "Resizing disk", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return fmt.Errorf("Error resizing disk: %s", err)
-	}
-
-	return nil
 }
 
 // mergeMaps takes two maps and returns a new map with the merged results.
@@ -1168,49 +1189,58 @@ func resourceWorkbenchInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	headers := make(http.Header)
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:               config,
-		Method:               "POST",
-		Project:              billingProject,
-		RawURL:               url,
-		UserAgent:            userAgent,
-		Body:                 obj,
+	var res map[string]interface{}
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			var err error
+			res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:               config,
+				Method:               "POST",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            userAgent,
+				Body:                 obj,
+				Timeout:              d.Timeout(schema.TimeoutCreate),
+				Headers:              headers,
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error creating Instance: %s", err)
+			}
+
+			// Store the ID now
+			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
+			if err != nil {
+				return fmt.Errorf("Error constructing id: %s", err)
+			}
+			d.SetId(id)
+
+			err = WorkbenchOperationWaitTime(
+				config, res, project, "Creating Instance", userAgent,
+				d.Timeout(schema.TimeoutCreate))
+
+			if err != nil {
+				err = resourceWorkbenchInstancePostCreateFailure(d, meta, err)
+				// The resource didn't actually create
+				d.SetId("")
+				return fmt.Errorf("Error waiting to create Instance: %s", err)
+			}
+
+			return nil
+		},
 		Timeout:              d.Timeout(schema.TimeoutCreate),
-		Headers:              headers,
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating Instance: %s", err)
+		return err
 	}
-
-	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/instances/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
-
-	err = WorkbenchOperationWaitTime(
-		config, res, project, "Creating Instance", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Instance: %s", err)
-	}
-
 	if err := waitForWorkbenchInstanceActive(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
 		return fmt.Errorf("Workbench instance %q did not reach ACTIVE state: %q", d.Get("name").(string), err)
 	}
 
 	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "STOPPED" {
-		dRes, err := modifyWorkbenchInstanceState(config, d, project, billingProject, userAgent, "stop")
-		if err != nil {
+		if err := modifyWorkbenchInstanceStateAndWait(config, d, project, billingProject, userAgent, "stop"); err != nil {
 			return err
-		}
-		if err := waitForWorkbenchOperation(config, d, project, billingProject, userAgent, dRes); err != nil {
-			return fmt.Errorf("Error stopping Workbench Instance: %s", err)
 		}
 	}
 
@@ -1273,7 +1303,7 @@ func resourceWorkbenchInstanceRead(d *schema.ResourceData, meta interface{}) err
 		RawURL:               url,
 		UserAgent:            userAgent,
 		Headers:              headers,
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("WorkbenchInstance %q", d.Id()))
@@ -1550,13 +1580,8 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		state := d.Get("state").(string)
 
 		if state != "STOPPED" {
-			dRes, err := modifyWorkbenchInstanceState(config, d, project, billingProject, userAgent, "stop")
-			if err != nil {
+			if err := modifyWorkbenchInstanceStateAndWait(config, d, project, billingProject, userAgent, "stop"); err != nil {
 				return err
-			}
-
-			if err := waitForWorkbenchOperation(config, d, project, billingProject, userAgent, dRes); err != nil {
-				return fmt.Errorf("Error stopping Workbench Instance: %s", err)
 			}
 
 		} else {
@@ -1581,28 +1606,39 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	// if updateMask is empty we are not updating anything so skip the post
 	if len(updateMask) > 0 {
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:               config,
-			Method:               "PATCH",
-			Project:              billingProject,
-			RawURL:               url,
-			UserAgent:            userAgent,
-			Body:                 obj,
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() error {
+				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:               config,
+					Method:               "PATCH",
+					Project:              billingProject,
+					RawURL:               url,
+					UserAgent:            userAgent,
+					Body:                 obj,
+					Timeout:              d.Timeout(schema.TimeoutUpdate),
+					Headers:              headers,
+					ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
+				})
+
+				if err != nil {
+					return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+				} else {
+					log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
+				}
+
+				err = WorkbenchOperationWaitTime(
+					config, res, project, "Updating Instance", userAgent,
+					d.Timeout(schema.TimeoutUpdate))
+
+				if err != nil {
+					return err
+				}
+
+				return nil
+			},
 			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			Headers:              headers,
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
 		})
-
-		if err != nil {
-			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
-		}
-
-		err = WorkbenchOperationWaitTime(
-			config, res, project, "Updating Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-
 		if err != nil {
 			return err
 		}
@@ -1616,13 +1652,8 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		if desired_state == "STOPPED" {
 			verb = "stop"
 		}
-		pRes, err := modifyWorkbenchInstanceState(config, d, project, billingProject, userAgent, verb)
-		if err != nil {
+		if err := modifyWorkbenchInstanceStateAndWait(config, d, project, billingProject, userAgent, verb); err != nil {
 			return err
-		}
-
-		if err := waitForWorkbenchOperation(config, d, project, billingProject, userAgent, pRes); err != nil {
-			return fmt.Errorf("Error waiting to modify Workbench Instance state: %s", err)
 		}
 
 		if verb == "start" {
@@ -1683,7 +1714,7 @@ func resourceWorkbenchInstanceDelete(d *schema.ResourceData, meta interface{}) e
 		Body:                 obj,
 		Timeout:              d.Timeout(schema.TimeoutDelete),
 		Headers:              headers,
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Instance")
@@ -2950,6 +2981,25 @@ func expandWorkbenchInstanceEffectiveLabels(v interface{}, d tpgresource.Terrafo
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceWorkbenchInstancePostCreateFailure(d *schema.ResourceData, meta interface{}, err error) error {
+	log.Printf("[DEBUG] Error before post_create_failure hook: %v", err)
+	log.Printf("[WARN] Attempt to clean up Instance if it still exists")
+	var cleanErr error
+	if cleanErr = resourceWorkbenchInstanceRead(d, meta); cleanErr == nil {
+		if d.Id() != "" {
+			log.Printf("[WARN] Instance %q still exists, attempting to delete...", d.Id())
+			if cleanErr = resourceWorkbenchInstanceDelete(d, meta); cleanErr == nil {
+				log.Printf("[WARN] Invalid Instance was successfully deleted")
+				d.SetId("")
+			}
+		}
+	}
+	if cleanErr != nil {
+		log.Printf("[WARN] Could not confirm cleanup of Instance if created in error state: %v", cleanErr)
+	}
+	return err
 }
 
 func ResourceWorkbenchInstanceFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {

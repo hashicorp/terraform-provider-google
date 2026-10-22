@@ -677,7 +677,7 @@ func testAccCheckWorkbenchInstanceDestroyProducer(t *testing.T) func(s *terrafor
 				Project:              billingProject,
 				RawURL:               url,
 				UserAgent:            config.UserAgent,
-				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
 			})
 			if err == nil {
 				return fmt.Errorf("WorkbenchInstance still exists at %s", url)

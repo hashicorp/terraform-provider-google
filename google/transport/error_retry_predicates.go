@@ -737,3 +737,12 @@ func IsAgentConnectivityTemplateInUse(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+// Retry when a referenced subnetwork is not ready yet during an async LRO.
+// This is a post-operation error so it uses tpgresource.CommonOpError instead of googleapi.Error.
+func IsSubnetworkNotReadyLROError(err error) (bool, string) {
+	if err != nil && strings.Contains(err.Error(), "subnetworks") && strings.Contains(err.Error(), "is not ready") {
+		return true, "Subnetwork is not ready"
+	}
+	return false, ""
+}

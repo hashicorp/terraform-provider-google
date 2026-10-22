@@ -391,3 +391,19 @@ func TestIsAgentConnectivityTemplateInUse(t *testing.T) {
 		})
 	}
 }
+
+func TestIsSubnetworkNotReadyLROError_retryable(t *testing.T) {
+	opErr := fmt.Errorf("Error code 9, message: The resource 'projects/test-project/regions/us-central1/subnetworks/default' is not ready")
+	isRetryable, _ := IsSubnetworkNotReadyLROError(opErr)
+	if !isRetryable {
+		t.Errorf("expected LRO error for subnetwork not ready to be retryable")
+	}
+}
+
+func TestIsSubnetworkNotReadyLROError_otherError(t *testing.T) {
+	opErr := fmt.Errorf("Error code 13, message: Internal error")
+	isRetryable, _ := IsSubnetworkNotReadyLROError(opErr)
+	if isRetryable {
+		t.Errorf("expected unrelated LRO error to not be retryable")
+	}
+}

@@ -84,14 +84,20 @@ func waitForColabOperation(config *transport_tpg.Config, d *schema.ResourceData,
 }
 
 func ModifyColabRuntime(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, method string) error {
-	dRes, err := ModifyColabRuntimeOperation(config, d, project, billingProject, userAgent, method)
-	if err != nil {
-		return err
-	}
-	if err := waitForColabOperation(config, d, project, billingProject, userAgent, dRes); err != nil {
-		return fmt.Errorf("Error with Colab runtime method: %s", err)
-	}
-	return nil
+	return transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			dRes, err := ModifyColabRuntimeOperation(config, d, project, billingProject, userAgent, method)
+			if err != nil {
+				return err
+			}
+			if err := waitForColabOperation(config, d, project, billingProject, userAgent, dRes); err != nil {
+				return fmt.Errorf("Error with Colab runtime method: %s", err)
+			}
+			return nil
+		},
+		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
+	})
 }
 
 var (
@@ -343,39 +349,53 @@ func resourceColabRuntimeCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	headers := make(http.Header)
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutCreate),
-		Headers:   headers,
+	var res map[string]interface{}
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			var err error
+			res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:               config,
+				Method:               "POST",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            userAgent,
+				Body:                 obj,
+				Timeout:              d.Timeout(schema.TimeoutCreate),
+				Headers:              headers,
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error creating Runtime: %s", err)
+			}
+
+			// Store the ID now
+			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}")
+			if err != nil {
+				return fmt.Errorf("Error constructing id: %s", err)
+			}
+			d.SetId(id)
+
+			// Derive location for use in REP endpoints
+			endpointLocation := tpgresource.LocationFromId(d.Id())
+			err = ColabOperationWaitTime(
+				config, res, project, endpointLocation, "Creating Runtime", userAgent,
+				d.Timeout(schema.TimeoutCreate))
+
+			if err != nil {
+				err = resourceColabRuntimePostCreateFailure(d, meta, err)
+				// The resource didn't actually create
+				d.SetId("")
+				return fmt.Errorf("Error waiting to create Runtime: %s", err)
+			}
+
+			return nil
+		},
+		Timeout:              d.Timeout(schema.TimeoutCreate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating Runtime: %s", err)
+		return err
 	}
-
-	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
-
-	// Derive location for use in REP endpoints
-	endpointLocation := tpgresource.LocationFromId(d.Id())
-	err = ColabOperationWaitTime(
-		config, res, project, endpointLocation, "Creating Runtime", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create Runtime: %s", err)
-	}
-
 	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "STOPPED" {
 		if err := ModifyColabRuntime(config, d, project, billingProject, userAgent, "stop"); err != nil {
 			return err
@@ -438,12 +458,13 @@ func resourceColabRuntimeRead(d *schema.ResourceData, meta interface{}) error {
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Headers:   headers,
+		Config:               config,
+		Method:               "GET",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ColabRuntime %q", d.Id()))
@@ -659,14 +680,15 @@ func resourceColabRuntimeDelete(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] Deleting Runtime %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "DELETE",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-		Headers:   headers,
+		Config:               config,
+		Method:               "DELETE",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutDelete),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Runtime")
@@ -809,6 +831,24 @@ func resourceColabRuntimeDecoder(d *schema.ResourceData, meta interface{}, res m
 		res["name"] = tpgresource.GetResourceNameFromSelfLink(v)
 	}
 	return res, nil
+}
+func resourceColabRuntimePostCreateFailure(d *schema.ResourceData, meta interface{}, err error) error {
+	log.Printf("[DEBUG] Error before post_create_failure hook: %v", err)
+	log.Printf("[WARN] Attempt to clean up Runtime if it still exists")
+	var cleanErr error
+	if cleanErr = resourceColabRuntimeRead(d, meta); cleanErr == nil {
+		if d.Id() != "" {
+			log.Printf("[WARN] Runtime %q still exists, attempting to delete...", d.Id())
+			if cleanErr = resourceColabRuntimeDelete(d, meta); cleanErr == nil {
+				log.Printf("[WARN] Invalid Runtime was successfully deleted")
+				d.SetId("")
+			}
+		}
+	}
+	if cleanErr != nil {
+		log.Printf("[WARN] Could not confirm cleanup of Runtime if created in error state: %v", cleanErr)
+	}
+	return err
 }
 
 func ResourceColabRuntimeFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {

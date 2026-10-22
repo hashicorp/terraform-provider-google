@@ -2538,23 +2538,49 @@ func resourceDataprocClusterCreate(d *schema.ResourceData, meta interface{}) err
 		return errors.New("zone is mandatory when region is set to 'global'")
 	}
 
-	// Create the cluster
-	op, err := NewClient(config, userAgent).Projects.Regions.Clusters.Create(
-		project, region, cluster).Do()
+	// Create the cluster, retrying if the subnetwork is not ready yet
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			op, reqErr := NewClient(config, userAgent).Projects.Regions.Clusters.Create(
+				project, region, cluster).Do()
+			if reqErr != nil {
+				return fmt.Errorf("Error creating Dataproc cluster: %s", reqErr)
+			}
+
+			d.SetId(fmt.Sprintf("projects/%s/regions/%s/clusters/%s", project, region, cluster.ClusterName))
+
+			// Wait until it's created
+			waitErr := DataprocClusterOperationWait(config, op, "creating Dataproc cluster", userAgent, d.Timeout(schema.TimeoutCreate))
+			if waitErr != nil {
+				if isRetryable, _ := transport_tpg.IsSubnetworkNotReadyLROError(waitErr); isRetryable {
+					log.Printf("[DEBUG] Dataproc cluster %s creation failed with subnetwork not ready error, deleting partially created cluster before retrying", cluster.ClusterName)
+					delOp, delErr := NewClient(config, userAgent).Projects.Regions.Clusters.Delete(
+						project, region, cluster.ClusterName).Do()
+					if delErr == nil {
+						if delWaitErr := DataprocClusterOperationWait(config, delOp, "deleting failed Dataproc cluster", userAgent, d.Timeout(schema.TimeoutDelete)); delWaitErr != nil {
+							log.Printf("[WARN] Error waiting for deletion of failed Dataproc cluster %s: %s", cluster.ClusterName, delWaitErr)
+						} else {
+							d.SetId("")
+						}
+					} else if transport_tpg.IsGoogleApiErrorWithCode(delErr, 404) {
+						d.SetId("")
+					} else {
+						log.Printf("[WARN] Error deleting failed Dataproc cluster %s: %s", cluster.ClusterName, delErr)
+					}
+				}
+				// The resource didn't actually create
+				// Note that we do not remove the ID here - this resource tends to leave
+				// partially created clusters behind, so we'll let the next Read remove
+				// it.
+				return waitErr
+			}
+			return nil
+		},
+		Timeout:              d.Timeout(schema.TimeoutCreate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
+	})
 	if err != nil {
-		return fmt.Errorf("Error creating Dataproc cluster: %s", err)
-	}
-
-	d.SetId(fmt.Sprintf("projects/%s/regions/%s/clusters/%s", project, region, cluster.ClusterName))
-
-	// Wait until it's created
-	waitErr := DataprocClusterOperationWait(config, op, "creating Dataproc cluster", userAgent, d.Timeout(schema.TimeoutCreate))
-	if waitErr != nil {
-		// The resource didn't actually create
-		// Note that we do not remove the ID here - this resource tends to leave
-		// partially created clusters behind, so we'll let the next Read remove
-		// it.
-		return waitErr
+		return err
 	}
 
 	log.Printf("[INFO] Dataproc cluster %s has been created", cluster.ClusterName)
