@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -62,23 +63,10 @@ func SetAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta interfac
 	return nil
 }
 
-func SetMetadataAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
-	l := d.Get("metadata").([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil
-	}
-
-	// Fix the bug that the computed and nested "annotations" field disappears from the terraform plan.
-	// https://github.com/hashicorp/terraform-provider-google/issues/17756
-	// The bug is introduced by SetNew on "metadata" field with the object including "effective_annotations".
-	// "effective_annotations" cannot be set directly due to a bug that SetNew doesn't work on nested fields
-	// in terraform sdk.
-	// https://github.com/hashicorp/terraform-plugin-sdk/issues/459
-	values := d.GetRawPlan().GetAttr("metadata").AsValueSlice()
-	if len(values) > 0 && !values[0].GetAttr("annotations").IsWhollyKnown() {
-		return nil
-	}
-
+// setMetadataAnnotationsOnMap populates original["effective_annotations"] when metadata.0.annotations
+// is wholly known, or preserves unknown annotation values and marks metadata.0.effective_annotations
+// as NewComputed when not wholly known.
+func setMetadataAnnotationsOnMap(d *schema.ResourceDiff, original map[string]interface{}, metadataVal cty.Value) error {
 	raw := d.Get("metadata.0.annotations")
 	if raw == nil {
 		return nil
@@ -86,6 +74,21 @@ func SetMetadataAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta 
 
 	if d.Get("metadata.0.effective_annotations") == nil {
 		return fmt.Errorf("`metadata.0.effective_annotations` field is not present in the resource schema.")
+	}
+
+	if metadataVal != cty.NilVal && metadataVal.Type().HasAttribute("annotations") {
+		annotationsVal := metadataVal.GetAttr("annotations")
+		if !annotationsVal.IsWhollyKnown() {
+			if annotationsVal.IsKnown() {
+				original["annotations"] = ctyMapWithUnknowns(annotationsVal)
+			} else {
+				delete(original, "annotations")
+				setNestedNewComputed(d, "metadata.0.annotations")
+			}
+			delete(original, "effective_annotations")
+			setNestedNewComputed(d, "metadata.0.effective_annotations")
+			return nil
+		}
 	}
 
 	o, n := d.GetChange("metadata.0.annotations")
@@ -101,8 +104,30 @@ func SetMetadataAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta 
 		}
 	}
 
-	original := l[0].(map[string]interface{})
 	original["effective_annotations"] = effectiveAnnotations
+	return nil
+}
+
+// SetMetadataAnnotationsDiff sets the diff for metadata.0.effective_annotations
+// on resources that have metadata.0.annotations without metadata.0.labels.
+func SetMetadataAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	l := d.Get("metadata").([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	if d.Get("metadata.0.annotations") == nil {
+		return nil
+	}
+
+	original := l[0].(map[string]interface{})
+	metadataVal := rawPlanMetadataElem(d)
+
+	if err := setMetadataAnnotationsOnMap(d, original, metadataVal); err != nil {
+		return err
+	}
+
+	preserveUnknownMetadataNamespace(original, metadataVal)
 
 	if err := d.SetNew("metadata", []interface{}{original}); err != nil {
 		return fmt.Errorf("error setting new metadata diff: %w", err)

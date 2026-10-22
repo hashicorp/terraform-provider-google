@@ -132,8 +132,7 @@ func ResourceCloudRunDomainMapping() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			hasMetadata,
-			tpgresource.SetMetadataLabelsDiff,
-			tpgresource.SetMetadataAnnotationsDiff,
+			tpgresource.SetMetadataLabelsAndAnnotationsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
