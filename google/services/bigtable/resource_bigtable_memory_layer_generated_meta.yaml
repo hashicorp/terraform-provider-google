@@ -1,0 +1,21 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_bigtable_memory_layer
+generation_type: mmv1
+source_file: products/bigtable/MemoryLayer.yaml
+api_service_name: bigtableadmin.googleapis.com
+api_version: v2
+api_resource_type_kind: MemoryLayer
+cai_asset_name_formats:
+    - //bigtable.googleapis.com/projects/{{project}}/instances/{{instance}}/clusters/{{cluster}}/memoryLayer
+fields:
+    - field: cluster
+      provider_only: true
+    - api_field: etag
+    - field: instance
+      provider_only: true
+    - api_field: memoryConfig.storageSizeGib
+    - api_field: name
+    - api_field: state
+    - field: deletion_policy
+      provider_only: true
