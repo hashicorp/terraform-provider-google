@@ -1048,6 +1048,10 @@ The following arguments are supported:
   (Optional)
   Number of instances to pool for faster workstation boosting.
 
+* `enable_automatic_failover` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Indicates if this boost config is eligible for automatic failover when the service cannot provision the default VM type. Defaults to false.
+
 * `accelerators` -
   (Optional)
   An accelerator card attached to the boost instance.
