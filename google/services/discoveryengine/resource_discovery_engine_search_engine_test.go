@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
 )
@@ -49,6 +50,34 @@ func TestAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample_
 			},
 			{
 				Config: testAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample_update(context),
+			},
+			{
+				ResourceName:            "google_discovery_engine_search_engine.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"engine_id", "collection_id", "location", "kms_key_name"},
+			},
+			{
+				Config: testAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample_updateModelConfigs(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_discovery_engine_search_engine.basic", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_discovery_engine_search_engine.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"engine_id", "collection_id", "location", "kms_key_name"},
+			},
+			{
+				Config: testAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample_clearModelConfigs(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_discovery_engine_search_engine.basic", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_discovery_engine_search_engine.basic",
@@ -101,6 +130,11 @@ resource "google_discovery_engine_search_engine" "basic" {
     "disable-agent-sharing" = "FEATURE_STATE_OFF"
     "enable-end-user-sharing-with-groups" = "FEATURE_STATE_OFF"
     "workflow-agents" = "FEATURE_STATE_ON"
+  }
+  model_configs = {
+    "gemini-3.5-flash"       = "MODEL_ENABLED"
+    "gemini-3.1-pro-preview" = "MODEL_ENABLED"
+    "gemini-2.5-flash-image" = "MODEL_DISABLED"
   }
   knowledge_graph_config {
     enable_cloud_knowledge_graph = false
@@ -155,6 +189,136 @@ resource "google_discovery_engine_search_engine" "basic" {
     "enable-end-user-sharing-with-groups" = "FEATURE_STATE_OFF"
     "workflow-agents" = "FEATURE_STATE_ON"
   }
+  model_configs = {
+    "gemini-3.5-flash"       = "MODEL_ENABLED"
+    "gemini-3.1-pro-preview" = "MODEL_DISABLED"
+    "gemini-2.5-pro"         = "MODEL_ENABLED"
+  }
+  knowledge_graph_config {
+    enable_cloud_knowledge_graph = false
+    cloud_knowledge_graph_types = ["foobar"]
+    enable_private_knowledge_graph = true
+    feature_config {
+      disable_private_kg_query_understanding = true
+      disable_private_kg_enrichment = true
+      disable_private_kg_auto_complete = true
+      disable_private_kg_query_ui_chips = true
+    }
+  }
+  procurement_contact_emails = ["updated@example.com", "second@example.com"]
+}
+`, context)
+}
+
+func testAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample_updateModelConfigs(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "basic" {
+    location                    = "global"
+    data_store_id               = "tf-test-example-datastore%{random_suffix}"
+    display_name                = "tf-test-structured-datastore"
+    industry_vertical           = "GENERIC"
+    content_config              = "NO_CONTENT"
+    solution_types              = ["SOLUTION_TYPE_SEARCH"]
+    create_advanced_site_search = false
+    }
+resource "google_discovery_engine_data_store" "second" {
+    location                    = "global"
+    data_store_id               = "tf-test-example2-datastore%{random_suffix}"
+    display_name                = "tf-test-structured-datastore2"
+    industry_vertical           = "GENERIC"
+    content_config              = "NO_CONTENT"
+    solution_types              = ["SOLUTION_TYPE_SEARCH"]
+    create_advanced_site_search = false
+    }
+resource "google_discovery_engine_search_engine" "basic" {
+  engine_id = "tf-test-example-engine-id%{random_suffix}"
+  collection_id = "default_collection"
+  location = google_discovery_engine_data_store.basic.location
+  display_name = "Updated Example Display Name"
+  data_store_ids = [google_discovery_engine_data_store.basic.data_store_id]
+  industry_vertical = google_discovery_engine_data_store.basic.industry_vertical
+  disable_analytics = true
+  common_config {
+    company_name = "Updated Example Company Name"
+  }
+  app_type = "APP_TYPE_INTRANET"
+  search_engine_config {
+    search_tier = "SEARCH_TIER_STANDARD"
+    required_subscription_tier = "SUBSCRIPTION_TIER_SEARCH"
+    search_add_ons = ["SEARCH_ADD_ON_LLM"]
+  }
+  features = {
+    feedback = "FEATURE_STATE_OFF"
+    "agent-sharing-without-admin-approval" = "FEATURE_STATE_ON"
+    "disable-agent-sharing" = "FEATURE_STATE_OFF"
+    "enable-end-user-sharing-with-groups" = "FEATURE_STATE_OFF"
+    "workflow-agents" = "FEATURE_STATE_ON"
+  }
+  model_configs = {
+    "gemini-3.5-flash" = "MODEL_DISABLED"
+    "gemini-2.5-pro"   = "MODEL_ENABLED"
+  }
+  knowledge_graph_config {
+    enable_cloud_knowledge_graph = false
+    cloud_knowledge_graph_types = ["foobar"]
+    enable_private_knowledge_graph = true
+    feature_config {
+      disable_private_kg_query_understanding = true
+      disable_private_kg_enrichment = true
+      disable_private_kg_auto_complete = true
+      disable_private_kg_query_ui_chips = true
+    }
+  }
+  procurement_contact_emails = ["updated@example.com", "second@example.com"]
+}
+`, context)
+}
+
+func testAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample_clearModelConfigs(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "basic" {
+    location                    = "global"
+    data_store_id               = "tf-test-example-datastore%{random_suffix}"
+    display_name                = "tf-test-structured-datastore"
+    industry_vertical           = "GENERIC"
+    content_config              = "NO_CONTENT"
+    solution_types              = ["SOLUTION_TYPE_SEARCH"]
+    create_advanced_site_search = false
+    }
+resource "google_discovery_engine_data_store" "second" {
+    location                    = "global"
+    data_store_id               = "tf-test-example2-datastore%{random_suffix}"
+    display_name                = "tf-test-structured-datastore2"
+    industry_vertical           = "GENERIC"
+    content_config              = "NO_CONTENT"
+    solution_types              = ["SOLUTION_TYPE_SEARCH"]
+    create_advanced_site_search = false
+    }
+resource "google_discovery_engine_search_engine" "basic" {
+  engine_id = "tf-test-example-engine-id%{random_suffix}"
+  collection_id = "default_collection"
+  location = google_discovery_engine_data_store.basic.location
+  display_name = "Updated Example Display Name"
+  data_store_ids = [google_discovery_engine_data_store.basic.data_store_id]
+  industry_vertical = google_discovery_engine_data_store.basic.industry_vertical
+  disable_analytics = true
+  common_config {
+    company_name = "Updated Example Company Name"
+  }
+  app_type = "APP_TYPE_INTRANET"
+  search_engine_config {
+    search_tier = "SEARCH_TIER_STANDARD"
+    required_subscription_tier = "SUBSCRIPTION_TIER_SEARCH"
+    search_add_ons = ["SEARCH_ADD_ON_LLM"]
+  }
+  features = {
+    feedback = "FEATURE_STATE_OFF"
+    "agent-sharing-without-admin-approval" = "FEATURE_STATE_ON"
+    "disable-agent-sharing" = "FEATURE_STATE_OFF"
+    "enable-end-user-sharing-with-groups" = "FEATURE_STATE_OFF"
+    "workflow-agents" = "FEATURE_STATE_ON"
+  }
+  model_configs = {}
   knowledge_graph_config {
     enable_cloud_knowledge_graph = false
     cloud_knowledge_graph_types = ["foobar"]
