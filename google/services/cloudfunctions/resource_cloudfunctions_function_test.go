@@ -565,7 +565,7 @@ func TestAccCloudFunctionsFunction_buildServiceAccount(t *testing.T) {
 		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCloudFunctionsFunction_buildServiceAccount("sa1", functionName, bucketName, zipFilePath, serviceAccount1),
+				Config: testAccCloudFunctionsFunction_buildServiceAccount(bucketName, zipFilePath, serviceAccount1, serviceAccount2, functionName, "sa1"),
 				Check: resource.TestCheckResourceAttr(funcResourceName,
 					"build_service_account",
 					fmt.Sprintf("projects/%[1]s/serviceAccounts/%s@%[1]s.iam.gserviceaccount.com", proj, serviceAccount1)),
@@ -577,7 +577,7 @@ func TestAccCloudFunctionsFunction_buildServiceAccount(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"build_environment_variables"},
 			},
 			{
-				Config: testAccCloudFunctionsFunction_buildServiceAccount("sa2", functionName, bucketName, zipFilePath, serviceAccount2),
+				Config: testAccCloudFunctionsFunction_buildServiceAccount(bucketName, zipFilePath, serviceAccount1, serviceAccount2, functionName, "sa2"),
 				Check: resource.TestCheckResourceAttr(funcResourceName,
 					"build_service_account",
 					fmt.Sprintf("projects/%[1]s/serviceAccounts/%s@%[1]s.iam.gserviceaccount.com", proj, serviceAccount2)),
@@ -1334,7 +1334,7 @@ resource "google_cloudfunctions_function" "function" {
 `, accountId, secretName, versionName, bucketName, zipFilePath, functionName, projectNumber, versionNumber)
 }
 
-func testAccCloudFunctionsFunction_buildServiceAccount(saName, functionName, bucketName, zipFilePath, serviceAccount string) string {
+func testAccCloudFunctionsFunction_buildServiceAccount(bucketName, zipFilePath, serviceAccount1, serviceAccount2, functionName, saName string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
 
@@ -1350,52 +1350,82 @@ resource "google_storage_bucket_object" "archive" {
   source = "%s"
 }
 
-resource "google_service_account" "cloud_function_build_account_%[3]s" {
+resource "google_service_account" "cloud_function_build_account_sa1" {
   account_id   = "%s"
-  display_name = "Testing Cloud Function build service account"
+  display_name = "Testing Cloud Function build service account 1"
 }
 
-resource "google_project_iam_member" "storage_object_admin_%[3]s" {
-	project = data.google_project.project.project_id
-  role      = "roles/storage.objectAdmin"
-  member    = "serviceAccount:${google_service_account.cloud_function_build_account_%[3]s.email}"
+resource "google_project_iam_member" "storage_object_admin_sa1" {
+  depends_on = [google_service_account.cloud_function_build_account_sa2]
+  project    = data.google_project.project.project_id
+  role       = "roles/storage.objectAdmin"
+  member     = "serviceAccount:${google_service_account.cloud_function_build_account_sa1.email}"
 }
 
-resource "google_project_iam_member" "artifact_registry_writer_%[3]s" {
-	project = data.google_project.project.project_id
-  role      = "roles/artifactregistry.writer"
-  member    = "serviceAccount:${google_service_account.cloud_function_build_account_%[3]s.email}"
+resource "google_project_iam_member" "artifact_registry_writer_sa1" {
+  depends_on = [google_service_account.cloud_function_build_account_sa2]
+  project    = data.google_project.project.project_id
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${google_service_account.cloud_function_build_account_sa1.email}"
 }
 
-resource "google_project_iam_member" "log_writer_%[3]s" {
-	project = data.google_project.project.project_id
-  role      = "roles/logging.logWriter"
-  member    = "serviceAccount:${google_service_account.cloud_function_build_account_%[3]s.email}"
+resource "google_project_iam_member" "log_writer_sa1" {
+  depends_on = [google_service_account.cloud_function_build_account_sa2]
+  project    = data.google_project.project.project_id
+  role       = "roles/logging.logWriter"
+  member     = "serviceAccount:${google_service_account.cloud_function_build_account_sa1.email}"
 }
 
-resource "time_sleep" "wait_iam_roles_%[3]s" {
-  depends_on       = [
-		google_project_iam_member.storage_object_admin_%[3]s,
-		google_project_iam_member.artifact_registry_writer_%[3]s,
-		google_project_iam_member.log_writer_%[3]s,
-	]
-	create_duration  = "120s"
+resource "google_service_account" "cloud_function_build_account_sa2" {
+  depends_on   = [google_service_account.cloud_function_build_account_sa1]
+  account_id   = "%s"
+  display_name = "Testing Cloud Function build service account 2"
+}
+
+resource "google_project_iam_member" "storage_object_admin_sa2" {
+  project = data.google_project.project.project_id
+  role    = "roles/storage.objectAdmin"
+  member  = "serviceAccount:${google_service_account.cloud_function_build_account_sa2.email}"
+}
+
+resource "google_project_iam_member" "artifact_registry_writer_sa2" {
+  project = data.google_project.project.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.cloud_function_build_account_sa2.email}"
+}
+
+resource "google_project_iam_member" "log_writer_sa2" {
+  project = data.google_project.project.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.cloud_function_build_account_sa2.email}"
+}
+
+resource "time_sleep" "wait_iam_roles" {
+  depends_on = [
+    google_project_iam_member.storage_object_admin_sa1,
+    google_project_iam_member.artifact_registry_writer_sa1,
+    google_project_iam_member.log_writer_sa1,
+    google_project_iam_member.storage_object_admin_sa2,
+    google_project_iam_member.artifact_registry_writer_sa2,
+    google_project_iam_member.log_writer_sa2,
+  ]
+  create_duration = "120s"
 }
 
 resource "google_cloudfunctions_function" "function" {
-	depends_on = [time_sleep.wait_iam_roles_%[3]s]
-  name    = "%[5]s"
-  runtime = "nodejs20"
+  depends_on = [time_sleep.wait_iam_roles]
+  name       = "%s"
+  runtime    = "nodejs20"
 
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
 
-  build_service_account = google_service_account.cloud_function_build_account_%[3]s.name
+  build_service_account = google_service_account.cloud_function_build_account_%s.name
 
   trigger_http = true
   entry_point  = "helloGET"
 }
-`, bucketName, zipFilePath, saName, serviceAccount, functionName)
+`, bucketName, zipFilePath, serviceAccount1, serviceAccount2, functionName, saName)
 }
 
 func testAccCloudFunctionsFunction_abiuAutomatic(functionName string, bucketName string, zipFilePath string) string {
