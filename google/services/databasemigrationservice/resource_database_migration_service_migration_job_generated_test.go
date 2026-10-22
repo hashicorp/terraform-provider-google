@@ -293,6 +293,7 @@ resource "google_database_migration_service_connection_profile" "source_cp" {
     port     = 3306
     username = google_sql_user.source_sqldb_user.name
     password = google_sql_user.source_sqldb_user.password
+    database = "postgres"
     ssl {
       client_key         = google_sql_ssl_cert.source_sql_client_cert.private_key
       client_certificate = google_sql_ssl_cert.source_sql_client_cert.cert
@@ -429,6 +430,7 @@ resource "google_database_migration_service_connection_profile" "source_cp" {
     port     = 3306
     username = google_sql_user.source_sqldb_user.name
     password = google_sql_user.source_sqldb_user.password
+    database = "postgres"
     ssl {
       client_key         = google_sql_ssl_cert.source_sql_client_cert.private_key
       client_certificate = google_sql_ssl_cert.source_sql_client_cert.cert
@@ -499,6 +501,7 @@ resource "google_database_migration_service_migration_job" "psqltopsqlobjects" {
 }
 
 func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrationJobPostgresToAlloydbExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -582,6 +585,7 @@ resource "google_database_migration_service_connection_profile" "source_cp" {
     port     = 3306
     username = google_sql_user.source_sqldb_user.name
     password = google_sql_user.source_sqldb_user.password
+    database = "postgres"
     ssl {
       client_key         = google_sql_ssl_cert.source_sql_client_cert.private_key
       client_certificate = google_sql_ssl_cert.source_sql_client_cert.cert
