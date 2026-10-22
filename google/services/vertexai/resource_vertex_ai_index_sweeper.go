@@ -38,6 +38,10 @@ func init() {
 		ListAndAction:  listAndActionVertexAIIndex,
 		DeleteFunction: testSweepVertexAIIndex,
 	}
+	// Add dependencies
+	s.Dependencies = []string{
+		"google_vertex_ai_index_endpoint",
+	}
 
 	// Register the sweeper
 	sweeper.AddTestSweepers(s)
@@ -56,12 +60,12 @@ func listAndActionVertexAIIndex(action sweeper.ResourceAction) error {
 	var configs []*tpgresource.ResourceDataMock
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
-	// Default single config
-	intermediateValues := []map[string]string{
-		{
-			"region": "us-central1",
-		},
-	}
+	// Build URL substitution maps individually to ensure proper formatting
+	intermediateValues := make([]map[string]string, 2)
+	intermediateValues[0] = map[string]string{}
+	intermediateValues[0]["region"] = "us-central1"
+	intermediateValues[1] = map[string]string{}
+	intermediateValues[1]["region"] = "europe-west4"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {

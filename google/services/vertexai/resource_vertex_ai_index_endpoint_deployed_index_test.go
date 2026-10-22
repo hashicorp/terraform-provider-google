@@ -97,6 +97,7 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedInde
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIIndexEndpointDeployedIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexDedicatedResourcesBasicExample_full(context),
@@ -278,6 +279,7 @@ func TestAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointAutomaticRes
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIIndexEndpointDeployedIndexDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVertexAIIndexEndpointDeployedIndex_vertexAiIndexEndpointDeployedIndexAutomaticResourcesBasicExample_full(context),
