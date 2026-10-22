@@ -422,29 +422,15 @@ func resourceApigeeEndpointAttachmentImport(d *schema.ResourceData, meta interfa
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := tpgresource.ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := tpgresource.ParseImportId([]string{
+		"(?P<org_id>.+)/endpointAttachments/(?P<endpoint_attachment_id>.+)",
+		"(?P<org_id>.+)/(?P<endpoint_attachment_id>.+)",
+	}, d, config); err != nil {
 		return nil, err
 	}
 
-	nameParts := strings.Split(d.Get("name").(string), "/")
-	if len(nameParts) == 4 {
-		// `organizations/{{org_name}}/endpointAttachment/{{endpoint_attachment_id}}`
-		orgId := fmt.Sprintf("organizations/%s", nameParts[1])
-		if err := d.Set("org_id", orgId); err != nil {
-			return nil, fmt.Errorf("Error setting org_id: %s", err)
-		}
-		if err := d.Set("endpoint_attachment_id", nameParts[3]); err != nil {
-			return nil, fmt.Errorf("Error setting endpoint_attachment_id: %s", err)
-		}
-	} else {
-		return nil, fmt.Errorf(
-			"Saw %s when the name is expected to have shape %s",
-			d.Get("name"),
-			"organizations/{{org_name}}/environments/{{name}}")
-	}
-
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
