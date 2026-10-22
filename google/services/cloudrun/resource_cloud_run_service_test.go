@@ -589,7 +589,39 @@ func TestAccCloudRunService_withComputedLabels(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccCloudRunService_withComputedLabelsCreate(name, project, "10", "600"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.%", "2"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.deployed_by", "terraform"),
+					resource.TestCheckResourceAttrSet("google_cloud_run_service.default", "metadata.0.labels.key1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.deployed_by", "terraform"),
+					resource.TestCheckResourceAttrSet("google_cloud_run_service.default", "metadata.0.terraform_labels.key1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.deployed_by", "terraform"),
+					resource.TestCheckResourceAttrSet("google_cloud_run_service.default", "metadata.0.effective_labels.key1"),
+				),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+			{
 				Config: testAccCloudRunService_withComputedLabels(name, project, "10", "600"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.%", "3"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.client-name", "cloudrun-service-v1-module"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.deployed_by", "terraform"),
+					resource.TestCheckResourceAttrSet("google_cloud_run_service.default", "metadata.0.labels.key1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.client-name", "cloudrun-service-v1-module"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.deployed_by", "terraform"),
+					resource.TestCheckResourceAttrSet("google_cloud_run_service.default", "metadata.0.terraform_labels.key1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.client-name", "cloudrun-service-v1-module"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.deployed_by", "terraform"),
+					resource.TestCheckResourceAttrSet("google_cloud_run_service.default", "metadata.0.effective_labels.key1"),
+					resource.TestCheckResourceAttrSet("google_cloud_run_service.default", "metadata.0.annotations.env"),
+					resource.TestCheckResourceAttrSet("google_cloud_run_service.default", "metadata.0.effective_annotations.env"),
+				),
 			},
 			{
 				ResourceName:            "google_cloud_run_service.default",
@@ -601,7 +633,7 @@ func TestAccCloudRunService_withComputedLabels(t *testing.T) {
 	})
 }
 
-func testAccCloudRunService_withComputedLabels(name, project, concurrency, timeoutSeconds string) string {
+func testAccCloudRunService_withComputedLabelsCreate(name, project, concurrency, timeoutSeconds string) string {
 	return fmt.Sprintf(`
 resource "random_uuid" "test" {
 }
@@ -612,11 +644,55 @@ resource "google_cloud_run_service" "default" {
 
   metadata {
     namespace = "%s"
+    labels = {
+      deployed_by = "terraform"
+      key1        = "${random_uuid.test.result}"
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        ports {
+          container_port = 8080
+        }
+      }
+      container_concurrency = %s
+      timeout_seconds = %s
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+    tag             = "magic-module"
+  }
+}
+`, name, project, concurrency, timeoutSeconds)
+}
+
+func testAccCloudRunService_withComputedLabels(name, project, concurrency, timeoutSeconds string) string {
+	return fmt.Sprintf(`
+resource "random_uuid" "test" {
+}
+
+resource "random_uuid" "test2" {
+}
+
+resource "google_cloud_run_service" "default" {
+  name     = "%s"
+  location = "us-central1"
+
+  metadata {
+    namespace = "%s"
     annotations = {
-      env = "${random_uuid.test.result}"
+      env = "${random_uuid.test2.result}"
     }
     labels = {
-      key1 = "${random_uuid.test.result}"
+      client-name = "cloudrun-service-v1-module"
+      deployed_by = "terraform"
+      key1        = "${random_uuid.test2.result}"
     }
   }
 

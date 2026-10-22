@@ -182,8 +182,7 @@ func ResourceCloudRunService() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			revisionNameCustomizeDiff,
-			tpgresource.SetMetadataLabelsDiff,
-			tpgresource.SetMetadataAnnotationsDiff,
+			tpgresource.SetMetadataLabelsAndAnnotationsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),

@@ -20,11 +20,153 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
+	"unsafe"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
+
+// unknownVariableValue is the sentinel UUID defined as hcl2shim.UnknownVariableValue in
+// github.com/hashicorp/terraform-plugin-sdk/v2/internal/configs/hcl2shim (an internal package).
+// terraform-plugin-sdk/v2 uses this placeholder string when converting between cty.UnknownVal
+// and legacy flatmap/ResourceDiff map entries, and converts it back to cty.UnknownVal(cty.String)
+// when building the planned state value.
+const unknownVariableValue = "74D93920-ED26-11E3-AC10-0800200C9A66"
+
+// ctyMapWithUnknowns converts a known cty.Value map of strings into a map[string]interface{}
+// suitable for ResourceDiff.SetNew, replacing any unknown element values with unknownVariableValue
+// so they are preserved as unknown in the planned diff rather than dropped by ConfigFieldReader.
+func ctyMapWithUnknowns(val cty.Value) map[string]interface{} {
+	res := make(map[string]interface{})
+	for k, v := range val.AsValueMap() {
+		if !v.IsKnown() {
+			res[k] = unknownVariableValue
+		} else if !v.IsNull() {
+			res[k] = v.AsString()
+		}
+	}
+	return res
+}
+
+// setNestedNewComputed marks a nested key (such as "metadata.0.terraform_labels") as computed
+// in ResourceDiff's internal newValueWriter. ResourceDiff.SetNewComputed cannot be called on
+// paths inside a TypeList because checkKey only inspects top-level schema keys and
+// MapFieldWriter.WriteField only allows setting a full list.
+func setNestedNewComputed(d *schema.ResourceDiff, key string) {
+	v := reflect.ValueOf(d)
+	if v.Kind() != reflect.Ptr || v.IsNil() {
+		return
+	}
+	nwField := v.Elem().FieldByName("newWriter")
+	if !nwField.IsValid() || nwField.IsNil() {
+		return
+	}
+	nw := reflect.NewAt(nwField.Type(), unsafe.Pointer(nwField.UnsafeAddr())).Elem().Interface()
+	if cm, ok := nw.(interface{ ComputedKeysMap() map[string]bool }); ok {
+		cm.ComputedKeysMap()[key] = true
+	}
+}
+
+// rawPlanMetadataElem returns the cty.Value for metadata[0] from the raw plan if known and non-null.
+func rawPlanMetadataElem(d *schema.ResourceDiff) cty.Value {
+	if rawPlan := d.GetRawPlan(); !rawPlan.IsNull() && rawPlan.IsKnown() {
+		if metadataAttr := rawPlan.GetAttr("metadata"); !metadataAttr.IsNull() && metadataAttr.IsKnown() {
+			values := metadataAttr.AsValueSlice()
+			if len(values) > 0 && !values[0].IsNull() && values[0].IsKnown() {
+				return values[0]
+			}
+		}
+	}
+	return cty.NilVal
+}
+
+// preserveUnknownMetadataNamespace ensures an unknown metadata.0.namespace in the raw plan
+// is preserved as unknownVariableValue on the map passed to d.SetNew("metadata", ...).
+func preserveUnknownMetadataNamespace(original map[string]interface{}, metadataVal cty.Value) {
+	if metadataVal != cty.NilVal && metadataVal.Type().HasAttribute("namespace") && !metadataVal.GetAttr("namespace").IsKnown() {
+		original["namespace"] = unknownVariableValue
+	}
+}
+
+// setMetadataLabelsOnMap populates original["terraform_labels"] and original["effective_labels"]
+// when metadata.0.labels is wholly known, or preserves unknown label values and marks
+// metadata.0.terraform_labels and metadata.0.effective_labels as NewComputed when not wholly known.
+func setMetadataLabelsOnMap(d *schema.ResourceDiff, meta interface{}, original map[string]interface{}, metadataVal cty.Value) error {
+	raw := d.Get("metadata.0.labels")
+	if raw == nil {
+		return nil
+	}
+
+	if d.Get("metadata.0.terraform_labels") == nil {
+		return fmt.Errorf("`metadata.0.terraform_labels` field is not present in the resource schema.")
+	}
+
+	if d.Get("metadata.0.effective_labels") == nil {
+		return fmt.Errorf("`metadata.0.effective_labels` field is not present in the resource schema.")
+	}
+
+	if metadataVal != cty.NilVal && metadataVal.Type().HasAttribute("labels") {
+		labelsVal := metadataVal.GetAttr("labels")
+		if !labelsVal.IsWhollyKnown() {
+			if labelsVal.IsKnown() {
+				original["labels"] = ctyMapWithUnknowns(labelsVal)
+			} else {
+				delete(original, "labels")
+				setNestedNewComputed(d, "metadata.0.labels")
+			}
+			delete(original, "terraform_labels")
+			delete(original, "effective_labels")
+			setNestedNewComputed(d, "metadata.0.terraform_labels")
+			setNestedNewComputed(d, "metadata.0.effective_labels")
+			return nil
+		}
+	}
+
+	labels := raw.(map[string]interface{})
+	config := meta.(*transport_tpg.Config)
+
+	// Merge provider default labels with the user defined labels in the resource to get terraform managed labels
+	terraformLabels := make(map[string]string)
+	for k, v := range config.DefaultLabels {
+		terraformLabels[k] = v
+	}
+
+	// Append optional label indicating the resource was provisioned using Terraform
+	if config.AddTerraformAttributionLabel {
+		if el, ok := d.Get("metadata.0.effective_labels").(map[string]any); ok {
+			_, hasExistingLabel := el[transport_tpg.AttributionKey]
+			if hasExistingLabel ||
+				config.TerraformAttributionLabelAdditionStrategy == transport_tpg.ProactiveAttributionStrategy ||
+				(config.TerraformAttributionLabelAdditionStrategy == transport_tpg.CreateOnlyAttributionStrategy && d.Id() == "") {
+				terraformLabels[transport_tpg.AttributionKey] = transport_tpg.AttributionValue
+			}
+		}
+	}
+
+	for k, v := range labels {
+		terraformLabels[k] = v.(string)
+	}
+
+	o, _ := d.GetChange("metadata.0.terraform_labels")
+	effectiveLabels := d.Get("metadata.0.effective_labels").(map[string]interface{})
+
+	for k, v := range terraformLabels {
+		effectiveLabels[k] = v
+	}
+
+	for k := range o.(map[string]interface{}) {
+		if _, ok := terraformLabels[k]; !ok {
+			delete(effectiveLabels, k)
+		}
+	}
+
+	original["terraform_labels"] = terraformLabels
+	original["effective_labels"] = effectiveLabels
+	return nil
+}
 
 // SetLabels is called in the READ method of the resources to set
 // the field "labels" and "terraform_labels" in the state based on the labels field in the configuration.
@@ -166,82 +308,56 @@ func SetDiffForLabelsWithCustomizedName(labelsField string) func(_ context.Conte
 	}
 }
 
+// SetMetadataLabelsDiff sets the diff for metadata.0.terraform_labels and metadata.0.effective_labels
+// on resources that have metadata.0.labels without metadata.0.annotations.
 func SetMetadataLabelsDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	l := d.Get("metadata").([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil
 	}
 
-	// Fix the bug that the computed and nested "labels" field disappears from the terraform plan.
-	// https://github.com/hashicorp/terraform-provider-google/issues/17756
-	// The bug is introduced by SetNew on "metadata" field with the object including terraform_labels and effective_labels.
-	// "terraform_labels" and "effective_labels" cannot be set directly due to a bug that SetNew doesn't work on nested fields
-	// in terraform sdk.
-	// https://github.com/hashicorp/terraform-plugin-sdk/issues/459
-	values := d.GetRawPlan().GetAttr("metadata").AsValueSlice()
-	if len(values) > 0 && !values[0].GetAttr("labels").IsWhollyKnown() {
+	if d.Get("metadata.0.labels") == nil {
 		return nil
-	}
-
-	raw := d.Get("metadata.0.labels")
-	if raw == nil {
-		return nil
-	}
-
-	if d.Get("metadata.0.terraform_labels") == nil {
-		return fmt.Errorf("`metadata.0.terraform_labels` field is not present in the resource schema.")
-	}
-
-	if d.Get("metadata.0.effective_labels") == nil {
-		return fmt.Errorf("`metadata.0.effective_labels` field is not present in the resource schema.")
-	}
-
-	config := meta.(*transport_tpg.Config)
-
-	// Merge provider default labels with the user defined labels in the resource to get terraform managed labels
-	terraformLabels := make(map[string]string)
-	for k, v := range config.DefaultLabels {
-		terraformLabels[k] = v
-	}
-
-	// Append optional label indicating the resource was provisioned using Terraform
-	if config.AddTerraformAttributionLabel {
-		if el, ok := d.Get("metadata.0.effective_labels").(map[string]any); ok {
-			_, hasExistingLabel := el[transport_tpg.AttributionKey]
-			if hasExistingLabel ||
-				config.TerraformAttributionLabelAdditionStrategy == transport_tpg.ProactiveAttributionStrategy ||
-				(config.TerraformAttributionLabelAdditionStrategy == transport_tpg.CreateOnlyAttributionStrategy && d.Id() == "") {
-				terraformLabels[transport_tpg.AttributionKey] = transport_tpg.AttributionValue
-			}
-		}
-	}
-
-	labels := raw.(map[string]interface{})
-	for k, v := range labels {
-		terraformLabels[k] = v.(string)
 	}
 
 	original := l[0].(map[string]interface{})
+	metadataVal := rawPlanMetadataElem(d)
 
-	original["terraform_labels"] = terraformLabels
+	if err := setMetadataLabelsOnMap(d, meta, original, metadataVal); err != nil {
+		return err
+	}
+
+	preserveUnknownMetadataNamespace(original, metadataVal)
+
 	if err := d.SetNew("metadata", []interface{}{original}); err != nil {
 		return fmt.Errorf("error setting new metadata diff: %w", err)
 	}
 
-	o, n := d.GetChange("metadata.0.terraform_labels")
-	effectiveLabels := d.Get("metadata.0.effective_labels").(map[string]interface{})
+	return nil
+}
 
-	for k, v := range n.(map[string]interface{}) {
-		effectiveLabels[k] = v.(string)
+// SetMetadataLabelsAndAnnotationsDiff consolidates the CustomizeDiff logic for resources that have both
+// metadata.0.labels and metadata.0.annotations, computing or marking NewComputed on terraform_labels,
+// effective_labels, and effective_annotations in a single d.SetNew("metadata", ...) call.
+func SetMetadataLabelsAndAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	l := d.Get("metadata").([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
 	}
 
-	for k := range o.(map[string]interface{}) {
-		if _, ok := n.(map[string]interface{})[k]; !ok {
-			delete(effectiveLabels, k)
-		}
+	original := l[0].(map[string]interface{})
+	metadataVal := rawPlanMetadataElem(d)
+
+	if err := setMetadataLabelsOnMap(d, meta, original, metadataVal); err != nil {
+		return err
 	}
 
-	original["effective_labels"] = effectiveLabels
+	if err := setMetadataAnnotationsOnMap(d, original, metadataVal); err != nil {
+		return err
+	}
+
+	preserveUnknownMetadataNamespace(original, metadataVal)
+
 	if err := d.SetNew("metadata", []interface{}{original}); err != nil {
 		return fmt.Errorf("error setting new metadata diff: %w", err)
 	}

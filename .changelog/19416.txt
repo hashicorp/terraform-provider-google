@@ -1,0 +1,3 @@
+```release-note:bug
+cloudrun: fixed `Provider produced inconsistent final plan` when `metadata.0.labels` or `metadata.0.annotations` contains unknown values in `google_cloud_run_service` and `google_cloud_run_domain_mapping`
+```
