@@ -178,6 +178,7 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
     port = 5432
     username = google_sql_user.sqldb_user.name
     password = google_sql_user.sqldb_user.password
+    database = "postgres"
     ssl {
       client_key = google_sql_ssl_cert.sql_client_cert.private_key
       client_certificate = google_sql_ssl_cert.sql_client_cert.cert
@@ -236,6 +237,7 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
     port = 5432
     username = google_sql_user.sqldb_user.name
     password = google_sql_user.sqldb_user.password
+    database = "postgres"
     ssl {
       type = "NONE"
     }
@@ -291,6 +293,7 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
     port = 5432
     username = google_sql_user.sqldb_user.name
     password = google_sql_user.sqldb_user.password
+    database = "postgres"
     ssl {
       type = "REQUIRED"
     }
