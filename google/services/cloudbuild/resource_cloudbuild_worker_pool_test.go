@@ -153,6 +153,7 @@ resource "google_cloudbuild_worker_pool" "pool" {
 		machine_type = "c3-standard-4"
 		no_external_ip = false
 		enable_nested_virtualization = true
+		worker_release = "regular"
 	}
 
 	annotations = {

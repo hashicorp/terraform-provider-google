@@ -160,6 +160,7 @@ type WorkerPoolPrivatePoolV1ConfigWorkerConfig struct {
 	MachineType                *string `json:"machineType"`
 	DiskSizeGb                 *int64  `json:"diskSizeGb"`
 	EnableNestedVirtualization *bool   `json:"enableNestedVirtualization"`
+	WorkerRelease              *string `json:"workerRelease"`
 }
 
 type jsonWorkerPoolPrivatePoolV1ConfigWorkerConfig WorkerPoolPrivatePoolV1ConfigWorkerConfig
@@ -182,6 +183,8 @@ func (r *WorkerPoolPrivatePoolV1ConfigWorkerConfig) UnmarshalJSON(data []byte) e
 		r.DiskSizeGb = res.DiskSizeGb
 
 		r.EnableNestedVirtualization = res.EnableNestedVirtualization
+
+		r.WorkerRelease = res.WorkerRelease
 
 	}
 	return nil
@@ -317,6 +320,7 @@ type WorkerPoolWorkerConfig struct {
 	DiskSizeGb                 *int64  `json:"diskSizeGb"`
 	EnableNestedVirtualization *bool   `json:"enableNestedVirtualization"`
 	NoExternalIP               *bool   `json:"noExternalIP"`
+	WorkerRelease              *string `json:"workerRelease"`
 }
 
 type jsonWorkerPoolWorkerConfig WorkerPoolWorkerConfig
@@ -341,6 +345,8 @@ func (r *WorkerPoolWorkerConfig) UnmarshalJSON(data []byte) error {
 		r.EnableNestedVirtualization = res.EnableNestedVirtualization
 
 		r.NoExternalIP = res.NoExternalIP
+
+		r.WorkerRelease = res.WorkerRelease
 
 	}
 	return nil

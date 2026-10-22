@@ -34,5 +34,7 @@ fields:
     field: 'worker_config.machine_type'
   - api_field: 'privatePoolV1Config.networkConfig.egressOption'
     field: 'worker_config.no_external_ip'
+  - api_field: 'privatePoolV1Config.workerConfig.workerRelease'
+    field: 'worker_config.worker_release'
   - field: 'deletion_policy'
     provider_only: true
