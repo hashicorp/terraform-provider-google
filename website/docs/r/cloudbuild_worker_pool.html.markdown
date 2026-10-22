@@ -142,6 +142,10 @@ The following arguments are supported:
 * `no_external_ip` -
   (Optional)
   If true, workers are created without any public address, which prevents network egress to public IPs.
+
+* `worker_release` -
+  (Optional)
+  The release or release channel to use for the worker. Possible values are `rapid`, `regular`, `stable`, or a specific release version.
     
 ## Attributes Reference
 

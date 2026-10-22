@@ -30,6 +30,7 @@ func betaToGaPrivatePool(r *WorkerPool, c *WorkerPoolPrivatePoolV1Config) *Worke
 		cfgWorkerConfig.DiskSizeGb = r.WorkerConfig.DiskSizeGb
 		cfgWorkerConfig.MachineType = r.WorkerConfig.MachineType
 		cfgWorkerConfig.EnableNestedVirtualization = r.WorkerConfig.EnableNestedVirtualization
+		cfgWorkerConfig.WorkerRelease = r.WorkerConfig.WorkerRelease
 		cfgNetworkConfig.EgressOption = noExternalIPEnum(r.WorkerConfig.NoExternalIP)
 	}
 	if r.NetworkConfig != nil {
@@ -70,6 +71,7 @@ func gaToBetaPrivatePool(r *WorkerPool, c *WorkerPoolPrivatePoolV1Config) *Worke
 			DiskSizeGb:                 c.WorkerConfig.DiskSizeGb,
 			MachineType:                c.WorkerConfig.MachineType,
 			EnableNestedVirtualization: c.WorkerConfig.EnableNestedVirtualization,
+			WorkerRelease:              c.WorkerConfig.WorkerRelease,
 		}
 		if c.NetworkConfig != nil {
 			r.WorkerConfig.NoExternalIP = noExternalIPBoolean(c.NetworkConfig)

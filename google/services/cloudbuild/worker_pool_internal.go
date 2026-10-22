@@ -950,6 +950,11 @@ func canonicalizeWorkerPoolPrivatePoolV1ConfigWorkerConfig(des, initial *WorkerP
 	} else {
 		cDes.EnableNestedVirtualization = des.EnableNestedVirtualization
 	}
+	if dcl.StringCanonicalize(des.WorkerRelease, initial.WorkerRelease) || dcl.IsZeroValue(des.WorkerRelease) {
+		cDes.WorkerRelease = initial.WorkerRelease
+	} else {
+		cDes.WorkerRelease = des.WorkerRelease
+	}
 
 	return cDes
 }
@@ -1001,6 +1006,9 @@ func canonicalizeNewWorkerPoolPrivatePoolV1ConfigWorkerConfig(c *Client, des, nw
 	}
 	if dcl.BoolCanonicalize(des.EnableNestedVirtualization, nw.EnableNestedVirtualization) {
 		nw.EnableNestedVirtualization = des.EnableNestedVirtualization
+	}
+	if dcl.StringCanonicalize(des.WorkerRelease, nw.WorkerRelease) {
+		nw.WorkerRelease = des.WorkerRelease
 	}
 
 	return nw
@@ -1349,6 +1357,11 @@ func canonicalizeWorkerPoolWorkerConfig(des, initial *WorkerPoolWorkerConfig, op
 	} else {
 		cDes.NoExternalIP = des.NoExternalIP
 	}
+	if dcl.StringCanonicalize(des.WorkerRelease, initial.WorkerRelease) || dcl.IsZeroValue(des.WorkerRelease) {
+		cDes.WorkerRelease = initial.WorkerRelease
+	} else {
+		cDes.WorkerRelease = des.WorkerRelease
+	}
 
 	return cDes
 }
@@ -1403,6 +1416,9 @@ func canonicalizeNewWorkerPoolWorkerConfig(c *Client, des, nw *WorkerPoolWorkerC
 	}
 	if dcl.BoolCanonicalize(des.NoExternalIP, nw.NoExternalIP) {
 		nw.NoExternalIP = des.NoExternalIP
+	}
+	if dcl.StringCanonicalize(des.WorkerRelease, nw.WorkerRelease) {
+		nw.WorkerRelease = des.WorkerRelease
 	}
 
 	return nw
@@ -1913,6 +1929,13 @@ func compareWorkerPoolPrivatePoolV1ConfigWorkerConfigNewStyle(d, a interface{}, 
 		}
 		diffs = append(diffs, ds...)
 	}
+
+	if ds, err := dcl.Diff(desired.WorkerRelease, actual.WorkerRelease, dcl.DiffInfo{OperationSelector: dcl.TriggersOperation("updateWorkerPoolUpdateWorkerPoolOperation")}, fn.AddNest("WorkerRelease")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
 	return diffs, nil
 }
 
@@ -2044,6 +2067,13 @@ func compareWorkerPoolWorkerConfigNewStyle(d, a interface{}, fn dcl.FieldName) (
 	}
 
 	if ds, err := dcl.Diff(desired.NoExternalIP, actual.NoExternalIP, dcl.DiffInfo{ServerDefault: true, OperationSelector: dcl.TriggersOperation("updateWorkerPoolUpdateWorkerPoolOperation")}, fn.AddNest("NoExternalIp")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.WorkerRelease, actual.WorkerRelease, dcl.DiffInfo{OperationSelector: dcl.TriggersOperation("updateWorkerPoolUpdateWorkerPoolOperation")}, fn.AddNest("WorkerRelease")); len(ds) != 0 || err != nil {
 		if err != nil {
 			return nil, err
 		}
@@ -2490,6 +2520,9 @@ func expandWorkerPoolPrivatePoolV1ConfigWorkerConfig(c *Client, f *WorkerPoolPri
 	if v := f.EnableNestedVirtualization; !dcl.IsEmptyValueIndirect(v) {
 		m["enableNestedVirtualization"] = v
 	}
+	if v := f.WorkerRelease; !dcl.IsEmptyValueIndirect(v) {
+		m["workerRelease"] = v
+	}
 
 	return m, nil
 }
@@ -2510,6 +2543,7 @@ func flattenWorkerPoolPrivatePoolV1ConfigWorkerConfig(c *Client, i interface{}, 
 	r.MachineType = dcl.FlattenString(m["machineType"])
 	r.DiskSizeGb = dcl.FlattenInteger(m["diskSizeGb"])
 	r.EnableNestedVirtualization = dcl.FlattenBool(m["enableNestedVirtualization"])
+	r.WorkerRelease = dcl.FlattenString(m["workerRelease"])
 
 	return r
 }
@@ -2859,6 +2893,9 @@ func expandWorkerPoolWorkerConfig(c *Client, f *WorkerPoolWorkerConfig, res *Wor
 	if v := f.NoExternalIP; !dcl.IsEmptyValueIndirect(v) {
 		m["noExternalIp"] = v
 	}
+	if v := f.WorkerRelease; !dcl.IsEmptyValueIndirect(v) {
+		m["workerRelease"] = v
+	}
 
 	return m, nil
 }
@@ -2880,6 +2917,7 @@ func flattenWorkerPoolWorkerConfig(c *Client, i interface{}, res *WorkerPool) *W
 	r.DiskSizeGb = dcl.FlattenInteger(m["diskSizeGb"])
 	r.EnableNestedVirtualization = dcl.FlattenBool(m["enableNestedVirtualization"])
 	r.NoExternalIP = dcl.FlattenBool(m["noExternalIp"])
+	r.WorkerRelease = dcl.FlattenString(m["workerRelease"])
 
 	return r
 }
