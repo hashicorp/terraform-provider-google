@@ -356,7 +356,7 @@ resource "google_vertex_ai_index_endpoint_deployed_index" "dedicated_resources" 
     min_replica_count = 1
 
     machine_spec {
-      machine_type = "n1-standard-32"
+      machine_type = "e2-standard-2"
     }
   }
 }
@@ -376,7 +376,7 @@ resource "google_vertex_ai_index" "index" {
     config {
       dimensions                  = 2
       approximate_neighbors_count = 150
-      shard_size                  = "SHARD_SIZE_MEDIUM"
+      shard_size                  = "SHARD_SIZE_SMALL"
       distance_measure_type       = "DOT_PRODUCT_DISTANCE"
 
       algorithm_config {
@@ -485,7 +485,7 @@ resource "google_vertex_ai_index" "index" {
     config {
       dimensions                  = 2
       approximate_neighbors_count = 150
-      shard_size                  = "SHARD_SIZE_MEDIUM"
+      shard_size                  = "SHARD_SIZE_SMALL"
       distance_measure_type       = "DOT_PRODUCT_DISTANCE"
 
       algorithm_config {
