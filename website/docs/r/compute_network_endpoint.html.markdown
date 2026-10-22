@@ -47,9 +47,25 @@ To get more information about NetworkEndpoint, see:
 resource "google_compute_network_endpoint" "default-endpoint" {
   network_endpoint_group = google_compute_network_endpoint_group.neg.name
 
-  instance   = google_compute_instance.endpoint-instance.name
+  instance   = google_compute_instance.endpoint-instance1.name
   port       = google_compute_network_endpoint_group.neg.default_port
-  ip_address = google_compute_instance.endpoint-instance.network_interface[0].network_ip
+  ip_address = google_compute_instance.endpoint-instance1.network_interface[0].network_ip
+}
+
+resource "google_compute_network_endpoint" "ipv6-endpoint1" {
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
+
+  instance     = google_compute_instance.endpoint-instance1.name
+  port         = google_compute_network_endpoint_group.neg.default_port
+  ipv6_address = google_compute_instance.endpoint-instance1.network_interface[0].ipv6_access_config[0].external_ipv6
+}
+
+resource "google_compute_network_endpoint" "ipv6-endpoint2" {
+  network_endpoint_group = google_compute_network_endpoint_group.neg.name
+
+  instance     = google_compute_instance.endpoint-instance2.name
+  port         = google_compute_network_endpoint_group.neg.default_port
+  ipv6_address = google_compute_instance.endpoint-instance2.network_interface[0].ipv6_access_config[0].external_ipv6
 }
 
 data "google_compute_image" "my_image" {
@@ -57,9 +73,9 @@ data "google_compute_image" "my_image" {
   project = "debian-cloud"
 }
 
-resource "google_compute_instance" "endpoint-instance" {
-  name         = "endpoint-instance"
-  machine_type = "e2-medium"
+resource "google_compute_instance" "endpoint-instance1" {
+  name         = "endpoint-instance1"
+  machine_type = "e2-micro"
 
   boot_disk {
     initialize_params {
@@ -69,12 +85,37 @@ resource "google_compute_instance" "endpoint-instance" {
 
   network_interface {
     subnetwork = google_compute_subnetwork.default.id
+    stack_type = "IPV4_IPV6"
     access_config {
+    }
+    ipv6_access_config {
+      network_tier = "PREMIUM"
     }
   }
 }
 
-resource "google_compute_network_endpoint_group" "group" {
+resource "google_compute_instance" "endpoint-instance2" {
+  name         = "endpoint-instance2"
+  machine_type = "e2-micro"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+    stack_type = "IPV4_IPV6"
+    access_config {
+    }
+    ipv6_access_config {
+      network_tier = "PREMIUM"
+    }
+  }
+}
+
+resource "google_compute_network_endpoint_group" "neg" {
   name         = "my-lb-neg"
   network      = google_compute_network.default.id
   subnetwork   = google_compute_subnetwork.default.id
@@ -88,10 +129,12 @@ resource "google_compute_network" "default" {
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "neg-subnetwork"
-  ip_cidr_range = "10.0.0.1/16"
-  region        = "us-central1"
-  network       = google_compute_network.default.id
+  name             = "neg-subnetwork"
+  ip_cidr_range    = "10.0.0.1/16"
+  region           = "us-central1"
+  network          = google_compute_network.default.id
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "EXTERNAL"
 }
 ```
 
@@ -99,12 +142,6 @@ resource "google_compute_subnetwork" "default" {
 
 The following arguments are supported:
 
-
-* `ip_address` -
-  (Required)
-  IPv4 address of network endpoint. The IP address must belong
-  to a VM in GCE (either the primary IP or as part of an aliased IP
-  range).
 
 * `network_endpoint_group` -
   (Required)
@@ -122,6 +159,17 @@ The following arguments are supported:
   Port number of network endpoint.
   **Note** `port` is required unless the Network Endpoint Group is created
   with the type of `GCE_VM_IP`
+
+* `ip_address` -
+  (Optional)
+  IPv4 address of network endpoint. The IP address must belong
+  to a VM in GCE (either the primary IP or as part of an aliased IP
+  range).
+
+* `ipv6_address` -
+  (Optional)
+  IPv6 address of network endpoint. The result of parsing the endpoint config,
+  or empty if IPv6 is not used.
 
 * `zone` -
   (Optional)
@@ -170,7 +218,7 @@ import {
   identity = {
     instance = "<-optional value->"
     port = "<-optional value->"
-    ipAddress = "<-required value->"
+    ipAddress = "<-optional value->"
     zone = "<-optional value->"
     networkEndpointGroup = "<-required value->"
     project = "<-optional value->"

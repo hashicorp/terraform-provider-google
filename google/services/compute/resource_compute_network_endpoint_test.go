@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -250,4 +251,273 @@ func testAccComputeNetworkEndpointListEndpointPorts(t *testing.T, negId string) 
 		ports[fmt.Sprintf("%v", endpt["port"])] = struct{}{}
 	}
 	return ports, nil
+}
+
+func TestAccComputeNetworkEndpoint_ipv6(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"port":          90,
+	}
+	negId := fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/tf-test-neg-%s",
+		envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), context["random_suffix"])
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Add E1 with IPv6_1 + PORT
+				Config: testAccComputeNetworkEndpoint_ipv6Single(context),
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Step 2: Add E2 with IPv6_2 + PORT alongside E1
+				Config: testAccComputeNetworkEndpoint_ipv6Multiple(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_endpoint.default", plancheck.ResourceActionNoop),
+						plancheck.ExpectResourceAction("google_compute_network_endpoint.add1", plancheck.ResourceActionCreate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.add1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Step 3: Detach E2, ensuring E1 remains
+				Config: testAccComputeNetworkEndpoint_ipv6Single(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_endpoint.default", plancheck.ResourceActionNoop),
+						plancheck.ExpectResourceAction("google_compute_network_endpoint.add1", plancheck.ResourceActionDestroy),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Step 4: Dual-stack - E1 via IPv4 for VM1 and E2 via IPv6 for VM2
+				Config: testAccComputeNetworkEndpoint_dualStackVm1Ipv4Vm2Ipv6(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_endpoint.default", plancheck.ResourceActionReplace),
+						plancheck.ExpectResourceAction("google_compute_network_endpoint.add1", plancheck.ResourceActionCreate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.add1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Step 5: Dual-stack update - update E2 to IPv6 of VM1 while E1 is IPv4 of VM1
+				Config: testAccComputeNetworkEndpoint_dualStackVm1Both(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_endpoint.default", plancheck.ResourceActionNoop),
+						plancheck.ExpectResourceAction("google_compute_network_endpoint.add1", plancheck.ResourceActionReplace),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "google_compute_network_endpoint.add1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Step 6: Remove all endpoints and verify no leftover NEs remain
+				Config: testAccComputeNetworkEndpoint_ipv6Base(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_network_endpoint.default", plancheck.ResourceActionDestroy),
+						plancheck.ExpectResourceAction("google_compute_network_endpoint.add1", plancheck.ResourceActionDestroy),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeNetworkEndpointWithPortsDestroyed(t, negId, "90"),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeNetworkEndpoint_ipv6Single(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network_endpoint" "default" {
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.id
+
+  instance     = google_compute_instance.default.name
+  ipv6_address = google_compute_instance.default.network_interface[0].ipv6_access_config[0].external_ipv6
+  port         = "%{port}"
+}
+`, context) + testAccComputeNetworkEndpoint_ipv6Base(context)
+}
+
+func testAccComputeNetworkEndpoint_ipv6Multiple(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network_endpoint" "default" {
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.id
+
+  instance     = google_compute_instance.default.name
+  ipv6_address = google_compute_instance.default.network_interface[0].ipv6_access_config[0].external_ipv6
+  port         = "%{port}"
+}
+
+resource "google_compute_network_endpoint" "add1" {
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.id
+
+  instance     = google_compute_instance.vm2.name
+  ipv6_address = google_compute_instance.vm2.network_interface[0].ipv6_access_config[0].external_ipv6
+  port         = "%{port}"
+}
+`, context) + testAccComputeNetworkEndpoint_ipv6Base(context)
+}
+
+func testAccComputeNetworkEndpoint_dualStackVm1Ipv4Vm2Ipv6(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network_endpoint" "default" {
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.id
+
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = "%{port}"
+}
+
+resource "google_compute_network_endpoint" "add1" {
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.id
+
+  instance     = google_compute_instance.vm2.name
+  ipv6_address = google_compute_instance.vm2.network_interface[0].ipv6_access_config[0].external_ipv6
+  port         = "%{port}"
+}
+`, context) + testAccComputeNetworkEndpoint_ipv6Base(context)
+}
+
+func testAccComputeNetworkEndpoint_dualStackVm1Both(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network_endpoint" "default" {
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.id
+
+  instance   = google_compute_instance.default.name
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  port       = "%{port}"
+}
+
+resource "google_compute_network_endpoint" "add1" {
+  zone                   = "us-central1-a"
+  network_endpoint_group = google_compute_network_endpoint_group.neg.id
+
+  instance     = google_compute_instance.default.name
+  ipv6_address = google_compute_instance.default.network_interface[0].ipv6_access_config[0].external_ipv6
+  port         = "%{port}"
+}
+`, context) + testAccComputeNetworkEndpoint_ipv6Base(context)
+}
+
+func testAccComputeNetworkEndpoint_ipv6Base(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network_endpoint_group" "neg" {
+  name         = "tf-test-neg-%{random_suffix}"
+  zone         = "us-central1-a"
+  network      = google_compute_network.default.self_link
+  subnetwork   = google_compute_subnetwork.default.self_link
+  default_port = "%{port}"
+}
+
+resource "google_compute_network" "default" {
+  name                    = "tf-test-neg-network-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name             = "tf-test-neg-subnetwork-%{random_suffix}"
+  ip_cidr_range    = "10.0.0.0/16"
+  region           = "us-central1"
+  network          = google_compute_network.default.self_link
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "EXTERNAL"
+}
+
+resource "google_compute_instance" "default" {
+  name         = "tf-test-neg-%{random_suffix}"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.self_link
+    stack_type = "IPV4_IPV6"
+    access_config {
+    }
+    ipv6_access_config {
+      network_tier = "PREMIUM"
+    }
+  }
+}
+
+resource "google_compute_instance" "vm2" {
+  name         = "tf-test-neg-vm2-%{random_suffix}"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.self_link
+    stack_type = "IPV4_IPV6"
+    access_config {
+    }
+    ipv6_access_config {
+      network_tier = "PREMIUM"
+    }
+  }
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+`, context)
 }

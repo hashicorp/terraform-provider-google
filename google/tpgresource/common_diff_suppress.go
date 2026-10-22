@@ -19,6 +19,7 @@
 package tpgresource
 
 import (
+	"net"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -191,4 +192,19 @@ func SuppressMajorRevisionId(_, old, new string, _ *schema.ResourceData) bool {
 		return oldVal >= newVal
 	}
 	return false
+}
+
+// IpAddressDiffSuppress compares two IP addresses for semantic equality,
+// suppressing diffs caused by different IPv6 string representations
+// (e.g. RFC 5952 zero-compression, leading zeros, or hex casing).
+func IpAddressDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	if old == "" || new == "" {
+		return old == new
+	}
+	oldIP := net.ParseIP(old)
+	newIP := net.ParseIP(new)
+	if oldIP != nil && newIP != nil {
+		return oldIP.Equal(newIP)
+	}
+	return old == new
 }
