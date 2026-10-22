@@ -92,7 +92,6 @@ resource "random_id" "big_data_job_name_suffix" {
   }
 }
 resource "google_dataflow_flex_template_job" "big_data_job" {
-  provider                      = google-beta
   name                          = "dataflow-flextemplates-job-${random_id.big_data_job_name_suffix.dec}"
   region                        = var.region
   container_spec_gcs_path       = "gs://my-bucket/templates/template.json"
