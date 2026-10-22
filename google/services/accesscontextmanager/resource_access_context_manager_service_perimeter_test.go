@@ -59,6 +59,7 @@ func testAccAccessContextManagerServicePerimeter_basicTest(t *testing.T) {
 func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
 	projectNumber := envvar.GetTestProjectNumberFromEnv()
+	folderSuffix := acctest.RandString(t, 10)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -88,7 +89,7 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "tf_test_level", "tf_test_perimeter", projectNumber),
+				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "tf_test_level", "tf_test_perimeter", projectNumber, folderSuffix),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -96,7 +97,7 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeter_updateDryrun(org, "my policy", "tf_test_level", "tf_test_perimeter"),
+				Config: testAccAccessContextManagerServicePerimeter_updateDryrun(org, "my policy", "tf_test_level", "tf_test_perimeter", folderSuffix),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -104,7 +105,7 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "tf_test_level", "tf_test_perimeter", projectNumber),
+				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "tf_test_level", "tf_test_perimeter", projectNumber, folderSuffix),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
@@ -209,11 +210,17 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 `, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)
 }
 
-func testAccAccessContextManagerServicePerimeter_updateAllowed(org, policyTitle, levelTitleName, perimeterTitleName, projectNumber string) string {
+func testAccAccessContextManagerServicePerimeter_updateAllowed(org, policyTitle, levelTitleName, perimeterTitleName, projectNumber, folderSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
   title  = "%s"
+}
+
+resource "google_folder" "test-folder" {
+  parent              = "organizations/%s"
+  display_name        = "tf-test-%s"
+  deletion_protection = false
 }
 
 resource "google_access_context_manager_access_level" "test-access" {
@@ -236,6 +243,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
   perimeter_type = "PERIMETER_TYPE_REGULAR"
   use_explicit_dry_run_spec = true
   spec {
+    resources           = [google_folder.test-folder.name]
     restricted_services = ["bigquery.googleapis.com", "storage.googleapis.com"]
 		access_levels       = [google_access_context_manager_access_level.test-access.name]
 
@@ -250,6 +258,15 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 			ingress_from {
 				sources {
 					access_level = google_access_context_manager_access_level.test-access.name
+				}
+				sources {
+					resource = "projects/%s"
+				}
+				sources {
+					resource = google_folder.test-folder.name
+				}
+				sources {
+					resource = "organizations/%s"
 				}
 				identity_type = "ANY_IDENTITY"
 			}
@@ -312,6 +329,14 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 				sources {
 					resource = "projects/%s"
 				}
+
+				sources {
+					resource = google_folder.test-folder.name
+				}
+
+				sources {
+					resource = "organizations/%s"
+				}
 					
 				source_restriction = "SOURCE_RESTRICTION_ENABLED"
 			}
@@ -340,12 +365,13 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 				identities = ["group:test@google.com"]
 			}
 			egress_to {
-				resources = ["*"]
+				resources = ["projects/%s", google_folder.test-folder.name, "organizations/%s"]
 				roles = ["roles/bigquery.admin"]
 			}
 		}
   }
   status {
+    resources           = [google_folder.test-folder.name]
     restricted_services = ["bigquery.googleapis.com", "storage.googleapis.com"]
 		access_levels       = [google_access_context_manager_access_level.test-access.name]
 
@@ -360,6 +386,15 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 			ingress_from {
 				sources {
 					access_level = google_access_context_manager_access_level.test-access.name
+				}
+				sources {
+					resource = "projects/%s"
+				}
+				sources {
+					resource = google_folder.test-folder.name
+				}
+				sources {
+					resource = "organizations/%s"
 				}
 				identity_type = "ANY_IDENTITY"
 			}
@@ -413,6 +448,14 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 				sources {
 					resource = "projects/%s"
 				}
+
+				sources {
+					resource = google_folder.test-folder.name
+				}
+
+				sources {
+					resource = "organizations/%s"
+				}
 					
 				source_restriction = "SOURCE_RESTRICTION_ENABLED"
 			}
@@ -440,20 +483,26 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 				identity_type = "ANY_IDENTITY"
 			}
 			egress_to {
-				resources = ["*"]
+				resources = ["projects/%s", google_folder.test-folder.name, "organizations/%s"]
 				roles = ["roles/bigquery.admin"]
 			}
 		}
   }
 }
-`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName, projectNumber, projectNumber)
+`, org, policyTitle, org, folderSuffix, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName, projectNumber, org, projectNumber, org, projectNumber, org, projectNumber, org, projectNumber, org, projectNumber, org)
 }
 
-func testAccAccessContextManagerServicePerimeter_updateDryrun(org, policyTitle, levelTitleName, perimeterTitleName string) string {
+func testAccAccessContextManagerServicePerimeter_updateDryrun(org, policyTitle, levelTitleName, perimeterTitleName, folderSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
   title  = "%s"
+}
+
+resource "google_folder" "test-folder" {
+  parent              = "organizations/%s"
+  display_name        = "tf-test-%s"
+  deletion_protection = false
 }
 
 resource "google_access_context_manager_access_level" "test-access" {
@@ -485,7 +534,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 
   use_explicit_dry_run_spec = true
 }
-`, org, policyTitle, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)
+`, org, policyTitle, org, folderSuffix, levelTitleName, levelTitleName, perimeterTitleName, perimeterTitleName)
 }
 
 type IdentityTypeDiffSuppressFuncDiffSuppressTestCase struct {

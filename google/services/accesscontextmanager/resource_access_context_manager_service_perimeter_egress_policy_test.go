@@ -239,6 +239,12 @@ func testAccAccessContextManagerServicePerimeterEgressPolicy_egressPolicyUpdate_
 	return fmt.Sprintf(`
 %s
 
+resource "google_folder" "test-folder" {
+  parent              = "organizations/%s"
+  display_name        = "tf-test-%s"
+  deletion_protection = false
+}
+
 resource "google_access_context_manager_service_perimeter_egress_policy" "test-access1" {
   perimeter = google_access_context_manager_service_perimeter.test-access.name
   title     = "egress policy update test"
@@ -254,13 +260,19 @@ resource "google_access_context_manager_service_perimeter_egress_policy" "test-a
     }
   }
 }
-`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName))
+`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle)
 }
 
 // step 2: update identity_type, add source_restriction/sources/roles/resources
 func testAccAccessContextManagerServicePerimeterEgressPolicy_egressPolicyUpdate_step2(org, policyTitle, perimeterTitleName, projectNumber string) string {
 	return fmt.Sprintf(`
 %s
+
+resource "google_folder" "test-folder" {
+  parent              = "organizations/%s"
+  display_name        = "tf-test-%s"
+  deletion_protection = false
+}
 
 resource "google_access_context_manager_service_perimeter_egress_policy" "test-access1" {
   perimeter = google_access_context_manager_service_perimeter.test-access.name
@@ -270,20 +282,32 @@ resource "google_access_context_manager_service_perimeter_egress_policy" "test-a
     sources {
       resource = "projects/%s"
     }
+    sources {
+      resource = google_folder.test-folder.name
+    }
+    sources {
+      resource = "organizations/%s"
+    }
     source_restriction = "SOURCE_RESTRICTION_ENABLED"
   }
   egress_to {
-    resources = ["*"]
+    resources = ["projects/%s", google_folder.test-folder.name, "organizations/%s"]
     roles     = ["roles/bigquery.admin"]
   }
 }
-`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName), projectNumber)
+`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle, projectNumber, org, projectNumber, org)
 }
 
 // step 3: switch to access_level source, external_resources, permission selector
 func testAccAccessContextManagerServicePerimeterEgressPolicy_egressPolicyUpdate_step3(org, policyTitle, perimeterTitleName string) string {
 	return fmt.Sprintf(`
 %s
+
+resource "google_folder" "test-folder" {
+  parent              = "organizations/%s"
+  display_name        = "tf-test-%s"
+  deletion_protection = false
+}
 
 resource "google_access_context_manager_access_level" "update-test" {
   parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
@@ -318,7 +342,7 @@ resource "google_access_context_manager_service_perimeter_egress_policy" "test-a
     }
   }
 }
-`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName))
+`, testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle)
 }
 
 func testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitleName string) string {

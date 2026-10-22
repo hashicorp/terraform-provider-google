@@ -45,7 +45,7 @@ func TestAccAccessContextManager(t *testing.T) {
 		"service_perimeter_nongcp_patterns":               testAccAccessContextManagerServicePerimeter_nonGcpServicePatternsTest,
 		"service_perimeters_nongcp_patterns":              testAccAccessContextManagerServicePerimeters_nonGcpServicePatternsTest,
 		"service_perimeter_resource":                      testAccAccessContextManagerServicePerimeterResource_basicTest,
-		"service_perimeter_dry_run_resource":              testAccAccessContextManagerServicePerimeterResource_basicTest,
+		"service_perimeter_dry_run_resource":              testAccAccessContextManagerServicePerimeterDryRunResource_basicTest,
 		"access_level":                                    testAccAccessContextManagerAccessLevel_basicTest,
 		"access_level_full":                               testAccAccessContextManagerAccessLevel_fullTest,
 		"access_level_custom":                             testAccAccessContextManagerAccessLevel_customTest,
