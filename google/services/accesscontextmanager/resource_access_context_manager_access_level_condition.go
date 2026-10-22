@@ -127,6 +127,7 @@ func ResourceAccessContextManagerAccessLevelCondition() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
+				ValidateFunc:     verify.ValidateRegexp(`^accessPolicies/[^/]+/accessLevels/[^/]+$`),
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The name of the Access Level to add this condition to.`,
 			},
@@ -995,6 +996,9 @@ func resourceAccessContextManagerAccessLevelConditionEncoder(d *schema.ResourceD
 	// The is logic is inside the encoder since the access_policy_id field is part of
 	// the mutex lock and encoders run before the lock is set.
 	parts := strings.Split(d.Get("access_level").(string), "/")
+	if len(parts) != 4 {
+		return nil, fmt.Errorf("unexpected format for access_level (%s), expected accessPolicies/{accessPolicy}/accessLevels/{accessLevel}", d.Get("access_level").(string))
+	}
 	d.Set("access_policy_id", fmt.Sprintf("accessPolicies/%s", parts[1]))
 
 	return obj, nil

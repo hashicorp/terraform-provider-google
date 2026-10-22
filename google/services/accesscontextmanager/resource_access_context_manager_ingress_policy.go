@@ -135,6 +135,7 @@ func ResourceAccessContextManagerIngressPolicy() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
+				ValidateFunc:     verify.ValidateRegexp(`^accessPolicies/[^/]+/servicePerimeters/[^/]+$`),
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The name of the Service Perimeter to add this resource to.`,
 			},
@@ -465,6 +466,9 @@ func resourceAccessContextManagerIngressPolicyEncoder(d *schema.ResourceData, me
 	// The is logic is inside the encoder since the access_policy_id field is part of
 	// the mutex lock and encoders run before the lock is set.
 	parts := strings.Split(d.Get("ingress_policy_name").(string), "/")
+	if len(parts) != 4 {
+		return nil, fmt.Errorf("unexpected format for ingress_policy_name (%s), expected accessPolicies/{accessPolicy}/servicePerimeters/{servicePerimeter}", d.Get("ingress_policy_name").(string))
+	}
 	d.Set("access_policy_id", fmt.Sprintf("accessPolicies/%s", parts[1]))
 
 	return obj, nil

@@ -30,9 +30,9 @@ import (
 
 func testAccAccessContextManagerAccessPolicyIamBinding(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
+	policy := createScopedPolicy(t, org)
 	account := "tf-test-" + acctest.RandString(t, 10)
 	role := "roles/accesscontextmanager.policyAdmin"
-	policy := createScopedPolicy(t, org)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -51,9 +51,9 @@ func testAccAccessContextManagerAccessPolicyIamBinding(t *testing.T) {
 
 func testAccAccessContextManagerAccessPolicyIamMember(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
+	policy := createScopedPolicy(t, org)
 	account := "tf-test-" + acctest.RandString(t, 10)
 	role := "roles/accesscontextmanager.policyAdmin"
-	policy := createScopedPolicy(t, org)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -74,9 +74,9 @@ func testAccAccessContextManagerAccessPolicyIamMember(t *testing.T) {
 
 func testAccAccessContextManagerAccessPolicyIamPolicy(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
+	policy := createScopedPolicy(t, org)
 	account := "tf-test-" + acctest.RandString(t, 10)
 	role := "roles/accesscontextmanager.policyAdmin"
-	policy := createScopedPolicy(t, org)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
