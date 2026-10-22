@@ -514,7 +514,7 @@ var schemaNodePool = map[string]*schema.Schema{
 					Type:         schema.TypeString,
 					Optional:     true,
 					Default:      "SURGE",
-					ValidateFunc: validation.StringInSlice([]string{"SURGE", "BLUE_GREEN"}, false),
+					ValidateFunc: validation.StringInSlice([]string{"SURGE", "BLUE_GREEN", "SHORT_LIVED"}, false),
 					Description:  `Update strategy for the given nodepool.`,
 				},
 

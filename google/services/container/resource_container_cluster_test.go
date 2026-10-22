@@ -9486,6 +9486,10 @@ resource "google_container_cluster" "flex_start" {
 	  total_max_node_count = 1
 	}
 
+    upgrade_settings {
+      strategy = "SHORT_LIVED"
+    }
+
     node_config {
       machine_type = "n4-standard-2"
 	  flex_start = true

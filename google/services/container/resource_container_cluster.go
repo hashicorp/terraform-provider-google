@@ -938,7 +938,7 @@ func ResourceContainerCluster() *schema.Resource {
 													Optional:     true,
 													Computed:     true,
 													Description:  `Update strategy of the node pool.`,
-													ValidateFunc: validation.StringInSlice([]string{"NODE_POOL_UPDATE_STRATEGY_UNSPECIFIED", "BLUE_GREEN", "SURGE"}, false),
+													ValidateFunc: validation.StringInSlice([]string{"NODE_POOL_UPDATE_STRATEGY_UNSPECIFIED", "BLUE_GREEN", "SURGE", "SHORT_LIVED"}, false),
 												},
 												"blue_green_settings": {
 													Type:        schema.TypeList,

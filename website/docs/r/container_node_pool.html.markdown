@@ -316,7 +316,7 @@ cluster.
 
 `max_surge` and `max_unavailable` must not be negative and at least one of them must be greater than zero.
 
-* `strategy` - (Default `SURGE`) The upgrade strategy to be used for upgrading the nodes.
+* `strategy` - (Default `SURGE`) The upgrade strategy to be used for upgrading the nodes. Strategy can only be one of BLUE_GREEN, SURGE, or SHORT_LIVED.
 
 * `blue_green_settings` - (Optional) The settings to adjust [blue green upgrades](https://cloud.google.com/kubernetes-engine/docs/concepts/node-pool-upgrade-strategies#blue-green-upgrade-strategy).
     Structure is [documented below](#nested_blue_green_settings)
