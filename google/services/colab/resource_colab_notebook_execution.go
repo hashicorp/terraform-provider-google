@@ -584,39 +584,52 @@ func resourceColabNotebookExecutionCreate(d *schema.ResourceData, meta interface
 	}
 
 	headers := make(http.Header)
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutCreate),
-		Headers:   headers,
+	var res map[string]interface{}
+	err = transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() error {
+			var err error
+			res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:               config,
+				Method:               "POST",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            userAgent,
+				Body:                 obj,
+				Timeout:              d.Timeout(schema.TimeoutCreate),
+				Headers:              headers,
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error creating NotebookExecution: %s", err)
+			}
+
+			// Store the ID now
+			id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/notebookExecutionJobs/{{notebook_execution_job_id}}")
+			if err != nil {
+				return fmt.Errorf("Error constructing id: %s", err)
+			}
+			d.SetId(id)
+
+			// Derive location for use in REP endpoints
+			endpointLocation := tpgresource.LocationFromId(d.Id())
+			err = ColabOperationWaitTime(
+				config, res, project, endpointLocation, "Creating NotebookExecution", userAgent,
+				d.Timeout(schema.TimeoutCreate))
+
+			if err != nil {
+				// The resource didn't actually create
+				d.SetId("")
+				return fmt.Errorf("Error waiting to create NotebookExecution: %s", err)
+			}
+
+			return nil
+		},
+		Timeout:              d.Timeout(schema.TimeoutCreate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating NotebookExecution: %s", err)
+		return err
 	}
-
-	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/notebookExecutionJobs/{{notebook_execution_job_id}}")
-	if err != nil {
-		return fmt.Errorf("Error constructing id: %s", err)
-	}
-	d.SetId(id)
-
-	// Derive location for use in REP endpoints
-	endpointLocation := tpgresource.LocationFromId(d.Id())
-	err = ColabOperationWaitTime(
-		config, res, project, endpointLocation, "Creating NotebookExecution", userAgent,
-		d.Timeout(schema.TimeoutCreate))
-
-	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error waiting to create NotebookExecution: %s", err)
-	}
-
 	// The operation for this resource contains the generated name that we need
 	// in order to perform a READ.
 
@@ -690,12 +703,13 @@ func resourceColabNotebookExecutionRead(d *schema.ResourceData, meta interface{}
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Headers:   headers,
+		Config:               config,
+		Method:               "GET",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ColabNotebookExecution %q", d.Id()))
@@ -809,14 +823,15 @@ func resourceColabNotebookExecutionDelete(d *schema.ResourceData, meta interface
 
 	log.Printf("[DEBUG] Deleting NotebookExecution %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "DELETE",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-		Headers:   headers,
+		Config:               config,
+		Method:               "DELETE",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutDelete),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "NotebookExecution")

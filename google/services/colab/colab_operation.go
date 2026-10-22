@@ -70,11 +70,12 @@ func (w *ColabOperationWaiter) QueryOp() (interface{}, error) {
 	}
 	url = strings.ReplaceAll(url, "{{location}}", location)
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    w.Config,
-		Method:    "GET",
-		Project:   w.Project,
-		RawURL:    url,
-		UserAgent: w.UserAgent,
+		Config:               w.Config,
+		Method:               "GET",
+		Project:              w.Project,
+		RawURL:               url,
+		UserAgent:            w.UserAgent,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 }
 

@@ -221,7 +221,7 @@ func (u *WorkbenchInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemana
 		RawURL:               url,
 		UserAgent:            userAgent,
 		Body:                 obj,
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %w", u.DescribeResource(), err)
@@ -267,7 +267,7 @@ func (u *WorkbenchInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresource
 		UserAgent:            userAgent,
 		Body:                 obj,
 		Timeout:              u.d.Timeout(schema.TimeoutCreate),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 	if err != nil {
 		return fmt.Errorf("Error setting IAM policy for %s: %w", u.DescribeResource(), err)

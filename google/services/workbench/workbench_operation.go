@@ -63,7 +63,7 @@ func (w *WorkbenchOperationWaiter) QueryOp() (interface{}, error) {
 		Project:              w.Project,
 		RawURL:               url,
 		UserAgent:            w.UserAgent,
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError},
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsWorkbenchQueueError, transport_tpg.IsSubnetworkNotReadyLROError},
 	})
 }
 
