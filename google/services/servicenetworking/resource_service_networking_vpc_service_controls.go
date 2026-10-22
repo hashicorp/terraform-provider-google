@@ -121,8 +121,10 @@ func resourceServiceNetworkingVPCServiceControlsSet(d *schema.ResourceData, meta
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
+		if d.IsNewResource() {
+			// The resource didn't actually create
+			d.SetId("")
+		}
 		return fmt.Errorf("Error waiting to set service networking VPC service controls: %s", err)
 	}
 
