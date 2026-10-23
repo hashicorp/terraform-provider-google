@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: added `cluster_config.master_flexible_config`, `cluster_config.worker_flexible_config`, and `cluster_config.secondary_worker_flexible_config` fields to `google_dataproc_cluster` resource
+```
