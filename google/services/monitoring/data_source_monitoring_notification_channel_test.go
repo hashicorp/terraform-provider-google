@@ -250,11 +250,11 @@ data "google_monitoring_notification_channel" "default" {
 func testAccDataSourceGoogleMonitoringNotificationChannel_NotUnique(displayName string) string {
 	return fmt.Sprintf(`
 resource "google_monitoring_notification_channel" "channel-1" {
-  display_name = "%[1]s"
+  display_name = "%s"
   type         = "webhook_tokenauth"
 
   labels = {
-    url = "http://%[1]s.google.com"
+    url = "http://%s.google.com"
   }
 }
 
@@ -263,10 +263,10 @@ resource "google_monitoring_notification_channel" "channel-2" {
   type         = "webhook_tokenauth"
 
   labels = {
-    url = "http://%[1]s-copy.google.org"
+    url = "http://%s-copy.google.org"
   }
 }
-`, displayName)
+`, displayName, displayName, displayName)
 }
 
 func testAccDataSourceGoogleMonitoringNotificationChannel_NotUniqueWithData(displayName string) string {

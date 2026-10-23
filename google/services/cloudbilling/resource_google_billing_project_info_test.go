@@ -75,7 +75,7 @@ func testAccBillingProjectInfo_basic(projectId, orgId, billingAccountId string) 
 	return fmt.Sprintf(`
 resource "google_project" "project" {
   project_id = "%s"
-  name       = "%[1]s"
+  name       = "%s"
   org_id     = "%s"
   deletion_policy = "DELETE"
   lifecycle {
@@ -87,5 +87,5 @@ resource "google_billing_project_info" "info" {
   project         = google_project.project.project_id
   billing_account = "%s"
 }
-`, projectId, orgId, billingAccountId)
+`, projectId, projectId, orgId, billingAccountId)
 }

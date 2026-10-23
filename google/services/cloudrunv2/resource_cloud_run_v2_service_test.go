@@ -67,20 +67,20 @@ func TestAccCloudRunV2WorkerPool_vpcAccess_basic(t *testing.T) {
 func testAccCloudRunV2WorkerPool_vpcAccess_basicConfig(ctx map[string]interface{}) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "primary" {
-  name                    = "tf-test-crwp-vpc-%[1]s"
+  name                    = "tf-test-crwp-vpc-%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "primary" {
-  name          = "tf-test-crwp-subnet-%[1]s"
+  name          = "tf-test-crwp-subnet-%s"
   ip_cidr_range = "10.0.0.0/16"
-  region        = "%[2]s"
+  region        = "%s"
   network       = google_compute_network.primary.id
 }
 
 resource "google_vpc_access_connector" "primary" {
-  name          = "tf-test-crwp-c-%[1]s"
-  region        = "%[2]s"
+  name          = "tf-test-crwp-c-%s"
+  region        = "%s"
   network       = google_compute_network.primary.name
   ip_cidr_range = "10.8.0.0/28"
 
@@ -90,8 +90,8 @@ resource "google_vpc_access_connector" "primary" {
 }
 
 resource "google_cloud_run_v2_worker_pool" "primary" {
-  name                = "tf-test-crwp-%[1]s"
-  location            = "%[2]s"
+  name                = "tf-test-crwp-%s"
+  location            = "%s"
   deletion_protection = false
 
   template {
@@ -103,7 +103,7 @@ resource "google_cloud_run_v2_worker_pool" "primary" {
     }
   }
 }
-`, ctx["rs"], ctx["region"])
+`, ctx["rs"], ctx["rs"], ctx["region"], ctx["rs"], ctx["region"], ctx["rs"], ctx["region"])
 }
 
 func TestAccCloudRunV2Service_cloudrunv2ServiceFullUpdate(t *testing.T) {

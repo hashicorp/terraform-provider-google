@@ -6916,28 +6916,28 @@ func TestAccContainerNodePool_storagePools(t *testing.T) {
 func testAccContainerNodePool_storagePools(cluster, np, networkName, subnetworkName, storagePoolResourceName, location string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "cluster" {
-  name                = "%[1]s"
-  location            = "%[6]s"
+  name                = "%s"
+  location            = "%s"
   initial_node_count  = 1
   deletion_protection = false
-  network             = "%[3]s"
-  subnetwork          = "%[4]s"
+  network             = "%s"
+  subnetwork          = "%s"
 }
 
 resource "google_container_node_pool" "np" {
-  name               = "%[2]s"
-  location           = "%[6]s"
+  name               = "%s"
+  location           = "%s"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 1
 
   node_config {
     machine_type  = "c3-standard-4"
     image_type    = "COS_CONTAINERD"
-    storage_pools = ["%[5]s"]
+    storage_pools = ["%s"]
     disk_type     = "hyperdisk-balanced"
   }
 }
-`, cluster, np, networkName, subnetworkName, storagePoolResourceName, location)
+`, cluster, location, networkName, subnetworkName, np, location, storagePoolResourceName)
 }
 
 func TestAccContainerNodePool_withMachineDiskStoragePoolsUpdate(t *testing.T) {
@@ -6996,18 +6996,18 @@ provider "google" {
 
 resource "google_container_cluster" "cluster" {
   provider            = google.user-project-override
-  name                = "%[1]s"
-  location            = "%[6]s"
+  name                = "%s"
+  location            = "%s"
   initial_node_count  = 1
   deletion_protection = false
-  network             = "%[3]s"
-  subnetwork          = "%[4]s"
+  network             = "%s"
+  subnetwork          = "%s"
 }
 
 resource "google_container_node_pool" "np" {
   provider           = google.user-project-override
-  name               = "%[2]s"
-  location           = "%[6]s"
+  name               = "%s"
+  location           = "%s"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 1
 
@@ -7015,21 +7015,21 @@ resource "google_container_node_pool" "np" {
     machine_type  = "c3-standard-4"
     disk_size_gb  = 50
     disk_type     = "hyperdisk-balanced"
-    storage_pools = ["%[5]s"]
+    storage_pools = ["%s"]
   }
 }
-`, cluster, np, networkName, subnetworkName, storagePoolResourceName, location)
+`, cluster, location, networkName, subnetworkName, np, location, storagePoolResourceName)
 }
 
 func testAccContainerNodePool_acceleratorNetworkProfile_manual(clusterName, npName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "main_net" {
-  name                    = "%[1]s-main-net"
+  name                    = "%s-main-net"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "main_subnet" {
-  name                     = "%[1]s-main-subnet"
+  name                     = "%s-main-subnet"
   network                  = google_compute_network.main_net.name
   ip_cidr_range            = "10.0.0.0/24"
   region                   = "us-east1"
@@ -7038,19 +7038,19 @@ resource "google_compute_subnetwork" "main_subnet" {
 
 // The Additional Network
 resource "google_compute_network" "add_net" {
-  name                    = "%[1]s-add-net"
+  name                    = "%s-add-net"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "add_subnet" {
-  name          = "%[1]s-add-subnet"
+  name          = "%s-add-subnet"
   network       = google_compute_network.add_net.name
   ip_cidr_range = "10.1.0.0/24"
   region        = "us-east1"
 }
 
 resource "google_container_cluster" "cluster" {
-  name     = "%[1]s"
+  name     = "%s"
   location = "us-east1-d"
   
   network    = google_compute_network.main_net.id
@@ -7072,7 +7072,7 @@ resource "google_container_cluster" "cluster" {
 }
 
 resource "google_container_node_pool" "np" {
-  name     = "%[2]s"
+  name     = "%s"
   cluster  = google_container_cluster.cluster.id
   location = "us-east1-d"
   initial_node_count = 0
@@ -7112,18 +7112,18 @@ resource "google_container_node_pool" "np" {
     }
   }
 }
-`, clusterName, npName)
+`, clusterName, clusterName, clusterName, clusterName, clusterName, npName)
 }
 
 func testAccContainerNodePool_acceleratorNetworkProfile_basic(clusterName, npName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "main_net" {
-  name                    = "%[1]s-main-net"
+  name                    = "%s-main-net"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "main_subnet" {
-  name                     = "%[1]s-main-subnet"
+  name                     = "%s-main-subnet"
   network                  = google_compute_network.main_net.name
   ip_cidr_range            = "10.0.0.0/24"
   region                   = "us-east1"
@@ -7131,7 +7131,7 @@ resource "google_compute_subnetwork" "main_subnet" {
 }
 
 resource "google_container_cluster" "cluster" {
-  name     = "%[1]s"
+  name     = "%s"
   location = "us-east1-d"
   
   network    = google_compute_network.main_net.id
@@ -7152,7 +7152,7 @@ resource "google_container_cluster" "cluster" {
 }
 
 resource "google_container_node_pool" "np" {
-  name     = "%[2]s"
+  name     = "%s"
   cluster  = google_container_cluster.cluster.id
   location = "us-east1-d"
   initial_node_count = 0
@@ -7187,18 +7187,18 @@ resource "google_container_node_pool" "np" {
 
   // TEST CHANGE: Removing network_config entirely
 }
-`, clusterName, npName)
+`, clusterName, clusterName, clusterName, npName)
 }
 
 func testAccContainerNodePool_acceleratorNetworkProfile_auto(clusterName, npName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "main_net" {
-  name                    = "%[1]s-main-net"
+  name                    = "%s-main-net"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "main_subnet" {
-  name                     = "%[1]s-main-subnet"
+  name                     = "%s-main-subnet"
   network                  = google_compute_network.main_net.name
   ip_cidr_range            = "10.0.0.0/24"
   region                   = "us-east1"
@@ -7206,7 +7206,7 @@ resource "google_compute_subnetwork" "main_subnet" {
 }
 
 resource "google_container_cluster" "cluster" {
-  name     = "%[1]s"
+  name     = "%s"
   location = "us-east1-d"
   
   network    = google_compute_network.main_net.id
@@ -7227,7 +7227,7 @@ resource "google_container_cluster" "cluster" {
 }
 
 resource "google_container_node_pool" "np" {
-  name     = "%[2]s"
+  name     = "%s"
   cluster  = google_container_cluster.cluster.id
   location = "us-east1-d"
   initial_node_count = 0
@@ -7265,7 +7265,7 @@ resource "google_container_node_pool" "np" {
     accelerator_network_profile = "auto"
   }
 }
-`, clusterName, npName)
+`, clusterName, clusterName, clusterName, npName)
 }
 
 func TestAccContainerNodePool_acceleratorNetworkProfile_Lifecycle(t *testing.T) {

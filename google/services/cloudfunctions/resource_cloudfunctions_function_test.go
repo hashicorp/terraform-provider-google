@@ -568,7 +568,7 @@ func TestAccCloudFunctionsFunction_buildServiceAccount(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_buildServiceAccount(bucketName, zipFilePath, serviceAccount1, serviceAccount2, functionName, "sa1"),
 				Check: resource.TestCheckResourceAttr(funcResourceName,
 					"build_service_account",
-					fmt.Sprintf("projects/%[1]s/serviceAccounts/%s@%[1]s.iam.gserviceaccount.com", proj, serviceAccount1)),
+					fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", proj, serviceAccount1, proj)),
 			},
 			{
 				ResourceName:            funcResourceName,
@@ -580,7 +580,7 @@ func TestAccCloudFunctionsFunction_buildServiceAccount(t *testing.T) {
 				Config: testAccCloudFunctionsFunction_buildServiceAccount(bucketName, zipFilePath, serviceAccount1, serviceAccount2, functionName, "sa2"),
 				Check: resource.TestCheckResourceAttr(funcResourceName,
 					"build_service_account",
-					fmt.Sprintf("projects/%[1]s/serviceAccounts/%s@%[1]s.iam.gserviceaccount.com", proj, serviceAccount2)),
+					fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", proj, serviceAccount2, proj)),
 			},
 			{
 				ResourceName:            funcResourceName,
@@ -877,7 +877,7 @@ resource "google_storage_bucket_object" "archive" {
 }
 
 resource "google_cloudbuild_worker_pool" "pool" {
-  name     = "pool-%[3]s"
+  name     = "pool-%s"
   location = "%s"
   worker_config {
     disk_size_gb   = 100
@@ -887,7 +887,7 @@ resource "google_cloudbuild_worker_pool" "pool" {
 }
 
 resource "google_cloudfunctions_function" "function" {
-  name                  = "%[3]s"
+  name                  = "%s"
   runtime               = "nodejs20"
   description           = "test function"
   docker_registry       = "ARTIFACT_REGISTRY"
@@ -898,7 +898,7 @@ resource "google_cloudfunctions_function" "function" {
   timeout               = 61
   entry_point           = "helloGET"
   build_worker_pool		= google_cloudbuild_worker_pool.pool.id
-}`, bucketName, zipFilePath, functionName, location)
+}`, bucketName, zipFilePath, functionName, location, functionName)
 }
 
 func testAccCloudFunctionsFunction_pubsub(functionName string, bucketName string,

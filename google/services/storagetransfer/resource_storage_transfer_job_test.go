@@ -3055,20 +3055,20 @@ resource "google_storage_transfer_job" "with_sa" {
 func testAccStorageTransferJob_withTransferManifest(project, dataSourceBucketName, dataSinkBucketName, transferJobDescription, manifestObjectName string) string {
 	return fmt.Sprintf(`
 data "google_storage_transfer_project_service_account" "default" {
-  project = "%[1]s"
+  project = "%s"
 }
 
 resource "google_storage_bucket" "data_source" {
-  project                      = "%[1]s"
-  name                         = "%[2]s"
+  project                      = "%s"
+  name                         = "%s"
   location                     = "US"
   force_destroy                = true
   uniform_bucket_level_access = true
 }
 
 resource "google_storage_bucket" "data_sink" {
-  project                      = "%[1]s"
-  name                         = "%[3]s"
+  project                      = "%s"
+  name                         = "%s"
   location                     = "US"
   force_destroy                = true
   uniform_bucket_level_access = true
@@ -3087,7 +3087,7 @@ resource "google_storage_bucket_iam_member" "sink_iam" {
 }
 
 resource "google_storage_bucket_object" "manifest"{
-  name    = "%[5]s"
+  name    = "%s"
   bucket  = google_storage_bucket.data_source.name
   content = "dummy-manifest-content"
   depends_on = [
@@ -3096,8 +3096,8 @@ resource "google_storage_bucket_object" "manifest"{
 }
 
 resource "google_storage_transfer_job" "transfer_job" {
-  description = "%[4]s"
-  project     = "%[1]s"
+  description = "%s"
+  project     = "%s"
 
   transfer_spec {
     transfer_manifest {
@@ -3131,7 +3131,16 @@ resource "google_storage_transfer_job" "transfer_job" {
   ]
 
 }
-`, project, dataSourceBucketName, dataSinkBucketName, transferJobDescription, manifestObjectName)
+`,
+		project,
+		project,
+		dataSourceBucketName,
+		project,
+		dataSinkBucketName,
+		manifestObjectName,
+		transferJobDescription,
+		project,
+	)
 }
 
 func testAccStorageTransferJob_azureBlobStorageDataSourcePrivateNetwork(project, dataSinkBucketName, namespaceId, serviceIdA, serviceIdB, location, which string) string {
@@ -3141,12 +3150,12 @@ func testAccStorageTransferJob_azureBlobStorageDataSourcePrivateNetwork(project,
 	}
 	return fmt.Sprintf(`
 data "google_storage_transfer_project_service_account" "default" {
-  project = "%[1]s"
+  project = "%s"
 }
 
 resource "google_storage_bucket" "data_sink" {
-  name          = "%[2]s"
-  project       = "%[1]s"
+  name          = "%s"
+  project       = "%s"
   location      = "US"
   force_destroy = true
 }
@@ -3158,24 +3167,24 @@ resource "google_storage_bucket_iam_member" "data_sink" {
 }
 
 resource "google_service_directory_namespace" "sts_azure" {
-  project      = "%[1]s"
-  namespace_id = "%[3]s"
-  location     = "%[6]s"
+  project      = "%s"
+  namespace_id = "%s"
+  location     = "%s"
 }
 
 resource "google_service_directory_service" "sts_azure_a" {
-  service_id = "%[4]s"
+  service_id = "%s"
   namespace  = google_service_directory_namespace.sts_azure.id
 }
 
 resource "google_service_directory_service" "sts_azure_b" {
-  service_id = "%[5]s"
+  service_id = "%s"
   namespace  = google_service_directory_namespace.sts_azure.id
 }
 
 resource "google_storage_transfer_job" "transfer_job" {
   description = "Azure source with private network service"
-  project     = "%[1]s"
+  project     = "%s"
 
   transfer_spec {
     azure_blob_storage_data_source {
@@ -3185,7 +3194,7 @@ resource "google_storage_transfer_job" "transfer_job" {
       azure_credentials {
         sas_token = "fakesastoken"
       }
-      private_network_service = %[7]s
+      private_network_service = %s
     }
     gcs_data_sink {
       bucket_name = google_storage_bucket.data_sink.name
@@ -3210,26 +3219,37 @@ resource "google_storage_transfer_job" "transfer_job" {
     google_storage_bucket_iam_member.data_sink,
   ]
 }
-`, project, dataSinkBucketName, namespaceId, serviceIdA, serviceIdB, location, pnsRef)
+`,
+		project,
+		dataSinkBucketName,
+		project,
+		project,
+		namespaceId,
+		location,
+		serviceIdA,
+		serviceIdB,
+		project,
+		pnsRef,
+	)
 }
 
 func testAccStorageTransferJob_withoutTransferManifest(project, dataSourceBucketName, dataSinkBucketName, transferJobDescription string) string {
 	return fmt.Sprintf(`
 data "google_storage_transfer_project_service_account" "default" {
-  project = "%[1]s"
+  project = "%s"
 }
 
 resource "google_storage_bucket" "data_source" {
-  project                      = "%[1]s"
-  name                         = "%[2]s"
+  project                      = "%s"
+  name                         = "%s"
   location                     = "US"
   force_destroy                = true
   uniform_bucket_level_access = true
 }
 
 resource "google_storage_bucket" "data_sink" {
-  project                      = "%[1]s"
-  name                         = "%[3]s"
+  project                      = "%s"
+  name                         = "%s"
   location                     = "US"
   force_destroy                = true
   uniform_bucket_level_access = true
@@ -3248,8 +3268,8 @@ resource "google_storage_bucket_iam_member" "sink_iam" {
 }
 
 resource "google_storage_transfer_job" "transfer_job" {
-  description = "%[4]s"
-  project     = "%[1]s"
+  description = "%s"
+  project     = "%s"
 
   transfer_spec {
     gcs_data_source {
@@ -3280,5 +3300,13 @@ resource "google_storage_transfer_job" "transfer_job" {
   ]
 
 }
-`, project, dataSourceBucketName, dataSinkBucketName, transferJobDescription)
+`,
+		project,
+		project,
+		dataSourceBucketName,
+		project,
+		dataSinkBucketName,
+		transferJobDescription,
+		project,
+	)
 }

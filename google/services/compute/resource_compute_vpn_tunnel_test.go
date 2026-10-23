@@ -211,30 +211,30 @@ func TestAccComputeVpnTunnel_cipherSuite(t *testing.T) {
 func testAccComputeVpnTunnel_basicCipherSuite(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-network-%[1]s"
+  name                    = "tf-test-network-%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "foobar" {
-  name          = "tf-test-subnetwork-%[1]s"
+  name          = "tf-test-subnetwork-%s"
   network       = google_compute_network.foobar.self_link
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "tf-test-%[1]s"
+  name   = "tf-test-%s"
   region = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_ha_vpn_gateway" "foobar" {
-  name    = "tf-test-%[1]s"
+  name    = "tf-test-%s"
   network = google_compute_network.foobar.self_link
   region  = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_external_vpn_gateway" "external_gateway" {
-  name            = "tf-test-external-gateway-%[1]s"
+  name            = "tf-test-external-gateway-%s"
   redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
   description     = "An externally managed VPN gateway"
   interface {
@@ -244,7 +244,7 @@ resource "google_compute_external_vpn_gateway" "external_gateway" {
 }
 
 resource "google_compute_router" "foobar" {
-  name    = "tf-test-router-%[1]s"
+  name    = "tf-test-router-%s"
   region  = google_compute_subnetwork.foobar.region
   network = google_compute_network.foobar.self_link
   bgp {
@@ -253,7 +253,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_vpn_tunnel" "test_tunnel" {
-  name          = "tf-test-ha-vpn-tunnel-%[1]s"
+  name          = "tf-test-ha-vpn-tunnel-%s"
   region        = "us-central1"
   vpn_gateway = google_compute_ha_vpn_gateway.foobar.id
   peer_external_gateway           = google_compute_external_vpn_gateway.external_gateway.id
@@ -271,36 +271,36 @@ resource "google_compute_vpn_tunnel" "test_tunnel" {
     }
   }
 }
-`, suffix)
+`, suffix, suffix, suffix, suffix, suffix, suffix, suffix)
 }
 
 func testAccComputeVpnTunnel_regionFromGateway(suffix, region string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-%[1]s"
+  name                    = "tf-test-%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "foobar" {
-  name          = "tf-test-%[1]s"
+  name          = "tf-test-%s"
   network       = google_compute_network.foobar.self_link
   ip_cidr_range = "10.0.0.0/16"
-  region        = "%[2]s"
+  region        = "%s"
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "tf-test-%[1]s"
+  name   = "tf-test-%s"
   region = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_vpn_gateway" "foobar" {
-  name    = "tf-test-%[1]s"
+  name    = "tf-test-%s"
   network = google_compute_network.foobar.self_link
   region  = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_forwarding_rule" "foobar_esp" {
-  name        = "tf-test-%[1]s-esp"
+  name        = "tf-test-%s-esp"
   region      = google_compute_vpn_gateway.foobar.region
   ip_protocol = "ESP"
   ip_address  = google_compute_address.foobar.address
@@ -308,7 +308,7 @@ resource "google_compute_forwarding_rule" "foobar_esp" {
 }
 
 resource "google_compute_forwarding_rule" "foobar_udp500" {
-  name        = "tf-test-%[1]s-udp500"
+  name        = "tf-test-%s-udp500"
   region      = google_compute_forwarding_rule.foobar_esp.region
   ip_protocol = "UDP"
   port_range  = "500-500"
@@ -317,7 +317,7 @@ resource "google_compute_forwarding_rule" "foobar_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "foobar_udp4500" {
-  name        = "tf-test-%[1]s-udp4500"
+  name        = "tf-test-%s-udp4500"
   region      = google_compute_forwarding_rule.foobar_udp500.region
   ip_protocol = "UDP"
   port_range  = "4500-4500"
@@ -326,7 +326,7 @@ resource "google_compute_forwarding_rule" "foobar_udp4500" {
 }
 
 resource "google_compute_vpn_tunnel" "foobar" {
-  name                    = "tf-test-%[1]s"
+  name                    = "tf-test-%s"
   target_vpn_gateway      = google_compute_vpn_gateway.foobar.self_link
   shared_secret           = "unguessable"
   peer_ip                 = "8.8.8.8"
@@ -335,36 +335,36 @@ resource "google_compute_vpn_tunnel" "foobar" {
 
   depends_on = [google_compute_forwarding_rule.foobar_udp4500]
 }
-`, suffix, region)
+`, suffix, suffix, region, suffix, suffix, suffix, suffix, suffix, suffix)
 }
 
 func testAccComputeVpnTunnelRouter(suffix, router string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-%[1]s"
+  name                    = "tf-test-%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "foobar" {
-  name          = "tf-test-subnetwork-%[1]s"
+  name          = "tf-test-subnetwork-%s"
   network       = google_compute_network.foobar.self_link
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "tf-test-%[1]s"
+  name   = "tf-test-%s"
   region = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_ha_vpn_gateway" "foobar" {
-  name    = "tf-test-%[1]s"
+  name    = "tf-test-%s"
   network = google_compute_network.foobar.self_link
   region  = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_external_vpn_gateway" "external_gateway" {
-  name            = "tf-test-external-gateway-%[1]s"
+  name            = "tf-test-external-gateway-%s"
   redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
   description     = "An externally managed VPN gateway"
   interface {
@@ -374,7 +374,7 @@ resource "google_compute_external_vpn_gateway" "external_gateway" {
 }
 
 resource "google_compute_router" "foobar" {
-  name    = "%[2]s"
+  name    = "%s"
   region  = google_compute_subnetwork.foobar.region
   network = google_compute_network.foobar.self_link
   bgp {
@@ -383,7 +383,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_vpn_tunnel" "foobar" {
-  name               = "tf-test-%[1]s"
+  name               = "tf-test-%s"
   region             = google_compute_subnetwork.foobar.region
   vpn_gateway = google_compute_ha_vpn_gateway.foobar.id
   peer_external_gateway           = google_compute_external_vpn_gateway.external_gateway.id
@@ -392,36 +392,36 @@ resource "google_compute_vpn_tunnel" "foobar" {
   router             = google_compute_router.foobar.self_link
   vpn_gateway_interface           = 0  
 }
-`, suffix, router)
+`, suffix, suffix, suffix, suffix, suffix, router, suffix)
 }
 
 func testAccComputeVpnTunnelRouterWithSharedSecretWo(suffix, router string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-%[1]s"
+  name                    = "tf-test-%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "foobar" {
-  name          = "tf-test-subnetwork-%[1]s"
+  name          = "tf-test-subnetwork-%s"
   network       = google_compute_network.foobar.self_link
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "tf-test-%[1]s"
+  name   = "tf-test-%s"
   region = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_ha_vpn_gateway" "foobar" {
-  name    = "tf-test-%[1]s"
+  name    = "tf-test-%s"
   network = google_compute_network.foobar.self_link
   region  = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_external_vpn_gateway" "external_gateway" {
-  name            = "tf-test-external-gateway-%[1]s"
+  name            = "tf-test-external-gateway-%s"
   redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
   description     = "An externally managed VPN gateway"
   interface {
@@ -431,7 +431,7 @@ resource "google_compute_external_vpn_gateway" "external_gateway" {
 }
 
 resource "google_compute_router" "foobar" {
-  name    = "%[2]s"
+  name    = "%s"
   region  = google_compute_subnetwork.foobar.region
   network = google_compute_network.foobar.self_link
   bgp {
@@ -440,7 +440,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_vpn_tunnel" "foobar" {
-  name                            = "tf-test-%[1]s"
+  name                            = "tf-test-%s"
   region                          = google_compute_subnetwork.foobar.region
   vpn_gateway                     = google_compute_ha_vpn_gateway.foobar.id
   peer_external_gateway           = google_compute_external_vpn_gateway.external_gateway.id
@@ -450,36 +450,36 @@ resource "google_compute_vpn_tunnel" "foobar" {
   router                          = google_compute_router.foobar.self_link
   vpn_gateway_interface           = 0  
 }
-`, suffix, router)
+`, suffix, suffix, suffix, suffix, suffix, router, suffix)
 }
 
 func testAccComputeVpnTunnelRouterWithSharedSecretWo_update(suffix, router string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-%[1]s"
+  name                    = "tf-test-%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "foobar" {
-  name          = "tf-test-subnetwork-%[1]s"
+  name          = "tf-test-subnetwork-%s"
   network       = google_compute_network.foobar.self_link
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "tf-test-%[1]s"
+  name   = "tf-test-%s"
   region = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_ha_vpn_gateway" "foobar" {
-  name    = "tf-test-%[1]s"
+  name    = "tf-test-%s"
   network = google_compute_network.foobar.self_link
   region  = google_compute_subnetwork.foobar.region
 }
 
 resource "google_compute_external_vpn_gateway" "external_gateway" {
-  name            = "tf-test-external-gateway-%[1]s"
+  name            = "tf-test-external-gateway-%s"
   redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
   description     = "An externally managed VPN gateway"
   interface {
@@ -489,7 +489,7 @@ resource "google_compute_external_vpn_gateway" "external_gateway" {
 }
 
 resource "google_compute_router" "foobar" {
-  name    = "%[2]s"
+  name    = "%s"
   region  = google_compute_subnetwork.foobar.region
   network = google_compute_network.foobar.self_link
   bgp {
@@ -498,7 +498,7 @@ resource "google_compute_router" "foobar" {
 }
 
 resource "google_compute_vpn_tunnel" "foobar" {
-  name                            = "tf-test-%[1]s"
+  name                            = "tf-test-%s"
   region                          = google_compute_subnetwork.foobar.region
   vpn_gateway                     = google_compute_ha_vpn_gateway.foobar.id
   peer_external_gateway           = google_compute_external_vpn_gateway.external_gateway.id
@@ -508,29 +508,29 @@ resource "google_compute_vpn_tunnel" "foobar" {
   router                          = google_compute_router.foobar.self_link
   vpn_gateway_interface           = 0  
 }
-`, suffix, router)
+`, suffix, suffix, suffix, suffix, suffix, router, suffix)
 }
 
 func testAccComputeVpnTunnelDefaultTrafficSelectors(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name                    = "tf-test-%[1]s"
+  name                    = "tf-test-%s"
   auto_create_subnetworks = "true"
 }
 
 resource "google_compute_address" "foobar" {
-  name   = "tf-test-%[1]s"
+  name   = "tf-test-%s"
   region = "us-central1"
 }
 
 resource "google_compute_vpn_gateway" "foobar" {
-  name    = "tf-test-%[1]s"
+  name    = "tf-test-%s"
   network = google_compute_network.foobar.self_link
   region  = google_compute_address.foobar.region
 }
 
 resource "google_compute_forwarding_rule" "foobar_esp" {
-  name        = "tf-test-%[1]s-esp"
+  name        = "tf-test-%s-esp"
   region      = google_compute_vpn_gateway.foobar.region
   ip_protocol = "ESP"
   ip_address  = google_compute_address.foobar.address
@@ -538,7 +538,7 @@ resource "google_compute_forwarding_rule" "foobar_esp" {
 }
 
 resource "google_compute_forwarding_rule" "foobar_udp500" {
-  name        = "tf-test-%[1]s-udp500"
+  name        = "tf-test-%s-udp500"
   region      = google_compute_forwarding_rule.foobar_esp.region
   ip_protocol = "UDP"
   port_range  = "500-500"
@@ -547,7 +547,7 @@ resource "google_compute_forwarding_rule" "foobar_udp500" {
 }
 
 resource "google_compute_forwarding_rule" "foobar_udp4500" {
-  name        = "tf-test-%[1]s-udp4500"
+  name        = "tf-test-%s-udp4500"
   region      = google_compute_forwarding_rule.foobar_udp500.region
   ip_protocol = "UDP"
   port_range  = "4500-4500"
@@ -556,13 +556,13 @@ resource "google_compute_forwarding_rule" "foobar_udp4500" {
 }
 
 resource "google_compute_vpn_tunnel" "foobar" {
-  name               = "tf-test-%[1]s"
+  name               = "tf-test-%s"
   region             = google_compute_forwarding_rule.foobar_udp4500.region
   target_vpn_gateway = google_compute_vpn_gateway.foobar.self_link
   shared_secret      = "unguessable"
   peer_ip            = "8.8.8.8"
 }
-`, suffix)
+`, suffix, suffix, suffix, suffix, suffix, suffix, suffix)
 }
 
 func testAccComputeVpnTunnel_resourceManagerTags(context map[string]interface{}) string {
