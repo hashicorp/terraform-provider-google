@@ -668,12 +668,12 @@ data "google_compute_image" "my_image" {
 }
 
 resource "google_compute_network" "ig_network" {
-  name                    = "%[1]s"
+  name                    = "%s"
   auto_create_subnetworks = true
 }
 
 resource "google_compute_instance" "ig_instance" {
-  name           = "%[1]s"
+  name           = "%s"
   machine_type   = "e2-medium"
   can_ip_forward = false
   zone           = "us-central1-c"
@@ -691,16 +691,16 @@ resource "google_compute_instance" "ig_instance" {
 
 resource "google_compute_instance_group" "with_instance" {
   description = "Terraform test instance group"
-  name        = "%[1]s-with-instance"
+  name        = "%s-with-instance"
   zone        = "us-central1-c"
   instances   = [google_compute_instance.ig_instance.self_link]
 }
 
 resource "google_compute_instance_group" "without_instance" {
   description = "Terraform test instance group"
-  name        = "%[1]s-without-instance"
+  name        = "%s-without-instance"
   zone        = "us-central1-c"
   network     = google_compute_network.ig_network.self_link
 }
-`, instance)
+`, instance, instance, instance, instance)
 }

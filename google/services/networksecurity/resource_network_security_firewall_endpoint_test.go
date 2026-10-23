@@ -69,10 +69,10 @@ func TestAccNetworkSecurityFirewallEndpoints_basic(t *testing.T) {
 func testAccNetworkSecurityFirewallEndpoints_basic(orgId string, billingProjectId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_firewall_endpoint" "foobar" {
-  name     = "tf-test-my-firewall-endpoint%[1]s"
-  parent   = "organizations/%[2]s"
+  name     = "tf-test-my-firewall-endpoint%s"
+  parent   = "organizations/%s"
   location = "us-central1-a"
-  billing_project_id = "%[3]s"
+  billing_project_id = "%s"
 
   labels = {
     foo = "bar"
@@ -84,10 +84,10 @@ resource "google_network_security_firewall_endpoint" "foobar" {
 func testAccNetworkSecurityFirewallEndpoints_update(orgId string, billingProjectId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_firewall_endpoint" "foobar" {
-  name     = "tf-test-my-firewall-endpoint%[1]s"
-  parent   = "organizations/%[2]s"
+  name     = "tf-test-my-firewall-endpoint%s"
+  parent   = "organizations/%s"
   location = "us-central1-a"
-  billing_project_id = "%[3]s"
+  billing_project_id = "%s"
 
   labels = {
     foo = "bar-updated"
@@ -124,10 +124,10 @@ func TestAccNetworkSecurityFirewallEndpoints_enableJumboFrames(t *testing.T) {
 func testAccNetworkSecurityFirewallEndpoints_enableJumboFrames(orgId string, billingProjectId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_firewall_endpoint" "foobar" {
-  name     = "tf-test-my-firewall-endpoint%[1]s"
-  parent   = "organizations/%[2]s"
+  name     = "tf-test-my-firewall-endpoint%s"
+  parent   = "organizations/%s"
   location = "us-central1-a"
-  billing_project_id = "%[3]s"
+  billing_project_id = "%s"
   endpoint_settings {
     jumbo_frames_enabled = true
   }
@@ -213,25 +213,25 @@ func TestAccNetworkSecurityFirewallEndpoints_wildfireSettings(t *testing.T) {
 func testAccNetworkSecurityFirewallEndpoints_wildfireSettingsUnset(projectId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_firewall_endpoint" "foobar" {
-  name               = "tf-test-my-firewall-endpoint%[1]s"
-  parent             = "projects/%[2]s"
+  name               = "tf-test-my-firewall-endpoint%s"
+  parent             = "projects/%s"
   location           = "us-central1-a"
-  billing_project_id = "%[2]s"
+  billing_project_id = "%s"
 
   labels = {
     foo = "bar"
   }
 }
-`, randomSuffix, projectId)
+`, randomSuffix, projectId, projectId)
 }
 
 func testAccNetworkSecurityFirewallEndpoints_wildfireSettings(projectId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_firewall_endpoint" "foobar" {
-  name               = "tf-test-my-firewall-endpoint%[1]s"
-  parent             = "projects/%[2]s"
+  name               = "tf-test-my-firewall-endpoint%s"
+  parent             = "projects/%s"
   location           = "us-central1-a"
-  billing_project_id = "%[2]s"
+  billing_project_id = "%s"
 
   wildfire_settings {
     enabled                                 = true
@@ -249,16 +249,16 @@ resource "google_network_security_firewall_endpoint" "foobar" {
     foo = "bar"
   }
 }
-`, randomSuffix, projectId)
+`, randomSuffix, projectId, projectId)
 }
 
 func testAccNetworkSecurityFirewallEndpoints_wildfireSettingsUpdate(projectId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_firewall_endpoint" "foobar" {
-  name               = "tf-test-my-firewall-endpoint%[1]s"
-  parent             = "projects/%[2]s"
+  name               = "tf-test-my-firewall-endpoint%s"
+  parent             = "projects/%s"
   location           = "us-central1-a"
-  billing_project_id = "%[2]s"
+  billing_project_id = "%s"
 
   wildfire_settings {
     enabled                                 = false
@@ -276,7 +276,7 @@ resource "google_network_security_firewall_endpoint" "foobar" {
     foo = "bar-updated"
   }
 }
-`, randomSuffix, projectId)
+`, randomSuffix, projectId, projectId)
 }
 
 func TestAccNetworkSecurityFirewallEndpoints_endpointSettings(t *testing.T) {
@@ -320,10 +320,10 @@ func TestAccNetworkSecurityFirewallEndpoints_endpointSettings(t *testing.T) {
 func testAccNetworkSecurityFirewallEndpoints_endpointSettings(projectId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_firewall_endpoint" "foobar" {
-  name               = "tf-test-my-firewall-endpoint%[1]s"
-  parent             = "projects/%[2]s"
+  name               = "tf-test-my-firewall-endpoint%s"
+  parent             = "projects/%s"
   location           = "us-central1-a"
-  billing_project_id = "%[2]s"
+  billing_project_id = "%s"
 
   endpoint_settings {
     content_cloud_region          = "US_CENTRAL"
@@ -334,16 +334,16 @@ resource "google_network_security_firewall_endpoint" "foobar" {
     foo = "bar"
   }
 }
-`, randomSuffix, projectId)
+`, randomSuffix, projectId, projectId)
 }
 
 func testAccNetworkSecurityFirewallEndpoints_endpointSettingsUpdate(projectId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_firewall_endpoint" "foobar" {
-  name               = "tf-test-my-firewall-endpoint%[1]s"
-  parent             = "projects/%[2]s"
+  name               = "tf-test-my-firewall-endpoint%s"
+  parent             = "projects/%s"
   location           = "us-central1-a"
-  billing_project_id = "%[2]s"
+  billing_project_id = "%s"
 
   endpoint_settings {
     content_cloud_region          = "CANADA"
@@ -354,7 +354,7 @@ resource "google_network_security_firewall_endpoint" "foobar" {
     foo = "bar"
   }
 }
-`, randomSuffix, projectId)
+`, randomSuffix, projectId, projectId)
 }
 
 func testAccCheckNetworkSecurityFirewallEndpointDestroyProducer(t *testing.T) func(s *terraform.State) error {

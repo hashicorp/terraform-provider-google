@@ -9856,7 +9856,7 @@ resource "google_compute_reservation" "reservation" {
 }
 
 resource "google_compute_instance" "foobar" {
-  name         = "%[1]s"
+  name         = "%s"
   machine_type = "n1-standard-1"
   zone         = "us-central1-a"
 
@@ -9875,11 +9875,11 @@ resource "google_compute_instance" "foobar" {
 
 	specific_reservation {
 		key    = "compute.googleapis.com/reservation-name"
-		values = ["%[1]s"]
+		values = ["%s"]
 	}
   }
 }
-`, instanceName)
+`, instanceName, instanceName, instanceName)
 }
 
 func testAccComputeInstance_hostErrorTimeoutSeconds(context map[string]interface{}) string {

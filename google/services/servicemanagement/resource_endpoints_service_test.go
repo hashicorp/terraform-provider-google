@@ -125,15 +125,15 @@ func TestAccEndpointsService_openapiNotPreComputeConfigId(t *testing.T) {
 func testAccEndpointsService_basic(serviceId, project, rev string) string {
 	return fmt.Sprintf(`
 resource "google_endpoints_service" "endpoints_service" {
-  service_name   = "%[1]s.endpoints.%[2]s.cloud.goog"
-  project        = "%[2]s"
+  service_name   = "%s.endpoints.%s.cloud.goog"
+  project        = "%s"
   openapi_config = <<EOF
 swagger: "2.0"
 info:
   description: "A simple Google Cloud Endpoints API example."
-  title: "Endpoints Example, rev. %[3]s"
+  title: "Endpoints Example, rev. %s"
   version: "1.0.0"
-host: "%[1]s.endpoints.%[2]s.cloud.goog"
+host: "%s.endpoints.%s.cloud.goog"
 basePath: "/"
 consumes:
 - "application/json"
@@ -170,18 +170,18 @@ definitions:
 EOF
 
 }
-`, serviceId, project, rev)
+`, serviceId, project, project, rev, serviceId, project)
 }
 
 func testAccEndpointsService_grpc(serviceId, project string) string {
 	return fmt.Sprintf(`
 resource "google_endpoints_service" "endpoints_service" {
-  service_name = "%[1]s.endpoints.%[2]s.cloud.goog"
-  project      = "%[2]s"
+  service_name = "%s.endpoints.%s.cloud.goog"
+  project      = "%s"
   grpc_config  = <<EOF
 type: google.api.Service
 config_version: 3
-name: %[1]s.endpoints.%[2]s.cloud.goog
+name: %s.endpoints.%s.cloud.goog
 usage:
   rules:
   - selector: endpoints.examples.bookstore.Bookstore.ListShelves
@@ -190,32 +190,32 @@ EOF
 
   protoc_output_base64 = filebase64("test-fixtures/test_api_descriptor.pb")
 }
-`, serviceId, project)
+`, serviceId, project, project, serviceId, project)
 }
 
 func testAccEndpointsService_grpcNotPreComputeConfigIdByGrpcConfig(serviceId, project, parent, description string) string {
 	return fmt.Sprintf(`
 resource "google_tags_tag_key" "key1" {
-  parent      = "%[3]s"
-  short_name  = "endpoints-%[1]s-1"
-  description = "%[4]s"
+  parent      = "%s"
+  short_name  = "endpoints-%s-1"
+  description = "%s"
 }
 
 resource "google_tags_tag_key" "key2" {
-  parent      = "%[3]s"
-  short_name  = "endpoints-%[1]s-2"
+  parent      = "%s"
+  short_name  = "endpoints-%s-2"
   lifecycle {
     replace_triggered_by = [google_tags_tag_key.key1.description]
   }
 }
 
 resource "google_endpoints_service" "endpoints_service" {
-  service_name = "%[1]s.endpoints.%[2]s.cloud.goog"
-  project      = "%[2]s"
+  service_name = "%s.endpoints.%s.cloud.goog"
+  project      = "%s"
   grpc_config  = <<EOF
 type: google.api.Service
 config_version: 3
-name: %[1]s.endpoints.%[2]s.cloud.goog
+name: %s.endpoints.%s.cloud.goog
 title: Test ${google_tags_tag_key.key2.namespaced_name}
 usage:
   rules:
@@ -225,34 +225,45 @@ EOF
 
   protoc_output_base64 = filebase64("test-fixtures/test_api_descriptor.pb")
 }
-`, serviceId, project, parent, description)
+`,
+		parent,
+		serviceId,
+		description,
+		parent,
+		serviceId,
+		serviceId,
+		project,
+		project,
+		serviceId,
+		project,
+	)
 }
 
 func testAccEndpointsService_openapiNotPreComputeConfigId(serviceId, project, parent, description string) string {
 	return fmt.Sprintf(`
 resource "google_tags_tag_key" "key1" {
-  parent      = "%[3]s"
-  short_name  = "endpoints-%[1]s-1"
-  description = "%[4]s"
+  parent      = "%s"
+  short_name  = "endpoints-%s-1"
+  description = "%s"
 }
 
 resource "google_tags_tag_key" "key2" {
-  parent      = "%[3]s"
-  short_name  = "endpoints-%[1]s-2"
+  parent      = "%s"
+  short_name  = "endpoints-%s-2"
   lifecycle {
     replace_triggered_by = [google_tags_tag_key.key1.description]
   }
 }
 resource "google_endpoints_service" "endpoints_service" {
-  service_name   = "%[1]s.endpoints.%[2]s.cloud.goog"
-  project        = "%[2]s"
+  service_name   = "%s.endpoints.%s.cloud.goog"
+  project        = "%s"
   openapi_config = <<EOF
 swagger: "2.0"
 info:
   description: "${google_tags_tag_key.key2.namespaced_name}"
   title: "Endpoints Example, rev. 1"
   version: "1.0.0"
-host: "%[1]s.endpoints.%[2]s.cloud.goog"
+host: "%s.endpoints.%s.cloud.goog"
 basePath: "/"
 consumes:
 - "application/json"
@@ -290,7 +301,18 @@ EOF
 
 }
 
-`, serviceId, project, parent, description)
+`,
+		parent,
+		serviceId,
+		description,
+		parent,
+		serviceId,
+		serviceId,
+		project,
+		project,
+		serviceId,
+		project,
+	)
 }
 
 func testAccCheckEndpointExistsByName(t *testing.T, serviceId string) resource.TestCheckFunc {

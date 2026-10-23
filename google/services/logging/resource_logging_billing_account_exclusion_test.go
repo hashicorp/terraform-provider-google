@@ -167,24 +167,34 @@ resource "google_logging_billing_account_exclusion" "basic" {
 func testAccLoggingBillingAccountExclusion_multipleCfg(exclusionName, billingAccount string) string {
 	return fmt.Sprintf(`
 resource "google_logging_billing_account_exclusion" "basic0" {
-	name             = "%[1]s0"
-	billing_account  = "%[2]s"
+	name             = "%s0"
+	billing_account  = "%s"
 	description      = "Basic BillingAccount Logging Exclusion"
-	filter           = "logName=\"projects/%[3]s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
 
 resource "google_logging_billing_account_exclusion" "basic1" {
-	name             = "%[1]s1"
-	billing_account  = "%[2]s"
+	name             = "%s1"
+	billing_account  = "%s"
 	description      = "Basic BillingAccount Logging Exclusion"
-	filter           = "logName=\"projects/%[3]s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
 
 resource "google_logging_billing_account_exclusion" "basic2" {
-	name             = "%[1]s2"
-	billing_account  = "%[2]s"
+	name             = "%s2"
+	billing_account  = "%s"
 	description      = "Basic BillingAccount Logging Exclusion"
-	filter           = "logName=\"projects/%[3]s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+	filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
 }
-`, exclusionName, billingAccount, envvar.GetTestProjectFromEnv())
+`,
+		exclusionName,
+		billingAccount,
+		envvar.GetTestProjectFromEnv(),
+		exclusionName,
+		billingAccount,
+		envvar.GetTestProjectFromEnv(),
+		exclusionName,
+		billingAccount,
+		envvar.GetTestProjectFromEnv(),
+	)
 }

@@ -1242,35 +1242,35 @@ resource "google_compute_router_nat" "foobar" {
 func testAccComputeRouterNatUpdateEndpointType(routerName string, endpointType string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "foobar" {
-  name = "%[1]s-net"
+  name = "%s-net"
 }
 
 resource "google_compute_subnetwork" "foobar" {
-  name          = "%[1]s-subnet"
+  name          = "%s-subnet"
   network       = google_compute_network.foobar.self_link
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
 }
 
 resource "google_compute_router" "foobar" {
-  name    = "%[1]s"
+  name    = "%s"
   region  = google_compute_subnetwork.foobar.region
   network = google_compute_network.foobar.self_link
 }
 
 resource "google_compute_router_nat" "foobar" {
-  name                               = "%[1]s"
+  name                               = "%s"
   router                             = google_compute_router.foobar.name
   region                             = google_compute_router.foobar.region
   nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
-  endpoint_types                     = [ "%[2]s" ]
+  endpoint_types                     = [ "%s" ]
   log_config {
     enable = true
     filter = "ERRORS_ONLY"
   }
 }
-`, routerName, endpointType)
+`, routerName, routerName, routerName, routerName, endpointType)
 }
 
 func testAccComputeRouterNatUpdateToNatIPsId(routerName string) string {

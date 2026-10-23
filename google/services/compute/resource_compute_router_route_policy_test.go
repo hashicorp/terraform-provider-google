@@ -50,18 +50,18 @@ func TestAccComputeRouterRoutePolicy_PriorityZero(t *testing.T) {
 func testAccComputeRouterRoutePolicyPriorityZero(routerName, routePolicyName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "vpc" {
-  name                    = "%[1]s"
+  name                    = "%s"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_router" "router" {
-  name    = "%[1]s"
+  name    = "%s"
   region  = "us-central1"
   network = google_compute_network.vpc.id
 }
 
 resource "google_compute_router_route_policy" "route_policy" {
-  name    = "%[2]s"
+  name    = "%s"
   router  = google_compute_router.router.name
   region  = "us-central1"
   type    = "ROUTE_POLICY_TYPE_IMPORT"
@@ -84,5 +84,5 @@ resource "google_compute_router_route_policy" "route_policy" {
     }
   }
 }
-`, routerName, routePolicyName)
+`, routerName, routerName, routePolicyName)
 }
