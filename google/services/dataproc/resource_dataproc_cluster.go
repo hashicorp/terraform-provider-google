@@ -140,6 +140,9 @@ var (
 		"cluster_config.0.endpoint_config",
 		"cluster_config.0.dataproc_metric_config",
 		"cluster_config.0.auxiliary_node_groups",
+		"cluster_config.0.master_flexible_config",
+		"cluster_config.0.worker_flexible_config",
+		"cluster_config.0.secondary_worker_flexible_config",
 	}
 )
 
@@ -2446,6 +2449,140 @@ by Dataproc`,
 								},
 							},
 						},
+						"master_flexible_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							Computed:     true,
+							MaxItems:     1,
+							Description:  `The configuration for the master flexible instance group in High Obtainability (HO) mode.`,
+							ConflictsWith: []string{
+								"cluster_config.0.master_config",
+								"cluster_config.0.gce_cluster_config.0.zone",
+							},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"num_instances": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      1,
+										ForceNew:     true,
+										ValidateFunc: validation.IntInSlice([]int{1}),
+										Description:  `Specifies the number of master instances to create. In High Obtainability (HO) mode, this must be 1. Defaults to 1. Changing this forces a new resource to be created.`,
+									},
+									"core_count": {
+										Type:         schema.TypeInt,
+										Required:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.IntInSlice([]int{2, 4, 8, 16, 32}),
+										Description:  `The number of vCPUs per instance. Must be a power of 2: 2, 4, 8, 16, or 32. Changing this forces a new resource to be created.`,
+									},
+									"hardware_class": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										Default:      "STANDARD",
+										ValidateFunc: validation.StringInSlice([]string{"STANDARD", "PERFORMANCE"}, false),
+										Description:  `The hardware class of instances. Allowed values are "STANDARD" and "PERFORMANCE". Defaults to "STANDARD". Changing this forces a new resource to be created.`,
+									},
+									"boot_disk_size_gb": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The boot disk size in GB. Changing this forces a new resource to be created.`,
+									},
+								},
+							},
+						},
+						"worker_flexible_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							Computed:     true,
+							MaxItems:     1,
+							Description:  `The configuration for the worker flexible instance group in High Obtainability (HO) mode.`,
+							ConflictsWith: []string{
+								"cluster_config.0.worker_config",
+								"cluster_config.0.gce_cluster_config.0.zone",
+							},
+							RequiredWith: []string{"cluster_config.0.master_flexible_config"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"num_instances": {
+										Type:         schema.TypeInt,
+										Required:     true,
+										ValidateFunc: validation.IntAtLeast(2),
+										Description:  `Specifies the number of worker instances to create. Represents the desired capacity of the group and is updatable in place.`,
+									},
+									"core_count": {
+										Type:         schema.TypeInt,
+										Required:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.IntInSlice([]int{2, 4, 8, 16, 32}),
+										Description:  `The number of vCPUs per instance. Must be a power of 2: 2, 4, 8, 16, or 32. Changing this forces a new resource to be created.`,
+									},
+									"hardware_class": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										Default:      "STANDARD",
+										ValidateFunc: validation.StringInSlice([]string{"STANDARD", "PERFORMANCE"}, false),
+										Description:  `The hardware class of instances. Allowed values are "STANDARD" and "PERFORMANCE". Defaults to "STANDARD". Changing this forces a new resource to be created.`,
+									},
+									"boot_disk_size_gb": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The boot disk size in GB. Changing this forces a new resource to be created.`,
+									},
+								},
+							},
+						},
+						"secondary_worker_flexible_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							AtLeastOneOf: clusterConfigKeys,
+							Computed:     true,
+							MaxItems:     1,
+							Description:  `The configuration for the secondary worker flexible instance group in High Obtainability (HO) mode.`,
+							ConflictsWith: []string{
+								"cluster_config.0.preemptible_worker_config",
+								"cluster_config.0.gce_cluster_config.0.zone",
+							},
+							RequiredWith: []string{"cluster_config.0.master_flexible_config"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"num_instances": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Default:      0,
+										ValidateFunc: validation.IntAtLeast(0),
+										Description:  `Specifies the number of secondary worker instances to create. Represents the desired capacity of the group and is updatable in place. Defaults to 0; can be scaled down to 0.`,
+									},
+									"core_count": {
+										Type:         schema.TypeInt,
+										Required:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.IntInSlice([]int{2, 4, 8, 16, 32}),
+										Description:  `The number of vCPUs per instance. Must be a power of 2: 2, 4, 8, 16, or 32. Changing this forces a new resource to be created.`,
+									},
+									"hardware_class": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ForceNew:     true,
+										Default:      "STANDARD",
+										ValidateFunc: validation.StringInSlice([]string{"STANDARD", "PERFORMANCE"}, false),
+										Description:  `The hardware class of instances. Allowed values are "STANDARD" and "PERFORMANCE". Defaults to "STANDARD". Changing this forces a new resource to be created.`,
+									},
+									"boot_disk_size_gb": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The boot disk size in GB. Changing this forces a new resource to be created.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -2863,6 +3000,60 @@ func expandClusterConfig(d *schema.ResourceData, config *transport_tpg.Config) (
 	if v, ok := d.GetOk("cluster_config.0.auxiliary_node_groups"); ok {
 		log.Println("[INFO] got auxiliary node group config")
 		conf.AuxiliaryNodeGroups = expandAuxiliaryNodeGroupsConfig(v)
+	}
+
+	if cfg, ok := configOptions(d, "cluster_config.0.master_flexible_config"); ok {
+		log.Println("[INFO] got master_flexible_config")
+		conf.MasterFlexibleConfig = &dataproc.FlexibleInstanceGroupConfig{}
+		if v, ok := cfg["num_instances"]; ok {
+			conf.MasterFlexibleConfig.NumInstances = int64(v.(int))
+		}
+		if v, ok := cfg["core_count"]; ok {
+			conf.MasterFlexibleConfig.CoreCount = int64(v.(int))
+		}
+		if v, ok := cfg["hardware_class"]; ok {
+			conf.MasterFlexibleConfig.HardwareClass = v.(string)
+		}
+		if v, ok := cfg["boot_disk_size_gb"]; ok {
+			conf.MasterFlexibleConfig.BootDiskSizeGb = int64(v.(int))
+		}
+	}
+
+	if cfg, ok := configOptions(d, "cluster_config.0.worker_flexible_config"); ok {
+		log.Println("[INFO] got worker_flexible_config")
+		conf.WorkerFlexibleConfig = &dataproc.FlexibleInstanceGroupConfig{}
+		if v, ok := cfg["num_instances"]; ok {
+			conf.WorkerFlexibleConfig.NumInstances = int64(v.(int))
+		}
+		if v, ok := cfg["core_count"]; ok {
+			conf.WorkerFlexibleConfig.CoreCount = int64(v.(int))
+		}
+		if v, ok := cfg["hardware_class"]; ok {
+			conf.WorkerFlexibleConfig.HardwareClass = v.(string)
+		}
+		if v, ok := cfg["boot_disk_size_gb"]; ok {
+			conf.WorkerFlexibleConfig.BootDiskSizeGb = int64(v.(int))
+		}
+	}
+
+	if cfg, ok := configOptions(d, "cluster_config.0.secondary_worker_flexible_config"); ok {
+		log.Println("[INFO] got secondary_worker_flexible_config")
+		conf.SecondaryWorkerFlexibleConfig = &dataproc.FlexibleInstanceGroupConfig{}
+		if v, ok := cfg["num_instances"]; ok {
+			conf.SecondaryWorkerFlexibleConfig.NumInstances = int64(v.(int))
+			if conf.SecondaryWorkerFlexibleConfig.NumInstances == 0 {
+				conf.SecondaryWorkerFlexibleConfig.ForceSendFields = append(conf.SecondaryWorkerFlexibleConfig.ForceSendFields, "NumInstances")
+			}
+		}
+		if v, ok := cfg["core_count"]; ok {
+			conf.SecondaryWorkerFlexibleConfig.CoreCount = int64(v.(int))
+		}
+		if v, ok := cfg["hardware_class"]; ok {
+			conf.SecondaryWorkerFlexibleConfig.HardwareClass = v.(string)
+		}
+		if v, ok := cfg["boot_disk_size_gb"]; ok {
+			conf.SecondaryWorkerFlexibleConfig.BootDiskSizeGb = int64(v.(int))
+		}
 	}
 	return conf, nil
 }
@@ -3455,6 +3646,26 @@ func resourceDataprocClusterUpdate(d *schema.ResourceData, meta interface{}) err
 		updMask = append(updMask, "config.secondary_worker_config.num_instances")
 	}
 
+	if d.HasChange("cluster_config.0.worker_flexible_config.0.num_instances") {
+		desiredNumWorks := d.Get("cluster_config.0.worker_flexible_config.0.num_instances").(int)
+		cluster.Config.WorkerFlexibleConfig = &dataproc.FlexibleInstanceGroupConfig{
+			NumInstances:    int64(desiredNumWorks),
+			ForceSendFields: []string{"NumInstances"},
+		}
+
+		updMask = append(updMask, "config.worker_flexible_config.num_instances")
+	}
+
+	if d.HasChange("cluster_config.0.secondary_worker_flexible_config.0.num_instances") {
+		desiredNumWorks := d.Get("cluster_config.0.secondary_worker_flexible_config.0.num_instances").(int)
+		cluster.Config.SecondaryWorkerFlexibleConfig = &dataproc.FlexibleInstanceGroupConfig{
+			NumInstances:    int64(desiredNumWorks),
+			ForceSendFields: []string{"NumInstances"},
+		}
+
+		updMask = append(updMask, "config.secondary_worker_flexible_config.num_instances")
+	}
+
 	if d.HasChange("cluster_config.0.autoscaling_config") {
 		desiredPolicy := d.Get("cluster_config.0.autoscaling_config.0.policy_uri").(string)
 		cluster.Config.AutoscalingConfig = &dataproc.AutoscalingConfig{
@@ -3741,11 +3952,44 @@ func flattenClusterConfig(d *schema.ResourceData, cfg *dataproc.ClusterConfig) (
 		"encryption_config":         flattenEncryptionConfig(d, cfg.EncryptionConfig),
 		"autoscaling_config":        flattenAutoscalingConfig(d, cfg.AutoscalingConfig),
 		"security_config":           flattenSecurityConfig(d, cfg.SecurityConfig),
-		"preemptible_worker_config": flattenPreemptibleInstanceGroupConfig(d, cfg.SecondaryWorkerConfig),
+		"preemptible_worker_config": flattenPreemptibleInstanceGroupConfig(d, cfg.SecondaryWorkerConfig, cfg.SecondaryWorkerFlexibleConfig),
 		"metastore_config":          flattenMetastoreConfig(d, cfg.MetastoreConfig),
 		"lifecycle_config":          flattenLifecycleConfig(d, cfg.LifecycleConfig),
 		"endpoint_config":           flattenEndpointConfig(d, cfg.EndpointConfig),
 		"dataproc_metric_config":    flattenDataprocMetricConfig(d, cfg.DataprocMetricConfig),
+	}
+
+	if cfg.MasterFlexibleConfig != nil {
+		data["master_flexible_config"] = []map[string]interface{}{
+			{
+				"num_instances":     cfg.MasterFlexibleConfig.NumInstances,
+				"core_count":        cfg.MasterFlexibleConfig.CoreCount,
+				"hardware_class":    cfg.MasterFlexibleConfig.HardwareClass,
+				"boot_disk_size_gb": cfg.MasterFlexibleConfig.BootDiskSizeGb,
+			},
+		}
+	}
+
+	if cfg.WorkerFlexibleConfig != nil {
+		data["worker_flexible_config"] = []map[string]interface{}{
+			{
+				"num_instances":     cfg.WorkerFlexibleConfig.NumInstances,
+				"core_count":        cfg.WorkerFlexibleConfig.CoreCount,
+				"hardware_class":    cfg.WorkerFlexibleConfig.HardwareClass,
+				"boot_disk_size_gb": cfg.WorkerFlexibleConfig.BootDiskSizeGb,
+			},
+		}
+	}
+
+	if cfg.SecondaryWorkerFlexibleConfig != nil {
+		data["secondary_worker_flexible_config"] = []map[string]interface{}{
+			{
+				"num_instances":     cfg.SecondaryWorkerFlexibleConfig.NumInstances,
+				"core_count":        cfg.SecondaryWorkerFlexibleConfig.CoreCount,
+				"hardware_class":    cfg.SecondaryWorkerFlexibleConfig.HardwareClass,
+				"boot_disk_size_gb": cfg.SecondaryWorkerFlexibleConfig.BootDiskSizeGb,
+			},
+		}
 	}
 
 	if len(cfg.InitializationActions) > 0 {
@@ -4080,14 +4324,18 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 	return []map[string]interface{}{gceConfig}
 }
 
-func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {
+func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGroupConfig, flexCfg *dataproc.FlexibleInstanceGroupConfig) []map[string]interface{} {
 	// if num_instances is 0, icg will always be returned nil. This means the
 	// server has discarded diskconfig etc. However, the only way to remove the
 	// preemptible group is to set the size to 0, because it's O+C. Many users
 	// won't remove the rest of the config (eg disk config). Therefore, we need to
 	// preserve the other set fields by using the old state to stop users from
 	// getting a diff.
-	if icg == nil {
+	// In High Obtainability (HO) mode (when secondary_worker_flexible_config is
+	// used), preemptible_worker_config cannot be configured in HCL and is only
+	// populated as a computed reflection of the resolved secondary worker group.
+	// Do not copy stale state when secondary_worker_flexible_config scales to 0.
+	if icg == nil && flexCfg == nil {
 		icgSchema := d.Get("cluster_config.0.preemptible_worker_config")
 		log.Printf("[DEBUG] state of preemptible is %#v", icgSchema)
 		if v, ok := icgSchema.([]interface{}); ok && len(v) > 0 {
