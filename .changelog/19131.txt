@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: allow updating `provisioned_iops` and `provisioned_throughput` in place on `google_compute_instance` hyperdisk boot disks instead of recreating the instance
+```
+
+```release-note:bug
+compute: fixed `google_compute_instance` boot disk updates not setting the user project header correctly when `user_project_override` is enabled
+```

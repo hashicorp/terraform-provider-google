@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -54,6 +55,44 @@ func TestAccComputeInstanceFromTemplate_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "attached_disk.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "scheduling.0.automatic_restart", "false"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceFromTemplate_hyperdiskBootDisk_provisioned_iops_throughput(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	resourceName := "google_compute_instance_from_template.primary"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplateHyperdiskBootDiskProvisionedIopsThroughput(instanceName, templateName, 3000, 140),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "boot_disk.0.initialize_params.0.provisioned_iops", "3000"),
+					resource.TestCheckResourceAttr(resourceName, "boot_disk.0.initialize_params.0.provisioned_throughput", "140"),
+				),
+			},
+			{
+				Config: testAccComputeInstanceFromTemplateHyperdiskBootDiskProvisionedIopsThroughput(instanceName, templateName, 4000, 150),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "boot_disk.0.initialize_params.0.provisioned_iops", "4000"),
+					resource.TestCheckResourceAttr(resourceName, "boot_disk.0.initialize_params.0.provisioned_throughput", "150"),
+				),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(resourceName, plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 		},
 	})
@@ -601,6 +640,49 @@ func TestAccComputeInstanceFromTemplate_networkAttachmentServiceClass(t *testing
 			},
 		},
 	})
+}
+
+func testAccComputeInstanceFromTemplateHyperdiskBootDiskProvisionedIopsThroughput(instance, template string, provisionedIops, provisionedThroughput int) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "ubuntu-2204-lts"
+  project = "ubuntu-os-cloud"
+}
+
+resource "google_compute_instance_template" "template" {
+  name         = "%s"
+  machine_type = "n4-standard-2"
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    disk_size_gb = 100
+    disk_type    = "hyperdisk-balanced"
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_instance_from_template" "primary" {
+  name                     = "%s"
+  zone                     = "us-central1-a"
+  source_instance_template = google_compute_instance_template.template.self_link
+
+  boot_disk {
+    auto_delete = true
+    initialize_params {
+      image                  = data.google_compute_image.my_image.self_link
+      type                   = "hyperdisk-balanced"
+      provisioned_iops       = %d
+      provisioned_throughput = %d
+      size                   = 100
+    }
+  }
+}
+`, template, instance, provisionedIops, provisionedThroughput)
 }
 
 func testAccComputeInstanceFromTemplate_basic(instance, template string) string {
