@@ -1,4 +1,6 @@
-## 8.8.0 (Unreleased)
+## 8.8.1 (Unreleased)
+
+## 8.8.0 (October 20, 2026)
 
 FEATURES:
 * **New Data Source:** `google_cloud_run_v2_instance_iam_policy` ([#29991](https://github.com/hashicorp/terraform-provider-google/pull/29991))
