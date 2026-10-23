@@ -25,13 +25,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func testAccCheckComputeRouterNatAddressDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
-
-		routersService := compute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Routers
 
 		for _, rs := range s.RootModule().Resources {
 			if rs.Type != "google_compute_router" {
@@ -48,9 +47,19 @@ func testAccCheckComputeRouterNatAddressDestroyProducer(t *testing.T) func(s *te
 				return err
 			}
 
-			routerName := rs.Primary.Attributes["router"]
+			routerName := rs.Primary.Attributes["name"]
+			if routerName == "" {
+				routerName = rs.Primary.ID
+			}
 
-			_, err = routersService.Get(project, region, routerName).Do()
+			url := fmt.Sprintf("%sprojects/%s/regions/%s/routers/%s", transport_tpg.BaseUrl(compute.Product, config), project, region, routerName)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 
 			if err == nil {
 				return fmt.Errorf("Error, Router %s in region %s still exists", routerName, region)

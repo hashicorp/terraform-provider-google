@@ -23,7 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -170,18 +170,19 @@ func testAccCheckProjectMetadataItemDestroyProducer(t *testing.T) func(s *terraf
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 
-		project, err := tpgcompute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Projects.Get(config.Project).Do()
+		url := fmt.Sprintf("%sprojects/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project)
+		project, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		var commonInstanceMetadataMap map[string]interface{}
-		if project.CommonInstanceMetadata != nil {
-			commonInstanceMetadataMap, err = tpgresource.ConvertToMap(project.CommonInstanceMetadata)
-			if err != nil {
-				return err
-			}
-		}
+		commonInstanceMetadataMap, _ := project["commonInstanceMetadata"].(map[string]interface{})
 		metadata := tpgcompute.FlattenMetadata(commonInstanceMetadataMap)
 
 		for _, rs := range s.RootModule().Resources {

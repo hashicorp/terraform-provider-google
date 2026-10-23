@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeAttachedDisk_basic(t *testing.T) {
@@ -178,15 +179,29 @@ func TestAccComputeAttachedDisk_zoneless(t *testing.T) {
 func testCheckAttachedDiskIsNowDetached(t *testing.T, instanceName, diskName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
+		project := envvar.GetTestProjectFromEnv()
 
-		instance, err := compute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Instances.Get(envvar.GetTestProjectFromEnv(), "us-central1-a", instanceName).Do()
+		url := fmt.Sprintf("%sprojects/%s/zones/us-central1-a/instances/%s", transport_tpg.BaseUrl(compute.Product, config), project, instanceName)
+		instance, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
 		var ad interface{}
-		for _, disk := range instance.Disks {
-			if tpgresource.CompareSelfLinkOrResourceName("", disk.Source, diskName, nil) {
+		disks, _ := instance["disks"].([]interface{})
+		for _, rawDisk := range disks {
+			disk, ok := rawDisk.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			source, _ := disk["source"].(string)
+			if tpgresource.CompareSelfLinkOrResourceName("", source, diskName, nil) {
 				ad = disk
 				break
 			}
@@ -202,15 +217,24 @@ func testCheckAttachedDiskIsNowDetached(t *testing.T, instanceName, diskName str
 func testCheckAttachedDiskContainsManyDisks(t *testing.T, instanceName string, count int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
+		project := envvar.GetTestProjectFromEnv()
 
-		instance, err := compute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Instances.Get(envvar.GetTestProjectFromEnv(), "us-central1-a", instanceName).Do()
+		url := fmt.Sprintf("%sprojects/%s/zones/us-central1-a/instances/%s", transport_tpg.BaseUrl(compute.Product, config), project, instanceName)
+		instance, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
+		disks, _ := instance["disks"].([]interface{})
 		// There will be 1 extra disk because of the compute instance's boot disk
-		if (count + 1) != len(instance.Disks) {
-			return fmt.Errorf("expected %d disks to be attached, found %d", count+1, len(instance.Disks))
+		if (count + 1) != len(disks) {
+			return fmt.Errorf("expected %d disks to be attached, found %d", count+1, len(disks))
 		}
 
 		return nil

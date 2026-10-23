@@ -62,7 +62,14 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 	}
 
 	log.Printf("[DEBUG] Getting shared test network %q", networkName)
-	_, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Networks.Get(project, networkName).Do()
+	networkUrl := fmt.Sprintf("%sprojects/%s/global/networks/%s", transport_tpg.BaseUrl(Product, config), project, networkName)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    networkUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Network %q not found, bootstrapping", networkName)
 		url := fmt.Sprintf("%sprojects/%s/global/networks", transport_tpg.BaseUrl(Product, config), project)
@@ -91,14 +98,20 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 		}
 	}
 
-	network, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Networks.Get(project, networkName).Do()
+	network, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    networkUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil {
 		t.Errorf("Error getting shared test network %q: %s", networkName, err)
 	}
 	if network == nil {
 		t.Fatalf("Error getting shared test network %q: is nil", networkName)
 	}
-	return network.Name
+	return network["name"].(string)
 }
 
 type AddressSettings struct {
@@ -137,7 +150,14 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...fun
 	}
 
 	log.Printf("[DEBUG] Getting shared test global address %q", addressName)
-	_, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).GlobalAddresses.Get(project, addressName).Do()
+	addressUrl := fmt.Sprintf("%sprojects/%s/global/addresses/%s", transport_tpg.BaseUrl(Product, config), project, addressName)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    addressUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Global address %q not found, bootstrapping", addressName)
 		url := fmt.Sprintf("%sprojects/%s/global/addresses", transport_tpg.BaseUrl(Product, config), project)
@@ -172,14 +192,20 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...fun
 		}
 	}
 
-	address, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).GlobalAddresses.Get(project, addressName).Do()
+	address, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    addressUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil {
 		t.Errorf("Error getting shared test global address %q: %s", addressName, err)
 	}
 	if address == nil {
 		t.Fatalf("Error getting shared test global address %q: is nil", addressName)
 	}
-	return address.Name
+	return address["name"].(string)
 }
 
 func BootstrapSubnet(t *testing.T, subnetName string, networkName string) string {
@@ -205,13 +231,15 @@ func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName s
 		t.Fatal("Could not bootstrap config.")
 	}
 
-	computeService := DEPRECATED_LegacyApiaryClient(config, config.UserAgent)
-	if computeService == nil {
-		t.Fatal("Could not create compute client.")
-	}
-
 	// In order to create a networkAttachment we need to bootstrap a subnet.
-	_, err := computeService.Subnetworks.Get(projectID, region, subnetName).Do()
+	subnetUrl := fmt.Sprintf("%sprojects/%s/regions/%s/subnetworks/%s", transport_tpg.BaseUrl(Product, config), projectID, region, subnetName)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   projectID,
+		RawURL:    subnetUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Subnet %q not found, bootstrapping", subnetName)
 
@@ -251,7 +279,13 @@ func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName s
 		}
 	}
 
-	subnet, err := computeService.Subnetworks.Get(projectID, region, subnetName).Do()
+	subnet, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   projectID,
+		RawURL:    subnetUrl,
+		UserAgent: config.UserAgent,
+	})
 
 	if subnet == nil {
 		t.Fatalf("Error getting test subnet %s: is nil", subnetName)
@@ -260,7 +294,7 @@ func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName s
 	if err != nil {
 		t.Fatalf("Error getting test subnet %s: %s", subnetName, err)
 	}
-	return subnet.Name
+	return subnet["name"].(string)
 }
 
 func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subnetName string) string {
@@ -272,12 +306,14 @@ func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subn
 		return ""
 	}
 
-	computeService := DEPRECATED_LegacyApiaryClient(config, config.UserAgent)
-	if computeService == nil {
-		return ""
-	}
-
-	networkAttachment, err := computeService.NetworkAttachments.Get(projectID, region, networkAttachmentName).Do()
+	networkAttachmentUrl := fmt.Sprintf("%sprojects/%s/regions/%s/networkAttachments/%s", transport_tpg.BaseUrl(Product, config), projectID, region, networkAttachmentName)
+	networkAttachment, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   projectID,
+		RawURL:    networkAttachmentUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		// Create Network Attachment Here.
 		log.Printf("[DEBUG] Network Attachment %s not found, bootstrapping", networkAttachmentName)
@@ -311,7 +347,13 @@ func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subn
 		}
 	}
 
-	networkAttachment, err = computeService.NetworkAttachments.Get(projectID, region, networkAttachmentName).Do()
+	networkAttachment, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   projectID,
+		RawURL:    networkAttachmentUrl,
+		UserAgent: config.UserAgent,
+	})
 
 	if networkAttachment == nil {
 		t.Fatalf("Error getting test network attachment %s: is nil", networkAttachmentName)
@@ -321,7 +363,7 @@ func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subn
 		t.Fatalf("Error getting test Network Attachment %s: %s", networkAttachmentName, err)
 	}
 
-	return networkAttachment.Name
+	return networkAttachment["name"].(string)
 }
 
 const SharedStoragePoolPrefix = "tf-bootstrap-storage-pool-"
@@ -340,12 +382,14 @@ func BootstrapComputeStoragePoolInZone(t *testing.T, storagePoolName, storagePoo
 		t.Fatal("Could not bootstrap config.")
 	}
 
-	computeService := DEPRECATED_LegacyApiaryClient(config, config.UserAgent)
-	if computeService == nil {
-		t.Fatal("Could not create compute client.")
-	}
-
-	_, err := computeService.StoragePools.Get(projectID, zone, storagePoolName).Do()
+	storagePoolUrl := fmt.Sprintf("%sprojects/%s/zones/%s/storagePools/%s", transport_tpg.BaseUrl(Product, config), projectID, zone, storagePoolName)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   projectID,
+		RawURL:    storagePoolUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Storage pool %q not found, bootstrapping", storagePoolName)
 
@@ -387,7 +431,13 @@ func BootstrapComputeStoragePoolInZone(t *testing.T, storagePoolName, storagePoo
 		}
 	}
 
-	storagePool, err := computeService.StoragePools.Get(projectID, zone, storagePoolName).Do()
+	storagePool, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   projectID,
+		RawURL:    storagePoolUrl,
+		UserAgent: config.UserAgent,
+	})
 
 	if storagePool == nil {
 		t.Fatalf("Error getting storage pool %s: is nil", storagePoolName)
@@ -397,7 +447,8 @@ func BootstrapComputeStoragePoolInZone(t *testing.T, storagePoolName, storagePoo
 		t.Fatalf("Error getting storage pool %s: %s", storagePoolName, err)
 	}
 
-	storagePoolResourceName, err := tpgresource.GetRelativePath(storagePool.SelfLink)
+	selfLink, _ := storagePool["selfLink"].(string)
+	storagePoolResourceName, err := tpgresource.GetRelativePath(selfLink)
 
 	if err != nil {
 		t.Fatal("Failed to extract Storage Pool resource name from URL.")

@@ -18,10 +18,12 @@ package compute
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func init() {
@@ -46,7 +48,14 @@ func testSweepComputeInstanceGroupManager(region string) error {
 		return err
 	}
 
-	found, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).InstanceGroupManagers.AggregatedList(config.Project).Do()
+	listUrl := fmt.Sprintf("%sprojects/%s/aggregated/instanceGroupManagers", transport_tpg.BaseUrl(Product, config), config.Project)
+	found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    listUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request: %s", err)
 		return nil
@@ -54,19 +63,43 @@ func testSweepComputeInstanceGroupManager(region string) error {
 
 	// Keep count of items that aren't sweepable for logging.
 	nonPrefixCount := 0
-	for zone, itemList := range found.Items {
-		for _, igm := range itemList.InstanceGroupManagers {
-			if !sweeper.IsSweepableTestResource(igm.Name) {
+	items, ok := found["items"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	for zone, itemListRaw := range items {
+		itemList, ok := itemListRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		igms, ok := itemList["instanceGroupManagers"].([]interface{})
+		if !ok {
+			continue
+		}
+		for _, igmRaw := range igms {
+			igm, ok := igmRaw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			igmName, _ := igm["name"].(string)
+			if !sweeper.IsSweepableTestResource(igmName) {
 				nonPrefixCount++
 				continue
 			}
 
 			// Don't wait on operations as we may have a lot to delete
-			_, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).InstanceGroupManagers.Delete(config.Project, tpgresource.GetResourceNameFromSelfLink(zone), igm.Name).Do()
+			deleteUrl := fmt.Sprintf("%sprojects/%s/zones/%s/instanceGroupManagers/%s", transport_tpg.BaseUrl(Product, config), config.Project, tpgresource.GetResourceNameFromSelfLink(zone), igmName)
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				Project:   config.Project,
+				RawURL:    deleteUrl,
+				UserAgent: config.UserAgent,
+			})
 			if err != nil {
-				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, igm.Name, err)
+				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, igmName, err)
 			} else {
-				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, igm.Name)
+				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, igmName)
 			}
 		}
 	}

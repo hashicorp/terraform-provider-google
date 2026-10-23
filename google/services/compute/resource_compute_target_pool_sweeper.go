@@ -18,10 +18,12 @@ package compute
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // This will sweep GCE Target Pool resources
@@ -46,7 +48,14 @@ func testSweepTargetPool(region string) error {
 		return err
 	}
 
-	found, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).TargetPools.AggregatedList(config.Project).Do()
+	listUrl := fmt.Sprintf("%sprojects/%s/aggregated/targetPools", transport_tpg.BaseUrl(Product, config), config.Project)
+	found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    listUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request: %s", err)
 		return nil
@@ -54,19 +63,43 @@ func testSweepTargetPool(region string) error {
 
 	// Keep count of items that aren't sweepable for logging.
 	nonPrefixCount := 0
-	for zone, itemList := range found.Items {
-		for _, tp := range itemList.TargetPools {
-			if !sweeper.IsSweepableTestResource(tp.Name) {
+	items, ok := found["items"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	for zone, itemListRaw := range items {
+		itemList, ok := itemListRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		targetPools, ok := itemList["targetPools"].([]interface{})
+		if !ok {
+			continue
+		}
+		for _, tpRaw := range targetPools {
+			tp, ok := tpRaw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			tpName, _ := tp["name"].(string)
+			if !sweeper.IsSweepableTestResource(tpName) {
 				nonPrefixCount++
 				continue
 			}
 
 			// Don't wait on operations as we may have a lot to delete
-			_, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).TargetPools.Delete(config.Project, tpgresource.GetResourceNameFromSelfLink(zone), tp.Name).Do()
+			deleteUrl := fmt.Sprintf("%sprojects/%s/regions/%s/targetPools/%s", transport_tpg.BaseUrl(Product, config), config.Project, tpgresource.GetResourceNameFromSelfLink(zone), tpName)
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				Project:   config.Project,
+				RawURL:    deleteUrl,
+				UserAgent: config.UserAgent,
+			})
 			if err != nil {
-				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, tp.Name, err)
+				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, tpName, err)
 			} else {
-				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, tp.Name)
+				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, tpName)
 			}
 		}
 	}

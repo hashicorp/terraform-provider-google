@@ -158,7 +158,14 @@ func cleanupLiens(svc *cloudresourcemanagerv3.Service, project string, config *t
 		if l.Origin == "xpn.googleapis.com" {
 			log.Printf("[INFO][SWEEPER_LOG] Found XPN lien on %s. Disabling XPN host...", project)
 			projectId := strings.TrimPrefix(project, "projects/")
-			_, err := tpgcompute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Projects.DisableXpnHost(projectId).Do()
+			url := fmt.Sprintf("%sprojects/%s/disableXpnHost", transport_tpg.BaseUrl(tpgcompute.Product, config), projectId)
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				Project:   projectId,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] Error disabling XPN host for %s: %s", projectId, err)
 			}

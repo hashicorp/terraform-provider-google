@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeNetworkPeering_basic(t *testing.T) {
@@ -203,8 +204,14 @@ func testAccComputeNetworkPeeringDestroyProducer(t *testing.T) func(s *terraform
 				continue
 			}
 
-			_, err := compute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Networks.Get(
-				config.Project, rs.Primary.ID).Do()
+			url := fmt.Sprintf("%sprojects/%s/global/networks/%s", transport_tpg.BaseUrl(compute.Product, config), config.Project, rs.Primary.ID)
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   config.Project,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("Network peering still exists")
 			}
