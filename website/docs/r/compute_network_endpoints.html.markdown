@@ -55,9 +55,19 @@ resource "google_compute_network_endpoints" "default-endpoints" {
     ip_address = google_compute_instance.endpoint-instance1.network_interface[0].network_ip
   }
   network_endpoints {
+    instance     = google_compute_instance.endpoint-instance1.name
+    port         = google_compute_network_endpoint_group.neg.default_port
+    ipv6_address = google_compute_instance.endpoint-instance1.network_interface[0].ipv6_access_config[0].external_ipv6
+  }
+  network_endpoints {
     instance   = google_compute_instance.endpoint-instance2.name
     port       = google_compute_network_endpoint_group.neg.default_port
     ip_address = google_compute_instance.endpoint-instance2.network_interface[0].network_ip
+  }
+  network_endpoints {
+    instance     = google_compute_instance.endpoint-instance2.name
+    port         = google_compute_network_endpoint_group.neg.default_port
+    ipv6_address = google_compute_instance.endpoint-instance2.network_interface[0].ipv6_access_config[0].external_ipv6
   }
 }
 
@@ -68,7 +78,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance" "endpoint-instance1" {
   name         = "endpoint-instance1"
-  machine_type = "e2-medium"
+  machine_type = "e2-micro"
 
   boot_disk {
     initialize_params {
@@ -78,14 +88,18 @@ resource "google_compute_instance" "endpoint-instance1" {
 
   network_interface {
     subnetwork = google_compute_subnetwork.default.id
+    stack_type = "IPV4_IPV6"
     access_config {
+    }
+    ipv6_access_config {
+      network_tier = "PREMIUM"
     }
   }
 }
 
 resource "google_compute_instance" "endpoint-instance2" {
   name         = "endpoint-instance2"
-  machine_type = "e2-medium"
+  machine_type = "e2-micro"
 
   boot_disk {
     initialize_params {
@@ -95,12 +109,16 @@ resource "google_compute_instance" "endpoint-instance2" {
 
   network_interface {
     subnetwork = google_compute_subnetwork.default.id
+    stack_type = "IPV4_IPV6"
     access_config {
+    }
+    ipv6_access_config {
+      network_tier = "PREMIUM"
     }
   }
 }
 
-resource "google_compute_network_endpoint_group" "group" {
+resource "google_compute_network_endpoint_group" "neg" {
   name         = "my-lb-neg"
   network      = google_compute_network.default.id
   subnetwork   = google_compute_subnetwork.default.id
@@ -114,10 +132,12 @@ resource "google_compute_network" "default" {
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "neg-subnetwork"
-  ip_cidr_range = "10.0.0.1/16"
-  region        = "us-central1"
-  network       = google_compute_network.default.id
+  name             = "neg-subnetwork"
+  ip_cidr_range    = "10.0.0.1/16"
+  region           = "us-central1"
+  network          = google_compute_network.default.id
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "EXTERNAL"
 }
 ```
 
@@ -173,6 +193,11 @@ The following arguments are supported:
   to a VM in GCE (either the primary IP or as part of an aliased IP
   range).
   **Note** `ip_address` is required unless the Network Endpoint Group is created with the type of `GCE_VM_IP_DEDICATED_BACKEND`
+
+* `ipv6_address` -
+  (Optional)
+  IPv6 address of network endpoint. The result of parsing the endpoint config,
+  or empty if IPv6 is not used.
 
 ## Attributes Reference
 

@@ -54,32 +54,79 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import "net"
+
 type NetworkEndpointsNetworkEndpoint struct {
-	IPAddress string
-	Port      int
-	Instance  string
+	IPAddress   string
+	IPv6Address string
+	Port        int
+	Instance    string
 }
 
 func NetworkEndpointsNetworkEndpointConvertToStruct(endpoint interface{}) NetworkEndpointsNetworkEndpoint {
 	e := endpoint.(map[string]interface{})
-	ipAddress := e["ip_address"].(string)
-	port := e["port"].(int)
+	ipAddress, _ := e["ip_address"].(string)
+	ipv6Address, _ := e["ipv6_address"].(string)
+	if parsed := net.ParseIP(ipv6Address); parsed != nil {
+		ipv6Address = parsed.String()
+	}
+	port, _ := e["port"].(int)
 	instance, _ := e["instance"].(string)
+	if instance != "" {
+		instance = tpgresource.GetResourceNameFromSelfLink(instance)
+	}
 	return NetworkEndpointsNetworkEndpoint{
-		IPAddress: ipAddress,
-		Port:      port,
-		Instance:  instance,
+		IPAddress:   ipAddress,
+		IPv6Address: ipv6Address,
+		Port:        port,
+		Instance:    instance,
 	}
 }
 
 func NetworkEndpointsNetworkEndpointConvertToAny(endpoint NetworkEndpointsNetworkEndpoint) interface{} {
 	m := make(map[string]interface{})
-	m["ip_address"] = endpoint.IPAddress
-	m["port"] = endpoint.Port
+	if endpoint.IPAddress != "" {
+		m["ipAddress"] = endpoint.IPAddress
+	}
+	if endpoint.IPv6Address != "" {
+		m["ipv6Address"] = endpoint.IPv6Address
+	}
+	if endpoint.Port != 0 {
+		m["port"] = endpoint.Port
+	}
 	if endpoint.Instance != "" {
 		m["instance"] = endpoint.Instance
 	}
 	return m
+}
+
+// A custom hash function is needed because the default schema.HashResource hashes raw string values
+// and ignores field-level DiffSuppressFuncs. Normalizing instance (from self_link to resource name)
+// and ipv6_address (to canonical RFC 5952 format via net.ParseIP) ensures that equivalent endpoints
+// produce the same set hash regardless of how they are formatted in config vs API responses.
+func resourceComputeNetworkEndpointsEndpointHash(v interface{}) int {
+	if v == nil {
+		return 0
+	}
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+	if instance, ok := m["instance"].(string); ok && instance != "" {
+		buf.WriteString(fmt.Sprintf("%s-", tpgresource.GetResourceNameFromSelfLink(instance)))
+	}
+	if ip, ok := m["ip_address"].(string); ok && ip != "" {
+		buf.WriteString(fmt.Sprintf("%s-", ip))
+	}
+	if ipv6, ok := m["ipv6_address"].(string); ok && ipv6 != "" {
+		if parsed := net.ParseIP(ipv6); parsed != nil {
+			buf.WriteString(fmt.Sprintf("%s-", parsed.String()))
+		} else {
+			buf.WriteString(fmt.Sprintf("%s-", ipv6))
+		}
+	}
+	if port, ok := m["port"].(int); ok && port != 0 {
+		buf.WriteString(fmt.Sprintf("%d-", port))
+	}
+	return tpgresource.Hashcode(buf.String())
 }
 
 // Read network endpoints as long as there are unread pages remaining
@@ -265,7 +312,7 @@ func ResourceComputeNetworkEndpoints() *schema.Resource {
 (NEG). Each endpoint specifies an IP address and port, along with
 additional information depending on the NEG type.`,
 				Elem: computeNetworkEndpointsNetworkEndpointsSchema(),
-				// Default schema.HashSchema is used.
+				Set:  resourceComputeNetworkEndpointsEndpointHash,
 			},
 			"zone": {
 				Type:             schema.TypeString,
@@ -316,6 +363,13 @@ The instance must be in the same zone as the network endpoint group.`,
 to a VM in GCE (either the primary IP or as part of an aliased IP
 range).
 **Note** 'ip_address' is required unless the Network Endpoint Group is created with the type of 'GCE_VM_IP_DEDICATED_BACKEND'`,
+			},
+			"ipv6_address": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.IpAddressDiffSuppress,
+				Description: `IPv6 address of network endpoint. The result of parsing the endpoint config,
+or empty if IPv6 is not used.`,
 			},
 			"port": {
 				Type:     schema.TypeInt,
@@ -660,12 +714,18 @@ func resourceComputeNetworkEndpointsUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	var endpointsToDetach []interface{}
-	for e := range oldEndpoints {
-		endpointsToDetach = append(endpointsToDetach, NetworkEndpointsNetworkEndpointConvertToAny(e))
+	for _, e := range o.(*schema.Set).List() {
+		ep := NetworkEndpointsNetworkEndpointConvertToStruct(e)
+		if _, ok := oldEndpoints[ep]; ok {
+			endpointsToDetach = append(endpointsToDetach, NetworkEndpointsNetworkEndpointConvertToAny(ep))
+		}
 	}
 	var endpointsToAttach []interface{}
-	for e := range newEndpoints {
-		endpointsToAttach = append(endpointsToAttach, NetworkEndpointsNetworkEndpointConvertToAny(e))
+	for _, e := range n.(*schema.Set).List() {
+		ep := NetworkEndpointsNetworkEndpointConvertToStruct(e)
+		if _, ok := newEndpoints[ep]; ok {
+			endpointsToAttach = append(endpointsToAttach, NetworkEndpointsNetworkEndpointConvertToAny(ep))
+		}
 	}
 
 	log.Printf("number of endpoints to detach: %v\n", len(endpointsToDetach))
@@ -794,7 +854,17 @@ func resourceComputeNetworkEndpointsDelete(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return err
 		}
-		toDelete["ipAddress"] = ipAddressProp
+		if ipAddressProp != nil && ipAddressProp != "" {
+			toDelete["ipAddress"] = ipAddressProp
+		}
+
+		ipv6AddressProp, err := expandNestedComputeNetworkEndpointIpv6Address(endpoint["ipv6_address"], d, config)
+		if err != nil {
+			return err
+		}
+		if ipv6AddressProp != nil && ipv6AddressProp != "" {
+			toDelete["ipv6Address"] = ipv6AddressProp
+		}
 		endpointsToDelete = append(endpointsToDelete, toDelete)
 	}
 
@@ -862,7 +932,7 @@ func flattenComputeNetworkEndpointsNetworkEndpoints(v interface{}, d *schema.Res
 		return v
 	}
 	l := v.([]interface{})
-	transformed := schema.NewSet(schema.HashResource(computeNetworkEndpointsNetworkEndpointsSchema()), []interface{}{})
+	transformed := schema.NewSet(resourceComputeNetworkEndpointsEndpointHash, []interface{}{})
 	for i, raw := range l {
 		_ = i
 		original := raw.(map[string]interface{})
@@ -871,9 +941,10 @@ func flattenComputeNetworkEndpointsNetworkEndpoints(v interface{}, d *schema.Res
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"instance":   flattenComputeNetworkEndpointsNetworkEndpointsInstance(original["instance"], d, config),
-			"port":       flattenComputeNetworkEndpointsNetworkEndpointsPort(original["port"], d, config),
-			"ip_address": flattenComputeNetworkEndpointsNetworkEndpointsIpAddress(original["ipAddress"], d, config),
+			"instance":     flattenComputeNetworkEndpointsNetworkEndpointsInstance(original["instance"], d, config),
+			"port":         flattenComputeNetworkEndpointsNetworkEndpointsPort(original["port"], d, config),
+			"ip_address":   flattenComputeNetworkEndpointsNetworkEndpointsIpAddress(original["ipAddress"], d, config),
+			"ipv6_address": flattenComputeNetworkEndpointsNetworkEndpointsIpv6Address(original["ipv6Address"], d, config),
 		})
 	}
 	return transformed
@@ -895,6 +966,10 @@ func flattenComputeNetworkEndpointsNetworkEndpointsPort(v interface{}, d *schema
 
 func flattenComputeNetworkEndpointsNetworkEndpointsIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeNetworkEndpointsNetworkEndpointsIpv6Address(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return tpgresource.CanonicalizeIp(v)
 }
 
 func expandComputeNetworkEndpointsNetworkEndpoints(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -932,6 +1007,13 @@ func expandComputeNetworkEndpointsNetworkEndpoints(v interface{}, d tpgresource.
 			transformed["ipAddress"] = transformedIpAddress
 		}
 
+		transformedIpv6Address, err := expandComputeNetworkEndpointsNetworkEndpointsIpv6Address(original["ipv6_address"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIpv6Address); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ipv6Address"] = transformedIpv6Address
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -951,6 +1033,10 @@ func expandComputeNetworkEndpointsNetworkEndpointsPort(v interface{}, d tpgresou
 
 func expandComputeNetworkEndpointsNetworkEndpointsIpAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandComputeNetworkEndpointsNetworkEndpointsIpv6Address(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return tpgresource.CanonicalizeIp(v), nil
 }
 
 func resourceComputeNetworkEndpointsEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

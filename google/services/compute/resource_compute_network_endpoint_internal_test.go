@@ -250,3 +250,52 @@ func TestUnitComputeNetworkEndpoint_customImport(t *testing.T) {
 		}
 	})
 }
+
+func TestUnitComputeNetworkEndpoints_convertToStructAndAny(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ipv6_endpoint_produces_camelCase_api_payload", func(t *testing.T) {
+		t.Parallel()
+		raw := map[string]interface{}{
+			"instance":     "projects/my-proj/zones/us-central1-a/instances/vm1",
+			"ipv6_address": "2600:1900:4000:318:0:0:0:1",
+			"port":         90,
+		}
+		s := NetworkEndpointsNetworkEndpointConvertToStruct(raw)
+		if s.Instance != "vm1" {
+			t.Errorf("expected normalized instance vm1, got %s", s.Instance)
+		}
+		if s.IPv6Address != "2600:1900:4000:318::1" {
+			t.Errorf("expected canonical IPv6 2600:1900:4000:318::1, got %s", s.IPv6Address)
+		}
+
+		apiPayload := NetworkEndpointsNetworkEndpointConvertToAny(s)
+		expected := map[string]interface{}{
+			"instance":    "vm1",
+			"ipv6Address": "2600:1900:4000:318::1",
+			"port":        90,
+		}
+		if !reflect.DeepEqual(apiPayload, expected) {
+			t.Errorf("got %#v, want %#v", apiPayload, expected)
+		}
+	})
+
+	t.Run("ipv4_endpoint_produces_camelCase_api_payload", func(t *testing.T) {
+		t.Parallel()
+		raw := map[string]interface{}{
+			"instance":   "vm1",
+			"ip_address": "10.0.0.2",
+			"port":       90,
+		}
+		s := NetworkEndpointsNetworkEndpointConvertToStruct(raw)
+		apiPayload := NetworkEndpointsNetworkEndpointConvertToAny(s)
+		expected := map[string]interface{}{
+			"instance":  "vm1",
+			"ipAddress": "10.0.0.2",
+			"port":      90,
+		}
+		if !reflect.DeepEqual(apiPayload, expected) {
+			t.Errorf("got %#v, want %#v", apiPayload, expected)
+		}
+	})
+}

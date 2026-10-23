@@ -11,6 +11,7 @@ fields:
       provider_only: true
     - api_field: networkEndpoints.instance
     - api_field: networkEndpoints.ipAddress
+    - api_field: networkEndpoints.ipv6Address
     - api_field: networkEndpoints.port
     - field: zone
       provider_only: true
