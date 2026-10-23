@@ -224,7 +224,7 @@ resource "google_data_loss_prevention_discovery_config" "org_folder_paused" {
     org_config {
         project_id = "my-project-name"
         location {
-            folder_id = 123
+            folder_id = google_folder.basic.folder_id
         }
     }
     inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
@@ -241,6 +241,12 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 			name = "EMAIL_ADDRESS"
 		}
     }
+}
+
+resource "google_folder" "basic" {
+	parent = "organizations/123456789"
+	display_name = "my-folder"
+	deletion_protection = false
 }
 ```
 

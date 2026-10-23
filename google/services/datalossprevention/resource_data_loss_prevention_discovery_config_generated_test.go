@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/datalossprevention"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -63,6 +64,7 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigOrgFolderPausedE
 		"location":      envvar.GetTestRegionFromEnv(),
 		"organization":  envvar.GetTestOrgFromEnv(t),
 		"project":       envvar.GetTestProjectFromEnv(),
+		"folder_name":   "tf-test-my-folder" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -106,7 +108,7 @@ resource "google_data_loss_prevention_discovery_config" "org_folder_paused" {
     org_config {
         project_id = "%{project}"
         location {
-            folder_id = 123
+            folder_id = google_folder.basic.folder_id
         }
     }
     inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
@@ -123,6 +125,12 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 			name = "EMAIL_ADDRESS"
 		}
     }
+}
+
+resource "google_folder" "basic" {
+	parent = "organizations/%{organization}"
+	display_name = "%{folder_name}"
+	deletion_protection = false
 }
 `, context)
 }
