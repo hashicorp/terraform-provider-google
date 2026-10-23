@@ -486,22 +486,22 @@ func testAccCESDeployment_whatsappConfig(context map[string]interface{}) string 
 	return acctest.Nprintf(`
 resource "google_ces_app" "my-app" {
     location     = "us"
-    display_name = "tf-test-my-app%%{random_suffix}"
-    app_id       = "tf-test-app-id%%{random_suffix}"
+    display_name = "tf-test-my-app%{random_suffix}"
+    app_id       = "tf-test-app-id%{random_suffix}"
     time_zone_settings {
         time_zone = "America/Los_Angeles"
     }
 }
 resource "google_ces_app_version" "my-app-version" {
     location       = "us"
-    display_name   = "tf-test-my-app-version%%{random_suffix}"
+    display_name   = "tf-test-my-app-version%{random_suffix}"
     app            = google_ces_app.my-app.name
-    app_version_id = "tf-test-app-version-id%%{random_suffix}"
+    app_version_id = "tf-test-app-version-id%{random_suffix}"
     description    = "example-app-version"
 }
 resource "google_ces_deployment" "my-deployment" {
     location     = "us"
-    display_name = "tf-test-my-deployment%%{random_suffix}"
+    display_name = "tf-test-my-deployment%{random_suffix}"
     app          = google_ces_app.my-app.name
     app_version  = google_ces_app_version.my-app-version.id
     channel_profile {
@@ -521,22 +521,22 @@ func testAccCESDeployment_whatsappConfig_update(context map[string]interface{}) 
 	return acctest.Nprintf(`
 resource "google_ces_app" "my-app" {
     location     = "us"
-    display_name = "tf-test-my-app%%{random_suffix}"
-    app_id       = "tf-test-app-id%%{random_suffix}"
+    display_name = "tf-test-my-app%{random_suffix}"
+    app_id       = "tf-test-app-id%{random_suffix}"
     time_zone_settings {
         time_zone = "America/Los_Angeles"
     }
 }
 resource "google_ces_app_version" "my-app-version" {
     location       = "us"
-    display_name   = "tf-test-my-app-version%%{random_suffix}"
+    display_name   = "tf-test-my-app-version%{random_suffix}"
     app            = google_ces_app.my-app.name
-    app_version_id = "tf-test-app-version-id%%{random_suffix}"
+    app_version_id = "tf-test-app-version-id%{random_suffix}"
     description    = "example-app-version"
 }
 resource "google_ces_deployment" "my-deployment" {
     location     = "us"
-    display_name = "tf-test-my-deployment%%{random_suffix}"
+    display_name = "tf-test-my-deployment%{random_suffix}"
     app          = google_ces_app.my-app.name
     app_version  = google_ces_app_version.my-app-version.id
     channel_profile {
