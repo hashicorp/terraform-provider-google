@@ -264,6 +264,11 @@ The following arguments are supported:
   The priority of requests sent using this app profile.
   Possible values are: `PRIORITY_LOW`, `PRIORITY_MEDIUM`, `PRIORITY_HIGH`.
 
+* `memory_config` -
+  (Optional)
+  The memory config to use for requests sent using this app profile.
+  If set, eligible single-row requests (currently limited to ReadRows) using this app profile will be routed to the memory layer. All eligible writes populate the memory layer. `memory_config` can only be set if the AppProfile uses single cluster routing and the configured cluster has a memory layer enabled.
+
 <a name="nested_data_boost_isolation_read_only"></a>The `data_boost_isolation_read_only` block supports:
 
 * `compute_billing_owner` -

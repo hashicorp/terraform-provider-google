@@ -61,9 +61,10 @@ func TestAccBigtableMemoryLayer_bigtableMemoryLayerExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"cluster_id":    "tf-test-bt-cluster" + randomSuffix,
-		"instance_name": "tf-test-bt-instance" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"app_profile_name": "tf-test-bt-profile" + randomSuffix,
+		"cluster_id":       "tf-test-bt-cluster" + randomSuffix,
+		"instance_name":    "tf-test-bt-instance" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -109,6 +110,23 @@ resource "google_bigtable_instance" "instance" {
 resource "google_bigtable_memory_layer" "memory_layer" {
   instance = google_bigtable_instance.instance.name
   cluster  = google_bigtable_instance.instance.cluster[0].cluster_id
+}
+
+resource "google_bigtable_app_profile" "ap" {
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "%{app_profile_name}"
+
+  single_cluster_routing {
+    cluster_id                 = google_bigtable_memory_layer.memory_layer.cluster
+    allow_transactional_writes = true
+  }
+
+  standard_isolation {
+    priority = "PRIORITY_LOW"
+    memory_config {}
+  }
+
+  ignore_warnings = true
 }
 `, context)
 }
