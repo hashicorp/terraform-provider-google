@@ -226,6 +226,16 @@ It is unsafe to send these requests to the same table/row/column in multiple clu
 							ValidateFunc: verify.ValidateEnum([]string{"PRIORITY_LOW", "PRIORITY_MEDIUM", "PRIORITY_HIGH"}),
 							Description:  `The priority of requests sent using this app profile. Possible values: ["PRIORITY_LOW", "PRIORITY_MEDIUM", "PRIORITY_HIGH"]`,
 						},
+						"memory_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The memory config to use for requests sent using this app profile.
+If set, eligible single-row requests (currently limited to ReadRows) using this app profile will be routed to the memory layer. All eligible writes populate the memory layer. 'memory_config' can only be set if the AppProfile uses single cluster routing and the configured cluster has a memory layer enabled.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+						},
 					},
 				},
 				ConflictsWith: []string{"data_boost_isolation_read_only"},
@@ -797,10 +807,20 @@ func flattenBigtableAppProfileStandardIsolation(v interface{}, d *schema.Resourc
 	transformed := make(map[string]interface{})
 	transformed["priority"] =
 		flattenBigtableAppProfileStandardIsolationPriority(original["priority"], d, config)
+	transformed["memory_config"] =
+		flattenBigtableAppProfileStandardIsolationMemoryConfig(original["memoryConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBigtableAppProfileStandardIsolationPriority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenBigtableAppProfileStandardIsolationMemoryConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenBigtableAppProfileDataBoostIsolationReadOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -884,11 +904,36 @@ func expandBigtableAppProfileStandardIsolation(v interface{}, d tpgresource.Terr
 		transformed["priority"] = transformedPriority
 	}
 
+	transformedMemoryConfig, err := expandBigtableAppProfileStandardIsolationMemoryConfig(original["memory_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["memoryConfig"] = transformedMemoryConfig
+	}
+
 	return transformed, nil
 }
 
 func expandBigtableAppProfileStandardIsolationPriority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandBigtableAppProfileStandardIsolationMemoryConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandBigtableAppProfileDataBoostIsolationReadOnly(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -21,6 +21,7 @@ fields:
     - api_field: name
     - api_field: singleClusterRouting.allowTransactionalWrites
     - api_field: singleClusterRouting.clusterId
+    - api_field: standardIsolation.memoryConfig
     - api_field: standardIsolation.priority
     - field: deletion_policy
       provider_only: true

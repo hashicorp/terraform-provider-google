@@ -58,6 +58,23 @@ resource "google_bigtable_memory_layer" "memory_layer" {
   instance = google_bigtable_instance.instance.name
   cluster  = google_bigtable_instance.instance.cluster[0].cluster_id
 }
+
+resource "google_bigtable_app_profile" "ap" {
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "bt-profile"
+
+  single_cluster_routing {
+    cluster_id                 = google_bigtable_memory_layer.memory_layer.cluster
+    allow_transactional_writes = true
+  }
+
+  standard_isolation {
+    priority = "PRIORITY_LOW"
+    memory_config {}
+  }
+
+  ignore_warnings = true
+}
 ```
 
 ## Argument Reference
