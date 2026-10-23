@@ -1,0 +1,9 @@
+```release-note:enhancement
+compute: added server generated id as 'firewall_id' to 'google_compute_firewall'
+```
+```release-note:enhancement
+compute: added server generated id as 'router_id' to 'google_compute_router'
+```
+```release-note:enhancement
+compute: added server generated id as 'service_attachment_id' to 'google_compute_service_attachment'
+```

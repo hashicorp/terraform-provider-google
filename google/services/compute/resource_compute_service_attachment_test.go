@@ -136,6 +136,8 @@ func TestAccComputeServiceAttachment_serviceAttachmentConnectedEndpointsOutput(t
 						"google_compute_service_attachment.psc_ilb_service_attachment", "connected_endpoints.0.psc_connection_id"),
 					resource.TestCheckResourceAttrSet(
 						"google_compute_service_attachment.psc_ilb_service_attachment", "connected_endpoints.0.propagated_connection_count"),
+					resource.TestCheckResourceAttrSet(
+						"google_compute_service_attachment.psc_ilb_service_attachment", "service_attachment_id"),
 				),
 			},
 			{

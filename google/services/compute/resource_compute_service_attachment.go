@@ -374,6 +374,11 @@ updates of this resource.`,
 					},
 				},
 			},
+			"service_attachment_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier number for the resource. This identifier is defined by the server.`,
+			},
 			"send_propagated_connection_limit_if_zero": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -981,6 +986,23 @@ func flattenComputeServiceAttachmentDescription(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenComputeServiceAttachmentServiceAttachmentId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeServiceAttachmentFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1367,6 +1389,9 @@ func ResourceComputeServiceAttachmentFlatten(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err = d.Set("description", flattenComputeServiceAttachmentDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+	if err = d.Set("service_attachment_id", flattenComputeServiceAttachmentServiceAttachmentId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err = d.Set("fingerprint", flattenComputeServiceAttachmentFingerprint(res["fingerprint"], d, config)); err != nil {

@@ -24,6 +24,8 @@ fields:
     - api_field: network
     - api_field: params.resourceManagerTags
     - api_field: region
+    - api_field: id
+      field: router_id
     - api_field: selfLink
     - field: deletion_policy
       provider_only: true

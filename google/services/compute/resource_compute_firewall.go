@@ -462,6 +462,11 @@ instances on the specified network.`,
 				Computed:    true,
 				Description: `Creation timestamp in RFC3339 text format.`,
 			},
+			"firewall_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier number for the resource. This identifier is defined by the server.`,
+			},
 			"enable_logging": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -1126,6 +1131,23 @@ func flattenComputeFirewallDescription(v interface{}, d *schema.ResourceData, co
 	return v
 }
 
+func flattenComputeFirewallFirewallId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeFirewallDestinationRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1429,6 +1451,9 @@ func ResourceComputeFirewallFlatten(d *schema.ResourceData, meta interface{}, re
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
 	if err = d.Set("description", flattenComputeFirewallDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Firewall: %s", err)
+	}
+	if err = d.Set("firewall_id", flattenComputeFirewallFirewallId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Firewall: %s", err)
 	}
 	if err = d.Set("destination_ranges", flattenComputeFirewallDestinationRanges(res["destinationRanges"], d, config)); err != nil {

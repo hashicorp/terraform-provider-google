@@ -33,6 +33,8 @@ fields:
     - api_field: region
     - field: send_propagated_connection_limit_if_zero
       provider_only: true
+    - api_field: id
+      field: service_attachment_id
     - field: show_nat_ips
       provider_only: true
     - api_field: targetService

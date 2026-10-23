@@ -329,6 +329,11 @@ and values are in the format tagValues/456.`,
 				Computed:    true,
 				Description: `Creation timestamp in RFC3339 text format.`,
 			},
+			"router_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier number for the resource. This identifier is defined by the server.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -828,6 +833,23 @@ func flattenComputeRouterDescription(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
+func flattenComputeRouterRouterId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeRouterNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1192,6 +1214,9 @@ func ResourceComputeRouterFlatten(d *schema.ResourceData, meta interface{}, res 
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 	if err = d.Set("description", flattenComputeRouterDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Router: %s", err)
+	}
+	if err = d.Set("router_id", flattenComputeRouterRouterId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Router: %s", err)
 	}
 	if err = d.Set("network", flattenComputeRouterNetwork(res["network"], d, config)); err != nil {

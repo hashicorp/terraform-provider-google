@@ -302,6 +302,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `firewall_id` -
+  The unique identifier number for the resource. This identifier is defined by the server.
 * `self_link` - The URI of the created resource.
 
 
