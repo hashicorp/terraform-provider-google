@@ -3076,8 +3076,17 @@ func TestAccComputeInstance_hyperdiskBootDisk_provisioned_iops_throughput(t *tes
 	context := map[string]interface{}{
 		"instance_name":          fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"zone":                   "us-central1-a",
+		"size":                   100,
 		"provisioned_iops":       12000,
 		"provisioned_throughput": 200,
+	}
+
+	contextUpdate := map[string]interface{}{
+		"instance_name":          context["instance_name"],
+		"zone":                   context["zone"],
+		"size":                   200,
+		"provisioned_iops":       15000,
+		"provisioned_throughput": 250,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -3090,8 +3099,16 @@ func TestAccComputeInstance_hyperdiskBootDisk_provisioned_iops_throughput(t *tes
 			},
 			computeInstanceImportStep(context["zone"].(string), context["instance_name"].(string), []string{"allow_stopping_for_update"}),
 			{
-				Config: testAccComputeInstanceHyperDiskBootDiskProvisionedIopsThroughput_update(context),
+				// Also covers increasing the boot disk size alongside iops/throughput
+				Config: testAccComputeInstanceHyperDiskBootDiskProvisionedIopsThroughput_update(contextUpdate),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						// Check that the update is done in-place
+						plancheck.ExpectResourceAction("google_compute_instance.foobar", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
+			computeInstanceImportStep(context["zone"].(string), context["instance_name"].(string), []string{"allow_stopping_for_update"}),
 		},
 	})
 }
@@ -10213,7 +10230,7 @@ resource "google_compute_instance" "foobar" {
       provisioned_iops = %{provisioned_iops}
       provisioned_throughput = %{provisioned_throughput}
       type = "hyperdisk-balanced"
-      size = 100
+      size = %{size}
     }
   }
 
@@ -12513,7 +12530,7 @@ resource "google_compute_instance" "foobar" {
       provisioned_iops = %{provisioned_iops}
       provisioned_throughput = %{provisioned_throughput}
       type = "hyperdisk-balanced"
-      size = 100
+      size = %{size}
     }
   }
 

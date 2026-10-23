@@ -542,7 +542,6 @@ func ResourceComputeInstance() *schema.Resource {
 										Optional:     true,
 										AtLeastOneOf: initializeParamsKeys,
 										Computed:     true,
-										ForceNew:     true,
 										Description:  `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle.`,
 									},
 
@@ -551,7 +550,6 @@ func ResourceComputeInstance() *schema.Resource {
 										Optional:     true,
 										AtLeastOneOf: initializeParamsKeys,
 										Computed:     true,
-										ForceNew:     true,
 										Description:  `Indicates how much throughput to provision for the disk. This sets the number of throughput mb per second that the disk can handle.`,
 									},
 
@@ -1669,6 +1667,10 @@ be from 0 to 999,999,999 inclusive.`,
 			),
 			customdiff.ForceNewIf("metadata_startup_script", func(_ context.Context, d *schema.ResourceDiff, meta interface{}) bool {
 				return isGracefulMetadataStartupSwitch(d)
+			}),
+			// Only hyperdisk supports updating provisioned IOPS in place (e.g. pd-extreme does not).
+			customdiff.ForceNewIf("boot_disk.0.initialize_params.0.provisioned_iops", func(_ context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+				return d.HasChange("boot_disk.0.initialize_params.0.provisioned_iops") && !strings.Contains(d.Get("boot_disk.0.initialize_params.0.type").(string), "hyperdisk")
 			}),
 			validateSubnetworkProject,
 			forceNewIfNetworkIPNotUpdatable,
@@ -3110,7 +3112,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 			if d.HasChange("boot_disk.0.initialize_params.0.size") {
 				obj["sizeGb"] = d.Get("boot_disk.0.initialize_params.0.size").(int)
-				err := updateDisk(d, config, userAgent, project, urlBase+"/resize", obj)
+				err := updateDisk(d, config, userAgent, project, "POST", urlBase+"/resize", obj)
 				if err != nil {
 					return err
 				}
@@ -3118,7 +3120,29 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if d.HasChange("boot_disk.0.initialize_params.0.labels") {
 				obj["labels"] = tpgresource.ConvertStringMap(d.Get("boot_disk.0.initialize_params.0.labels").(map[string]interface{}))
 				obj["labelFingerprint"] = disk["labelFingerprint"]
-				err := updateDisk(d, config, userAgent, project, urlBase+"/setLabels", obj)
+				err := updateDisk(d, config, userAgent, project, "POST", urlBase+"/setLabels", obj)
+				if err != nil {
+					return err
+				}
+			}
+
+			if d.HasChange("boot_disk.0.initialize_params.0.provisioned_iops") || d.HasChange("boot_disk.0.initialize_params.0.provisioned_throughput") {
+				perfObj := make(map[string]interface{})
+				var paths []string
+				if d.HasChange("boot_disk.0.initialize_params.0.provisioned_iops") {
+					perfObj["provisionedIops"] = d.Get("boot_disk.0.initialize_params.0.provisioned_iops").(int)
+					paths = append(paths, "provisionedIops")
+				}
+				if d.HasChange("boot_disk.0.initialize_params.0.provisioned_throughput") {
+					perfObj["provisionedThroughput"] = d.Get("boot_disk.0.initialize_params.0.provisioned_throughput").(int)
+					paths = append(paths, "provisionedThroughput")
+				}
+				// The API requires the disk name in the body when patching a hyperdisk's performance fields.
+				if diskType, _ := disk["type"].(string); strings.Contains(diskType, "hyperdisk") {
+					perfObj["name"] = diskName
+				}
+				patchUrl := fmt.Sprintf("%s?paths=%s", urlBase, strings.Join(paths, "&paths="))
+				err := updateDisk(d, config, userAgent, project, "PATCH", patchUrl, perfObj)
 				if err != nil {
 					return err
 				}
@@ -4567,20 +4591,20 @@ func CheckForCommonAliasIp(old, new map[string]interface{}) []interface{} {
 	return resultAliasIpRanges
 }
 
-func updateDisk(d *schema.ResourceData, config *transport_tpg.Config, userAgent, project, patchUrl string, obj map[string]interface{}) error {
+func updateDisk(d *schema.ResourceData, config *transport_tpg.Config, userAgent, project, method, patchUrl string, obj map[string]interface{}) error {
 	billingProject := project
 	url, err := tpgresource.ReplaceVars(d, config, patchUrl)
 	if err != nil {
 		return err
 	}
 	headers := make(http.Header)
-	if bp, err := tpgresource.GetBillingProject(d, config); err != nil {
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
-		Method:    "POST",
+		Method:    method,
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
