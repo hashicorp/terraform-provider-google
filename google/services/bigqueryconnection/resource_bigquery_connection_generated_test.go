@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -577,6 +578,129 @@ resource "google_dataproc_cluster" "basic" {
      }
    }   
  }
+`, context)
+}
+
+func TestAccBigqueryConnectionConnection_bigqueryConnectionSalesforceDataCloudExample(t *testing.T) {
+	t.Skip("Requires a Salesforce partner project; unavailable in CI.")
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"connection_id": "tf-test-my-connection" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"cache_enabled": true,
+		"connection_id": "tf-test-my-connection" + randomSuffix,
+		"instance_uri":  "https://updated-instance.my.salesforce.com",
+		"tenant_id":     "updated-tenant-id",
+		"random_suffix": randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"cache_enabled": false,
+		"connection_id": "tf-test-my-connection" + randomSuffix,
+		"instance_uri":  "https://updated-instance.my.salesforce.com",
+		"tenant_id":     "updated-tenant-id",
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionSalesforceDataCloudExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionSalesforceDataCloudCacheExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_bigquery_connection.connection", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionSalesforceDataCloudCacheExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_bigquery_connection.connection", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_sql.0.credential.0.password_wo", "cloud_sql.0.credential.0.password_wo_version", "location"},
+			},
+			{
+				ResourceName:       "google_bigquery_connection.connection",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionSalesforceDataCloudExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_connection" "connection" {
+  connection_id = "%{connection_id}"
+  location      = "US"
+
+  salesforce_data_cloud {
+    instance_uri = "my-instance.c360a.salesforce.com"
+    tenant_id    = "tenant-id"
+  }
+}
+`, context)
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionSalesforceDataCloudCacheExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_connection" "connection" {
+  connection_id = "%{connection_id}"
+  location      = "US"
+
+  salesforce_data_cloud {
+    instance_uri = "%{instance_uri}"
+    tenant_id    = "%{tenant_id}"
+
+    cross_cloud_cache_options {
+      enabled = %{cache_enabled}
+    }
+  }
+}
 `, context)
 }
 

@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigqueryconnection: Add `SalesForceDataCloud` support in `cloudSql` properties in `google_bigqueryconnection_connection` resource
+```

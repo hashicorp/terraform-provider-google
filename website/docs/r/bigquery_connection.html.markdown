@@ -292,6 +292,26 @@ resource "google_dataproc_cluster" "basic" {
  }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_connection_salesforce_data_cloud&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Bigquery Connection Salesforce Data Cloud
+
+
+```hcl
+resource "google_bigquery_connection" "connection" {
+  connection_id = "my-connection"
+  location      = "US"
+
+  salesforce_data_cloud {
+    instance_uri = "my-instance.c360a.salesforce.com"
+    tenant_id    = "tenant-id"
+  }
+}
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_connection_sql_with_cmek&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
@@ -523,6 +543,12 @@ The following arguments are supported:
   Container for connection properties to execute stored procedures for Apache Spark. resources.
   Structure is [documented below](#nested_spark).
 
+* `salesforce_data_cloud` -
+  (Optional)
+  Connection properties specific to Salesforce Data Cloud.
+  This connection type is intended for use only by Salesforce partner projects.
+  Structure is [documented below](#nested_salesforce_data_cloud).
+
 * `configuration` -
   (Optional)
   Connector configuration. This is a generic configuration that is used to connect to
@@ -698,6 +724,34 @@ The following arguments are supported:
 * `dataproc_cluster` -
   (Optional)
   Resource name of an existing Dataproc Cluster to act as a Spark History Server for the connection if the form of projects/[projectId]/regions/[region]/clusters/[cluster_name].
+
+<a name="nested_salesforce_data_cloud"></a>The `salesforce_data_cloud` block supports:
+
+* `instance_uri` -
+  (Required)
+  The URL to the user's Salesforce Data Cloud instance.
+
+* `tenant_id` -
+  (Required)
+  The ID of the user's Salesforce tenant.
+
+* `identity` -
+  (Output)
+  A unique Google-owned and Google-generated service account identity for the connection.
+
+* `cross_cloud_cache_options` -
+  (Required)
+  Configuration options for cross-cloud caching of data and metadata files.
+  Structure is [documented below](#nested_salesforce_data_cloud_cross_cloud_cache_options).
+
+
+<a name="nested_salesforce_data_cloud_cross_cloud_cache_options"></a>The `cross_cloud_cache_options` block supports:
+
+* `enabled` -
+  (Optional)
+  Whether cross-cloud caching is enabled for queries through BigQuery.
+  When enabled, read data and metadata are cached, which can improve performance
+  and reduce network egress costs for cross-cloud queries.
 
 <a name="nested_configuration"></a>The `configuration` block supports:
 
