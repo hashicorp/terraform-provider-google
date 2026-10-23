@@ -218,6 +218,7 @@ func TestAccComputeRouter_addAndUpdateIdentifierRangeBgp(t *testing.T) {
 				Config: testAccComputeRouter_updateIdentifierRangeBgp(routerName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_compute_router.foobar", "bgp.0.identifier_range", "169.254.8.8/30"),
+					resource.TestCheckResourceAttrSet("google_compute_router.foobar", "router_id"),
 				),
 			},
 			{

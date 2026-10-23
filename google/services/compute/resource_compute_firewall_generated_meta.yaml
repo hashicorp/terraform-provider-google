@@ -20,6 +20,8 @@ fields:
     - api_field: destinationRanges
     - api_field: direction
     - api_field: disabled
+    - api_field: id
+      field: firewall_id
     - api_field: logConfig.metadata
     - api_field: name
     - api_field: network

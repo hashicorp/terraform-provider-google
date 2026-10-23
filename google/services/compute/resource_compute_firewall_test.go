@@ -60,6 +60,7 @@ func TestAccComputeFirewall_update(t *testing.T) {
 				Config: testAccComputeFirewall_nullDescription(networkName, firewallName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_compute_firewall.foobar", "description", ""),
+					resource.TestCheckResourceAttrSet("google_compute_firewall.foobar", "firewall_id"),
 				),
 			},
 			{

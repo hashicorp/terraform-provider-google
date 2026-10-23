@@ -804,6 +804,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/serviceAttachments/{{name}}`
 
+* `service_attachment_id` -
+  The unique identifier number for the resource. This identifier is defined by the server.
+
 * `fingerprint` -
   Fingerprint of this resource. This field is used internally during
   updates of this resource.
