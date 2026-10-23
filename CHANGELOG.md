@@ -1,4 +1,9 @@
-## 8.8.0 (Unreleased)
+## 8.8.1 (Unreleased)
+
+NOTES:
+* Updated to Go 1.26.10 for security fixes to the crypto/x509 package described under https://github.com/golang/go/issues?q=milestone%3AGo1.26.10+label%3ACherryPickApproved 
+
+## 8.8.0 (October 20, 2026)
 
 FEATURES:
 * **New Data Source:** `google_cloud_run_v2_instance_iam_policy` ([#29991](https://github.com/hashicorp/terraform-provider-google/pull/29991))
