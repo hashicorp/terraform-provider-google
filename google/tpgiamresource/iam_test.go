@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -1144,6 +1145,41 @@ func (t *timeoutRoundTripper) RoundTrip(req *http.Request) (*http.Response, erro
 	return t.internal.RoundTrip(req.WithContext(ctx))
 }
 
+// ctxRoundTripper attaches ctx to every outgoing request.
+type ctxRoundTripper struct {
+	ctx      context.Context
+	internal http.RoundTripper
+}
+
+func (t *ctxRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	return t.internal.RoundTrip(req.WithContext(t.ctx))
+}
+
+// cancelAfterNRoundTripper calls cancel once n responses have been fully
+// received. The response body is buffered before cancelling so that callers
+// can still read it after the request context is done.
+type cancelAfterNRoundTripper struct {
+	n        int32
+	calls    int32
+	cancel   context.CancelFunc
+	internal http.RoundTripper
+}
+
+func (t *cancelAfterNRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp, err := t.internal.RoundTrip(req)
+	if atomic.AddInt32(&t.calls, 1) < t.n || err != nil {
+		return resp, err
+	}
+	body, readErr := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if readErr != nil {
+		return nil, readErr
+	}
+	resp.Body = io.NopCloser(bytes.NewReader(body))
+	t.cancel()
+	return resp, nil
+}
+
 type httpTestIamUpdater struct {
 	resourceId string
 	url        string
@@ -1254,15 +1290,23 @@ func TestIamPolicyReadModifyWrite_429(t *testing.T) {
 		}))
 		defer ts.Close()
 
+		// Cancel the request context as soon as the second (retried) 429 response
+		// has been received, so retryTransport stops during its next backoff wait.
+		// This is deterministic, unlike a wall-clock timeout racing the 500ms
+		// backoff, which flaked on loaded CI machines.
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 		updater := &httpTestIamUpdater{
 			resourceId: "persistent-429",
 			url:        ts.URL + "/resource",
 			client: &http.Client{
-				Transport: &timeoutRoundTripper{
-					// retryTransport's first backoff is 500ms; 550ms lets it complete 1 retry
-					// at t=500ms and then immediately cancel the second backoff wait via ctx.Done().
-					timeout:  550 * time.Millisecond,
-					internal: transport_tpg.NewTransportWithDefaultRetries(ts.Client().Transport),
+				Transport: &ctxRoundTripper{
+					ctx: ctx,
+					internal: transport_tpg.NewTransportWithDefaultRetries(&cancelAfterNRoundTripper{
+						n:        2,
+						cancel:   cancel,
+						internal: ts.Client().Transport,
+					}),
 				},
 			},
 		}
@@ -1279,10 +1323,10 @@ func TestIamPolicyReadModifyWrite_429(t *testing.T) {
 			if !transport_tpg.IsGoogleApiErrorWithCode(err, http.StatusTooManyRequests) {
 				t.Fatalf("expected 429 googleapi.Error, got: %v", err)
 			}
-			if got := atomic.LoadInt32(&getCalls); got < 2 {
-				t.Fatalf("expected retryTransport to retry at least once (got %d calls)", got)
+			if got := atomic.LoadInt32(&getCalls); got != 2 {
+				t.Fatalf("expected exactly 2 getIamPolicy calls (1 initial + 1 transport retry), got %d", got)
 			}
-		case <-time.After(900 * time.Millisecond):
+		case <-time.After(10 * time.Second):
 			t.Fatalf("iamPolicyReadModifyWrite did not terminate after transport 429 retries exhausted (%d calls made)", atomic.LoadInt32(&getCalls))
 		}
 	})
