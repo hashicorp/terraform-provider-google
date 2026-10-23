@@ -50,6 +50,10 @@ fields:
     - field: location
       provider_only: true
     - api_field: name
+    - api_field: salesforceDataCloud.crossCloudCacheOptions.enabled
+    - api_field: salesforceDataCloud.identity
+    - api_field: salesforceDataCloud.instanceUri
+    - api_field: salesforceDataCloud.tenantId
     - api_field: spark.metastoreServiceConfig.metastoreService
     - api_field: spark.serviceAccountId
     - api_field: spark.sparkHistoryServerConfig.dataprocCluster

@@ -170,7 +170,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "salesforce_data_cloud", "spark"},
 			},
 			"azure": {
 				Type:        schema.TypeList,
@@ -216,7 +216,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "salesforce_data_cloud", "spark"},
 			},
 			"cloud_resource": {
 				Type:        schema.TypeList,
@@ -232,7 +232,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "salesforce_data_cloud", "spark"},
 			},
 			"cloud_spanner": {
 				Type:        schema.TypeList,
@@ -277,7 +277,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "salesforce_data_cloud", "spark"},
 			},
 			"cloud_sql": {
 				Type:        schema.TypeList,
@@ -345,7 +345,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "salesforce_data_cloud", "spark"},
 			},
 			"configuration": {
 				Type:     schema.TypeList,
@@ -479,7 +479,7 @@ For AlloyDB, this is in the format of
 						},
 					},
 				},
-				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "salesforce_data_cloud", "spark"},
 			},
 			"connection_id": {
 				Type:        schema.TypeString,
@@ -516,6 +516,50 @@ Examples: US, EU, asia-northeast1, us-central1, europe-west1.
 Spanner Connections same as spanner region
 AWS allowed regions are aws-us-east-1
 Azure allowed regions are azure-eastus2`,
+			},
+			"salesforce_data_cloud": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Connection properties specific to Salesforce Data Cloud.
+This connection type is intended for use only by Salesforce partner projects.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cross_cloud_cache_options": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `Configuration options for cross-cloud caching of data and metadata files.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Whether cross-cloud caching is enabled for queries through BigQuery.
+When enabled, read data and metadata are cached, which can improve performance
+and reduce network egress costs for cross-cloud queries.`,
+									},
+								},
+							},
+						},
+						"instance_uri": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The URL to the user's Salesforce Data Cloud instance.`,
+						},
+						"tenant_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The ID of the user's Salesforce tenant.`,
+						},
+						"identity": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `A unique Google-owned and Google-generated service account identity for the connection.`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "salesforce_data_cloud", "spark"},
 			},
 			"spark": {
 				Type:        schema.TypeList,
@@ -561,7 +605,7 @@ Azure allowed regions are azure-eastus2`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "spark"},
+				ExactlyOneOf: []string{"aws", "azure", "cloud_resource", "cloud_spanner", "cloud_sql", "configuration", "salesforce_data_cloud", "spark"},
 			},
 			"has_credential": {
 				Type:        schema.TypeBool,
@@ -664,6 +708,12 @@ func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("spark"); ok || !reflect.DeepEqual(v, sparkProp) {
 		obj["spark"] = sparkProp
+	}
+	salesforceDataCloudProp, err := expandBigqueryConnectionConnectionSalesforceDataCloud(d.Get("salesforce_data_cloud"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("salesforce_data_cloud"); !tpgresource.IsEmptyValue(reflect.ValueOf(salesforceDataCloudProp)) && (ok || !reflect.DeepEqual(v, salesforceDataCloudProp)) {
+		obj["salesforceDataCloud"] = salesforceDataCloudProp
 	}
 	configurationProp, err := expandBigqueryConnectionConnectionConfiguration(d.Get("configuration"), d, config)
 	if err != nil {
@@ -942,6 +992,12 @@ func resourceBigqueryConnectionConnectionUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("spark"); ok || !reflect.DeepEqual(v, sparkProp) {
 		obj["spark"] = sparkProp
 	}
+	salesforceDataCloudProp, err := expandBigqueryConnectionConnectionSalesforceDataCloud(d.Get("salesforce_data_cloud"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("salesforce_data_cloud"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, salesforceDataCloudProp)) {
+		obj["salesforceDataCloud"] = salesforceDataCloudProp
+	}
 	configurationProp, err := expandBigqueryConnectionConnectionConfiguration(d.Get("configuration"), d, config)
 	if err != nil {
 		return err
@@ -998,6 +1054,12 @@ func resourceBigqueryConnectionConnectionUpdate(d *schema.ResourceData, meta int
 
 	if d.HasChange("spark") {
 		updateMask = append(updateMask, "spark")
+	}
+
+	if d.HasChange("salesforce_data_cloud") {
+		updateMask = append(updateMask, "salesforce_data_cloud.instance_uri",
+			"salesforce_data_cloud.tenant_id",
+			"salesforce_data_cloud.cross_cloud_cache_options.enabled")
 	}
 
 	if d.HasChange("configuration") {
@@ -1403,6 +1465,54 @@ func flattenBigqueryConnectionConnectionSparkSparkHistoryServerConfig(v interfac
 	return []interface{}{transformed}
 }
 func flattenBigqueryConnectionConnectionSparkSparkHistoryServerConfigDataprocCluster(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionSalesforceDataCloud(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["instance_uri"] =
+		flattenBigqueryConnectionConnectionSalesforceDataCloudInstanceUri(original["instanceUri"], d, config)
+	transformed["tenant_id"] =
+		flattenBigqueryConnectionConnectionSalesforceDataCloudTenantId(original["tenantId"], d, config)
+	transformed["identity"] =
+		flattenBigqueryConnectionConnectionSalesforceDataCloudIdentity(original["identity"], d, config)
+	transformed["cross_cloud_cache_options"] =
+		flattenBigqueryConnectionConnectionSalesforceDataCloudCrossCloudCacheOptions(original["crossCloudCacheOptions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryConnectionConnectionSalesforceDataCloudInstanceUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionSalesforceDataCloudTenantId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionSalesforceDataCloudIdentity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionSalesforceDataCloudCrossCloudCacheOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenBigqueryConnectionConnectionSalesforceDataCloudCrossCloudCacheOptionsEnabled(original["enabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryConnectionConnectionSalesforceDataCloudCrossCloudCacheOptionsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2032,6 +2142,87 @@ func expandBigqueryConnectionConnectionSparkSparkHistoryServerConfigDataprocClus
 	return v, nil
 }
 
+func expandBigqueryConnectionConnectionSalesforceDataCloud(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInstanceUri, err := expandBigqueryConnectionConnectionSalesforceDataCloudInstanceUri(original["instance_uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInstanceUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["instanceUri"] = transformedInstanceUri
+	}
+
+	transformedTenantId, err := expandBigqueryConnectionConnectionSalesforceDataCloudTenantId(original["tenant_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTenantId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tenantId"] = transformedTenantId
+	}
+
+	transformedIdentity, err := expandBigqueryConnectionConnectionSalesforceDataCloudIdentity(original["identity"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdentity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["identity"] = transformedIdentity
+	}
+
+	transformedCrossCloudCacheOptions, err := expandBigqueryConnectionConnectionSalesforceDataCloudCrossCloudCacheOptions(original["cross_cloud_cache_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCrossCloudCacheOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["crossCloudCacheOptions"] = transformedCrossCloudCacheOptions
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryConnectionConnectionSalesforceDataCloudInstanceUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionSalesforceDataCloudTenantId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionSalesforceDataCloudIdentity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionSalesforceDataCloudCrossCloudCacheOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandBigqueryConnectionConnectionSalesforceDataCloudCrossCloudCacheOptionsEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryConnectionConnectionSalesforceDataCloudCrossCloudCacheOptionsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandBigqueryConnectionConnectionConfiguration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -2358,6 +2549,9 @@ func ResourceBigqueryConnectionConnectionFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading Connection: %s", err)
 	}
 	if err = d.Set("spark", flattenBigqueryConnectionConnectionSpark(res["spark"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("salesforce_data_cloud", flattenBigqueryConnectionConnectionSalesforceDataCloud(res["salesforceDataCloud"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connection: %s", err)
 	}
 	if err = d.Set("configuration", flattenBigqueryConnectionConnectionConfiguration(res["configuration"], d, config)); err != nil {
