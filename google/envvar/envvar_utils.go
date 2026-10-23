@@ -73,6 +73,13 @@ func CredsEnvVarsExcludingAdcs() []string {
 	return filtered
 }
 
+// AccessTokenEnvVars are the environment variables that can supply an OAuth2
+// access token. This matches the env var used for the provider's access_token
+// field.
+var AccessTokenEnvVars = []string{
+	"GOOGLE_OAUTH_ACCESS_TOKEN",
+}
+
 var ProjectNumberEnvVars = []string{
 	"GOOGLE_PROJECT_NUMBER",
 }
@@ -184,6 +191,12 @@ func GetTestCredsFromEnv() string {
 		return ""
 	}
 	return MultiEnvSearch(CredsEnvVars)
+}
+
+// GetTestAccessTokenFromEnv returns the OAuth2 access token configured in the
+// environment, if any.
+func GetTestAccessTokenFromEnv() string {
+	return MultiEnvSearch(AccessTokenEnvVars)
 }
 
 // Returns googleapis.com if there's no universe set.
