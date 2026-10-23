@@ -23,6 +23,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -66,8 +67,14 @@ func testAccCheckDataSourceComputeResourcePolicyDestroy(t *testing.T, name strin
 
 			policyAttrs := rs.Primary.Attributes
 
-			_, err := compute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).ResourcePolicies.Get(
-				config.Project, policyAttrs["region"], policyAttrs["name"]).Do()
+			url := fmt.Sprintf("%sprojects/%s/regions/%s/resourcePolicies/%s", transport_tpg.BaseUrl(compute.Product, config), config.Project, policyAttrs["region"], policyAttrs["name"])
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   config.Project,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
 			if err == nil {
 				return fmt.Errorf("Resource Policy still exists")
 			}

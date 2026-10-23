@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -87,13 +88,19 @@ func testAccCheckComputeRegionTargetTcpProxyExists(t *testing.T, n string) resou
 		name := rs.Primary.Attributes["name"]
 		region := rs.Primary.Attributes["region"]
 
-		found, err := compute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).RegionTargetTcpProxies.Get(
-			config.Project, region, name).Do()
+		url := fmt.Sprintf("%sprojects/%s/regions/%s/targetTcpProxies/%s", transport_tpg.BaseUrl(compute.Product, config), config.Project, region, name)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		if found.Name != name {
+		if found["name"] != name {
 			return fmt.Errorf("RegionTargetTcpProxy not found")
 		}
 

@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Add two key value pairs
@@ -139,9 +140,20 @@ func testAccCheckComputeProjectMetadataDestroyProducer(t *testing.T) func(s *ter
 				continue
 			}
 
-			project, err := compute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Projects.Get(rs.Primary.ID).Do()
-			if err == nil && project.CommonInstanceMetadata != nil && len(project.CommonInstanceMetadata.Items) > 0 {
-				return fmt.Errorf("Error, metadata items still exist in %s", rs.Primary.ID)
+			url := fmt.Sprintf("%sprojects/%s", transport_tpg.BaseUrl(compute.Product, config), rs.Primary.ID)
+			project, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   rs.Primary.ID,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
+			if err == nil {
+				if commonInstanceMetadata, ok := project["commonInstanceMetadata"].(map[string]interface{}); ok {
+					if items, ok := commonInstanceMetadata["items"].([]interface{}); ok && len(items) > 0 {
+						return fmt.Errorf("Error, metadata items still exist in %s", rs.Primary.ID)
+					}
+				}
 			}
 		}
 

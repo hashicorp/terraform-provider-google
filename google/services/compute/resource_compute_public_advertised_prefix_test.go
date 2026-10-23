@@ -150,15 +150,25 @@ func testAccCheckParentHasSubPrefix(t *testing.T, project, region, parentName, s
 		newSubPrefixName := rs.Primary.Attributes["name"]
 
 		config := acctest.GoogleProviderConfig(t)
-		computeService := compute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent)
-
-		parent, err := computeService.PublicDelegatedPrefixes.Get(project, region, parentName).Do()
+		url := fmt.Sprintf("%sprojects/%s/regions/%s/publicDelegatedPrefixes/%s", transport_tpg.BaseUrl(compute.Product, config), project, region, parentName)
+		parent, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		for _, sub := range parent.PublicDelegatedSubPrefixs {
-			if sub.Name == newSubPrefixName {
+		subPrefixes, _ := parent["publicDelegatedSubPrefixs"].([]interface{})
+		for _, rawSub := range subPrefixes {
+			sub, ok := rawSub.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if sub["name"] == newSubPrefixName {
 				return nil
 			}
 		}

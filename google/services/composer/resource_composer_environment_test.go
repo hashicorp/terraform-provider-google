@@ -3066,32 +3066,60 @@ func testAccCheckClearComposerEnvironmentFirewalls(t *testing.T, networkName str
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
 		config.Project = envvar.GetTestProjectFromEnv()
-		network, err := tpgcompute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Networks.Get(envvar.GetTestProjectFromEnv(), networkName).Do()
+		networkUrl := fmt.Sprintf("%sprojects/%s/global/networks/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, networkName)
+		network, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    networkUrl,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
+		netName, _ := network["name"].(string)
 
-		foundFirewalls, err := tpgcompute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Firewalls.List(config.Project).Do()
+		firewallsUrl := fmt.Sprintf("%sprojects/%s/global/firewalls", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project)
+		foundFirewalls, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    firewallsUrl,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
-			return fmt.Errorf("unable to list firewalls for network %q: %s", network.Name, err)
+			return fmt.Errorf("unable to list firewalls for network %q: %s", netName, err)
 		}
 
 		var allErrors error
-		for _, firewall := range foundFirewalls.Items {
-			if !strings.HasPrefix(firewall.Name, testComposerNetworkPrefix) {
+		items, _ := foundFirewalls["items"].([]interface{})
+		for _, item := range items {
+			firewall, ok := item.(map[string]interface{})
+			if !ok {
 				continue
 			}
-			log.Printf("[DEBUG] Deleting firewall %q for test-resource network %q", firewall.Name, network.Name)
-			op, err := tpgcompute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).Firewalls.Delete(config.Project, firewall.Name).Do()
+			firewallName, _ := firewall["name"].(string)
+			if !strings.HasPrefix(firewallName, testComposerNetworkPrefix) {
+				continue
+			}
+			log.Printf("[DEBUG] Deleting firewall %q for test-resource network %q", firewallName, netName)
+			deleteUrl := fmt.Sprintf("%sprojects/%s/global/firewalls/%s", transport_tpg.BaseUrl(tpgcompute.Product, config), config.Project, firewallName)
+			op, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				Project:   config.Project,
+				RawURL:    deleteUrl,
+				UserAgent: config.UserAgent,
+			})
 			if err != nil {
-				allErrors = errors.Join(allErrors, fmt.Errorf("unable to delete firewalls for network %q: %s", network.Name, err))
+				allErrors = errors.Join(allErrors, fmt.Errorf("unable to delete firewalls for network %q: %s", netName, err))
 				continue
 			}
 
 			waitErr := tpgcompute.ComputeOperationWaitTime(config, op, config.Project,
 				"Sweeping test composer environment firewalls", config.UserAgent, 10)
 			if waitErr != nil {
-				allErrors = errors.Join(allErrors, fmt.Errorf("error while waiting to delete firewall %q: %s", firewall.Name, waitErr))
+				allErrors = errors.Join(allErrors, fmt.Errorf("error while waiting to delete firewall %q: %s", firewallName, waitErr))
 			}
 		}
 		return allErrors

@@ -18,9 +18,11 @@ package compute
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // This will sweep Compute Instance Templates
@@ -45,13 +47,21 @@ func testSweepComputeInstanceTemplate(region string) error {
 		return err
 	}
 
-	instanceTemplates, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).InstanceTemplates.List(config.Project).Do()
+	listUrl := fmt.Sprintf("%sprojects/%s/global/instanceTemplates", transport_tpg.BaseUrl(Product, config), config.Project)
+	instanceTemplates, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    listUrl,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] Error in response from request instance templates LIST: %s", err)
 		return nil
 	}
 
-	numTemplates := len(instanceTemplates.Items)
+	items, _ := instanceTemplates["items"].([]interface{})
+	numTemplates := len(items)
 	if numTemplates == 0 {
 		log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
 		return nil
@@ -60,19 +70,31 @@ func testSweepComputeInstanceTemplate(region string) error {
 	log.Printf("[INFO][SWEEPER_LOG] Found %d items in %s list response.", numTemplates, resourceName)
 	// Count items that weren't sweeped.
 	nonPrefixCount := 0
-	for _, instanceTemplate := range instanceTemplates.Items {
+	for _, rawTemplate := range items {
+		instanceTemplate, ok := rawTemplate.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		templateName, _ := instanceTemplate["name"].(string)
 		// Increment count and skip if resource is not sweepable.
-		if !sweeper.IsSweepableTestResource(instanceTemplate.Name) {
+		if !sweeper.IsSweepableTestResource(templateName) {
 			nonPrefixCount++
 			continue
 		}
 
 		// Don't wait on operations as we may have a lot to delete
-		_, err := DEPRECATED_LegacyApiaryClient(config, config.UserAgent).InstanceTemplates.Delete(config.Project, instanceTemplate.Name).Do()
+		deleteUrl := fmt.Sprintf("%sprojects/%s/global/instanceTemplates/%s", transport_tpg.BaseUrl(Product, config), config.Project, templateName)
+		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "DELETE",
+			Project:   config.Project,
+			RawURL:    deleteUrl,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
-			log.Printf("[INFO][SWEEPER_LOG] Error deleting instance template: %s", instanceTemplate.Name)
+			log.Printf("[INFO][SWEEPER_LOG] Error deleting instance template: %s", templateName)
 		} else {
-			log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, instanceTemplate.Name)
+			log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, templateName)
 		}
 	}
 

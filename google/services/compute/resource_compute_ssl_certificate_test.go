@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccComputeSslCertificate_no_name(t *testing.T) {
@@ -107,13 +108,19 @@ func testAccCheckComputeSslCertificateExists(t *testing.T, n string) resource.Te
 		// We don't specify a name, but it is saved during create
 		name := rs.Primary.Attributes["name"]
 
-		found, err := compute.DEPRECATED_LegacyApiaryClient(config, config.UserAgent).SslCertificates.Get(
-			config.Project, name).Do()
+		url := fmt.Sprintf("%sprojects/%s/global/sslCertificates/%s", transport_tpg.BaseUrl(compute.Product, config), config.Project, name)
+		found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
 		if err != nil {
 			return err
 		}
 
-		if found.Name != name {
+		if found["name"] != name {
 			return fmt.Errorf("Certificate not found")
 		}
 
