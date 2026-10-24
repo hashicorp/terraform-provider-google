@@ -1,0 +1,3 @@
+```release-note:bug
+sql: avoid leaking sensitive values and skip `root_password` comparison during `blue_green_deployment` switchover validation on `google_sql_database_instance`
+```
