@@ -218,6 +218,30 @@ resource "google_compute_network" "custom-test" {
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=subnetwork_purpose_custom_hardware_link&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Subnetwork Purpose Custom Hardware Link
+
+
+```hcl
+resource "google_compute_subnetwork" "subnetwork-purpose-custom-hardware-link" {
+  provider      = google-beta
+  name          = "subnet-purpose-chl-test-subnetwork"
+  region        = "us-central1"
+  ip_cidr_range = "192.168.2.0/24"
+  purpose       = "CUSTOM_HARDWARE_LINK"
+  network       = google_compute_network.custom-test.id
+}
+resource "google_compute_network" "custom-test" {
+  provider                = google-beta
+  name                    = "subnet-purpose-chl-test-network"
+  auto_create_subnetworks = false
+}
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=subnetwork_resolve_subnet_mask&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
@@ -444,12 +468,13 @@ The following arguments are supported:
 
 * `purpose` -
   (Optional)
-  The purpose of the resource. This field can be either `PRIVATE`, `REGIONAL_MANAGED_PROXY`, `GLOBAL_MANAGED_PROXY`, `PRIVATE_SERVICE_CONNECT`, `PEER_MIGRATION` or `PRIVATE_NAT`([Beta](../guides/provider_versions.html.markdown)).
+  The purpose of the resource. This field can be either `PRIVATE`, `REGIONAL_MANAGED_PROXY`, `GLOBAL_MANAGED_PROXY`, `PRIVATE_SERVICE_CONNECT`, `PEER_MIGRATION`, `PRIVATE_NAT`([Beta](../guides/provider_versions.html.markdown)) or `CUSTOM_HARDWARE_LINK`([Beta](../guides/provider_versions.html.markdown)).
   A subnet with purpose set to `REGIONAL_MANAGED_PROXY` is a user-created subnetwork that is reserved for regional Envoy-based load balancers.
   A subnetwork in a given region with purpose set to `GLOBAL_MANAGED_PROXY` is a proxy-only subnet and is shared between all the cross-regional Envoy-based load balancers.
   A subnetwork with purpose set to `PRIVATE_SERVICE_CONNECT` reserves the subnet for hosting a Private Service Connect published service.
   A subnetwork with purpose set to `PEER_MIGRATION` is a user created subnetwork that is reserved for migrating resources from one peered network to another.
   A subnetwork with purpose set to `PRIVATE_NAT` is used as source range for Private NAT gateways.
+  A subnetwork with purpose set to `CUSTOM_HARDWARE_LINK` is used by Custom Hardware Link.
   Note that `REGIONAL_MANAGED_PROXY` is the preferred setting for all regional Envoy load balancers.
   If unspecified, the purpose defaults to `PRIVATE`.
 
