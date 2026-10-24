@@ -202,17 +202,30 @@ Additionally, it helps ensure your cluster isn't inadvertently deleted.
 Terraform struggles to handle complex changes to subresources, and may attempt
 to delete a cluster based on changes to inline node pools.
 
-However, the GKE API doesn't allow creating a cluster without nodes. It's common
-for Terraform users to define a block such as the following:
+You can create a cluster without a default node pool by omitting
+`initial_node_count`, `node_config`, and `node_pool` (or setting
+`initial_node_count = 0`). This requires a GKE version that supports clusters
+without a default node pool:
 
 ```hcl
 resource "google_container_cluster" "my-gke-cluster" {
   name     = "my-gke-cluster"
   location = "us-central1"
 
-  # We can't create a cluster with no node pool defined, but we want to only use
-  # separately managed node pools. So we create the smallest possible default
-  # node pool and immediately delete it.
+  # other settings...
+}
+```
+
+On older GKE versions where the API does not allow creating a cluster with `0`
+nodes, it's common for Terraform users to define a block such as the following:
+
+```hcl
+resource "google_container_cluster" "my-gke-cluster" {
+  name     = "my-gke-cluster"
+  location = "us-central1"
+
+  # On older GKE versions, we can't create a cluster with no node pool defined,
+  # so we create the smallest possible default node pool and immediately delete it.
   remove_default_node_pool = true
   initial_node_count       = 1
 
