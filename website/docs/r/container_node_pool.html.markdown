@@ -39,11 +39,9 @@ resource "google_container_cluster" "primary" {
   name     = "my-gke-cluster"
   location = "us-central1"
 
-  # We can't create a cluster with no node pool defined, but we want to only use
-  # separately managed node pools. So we create the smallest possible default
-  # node pool and immediately delete it.
-  remove_default_node_pool = true
-  initial_node_count       = 1
+  # Required prior to GKE 1.36.4-gke.1469000 to use separately managed node pools
+  # remove_default_node_pool = true
+  # initial_node_count       = 1
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {

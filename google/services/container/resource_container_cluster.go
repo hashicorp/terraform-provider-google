@@ -1164,10 +1164,11 @@ func ResourceContainerCluster() *schema.Resource {
 			},
 
 			"initial_node_count": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The number of nodes to create in this cluster's default node pool. In regional or multi-zonal clusters, this is the number of nodes per zone. Must be set if node_pool is not set. If you're using google_container_node_pool objects with no default node pool, you'll need to set this to a value of at least 1, alongside setting remove_default_node_pool to true.`,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: containerClusterInitialNodeCountDiffSuppress,
+				Description:      `The number of nodes to create in this cluster's default node pool. In regional or multi-zonal clusters, this is the number of nodes per zone. When omitted (or set to 0) with no node_config or node_pool blocks defined, the cluster is created without a default node pool. This requires a GKE version that supports clusters without a default node pool (1.36.4-gke.1469000+). For older GKE versions, if you're using google_container_node_pool objects with no default node pool, you'll need to set this to a value of at least 1, alongside setting remove_default_node_pool to true.`,
 			},
 
 			"logging_config": {
@@ -2100,7 +2101,8 @@ func ResourceContainerCluster() *schema.Resource {
 			"remove_default_node_pool": {
 				Type:          schema.TypeBool,
 				Optional:      true,
-				Description:   `If true, deletes the default node pool upon cluster creation. If you're using google_container_node_pool resources with no default node pool, this should be set to true, alongside setting initial_node_count to at least 1.`,
+				Deprecated:    "On newer cluster versions (1.36.4-gke.1469000+) omit initial_node_count and node_config (or set initial_node_count = 0) instead.",
+				Description:   `If true, deletes the default node pool upon cluster creation. On GKE versions that support clusters without a default node pool, you can instead omit initial_node_count and node_config (or set initial_node_count to 0) to skip creating the default node pool without setting this field. For older GKE versions, if you're using google_container_node_pool resources with no default node pool, this should be set to true, alongside setting initial_node_count to at least 1.`,
 				ConflictsWith: []string{"enable_autopilot"},
 			},
 
@@ -3361,11 +3363,15 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			},
 		})
 		if err != nil {
-			return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
-		}
-		err = ContainerOperationWait(config, op, project, location, "removing default node pool", userAgent, d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return errwrap.Wrapf("Error while waiting to delete default node pool: {{err}}", err)
+			if !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+				return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+			}
+			log.Printf("[WARN] Container cluster %q default node pool already removed, no change", d.Id())
+		} else {
+			err = ContainerOperationWait(config, op, project, location, "removing default node pool", userAgent, d.Timeout(schema.TimeoutCreate))
+			if err != nil {
+				return errwrap.Wrapf("Error while waiting to delete default node pool: {{err}}", err)
+			}
 		}
 	}
 
@@ -8679,6 +8685,17 @@ func containerClusterSkipNodePoolRefreshCustomizeDiff(_ context.Context, diff *s
 		return fmt.Errorf("skip_node_pool_refresh cannot be true when inline node_pool blocks are defined; use google_container_node_pool resources instead, or unset skip_node_pool_refresh")
 	}
 	return nil
+}
+
+func containerClusterInitialNodeCountDiffSuppress(_, old, new string, d *schema.ResourceData) bool {
+	if d == nil || d.Id() == "" {
+		return false
+	}
+	rawConfig := d.GetRawConfig()
+	if rawConfig.IsNull() || !rawConfig.IsKnown() || !rawConfig.Type().HasAttribute("initial_node_count") {
+		return false
+	}
+	return rawConfig.GetAttr("initial_node_count").IsNull()
 }
 
 func containerClusterNodeVersionCustomizeDiffFunc(diff tpgresource.TerraformResourceDiff) error {

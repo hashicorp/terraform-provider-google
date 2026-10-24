@@ -1,0 +1,11 @@
+```release-note:enhancement
+container: updated `google_container_cluster` to support creating clusters without a default node pool when `initial_node_count` and `node_config` are omitted (or `initial_node_count` is set to `0`). When `remove_default_node_pool = true` and the default node pool was not created, `remove_default_node_pool` will do a noop.
+```
+
+```release-note:enhancement
+container: `initial_node_count` can now be removed from config or set to null without creating a diff. `0` set in config is still respected
+```
+
+```release-note:deprecation
+container: deprecated `remove_default_node_pool` on `google_container_cluster` in favor of omitting `initial_node_count` and `node_config` (or setting `initial_node_count = 0`). When this is set to `true` and the default node pool was not created, this will do a noop.
+```
