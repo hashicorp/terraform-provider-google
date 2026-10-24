@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `CUSTOM_HARDWARE_LINK` as a supported value for `purpose` in `google_compute_subnetwork` resource (beta)
+```
