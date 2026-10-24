@@ -1,0 +1,3 @@
+```release-note:bug
+serviceusagev2: fixed `parent`/`name` replacement behavior, `enable_rules` block limit, `billing_project` propagation on update/LROs, and empty policy payload on destroy for `google_service_usage_v2_consumer_policy` (beta)
+```
