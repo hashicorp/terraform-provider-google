@@ -836,6 +836,16 @@ The following arguments are supported:
   Configuration for vulnerability scanning of artifacts stored in this repository.
   Structure is [documented below](#nested_vulnerability_scanning_config).
 
+* `disallow_unspecified_mode` -
+  (Optional)
+  If this is true, an unspecified repo type will be treated as error rather
+  than defaulting to standard.
+
+* `platform_logs_config` -
+  (Optional)
+  Configuration for platform logs.
+  Structure is [documented below](#nested_platform_logs_config).
+
 * `location` -
   (Optional)
   The name of the repository's location. In addition to specific regions,
@@ -1171,6 +1181,19 @@ The following arguments are supported:
 * `enablement_state_reason` -
   (Output)
   This provides an explanation for the state of scanning on this repository.
+
+<a name="nested_platform_logs_config"></a>The `platform_logs_config` block supports:
+
+* `logging_state` -
+  (Optional)
+  The state of the platform logs: enabled or disabled.
+  Possible values are: `ENABLED`, `DISABLED`.
+
+* `severity_level` -
+  (Optional)
+  The severity level for the logs. Logs will be generated if their
+  severity level is >= than the value of the severity level mentioned here.
+  Possible values are: `DEBUG`, `INFO`, `NOTICE`, `WARNING`, `ERROR`, `CRITICAL`, `ALERT`, `EMERGENCY`.
 
 ## Attributes Reference
 

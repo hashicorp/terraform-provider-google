@@ -42,7 +42,7 @@ func TestAccArtifactRegistryRepository_update(t *testing.T) {
 				ResourceName:            "google_artifact_registry_repository.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccArtifactRegistryRepository_update2(repositoryID),
@@ -51,7 +51,25 @@ func TestAccArtifactRegistryRepository_update(t *testing.T) {
 				ResourceName:            "google_artifact_registry_repository.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccArtifactRegistryRepository_update3(repositoryID),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccArtifactRegistryRepository_update4(repositoryID),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -264,10 +282,11 @@ resource "google_artifact_registry_repository" "test" {
 func testAccArtifactRegistryRepository_update(repositoryID string) string {
 	return fmt.Sprintf(`
 resource "google_artifact_registry_repository" "test" {
-  repository_id = "%s"
-  location = "us-central1"
-  description = "pre-update"
-  format = "DOCKER"
+  repository_id             = "%s"
+  location                  = "us-central1"
+  description               = "pre-update"
+  format                    = "DOCKER"
+  disallow_unspecified_mode = true
 
   labels = {
     my_key    = "my_val"
@@ -280,10 +299,57 @@ resource "google_artifact_registry_repository" "test" {
 func testAccArtifactRegistryRepository_update2(repositoryID string) string {
 	return fmt.Sprintf(`
 resource "google_artifact_registry_repository" "test" {
+  repository_id             = "%s"
+  location                  = "us-central1"
+  description               = "post-update"
+  format                    = "DOCKER"
+  disallow_unspecified_mode = false
+
+  platform_logs_config {
+    logging_state  = "ENABLED"
+    severity_level = "INFO"
+  }
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "new_val"
+  }
+}
+`, repositoryID)
+}
+
+func testAccArtifactRegistryRepository_update3(repositoryID string) string {
+	return fmt.Sprintf(`
+resource "google_artifact_registry_repository" "test" {
   repository_id = "%s"
-  location = "us-central1"
-  description = "post-update"
-  format = "DOCKER"
+  location      = "us-central1"
+  description   = "post-update-severity"
+  format        = "DOCKER"
+
+  platform_logs_config {
+    logging_state  = "ENABLED"
+    severity_level = "WARNING"
+  }
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "new_val"
+  }
+}
+`, repositoryID)
+}
+
+func testAccArtifactRegistryRepository_update4(repositoryID string) string {
+	return fmt.Sprintf(`
+resource "google_artifact_registry_repository" "test" {
+  repository_id = "%s"
+  location      = "us-central1"
+  description   = "post-update-disabled"
+  format        = "DOCKER"
+
+  platform_logs_config {
+    logging_state = "DISABLED"
+  }
 
   labels = {
     my_key    = "my_val"
