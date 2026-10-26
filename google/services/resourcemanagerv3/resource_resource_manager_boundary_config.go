@@ -222,14 +222,15 @@ func resourceResourceManagerV3BoundaryConfigCreate(d *schema.ResourceData, meta 
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PATCH",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutCreate),
-		Headers:   headers,
+		Config:               config,
+		Method:               "PATCH",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutCreate),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsResourceManagerBoundaryRetryableError},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating BoundaryConfig: %s", err)
@@ -289,12 +290,13 @@ func resourceResourceManagerV3BoundaryConfigRead(d *schema.ResourceData, meta in
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Headers:   headers,
+		Config:               config,
+		Method:               "GET",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsResourceManagerBoundaryRetryableError},
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ResourceManagerV3BoundaryConfig %q", d.Id()))
@@ -413,14 +415,15 @@ func resourceResourceManagerV3BoundaryConfigUpdate(d *schema.ResourceData, meta 
 	// if updateMask is empty we are not updating anything so skip the post
 	if len(updateMask) > 0 {
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
+			Config:               config,
+			Method:               "PATCH",
+			Project:              billingProject,
+			RawURL:               url,
+			UserAgent:            userAgent,
+			Body:                 obj,
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			Headers:              headers,
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsResourceManagerBoundaryRetryableError},
 		})
 
 		if err != nil {
@@ -491,14 +494,15 @@ func resourceResourceManagerV3BoundaryConfigDelete(d *schema.ResourceData, meta 
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PATCH",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-		Headers:   headers,
+		Config:               config,
+		Method:               "PATCH",
+		Project:              billingProject,
+		RawURL:               url,
+		UserAgent:            userAgent,
+		Body:                 obj,
+		Timeout:              d.Timeout(schema.TimeoutDelete),
+		Headers:              headers,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsResourceManagerBoundaryRetryableError},
 	})
 
 	if err != nil {
