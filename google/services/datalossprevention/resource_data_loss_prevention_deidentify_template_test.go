@@ -4808,3 +4808,121 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 }
 `, context)
 }
+
+func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_transformationErrorHandlingUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDeidentifyTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_transformationErrorHandlingStart(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_transformationErrorHandlingUpdate(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_transformationErrorHandlingUnset(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_deidentify_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_transformationErrorHandlingStart(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "basic" {
+  parent       = "projects/%{project}"
+  description  = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    transformation_error_handling {
+      leave_untransformed {}
+    }
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "FIRST_NAME"
+        }
+
+        primitive_transformation {
+          replace_with_info_type_config = true
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_transformationErrorHandlingUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "basic" {
+  parent       = "projects/%{project}"
+  description  = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    transformation_error_handling {
+      throw_error {}
+    }
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "FIRST_NAME"
+        }
+
+        primitive_transformation {
+          replace_with_info_type_config = true
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplate_transformationErrorHandlingUnset(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_deidentify_template" "basic" {
+  parent       = "projects/%{project}"
+  description  = "Description"
+  display_name = "Displayname"
+
+  deidentify_config {
+    info_type_transformations {
+      transformations {
+        info_types {
+          name = "FIRST_NAME"
+        }
+
+        primitive_transformation {
+          replace_with_info_type_config = true
+        }
+      }
+    }
+  }
+}
+`, context)
+}

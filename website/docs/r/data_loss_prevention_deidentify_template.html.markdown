@@ -133,6 +133,9 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
         }
       }
 		}
+		transformation_error_handling {
+			throw_error {}
+		}
 	}
 }
 ```
@@ -231,6 +234,11 @@ The following arguments are supported:
   (Optional)
   Treat the dataset as structured. Transformations can be applied to specific locations within structured datasets, such as transforming a column within a table.
   Structure is [documented below](#nested_deidentify_config_record_transformations).
+
+* `transformation_error_handling` -
+  (Optional)
+  Mode for handling transformation errors. If left unspecified, the default mode is TransformationErrorHandling.ThrowError.
+  Structure is [documented below](#nested_deidentify_config_transformation_error_handling).
 
 
 <a name="nested_deidentify_config_image_transformations"></a>The `image_transformations` block supports:
@@ -3331,6 +3339,16 @@ The following arguments are supported:
 * `day` -
   (Optional)
   Day of a month. Must be from 1 to 31 and valid for the year and month, or 0 to specify a year by itself or a year and month where the day isn't significant.
+
+<a name="nested_deidentify_config_transformation_error_handling"></a>The `transformation_error_handling` block supports:
+
+* `throw_error` -
+  (Optional)
+  Throw an error
+
+* `leave_untransformed` -
+  (Optional)
+  Ignore errors
 
 ## Attributes Reference
 
