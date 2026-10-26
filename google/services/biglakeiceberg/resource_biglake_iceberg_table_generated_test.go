@@ -223,6 +223,117 @@ resource "google_biglake_iceberg_table" "my_iceberg_table" {
 `, context)
 }
 
+func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableNestedTypesExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"bucket_name":   "tf-test-my-bucket" + randomSuffix,
+		"namespace_id":  "tf_test_my_namespace" + randomSuffix,
+		"table_name":    "tf_test_my_table" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBiglakeIcebergIcebergTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBiglakeIcebergIcebergTable_biglakeIcebergTableNestedTypesExample(context),
+			},
+			{
+				ResourceName:            "google_biglake_iceberg_table.my_iceberg_table",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"catalog", "namespace"},
+			},
+			{
+				ResourceName:       "google_biglake_iceberg_table.my_iceberg_table",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBiglakeIcebergIcebergTable_biglakeIcebergTableNestedTypesExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%{bucket_name}"
+  location      = "us-central1"
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
+resource "google_biglake_iceberg_catalog" "catalog" {
+  name = google_storage_bucket.bucket.name
+  catalog_type = "CATALOG_TYPE_GCS_BUCKET"
+}
+
+resource "google_biglake_iceberg_namespace" "namespace" {
+  catalog = google_biglake_iceberg_catalog.catalog.name
+  namespace_id = "%{namespace_id}"
+}
+
+resource "google_biglake_iceberg_table" "my_iceberg_table" {
+  catalog   = google_biglake_iceberg_catalog.catalog.name
+  namespace = google_biglake_iceberg_namespace.namespace.namespace_id
+  name      = "%{table_name}"
+  schema {
+    type = "struct"
+    fields {
+      id       = 1
+      name     = "id"
+      type     = "long"
+      required = true
+    }
+    # List, map and struct types are JSON objects following the Iceberg spec.
+    # Field IDs are unique across the schema: nested IDs (5-9) come after the
+    # top-level ones (1-4), the order in which Iceberg assigns them.
+    fields {
+      id   = 2
+      name = "tags"
+      type = jsonencode({
+        type               = "list"
+        "element-id"       = 5
+        element            = "string"
+        "element-required" = false
+      })
+      required = false
+    }
+    fields {
+      id   = 3
+      name = "attributes"
+      type = jsonencode({
+        type             = "map"
+        "key-id"         = 6
+        key              = "string"
+        "value-id"       = 7
+        value            = "long"
+        "value-required" = false
+      })
+      required = false
+    }
+    fields {
+      id   = 4
+      name = "address"
+      type = jsonencode({
+        type = "struct"
+        fields = [
+          { id = 8, name = "street", type = "string", required = false },
+          { id = 9, name = "city", type = "string", required = false },
+        ]
+      })
+      required = false
+    }
+  }
+}
+`, context)
+}
+
 func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableUpdateExample(t *testing.T) {
 	t.Skip("true")
 	t.Parallel()

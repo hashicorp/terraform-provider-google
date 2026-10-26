@@ -1,0 +1,3 @@
+```release-note:bug
+biglakeiceberg: fixed `google_biglake_iceberg_table` failing to read or import tables with list, map or struct columns; these types can now be set in `schema.fields.type` with `jsonencode`
+```
