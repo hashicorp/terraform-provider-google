@@ -23,8 +23,6 @@ description: |-
 
 A Saas resource is the top-level representation of a SaaS service managed by a producer. It contains a list of locations where the service is available, which is used by the Rollout system to generate a rollout plan.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
@@ -38,7 +36,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 resource "google_saas_runtime_saas" "example" {
-  provider = google-beta
   saas_id  = "test-saas"
   location = "global"
 
@@ -56,7 +53,6 @@ resource "google_saas_runtime_saas" "example" {
 
 ```hcl
 resource "google_saas_runtime_saas" "example" {
-  provider = google-beta
   saas_id  = "example-saas"
   location = "us-central1"
 

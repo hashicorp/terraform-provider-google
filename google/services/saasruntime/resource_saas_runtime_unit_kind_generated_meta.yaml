@@ -1,0 +1,53 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_saas_runtime_unit_kind
+generation_type: mmv1
+source_file: products/saasservicemgmt/UnitKind.yaml
+api_service_name: saasservicemgmt.googleapis.com
+api_version: v1
+api_resource_type_kind: UnitKind
+autogen_status: true
+autogen_version: 1
+fields:
+    - api_field: annotations
+    - api_field: appParams.group
+    - api_field: appParams.scope.type
+    - api_field: applicationTemplateComponent.component
+    - api_field: applicationTemplateComponent.compositeRef.applicationTemplate
+    - api_field: applicationTemplateComponent.compositeRef.revision
+    - api_field: applicationTemplateComponent.compositeRef.syncOperation
+    - api_field: applicationTemplateComponent.revision
+    - api_field: createTime
+    - api_field: defaultRelease
+    - api_field: dependencies.alias
+    - api_field: dependencies.unitKind
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: inputVariableMappings.from.dependency
+    - api_field: inputVariableMappings.from.outputVariable
+    - api_field: inputVariableMappings.to.dependency
+    - api_field: inputVariableMappings.to.ignoreForLookup
+    - api_field: inputVariableMappings.to.inputVariable
+    - api_field: inputVariableMappings.variable
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: outputVariableMappings.from.dependency
+    - api_field: outputVariableMappings.from.outputVariable
+    - api_field: outputVariableMappings.to.dependency
+    - api_field: outputVariableMappings.to.ignoreForLookup
+    - api_field: outputVariableMappings.to.inputVariable
+    - api_field: outputVariableMappings.variable
+    - api_field: saas
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - field: unit_kind_id
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

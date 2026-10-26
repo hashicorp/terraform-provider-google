@@ -23,8 +23,6 @@ description: |-
 
 A RolloutKind is a reusable configuration resource that defines the policies, strategies, and targeting for Rollout operations. It acts as a template for repeatable Rollouts, providing guardrails and ensuring that updates are executed in a consistent manner across a fleet of Units.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
@@ -38,7 +36,6 @@ See [Provider Versions](../guides/provider_versions.html.markdown) for more deta
 
 ```hcl
 resource "google_saas_runtime_saas" "example_saas" {
-  provider = google-beta
   saas_id  = "example-saas"
   location = "global"
 
@@ -48,14 +45,12 @@ resource "google_saas_runtime_saas" "example_saas" {
 }
 
 resource "google_saas_runtime_unit_kind" "example_unitkind" {
-  provider     = google-beta
   location     = "global"
   unit_kind_id = "example-unitkind"
   saas         = google_saas_runtime_saas.example_saas.id
 }
 
 resource "google_saas_runtime_rollout_kind" "example" {
-  provider          = google-beta
   location          = "global"
   rollout_kind_id   = "example-rolloutkind"
   unit_kind         = google_saas_runtime_unit_kind.example_unitkind.id
