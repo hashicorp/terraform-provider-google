@@ -178,6 +178,11 @@ func ResourceIntegrationConnectorsConnection() *schema.Resource {
 				ForceNew:    true,
 				Description: `Name of Connection needs to be created.`,
 			},
+			"async_operations_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Async operations enabled for the connection. If Async Operations is enabled, Connection allows the customers to initiate async long running operations using the actions API.`,
+			},
 			"auth_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -481,6 +486,11 @@ format as: projects/*/secrets/*/versions/*.`,
 						},
 					},
 				},
+			},
+			"auth_override_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Auth override enabled for the connection. If Auth Override is enabled, Connection allows the backend service auth to be overridden in the entities/actions API.`,
 			},
 			"config_variable": {
 				Type:        schema.TypeList,
@@ -1090,6 +1100,26 @@ Will be empty string if google managed.`,
 				Optional:    true,
 				Description: `Suspended indicates if a user has suspended a connection or not.`,
 			},
+			"traffic_shaping_configs": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Traffic shaping configuration for the connection. Client specifies the throttling configuration for Connector API calls.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"duration": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Specifies the duration over which the API call quota limits are calculated.
+A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,
+						},
+						"quota_limit": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Maximum number of api calls allowed.`,
+						},
+					},
+				},
+			},
 			"connection_revision": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1313,6 +1343,24 @@ func resourceIntegrationConnectorsConnectionCreate(d *schema.ResourceData, meta 
 		return err
 	} else if v, ok := d.GetOkExists("eventing_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(eventingConfigProp)) && (ok || !reflect.DeepEqual(v, eventingConfigProp)) {
 		obj["eventingConfig"] = eventingConfigProp
+	}
+	asyncOperationsEnabledProp, err := expandIntegrationConnectorsConnectionAsyncOperationsEnabled(d.Get("async_operations_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("async_operations_enabled"); ok || !reflect.DeepEqual(v, asyncOperationsEnabledProp) {
+		obj["asyncOperationsEnabled"] = asyncOperationsEnabledProp
+	}
+	authOverrideEnabledProp, err := expandIntegrationConnectorsConnectionAuthOverrideEnabled(d.Get("auth_override_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("auth_override_enabled"); ok || !reflect.DeepEqual(v, authOverrideEnabledProp) {
+		obj["authOverrideEnabled"] = authOverrideEnabledProp
+	}
+	trafficShapingConfigsProp, err := expandIntegrationConnectorsConnectionTrafficShapingConfigs(d.Get("traffic_shaping_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("traffic_shaping_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(trafficShapingConfigsProp)) && (ok || !reflect.DeepEqual(v, trafficShapingConfigsProp)) {
+		obj["trafficShapingConfigs"] = trafficShapingConfigsProp
 	}
 	effectiveLabelsProp, err := expandIntegrationConnectorsConnectionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1618,6 +1666,24 @@ func resourceIntegrationConnectorsConnectionUpdate(d *schema.ResourceData, meta 
 	} else if v, ok := d.GetOkExists("eventing_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, eventingConfigProp)) {
 		obj["eventingConfig"] = eventingConfigProp
 	}
+	asyncOperationsEnabledProp, err := expandIntegrationConnectorsConnectionAsyncOperationsEnabled(d.Get("async_operations_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("async_operations_enabled"); ok || !reflect.DeepEqual(v, asyncOperationsEnabledProp) {
+		obj["asyncOperationsEnabled"] = asyncOperationsEnabledProp
+	}
+	authOverrideEnabledProp, err := expandIntegrationConnectorsConnectionAuthOverrideEnabled(d.Get("auth_override_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("auth_override_enabled"); ok || !reflect.DeepEqual(v, authOverrideEnabledProp) {
+		obj["authOverrideEnabled"] = authOverrideEnabledProp
+	}
+	trafficShapingConfigsProp, err := expandIntegrationConnectorsConnectionTrafficShapingConfigs(d.Get("traffic_shaping_configs"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("traffic_shaping_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, trafficShapingConfigsProp)) {
+		obj["trafficShapingConfigs"] = trafficShapingConfigsProp
+	}
 	effectiveLabelsProp, err := expandIntegrationConnectorsConnectionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1684,6 +1750,18 @@ func resourceIntegrationConnectorsConnectionUpdate(d *schema.ResourceData, meta 
 
 	if d.HasChange("eventing_config") {
 		updateMask = append(updateMask, "eventingConfig")
+	}
+
+	if d.HasChange("async_operations_enabled") {
+		updateMask = append(updateMask, "asyncOperationsEnabled")
+	}
+
+	if d.HasChange("auth_override_enabled") {
+		updateMask = append(updateMask, "authOverrideEnabled")
+	}
+
+	if d.HasChange("traffic_shaping_configs") {
+		updateMask = append(updateMask, "trafficShapingConfigs")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -3148,6 +3226,42 @@ func flattenIntegrationConnectorsConnectionConnectorVersionInfraConfig(v interfa
 	return []interface{}{transformed}
 }
 func flattenIntegrationConnectorsConnectionConnectorVersionInfraConfigRatelimitThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationConnectorsConnectionAsyncOperationsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationConnectorsConnectionAuthOverrideEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationConnectorsConnectionTrafficShapingConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"quota_limit": flattenIntegrationConnectorsConnectionTrafficShapingConfigsQuotaLimit(original["quotaLimit"], d, config),
+			"duration":    flattenIntegrationConnectorsConnectionTrafficShapingConfigsDuration(original["duration"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenIntegrationConnectorsConnectionTrafficShapingConfigsQuotaLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationConnectorsConnectionTrafficShapingConfigsDuration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5028,6 +5142,54 @@ func expandIntegrationConnectorsConnectionEventingConfigEnrichmentEnabled(v inte
 	return v, nil
 }
 
+func expandIntegrationConnectorsConnectionAsyncOperationsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationConnectorsConnectionAuthOverrideEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationConnectorsConnectionTrafficShapingConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedQuotaLimit, err := expandIntegrationConnectorsConnectionTrafficShapingConfigsQuotaLimit(original["quota_limit"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedQuotaLimit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["quotaLimit"] = transformedQuotaLimit
+		}
+
+		transformedDuration, err := expandIntegrationConnectorsConnectionTrafficShapingConfigsDuration(original["duration"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDuration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["duration"] = transformedDuration
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandIntegrationConnectorsConnectionTrafficShapingConfigsQuotaLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationConnectorsConnectionTrafficShapingConfigsDuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandIntegrationConnectorsConnectionEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -5109,6 +5271,15 @@ func ResourceIntegrationConnectorsConnectionFlatten(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading Connection: %s", err)
 	}
 	if err = d.Set("connector_version_infra_config", flattenIntegrationConnectorsConnectionConnectorVersionInfraConfig(res["connectorVersionInfraConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("async_operations_enabled", flattenIntegrationConnectorsConnectionAsyncOperationsEnabled(res["asyncOperationsEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("auth_override_enabled", flattenIntegrationConnectorsConnectionAuthOverrideEnabled(res["authOverrideEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
+	if err = d.Set("traffic_shaping_configs", flattenIntegrationConnectorsConnectionTrafficShapingConfigs(res["trafficShapingConfigs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connection: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenIntegrationConnectorsConnectionTerraformLabels(res["labels"], d, config)); err != nil {

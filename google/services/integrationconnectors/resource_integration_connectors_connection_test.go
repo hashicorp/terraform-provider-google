@@ -36,14 +36,15 @@ import (
 func TestAccIntegrationConnectorsConnection(t *testing.T) {
 	t.Parallel()
 	testCases := map[string]func(t *testing.T){
-		"basic":    testAccIntegrationConnectorsConnection_integrationConnectorsConnectionBasicResource,
-		"advanced": testAccIntegrationConnectorsConnection_integrationConnectorsConnectionAdvancedResource,
-		"sa":       testAccIntegrationConnectorsConnection_integrationConnectorsConnectionSaResource,
-		"oauth":    testAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauthResource,
-		"ssh":      testAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauthSshResource,
-		"cc":       testAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauthCcResource,
-		"jwt":      testAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauthJwtResource,
-		"update":   testAccIntegrationConnectorsConnection_updateResource,
+		"basic":           testAccIntegrationConnectorsConnection_integrationConnectorsConnectionBasicResource,
+		"advanced":        testAccIntegrationConnectorsConnection_integrationConnectorsConnectionAdvancedResource,
+		"sa":              testAccIntegrationConnectorsConnection_integrationConnectorsConnectionSaResource,
+		"oauth":           testAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauthResource,
+		"ssh":             testAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauthSshResource,
+		"cc":              testAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauthCcResource,
+		"jwt":             testAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauthJwtResource,
+		"update":          testAccIntegrationConnectorsConnection_updateResource,
+		"traffic_shaping": testAccIntegrationConnectorsConnection_trafficShapingResource,
 	}
 
 	for name, tc := range testCases {
@@ -1448,6 +1449,217 @@ func testAccIntegrationConnectorsConnection_update(context map[string]interface{
       enrichment_enabled = false
     }
   }
+`, context)
+}
+
+func testAccIntegrationConnectorsConnection_trafficShapingResource(t *testing.T) {
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIntegrationConnectorsConnectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIntegrationConnectorsConnection_trafficShaping_basic(context),
+			},
+			{
+				ResourceName:            "google_integration_connectors_connection.xeroconnection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels", "status.0.description"},
+			},
+			{
+				Config: testAccIntegrationConnectorsConnection_trafficShaping_update(context),
+			},
+			{
+				ResourceName:            "google_integration_connectors_connection.xeroconnection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels", "status.0.description"},
+			},
+			{
+				Config: testAccIntegrationConnectorsConnection_trafficShaping_clear(context),
+			},
+			{
+				ResourceName:            "google_integration_connectors_connection.xeroconnection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels", "status.0.description"},
+			},
+		},
+	})
+}
+
+func testAccIntegrationConnectorsConnection_trafficShaping_basic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "test_project" {
+}
+
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-test-secret%{random_suffix}"
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret      = google_secret_manager_secret.secret-basic.id
+  secret_data = "dummypassword"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_iam" {
+  secret_id  = google_secret_manager_secret.secret-basic.id
+  role       = "roles/secretmanager.admin"
+  member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret_version.secret-version-basic]
+}
+
+resource "google_integration_connectors_connection" "xeroconnection" {
+  name              = "tf-test-test-xero%{random_suffix}"
+  description       = "tf created description"
+  location          = "us-central1"
+  service_account   = "${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  connector_version = "projects/${data.google_project.test_project.project_id}/locations/global/providers/xero/connectors/xero/versions/1"
+  config_variable {
+    key          = "schema"
+    string_value = "ACCOUNTING"
+  }
+  auth_config {
+    auth_type = "OAUTH2_CLIENT_CREDENTIALS"
+    oauth2_client_credentials {
+      client_id = "testclientid"
+      client_secret {
+        secret_version = google_secret_manager_secret_version.secret-version-basic.name
+      }
+    }
+  }
+  async_operations_enabled = false
+  auth_override_enabled    = true
+  traffic_shaping_configs {
+    quota_limit = "100"
+    duration    = "10s"
+  }
+  depends_on = [google_secret_manager_secret_iam_member.secret_iam]
+}
+`, context)
+}
+
+func testAccIntegrationConnectorsConnection_trafficShaping_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "test_project" {
+}
+
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-test-secret%{random_suffix}"
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret      = google_secret_manager_secret.secret-basic.id
+  secret_data = "dummypassword"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_iam" {
+  secret_id  = google_secret_manager_secret.secret-basic.id
+  role       = "roles/secretmanager.admin"
+  member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret_version.secret-version-basic]
+}
+
+resource "google_integration_connectors_connection" "xeroconnection" {
+  name              = "tf-test-test-xero%{random_suffix}"
+  description       = "tf updated description"
+  location          = "us-central1"
+  service_account   = "${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  connector_version = "projects/${data.google_project.test_project.project_id}/locations/global/providers/xero/connectors/xero/versions/1"
+  config_variable {
+    key          = "schema"
+    string_value = "ACCOUNTING"
+  }
+  auth_config {
+    auth_type = "OAUTH2_CLIENT_CREDENTIALS"
+    oauth2_client_credentials {
+      client_id = "testclientid"
+      client_secret {
+        secret_version = google_secret_manager_secret_version.secret-version-basic.name
+      }
+    }
+  }
+  async_operations_enabled = true
+  auth_override_enabled    = false
+  traffic_shaping_configs {
+    quota_limit = "200"
+    duration    = "20s"
+  }
+  depends_on = [google_secret_manager_secret_iam_member.secret_iam]
+}
+`, context)
+}
+
+func testAccIntegrationConnectorsConnection_trafficShaping_clear(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "test_project" {
+}
+
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-test-secret%{random_suffix}"
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" {
+  secret      = google_secret_manager_secret.secret-basic.id
+  secret_data = "dummypassword"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret_iam" {
+  secret_id  = google_secret_manager_secret.secret-basic.id
+  role       = "roles/secretmanager.admin"
+  member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_secret_manager_secret_version.secret-version-basic]
+}
+
+resource "google_integration_connectors_connection" "xeroconnection" {
+  name              = "tf-test-test-xero%{random_suffix}"
+  description       = "tf updated description"
+  location          = "us-central1"
+  service_account   = "${data.google_project.test_project.number}-compute@developer.gserviceaccount.com"
+  connector_version = "projects/${data.google_project.test_project.project_id}/locations/global/providers/xero/connectors/xero/versions/1"
+  config_variable {
+    key          = "schema"
+    string_value = "ACCOUNTING"
+  }
+  auth_config {
+    auth_type = "OAUTH2_CLIENT_CREDENTIALS"
+    oauth2_client_credentials {
+      client_id = "testclientid"
+      client_secret {
+        secret_version = google_secret_manager_secret_version.secret-version-basic.name
+      }
+    }
+  }
+  async_operations_enabled = false
+  auth_override_enabled    = false
+  depends_on = [google_secret_manager_secret_iam_member.secret_iam]
+}
 `, context)
 }
 

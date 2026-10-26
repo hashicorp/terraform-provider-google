@@ -7,6 +7,7 @@ api_service_name: connectors.googleapis.com
 api_version: v1
 api_resource_type_kind: Connection
 fields:
+    - api_field: asyncOperationsEnabled
     - api_field: authConfig.additionalVariables.boolValue
       field: auth_config.additional_variable.boolean_value
     - api_field: authConfig.additionalVariables.encryptionKeyValue.kmsKeyName
@@ -40,6 +41,7 @@ fields:
     - api_field: authConfig.sshPublicKey.username
     - api_field: authConfig.userPassword.password.secretVersion
     - api_field: authConfig.userPassword.username
+    - api_field: authOverrideEnabled
     - api_field: configVariables.boolValue
       field: config_variable.boolean_value
     - api_field: configVariables.encryptionKeyValue.kmsKeyName
@@ -157,6 +159,8 @@ fields:
     - api_field: suspended
     - field: terraform_labels
       provider_only: true
+    - api_field: trafficShapingConfigs.duration
+    - api_field: trafficShapingConfigs.quotaLimit
     - api_field: updateTime
     - field: deletion_policy
       provider_only: true

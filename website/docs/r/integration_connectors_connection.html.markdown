@@ -374,6 +374,19 @@ The following arguments are supported:
   Eventing Configuration of a connection
   Structure is [documented below](#nested_eventing_config).
 
+* `async_operations_enabled` -
+  (Optional)
+  Async operations enabled for the connection. If Async Operations is enabled, Connection allows the customers to initiate async long running operations using the actions API.
+
+* `auth_override_enabled` -
+  (Optional)
+  Auth override enabled for the connection. If Auth Override is enabled, Connection allows the backend service auth to be overridden in the entities/actions API.
+
+* `traffic_shaping_configs` -
+  (Optional)
+  Traffic shaping configuration for the connection. Client specifies the throttling configuration for Connector API calls.
+  Structure is [documented below](#nested_traffic_shaping_configs).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -1028,6 +1041,17 @@ The following arguments are supported:
   The [KMS key name] with which the content of the Operation is encrypted. The
   expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
   Will be empty string if google managed.
+
+<a name="nested_traffic_shaping_configs"></a>The `traffic_shaping_configs` block supports:
+
+* `quota_limit` -
+  (Required)
+  Maximum number of api calls allowed.
+
+* `duration` -
+  (Required)
+  Specifies the duration over which the API call quota limits are calculated.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
 
 ## Attributes Reference
 
