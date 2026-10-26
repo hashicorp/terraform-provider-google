@@ -27,10 +27,14 @@ fields:
     - api_field: rules.action.corsPolicy.maxAge
     - api_field: rules.action.destinations.serviceName
     - api_field: rules.action.destinations.weight
+    - api_field: rules.action.directResponse.bytesBody
+    - api_field: rules.action.directResponse.status
+    - api_field: rules.action.directResponse.stringBody
     - api_field: rules.action.faultInjectionPolicy.abort.httpStatus
     - api_field: rules.action.faultInjectionPolicy.abort.percentage
     - api_field: rules.action.faultInjectionPolicy.delay.fixedDelay
     - api_field: rules.action.faultInjectionPolicy.delay.percentage
+    - api_field: rules.action.idleTimeout
     - api_field: rules.action.redirect.hostRedirect
     - api_field: rules.action.redirect.httpsRedirect
     - api_field: rules.action.redirect.pathRedirect
@@ -43,6 +47,7 @@ fields:
     - api_field: rules.action.requestHeaderModifier.set
     - api_field: rules.action.requestMirrorPolicy.destination.serviceName
     - api_field: rules.action.requestMirrorPolicy.destination.weight
+    - api_field: rules.action.requestMirrorPolicy.mirrorPercent
     - api_field: rules.action.responseHeaderModifier.add
     - api_field: rules.action.responseHeaderModifier.remove
     - api_field: rules.action.responseHeaderModifier.set

@@ -195,6 +195,7 @@ resource "google_network_services_http_route" "default" {
           service_name = "new"
           weight = 1
         }
+        mirror_percent = 50
       }
       cors_policy {
         allow_origins = ["example"]
@@ -215,6 +216,7 @@ resource "google_network_services_http_route" "default" {
         add = { "minor-version": "1"}
         remove = ["removearg"]
       }
+      idle_timeout = "1s"
     }
   }
 }
@@ -469,6 +471,16 @@ The following arguments are supported:
   The specification for allowing client side cross-origin requests.
   Structure is [documented below](#nested_rules_action_cors_policy).
 
+* `direct_response` -
+  (Optional)
+  Static HTTP Response object to be returned regardless of the request.
+  Structure is [documented below](#nested_rules_action_direct_response).
+
+* `idle_timeout` -
+  (Optional)
+  Specifies the idle timeout for the selected route. The idle timeout is defined as the period in which there are no bytes sent or received on either the upstream or downstream connection. If not set, the default idle timeout is 1 hour. If set to 0s, the timeout will be disabled.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
+
 
 <a name="nested_rules_action_destinations"></a>The `destinations` block supports:
 
@@ -605,6 +617,10 @@ The following arguments are supported:
   The destination the requests will be mirrored to.
   Structure is [documented below](#nested_rules_action_request_mirror_policy_destination).
 
+* `mirror_percent` -
+  (Optional)
+  The percentage of requests to get mirrored to the desired destination.
+
 
 <a name="nested_rules_action_request_mirror_policy_destination"></a>The `destination` block supports:
 
@@ -652,6 +668,20 @@ The following arguments are supported:
 * `disabled` -
   (Optional)
   If true, the CORS policy is disabled. The default value is false, which indicates that the CORS policy is in effect.
+
+<a name="nested_rules_action_direct_response"></a>The `direct_response` block supports:
+
+* `status` -
+  (Required)
+  Status to return as part of HTTP Response. Must be a positive integer.
+
+* `string_body` -
+  (Optional)
+  Response body as a string. Maximum body length is 1024 characters.
+
+* `bytes_body` -
+  (Optional)
+  Response body as base64 encoded bytes. Maximum body size is 4096B.
 
 ## Attributes Reference
 
