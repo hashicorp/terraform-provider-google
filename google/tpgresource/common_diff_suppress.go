@@ -199,7 +199,7 @@ func SuppressMajorRevisionId(_, old, new string, _ *schema.ResourceData) bool {
 // (e.g. RFC 5952 zero-compression, leading zeros, or hex casing).
 func IpAddressDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
 	if old == "" || new == "" {
-		return old == new
+		return false
 	}
 	oldIP := net.ParseIP(old)
 	newIP := net.ParseIP(new)
