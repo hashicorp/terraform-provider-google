@@ -65,6 +65,7 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(t *testing
 		"db_system_id":        fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", randomSuffix),
 		"db_unique_name":      fmt.Sprintf("db%s", randomSuffix),
 		"deletion_protection": false,
+		"hostname_prefix":     fmt.Sprintf("h%s", randomSuffix),
 		"label_value":         "value-one",
 		"odb_network":         "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
 		"odb_subnet":          "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
@@ -77,6 +78,7 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(t *testing
 		"db_system_id":        fmt.Sprintf("ofake-tf-test-dbsystem-basic-%s", randomSuffix),
 		"db_unique_name":      fmt.Sprintf("db%s", randomSuffix),
 		"deletion_protection": false,
+		"hostname_prefix":     fmt.Sprintf("h%s", randomSuffix),
 		"label_value":         "value-two",
 		"odb_network":         "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
 		"odb_subnet":          "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
@@ -140,7 +142,7 @@ resource "google_oracle_database_db_system" "my_db_system"{
     properties {
         ssh_public_keys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz1X2744t+6vRLmE5u6nHi6/QWh8bQDgHmd+OIxRQIGA/IWUtCs2FnaCNZcqvZkaeyjk5v0lTA/n+9jvO42Ipib53athrfVG8gRt8fzPL66C6ZqHq+6zZophhrCdfJh/0G4x9xJh5gdMprlaCR1P8yAaVvhBQSKGc4SiIkyMNBcHJ5YTtMQMTfxaB4G1sHZ6SDAY9a6Cq/zNjDwfPapWLsiP4mRhE5SSjJX6l6EYbkm0JeLQg+AbJiNEPvrvDp1wtTxzlPJtIivthmLMThFxK7+DkrYFuLvN5AHUdo9KTDLvHtDCvV70r8v0gafsrKkM/OE9Jtzoo0e1N/5K/ZdyFRbAkFT4QSF3nwpbmBWLf2Evg//YyEuxnz4CwPqFST2mucnrCCGCVWp1vnHZ0y30nM35njLOmWdRDFy5l27pKUTwLp02y3UYiiZyP7d3/u5pKiN4vC27VuvzprSdJxWoAvluOiDeRh+/oeQDowxoT/Oop8DzB9uJmjktXw8jyMW2+Rpg+ENQqeNgF1OGlEzypaWiRskEFlkpLb4v/s3ZDYkL1oW0Nv/J8LTjTOTEaYt2Udjoe9x2xWiGnQixhdChWuG+MaoWffzUgx1tsVj/DBXijR5DjkPkrA1GA98zd3q8GKEaAdcDenJjHhNYSd4+rE9pIsnYn7fo5X/tFfcQH1XQ== nobody@google.com"]
         compute_count = "4"
-        hostname_prefix = "hostname1"
+        hostname_prefix = "%{hostname_prefix}"
         shape = "VM.Standard.x86"
         initial_data_storage_size_gb = "256"
         database_edition = "STANDARD_EDITION"
