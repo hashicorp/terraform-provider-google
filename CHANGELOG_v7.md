@@ -1,3 +1,13 @@
+## 7.46.2 (October 23, 2026)
+
+NOTES:
+* Updated to Go 1.26.10 for security fixes to the crypto/x509 package described under https://github.com/golang/go/issues?q=milestone%3AGo1.26.10+label%3ACherryPickApproved
+
+## 7.46.1 (September 4, 2026)
+
+BUG FIXES:
+* compute: fix permadiff regression when iap is omitted from `google_compute_backend_service` ([#29156](https://github.com/hashicorp/terraform-provider-google/pull/29156))
+
 ## 7.46.0 (August 25, 2026)
 
 DEPRECATIONS:

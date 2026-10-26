@@ -1,5 +1,10 @@
 ## 8.9.0 (Unreleased)
 
+## 8.8.1 (October 23, 2026)
+
+NOTES:
+* Updated to Go 1.26.10 for security fixes to the crypto/x509 package described under https://github.com/golang/go/issues?q=milestone%3AGo1.26.10+label%3ACherryPickApproved
+
 ## 8.8.0 (October 21, 2026)
 
 FEATURES:
