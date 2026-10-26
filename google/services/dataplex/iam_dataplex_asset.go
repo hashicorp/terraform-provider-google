@@ -46,7 +46,7 @@ func init() {
 		Name:        "google_dataplex_asset_iam_binding",
 		ProductName: "Dataplex",
 		Type:        registry.SchemaTypeIAMResource,
-		Schema:      tpgiamresource.ResourceIamBinding(DataplexAssetIamSchema, DataplexAssetIamUpdaterProducer, DataplexAssetIdParseFunc),
+		Schema:      tpgiamresource.ResourceIamBinding(DataplexAssetIamSchema, DataplexAssetIamUpdaterProducer, DataplexAssetIdParseFunc, tpgiamresource.IamWithMaxBackoffSeconds(1200)),
 	}.Register()
 	registry.Schema{
 		Name:        "google_dataplex_asset_iam_member",
@@ -77,6 +77,7 @@ func NewDataplexAssetIamMemberResource() *schema.Resource {
 		DataplexAssetIamUpdaterProducer,
 		DataplexAssetIdParseFunc,
 		tpgiamresource.IamWithParentResourceIdentity(DataplexAssetIamParentParentResourceIdentityParser),
+		tpgiamresource.IamWithMaxBackoffSeconds(1200),
 	)
 }
 

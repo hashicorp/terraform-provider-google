@@ -1420,3 +1420,50 @@ func TestIamPolicyReadModifyWrite_conflictRetry(t *testing.T) {
 		t.Fatalf("expected 1 setIamPolicy call before stopping on second modify, got %d", got)
 	}
 }
+
+func TestIamPolicyReadModifyWrite_maxBackoffTimeout(t *testing.T) {
+	t.Parallel()
+
+	if maxBackoffTimeout != 90*time.Second {
+		t.Fatalf("expected default maxBackoffTimeout to be 90s, got %v", maxBackoffTimeout)
+	}
+	if got := NewIamSettings().MaxBackoffTimeout; got != maxBackoffTimeout {
+		t.Fatalf("expected NewIamSettings().MaxBackoffTimeout to default to %v, got %v", maxBackoffTimeout, got)
+	}
+	if got := NewIamSettings(IamWithMaxBackoffTimeout(20 * time.Minute)).MaxBackoffTimeout; got != 20*time.Minute {
+		t.Fatalf("expected IamWithMaxBackoffTimeout(20m) to set 20m, got %v", got)
+	}
+	if got := NewIamSettings(IamWithMaxBackoffSeconds(1200)).MaxBackoffTimeout; got != 20*time.Minute {
+		t.Fatalf("expected IamWithMaxBackoffSeconds(1200) to set 20m, got %v", got)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/resource:setIamPolicy" {
+			w.WriteHeader(http.StatusConflict)
+			_, _ = w.Write([]byte(`{"error":{"code":409,"message":"There were concurrent policy changes."}}`))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"etag":"e1"}`))
+	}))
+	defer ts.Close()
+
+	updater := &httpTestIamUpdater{
+		resourceId: "custom-backoff-timeout",
+		url:        ts.URL + "/resource",
+		client:     ts.Client(),
+	}
+
+	start := time.Now()
+	err := iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+		return nil
+	}, 50*time.Millisecond)
+	elapsed := time.Since(start)
+	if err == nil {
+		t.Fatal("expected timeout error from iamPolicyReadModifyWrite with persistent 409 conflicts")
+	}
+	if elapsed >= 5*time.Second {
+		t.Fatalf("expected custom 50ms backoff timeout to fail quickly, took %v", elapsed)
+	}
+}
