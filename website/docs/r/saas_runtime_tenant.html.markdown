@@ -23,6 +23,8 @@ description: |-
 
 The Tenant resource represents the service producer's view of a service instance created for a consumer. It enables the association between the service producer's managed resources and the end consumer.
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 
@@ -31,6 +33,7 @@ The Tenant resource represents the service producer's view of a service instance
 
 ```hcl
 resource "google_saas_runtime_saas" "example_saas" {
+  provider = google-beta
   saas_id  = "example-saas"
   location = "global"
 
@@ -40,6 +43,7 @@ resource "google_saas_runtime_saas" "example_saas" {
 }
 
 resource "google_saas_runtime_tenant" "example" {
+  provider = google-beta
   location = "global"
   tenant_id = "example-tenant"
   saas = google_saas_runtime_saas.example_saas.id
