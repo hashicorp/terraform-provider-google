@@ -130,6 +130,70 @@ func TestProjectIDDiffSuppress(t *testing.T) {
 		}
 	}
 }
+
+func TestCompareProjectNames(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"bare project id and prefixed project id": {
+			Old:                "my-project",
+			New:                "projects/my-project",
+			ExpectDiffSuppress: true,
+		},
+		"prefixed project id and bare project id": {
+			Old:                "projects/my-project",
+			New:                "my-project",
+			ExpectDiffSuppress: true,
+		},
+		"prefixed project number and prefixed project id": {
+			Old:                "projects/1234",
+			New:                "projects/my-project",
+			ExpectDiffSuppress: true,
+		},
+		"prefixed project number and bare project id": {
+			Old:                "projects/1234",
+			New:                "my-project",
+			ExpectDiffSuppress: true,
+		},
+		"bare project id and prefixed project number": {
+			Old:                "my-project",
+			New:                "projects/1234",
+			ExpectDiffSuppress: true,
+		},
+		"bare project id and bare project number": {
+			Old:                "my-project",
+			New:                "1234",
+			ExpectDiffSuppress: true,
+		},
+		"different project ids": {
+			Old:                "my-project",
+			New:                "projects/other-project",
+			ExpectDiffSuppress: false,
+		},
+		"different project numbers": {
+			Old:                "projects/1234",
+			New:                "projects/5678",
+			ExpectDiffSuppress: false,
+		},
+		"empty old with project number": {
+			Old:                "",
+			New:                "projects/1234",
+			ExpectDiffSuppress: false,
+		},
+		"empty new with project id": {
+			Old:                "my-project",
+			New:                "",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if CompareProjectNames("diffSuppress", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
 func TestEmptyOrUnsetBlockDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Key, Old, New      string
