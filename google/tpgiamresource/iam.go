@@ -100,12 +100,17 @@ func iamPolicyReadWithRetry(updater ResourceIamUpdater) (*cloudresourcemanager.P
 }
 
 // Locking wrapper around read-modify-write cycle for IAM policy.
-func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModifyFunc) error {
+func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModifyFunc, timeout ...time.Duration) error {
+	backoffTimeout := maxBackoffTimeout
+	if len(timeout) > 0 && timeout[0] > 0 {
+		backoffTimeout = timeout[0]
+	}
+
 	mutexKey := updater.GetMutexKey()
 	transport_tpg.MutexStore.Lock(mutexKey)
 	defer transport_tpg.MutexStore.Unlock(mutexKey)
 
-	err := retry.Retry(maxBackoffTimeout, func() *retry.RetryError {
+	err := retry.Retry(backoffTimeout, func() *retry.RetryError {
 		log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
 		p, err := updater.GetResourceIamPolicy()
 		if err != nil {
@@ -139,7 +144,7 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 		Pending:                   []string{"retrying"},
 		Target:                    []string{"done"},
 		Delay:                     1 * time.Second,
-		Timeout:                   maxBackoffTimeout,
+		Timeout:                   backoffTimeout,
 		MinTimeout:                1 * time.Second,
 		ContinuousTargetOccurence: 3,
 		Refresh: func() (interface{}, string, error) {
@@ -413,14 +418,20 @@ type IamSettings struct {
 	StateUpgraders     []schema.StateUpgrader
 	SchemaVersion      int
 	CreateTimeOut      int64
+	MaxBackoffTimeout  time.Duration
 	// ParentResourceIdentityParser, when non-nil, enables ResourceIdentity for this IAM resource
 	ParentResourceIdentityParser ParentResourceIdFromIdentityParserFunc
 }
 
 func NewIamSettings(options ...func(*IamSettings)) *IamSettings {
-	settings := &IamSettings{}
+	settings := &IamSettings{
+		MaxBackoffTimeout: maxBackoffTimeout,
+	}
 	for _, o := range options {
 		o(settings)
+	}
+	if settings.MaxBackoffTimeout <= 0 {
+		settings.MaxBackoffTimeout = maxBackoffTimeout
 	}
 	return settings
 }
@@ -462,6 +473,16 @@ func IamCreateTimeOut(createTimeout int64) func(s *IamSettings) {
 	return func(s *IamSettings) {
 		s.CreateTimeOut = createTimeout
 	}
+}
+
+func IamWithMaxBackoffTimeout(maxBackoffTimeout time.Duration) func(s *IamSettings) {
+	return func(s *IamSettings) {
+		s.MaxBackoffTimeout = maxBackoffTimeout
+	}
+}
+
+func IamWithMaxBackoffSeconds(maxBackoffSeconds int) func(s *IamSettings) {
+	return IamWithMaxBackoffTimeout(time.Duration(maxBackoffSeconds) * time.Second)
 }
 
 // Util to deref and print auditConfigs
