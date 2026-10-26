@@ -1,0 +1,3 @@
+```release-note:enhancement
+modelarmor: added `filter_config.filter_rule_settings` and `template_metadata.data_residency_compliant` fields to `google_model_armor_template`
+```

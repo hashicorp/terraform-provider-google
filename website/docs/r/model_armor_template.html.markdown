@@ -82,6 +82,29 @@ resource "google_model_armor_template" "template-filter-config" {
     malicious_uri_filter_settings {
       filter_enforcement = "ENABLED"
     }
+    filter_rule_settings {
+      rule_sets {
+        filter_types = ["PROMPT_INJECTION_AND_JAILBREAK", "RESPONSIBLE_AI"]
+        rules {
+          exclusion_rule {
+            matching_scope = "MATCHING_SCOPE_PARTIAL_MATCH"
+            dictionary {
+              word_list {
+                words = ["allowphrase1", "allowphrase2"]
+              }
+            }
+          }
+        }
+        rules {
+          exclusion_rule {
+            matching_scope = "MATCHING_SCOPE_FULL_MATCH"
+            regex {
+              pattern = "^safe_pattern_[0-9]+$"
+            }
+          }
+        }
+      }
+    }
   }
   template_metadata {
     multi_language_detection {
@@ -128,6 +151,7 @@ resource "google_model_armor_template" "template-template-metadata" {
     filter_version_selector {
       alias = "FILTER_VERSION_ALIAS_LATEST"
     }
+    data_residency_compliant                 = true
   }
 }
 ```
@@ -155,7 +179,7 @@ resource "google_model_armor_template" "template-filter-version-selector" {
   }
   template_metadata {
     filter_version_selector {
-      version = "v1"
+      version = "v3"
     }
   }
 }
@@ -265,6 +289,12 @@ The following arguments are supported:
   Prompt injection and Jailbreak Filter settings.
   Structure is [documented below](#nested_filter_config_pi_and_jailbreak_filter_settings).
 
+* `filter_rule_settings` -
+  (Optional)
+  Settings for customizing filter rules. Note: This field is not supported in
+  FloorSetting and Streaming Sanitization APIs.
+  Structure is [documented below](#nested_filter_config_filter_rule_settings).
+
 
 <a name="nested_filter_config_malicious_uri_filter_settings"></a>The `malicious_uri_filter_settings` block supports:
 
@@ -363,6 +393,81 @@ The following arguments are supported:
   MEDIUM_AND_ABOVE
   HIGH
 
+<a name="nested_filter_config_filter_rule_settings"></a>The `filter_rule_settings` block supports:
+
+* `rule_sets` -
+  (Optional)
+  List of rule sets to be applied to filters.
+  Structure is [documented below](#nested_filter_config_filter_rule_settings_rule_sets).
+
+
+<a name="nested_filter_config_filter_rule_settings_rule_sets"></a>The `rule_sets` block supports:
+
+* `filter_types` -
+  (Required)
+  List of filters this rule set is applied to.
+  Possible values:
+  PROMPT_INJECTION_AND_JAILBREAK
+  RESPONSIBLE_AI
+
+* `rules` -
+  (Required)
+  Set of rules to be applied to filterTypes.
+  Structure is [documented below](#nested_filter_config_filter_rule_settings_rule_sets_rules).
+
+
+<a name="nested_filter_config_filter_rule_settings_rule_sets_rules"></a>The `rules` block supports:
+
+* `exclusion_rule` -
+  (Optional)
+  The rule that specifies conditions when filter detections are excluded from
+  results.
+  Structure is [documented below](#nested_filter_config_filter_rule_settings_rule_sets_rules_exclusion_rule).
+
+
+<a name="nested_filter_config_filter_rule_settings_rule_sets_rules_exclusion_rule"></a>The `exclusion_rule` block supports:
+
+* `matching_scope` -
+  (Optional)
+  Specifies the scope of the input that should be matched against the
+  exclusion rule. If unspecified, defaults to MATCHING_SCOPE_PARTIAL_MATCH.
+  Possible values:
+  MATCHING_SCOPE_FULL_MATCH
+  MATCHING_SCOPE_PARTIAL_MATCH
+
+* `dictionary` -
+  (Optional)
+  Dictionary which defines the rule.
+  Structure is [documented below](#nested_filter_config_filter_rule_settings_rule_sets_rules_exclusion_rule_dictionary).
+
+* `regex` -
+  (Optional)
+  Regular expression which defines the rule.
+  Structure is [documented below](#nested_filter_config_filter_rule_settings_rule_sets_rules_exclusion_rule_regex).
+
+
+<a name="nested_filter_config_filter_rule_settings_rule_sets_rules_exclusion_rule_dictionary"></a>The `dictionary` block supports:
+
+* `word_list` -
+  (Optional)
+  Message defining a list of words or phrases.
+  Structure is [documented below](#nested_filter_config_filter_rule_settings_rule_sets_rules_exclusion_rule_dictionary_word_list).
+
+
+<a name="nested_filter_config_filter_rule_settings_rule_sets_rules_exclusion_rule_dictionary_word_list"></a>The `word_list` block supports:
+
+* `words` -
+  (Required)
+  Words or phrases defining the dictionary. The dictionary must contain at
+  least one phrase and every phrase must contain at least two characters that
+  are letters or digits.
+
+<a name="nested_filter_config_filter_rule_settings_rule_sets_rules_exclusion_rule_regex"></a>The `regex` block supports:
+
+* `pattern` -
+  (Required)
+  The regular expression pattern.
+
 <a name="nested_template_metadata"></a>The `template_metadata` block supports:
 
 * `log_template_operations` -
@@ -423,6 +528,14 @@ The following arguments are supported:
   Selects the filter version to use for this template. Set exactly one of
   'alias' or 'version'.
   Structure is [documented below](#nested_template_metadata_filter_version_selector).
+
+* `data_residency_compliant` -
+  (Optional)
+  Indicates whether the template is subject to data residency compliance. If
+  true (default for new templates), the template is subject to data residency
+  compliance. If false, the template bypasses data residency compliance
+  checks. If unset, the value is determined by the API; templates created
+  before data residency enforcement may report false.
 
 
 <a name="nested_template_metadata_multi_language_detection"></a>The `multi_language_detection` block supports:
