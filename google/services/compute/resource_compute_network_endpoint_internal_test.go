@@ -17,9 +17,12 @@
 package compute
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -298,4 +301,62 @@ func TestUnitComputeNetworkEndpoints_convertToStructAndAny(t *testing.T) {
 			t.Errorf("got %#v, want %#v", apiPayload, expected)
 		}
 	})
+}
+
+func TestUnitComputeNetworkEndpoints_diffGetChange(t *testing.T) {
+	t.Parallel()
+
+	r := ResourceComputeNetworkEndpoints()
+	d := r.TestResourceData()
+	d.SetId("projects/my-proj/zones/us-central1-a/networkEndpointGroups/my-neg")
+	if err := d.Set("network_endpoint_group", "my-neg"); err != nil {
+		t.Fatalf("failed to set network_endpoint_group: %v", err)
+	}
+	if err := d.Set("network_endpoints", []interface{}{
+		map[string]interface{}{
+			"instance":     "vm1",
+			"ip_address":   "10.0.0.2",
+			"ipv6_address": "",
+			"port":         90,
+		},
+	}); err != nil {
+		t.Fatalf("failed to set network_endpoints: %v", err)
+	}
+	state := d.State()
+
+	config := terraform.NewResourceConfigRaw(map[string]interface{}{
+		"network_endpoint_group": "my-neg",
+		"network_endpoints": []interface{}{
+			map[string]interface{}{
+				"instance":   "vm1",
+				"ip_address": "10.0.0.2",
+				"port":       100,
+			},
+		},
+	})
+
+	schemaMap := schema.InternalMap(r.Schema)
+	diff, err := schemaMap.Diff(context.Background(), state, config, nil, nil, false)
+	if err != nil {
+		t.Fatalf("unexpected error from schemaMap.Diff: %v", err)
+	}
+
+	dDiff, err := schemaMap.Data(state, diff)
+	if err != nil {
+		t.Fatalf("unexpected error from schemaMap.Data: %v", err)
+	}
+	o, n := dDiff.GetChange("network_endpoints")
+	oldSet := o.(*schema.Set)
+	newSet := n.(*schema.Set)
+
+	if oldSet.Len() != 1 {
+		t.Fatalf("expected oldSet.Len() == 1, got %d: %#v", oldSet.Len(), oldSet.List())
+	}
+	if newSet.Len() != 1 {
+		t.Fatalf("expected newSet.Len() == 1 (no phantom removed endpoint), got %d: %#v", newSet.Len(), newSet.List())
+	}
+	gotNew := newSet.List()[0].(map[string]interface{})
+	if gotNew["port"] != 100 || gotNew["ip_address"] != "10.0.0.2" || gotNew["instance"] != "vm1" {
+		t.Errorf("unexpected new endpoint map: %#v", gotNew)
+	}
 }
