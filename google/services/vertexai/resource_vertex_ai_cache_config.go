@@ -137,6 +137,13 @@ func ResourceVertexAICacheConfig() *schema.Resource {
 				Required:    true,
 				Description: `If set to true, disables GenAI caching. Otherwise caching is enabled.`,
 			},
+			"region": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The region of the Vertex AI API endpoint used to manage the cache config, e.g. 'us-central1'.
+The cache config is a project-level setting, so this only selects which regional endpoint
+requests are sent to. If not specified, the provider-level region is used.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
