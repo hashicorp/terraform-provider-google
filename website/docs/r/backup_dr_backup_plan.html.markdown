@@ -201,6 +201,13 @@ The following arguments are supported:
   (Optional)
   The description allows for additional details about `BackupPlan` and its use cases to be provided.
 
+* `labels` -
+  (Optional)
+  This collection of key/value pairs allows for custom labels to be supplied by the user.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `max_custom_on_demand_retention_days` -
   (Optional)
   The maximum number of days for which an on-demand backup taken with custom retention can be retained.
@@ -353,6 +360,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `update_time` -
   When the `BackupPlan` was last updated.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

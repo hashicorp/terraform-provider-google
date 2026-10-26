@@ -113,6 +113,7 @@ func ResourceBackupDRBackupPlan() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
@@ -323,6 +324,16 @@ create crash-consistent backups.`,
 					},
 				},
 			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `This collection of key/value pairs allows for custom labels to be supplied by the user.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"log_retention_days": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -344,6 +355,13 @@ create crash-consistent backups.`,
 				Computed:    true,
 				Description: `When the 'BackupPlan' was created.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -356,6 +374,13 @@ create crash-consistent backups.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -440,6 +465,12 @@ func resourceBackupDRBackupPlanCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("compute_instance_backup_plan_properties"); !tpgresource.IsEmptyValue(reflect.ValueOf(computeInstanceBackupPlanPropertiesProp)) && (ok || !reflect.DeepEqual(v, computeInstanceBackupPlanPropertiesProp)) {
 		obj["computeInstanceBackupPlanProperties"] = computeInstanceBackupPlanPropertiesProp
+	}
+	effectiveLabelsProp, err := expandBackupDRBackupPlanEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(effectiveLabelsProp)) && (ok || !reflect.DeepEqual(v, effectiveLabelsProp)) {
+		obj["labels"] = effectiveLabelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backupPlans/?backup_plan_id={{backup_plan_id}}")
@@ -859,6 +890,21 @@ func flattenBackupDRBackupPlanDescription(v interface{}, d *schema.ResourceData,
 	return v
 }
 
+func flattenBackupDRBackupPlanLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
 func flattenBackupDRBackupPlanBackupVault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1126,6 +1172,25 @@ func flattenBackupDRBackupPlanComputeInstanceBackupPlanProperties(v interface{},
 	return []interface{}{transformed}
 }
 func flattenBackupDRBackupPlanComputeInstanceBackupPlanPropertiesGuestFlush(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBackupDRBackupPlanTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenBackupDRBackupPlanEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1417,6 +1482,17 @@ func expandBackupDRBackupPlanComputeInstanceBackupPlanPropertiesGuestFlush(v int
 	return v, nil
 }
 
+func expandBackupDRBackupPlanEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func ResourceBackupDRBackupPlanFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -1424,6 +1500,9 @@ func ResourceBackupDRBackupPlanFlatten(d *schema.ResourceData, meta interface{},
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 	if err = d.Set("description", flattenBackupDRBackupPlanDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("labels", flattenBackupDRBackupPlanLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 	if err = d.Set("backup_vault", flattenBackupDRBackupPlanBackupVault(res["backupVault"], d, config)); err != nil {
@@ -1457,6 +1536,12 @@ func ResourceBackupDRBackupPlanFlatten(d *schema.ResourceData, meta interface{},
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 	if err = d.Set("compute_instance_backup_plan_properties", flattenBackupDRBackupPlanComputeInstanceBackupPlanProperties(res["computeInstanceBackupPlanProperties"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenBackupDRBackupPlanTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err = d.Set("effective_labels", flattenBackupDRBackupPlanEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
 
