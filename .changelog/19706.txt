@@ -1,0 +1,3 @@
+```release-note:bug
+developerconnect: fixed perma-diff on `target_projects.project_ids` in `google_developer_connect_insights_config` when `projects/{project}` format is used
+```
