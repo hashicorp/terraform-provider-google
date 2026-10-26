@@ -80,7 +80,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryBasicExample(t 
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -126,7 +126,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryMultiRegionExam
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -172,7 +172,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryDockerExample(t
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -222,7 +222,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryCmekExample(t *
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -283,7 +283,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryVirtualExample(
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -357,7 +357,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteExample(t
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -414,7 +414,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryConnectorExampl
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -497,7 +497,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteAptExampl
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -553,7 +553,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteYumExampl
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -609,7 +609,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryCleanupExample(
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -701,7 +701,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerhub
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -785,7 +785,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerCus
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -871,7 +871,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteMavenCust
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -957,7 +957,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteNpmCustom
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -1043,7 +1043,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemotePythonCus
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -1127,7 +1127,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRep
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -1189,7 +1189,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRep
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -1256,7 +1256,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRep
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "remote_repository_config.0.disable_upstream_validation", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
@@ -1336,7 +1336,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryVulnerabilitySc
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "repository_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"disallow_unspecified_mode", "labels", "location", "repository_id", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",

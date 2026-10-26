@@ -30,6 +30,7 @@ fields:
     - api_field: cleanupPolicyDryRun
     - api_field: createTime
     - api_field: description
+    - api_field: disallowUnspecifiedMode
     - api_field: dockerConfig.immutableTags
     - field: effective_labels
       provider_only: true
@@ -42,6 +43,8 @@ fields:
     - api_field: mavenConfig.versionPolicy
     - api_field: mode
     - api_field: name
+    - api_field: platformLogsConfig.loggingState
+    - api_field: platformLogsConfig.severityLevel
     - api_field: registryUri
     - api_field: remoteRepositoryConfig.aptRepository.publicRepository.repositoryBase
     - api_field: remoteRepositoryConfig.aptRepository.publicRepository.repositoryPath
