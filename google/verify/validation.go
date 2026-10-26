@@ -23,6 +23,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -423,10 +424,25 @@ type StringValidationTestCase struct {
 	ExpectError bool
 }
 
+// compiledRegexps memoizes the patterns passed to ValidateRegexp. Validators
+// are built while the provider's resource schemas are, so the patterns are
+// compiled lazily on first use rather than eagerly at build time, but a given
+// pattern is only ever compiled once.
+var compiledRegexps sync.Map // map[string]*regexp.Regexp
+
+func compileRegexp(re string) *regexp.Regexp {
+	if compiled, ok := compiledRegexps.Load(re); ok {
+		return compiled.(*regexp.Regexp)
+	}
+	compiled := regexp.MustCompile(re)
+	compiledRegexps.Store(re, compiled)
+	return compiled
+}
+
 func ValidateRegexp(re string) schema.SchemaValidateFunc {
 	return func(v interface{}, k string) (ws []string, errors []error) {
 		value := v.(string)
-		if !regexp.MustCompile(re).MatchString(value) {
+		if !compileRegexp(re).MatchString(value) {
 			errors = append(errors, fmt.Errorf(
 				"%q (%q) doesn't match regexp %q", k, value, re))
 		}
