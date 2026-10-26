@@ -202,6 +202,7 @@ type ProviderModel struct {
 	RedisCustomEndpoint                    types.String `tfsdk:"redis_custom_endpoint"`
 	ResourceManagerCustomEndpoint          types.String `tfsdk:"resource_manager_custom_endpoint"`
 	ResourceManagerV3CustomEndpoint        types.String `tfsdk:"resource_manager_v3_custom_endpoint"`
+	SaasRuntimeCustomEndpoint              types.String `tfsdk:"saas_runtime_custom_endpoint"`
 	SecretManagerCustomEndpoint            types.String `tfsdk:"secret_manager_custom_endpoint"`
 	SecretManagerRegionalCustomEndpoint    types.String `tfsdk:"secret_manager_regional_custom_endpoint"`
 	SecureSourceManagerCustomEndpoint      types.String `tfsdk:"secure_source_manager_custom_endpoint"`

@@ -1,0 +1,49 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_saas_runtime_release
+generation_type: mmv1
+source_file: products/saasservicemgmt/Release.yaml
+api_service_name: saasservicemgmt.googleapis.com
+api_version: v1
+api_resource_type_kind: Release
+autogen_status: true
+autogen_version: 1
+fields:
+    - api_field: annotations
+    - api_field: applicationTemplateComponent.component
+    - api_field: applicationTemplateComponent.compositeRef.applicationTemplate
+    - api_field: applicationTemplateComponent.compositeRef.revision
+    - api_field: applicationTemplateComponent.compositeRef.syncOperation
+    - api_field: applicationTemplateComponent.revision
+    - api_field: blueprint.engine
+    - api_field: blueprint.package
+    - api_field: blueprint.version
+    - api_field: createTime
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: etag
+    - api_field: inputVariableDefaults.type
+    - api_field: inputVariableDefaults.value
+    - api_field: inputVariableDefaults.variable
+    - api_field: inputVariables.type
+    - api_field: inputVariables.value
+    - api_field: inputVariables.variable
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: outputVariables.type
+    - api_field: outputVariables.value
+    - api_field: outputVariables.variable
+    - field: release_id
+      provider_only: true
+    - api_field: releaseRequirements.upgradeableFromReleases
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: unitKind
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
