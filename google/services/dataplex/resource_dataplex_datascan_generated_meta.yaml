@@ -24,10 +24,12 @@ fields:
     - api_field: dataDiscoverySpec.storageConfig.jsonOptions.encoding
     - api_field: dataDiscoverySpec.storageConfig.jsonOptions.typeInferenceDisabled
     - api_field: dataDocumentationSpec.catalogPublishingEnabled
+    - api_field: dataDocumentationSpec.generationScopes
     - api_field: dataDocumentationSpec.sqlDialect
     - api_field: dataProfileSpec.catalogPublishingEnabled
     - api_field: dataProfileSpec.excludeFields.fieldNames
     - api_field: dataProfileSpec.includeFields.fieldNames
+    - api_field: dataProfileSpec.mode
     - api_field: dataProfileSpec.postScanActions.bigqueryExport.resultsTable
     - api_field: dataProfileSpec.rowFilter
     - api_field: dataProfileSpec.samplingPercent
@@ -42,6 +44,8 @@ fields:
     - api_field: dataQualitySpec.rowFilter
     - api_field: dataQualitySpec.rules.attributes
     - api_field: dataQualitySpec.rules.column
+    - api_field: dataQualitySpec.rules.debugQueries.description
+    - api_field: dataQualitySpec.rules.debugQueries.sqlStatement
     - api_field: dataQualitySpec.rules.description
     - api_field: dataQualitySpec.rules.dimension
     - api_field: dataQualitySpec.rules.ignoreNull

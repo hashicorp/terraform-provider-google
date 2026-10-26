@@ -95,6 +95,7 @@ resource "google_dataplex_datascan" "full_profile" {
       }
     }
     catalog_publishing_enabled = true
+    mode = "STANDARD"
   }
 
   project = "my-project-name"
@@ -222,6 +223,10 @@ resource "google_dataplex_datascan" "full_quality" {
         priority = "high"
       }
       non_null_expectation {}
+      debug_queries {
+        description = "test debug query description"
+        sql_statement = "select * from bigquery-public-data.austin_bikeshare.bikeshare_stations where address is null"
+      }
     }
 
     rules {
@@ -556,6 +561,7 @@ resource "google_dataplex_datascan" "documentation" {
   data_documentation_spec {
     catalog_publishing_enabled = true
     sql_dialect                = "GOOGLE_SQL"
+    generation_scopes          = ["ALL"]
   }
 
   project = "my-project-name"
@@ -1468,6 +1474,12 @@ The following arguments are supported:
   Aggregate rule which references a rule template and provides the parameters to be substituted in the template.
   Structure is [documented below](#nested_data_quality_spec_rules_template_reference).
 
+* `debug_queries` -
+  (Optional)
+  Specifies the debug queries for this rule.
+  Currently, only one query is supported, but this may be expanded in the future.
+  Structure is [documented below](#nested_data_quality_spec_rules_debug_queries).
+
 
 <a name="nested_data_quality_spec_rules_range_expectation"></a>The `range_expectation` block supports:
 
@@ -1566,6 +1578,17 @@ The following arguments are supported:
   (Required)
   The string representation of the parameter value.
 
+<a name="nested_data_quality_spec_rules_debug_queries"></a>The `debug_queries` block supports:
+
+* `description` -
+  (Optional)
+  Specifies the description of the debug query.
+  The maximum length is 1,024 characters.
+
+* `sql_statement` -
+  (Required)
+  Specifies the SQL statement to be executed.
+
 <a name="nested_data_profile_spec"></a>The `data_profile_spec` block supports:
 
 * `sampling_percent` -
@@ -1598,6 +1621,11 @@ The following arguments are supported:
 * `catalog_publishing_enabled` -
   (Optional)
   If set, the latest DataScan job result will be published to Dataplex Catalog.
+
+* `mode` -
+  (Optional)
+  The execution mode for the profile scan.
+  Possible values are: `STANDARD`, `LIGHTWEIGHT`.
 
 
 <a name="nested_data_profile_spec_post_scan_actions"></a>The `post_scan_actions` block supports:
@@ -1727,6 +1755,11 @@ The following arguments are supported:
   The SQL dialect to use in the generated SQL queries.
   If not specified, the default dialect is Google SQL.
   Possible values are: `GOOGLE_SQL`, `SPARK_SQL`.
+
+* `generation_scopes` -
+  (Optional)
+  Specifies which components of the data documentation to generate. Any component that is required to generate the specified components will also be generated. If no generation scope is specified, all available documentation components will be generated.
+  Each value may be one of: `ALL`, `TABLE_AND_COLUMN_DESCRIPTIONS`, `SQL_QUERIES`, `BUSINESS_GLOSSARY_TERM_ASSOCIATIONS`.
 
 ## Attributes Reference
 

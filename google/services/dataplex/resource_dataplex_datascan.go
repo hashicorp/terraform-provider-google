@@ -384,6 +384,16 @@ Cloud Storage bucket (//storage.googleapis.com/projects/PROJECT_ID/buckets/BUCKE
 							Optional:    true,
 							Description: `If set, the latest DataScan job result will be published to Knowledge Catalog.`,
 						},
+						"generation_scopes": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Specifies which components of the data documentation to generate. Any component that is required to generate the specified components will also be generated. If no generation scope is specified, all available documentation components will be generated. Possible values: ["ALL", "TABLE_AND_COLUMN_DESCRIPTIONS", "SQL_QUERIES", "BUSINESS_GLOSSARY_TERM_ASSOCIATIONS"]`,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: verify.ValidateEnum([]string{"ALL", "TABLE_AND_COLUMN_DESCRIPTIONS", "SQL_QUERIES", "BUSINESS_GLOSSARY_TERM_ASSOCIATIONS"}),
+							},
+						},
 						"sql_dialect": {
 							Type:         schema.TypeString,
 							Computed:     true,
@@ -449,6 +459,12 @@ For instance, if 'x' is of nested field type, listing 'x' is supported but 'x.y.
 									},
 								},
 							},
+						},
+						"mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"STANDARD", "LIGHTWEIGHT", ""}),
+							Description:  `The execution mode for the profile scan. Possible values: ["STANDARD", "LIGHTWEIGHT"]`,
 						},
 						"post_scan_actions": {
 							Type:        schema.TypeList,
@@ -628,6 +644,27 @@ Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: `The unnested column which this rule is evaluated against.`,
+									},
+									"debug_queries": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Specifies the debug queries for this rule.
+Currently, only one query is supported, but this may be expanded in the future.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"sql_statement": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Specifies the SQL statement to be executed.`,
+												},
+												"description": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `Specifies the description of the debug query.
+The maximum length is 1,024 characters.`,
+												},
+											},
+										},
 									},
 									"description": {
 										Type:     schema.TypeString,
@@ -1914,6 +1951,7 @@ func flattenDataplexDatascanDataQualitySpecRules(v interface{}, d *schema.Resour
 			"table_condition_expectation": flattenDataplexDatascanDataQualitySpecRulesTableConditionExpectation(original["tableConditionExpectation"], d, config),
 			"sql_assertion":               flattenDataplexDatascanDataQualitySpecRulesSqlAssertion(original["sqlAssertion"], d, config),
 			"template_reference":          flattenDataplexDatascanDataQualitySpecRulesTemplateReference(original["templateReference"], d, config),
+			"debug_queries":               flattenDataplexDatascanDataQualitySpecRulesDebugQueries(original["debugQueries"], d, config),
 		})
 	}
 	return transformed
@@ -2165,6 +2203,34 @@ func flattenDataplexDatascanDataQualitySpecRulesTemplateReferenceValuesValue(v i
 	return v
 }
 
+func flattenDataplexDatascanDataQualitySpecRulesDebugQueries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"description":   flattenDataplexDatascanDataQualitySpecRulesDebugQueriesDescription(original["description"], d, config),
+			"sql_statement": flattenDataplexDatascanDataQualitySpecRulesDebugQueriesSqlStatement(original["sqlStatement"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataplexDatascanDataQualitySpecRulesDebugQueriesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataQualitySpecRulesDebugQueriesSqlStatement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDataplexDatascanDataQualitySpecCatalogPublishingEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -2195,6 +2261,8 @@ func flattenDataplexDatascanDataProfileSpec(v interface{}, d *schema.ResourceDat
 		flattenDataplexDatascanDataProfileSpecExcludeFields(original["excludeFields"], d, config)
 	transformed["catalog_publishing_enabled"] =
 		flattenDataplexDatascanDataProfileSpecCatalogPublishingEnabled(original["catalogPublishingEnabled"], d, config)
+	transformed["mode"] =
+		flattenDataplexDatascanDataProfileSpecMode(original["mode"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataProfileSpecSamplingPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2270,6 +2338,10 @@ func flattenDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(v interface{}
 }
 
 func flattenDataplexDatascanDataProfileSpecCatalogPublishingEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataProfileSpecMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2434,6 +2506,8 @@ func flattenDataplexDatascanDataDocumentationSpec(v interface{}, d *schema.Resou
 		flattenDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(original["catalogPublishingEnabled"], d, config)
 	transformed["sql_dialect"] =
 		flattenDataplexDatascanDataDocumentationSpecSqlDialect(original["sqlDialect"], d, config)
+	transformed["generation_scopes"] =
+		flattenDataplexDatascanDataDocumentationSpecGenerationScopes(original["generationScopes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2441,6 +2515,10 @@ func flattenDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(v inte
 }
 
 func flattenDataplexDatascanDataDocumentationSpecSqlDialect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataDocumentationSpecGenerationScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3147,6 +3225,13 @@ func expandDataplexDatascanDataQualitySpecRules(v interface{}, d tpgresource.Ter
 			transformed["templateReference"] = transformedTemplateReference
 		}
 
+		transformedDebugQueries, err := expandDataplexDatascanDataQualitySpecRulesDebugQueries(original["debug_queries"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDebugQueries); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["debugQueries"] = transformedDebugQueries
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -3548,6 +3633,46 @@ func expandDataplexDatascanDataQualitySpecRulesTemplateReferenceValuesValue(v in
 	return v, nil
 }
 
+func expandDataplexDatascanDataQualitySpecRulesDebugQueries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDescription, err := expandDataplexDatascanDataQualitySpecRulesDebugQueriesDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
+		}
+
+		transformedSqlStatement, err := expandDataplexDatascanDataQualitySpecRulesDebugQueriesSqlStatement(original["sql_statement"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSqlStatement); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sqlStatement"] = transformedSqlStatement
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataplexDatascanDataQualitySpecRulesDebugQueriesDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecRulesDebugQueriesSqlStatement(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDataplexDatascanDataQualitySpecCatalogPublishingEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -3617,6 +3742,13 @@ func expandDataplexDatascanDataProfileSpec(v interface{}, d tpgresource.Terrafor
 		return nil, err
 	} else if val := reflect.ValueOf(transformedCatalogPublishingEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["catalogPublishingEnabled"] = transformedCatalogPublishingEnabled
+	}
+
+	transformedMode, err := expandDataplexDatascanDataProfileSpecMode(original["mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mode"] = transformedMode
 	}
 
 	return transformed, nil
@@ -3731,6 +3863,10 @@ func expandDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(v interface{},
 }
 
 func expandDataplexDatascanDataProfileSpecCatalogPublishingEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataProfileSpecMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -4016,6 +4152,13 @@ func expandDataplexDatascanDataDocumentationSpec(v interface{}, d tpgresource.Te
 		transformed["sqlDialect"] = transformedSqlDialect
 	}
 
+	transformedGenerationScopes, err := expandDataplexDatascanDataDocumentationSpecGenerationScopes(original["generation_scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGenerationScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["generationScopes"] = transformedGenerationScopes
+	}
+
 	return transformed, nil
 }
 
@@ -4024,6 +4167,10 @@ func expandDataplexDatascanDataDocumentationSpecCatalogPublishingEnabled(v inter
 }
 
 func expandDataplexDatascanDataDocumentationSpecSqlDialect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataDocumentationSpecGenerationScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

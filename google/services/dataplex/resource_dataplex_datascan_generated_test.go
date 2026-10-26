@@ -226,6 +226,7 @@ resource "google_dataplex_datascan" "full_profile_test" {
       }
     }
     catalog_publishing_enabled = true
+    mode = "STANDARD"
   }
 
   project = "%{project_name}"
@@ -510,6 +511,10 @@ resource "google_dataplex_datascan" "full_quality_test" {
         priority = "high"
       }
       non_null_expectation {}
+      debug_queries {
+        description = "test debug query description"
+        sql_statement = "select * from $${data()} where address is null"
+      }
     }
 
     rules {
@@ -795,19 +800,21 @@ func TestAccDataplexDatascan_dataplexDatascanDocumentationExample(t *testing.T) 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"location":      envvar.GetTestRegionFromEnv(),
-		"project_name":  envvar.GetTestProjectFromEnv(),
-		"datascan_name": "tf-test-datadocumentation" + randomSuffix,
-		"sql_dialect":   "GOOGLE_SQL",
-		"random_suffix": randomSuffix,
+		"location":                   envvar.GetTestRegionFromEnv(),
+		"project_name":               envvar.GetTestProjectFromEnv(),
+		"catalog_publishing_enabled": true,
+		"datascan_name":              "tf-test-datadocumentation" + randomSuffix,
+		"sql_dialect":                "GOOGLE_SQL",
+		"random_suffix":              randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"location":      envvar.GetTestRegionFromEnv(),
-		"project_name":  envvar.GetTestProjectFromEnv(),
-		"datascan_name": "tf-test-datadocumentation" + randomSuffix,
-		"sql_dialect":   "SPARK_SQL",
-		"random_suffix": randomSuffix,
+		"location":                   envvar.GetTestRegionFromEnv(),
+		"project_name":               envvar.GetTestProjectFromEnv(),
+		"catalog_publishing_enabled": false,
+		"datascan_name":              "tf-test-datadocumentation" + randomSuffix,
+		"sql_dialect":                "GOOGLE_SQL",
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -933,8 +940,9 @@ resource "google_dataplex_datascan" "documentation" {
   }
 
   data_documentation_spec {
-    catalog_publishing_enabled = true
+    catalog_publishing_enabled = %{catalog_publishing_enabled}
     sql_dialect                = "%{sql_dialect}"
+    generation_scopes          = ["ALL"]
   }
 
   project = "%{project_name}"
