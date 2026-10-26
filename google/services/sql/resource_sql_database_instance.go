@@ -669,8 +669,9 @@ API (for read pools, effective_availability_type may differ from availability_ty
 										Description:  `Whether Google Cloud services such as BigQuery are allowed to access data in this Cloud SQL instance over a private IP connection. SQLSERVER database type is not supported.`,
 									},
 									"psc_config": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Optional:    true,
+										MaxItems:    1,
 										Description: `PSC settings for a Cloud SQL instance.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -2129,7 +2130,7 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 		EnablePrivatePathForGoogleCloudServices: _ipConfiguration["enable_private_path_for_google_cloud_services"].(bool),
 		ForceSendFields:                         forceSendFields,
 		NullFields:                              nullFields,
-		PscConfig:                               expandPscConfig(_ipConfiguration["psc_config"].(*schema.Set).List()),
+		PscConfig:                               expandPscConfig(_ipConfiguration["psc_config"].([]interface{})),
 		SslMode:                                 _ipConfiguration["ssl_mode"].(string),
 		ServerCaMode:                            _ipConfiguration["server_ca_mode"].(string),
 		ServerCaPool:                            _ipConfiguration["server_ca_pool"].(string),
@@ -2156,21 +2157,21 @@ func expandPscAutoConnectionConfig(configured []interface{}) []*sqladmin.PscAuto
 }
 
 func expandPscConfig(configured []interface{}) *sqladmin.PscConfig {
-	for _, _pscConfig := range configured {
-		_entry := _pscConfig.(map[string]interface{})
-		return &sqladmin.PscConfig{
-			PscEnabled:                     _entry["psc_enabled"].(bool),
-			PscAutoDnsEnabled:              _entry["psc_auto_dns_enabled"].(bool),
-			PscWriteEndpointDnsEnabled:     _entry["psc_write_endpoint_dns_enabled"].(bool),
-			PscAutoConnectionPolicyEnabled: _entry["psc_auto_connection_policy_enabled"].(bool),
-			AllowedConsumerProjects:        tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
-			NetworkAttachmentUri:           _entry["network_attachment_uri"].(string),
-			PscAutoConnections:             expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
-			ForceSendFields:                []string{"AllowedConsumerProjects"},
-		}
+	if len(configured) == 0 || configured[0] == nil {
+		return nil
 	}
 
-	return nil
+	_entry := configured[0].(map[string]interface{})
+	return &sqladmin.PscConfig{
+		PscEnabled:                     _entry["psc_enabled"].(bool),
+		PscAutoDnsEnabled:              _entry["psc_auto_dns_enabled"].(bool),
+		PscWriteEndpointDnsEnabled:     _entry["psc_write_endpoint_dns_enabled"].(bool),
+		PscAutoConnectionPolicyEnabled: _entry["psc_auto_connection_policy_enabled"].(bool),
+		AllowedConsumerProjects:        tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
+		NetworkAttachmentUri:           _entry["network_attachment_uri"].(string),
+		PscAutoConnections:             expandPscAutoConnectionConfig(_entry["psc_auto_connections"].([]interface{})),
+		ForceSendFields:                []string{"AllowedConsumerProjects"},
+	}
 }
 
 func expandFlags(configured []interface{}) []*sqladmin.ConnectionPoolFlags {
