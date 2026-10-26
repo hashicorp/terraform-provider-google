@@ -31,12 +31,22 @@ func TestAccStorageBatchOperationsJobs_createJobWithPrefix(t *testing.T) {
 	t.Parallel()
 	bucketName := acctest.TestBucketName(t)
 	jobID := fmt.Sprintf("tf-test-job-%d", acctest.RandInt(t))
+	secondJobID := fmt.Sprintf("tf-test-job-%d", acctest.RandInt(t))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageBatchOperationsCreateJobWithPrefix(bucketName, jobID),
+			},
+			{
+				ResourceName:            "google_storage_batch_operations_job.job",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"job_id", "delete_protection"},
+			},
+			{
+				Config: testAccStorageBatchOperationsCreateJobWithPrefixDryRunFalse(bucketName, secondJobID),
 			},
 			{
 				ResourceName:            "google_storage_batch_operations_job.job",
@@ -178,6 +188,49 @@ resource "google_storage_bucket" "bucket" {
 }
 resource "google_storage_batch_operations_job" "job" {
 	job_id   = "%s"
+	dry_run  = true
+	bucket_list {
+		buckets  {
+			bucket = google_storage_bucket.bucket.name
+			prefix_list {
+				included_object_prefixes = [
+					"bkt"
+				]
+			}
+		}
+	}
+
+	put_metadata {
+		custom_metadata = {
+			"key"="value"
+			"key1"="value1"
+		}
+	}
+	logging_config {
+		log_actions = [
+			"TRANSFORM"
+		]
+		log_action_states = [
+			"SUCCEEDED",
+			"FAILED"
+		]
+	}
+	delete_protection = false
+}
+`, bucketName, jobID)
+}
+
+func testAccStorageBatchOperationsCreateJobWithPrefixDryRunFalse(bucketName, jobID string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "us-central1"
+  uniform_bucket_level_access = true
+  force_destroy = true
+}
+resource "google_storage_batch_operations_job" "job" {
+	job_id   = "%s"
+	dry_run  = false
 	bucket_list {
 		buckets  {
 			bucket = google_storage_bucket.bucket.name

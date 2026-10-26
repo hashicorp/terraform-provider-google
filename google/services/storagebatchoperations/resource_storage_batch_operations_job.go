@@ -229,12 +229,51 @@ func ResourceStorageBatchOperationsJob() *schema.Resource {
 				Optional:    true,
 				Description: `A description provided by the user for the job. Its max length is 1024 bytes when Unicode-encoded.`,
 			},
+			"dry_run": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If true, the job runs in dry run mode, returning the total object count and, if the object configuration is a prefix list, the bytes found from source. No transformations are performed.`,
+			},
 			"job_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: verify.ValidateRegexp(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?.$`),
 				Description:  `The ID of the job.`,
+			},
+			"logging_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Logging configuration.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"log_action_states": {
+							Type:     schema.TypeList,
+							Required: true,
+							ForceNew: true,
+							Description: `States in which Action are logged.If empty, no logs are generated.
+Possible values include 'SUCCEEDED', 'FAILED'.
+See [LoggingConfig](https://cloud.google.com/storage/docs/batch-operations/reference/rest/v1/projects.locations.jobs#LoggingConfig) for allowed values.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"log_actions": {
+							Type:     schema.TypeList,
+							Required: true,
+							ForceNew: true,
+							Description: `Specifies the actions to be logged.
+Possible values include 'TRANSFORM'.
+See [LoggingConfig](https://cloud.google.com/storage/docs/batch-operations/reference/rest/v1/projects.locations.jobs#LoggingConfig) for allowed values.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 			"put_metadata": {
 				Type:        schema.TypeList,
@@ -439,6 +478,18 @@ func resourceStorageBatchOperationsJobCreate(d *schema.ResourceData, meta interf
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	loggingConfigProp, err := expandStorageBatchOperationsJobLoggingConfig(d.Get("logging_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(loggingConfigProp)) && (ok || !reflect.DeepEqual(v, loggingConfigProp)) {
+		obj["loggingConfig"] = loggingConfigProp
+	}
+	dryRunProp, err := expandStorageBatchOperationsJobDryRun(d.Get("dry_run"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dry_run"); !tpgresource.IsEmptyValue(reflect.ValueOf(dryRunProp)) && (ok || !reflect.DeepEqual(v, dryRunProp)) {
+		obj["dryRun"] = dryRunProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/jobs?jobId={{job_id}}")
@@ -917,6 +968,33 @@ func flattenStorageBatchOperationsJobDescription(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenStorageBatchOperationsJobLoggingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["log_actions"] =
+		flattenStorageBatchOperationsJobLoggingConfigLogActions(original["logActions"], d, config)
+	transformed["log_action_states"] =
+		flattenStorageBatchOperationsJobLoggingConfigLogActionStates(original["logActionStates"], d, config)
+	return []interface{}{transformed}
+}
+func flattenStorageBatchOperationsJobLoggingConfigLogActions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenStorageBatchOperationsJobLoggingConfigLogActionStates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenStorageBatchOperationsJobDryRun(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandStorageBatchOperationsJobBucketList(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -1226,6 +1304,47 @@ func expandStorageBatchOperationsJobDescription(v interface{}, d tpgresource.Ter
 	return v, nil
 }
 
+func expandStorageBatchOperationsJobLoggingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLogActions, err := expandStorageBatchOperationsJobLoggingConfigLogActions(original["log_actions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLogActions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["logActions"] = transformedLogActions
+	}
+
+	transformedLogActionStates, err := expandStorageBatchOperationsJobLoggingConfigLogActionStates(original["log_action_states"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLogActionStates); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["logActionStates"] = transformedLogActionStates
+	}
+
+	return transformed, nil
+}
+
+func expandStorageBatchOperationsJobLoggingConfigLogActions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandStorageBatchOperationsJobLoggingConfigLogActionStates(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandStorageBatchOperationsJobDryRun(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceStorageBatchOperationsJobFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -1260,6 +1379,12 @@ func ResourceStorageBatchOperationsJobFlatten(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 	if err = d.Set("description", flattenStorageBatchOperationsJobDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("logging_config", flattenStorageBatchOperationsJobLoggingConfig(res["loggingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err = d.Set("dry_run", flattenStorageBatchOperationsJobDryRun(res["dryRun"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 

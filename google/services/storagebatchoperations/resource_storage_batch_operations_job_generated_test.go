@@ -166,6 +166,7 @@ resource "google_storage_bucket" "bucket" {
 resource "google_storage_batch_operations_job" "tf-job" {
   job_id      = "%{job_id}"
   description = "A sample job description"
+  dry_run     = true
   bucket_list {
     buckets {
       bucket = google_storage_bucket.bucket.name
@@ -180,6 +181,15 @@ resource "google_storage_batch_operations_job" "tf-job" {
     custom_metadata = {
       "key" = "value"
     }
+  }
+  logging_config {
+    log_actions = [
+      "TRANSFORM"
+    ]
+    log_action_states = [
+      "SUCCEEDED",
+      "FAILED"
+    ]
   }
   delete_protection = false
 }

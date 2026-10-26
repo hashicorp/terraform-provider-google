@@ -16,8 +16,11 @@ fields:
     - field: delete_protection
       provider_only: true
     - api_field: description
+    - api_field: dryRun
     - field: job_id
       provider_only: true
+    - api_field: loggingConfig.logActionStates
+    - api_field: loggingConfig.logActions
     - api_field: putMetadata.cacheControl
     - api_field: putMetadata.contentDisposition
     - api_field: putMetadata.contentEncoding

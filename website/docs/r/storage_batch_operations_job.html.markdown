@@ -84,6 +84,7 @@ resource "google_storage_bucket" "bucket" {
 resource "google_storage_batch_operations_job" "tf-job" {
   job_id      = "tf-job"
   description = "A sample job description"
+  dry_run     = true
   bucket_list {
     buckets {
       bucket = google_storage_bucket.bucket.name
@@ -98,6 +99,15 @@ resource "google_storage_batch_operations_job" "tf-job" {
     custom_metadata = {
       "key" = "value"
     }
+  }
+  logging_config {
+    log_actions = [
+      "TRANSFORM"
+    ]
+    log_action_states = [
+      "SUCCEEDED",
+      "FAILED"
+    ]
   }
   delete_protection = false
 }
@@ -137,6 +147,15 @@ The following arguments are supported:
 * `description` -
   (Optional)
   A description provided by the user for the job. Its max length is 1024 bytes when Unicode-encoded.
+
+* `logging_config` -
+  (Optional)
+  Logging configuration.
+  Structure is [documented below](#nested_logging_config).
+
+* `dry_run` -
+  (Optional)
+  If true, the job runs in dry run mode, returning the total object count and, if the object configuration is a prefix list, the bytes found from source. No transformations are performed.
 
 * `job_id` -
   (Optional)
@@ -242,6 +261,20 @@ The following arguments are supported:
 * `temporary_hold` -
   (Optional)
   set/unset to update temporary based hold for objects.
+
+<a name="nested_logging_config"></a>The `logging_config` block supports:
+
+* `log_actions` -
+  (Required)
+  Specifies the actions to be logged.
+  Possible values include `TRANSFORM`.
+  See [LoggingConfig](https://cloud.google.com/storage/docs/batch-operations/reference/rest/v1/projects.locations.jobs#LoggingConfig) for allowed values.
+
+* `log_action_states` -
+  (Required)
+  States in which Action are logged.If empty, no logs are generated.
+  Possible values include `SUCCEEDED`, `FAILED`.
+  See [LoggingConfig](https://cloud.google.com/storage/docs/batch-operations/reference/rest/v1/projects.locations.jobs#LoggingConfig) for allowed values.
 
 ## Attributes Reference
 
