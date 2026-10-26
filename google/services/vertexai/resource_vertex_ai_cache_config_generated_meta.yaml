@@ -9,3 +9,5 @@ api_resource_type_kind: CacheConfig
 fields:
     - api_field: disableCache
     - api_field: name
+    - field: region
+      provider_only: true

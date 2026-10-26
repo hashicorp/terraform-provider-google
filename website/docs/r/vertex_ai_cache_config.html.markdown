@@ -51,6 +51,12 @@ The following arguments are supported:
   If set to true, disables GenAI caching. Otherwise caching is enabled.
 
 
+* `region` -
+  (Optional)
+  The region of the Vertex AI API endpoint used to manage the cache config, e.g. `us-central1`.
+  The cache config is a project-level setting, so this only selects which regional endpoint
+  requests are sent to. If not specified, the provider-level region is used.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

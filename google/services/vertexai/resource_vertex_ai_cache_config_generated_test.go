@@ -72,9 +72,10 @@ func TestAccVertexAICacheConfig_vertexAiCacheConfigExample(t *testing.T) {
 				Config: testAccVertexAICacheConfig_vertexAiCacheConfigExample(context),
 			},
 			{
-				ResourceName:      "google_vertex_ai_cache_config.cache_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_vertex_ai_cache_config.cache_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 			{
 				ResourceName:       "google_vertex_ai_cache_config.cache_config",
