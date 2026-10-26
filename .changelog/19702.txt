@@ -1,0 +1,3 @@
+```release-note:enhancement
+oracledatabase: added `odb_dns_zone` field to `google_oracle_database_cloud_vm_cluster` resource and `google_oracle_database_cloud_vm_clusters` datasource
+```

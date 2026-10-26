@@ -217,6 +217,15 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `The name of the VPC network.
 Format: projects/{project}/global/networks/{network}`,
 			},
+			"odb_dns_zone": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `The name of the OdbDnsZone for using custom domain name for the VM Cluster.
+Format:
+projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbDnsZones/{odb_dns_zone}`,
+			},
 			"odb_network": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -689,6 +698,12 @@ func resourceOracleDatabaseCloudVmClusterCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("backup_odb_subnet"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupOdbSubnetProp)) && (ok || !reflect.DeepEqual(v, backupOdbSubnetProp)) {
 		obj["backupOdbSubnet"] = backupOdbSubnetProp
+	}
+	odbDnsZoneProp, err := expandOracleDatabaseCloudVmClusterOdbDnsZone(d.Get("odb_dns_zone"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("odb_dns_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(odbDnsZoneProp)) && (ok || !reflect.DeepEqual(v, odbDnsZoneProp)) {
+		obj["odbDnsZone"] = odbDnsZoneProp
 	}
 	exascaleDbStorageVaultProp, err := expandOracleDatabaseCloudVmClusterExascaleDbStorageVault(d.Get("exascale_db_storage_vault"), d, config)
 	if err != nil {
@@ -1480,6 +1495,10 @@ func flattenOracleDatabaseCloudVmClusterBackupOdbSubnet(v interface{}, d *schema
 	return v
 }
 
+func flattenOracleDatabaseCloudVmClusterOdbDnsZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenOracleDatabaseCloudVmClusterIdentityConnector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -2035,6 +2054,10 @@ func expandOracleDatabaseCloudVmClusterBackupOdbSubnet(v interface{}, d tpgresou
 	return v, nil
 }
 
+func expandOracleDatabaseCloudVmClusterOdbDnsZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandOracleDatabaseCloudVmClusterExascaleDbStorageVault(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2090,6 +2113,9 @@ func ResourceOracleDatabaseCloudVmClusterFlatten(d *schema.ResourceData, meta in
 		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
 	}
 	if err = d.Set("backup_odb_subnet", flattenOracleDatabaseCloudVmClusterBackupOdbSubnet(res["backupOdbSubnet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
+	}
+	if err = d.Set("odb_dns_zone", flattenOracleDatabaseCloudVmClusterOdbDnsZone(res["odbDnsZone"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CloudVmCluster: %s", err)
 	}
 	if err = d.Set("identity_connector", flattenOracleDatabaseCloudVmClusterIdentityConnector(res["identityConnector"], d, config)); err != nil {
