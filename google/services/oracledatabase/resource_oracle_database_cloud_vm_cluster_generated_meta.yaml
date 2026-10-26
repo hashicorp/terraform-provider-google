@@ -30,6 +30,7 @@ fields:
       provider_only: true
     - api_field: name
     - api_field: network
+    - api_field: odbDnsZone
     - api_field: odbNetwork
     - api_field: odbSubnet
     - api_field: properties.clusterName

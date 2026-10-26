@@ -248,6 +248,86 @@ resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfr
 `, context)
 }
 
+func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterOdbdnszoneExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"backup_odb_subnet":               "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-backup-odbsubnet",
+		"cloud_exadata_infrastructure_id": fmt.Sprintf("ofake-tf-test-exadata-for-vmcluster-odbdnszone-%s", acctest.RandString(t, 10)),
+		"cloud_vm_cluster_id":             fmt.Sprintf("ofake-tf-test-vmcluster-odbdnszone-%s", acctest.RandString(t, 10)),
+		"deletion_protection":             false,
+		"odb_dns_zone":                    oracledatabase.BootstrapOdbDnsZone(t, "oasis-terraform-testing-prod", "europe-west2", "tf-test-permanent-odbnetwork", "tf-bootstrap-vmcluster-dnszone", "tfbootstrap.example.com"),
+		"odb_network":                     "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork",
+		"odb_subnet":                      "projects/oasis-terraform-testing-prod/locations/europe-west2/odbNetworks/tf-test-permanent-odbnetwork/odbSubnets/tf-test-permanent-client-odbsubnet",
+		"project":                         "oasis-terraform-testing-prod",
+		"random_suffix":                   randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckOracleDatabaseCloudVmClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterOdbdnszoneExample(context),
+			},
+			{
+				ResourceName:            "google_oracle_database_cloud_vm_cluster.my_vmcluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_vm_cluster_id", "deletion_protection", "labels", "location", "properties.0.gi_version", "properties.0.hostname_prefix", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterOdbdnszoneExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_oracle_database_cloud_vm_cluster" "my_vmcluster"{
+  cloud_vm_cluster_id = "%{cloud_vm_cluster_id}"
+  display_name = "%{cloud_vm_cluster_id} displayname"
+  location = "europe-west2"
+  project = "%{project}"
+  exadata_infrastructure = google_oracle_database_cloud_exadata_infrastructure.cloudExadataInfrastructures.id
+  odb_network = "%{odb_network}"
+  odb_subnet = "%{odb_subnet}"
+  backup_odb_subnet = "%{backup_odb_subnet}"
+  odb_dns_zone = "%{odb_dns_zone}"
+  properties {
+    license_type = "LICENSE_INCLUDED"
+    ssh_public_keys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz1X2744t+6vRLmE5u6nHi6/QWh8bQDgHmd+OIxRQIGA/IWUtCs2FnaCNZcqvZkaeyjk5v0lTA/n+9jvO42Ipib53athrfVG8gRt8fzPL66C6ZqHq+6zZophhrCdfJh/0G4x9xJh5gdMprlaCR1P8yAaVvhBQSKGc4SiIkyMNBcHJ5YTtMQMTfxaB4G1sHZ6SDAY9a6Cq/zNjDwfPapWLsiP4mRhE5SSjJX6l6EYbkm0JeLQg+AbJiNEPvrvDp1wtTxzlPJtIivthmLMThFxK7+DkrYFuLvN5AHUdo9KTDLvHtDCvV70r8v0gafsrKkM/OE9Jtzoo0e1N/5K/ZdyFRbAkFT4QSF3nwpbmBWLf2Evg//YyEuxnz4CwPqFST2mucnrCCGCVWp1vnHZ0y30nM35njLOmWdRDFy5l27pKUTwLp02y3UYiiZyP7d3/u5pKiN4vC27VuvzprSdJxWoAvluOiDeRh+/oeQDowxoT/Oop8DzB9uJmjktXw8jyMW2+Rpg+ENQqeNgF1OGlEzypaWiRskEFlkpLb4v/s3ZDYkL1oW0Nv/J8LTjTOTEaYt2Udjoe9x2xWiGnQixhdChWuG+MaoWffzUgx1tsVj/DBXijR5DjkPkrA1GA98zd3q8GKEaAdcDenJjHhNYSd4+rE9pIsnYn7fo5X/tFfcQH1XQ== nobody@google.com"]
+    cpu_core_count = "4"
+    gi_version = "19.0.0.0"
+    hostname_prefix = "hostname1"
+  }
+
+  deletion_protection = "%{deletion_protection}"
+}
+
+resource "google_oracle_database_cloud_exadata_infrastructure" "cloudExadataInfrastructures"{
+  cloud_exadata_infrastructure_id = "%{cloud_exadata_infrastructure_id}"
+  display_name = "%{cloud_exadata_infrastructure_id} displayname"
+  location = "europe-west2"
+  project = "%{project}"
+  properties {
+    shape = "Exadata.X9M"
+    compute_count= "2"
+    storage_count= "3"
+  }
+
+  deletion_protection = "%{deletion_protection}"
+}
+`, context)
+}
+
 func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterFullExample(t *testing.T) {
 	t.Parallel()
 
