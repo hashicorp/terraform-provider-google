@@ -57,10 +57,11 @@ func (w *ResourceManagerV3OperationWaiter) QueryOp() (interface{}, error) {
 	url := transport_tpg.BaseUrl(Product, w.Config)
 	url += fmt.Sprintf("%s", w.CommonOperationWaiter.Op.Name)
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    w.Config,
-		Method:    "GET",
-		RawURL:    url,
-		UserAgent: w.UserAgent,
+		Config:               w.Config,
+		Method:               "GET",
+		RawURL:               url,
+		UserAgent:            w.UserAgent,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsResourceManagerBoundaryRetryableError},
 	})
 }
 
