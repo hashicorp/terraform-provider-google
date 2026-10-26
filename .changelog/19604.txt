@@ -1,0 +1,3 @@
+```release-note:enhancement
+integrationconnectors: added `async_operations_enabled`, `auth_override_enabled`, and `traffic_shaping_configs` fields to `google_integration_connectors_connection`
+```
