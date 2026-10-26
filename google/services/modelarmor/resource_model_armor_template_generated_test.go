@@ -174,6 +174,29 @@ resource "google_model_armor_template" "template-filter-config" {
     malicious_uri_filter_settings {
       filter_enforcement = "%{filter_config_malicious_uri_filter_settings_filter_enforcement}"
     }
+    filter_rule_settings {
+      rule_sets {
+        filter_types = ["PROMPT_INJECTION_AND_JAILBREAK", "RESPONSIBLE_AI"]
+        rules {
+          exclusion_rule {
+            matching_scope = "MATCHING_SCOPE_PARTIAL_MATCH"
+            dictionary {
+              word_list {
+                words = ["allowphrase1", "allowphrase2"]
+              }
+            }
+          }
+        }
+        rules {
+          exclusion_rule {
+            matching_scope = "MATCHING_SCOPE_FULL_MATCH"
+            regex {
+              pattern = "^safe_pattern_[0-9]+$"
+            }
+          }
+        }
+      }
+    }
   }
   template_metadata {
     multi_language_detection {
@@ -198,6 +221,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateTemplateMetadataExample(t *test
 		"template_metadata_custom_llm_response_safety_error_message":                 "This is a custom error message for LLM response",
 		"template_metadata_custom_prompt_safety_error_code":                          400,
 		"template_metadata_custom_prompt_safety_error_message":                       "This is a custom error message for prompt",
+		"template_metadata_data_residency_compliant":                                 true,
 		"template_metadata_enforcement_type":                                         "INSPECT_ONLY",
 		"template_metadata_filter_version_selector_alias":                            "FILTER_VERSION_ALIAS_LATEST",
 		"template_metadata_ignore_partial_invocation_failures":                       false,
@@ -261,6 +285,7 @@ resource "google_model_armor_template" "template-template-metadata" {
     filter_version_selector {
       alias = "%{template_metadata_filter_version_selector_alias}"
     }
+    data_residency_compliant                 = %{template_metadata_data_residency_compliant}
   }
 }
 `, context)
@@ -276,7 +301,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateFilterVersionSelectorExample(t 
 		"filter_config_rai_settings_rai_filters_0_filter_type":      "HATE_SPEECH",
 		"location":   "us-central1",
 		"templateId": "modelarmor5",
-		"template_metadata_filter_version_selector_version": "v1",
+		"template_metadata_filter_version_selector_version": "v3",
 		"random_suffix": randomSuffix,
 	}
 

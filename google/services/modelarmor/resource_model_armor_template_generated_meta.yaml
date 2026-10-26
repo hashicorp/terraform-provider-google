@@ -12,6 +12,10 @@ fields:
     - api_field: createTime
     - field: effective_labels
       provider_only: true
+    - api_field: filterConfig.filterRuleSettings.ruleSets.filterTypes
+    - api_field: filterConfig.filterRuleSettings.ruleSets.rules.exclusionRule.dictionary.wordList.words
+    - api_field: filterConfig.filterRuleSettings.ruleSets.rules.exclusionRule.matchingScope
+    - api_field: filterConfig.filterRuleSettings.ruleSets.rules.exclusionRule.regex.pattern
     - api_field: filterConfig.maliciousUriFilterSettings.filterEnforcement
     - api_field: filterConfig.piAndJailbreakFilterSettings.confidenceLevel
     - api_field: filterConfig.piAndJailbreakFilterSettings.filterEnforcement
@@ -30,6 +34,7 @@ fields:
     - api_field: templateMetadata.customLlmResponseSafetyErrorMessage
     - api_field: templateMetadata.customPromptSafetyErrorCode
     - api_field: templateMetadata.customPromptSafetyErrorMessage
+    - api_field: templateMetadata.dataResidencyCompliant
     - api_field: templateMetadata.enforcementType
     - api_field: templateMetadata.filterVersionSelector.alias
     - api_field: templateMetadata.filterVersionSelector.version

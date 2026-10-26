@@ -138,6 +138,29 @@ func testAccModelArmorTemplate_initial(context map[string]interface{}) string {
           malicious_uri_filter_settings {
             filter_enforcement = "ENABLED"
           }
+          filter_rule_settings {
+            rule_sets {
+              filter_types = ["PROMPT_INJECTION_AND_JAILBREAK", "RESPONSIBLE_AI"]
+              rules {
+                exclusion_rule {
+                  matching_scope = "MATCHING_SCOPE_PARTIAL_MATCH"
+                  dictionary {
+                    word_list {
+                      words = ["allowphrase1", "allowphrase2"]
+                    }
+                  }
+                }
+              }
+              rules {
+                exclusion_rule {
+                  matching_scope = "MATCHING_SCOPE_FULL_MATCH"
+                  regex {
+                    pattern = "^safe_pattern_[0-9]+$"
+                  }
+                }
+              }
+            }
+          }
         }
         template_metadata {
           custom_llm_response_safety_error_message = "This is a custom error message for LLM response"
@@ -152,6 +175,7 @@ func testAccModelArmorTemplate_initial(context map[string]interface{}) string {
           custom_llm_response_safety_error_code    = 401
           enforcement_type                         = "INSPECT_ONLY"
           modalities                               = ["MODALITY_TEXT", "MODALITY_IMAGE"]
+          data_residency_compliant                 = true
         }
       }
     `, context)
@@ -223,6 +247,16 @@ func TestAccModelArmorTemplate_removeTemplateMetadata(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccModelArmorTemplate_withTemplateMetadata(context),
+				Check: resource.ComposeTestCheckFunc(
+					// data_residency_compliant is not configured, so the API default for new
+					// templates (true) is read back into state.
+					resource.TestCheckResourceAttr("google_model_armor_template.test-no-metadata", "template_metadata.0.data_residency_compliant", "true"),
+				),
+			},
+			{
+				Config:             testAccModelArmorTemplate_withTemplateMetadata(context),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
 			},
 			{
 				Config: testAccModelArmorTemplate_noTemplateMetadata(context),
@@ -283,6 +317,29 @@ func testAccModelArmorTemplate_update(context map[string]interface{}) string {
           malicious_uri_filter_settings {
             filter_enforcement = "DISABLED"
           }
+          filter_rule_settings {
+            rule_sets {
+              filter_types = ["RESPONSIBLE_AI"]
+              rules {
+                exclusion_rule {
+                  matching_scope = "MATCHING_SCOPE_FULL_MATCH"
+                  dictionary {
+                    word_list {
+                      words = ["updatedphrase1"]
+                    }
+                  }
+                }
+              }
+              rules {
+                exclusion_rule {
+                  matching_scope = "MATCHING_SCOPE_PARTIAL_MATCH"
+                  regex {
+                    pattern = "^updated_pattern_[a-z]+$"
+                  }
+                }
+              }
+            }
+          }
         }
         template_metadata {
           custom_llm_response_safety_error_message = "Updated LLM error message"
@@ -297,6 +354,7 @@ func testAccModelArmorTemplate_update(context map[string]interface{}) string {
           custom_llm_response_safety_error_code    = 500
           enforcement_type                         = "INSPECT_AND_BLOCK"
           modalities                               = ["MODALITY_TEXT"]
+          data_residency_compliant                 = true
         }
       }
     `, context)
