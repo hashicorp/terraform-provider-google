@@ -23,6 +23,8 @@ description: |-
 
 A UnitKind serves as a template or type definition for a group of Units. Units that belong to the same UnitKind are managed together, follow the same release model, and are typically updated together through rollouts.
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 
@@ -31,6 +33,7 @@ A UnitKind serves as a template or type definition for a group of Units. Units t
 
 ```hcl
 resource "google_saas_runtime_saas" "example_saas" {
+  provider = google-beta
   saas_id  = "example-saas"
   location = "us-east1"
 
@@ -40,6 +43,7 @@ resource "google_saas_runtime_saas" "example_saas" {
 }
 
 resource "google_saas_runtime_unit_kind" "cluster_unit_kind" {
+  provider = google-beta
   location = "us-east1"
   unit_kind_id = "cluster-unitkind"
   saas = google_saas_runtime_saas.example_saas.id
@@ -47,6 +51,7 @@ resource "google_saas_runtime_unit_kind" "cluster_unit_kind" {
 }
 
 resource "google_saas_runtime_unit_kind" "example" {
+  provider = google-beta
   location = "us-east1"
   unit_kind_id = "app-unitkind"
   saas = google_saas_runtime_saas.example_saas.id
@@ -58,6 +63,7 @@ resource "google_saas_runtime_unit_kind" "example" {
 }
 
 resource "google_saas_runtime_release" "example_release" {
+  provider          = google-beta
   location          = "us-east1"
   release_id        = "example-release"
   unit_kind         = google_saas_runtime_unit_kind.cluster_unit_kind.id

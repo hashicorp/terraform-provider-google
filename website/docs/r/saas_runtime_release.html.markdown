@@ -23,6 +23,8 @@ description: |-
 
 A version to be propagated and deployed to Units. It points to a specific version of a Blueprint that can be applied to Units, for example, via a Rollout.
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 
@@ -31,6 +33,7 @@ A version to be propagated and deployed to Units. It points to a specific versio
 
 ```hcl
 resource "google_saas_runtime_saas" "example_saas" {
+  provider = google-beta
   saas_id  = "example-saas"
   location = "global"
 
@@ -40,12 +43,14 @@ resource "google_saas_runtime_saas" "example_saas" {
 }
 
 resource "google_saas_runtime_unit_kind" "example_unitkind" {
+  provider     = google-beta
   location     = "global"
   unit_kind_id = "example-unitkind"
   saas         = google_saas_runtime_saas.example_saas.id
 }
 
 resource "google_saas_runtime_release" "example_previous" {
+  provider          = google-beta
   location          = "global"
   release_id        = "previous-release"
   unit_kind         = google_saas_runtime_unit_kind.example_unitkind.id
@@ -55,6 +60,7 @@ resource "google_saas_runtime_release" "example_previous" {
 }
 
 resource "google_saas_runtime_release" "example" {
+  provider          = google-beta
   location          = "global"
   release_id        = "example-release"
   unit_kind         = google_saas_runtime_unit_kind.example_unitkind.id
