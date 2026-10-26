@@ -248,7 +248,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 							Type:             schema.TypeList,
 							Optional:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+							DiffSuppressFunc: tpgresource.CompareProjectNames,
 							Description:      `The project IDs. Format {project}.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
