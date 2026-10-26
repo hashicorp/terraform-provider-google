@@ -671,6 +671,48 @@ see https://cloud.google.com/certificate-authority-service/docs/cel-guide`,
 							Description: `The maximum lifetime allowed for issued Certificates. Note that if the issuing CertificateAuthority
 expires before a Certificate's requested maximumLifetime, the effective lifetime will be explicitly truncated to match it.`,
 						},
+						"passthrough_extensions": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Describes the set of X.509 extensions that may appear in a Certificate issued through this CaPool.
+If a certificate request sets extensions that don't appear in the passthrough_extensions, those extensions
+will be dropped. If a certificate request uses a CertificateTemplate with predefined_values that don't
+appear here, the certificate issuance request will fail. If this is omitted, then this CaPool will not
+add restrictions on a certificate's X.509 extensions. These constraints do not apply to X.509 extensions
+set in this CaPool's baseline_values.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"additional_extensions": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A set of ObjectIds identifying custom X.509 extensions.
+Will be combined with known_extensions to determine the full set of X.509 extensions.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"object_id_path": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeInt,
+													},
+												},
+											},
+										},
+									},
+									"known_extensions": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `A set of named X.509 extensions. Will be combined with additional_extensions to determine the full set of X.509 extensions.
+Acceptable values are: 'BASE_KEY_USAGE', 'EXTENDED_KEY_USAGE', 'CA_OPTIONS', 'POLICY_IDS', 'AIA_OCSP_SERVERS', 'NAME_CONSTRAINTS'.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1212,6 +1254,8 @@ func flattenPrivatecaCaPoolIssuancePolicy(v interface{}, d *schema.ResourceData,
 		flattenPrivatecaCaPoolIssuancePolicyIdentityConstraints(original["identityConstraints"], d, config)
 	transformed["baseline_values"] =
 		flattenPrivatecaCaPoolIssuancePolicyBaselineValues(original["baselineValues"], d, config)
+	transformed["passthrough_extensions"] =
+		flattenPrivatecaCaPoolIssuancePolicyPassthroughExtensions(original["passthroughExtensions"], d, config)
 	return []interface{}{transformed}
 }
 func flattenPrivatecaCaPoolIssuancePolicyAllowedKeyTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1389,6 +1433,48 @@ func flattenPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d *schema
 	return []interface{}{transformed}
 }
 
+func flattenPrivatecaCaPoolIssuancePolicyPassthroughExtensions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["known_extensions"] =
+		flattenPrivatecaCaPoolIssuancePolicyPassthroughExtensionsKnownExtensions(original["knownExtensions"], d, config)
+	transformed["additional_extensions"] =
+		flattenPrivatecaCaPoolIssuancePolicyPassthroughExtensionsAdditionalExtensions(original["additionalExtensions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPrivatecaCaPoolIssuancePolicyPassthroughExtensionsKnownExtensions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPrivatecaCaPoolIssuancePolicyPassthroughExtensionsAdditionalExtensions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"object_id_path": flattenPrivatecaCaPoolIssuancePolicyPassthroughExtensionsAdditionalExtensionsObjectIdPath(original["objectIdPath"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenPrivatecaCaPoolIssuancePolicyPassthroughExtensionsAdditionalExtensionsObjectIdPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenPrivatecaCaPoolPublishingOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1532,6 +1618,13 @@ func expandPrivatecaCaPoolIssuancePolicy(v interface{}, d tpgresource.TerraformR
 		return nil, err
 	} else if val := reflect.ValueOf(transformedBaselineValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["baselineValues"] = transformedBaselineValues
+	}
+
+	transformedPassthroughExtensions, err := expandPrivatecaCaPoolIssuancePolicyPassthroughExtensions(original["passthrough_extensions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPassthroughExtensions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["passthroughExtensions"] = transformedPassthroughExtensions
 	}
 
 	return transformed, nil
@@ -1835,6 +1928,68 @@ func expandPrivatecaCaPoolIssuancePolicyBaselineValues(v interface{}, d tpgresou
 	}
 	transformed["nameConstraints"] = nameConstraints
 	return transformed, nil
+}
+
+func expandPrivatecaCaPoolIssuancePolicyPassthroughExtensions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKnownExtensions, err := expandPrivatecaCaPoolIssuancePolicyPassthroughExtensionsKnownExtensions(original["known_extensions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKnownExtensions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["knownExtensions"] = transformedKnownExtensions
+	}
+
+	transformedAdditionalExtensions, err := expandPrivatecaCaPoolIssuancePolicyPassthroughExtensionsAdditionalExtensions(original["additional_extensions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAdditionalExtensions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["additionalExtensions"] = transformedAdditionalExtensions
+	}
+
+	return transformed, nil
+}
+
+func expandPrivatecaCaPoolIssuancePolicyPassthroughExtensionsKnownExtensions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPrivatecaCaPoolIssuancePolicyPassthroughExtensionsAdditionalExtensions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedObjectIdPath, err := expandPrivatecaCaPoolIssuancePolicyPassthroughExtensionsAdditionalExtensionsObjectIdPath(original["object_id_path"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedObjectIdPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["objectIdPath"] = transformedObjectIdPath
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandPrivatecaCaPoolIssuancePolicyPassthroughExtensionsAdditionalExtensionsObjectIdPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandPrivatecaCaPoolPublishingOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -119,6 +119,12 @@ resource "google_privateca_ca_pool" "default" {
         title = "My title"
       }
     }
+    passthrough_extensions {
+      known_extensions = ["EXTENDED_KEY_USAGE", "BASE_KEY_USAGE"]
+      additional_extensions {
+        object_id_path = [1, 5]
+      }
+    }
     baseline_values {
       aia_ocsp_servers = ["example.com"]
       additional_extensions {
@@ -280,6 +286,16 @@ The following arguments are supported:
   request uses a CertificateTemplate that defines conflicting predefinedValues for the same properties, the certificate
   issuance request will fail.
   Structure is [documented below](#nested_issuance_policy_baseline_values).
+
+* `passthrough_extensions` -
+  (Optional)
+  Describes the set of X.509 extensions that may appear in a Certificate issued through this CaPool.
+  If a certificate request sets extensions that don't appear in the passthrough_extensions, those extensions
+  will be dropped. If a certificate request uses a CertificateTemplate with predefined_values that don't
+  appear here, the certificate issuance request will fail. If this is omitted, then this CaPool will not
+  add restrictions on a certificate's X.509 extensions. These constraints do not apply to X.509 extensions
+  set in this CaPool's baseline_values.
+  Structure is [documented below](#nested_issuance_policy_passthrough_extensions).
 
 
 <a name="nested_issuance_policy_allowed_key_types"></a>The `allowed_key_types` block supports:
@@ -595,6 +611,26 @@ The following arguments are supported:
   Contains the excluded URIs that apply to the host part of the name.
   The value can be a hostname or a domain with a
   leading period (like `.example.com`)
+
+<a name="nested_issuance_policy_passthrough_extensions"></a>The `passthrough_extensions` block supports:
+
+* `known_extensions` -
+  (Optional)
+  A set of named X.509 extensions. Will be combined with additional_extensions to determine the full set of X.509 extensions.
+  Acceptable values are: `BASE_KEY_USAGE`, `EXTENDED_KEY_USAGE`, `CA_OPTIONS`, `POLICY_IDS`, `AIA_OCSP_SERVERS`, `NAME_CONSTRAINTS`.
+
+* `additional_extensions` -
+  (Optional)
+  A set of ObjectIds identifying custom X.509 extensions.
+  Will be combined with known_extensions to determine the full set of X.509 extensions.
+  Structure is [documented below](#nested_issuance_policy_passthrough_extensions_additional_extensions).
+
+
+<a name="nested_issuance_policy_passthrough_extensions_additional_extensions"></a>The `additional_extensions` block supports:
+
+* `object_id_path` -
+  (Required)
+  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
 <a name="nested_publishing_options"></a>The `publishing_options` block supports:
 

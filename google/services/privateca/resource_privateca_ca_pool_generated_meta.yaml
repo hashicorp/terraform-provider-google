@@ -60,6 +60,8 @@ fields:
     - api_field: issuancePolicy.identityConstraints.celExpression.location
     - api_field: issuancePolicy.identityConstraints.celExpression.title
     - api_field: issuancePolicy.maximumLifetime
+    - api_field: issuancePolicy.passthroughExtensions.additionalExtensions.objectIdPath
+    - api_field: issuancePolicy.passthroughExtensions.knownExtensions
     - api_field: labels
     - field: location
       provider_only: true
