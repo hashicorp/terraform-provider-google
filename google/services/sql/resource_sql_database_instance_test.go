@@ -1624,6 +1624,10 @@ func TestAccSqlDatabaseInstance_withPSCEnabled_withPscAutoConnections(t *testing
 				ImportStateIdPrefix:     fmt.Sprintf("%s/", projectId),
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
+			{
+				Config: testAccSqlDatabaseInstance_withPSCEnabled_withPscAutoConnections_withoutConsumerServiceProjectId(instanceName, projectId, networkName),
+				Check:  resource.ComposeTestCheckFunc(verifyPscAutoConnectionsOperation("google_sql_database_instance.instance", true, true, true, network_short_link_name, projectId)),
+			},
 		},
 	})
 }
@@ -7786,9 +7790,9 @@ func verifyPscOperation(resourceName string, isPscConfigExpected bool, expectedP
 				}
 			}
 
-			allowedConsumerProjectsStr, ok := resourceAttributes["settings.0.ip_configuration.0.psc_config.0.allowed_consumer_projects.#"]
-			allowedConsumerProjects, err := strconv.Atoi(allowedConsumerProjectsStr)
-			if !ok || allowedConsumerProjects != len(expectedAllowedConsumerProjects) {
+			allowedConsumerProjectsStr := resourceAttributes["settings.0.ip_configuration.0.psc_config.0.allowed_consumer_projects.#"]
+			allowedConsumerProjects, _ := strconv.Atoi(allowedConsumerProjectsStr)
+			if allowedConsumerProjects != len(expectedAllowedConsumerProjects) {
 				return fmt.Errorf("settings.0.ip_configuration.0.psc_config.0.allowed_consumer_projects property is not present or set as expected in state of %s", resourceName)
 			}
 
@@ -8114,6 +8118,38 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, networkName, instanceName, projectId, networkName, projectId)
+}
+
+func testAccSqlDatabaseInstance_withPSCEnabled_withPscAutoConnections_withoutConsumerServiceProjectId(instanceName string, projectId string, networkName string) string {
+	return fmt.Sprintf(`
+data "google_compute_network" "testnetwork" {
+  name                    = "%s"
+}
+
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-west2"
+  database_version    = "MYSQL_8_0"
+  deletion_protection = false
+  settings {
+    tier = "db-g1-small"
+    ip_configuration {
+		psc_config {
+			psc_enabled = true
+			psc_auto_connections {
+				consumer_network = "projects/%s/global/networks/%s"
+			}
+		}
+		ipv4_enabled = false
+    }
+	backup_configuration {
+		enabled = true
+		binary_log_enabled = true
+	}
+	availability_type = "REGIONAL"
+  }
+}
+`, networkName, instanceName, projectId, networkName)
 }
 
 func testAccSqlDatabaseInstance_withPSCEnabled_withNetworkAttachmentUri(instanceName string, networkAttachmentUri string) string {
