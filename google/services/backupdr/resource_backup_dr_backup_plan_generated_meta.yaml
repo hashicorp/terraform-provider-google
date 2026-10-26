@@ -27,6 +27,9 @@ fields:
     - api_field: createTime
     - api_field: description
     - api_field: diskBackupPlanProperties.guestFlush
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
     - field: location
       provider_only: true
     - api_field: logRetentionDays
@@ -34,6 +37,8 @@ fields:
     - api_field: name
     - api_field: resourceType
     - api_field: supportedResourceTypes
+    - field: terraform_labels
+      provider_only: true
     - api_field: updateTime
     - field: deletion_policy
       provider_only: true
