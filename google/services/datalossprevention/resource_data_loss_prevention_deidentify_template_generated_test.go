@@ -184,6 +184,9 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
         }
       }
 		}
+		transformation_error_handling {
+			throw_error {}
+		}
 	}
 }
 `, context)

@@ -358,6 +358,8 @@ fields:
     - api_field: deidentifyConfig.recordTransformations.recordSuppressions.condition.expressions.conditions.conditions.value.timeValue.seconds
     - api_field: deidentifyConfig.recordTransformations.recordSuppressions.condition.expressions.conditions.conditions.value.timestampValue
     - api_field: deidentifyConfig.recordTransformations.recordSuppressions.condition.expressions.logicalOperator
+    - api_field: deidentifyConfig.transformationErrorHandling.leaveUntransformed
+    - api_field: deidentifyConfig.transformationErrorHandling.throwError
     - api_field: description
     - api_field: displayName
     - api_field: name
