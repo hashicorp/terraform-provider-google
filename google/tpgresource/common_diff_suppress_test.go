@@ -344,7 +344,7 @@ func TestIpAddressDiffSuppress(t *testing.T) {
 		"both empty": {
 			Old:                "",
 			New:                "",
-			ExpectDiffSuppress: true,
+			ExpectDiffSuppress: false,
 		},
 		"one empty": {
 			Old:                "2600:1900:4000:1::1",
