@@ -247,6 +247,11 @@ func ResourceNetworkServicesGrpcRoute() *schema.Resource {
 											},
 										},
 									},
+									"idle_timeout": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Specifies the idle timeout for the selected route. The idle timeout is defined as the period in which there are no bytes sent or received on either the upstream or downstream connection. If not set, the default idle timeout is 1 hour. If set to 0s, the timeout will be disabled.`,
+									},
 									"retry_policy": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -333,6 +338,13 @@ func ResourceNetworkServicesGrpcRoute() *schema.Resource {
 													Optional:    true,
 													Description: `Specifies that matches are case sensitive. The default value is true.`,
 													Default:     true,
+												},
+												"type": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: verify.ValidateEnum([]string{"EXACT", "REGULAR_EXPRESSION", ""}),
+													Description:  `Specifies how to match against the name. If not specified, a default value of "EXACT" is used. Default value: "EXACT" Possible values: ["EXACT", "REGULAR_EXPRESSION"]`,
+													Default:      "EXACT",
 												},
 											},
 										},
@@ -1017,6 +1029,8 @@ func flattenNetworkServicesGrpcRouteRulesMatchesMethod(v interface{}, d *schema.
 		flattenNetworkServicesGrpcRouteRulesMatchesMethodGrpcMethod(original["grpcMethod"], d, config)
 	transformed["case_sensitive"] =
 		flattenNetworkServicesGrpcRouteRulesMatchesMethodCaseSensitive(original["caseSensitive"], d, config)
+	transformed["type"] =
+		flattenNetworkServicesGrpcRouteRulesMatchesMethodType(original["type"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkServicesGrpcRouteRulesMatchesMethodGrpcService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1028,6 +1042,10 @@ func flattenNetworkServicesGrpcRouteRulesMatchesMethodGrpcMethod(v interface{}, 
 }
 
 func flattenNetworkServicesGrpcRouteRulesMatchesMethodCaseSensitive(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesGrpcRouteRulesMatchesMethodType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1046,6 +1064,8 @@ func flattenNetworkServicesGrpcRouteRulesAction(v interface{}, d *schema.Resourc
 		flattenNetworkServicesGrpcRouteRulesActionFaultInjectionPolicy(original["faultInjectionPolicy"], d, config)
 	transformed["timeout"] =
 		flattenNetworkServicesGrpcRouteRulesActionTimeout(original["timeout"], d, config)
+	transformed["idle_timeout"] =
+		flattenNetworkServicesGrpcRouteRulesActionIdleTimeout(original["idleTimeout"], d, config)
 	transformed["retry_policy"] =
 		flattenNetworkServicesGrpcRouteRulesActionRetryPolicy(original["retryPolicy"], d, config)
 	return []interface{}{transformed}
@@ -1192,6 +1212,10 @@ func flattenNetworkServicesGrpcRouteRulesActionFaultInjectionPolicyAbortPercenta
 }
 
 func flattenNetworkServicesGrpcRouteRulesActionTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesGrpcRouteRulesActionIdleTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1414,6 +1438,13 @@ func expandNetworkServicesGrpcRouteRulesMatchesMethod(v interface{}, d tpgresour
 		transformed["caseSensitive"] = transformedCaseSensitive
 	}
 
+	transformedType, err := expandNetworkServicesGrpcRouteRulesMatchesMethodType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
 	return transformed, nil
 }
 
@@ -1426,6 +1457,10 @@ func expandNetworkServicesGrpcRouteRulesMatchesMethodGrpcMethod(v interface{}, d
 }
 
 func expandNetworkServicesGrpcRouteRulesMatchesMethodCaseSensitive(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesGrpcRouteRulesMatchesMethodType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1460,6 +1495,13 @@ func expandNetworkServicesGrpcRouteRulesAction(v interface{}, d tpgresource.Terr
 		return nil, err
 	} else if val := reflect.ValueOf(transformedTimeout); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["timeout"] = transformedTimeout
+	}
+
+	transformedIdleTimeout, err := expandNetworkServicesGrpcRouteRulesActionIdleTimeout(original["idle_timeout"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdleTimeout); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["idleTimeout"] = transformedIdleTimeout
 	}
 
 	transformedRetryPolicy, err := expandNetworkServicesGrpcRouteRulesActionRetryPolicy(original["retry_policy"], d, config)
@@ -1616,6 +1658,10 @@ func expandNetworkServicesGrpcRouteRulesActionFaultInjectionPolicyAbortPercentag
 }
 
 func expandNetworkServicesGrpcRouteRulesActionTimeout(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesGrpcRouteRulesActionIdleTimeout(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

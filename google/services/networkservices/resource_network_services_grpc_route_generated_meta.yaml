@@ -25,6 +25,7 @@ fields:
     - api_field: rules.action.faultInjectionPolicy.abort.percentage
     - api_field: rules.action.faultInjectionPolicy.delay.fixedDelay
     - api_field: rules.action.faultInjectionPolicy.delay.percentage
+    - api_field: rules.action.idleTimeout
     - api_field: rules.action.retryPolicy.numRetries
     - api_field: rules.action.retryPolicy.retryConditions
     - api_field: rules.action.timeout
@@ -34,6 +35,7 @@ fields:
     - api_field: rules.matches.method.caseSensitive
     - api_field: rules.matches.method.grpcMethod
     - api_field: rules.matches.method.grpcService
+    - api_field: rules.matches.method.type
     - api_field: selfLink
     - field: terraform_labels
       provider_only: true
