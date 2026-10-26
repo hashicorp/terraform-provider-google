@@ -174,6 +174,7 @@ resource "google_network_services_grpc_route" "default" {
         grpc_service = "foo"
         grpc_method = "bar"
         case_sensitive = true
+        type = "EXACT"
       }
     }
     action {
@@ -191,6 +192,7 @@ resource "google_network_services_grpc_route" "default" {
           retry_conditions = ["cancelled"]
           num_retries = 1
       }
+      idle_timeout = "30s"
     }
   }
 }

@@ -94,6 +94,7 @@ resource "google_network_services_grpc_route" "default" {
         grpc_service = "foo"
         grpc_method = "bar"
         case_sensitive = true
+        type = "EXACT"
       }
     }
     action {
@@ -111,6 +112,7 @@ resource "google_network_services_grpc_route" "default" {
           retry_conditions = ["cancelled"]
           num_retries = 1
       }
+      idle_timeout = "30s"
     }
   }
 }
@@ -292,6 +294,12 @@ The following arguments are supported:
   (Optional)
   Specifies that matches are case sensitive. The default value is true.
 
+* `type` -
+  (Optional)
+  Specifies how to match against the name. If not specified, a default value of "EXACT" is used.
+  Default value is `EXACT`.
+  Possible values are: `EXACT`, `REGULAR_EXPRESSION`.
+
 <a name="nested_rules_action"></a>The `action` block supports:
 
 * `destinations` -
@@ -307,6 +315,10 @@ The following arguments are supported:
 * `timeout` -
   (Optional)
   Specifies the timeout for selected route.
+
+* `idle_timeout` -
+  (Optional)
+  Specifies the idle timeout for the selected route. The idle timeout is defined as the period in which there are no bytes sent or received on either the upstream or downstream connection. If not set, the default idle timeout is 1 hour. If set to 0s, the timeout will be disabled.
 
 * `retry_policy` -
   (Optional)
