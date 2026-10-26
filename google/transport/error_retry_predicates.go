@@ -758,3 +758,18 @@ func DataprocResourceNotReady(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+// Retry if Resource Manager Boundary or BoundaryConfig operation on a folder
+// returns a 403 while folder creation or folder IAM bindings are still propagating.
+func IsResourceManagerBoundaryRetryableError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code != 403 {
+			return false, ""
+		}
+		pattern := regexp.MustCompile(`Permission 'resourcemanager\.(boundaries|boundaryConfigs)\.[a-zA-Z]*' denied on resource '//cloudresourcemanager\.googleapis\.com/folders/[a-z0-9-]+(/boundaryConfig|/boundaries(/[^']*)?)?' \(or it may not exist\)\.`)
+		if pattern.MatchString(gerr.Body) || pattern.MatchString(gerr.Message) {
+			return true, "Waiting for folder and IAM policy propagation for Resource Manager Boundary"
+		}
+	}
+	return false, ""
+}

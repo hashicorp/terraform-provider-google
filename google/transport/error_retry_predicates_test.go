@@ -429,3 +429,55 @@ func TestIsSubnetworkNotReadyLROError_otherError(t *testing.T) {
 		t.Errorf("expected unrelated LRO error to not be retryable")
 	}
 }
+
+func TestIsResourceManagerBoundaryRetryableError(t *testing.T) {
+	cases := map[string]struct {
+		err      error
+		expected bool
+	}{
+		"boundaryConfig update 403 on folder": {
+			err: &googleapi.Error{
+				Code: 403,
+				Body: `{"error":{"code":403,"message":"Permission 'resourcemanager.boundaryConfigs.update' denied on resource '//cloudresourcemanager.googleapis.com/folders/1064415617689/boundaryConfig' (or it may not exist).","status":"PERMISSION_DENIED"}}`,
+			},
+			expected: true,
+		},
+		"boundary create 403 on folder": {
+			err: &googleapi.Error{
+				Code: 403,
+				Body: `{"error":{"code":403,"message":"Permission 'resourcemanager.boundaries.create' denied on resource '//cloudresourcemanager.googleapis.com/folders/1064415617689' (or it may not exist).","status":"PERMISSION_DENIED"}}`,
+			},
+			expected: true,
+		},
+		"boundary get 403 on folder boundary": {
+			err: &googleapi.Error{
+				Code: 403,
+				Body: `{"error":{"code":403,"message":"Permission 'resourcemanager.boundaries.get' denied on resource '//cloudresourcemanager.googleapis.com/folders/1064415617689/boundaries/tf-test-bnd123' (or it may not exist).","status":"PERMISSION_DENIED"}}`,
+			},
+			expected: true,
+		},
+		"non-403 error": {
+			err: &googleapi.Error{
+				Code: 400,
+				Body: `{"error":{"code":400,"message":"Invalid argument"}}`,
+			},
+			expected: false,
+		},
+		"unrelated 403 error": {
+			err: &googleapi.Error{
+				Code: 403,
+				Body: `{"error":{"code":403,"message":"Permission 'resourcemanager.boundaryConfigs.update' denied on resource '//cloudresourcemanager.googleapis.com/organizations/123456789/boundaryConfig' (or it may not exist)."}}`,
+			},
+			expected: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			isRetryable, _ := IsResourceManagerBoundaryRetryableError(tc.err)
+			if isRetryable != tc.expected {
+				t.Errorf("IsResourceManagerBoundaryRetryableError(%v) = %v, want %v", tc.err, isRetryable, tc.expected)
+			}
+		})
+	}
+}
