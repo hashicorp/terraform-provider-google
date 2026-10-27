@@ -252,6 +252,19 @@ The supported values: 'FAIL_OPEN', 'FAIL_CLOSED'.`,
 					},
 				},
 			},
+			"default_web_grounding_toggle_off": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `This field controls the default web grounding toggle for end users if
+'web_grounding_type' is set to 'WEB_GROUNDING_TYPE_GOOGLE_SEARCH' or
+'WEB_GROUNDING_TYPE_ENTERPRISE_WEB_SEARCH'.
+By default, this field is set to false. If 'web_grounding_type' is
+'WEB_GROUNDING_TYPE_GOOGLE_SEARCH' or
+'WEB_GROUNDING_TYPE_ENTERPRISE_WEB_SEARCH', end users will have web
+grounding enabled by default on UI. If true, grounding toggle will be
+disabled by default on UI. End users can still enable web grounding in
+the UI if web grounding is enabled.`,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -366,6 +379,12 @@ func resourceDiscoveryEngineAssistantCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("web_grounding_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(webGroundingTypeProp)) && (ok || !reflect.DeepEqual(v, webGroundingTypeProp)) {
 		obj["webGroundingType"] = webGroundingTypeProp
+	}
+	defaultWebGroundingToggleOffProp, err := expandDiscoveryEngineAssistantDefaultWebGroundingToggleOff(d.Get("default_web_grounding_toggle_off"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_web_grounding_toggle_off"); ok || !reflect.DeepEqual(v, defaultWebGroundingToggleOffProp) {
+		obj["defaultWebGroundingToggleOff"] = defaultWebGroundingToggleOffProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/assistants?assistantId={{assistant_id}}")
@@ -641,6 +660,12 @@ func resourceDiscoveryEngineAssistantUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("web_grounding_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, webGroundingTypeProp)) {
 		obj["webGroundingType"] = webGroundingTypeProp
 	}
+	defaultWebGroundingToggleOffProp, err := expandDiscoveryEngineAssistantDefaultWebGroundingToggleOff(d.Get("default_web_grounding_toggle_off"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_web_grounding_toggle_off"); ok || !reflect.DeepEqual(v, defaultWebGroundingToggleOffProp) {
+		obj["defaultWebGroundingToggleOff"] = defaultWebGroundingToggleOffProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/collections/{{collection_id}}/engines/{{engine_id}}/assistants/{{assistant_id}}")
 	if err != nil {
@@ -672,6 +697,10 @@ func resourceDiscoveryEngineAssistantUpdate(d *schema.ResourceData, meta interfa
 
 	if d.HasChange("web_grounding_type") {
 		updateMask = append(updateMask, "webGroundingType")
+	}
+
+	if d.HasChange("default_web_grounding_toggle_off") {
+		updateMask = append(updateMask, "defaultWebGroundingToggleOff")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -915,6 +944,10 @@ func flattenDiscoveryEngineAssistantWebGroundingType(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenDiscoveryEngineAssistantDefaultWebGroundingToggleOff(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandDiscoveryEngineAssistantDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1114,6 +1147,10 @@ func expandDiscoveryEngineAssistantWebGroundingType(v interface{}, d tpgresource
 	return v, nil
 }
 
+func expandDiscoveryEngineAssistantDefaultWebGroundingToggleOff(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func ResourceDiscoveryEngineAssistantFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -1133,6 +1170,9 @@ func ResourceDiscoveryEngineAssistantFlatten(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Assistant: %s", err)
 	}
 	if err = d.Set("web_grounding_type", flattenDiscoveryEngineAssistantWebGroundingType(res["webGroundingType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Assistant: %s", err)
+	}
+	if err = d.Set("default_web_grounding_toggle_off", flattenDiscoveryEngineAssistantDefaultWebGroundingToggleOff(res["defaultWebGroundingToggleOff"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Assistant: %s", err)
 	}
 

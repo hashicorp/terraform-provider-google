@@ -17,6 +17,7 @@ fields:
     - api_field: customerPolicy.modelArmorConfig.failureMode
     - api_field: customerPolicy.modelArmorConfig.responseTemplate
     - api_field: customerPolicy.modelArmorConfig.userPromptTemplate
+    - api_field: defaultWebGroundingToggleOff
     - api_field: description
     - api_field: displayName
     - field: engine_id

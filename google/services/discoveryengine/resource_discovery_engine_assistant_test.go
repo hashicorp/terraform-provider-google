@@ -53,6 +53,15 @@ func TestAccDiscoveryEngineAssistant_discoveryengineAssistantBasicExample_update
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "assistant_id"},
 			},
+			{
+				Config: testAccDiscoveryEngineAssistant_discoveryengineAssistantBasicExample_basic(context),
+			},
+			{
+				ResourceName:            "google_discovery_engine_assistant.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "assistant_id"},
+			},
 		},
 	})
 }
@@ -97,7 +106,8 @@ resource "google_discovery_engine_assistant" "basic" {
       ignore_diacritics         = false
     }
   }
-  web_grounding_type            = "WEB_GROUNDING_TYPE_DISABLED"
+  web_grounding_type               = "WEB_GROUNDING_TYPE_DISABLED"
+  default_web_grounding_toggle_off = false
 }
 `, context)
 }
@@ -147,7 +157,8 @@ resource "google_discovery_engine_assistant" "basic" {
       ignore_diacritics         = false
     }
   }
-  web_grounding_type            = "WEB_GROUNDING_TYPE_GOOGLE_SEARCH"
+  web_grounding_type               = "WEB_GROUNDING_TYPE_GOOGLE_SEARCH"
+  default_web_grounding_toggle_off = true
 }
 `, context)
 }
