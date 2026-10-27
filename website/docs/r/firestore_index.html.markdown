@@ -387,6 +387,49 @@ resource "google_firestore_index" "my-index" {
 }
 ```
 
+## Example Usage - Firestore Index Search Index Options
+
+
+```hcl
+resource "google_firestore_database" "database" {
+	project                 = "my-project-name"
+	name                    = "search-index-options-db"
+	location_id             = "nam5"
+	type                    = "FIRESTORE_NATIVE"
+	database_edition        = "ENTERPRISE"
+
+	delete_protection_state = "DELETE_PROTECTION_DISABLED"
+	deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+	project    = "my-project-name"
+	database   = google_firestore_database.database.name
+	collection = "atestcollection"
+
+	api_scope   = "MONGODB_COMPATIBLE_API"
+	query_scope = "COLLECTION_GROUP"
+	multikey    = true
+
+	search_index_options {
+		text_language                     = "es"
+		text_language_override_field_path = "lang"
+	}
+
+	fields {
+		field_path = "description"
+		search_config {
+			text_spec {
+				index_specs {
+					index_type = "TOKENIZED"
+					match_type = "MATCH_GLOBALLY"
+				}
+			}
+		}
+	}
+}
+```
+
 ## Example Usage - Firestore Index Suppress Geojson Indexing
 
 
@@ -508,6 +551,11 @@ The following arguments are supported:
   (Optional)
   Whether it is an unique index. Unique index ensures all values for the indexed field(s) are unique across documents.
 
+* `search_index_options` -
+  (Optional)
+  Optional. Options to configure the search index.
+  Structure is [documented below](#nested_search_index_options).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -599,6 +647,17 @@ The following arguments are supported:
 * `flat` -
   (Optional)
   Indicates the vector index is a flat index.
+
+<a name="nested_search_index_options"></a>The `search_index_options` block supports:
+
+* `text_language` -
+  (Optional)
+  Optional. The language code used to parse all text fields included in the search index,
+  for example, "en", "es", "jp".
+
+* `text_language_override_field_path` -
+  (Optional)
+  Optional. The path to the field that records the text language override of each document.
 
 ## Attributes Reference
 

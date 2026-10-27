@@ -22,6 +22,8 @@ fields:
     - api_field: multikey
     - api_field: name
     - api_field: queryScope
+    - api_field: searchIndexOptions.textLanguage
+    - api_field: searchIndexOptions.textLanguageOverrideFieldPath
     - field: skip_wait
       provider_only: true
     - api_field: unique
