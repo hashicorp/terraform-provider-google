@@ -57,7 +57,7 @@ func listAndActionNetappVolume(action sweeper.ResourceAction) error {
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	// Build URL substitution maps individually to ensure proper formatting
-	intermediateValues := make([]map[string]string, 8)
+	intermediateValues := make([]map[string]string, 9)
 	intermediateValues[0] = map[string]string{}
 	intermediateValues[0]["location"] = "us-central1"
 	intermediateValues[1] = map[string]string{}
@@ -74,6 +74,8 @@ func listAndActionNetappVolume(action sweeper.ResourceAction) error {
 	intermediateValues[6]["location"] = "us-central1-a"
 	intermediateValues[7] = map[string]string{}
 	intermediateValues[7]["location"] = "us-east4-a"
+	intermediateValues[8] = map[string]string{}
+	intermediateValues[8]["location"] = "us-east4-c"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {

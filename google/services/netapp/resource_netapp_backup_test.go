@@ -372,7 +372,7 @@ resource "google_netapp_backup" "test_backup" {
 
 func TestAccNetappBackup_NetappImmutableBackup(t *testing.T) {
 	context := map[string]interface{}{
-		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", servicenetworking.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-2", servicenetworking.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

@@ -61,7 +61,7 @@ func listAndActionNetappStoragePool(action sweeper.ResourceAction) error {
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	// Build URL substitution maps individually to ensure proper formatting
-	intermediateValues := make([]map[string]string, 11)
+	intermediateValues := make([]map[string]string, 13)
 	intermediateValues[0] = map[string]string{}
 	intermediateValues[0]["location"] = "us-central1"
 	intermediateValues[1] = map[string]string{}
@@ -81,9 +81,13 @@ func listAndActionNetappStoragePool(action sweeper.ResourceAction) error {
 	intermediateValues[8] = map[string]string{}
 	intermediateValues[8]["location"] = "us-east4-a"
 	intermediateValues[9] = map[string]string{}
-	intermediateValues[9]["location"] = "us-south1-a"
+	intermediateValues[9]["location"] = "us-east4-b"
 	intermediateValues[10] = map[string]string{}
-	intermediateValues[10]["location"] = "europe-west3-a"
+	intermediateValues[10]["location"] = "us-east4-c"
+	intermediateValues[11] = map[string]string{}
+	intermediateValues[11]["location"] = "us-south1-a"
+	intermediateValues[12] = map[string]string{}
+	intermediateValues[12]["location"] = "europe-west3-a"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {
