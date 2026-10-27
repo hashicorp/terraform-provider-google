@@ -93,6 +93,9 @@ resource "google_dataplex_data_product" "example" {
     principal {
       google_group = "tf-test-analysts-%{random_suffix}@example.com"
     }
+    default_iam_role_config {
+      role = "roles/bigquery.dataViewer"
+    }
   }
 
   access_groups {
@@ -195,6 +198,11 @@ The following arguments are supported:
   The principal entity.
   Structure is [documented below](#nested_access_groups_principal).
 
+* `default_iam_role_config` -
+  (Optional)
+  Configuration for the default IAM role associated with the access group.
+  Structure is [documented below](#nested_access_groups_default_iam_role_config).
+
 
 <a name="nested_access_groups_principal"></a>The `principal` block supports:
 
@@ -205,6 +213,13 @@ The following arguments are supported:
 * `service_account` -
   (Optional)
   Specifies the email of the producer service account.
+
+<a name="nested_access_groups_default_iam_role_config"></a>The `default_iam_role_config` block supports:
+
+* `role` -
+  (Required)
+  Default IAM role associated with the access group, such as
+  `roles/bigquery.dataViewer`.
 
 ## Attributes Reference
 

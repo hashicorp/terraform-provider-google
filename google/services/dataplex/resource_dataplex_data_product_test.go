@@ -30,6 +30,7 @@ func TestAccDataplexDataProduct_update(t *testing.T) {
 
 	context := map[string]interface{}{
 		"data_product_id": "tf-test-dp-" + acctest.RandString(t, 10),
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -41,6 +42,7 @@ func TestAccDataplexDataProduct_update(t *testing.T) {
 				Config: testAccDataplexDataProduct_basic(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_dataplex_data_product.example", "icon", "c29tZSBkYXRh"),
+					resource.TestCheckResourceAttr("google_dataplex_data_product.example", "access_groups.0.default_iam_role_config.0.role", "roles/bigquery.dataViewer"),
 				),
 			},
 			{
@@ -63,6 +65,7 @@ func TestAccDataplexDataProduct_update(t *testing.T) {
 				},
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_dataplex_data_product.example", "icon", "dXBkYXRlZCBkYXRh"),
+					resource.TestCheckResourceAttr("google_dataplex_data_product.example", "access_groups.0.default_iam_role_config.0.role", "roles/bigquery.dataEditor"),
 				),
 			},
 			{
@@ -87,6 +90,18 @@ resource "google_dataplex_data_product" "example" {
   display_name    = "initial display name"
   owner_emails    = ["terraform-test@google.com"]
   icon            = "c29tZSBkYXRh"
+
+  access_groups {
+    id           = "analyst"
+    group_id     = "analyst"
+    display_name = "Data Analyst"
+    principal {
+      google_group = "tf-test-analysts-%{random_suffix}@example.com"
+    }
+    default_iam_role_config {
+      role = "roles/bigquery.dataViewer"
+    }
+  }
 }
 `, context)
 }
@@ -100,6 +115,18 @@ resource "google_dataplex_data_product" "example" {
   description     = "updated description"
   owner_emails    = ["updated-owner@google.com"]
   icon            = "dXBkYXRlZCBkYXRh"
+
+  access_groups {
+    id           = "analyst"
+    group_id     = "analyst"
+    display_name = "Data Analyst"
+    principal {
+      google_group = "tf-test-analysts-%{random_suffix}@example.com"
+    }
+    default_iam_role_config {
+      role = "roles/bigquery.dataEditor"
+    }
+  }
 
   labels = {
     env = "test"
