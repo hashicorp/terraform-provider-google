@@ -241,6 +241,11 @@ The following arguments are supported:
   (Optional)
   This defines the type of the secret. Enforces certain structural requirements on the SecretVersions.
   For secret of type UNSPECIFIED, the SecretVersions can be of any type.
+  Supported values are:
+  * `OTHER_DB_CREDENTIALS`: Secrets where the payload contains database credentials.
+  * `ACCESS_KEY`: Secrets where the payload contains an access key.
+  * `CERTIFICATE`: Secrets where the payload contains a certificate.
+  * `OTHER`: Secrets whose type doesn't belong to any of the above types.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

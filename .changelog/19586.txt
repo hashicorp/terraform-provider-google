@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_secret_manager_regional_secret_managed_rotation`
+```
+
+```release-note:enhancement
+secretmanagerregional: added `policy_member` field to `google_secret_manager_regional_secret` resource, `google_secret_manager_regional_secret` data source, and `google_secret_manager_regional_secrets` data source
+```

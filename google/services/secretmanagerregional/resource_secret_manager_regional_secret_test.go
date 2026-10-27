@@ -638,6 +638,31 @@ func TestAccSecretManagerRegionalRegionalSecret_tags(t *testing.T) {
 	})
 }
 
+func TestAccSecretManagerRegionalRegionalSecret_rotationWithoutTopicsError(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"timestamp":     "2114-11-30T00:00:00Z",
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerRegionalRegionalSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccSecretManagerRegionalSecret_rotationWithoutTopics(context),
+				ExpectError: regexp.MustCompile("`topics` is required when `rotation` is configured unless `secret_type` is `CLOUD_SQL_DB_CREDENTIALS`"),
+			},
+			{
+				Config:      testAccSecretManagerRegionalSecret_rotationWithoutTopicsAccessKey(context),
+				ExpectError: regexp.MustCompile("`topics` is required when `rotation` is configured unless `secret_type` is `CLOUD_SQL_DB_CREDENTIALS`"),
+			},
+		},
+	})
+}
+
 func testAccSecretManagerRegionalSecret_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_regional_secret" "regional-secret-basic" {
@@ -1446,6 +1471,35 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
 	"%{org}/%{tagKey}" = "%{tagValue}"
   }
   deletion_protection = false  
+}
+`, context)
+}
+
+func testAccSecretManagerRegionalSecret_rotationWithoutTopics(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "regional-secret-rotation-no-topics" {
+  secret_id = "tf-test-reg-secret-%{random_suffix}"
+  location  = "us-central1"
+
+  rotation {
+    rotation_period    = "7200s"
+    next_rotation_time = "%{timestamp}"
+  }
+}
+`, context)
+}
+
+func testAccSecretManagerRegionalSecret_rotationWithoutTopicsAccessKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "regional-secret-rotation-no-topics" {
+  secret_id   = "tf-test-reg-secret-%{random_suffix}"
+  location    = "us-central1"
+  secret_type = "ACCESS_KEY"
+
+  rotation {
+    rotation_period    = "7200s"
+    next_rotation_time = "%{timestamp}"
+  }
 }
 `, context)
 }

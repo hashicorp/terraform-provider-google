@@ -54,6 +54,35 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+func secretManagerRegionalSecretRotationCustomizeDiffFunc(diff tpgresource.TerraformResourceDiff) error {
+	rotation, rotationOk := diff.GetOk("rotation")
+	if !rotationOk {
+		return nil
+	}
+	if rotationList, ok := rotation.([]interface{}); !ok || len(rotationList) == 0 {
+		return nil
+	}
+
+	secretType, _ := diff.Get("secret_type").(string)
+	if secretType == "CLOUD_SQL_DB_CREDENTIALS" {
+		return nil
+	}
+
+	topics, topicsOk := diff.GetOk("topics")
+	if !topicsOk {
+		return fmt.Errorf("`topics` is required when `rotation` is configured unless `secret_type` is `CLOUD_SQL_DB_CREDENTIALS`")
+	}
+	if topicsList, ok := topics.([]interface{}); !ok || len(topicsList) == 0 {
+		return fmt.Errorf("`topics` is required when `rotation` is configured unless `secret_type` is `CLOUD_SQL_DB_CREDENTIALS`")
+	}
+
+	return nil
+}
+
+func secretManagerRegionalSecretRotationCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	return secretManagerRegionalSecretRotationCustomizeDiffFunc(diff)
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -113,6 +142,7 @@ func ResourceSecretManagerRegionalRegionalSecret() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			secretManagerRegionalSecretRotationCustomizeDiff,
 			tpgresource.SetLabelsDiff,
 			tpgresource.SetAnnotationsDiff,
 			tpgresource.DefaultProviderProject,
@@ -228,7 +258,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Optional: true,
 				Description: `The rotation time and period for a regional secret. At 'next_rotation_time', Secret Manager
 will send a Pub/Sub notification to the topics configured on the Secret. 'topics' must be
-set to configure rotation.`,
+set to configure rotation, unless 'secret_type' is 'CLOUD_SQL_DB_CREDENTIALS'.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -250,14 +280,22 @@ automatically sends rotation notifications.`,
 						},
 					},
 				},
-				RequiredWith: []string{"topics"},
 			},
 			"secret_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Description: `This defines the type of the secret. Enforces certain structural requirements on the SecretVersions.
-For secret of type UNSPECIFIED, the SecretVersions can be of any type.`,
+For secret of type UNSPECIFIED, the SecretVersions can be of any type.
+Supported values are:
+* 'CLOUD_SQL_DB_CREDENTIALS': Secrets used for managed rotation of Cloud SQL single-user
+  credentials. Managed rotation can be enabled on these secrets using the
+  'google_secret_manager_regional_secret_managed_rotation' resource. Secret versions cannot
+  be added manually to secrets of this type.
+* 'OTHER_DB_CREDENTIALS': Secrets where the payload contains database credentials.
+* 'ACCESS_KEY': Secrets where the payload contains an access key.
+* 'CERTIFICATE': Secrets where the payload contains a certificate.
+* 'OTHER': Secrets whose type doesn't belong to any of the above types.`,
 			},
 			"tags": {
 				Type:     schema.TypeMap,
@@ -336,6 +374,24 @@ the actual destruction happens after this TTL expires. It must be atleast 24h.`,
 				Computed: true,
 				Description: `The resource name of the regional secret. Format:
 'projects/{{project}}/locations/{{location}}/secrets/{{secret_id}}'`,
+			},
+			"policy_member": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Description: `An object containing a unique resource identity tied to the regional secret. This identity can be
+granted the permissions required by features such as managed rotation.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"iam_policy_uid_principal": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `IAM policy binding member referring to a Google Cloud resource by system-assigned unique identifier.
+If a resource is deleted and recreated with the same name, the binding will not be applicable to the
+new resource. Format:
+'principal://secretmanager.googleapis.com/projects/{{project_number}}/uid/locations/{{location}}/secrets/{{secret_id}}-{{uid}}'`,
+						},
+					},
+				},
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -976,27 +1032,27 @@ func flattenSecretManagerRegionalRegionalSecretTopicsName(v interface{}, d *sche
 	return v
 }
 
+// The API returns `rotation.managedRotationStatus` for secrets with managed rotation enabled
+// (e.g. CLOUD_SQL_DB_CREDENTIALS secrets), even when no rotation schedule has been configured.
+// Managed rotation is configured via a separate resource, so only surface the rotation block when a
+// rotation schedule is present to avoid a permanent diff.
 func flattenSecretManagerRegionalRegionalSecretRotation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
+	original, ok := v.(map[string]interface{})
+	if !ok || len(original) == 0 {
+		return nil
+	}
+	nextRotationTime := original["nextRotationTime"]
+	rotationPeriod := original["rotationPeriod"]
+	if nextRotationTime == nil && rotationPeriod == nil {
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["next_rotation_time"] =
-		flattenSecretManagerRegionalRegionalSecretRotationNextRotationTime(original["nextRotationTime"], d, config)
-	transformed["rotation_period"] =
-		flattenSecretManagerRegionalRegionalSecretRotationRotationPeriod(original["rotationPeriod"], d, config)
+	transformed["next_rotation_time"] = nextRotationTime
+	transformed["rotation_period"] = rotationPeriod
 	return []interface{}{transformed}
-}
-func flattenSecretManagerRegionalRegionalSecretRotationNextRotationTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenSecretManagerRegionalRegionalSecretRotationRotationPeriod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenSecretManagerRegionalRegionalSecretExpireTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1008,6 +1064,23 @@ func flattenSecretManagerRegionalRegionalSecretVersionDestroyTtl(v interface{}, 
 }
 
 func flattenSecretManagerRegionalRegionalSecretSecretType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecretManagerRegionalRegionalSecretPolicyMember(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["iam_policy_uid_principal"] =
+		flattenSecretManagerRegionalRegionalSecretPolicyMemberIamPolicyUidPrincipal(original["iamPolicyUidPrincipal"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSecretManagerRegionalRegionalSecretPolicyMemberIamPolicyUidPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1220,6 +1293,9 @@ func ResourceSecretManagerRegionalRegionalSecretFlatten(d *schema.ResourceData, 
 		return fmt.Errorf("Error reading RegionalSecret: %s", err)
 	}
 	if err = d.Set("secret_type", flattenSecretManagerRegionalRegionalSecretSecretType(res["secretType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionalSecret: %s", err)
+	}
+	if err = d.Set("policy_member", flattenSecretManagerRegionalRegionalSecretPolicyMember(res["policyMember"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionalSecret: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenSecretManagerRegionalRegionalSecretTerraformLabels(res["labels"], d, config)); err != nil {
