@@ -23,6 +23,7 @@ fields:
     - api_field: scheduleOptions.disableAutoScheduling
     - api_field: scheduleOptions.endTime
     - api_field: scheduleOptions.startTime
+    - api_field: scheduleOptionsV2.eventDrivenSchedule.pubsubSubscription
     - field: sensitive_params.secret_access_key
       provider_only: true
     - field: sensitive_params.secret_access_key_wo
