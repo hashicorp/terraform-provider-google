@@ -47,6 +47,7 @@ type WorkstationsOperationWaiter struct {
 	Config    *transport_tpg.Config
 	UserAgent string
 	Project   string
+	Location  string
 	tpgresource.CommonOperationWaiter
 }
 
@@ -57,6 +58,17 @@ func (w *WorkstationsOperationWaiter) QueryOp() (interface{}, error) {
 	// Returns the proper get.
 	url := transport_tpg.BaseUrl(Product, w.Config)
 	url += fmt.Sprintf("%s", w.CommonOperationWaiter.Op.Name)
+	location := w.Location
+	if location == "" {
+		// Fall back to the location in the operation name
+		// (projects/PROJECT/locations/LOCATION/operations/OPERATION) for
+		// resources whose id doesn't contain a location.
+		location = tpgresource.LocationFromId(w.CommonOperationWaiter.Op.Name)
+	}
+	if strings.Contains(url, "{{location}}") && location == "" {
+		return nil, fmt.Errorf("failed to find location for a resource with a regionalized endpoint %s", url)
+	}
+	url = strings.ReplaceAll(url, "{{location}}", location)
 	return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    w.Config,
 		Method:    "GET",
@@ -66,11 +78,12 @@ func (w *WorkstationsOperationWaiter) QueryOp() (interface{}, error) {
 	})
 }
 
-func createWorkstationsWaiter(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string) (*WorkstationsOperationWaiter, error) {
+func createWorkstationsWaiter(config *transport_tpg.Config, op map[string]interface{}, project, location, activity, userAgent string) (*WorkstationsOperationWaiter, error) {
 	w := &WorkstationsOperationWaiter{
 		Config:    config,
 		UserAgent: userAgent,
 		Project:   project,
+		Location:  location,
 	}
 	if err := w.CommonOperationWaiter.SetOp(op); err != nil {
 		return nil, err
@@ -79,8 +92,8 @@ func createWorkstationsWaiter(config *transport_tpg.Config, op map[string]interf
 }
 
 // nolint: deadcode,unused
-func WorkstationsOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
-	w, err := createWorkstationsWaiter(config, op, project, activity, userAgent)
+func WorkstationsOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, location, activity, userAgent string, timeout time.Duration) error {
+	w, err := createWorkstationsWaiter(config, op, project, location, activity, userAgent)
 	if err != nil {
 		return err
 	}
@@ -94,12 +107,12 @@ func WorkstationsOperationWaitTimeWithResponse(config *transport_tpg.Config, op 
 	return json.Unmarshal(rawResponse, response)
 }
 
-func WorkstationsOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+func WorkstationsOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, location, activity, userAgent string, timeout time.Duration) error {
 	if val, ok := op["name"]; !ok || val == "" {
 		// This was a synchronous call - there is no operation to wait for.
 		return nil
 	}
-	w, err := createWorkstationsWaiter(config, op, project, activity, userAgent)
+	w, err := createWorkstationsWaiter(config, op, project, location, activity, userAgent)
 	if err != nil {
 		// If w is nil, the op was synchronous.
 		return err
