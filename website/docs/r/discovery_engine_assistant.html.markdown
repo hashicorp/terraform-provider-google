@@ -128,6 +128,18 @@ The following arguments are supported:
   The type of web grounding to use.
   The supported values: 'WEB_GROUNDING_TYPE_DISABLED', 'WEB_GROUNDING_TYPE_GOOGLE_SEARCH', 'WEB_GROUNDING_TYPE_ENTERPRISE_WEB_SEARCH'.
 
+* `default_web_grounding_toggle_off` -
+  (Optional)
+  This field controls the default web grounding toggle for end users if
+  `web_grounding_type` is set to `WEB_GROUNDING_TYPE_GOOGLE_SEARCH` or
+  `WEB_GROUNDING_TYPE_ENTERPRISE_WEB_SEARCH`.
+  By default, this field is set to false. If `web_grounding_type` is
+  `WEB_GROUNDING_TYPE_GOOGLE_SEARCH` or
+  `WEB_GROUNDING_TYPE_ENTERPRISE_WEB_SEARCH`, end users will have web
+  grounding enabled by default on UI. If true, grounding toggle will be
+  disabled by default on UI. End users can still enable web grounding in
+  the UI if web grounding is enabled.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
