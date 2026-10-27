@@ -280,6 +280,26 @@ phrase and every phrase must contain at least 2 characters that are letters or d
 specified by the rule. Default value: "VERY_LIKELY" Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
 										Default: "VERY_LIKELY",
 									},
+									"metadata_key_value_expression": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for a custom infoType that detects key-value pairs in the metadata matching the specified regular expressions.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"key_regex": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The regular expression for the key.`,
+												},
+												"value_regex": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The regular expression for the value.`,
+												},
+											},
+										},
+									},
 									"regex": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -579,8 +599,8 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 															"matching_type": {
 																Type:         schema.TypeString,
 																Required:     true,
-																ValidateFunc: verify.ValidateEnum([]string{"MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"}),
-																Description:  `How the rule is applied. See the documentation for more information: https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#MatchingType Possible values: ["MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH"]`,
+																ValidateFunc: verify.ValidateEnum([]string{"MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH", "MATCHING_TYPE_RULE_SPECIFIC"}),
+																Description:  `How the rule is applied. See the documentation for more information: https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#MatchingType Possible values: ["MATCHING_TYPE_FULL_MATCH", "MATCHING_TYPE_PARTIAL_MATCH", "MATCHING_TYPE_INVERSE_MATCH", "MATCHING_TYPE_RULE_SPECIFIC"]`,
 															},
 															"dictionary": {
 																Type:        schema.TypeList,
@@ -679,6 +699,88 @@ office using the hotword regex '(xxx)', where 'xxx' is the area code in question
 																						Type:        schema.TypeInt,
 																						Optional:    true,
 																						Description: `Number of characters before the finding to consider.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"exclude_by_image_findings": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `The rule to exclude image findings based on spatial relationships with other image findings.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"info_types": {
+																			Type:        schema.TypeList,
+																			Required:    true,
+																			Description: `A list of image-supported infoTypes to be used as context for the exclusion rule.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Required:    true,
+																						Description: `Name of the information type.`,
+																					},
+																					"sensitivity_score": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Optional custom sensitivity for this InfoType.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"score": {
+																									Type:         schema.TypeString,
+																									Required:     true,
+																									ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+																									Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+																								},
+																							},
+																						},
+																					},
+																					"version": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Version name for this InfoType.`,
+																					},
+																				},
+																			},
+																		},
+																		"image_containment_type": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Specifies the required spatial relationship between the bounding boxes of the target finding and the context infoType findings.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"encloses": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Defines a condition where one bounding box encloses another.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																					},
+																					"fully_inside": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Defines a condition where one bounding box is fully inside another.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																					},
+																					"overlaps": {
+																						Type:        schema.TypeList,
+																						Optional:    true,
+																						Description: `Defines a condition for overlapping bounding boxes.`,
+																						MaxItems:    1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
 																					},
 																				},
 																			},
@@ -1796,6 +1898,8 @@ func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionR
 		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeInfoTypes(original["excludeInfoTypes"], d, config)
 	transformed["exclude_by_hotword"] =
 		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByHotword(original["excludeByHotword"], d, config)
+	transformed["exclude_by_image_findings"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindings(original["excludeByImageFindings"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleMatchingType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2020,6 +2124,108 @@ func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionR
 	return v // let terraform core handle it otherwise
 }
 
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["info_types"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypes(original["infoTypes"], d, config)
+	transformed["image_containment_type"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentType(original["imageContainmentType"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name":              flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesName(original["name"], d, config),
+			"version":           flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesVersion(original["version"], d, config),
+			"sensitivity_score": flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["encloses"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeEncloses(original["encloses"], d, config)
+	transformed["fully_inside"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeFullyInside(original["fullyInside"], d, config)
+	transformed["overlaps"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeOverlaps(original["overlaps"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeEncloses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeFullyInside(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeOverlaps(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
 func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2034,14 +2240,15 @@ func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(v inte
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"info_type":         flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType(original["infoType"], d, config),
-			"likelihood":        flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesLikelihood(original["likelihood"], d, config),
-			"exclusion_type":    flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusionType(original["exclusionType"], d, config),
-			"sensitivity_score": flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
-			"regex":             flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegex(original["regex"], d, config),
-			"dictionary":        flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionary(original["dictionary"], d, config),
-			"surrogate_type":    flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSurrogateType(original["surrogateType"], d, config),
-			"stored_type":       flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredType(original["storedType"], d, config),
+			"info_type":                     flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesInfoType(original["infoType"], d, config),
+			"likelihood":                    flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesLikelihood(original["likelihood"], d, config),
+			"exclusion_type":                flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesExclusionType(original["exclusionType"], d, config),
+			"sensitivity_score":             flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSensitivityScore(original["sensitivityScore"], d, config),
+			"regex":                         flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesRegex(original["regex"], d, config),
+			"dictionary":                    flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesDictionary(original["dictionary"], d, config),
+			"surrogate_type":                flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesSurrogateType(original["surrogateType"], d, config),
+			"stored_type":                   flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredType(original["storedType"], d, config),
+			"metadata_key_value_expression": flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpression(original["metadataKeyValueExpression"], d, config),
 		})
 	}
 	return transformed
@@ -2207,6 +2414,29 @@ func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredT
 	return []interface{}{transformed}
 }
 func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredTypeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key_regex"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpressionKeyRegex(original["keyRegex"], d, config)
+	transformed["value_regex"] =
+		flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpressionValueRegex(original["valueRegex"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpressionKeyRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpressionValueRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2943,6 +3173,13 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 		transformed["excludeByHotword"] = transformedExcludeByHotword
 	}
 
+	transformedExcludeByImageFindings, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindings(original["exclude_by_image_findings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeByImageFindings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludeByImageFindings"] = transformedExcludeByImageFindings
+	}
+
 	return transformed, nil
 }
 
@@ -3266,6 +3503,198 @@ func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRu
 	return v, nil
 }
 
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInfoTypes, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypes(original["info_types"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInfoTypes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["infoTypes"] = transformedInfoTypes
+	}
+
+	transformedImageContainmentType, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentType(original["image_containment_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedImageContainmentType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["imageContainmentType"] = transformedImageContainmentType
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedVersion, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesVersion(original["version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["version"] = transformedVersion
+		}
+
+		transformedSensitivityScore, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScore(original["sensitivity_score"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sensitivityScore"] = transformedSensitivityScore
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsInfoTypesSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEncloses, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeEncloses(original["encloses"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["encloses"] = transformedEncloses
+	}
+
+	transformedFullyInside, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeFullyInside(original["fully_inside"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["fullyInside"] = transformedFullyInside
+	}
+
+	transformedOverlaps, err := expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeOverlaps(original["overlaps"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["overlaps"] = transformedOverlaps
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeEncloses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeFullyInside(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigRuleSetRulesExclusionRuleExcludeByImageFindingsImageContainmentTypeOverlaps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -3333,6 +3762,13 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypes(v inter
 			return nil, err
 		} else if val := reflect.ValueOf(transformedStoredType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["storedType"] = transformedStoredType
+		}
+
+		transformedMetadataKeyValueExpression, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpression(original["metadata_key_value_expression"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMetadataKeyValueExpression); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["metadataKeyValueExpression"] = transformedMetadataKeyValueExpression
 		}
 
 		req = append(req, transformed)
@@ -3603,6 +4039,43 @@ func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredTy
 }
 
 func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesStoredTypeName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKeyRegex, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpressionKeyRegex(original["key_regex"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKeyRegex); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["keyRegex"] = transformedKeyRegex
+	}
+
+	transformedValueRegex, err := expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpressionValueRegex(original["value_regex"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValueRegex); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["valueRegex"] = transformedValueRegex
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpressionKeyRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionInspectTemplateInspectConfigCustomInfoTypesMetadataKeyValueExpressionValueRegex(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

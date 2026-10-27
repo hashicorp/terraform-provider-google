@@ -1463,3 +1463,234 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 }
 `, context)
 }
+
+func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplate_customInfoTypeRulesAndImageExclusion(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project": envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_customInfoTypeRulesAndImageExclusionBasic(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_customInfoTypeRulesAndImageExclusionUpdate(context),
+			},
+			{
+				ResourceName:      "google_data_loss_prevention_inspect_template.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_customInfoTypeRulesAndImageExclusionBasic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent       = "projects/%{project}"
+	description  = "Description"
+	display_name = "Display"
+
+	inspect_config {
+		content_options = ["CONTENT_TEXT", "CONTENT_IMAGE"]
+		min_likelihood  = "UNLIKELY"
+
+		info_types {
+			name = "EMAIL_ADDRESS"
+		}
+		info_types {
+			name = "OBJECT_TYPE/PERSON"
+		}
+		info_types {
+			name = "OBJECT_TYPE/PERSON/PASSPORT"
+		}
+
+		custom_info_types {
+			info_type {
+				name    = "MY_CUSTOM_TYPE"
+				version = "0.1"
+				sensitivity_score {
+					score = "SENSITIVITY_LOW"
+				}
+			}
+			likelihood = "UNLIKELY"
+			regex {
+				pattern       = "test.*"
+				group_indexes = [0]
+			}
+		}
+
+		custom_info_types {
+			info_type {
+				name = "MY_METADATA_KV_TYPE"
+			}
+			likelihood = "POSSIBLE"
+			metadata_key_value_expression {
+				key_regex   = "key.*"
+				value_regex = "val.*"
+			}
+		}
+
+		rule_set {
+			info_types {
+				name = "OBJECT_TYPE/PERSON"
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_RULE_SPECIFIC"
+					exclude_by_image_findings {
+						info_types {
+							name    = "OBJECT_TYPE/PERSON/PASSPORT"
+							version = "latest"
+							sensitivity_score {
+								score = "SENSITIVITY_LOW"
+							}
+						}
+						image_containment_type {
+							encloses {}
+						}
+					}
+				}
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_RULE_SPECIFIC"
+					exclude_by_image_findings {
+						info_types {
+							name    = "OBJECT_TYPE/PERSON/PASSPORT"
+							version = "latest"
+							sensitivity_score {
+								score = "SENSITIVITY_MODERATE"
+							}
+						}
+						image_containment_type {
+							fully_inside {}
+						}
+					}
+				}
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_RULE_SPECIFIC"
+					exclude_by_image_findings {
+						info_types {
+							name    = "OBJECT_TYPE/PERSON/PASSPORT"
+							version = "latest"
+							sensitivity_score {
+								score = "SENSITIVITY_HIGH"
+							}
+						}
+						image_containment_type {
+							overlaps {}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+`, context)
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplate_customInfoTypeRulesAndImageExclusionUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+	parent       = "projects/%{project}"
+	description  = "Updated"
+	display_name = "Different"
+
+	inspect_config {
+		content_options = ["CONTENT_TEXT", "CONTENT_IMAGE"]
+		min_likelihood  = "POSSIBLE"
+
+		info_types {
+			name = "EMAIL_ADDRESS"
+		}
+		info_types {
+			name = "OBJECT_TYPE/PERSON"
+		}
+		info_types {
+			name = "OBJECT_TYPE/PERSON/PASSPORT"
+		}
+
+		custom_info_types {
+			info_type {
+				name    = "MY_CUSTOM_TYPE"
+				version = "0.2"
+				sensitivity_score {
+					score = "SENSITIVITY_HIGH"
+				}
+			}
+			likelihood = "POSSIBLE"
+			regex {
+				pattern       = "test.*"
+				group_indexes = [0]
+			}
+		}
+
+		custom_info_types {
+			info_type {
+				name = "MY_METADATA_KV_TYPE"
+			}
+			likelihood = "LIKELY"
+			metadata_key_value_expression {
+				key_regex   = "newkey.*"
+				value_regex = "newval.*"
+			}
+		}
+
+		rule_set {
+			info_types {
+				name = "OBJECT_TYPE/PERSON"
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_RULE_SPECIFIC"
+					exclude_by_image_findings {
+						info_types {
+							name    = "OBJECT_TYPE/PERSON/PASSPORT"
+							version = "latest"
+							sensitivity_score {
+								score = "SENSITIVITY_HIGH"
+							}
+						}
+						image_containment_type {
+							overlaps {}
+						}
+					}
+				}
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_RULE_SPECIFIC"
+					exclude_by_image_findings {
+						info_types {
+							name    = "OBJECT_TYPE/PERSON/PASSPORT"
+							version = "latest"
+							sensitivity_score {
+								score = "SENSITIVITY_LOW"
+							}
+						}
+						image_containment_type {
+							encloses {}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+`, context)
+}
