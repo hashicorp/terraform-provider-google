@@ -1,0 +1,86 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_training_pipeline
+generation_type: mmv1
+source_file: products/vertexai/TrainingPipeline.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: TrainingPipeline
+fields:
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: endTime
+    - api_field: error.code
+    - api_field: error.message
+    - api_field: inputDataConfig.annotationSchemaUri
+    - api_field: inputDataConfig.annotationsFilter
+    - api_field: inputDataConfig.bigqueryDestination.outputUri
+    - api_field: inputDataConfig.datasetId
+    - api_field: inputDataConfig.filterSplit.testFilter
+    - api_field: inputDataConfig.filterSplit.trainingFilter
+    - api_field: inputDataConfig.filterSplit.validationFilter
+    - api_field: inputDataConfig.fractionSplit.testFraction
+    - api_field: inputDataConfig.fractionSplit.trainingFraction
+    - api_field: inputDataConfig.fractionSplit.validationFraction
+    - api_field: inputDataConfig.gcsDestination.outputUriPrefix
+    - api_field: inputDataConfig.persistMlUseAssignment
+    - api_field: inputDataConfig.predefinedSplit.key
+    - api_field: inputDataConfig.savedQueryId
+    - api_field: inputDataConfig.stratifiedSplit.key
+    - api_field: inputDataConfig.stratifiedSplit.testFraction
+    - api_field: inputDataConfig.stratifiedSplit.trainingFraction
+    - api_field: inputDataConfig.stratifiedSplit.validationFraction
+    - api_field: inputDataConfig.timestampSplit.key
+    - api_field: inputDataConfig.timestampSplit.testFraction
+    - api_field: inputDataConfig.timestampSplit.trainingFraction
+    - api_field: inputDataConfig.timestampSplit.validationFraction
+    - api_field: labels
+    - api_field: modelId
+    - api_field: modelToUpload.artifactUri
+    - api_field: modelToUpload.containerSpec.args
+    - api_field: modelToUpload.containerSpec.command
+    - api_field: modelToUpload.containerSpec.deploymentTimeout
+    - api_field: modelToUpload.containerSpec.env.name
+    - api_field: modelToUpload.containerSpec.env.value
+    - api_field: modelToUpload.containerSpec.grpcPorts.containerPort
+    - api_field: modelToUpload.containerSpec.healthProbe.exec.command
+    - api_field: modelToUpload.containerSpec.healthProbe.periodSeconds
+    - api_field: modelToUpload.containerSpec.healthProbe.timeoutSeconds
+    - api_field: modelToUpload.containerSpec.healthRoute
+    - api_field: modelToUpload.containerSpec.imageUri
+    - api_field: modelToUpload.containerSpec.ports.containerPort
+    - api_field: modelToUpload.containerSpec.predictRoute
+    - api_field: modelToUpload.containerSpec.sharedMemorySizeMb
+    - api_field: modelToUpload.containerSpec.startupProbe.exec.command
+    - api_field: modelToUpload.containerSpec.startupProbe.periodSeconds
+    - api_field: modelToUpload.containerSpec.startupProbe.timeoutSeconds
+    - api_field: modelToUpload.description
+    - api_field: modelToUpload.displayName
+    - api_field: modelToUpload.encryptionSpec.kmsKeyName
+    - api_field: modelToUpload.explanationSpec.metadata
+      json: true
+    - api_field: modelToUpload.explanationSpec.parameters
+      json: true
+    - api_field: modelToUpload.labels
+    - api_field: modelToUpload.name
+    - api_field: modelToUpload.versionAliases
+    - api_field: modelToUpload.versionDescription
+    - api_field: name
+    - api_field: parentModel
+    - field: region
+      provider_only: true
+    - api_field: startTime
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: trainingTaskDefinition
+    - api_field: trainingTaskInputs
+      json: true
+    - api_field: trainingTaskMetadata
+      json: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
