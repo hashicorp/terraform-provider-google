@@ -330,7 +330,6 @@ func schemaNodeConfig() *schema.Schema {
 					Type:        schema.TypeList,
 					Optional:    true,
 					Computed:    true,
-					ForceNew:    true,
 					Description: `List of the type and count of accelerator cards attached to the instance.`,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
@@ -352,14 +351,12 @@ func schemaNodeConfig() *schema.Schema {
 								MaxItems:    1,
 								Optional:    true,
 								Computed:    true,
-								ForceNew:    true,
 								Description: `Configuration for auto installation of GPU driver.`,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"gpu_driver_version": {
 											Type:         schema.TypeString,
 											Required:     true,
-											ForceNew:     true,
 											Description:  `Mode for how the GPU driver is installed.`,
 											ValidateFunc: validation.StringInSlice([]string{"GPU_DRIVER_VERSION_UNSPECIFIED", "INSTALLATION_DISABLED", "DEFAULT", "LATEST"}, false),
 										},
@@ -376,20 +373,17 @@ func schemaNodeConfig() *schema.Schema {
 								Type:        schema.TypeList,
 								MaxItems:    1,
 								Optional:    true,
-								ForceNew:    true,
 								Description: `Configuration for GPU sharing.`,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"gpu_sharing_strategy": {
 											Type:        schema.TypeString,
 											Required:    true,
-											ForceNew:    true,
 											Description: `The type of GPU sharing strategy to enable on the GPU node. Possible values are described in the API package (https://pkg.go.dev/google.golang.org/api/container/v1#GPUSharingConfig)`,
 										},
 										"max_shared_clients_per_gpu": {
 											Type:        schema.TypeInt,
 											Required:    true,
-											ForceNew:    true,
 											Description: `The maximum number of containers that can share a GPU.`,
 										},
 									},
@@ -1570,6 +1564,40 @@ func expandNodeConfigDefaults(configured interface{}) *container.NodeConfigDefau
 	return nodeConfigDefaults
 }
 
+func expandGuestAccelerator(v interface{}) []*container.AcceleratorConfig {
+	accels := v.([]interface{})
+	guestAccelerators := make([]*container.AcceleratorConfig, 0, len(accels))
+	for _, raw := range accels {
+		data := raw.(map[string]interface{})
+		if data["count"].(int) == 0 {
+			continue
+		}
+		guestAcceleratorConfig := &container.AcceleratorConfig{
+			AcceleratorCount: int64(data["count"].(int)),
+			AcceleratorType:  data["type"].(string),
+			GpuPartitionSize: data["gpu_partition_size"].(string),
+		}
+
+		if v, ok := data["gpu_driver_installation_config"]; ok && len(v.([]interface{})) > 0 {
+			gpuDriverInstallationConfig := data["gpu_driver_installation_config"].([]interface{})[0].(map[string]interface{})
+			guestAcceleratorConfig.GpuDriverInstallationConfig = &container.GPUDriverInstallationConfig{
+				GpuDriverVersion: gpuDriverInstallationConfig["gpu_driver_version"].(string),
+			}
+		}
+
+		if v, ok := data["gpu_sharing_config"]; ok && len(v.([]interface{})) > 0 {
+			gpuSharingConfig := data["gpu_sharing_config"].([]interface{})[0].(map[string]interface{})
+			guestAcceleratorConfig.GpuSharingConfig = &container.GPUSharingConfig{
+				GpuSharingStrategy:     gpuSharingConfig["gpu_sharing_strategy"].(string),
+				MaxSharedClientsPerGpu: int64(gpuSharingConfig["max_shared_clients_per_gpu"].(int)),
+			}
+		}
+
+		guestAccelerators = append(guestAccelerators, guestAcceleratorConfig)
+	}
+	return guestAccelerators
+}
+
 func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *container.NodeConfig {
 	nodeConfigs := v.([]interface{})
 	nc := &container.NodeConfig{
@@ -1599,37 +1627,7 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 	}
 
 	if v, ok := nodeConfig["guest_accelerator"]; ok {
-		accels := v.([]interface{})
-		guestAccelerators := make([]*container.AcceleratorConfig, 0, len(accels))
-		for _, raw := range accels {
-			data := raw.(map[string]interface{})
-			if data["count"].(int) == 0 {
-				continue
-			}
-			guestAcceleratorConfig := &container.AcceleratorConfig{
-				AcceleratorCount: int64(data["count"].(int)),
-				AcceleratorType:  data["type"].(string),
-				GpuPartitionSize: data["gpu_partition_size"].(string),
-			}
-
-			if v, ok := data["gpu_driver_installation_config"]; ok && len(v.([]interface{})) > 0 {
-				gpuDriverInstallationConfig := data["gpu_driver_installation_config"].([]interface{})[0].(map[string]interface{})
-				guestAcceleratorConfig.GpuDriverInstallationConfig = &container.GPUDriverInstallationConfig{
-					GpuDriverVersion: gpuDriverInstallationConfig["gpu_driver_version"].(string),
-				}
-			}
-
-			if v, ok := data["gpu_sharing_config"]; ok && len(v.([]interface{})) > 0 {
-				gpuSharingConfig := data["gpu_sharing_config"].([]interface{})[0].(map[string]interface{})
-				guestAcceleratorConfig.GpuSharingConfig = &container.GPUSharingConfig{
-					GpuSharingStrategy:     gpuSharingConfig["gpu_sharing_strategy"].(string),
-					MaxSharedClientsPerGpu: int64(gpuSharingConfig["max_shared_clients_per_gpu"].(int)),
-				}
-			}
-
-			guestAccelerators = append(guestAccelerators, guestAcceleratorConfig)
-		}
-		nc.Accelerators = guestAccelerators
+		nc.Accelerators = expandGuestAccelerator(v)
 	}
 
 	if v, ok := nodeConfig["disk_size_gb"]; ok {
@@ -4358,6 +4356,36 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 			}
 
 			log.Printf("[INFO] Updated gvnic for node pool %s", name)
+		}
+
+		if d.HasChange(prefix + "node_config.0.guest_accelerator") {
+			req := &container.UpdateNodePoolRequest{
+				NodePoolId:   name,
+				Accelerators: expandGuestAccelerator(d.Get(prefix + "node_config.0.guest_accelerator")),
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := NewClient(config, userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return ContainerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool guest_accelerator", userAgent,
+					timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated guest_accelerator for node pool %s", name)
 		}
 
 		if d.HasChange(prefix + "node_config.0.kubelet_config") {

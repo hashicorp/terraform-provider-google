@@ -1751,6 +1751,169 @@ func TestAccContainerNodePool_withGPU(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_gpuSharingConfigUpdate(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_gpuSharingConfig(cluster, np, networkName, subnetworkName, 2),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Updating max_shared_clients_per_gpu must happen in place, not by recreating the node pool.
+			{
+				Config: testAccContainerNodePool_gpuSharingConfig(cluster, np, networkName, subnetworkName, 4),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_node_pool.np", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.guest_accelerator.0.gpu_sharing_config.0.max_shared_clients_per_gpu", "4"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Dropping the block is also an in-place update; the post-apply plan is only empty if the
+			// API actually cleared the sharing config.
+			{
+				Config: testAccContainerNodePool_guestAcceleratorNoSharing(cluster, np, networkName, subnetworkName, 1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_node_pool.np", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.guest_accelerator.0.gpu_sharing_config.#", "0"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// count and type stay ForceNew: the GKE API rejects updating them in place.
+			{
+				Config: testAccContainerNodePool_guestAcceleratorNoSharing(cluster, np, networkName, subnetworkName, 2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_node_pool.np", plancheck.ResourceActionReplace),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.guest_accelerator.0.count", "2"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccContainerNodePool_gpuDriverInstallationConfigUpdate(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_gpuDriverInstallationConfig(cluster, np, networkName, subnetworkName, "DEFAULT"),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Updating gpu_driver_version must happen in place, not by recreating the node pool.
+			{
+				Config: testAccContainerNodePool_gpuDriverInstallationConfig(cluster, np, networkName, subnetworkName, "LATEST"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_node_pool.np", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.guest_accelerator.0.gpu_driver_installation_config.0.gpu_driver_version", "LATEST"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_guestAccelerator(cluster, np, networkName, subnetworkName string, count int, driverVersion, gpuSharingConfig string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "n1-standard-2"
+
+    guest_accelerator {
+      type  = "nvidia-tesla-t4"
+      count = %d
+      gpu_driver_installation_config {
+        gpu_driver_version = "%s"
+      }
+%s
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, np, count, driverVersion, gpuSharingConfig)
+}
+
+func testAccContainerNodePool_gpuSharingConfig(cluster, np, networkName, subnetworkName string, maxSharedClientsPerGpu int) string {
+	return testAccContainerNodePool_guestAccelerator(cluster, np, networkName, subnetworkName, 1, "DEFAULT", fmt.Sprintf(`
+      gpu_sharing_config {
+        gpu_sharing_strategy       = "TIME_SHARING"
+        max_shared_clients_per_gpu = %d
+      }`, maxSharedClientsPerGpu))
+}
+
+func testAccContainerNodePool_guestAcceleratorNoSharing(cluster, np, networkName, subnetworkName string, count int) string {
+	return testAccContainerNodePool_guestAccelerator(cluster, np, networkName, subnetworkName, count, "DEFAULT", "")
+}
+
+func testAccContainerNodePool_gpuDriverInstallationConfig(cluster, np, networkName, subnetworkName, driverVersion string) string {
+	return testAccContainerNodePool_guestAccelerator(cluster, np, networkName, subnetworkName, 1, driverVersion, "")
+}
+
 func TestAccContainerNodePool_withRDMA(t *testing.T) {
 	t.Parallel()
 
