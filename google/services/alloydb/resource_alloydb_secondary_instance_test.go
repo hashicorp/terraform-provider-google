@@ -67,7 +67,7 @@ func testAccAlloydbInstance_secondaryInstanceInitial(context map[string]interfac
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "tf-test-alloydb-primary-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -134,7 +134,7 @@ func testAccAlloydbInstance_secondaryInstanceUpdateMachineConfig(context map[str
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "tf-test-alloydb-primary-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -228,7 +228,7 @@ func testAccAlloydbInstance_secondaryInstanceWithReadPoolInstance(context map[st
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "tf-test-alloydb-primary-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -252,7 +252,7 @@ resource "google_alloydb_instance" "primary" {
 
 resource "google_alloydb_cluster" "secondary" {
   cluster_id   = "tf-test-alloydb-secondary-cluster%{random_suffix}"
-  location     = "us-west1"
+  location     = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -333,7 +333,7 @@ func testAccAlloydbCluster_secondaryInstanceWithNetworkConfigAndAllocatedIPRange
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "tf-test-alloydb-primary-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network    = data.google_compute_network.default.id
     allocated_ip_range = data.google_compute_global_address.private_ip_alloc.name
@@ -358,7 +358,7 @@ resource "google_alloydb_instance" "primary" {
 
 resource "google_alloydb_cluster" "secondary" {
   cluster_id   = "tf-test-alloydb-secondary-cluster%{random_suffix}"
-  location     = "us-west1"
+  location     = "us-east1"
   network_config {
     network    = data.google_compute_network.default.id
     allocated_ip_range = data.google_compute_global_address.private_ip_alloc.name
@@ -442,7 +442,7 @@ func testAccAlloydbInstance_secondaryInstanceUpdateDatabaseFlag(context map[stri
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "tf-test-alloydb-primary-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -549,7 +549,7 @@ func testAccAlloydbInstance_secondaryInstanceUpdateQueryInsightConfig(context ma
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "tf-test-alloydb-primary-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -650,7 +650,7 @@ func testAccAlloydbInstance_secondaryInstanceMaximumFields(context map[string]in
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "tf-test-alloydb-primary-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -674,7 +674,7 @@ resource "google_alloydb_instance" "primary" {
 
 resource "google_alloydb_cluster" "secondary" {
   cluster_id   = "tf-test-alloydb-secondary-cluster%{random_suffix}"
-  location     = "us-west1"
+  location     = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }

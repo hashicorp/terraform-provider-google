@@ -79,7 +79,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -100,7 +100,7 @@ func testAccAlloydbInstance_deleteInstance(context map[string]interface{}) strin
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -136,7 +136,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -256,7 +256,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -286,7 +286,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -339,7 +339,7 @@ resource "google_alloydb_instance" "default" {
   annotations = {
     test_annotation = "test-alloydb-annotation"
   }
-  gce_zone = "us-east1-a"
+  gce_zone = "us-east1-b"
   database_flags = {
 	  "alloydb.enable_auto_explain" = "true"
   }
@@ -364,7 +364,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -422,7 +422,7 @@ resource "google_alloydb_instance" "read_pool" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -484,7 +484,7 @@ resource "google_alloydb_instance" "primary" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -514,7 +514,7 @@ resource "google_alloydb_instance" "primary" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -570,7 +570,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network    = data.google_compute_network.default.id
     allocated_ip_range = data.google_compute_global_address.private_ip_alloc.name
@@ -720,7 +720,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -757,7 +757,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -878,6 +878,11 @@ resource "google_alloydb_instance" "default" {
   cluster       = google_alloydb_cluster.default.name
   instance_id   = "tf-test-alloydb-instance%{random_suffix}"
   instance_type = "PRIMARY"
+
+  machine_config {
+    cpu_count = 2
+  }
+
   database_flags = {
     "password.enforce_complexity" = "on"
   }
@@ -891,7 +896,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -916,6 +921,11 @@ resource "google_alloydb_instance" "default" {
   cluster       = google_alloydb_cluster.default.name
   instance_id   = "tf-test-alloydb-instance%{random_suffix}"
   instance_type = "PRIMARY"
+
+  machine_config {
+    cpu_count = 2
+  }
+
   database_flags = {
     "password.enforce_complexity" = "on"
   }
@@ -931,7 +941,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -988,7 +998,7 @@ resource "google_alloydb_instance" "default" {
 }
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   psc_config {
 	psc_enabled = true
   }
@@ -1017,7 +1027,7 @@ resource "google_alloydb_instance" "default" {
 }
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   psc_config {
 	psc_enabled = true
   }
@@ -1035,12 +1045,15 @@ func TestAccAlloydbInstance_createInstanceWithPscInterfaceConfigs(t *testing.T) 
 	t.Parallel()
 
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "tf-test-alloydb-network")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "tf-test-alloydb-subnetwork", networkName)
+	subnetworkName := tpgcompute.BootstrapSubnetWithOverrides(t, "tf-test-alloydb-subnetwork-east1", networkName, map[string]interface{}{
+		"region":      "us-east1",
+		"ipCidrRange": "10.79.0.0/20",
+	})
 
 	random_suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"random_suffix":         random_suffix,
-		"networkAttachmentName": tpgcompute.BootstrapNetworkAttachment(t, "tf-test-alloydb-create-na", subnetworkName),
+		"networkAttachmentName": tpgcompute.BootstrapNetworkAttachmentInRegion(t, "tf-test-alloydb-create-na", subnetworkName, "us-east1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1074,7 +1087,7 @@ resource "google_alloydb_instance" "default" {
 }
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   psc_config {
 	psc_enabled = true
   }
@@ -1092,12 +1105,15 @@ func TestAccAlloydbInstance_updateInstanceWithPscInterfaceConfigs(t *testing.T) 
 	t.Parallel()
 
 	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "tf-test-alloydb-network")
-	subnetworkName := tpgcompute.BootstrapSubnet(t, "tf-test-alloydb-subnetwork", networkName)
+	subnetworkName := tpgcompute.BootstrapSubnetWithOverrides(t, "tf-test-alloydb-subnetwork-east1", networkName, map[string]interface{}{
+		"region":      "us-east1",
+		"ipCidrRange": "10.79.0.0/20",
+	})
 
 	random_suffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"random_suffix":         random_suffix,
-		"networkAttachmentName": tpgcompute.BootstrapNetworkAttachment(t, "tf-test-alloydb-update-na", subnetworkName),
+		"networkAttachmentName": tpgcompute.BootstrapNetworkAttachmentInRegion(t, "tf-test-alloydb-update-na", subnetworkName, "us-east1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1158,7 +1174,7 @@ resource "google_alloydb_instance" "default" {
 }
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   psc_config {
 	psc_enabled = true
   }
@@ -1184,7 +1200,7 @@ resource "google_alloydb_instance" "default" {
 }
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   psc_config {
 	psc_enabled = true
   }
@@ -1243,7 +1259,7 @@ resource "google_alloydb_instance" "read_pool" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -1503,7 +1519,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -1545,7 +1561,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -1581,7 +1597,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }

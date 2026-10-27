@@ -60,7 +60,7 @@ values will be stored in the raw state as plain text: `initial_user.password`.
 ```hcl
 resource "google_alloydb_cluster" "default" {
   cluster_id = "alloydb-cluster"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = google_compute_network.default.id
   }
@@ -97,7 +97,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "alloydb-cluster"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -137,7 +137,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "alloydb-cluster"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -166,7 +166,7 @@ data "google_compute_network" "default" {
 ```hcl
 resource "google_alloydb_cluster" "full" {
   cluster_id = "alloydb-cluster-full"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = google_compute_network.default.id
   }
@@ -183,7 +183,7 @@ resource "google_alloydb_cluster" "full" {
   }
 
   automated_backup_policy {
-    location      = "us-central1"
+    location      = "us-east1"
     backup_window = "1800s"
     enabled       = true
 
@@ -227,7 +227,7 @@ resource "google_compute_network" "default" {
 ```hcl
 resource "google_alloydb_cluster" "source" {
   cluster_id = "alloydb-source-cluster"
-  location   = "us-central1"
+  location   = "us-east1"
   network    = data.google_compute_network.default.id
 
   initial_user {
@@ -251,7 +251,7 @@ resource "google_alloydb_instance" "source" {
 
 resource "google_alloydb_backup" "source" {
   backup_id    = "alloydb-backup"
-  location     = "us-central1"
+  location     = "us-east1"
   cluster_name = google_alloydb_cluster.source.name
 
   depends_on = [google_alloydb_instance.source]
@@ -259,7 +259,7 @@ resource "google_alloydb_backup" "source" {
 
 resource "google_alloydb_cluster" "restored_from_backup" {
   cluster_id            = "alloydb-backup-restored"
-  location              = "us-central1"
+  location              = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -272,7 +272,7 @@ resource "google_alloydb_cluster" "restored_from_backup" {
 
 resource "google_alloydb_cluster" "restored_via_pitr" {
   cluster_id             = "alloydb-pitr-restored"
-  location               = "us-central1"
+  location               = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -311,7 +311,7 @@ resource "google_service_networking_connection" "vpc_connection" {
 ```hcl
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "alloydb-primary-cluster"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = google_compute_network.default.id
   }

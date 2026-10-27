@@ -36,7 +36,7 @@ To get more information about Backup, see:
 
 ```hcl
 resource "google_alloydb_backup" "default" {
-  location     = "us-central1"
+  location     = "us-east1"
   backup_id    = "alloydb-backup"
   cluster_name = google_alloydb_cluster.default.name
 
@@ -45,7 +45,7 @@ resource "google_alloydb_backup" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "alloydb-cluster"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = google_compute_network.default.id
   }
@@ -85,7 +85,7 @@ resource "google_compute_network" "default" {
 
 ```hcl
 resource "google_alloydb_backup" "default" {
-  location     = "us-central1"
+  location     = "us-east1"
   backup_id    = "alloydb-backup"
   cluster_name = google_alloydb_cluster.default.name
 
@@ -99,7 +99,7 @@ resource "google_alloydb_backup" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "alloydb-cluster"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = google_compute_network.default.id
   }

@@ -54,7 +54,7 @@ func TestAccDataSourceAlloydbSupportedDatabaseFlags_basic(t *testing.T) {
 func testAccDataSourceAlloydbSupportedDatabaseFlags_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_alloydb_supported_database_flags" "qa" {
-	location = "us-central1"
+	location = "us-east1"
 }
 `, context)
 }
@@ -74,7 +74,7 @@ func validateAlloydbSupportedDatabaseFlagsResult(dataSourceName string) func(*te
 			return errors.New("Couldn't convert length of flags list to integer")
 		}
 		if totalFlags == 0 {
-			return errors.New("No supported database flags are fetched from location 'us-central1'")
+			return errors.New("No supported database flags are fetched from location 'us-east1'")
 		}
 		for i := 0; i < totalFlags; i++ {
 			if dsAttr["supported_database_flags."+strconv.Itoa(i)+".name"] == "" {
