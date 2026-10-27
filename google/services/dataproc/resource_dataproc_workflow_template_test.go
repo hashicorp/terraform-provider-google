@@ -613,6 +613,90 @@ resource "google_dataproc_workflow_template" "template" {
 `, context)
 }
 
+func TestAccDataprocWorkflowTemplate_flexibleConfig(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             funcAccTestDataprocWorkflowTemplateCheckDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocWorkflowTemplate_flexibleConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.gce_cluster_config.0.multi_zone_config.0.target_shape", "ANY"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.master_flexible_config.0.num_instances", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.master_flexible_config.0.core_count", "2"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.master_flexible_config.0.boot_disk_size_gb", "30"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.master_flexible_config.0.hardware_class", "STANDARD"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.worker_flexible_config.0.num_instances", "2"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.worker_flexible_config.0.core_count", "4"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.worker_flexible_config.0.boot_disk_size_gb", "50"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.worker_flexible_config.0.hardware_class", "STANDARD"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.secondary_worker_flexible_config.0.num_instances", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.secondary_worker_flexible_config.0.core_count", "2"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.secondary_worker_flexible_config.0.boot_disk_size_gb", "30"),
+					resource.TestCheckResourceAttr("google_dataproc_workflow_template.flexible_config_template", "placement.0.managed_cluster.0.config.0.secondary_worker_flexible_config.0.hardware_class", "PERFORMANCE"),
+				),
+			},
+			{
+				ResourceName:      "google_dataproc_workflow_template.flexible_config_template",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataprocWorkflowTemplate_flexibleConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataproc_workflow_template" "flexible_config_template" {
+  name     = "tf-test-workflow-%{random_suffix}"
+  location = "us-central1"
+  placement {
+    managed_cluster {
+      cluster_name = "tf-test-cluster-%{random_suffix}"
+      config {
+        gce_cluster_config {
+          multi_zone_config {
+            target_shape = "ANY"
+          }
+        }
+        master_flexible_config {
+          num_instances     = 1
+          core_count        = 2
+          boot_disk_size_gb = 30
+          hardware_class    = "STANDARD"
+        }
+        worker_flexible_config {
+          num_instances     = 2
+          core_count        = 4
+          boot_disk_size_gb = 50
+          hardware_class    = "STANDARD"
+        }
+        secondary_worker_flexible_config {
+          num_instances     = 1
+          core_count        = 2
+          boot_disk_size_gb = 30
+          hardware_class    = "PERFORMANCE"
+        }
+      }
+    }
+  }
+  jobs {
+    step_id = "job-1"
+    spark_job {
+      main_class = "org.apache.spark.examples.SparkPi"
+    }
+  }
+}
+`, context)
+}
+
 func funcAccTestDataprocWorkflowTemplateCheckDestroy(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

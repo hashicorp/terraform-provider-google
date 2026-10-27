@@ -316,7 +316,7 @@ When this this key is provided, the following workflow template job arguments, i
 
 * `gce_cluster_config` -
   (Optional)
-  The shared Compute Engine config settings for all instances in a cluster.
+  The shared Compute Engine config settings for all instances in a cluster. Structure is [documented below](#nested_gce_cluster_config).
 
 * `gke_cluster_config` -
   (Optional)
@@ -334,6 +334,10 @@ When this this key is provided, the following workflow template job arguments, i
   (Optional)
   The Compute Engine config settings for additional worker instances in a cluster. Structure is [documented below](#nested_master_config).
 
+* `master_flexible_config` -
+  (Optional)
+  The Compute Engine flexible config settings for the master instance in a cluster. Structure is [documented below](#nested_master_flexible_config).
+
 * `metastore_config` -
   (Optional)
   Metastore configuration.
@@ -341,6 +345,10 @@ When this this key is provided, the following workflow template job arguments, i
 * `secondary_worker_config` -
   (Optional)
   The Compute Engine config settings for additional worker instances in a cluster. Structure is [documented below](#nested_secondary_worker_config).
+
+* `secondary_worker_flexible_config` -
+  (Optional)
+  The Compute Engine flexible config settings for additional worker instances in a cluster. Structure is [documented below](#nested_secondary_worker_flexible_config).
 
 * `security_config` -
   (Optional)
@@ -361,6 +369,10 @@ When this this key is provided, the following workflow template job arguments, i
 * `worker_config` -
   (Optional)
   The Compute Engine config settings for additional worker instances in a cluster. Structure is [documented below](#nested_worker_config).
+
+* `worker_flexible_config` -
+  (Optional)
+  The Compute Engine flexible config settings for worker instances in a cluster. Structure is [documented below](#nested_worker_flexible_config).
 
 - - -
 
@@ -891,6 +903,60 @@ The `values` block supports:
   (Optional)
   Instance flexibility Policy allowing a mixture of VM shapes. Structure is [documented below](#nested_instance_flexibility_policy).
 
+<a name="nested_master_flexible_config"></a>The `master_flexible_config` block supports:
+
+* `boot_disk_size_gb` -
+  (Optional)
+  Size of the boot disk in GB for each instance in the instance group.
+
+* `core_count` -
+  (Optional)
+  The core count for each instance in the instance group.
+
+* `hardware_class` -
+  (Optional)
+  The hardware class of instances in the instance group. Possible values: `HARDWARE_CLASS_UNSPECIFIED`, `STANDARD`, `PERFORMANCE`.
+
+* `num_instances` -
+  (Optional)
+  Number of instances in the instance group.
+
+<a name="nested_secondary_worker_flexible_config"></a>The `secondary_worker_flexible_config` block supports:
+
+* `boot_disk_size_gb` -
+  (Optional)
+  Size of the boot disk in GB for each instance in the instance group.
+
+* `core_count` -
+  (Optional)
+  The core count for each instance in the instance group.
+
+* `hardware_class` -
+  (Optional)
+  The hardware class of instances in the instance group. Possible values: `HARDWARE_CLASS_UNSPECIFIED`, `STANDARD`, `PERFORMANCE`.
+
+* `num_instances` -
+  (Optional)
+  Number of instances in the instance group.
+
+<a name="nested_worker_flexible_config"></a>The `worker_flexible_config` block supports:
+
+* `boot_disk_size_gb` -
+  (Optional)
+  Size of the boot disk in GB for each instance in the instance group.
+
+* `core_count` -
+  (Optional)
+  The core count for each instance in the instance group.
+
+* `hardware_class` -
+  (Optional)
+  The hardware class of instances in the instance group. Possible values: `HARDWARE_CLASS_UNSPECIFIED`, `STANDARD`, `PERFORMANCE`.
+
+* `num_instances` -
+  (Optional)
+  Number of instances in the instance group.
+
 <a name="nested_accelerators"></a>The `accelerators` block supports:
 
 * `accelerator_count` -
@@ -1022,7 +1088,7 @@ The `endpoint_config` block supports:
 * `http_ports` -
   Output only. The map of port descriptions to URLs. Will only be populated if enable_http_port_access is true.
 
-The `gce_cluster_config` block supports:
+<a name="nested_gce_cluster_config"></a>The `gce_cluster_config` block supports:
 
 * `internal_ip_only` -
   (Optional)
@@ -1031,6 +1097,10 @@ The `gce_cluster_config` block supports:
 * `metadata` -
   (Optional)
   The Compute Engine metadata entries to add to all instances (see [About VM metadata](https://docs.cloud.google.com/compute/docs/metadata/overview)).
+
+* `multi_zone_config` -
+  (Optional)
+  Multi-zone configuration for cluster instances. Structure is [documented below](#nested_multi_zone_config).
 
 * `network` -
   (Optional)
@@ -1117,6 +1187,12 @@ cluster_config {
 * `enable_integrity_monitoring` -
   (Optional)
   Defines whether instances have [Integrity Monitoring](https://docs.cloud.google.com/compute/shielded-vm/docs/shielded-vm#integrity-monitoring) enabled.
+
+<a name="nested_multi_zone_config"></a>The `multi_zone_config` block supports:
+
+* `target_shape` -
+  (Optional)
+  Specifies the target shape of the cluster. Possible values: `TARGET_SHAPE_UNSPECIFIED`, `ANY`.
 
 The `gke_cluster_config` block supports:
 
