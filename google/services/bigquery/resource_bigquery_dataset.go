@@ -273,6 +273,18 @@ table. If you provide an explicit 'timePartitioning.expirationMs' when
 creating or updating a partitioned table, that value takes precedence
 over the default partition expiration time indicated by this property.`,
 			},
+			"default_rounding_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ROUND_HALF_AWAY_FROM_ZERO", "ROUND_HALF_EVEN", ""}),
+				Description: `Defines the default rounding mode specification of new tables created
+within this dataset. During table creation, if this field is specified,
+the table within this dataset will inherit the default rounding mode of
+the dataset. Setting the default rounding mode on a table overrides this
+specification. Existing tables in the dataset are unaffected. If columns
+are defined during that table creation, they will immediately inherit the
+table's default rounding mode, unless otherwise specified. Possible values: ["ROUND_HALF_AWAY_FROM_ZERO", "ROUND_HALF_EVEN"]`,
+			},
 			"default_table_expiration_ms": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -735,6 +747,12 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("default_collation"); ok || !reflect.DeepEqual(v, defaultCollationProp) {
 		obj["defaultCollation"] = defaultCollationProp
 	}
+	defaultRoundingModeProp, err := expandBigQueryDatasetDefaultRoundingMode(d.Get("default_rounding_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_rounding_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultRoundingModeProp)) && (ok || !reflect.DeepEqual(v, defaultRoundingModeProp)) {
+		obj["defaultRoundingMode"] = defaultRoundingModeProp
+	}
 	storageBillingModelProp, err := expandBigQueryDatasetStorageBillingModel(d.Get("storage_billing_model"), d, config)
 	if err != nil {
 		return err
@@ -1026,6 +1044,12 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("default_collation"); ok || !reflect.DeepEqual(v, defaultCollationProp) {
 		obj["defaultCollation"] = defaultCollationProp
+	}
+	defaultRoundingModeProp, err := expandBigQueryDatasetDefaultRoundingMode(d.Get("default_rounding_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_rounding_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultRoundingModeProp)) {
+		obj["defaultRoundingMode"] = defaultRoundingModeProp
 	}
 	storageBillingModelProp, err := expandBigQueryDatasetStorageBillingModel(d.Get("storage_billing_model"), d, config)
 	if err != nil {
@@ -1535,6 +1559,10 @@ func flattenBigQueryDatasetIsCaseInsensitive(v interface{}, d *schema.ResourceDa
 }
 
 func flattenBigQueryDatasetDefaultCollation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetDefaultRoundingMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2051,6 +2079,10 @@ func expandBigQueryDatasetDefaultCollation(v interface{}, d tpgresource.Terrafor
 	return v, nil
 }
 
+func expandBigQueryDatasetDefaultRoundingMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandBigQueryDatasetStorageBillingModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2189,6 +2221,9 @@ func ResourceBigQueryDatasetFlatten(d *schema.ResourceData, meta interface{}, re
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 	if err = d.Set("default_collation", flattenBigQueryDatasetDefaultCollation(res["defaultCollation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err = d.Set("default_rounding_mode", flattenBigQueryDatasetDefaultRoundingMode(res["defaultRoundingMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 	if err = d.Set("storage_billing_model", flattenBigQueryDatasetStorageBillingModel(res["storageBillingModel"], d, config)); err != nil {

@@ -623,6 +623,48 @@ func TestAccBigQueryDataset_collationUpdate(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDataset_defaultRoundingModeUpdate(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset_defaultRoundingMode(datasetID, "ROUND_HALF_EVEN"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "default_rounding_mode", "ROUND_HALF_EVEN"),
+				),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// The labels and terraform_labels fields in the state are decided by the configuration
+				// (including provider default attribution labels) and are not populated in state on import.
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccBigQueryDataset_defaultRoundingMode(datasetID, "ROUND_HALF_AWAY_FROM_ZERO"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "default_rounding_mode", "ROUND_HALF_AWAY_FROM_ZERO"),
+				),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// The labels and terraform_labels fields in the state are decided by the configuration
+				// (including provider default attribution labels) and are not populated in state on import.
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccAddTable(t *testing.T, datasetID string, tableID string) resource.TestCheckFunc {
 	// Not actually a check, but adds a table independently of terraform
 	return func(s *terraform.State) error {
@@ -1137,4 +1179,16 @@ resource "google_bigquery_dataset" "test" {
   default_collation = "%s"
 }
 `, datasetID, collation)
+}
+
+func testAccBigQueryDataset_defaultRoundingMode(datasetID, roundingMode string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id            = "%s"
+  friendly_name         = "foo"
+  description           = "This is a foo description"
+  location              = "US"
+  default_rounding_mode = "%s"
+}
+`, datasetID, roundingMode)
 }
