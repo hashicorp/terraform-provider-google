@@ -215,6 +215,49 @@ Telemetry. Logs at severitiy ≥ this value will be sent, unless it is NONE. Pos
 					},
 				},
 			},
+			"organization_subscription": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Config to enable subscribing to events from all projects in the
+GoogleApiSource's org.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Enable org level subscription.`,
+						},
+					},
+				},
+				ConflictsWith: []string{"project_subscriptions"},
+			},
+			"project_subscriptions": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Config to enable subscribing to all events from a list of projects.
+
+All the projects must be in the same org as the GoogleApiSource.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"list": {
+							Type:     schema.TypeList,
+							Required: true,
+							Description: `A list of projects to receive events from.
+
+All the projects must be in the same org. The listed projects should have
+the format project/{identifier} where identifier can be either the
+project id for project number. A single list may contain both formats. At
+most 100 projects can be listed.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+				ConflictsWith: []string{"organization_subscription"},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -317,6 +360,18 @@ func resourceEventarcGoogleApiSourceCreate(d *schema.ResourceData, meta interfac
 		return err
 	} else if v, ok := d.GetOkExists("logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(loggingConfigProp)) && (ok || !reflect.DeepEqual(v, loggingConfigProp)) {
 		obj["loggingConfig"] = loggingConfigProp
+	}
+	organizationSubscriptionProp, err := expandEventarcGoogleApiSourceOrganizationSubscription(d.Get("organization_subscription"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("organization_subscription"); !tpgresource.IsEmptyValue(reflect.ValueOf(organizationSubscriptionProp)) && (ok || !reflect.DeepEqual(v, organizationSubscriptionProp)) {
+		obj["organizationSubscription"] = organizationSubscriptionProp
+	}
+	projectSubscriptionsProp, err := expandEventarcGoogleApiSourceProjectSubscriptions(d.Get("project_subscriptions"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("project_subscriptions"); !tpgresource.IsEmptyValue(reflect.ValueOf(projectSubscriptionsProp)) && (ok || !reflect.DeepEqual(v, projectSubscriptionsProp)) {
+		obj["projectSubscriptions"] = projectSubscriptionsProp
 	}
 	effectiveLabelsProp, err := expandEventarcGoogleApiSourceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -570,6 +625,18 @@ func resourceEventarcGoogleApiSourceUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, loggingConfigProp)) {
 		obj["loggingConfig"] = loggingConfigProp
 	}
+	organizationSubscriptionProp, err := expandEventarcGoogleApiSourceOrganizationSubscription(d.Get("organization_subscription"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("organization_subscription"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, organizationSubscriptionProp)) {
+		obj["organizationSubscription"] = organizationSubscriptionProp
+	}
+	projectSubscriptionsProp, err := expandEventarcGoogleApiSourceProjectSubscriptions(d.Get("project_subscriptions"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("project_subscriptions"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, projectSubscriptionsProp)) {
+		obj["projectSubscriptions"] = projectSubscriptionsProp
+	}
 	effectiveLabelsProp, err := expandEventarcGoogleApiSourceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -606,6 +673,14 @@ func resourceEventarcGoogleApiSourceUpdate(d *schema.ResourceData, meta interfac
 
 	if d.HasChange("logging_config") {
 		updateMask = append(updateMask, "loggingConfig")
+	}
+
+	if d.HasChange("organization_subscription") {
+		updateMask = append(updateMask, "organizationSubscription")
+	}
+
+	if d.HasChange("project_subscriptions") {
+		updateMask = append(updateMask, "projectSubscriptions")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -819,6 +894,40 @@ func flattenEventarcGoogleApiSourceCreateTime(v interface{}, d *schema.ResourceD
 	return v
 }
 
+func flattenEventarcGoogleApiSourceOrganizationSubscription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenEventarcGoogleApiSourceOrganizationSubscriptionEnabled(original["enabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenEventarcGoogleApiSourceOrganizationSubscriptionEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenEventarcGoogleApiSourceProjectSubscriptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["list"] =
+		flattenEventarcGoogleApiSourceProjectSubscriptionsList(original["list"], d, config)
+	return []interface{}{transformed}
+}
+func flattenEventarcGoogleApiSourceProjectSubscriptionsList(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenEventarcGoogleApiSourceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -880,6 +989,58 @@ func expandEventarcGoogleApiSourceLoggingConfigLogSeverity(v interface{}, d tpgr
 	return v, nil
 }
 
+func expandEventarcGoogleApiSourceOrganizationSubscription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandEventarcGoogleApiSourceOrganizationSubscriptionEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandEventarcGoogleApiSourceOrganizationSubscriptionEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandEventarcGoogleApiSourceProjectSubscriptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedList, err := expandEventarcGoogleApiSourceProjectSubscriptionsList(original["list"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedList); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["list"] = transformedList
+	}
+
+	return transformed, nil
+}
+
+func expandEventarcGoogleApiSourceProjectSubscriptionsList(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandEventarcGoogleApiSourceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -936,6 +1097,12 @@ func ResourceEventarcGoogleApiSourceFlatten(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error reading GoogleApiSource: %s", err)
 	}
 	if err = d.Set("create_time", flattenEventarcGoogleApiSourceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GoogleApiSource: %s", err)
+	}
+	if err = d.Set("organization_subscription", flattenEventarcGoogleApiSourceOrganizationSubscription(res["organizationSubscription"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GoogleApiSource: %s", err)
+	}
+	if err = d.Set("project_subscriptions", flattenEventarcGoogleApiSourceProjectSubscriptions(res["projectSubscriptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GoogleApiSource: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenEventarcGoogleApiSourceTerraformLabels(res["labels"], d, config)); err != nil {

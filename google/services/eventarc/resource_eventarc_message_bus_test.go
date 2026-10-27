@@ -307,6 +307,9 @@ resource "google_eventarc_google_api_source" "primary" {
   logging_config {
     log_severity = "DEBUG"
   }
+  organization_subscription {
+    enabled = true
+  }
 }
 resource "google_eventarc_message_bus" "message_bus" {
   location       = "%{region}"
@@ -401,6 +404,9 @@ resource "google_eventarc_google_api_source" "primary" {
   }
   logging_config {
     log_severity = "ALERT"
+  }
+  project_subscriptions {
+    list = ["projects/%{project_number}"]
   }
 }
 

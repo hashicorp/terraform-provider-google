@@ -24,6 +24,8 @@ fields:
       provider_only: true
     - api_field: loggingConfig.logSeverity
     - api_field: name
+    - api_field: organizationSubscription.enabled
+    - api_field: projectSubscriptions.list
     - field: terraform_labels
       provider_only: true
     - api_field: uid

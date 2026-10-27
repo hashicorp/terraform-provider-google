@@ -119,6 +119,18 @@ The following arguments are supported:
   resources.
   Structure is [documented below](#nested_logging_config).
 
+* `organization_subscription` -
+  (Optional)
+  Config to enable subscribing to events from all projects in the
+  GoogleApiSource's org.
+  Structure is [documented below](#nested_organization_subscription).
+
+* `project_subscriptions` -
+  (Optional)
+  Config to enable subscribing to all events from a list of projects.
+  All the projects must be in the same org as the GoogleApiSource.
+  Structure is [documented below](#nested_project_subscriptions).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -137,6 +149,22 @@ The following arguments are supported:
   The minimum severity of logs that will be sent to Stackdriver/Platform
   Telemetry. Logs at severitiy ≥ this value will be sent, unless it is NONE.
   Possible values are: `NONE`, `DEBUG`, `INFO`, `NOTICE`, `WARNING`, `ERROR`, `CRITICAL`, `ALERT`, `EMERGENCY`.
+
+<a name="nested_organization_subscription"></a>The `organization_subscription` block supports:
+
+* `enabled` -
+  (Required)
+  Enable org level subscription.
+
+<a name="nested_project_subscriptions"></a>The `project_subscriptions` block supports:
+
+* `list` -
+  (Required)
+  A list of projects to receive events from.
+  All the projects must be in the same org. The listed projects should have
+  the format project/{identifier} where identifier can be either the
+  project id for project number. A single list may contain both formats. At
+  most 100 projects can be listed.
 
 ## Attributes Reference
 
