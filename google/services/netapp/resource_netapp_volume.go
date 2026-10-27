@@ -666,6 +666,12 @@ Use NTFS to use NTFS ACLs for file permissions. Can only be set for volumes whic
 					ValidateFunc: verify.ValidateEnum([]string{"ENCRYPT_DATA", "BROWSABLE", "CHANGE_NOTIFY", "NON_BROWSABLE", "OPLOCKS", "SHOW_SNAPSHOT", "SHOW_PREVIOUS_VERSIONS", "ACCESS_BASED_ENUMERATION", "CONTINUOUSLY_AVAILABLE"}),
 				},
 			},
+			"snap_reserve": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+				Description: `Optional. Snap_reserve specifies percentage of volume storage reserved for
+snapshot storage. Default is 0 percent.`,
+			},
 			"snapshot_directory": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -1048,6 +1054,12 @@ func resourceNetappVolumeCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	snapReserveProp, err := expandNetappVolumeSnapReserve(d.Get("snap_reserve"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("snap_reserve"); !tpgresource.IsEmptyValue(reflect.ValueOf(snapReserveProp)) && (ok || !reflect.DeepEqual(v, snapReserveProp)) {
+		obj["snapReserve"] = snapReserveProp
+	}
 	snapshotDirectoryProp, err := expandNetappVolumeSnapshotDirectory(d.Get("snapshot_directory"), d, config)
 	if err != nil {
 		return err
@@ -1396,6 +1408,12 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	snapReserveProp, err := expandNetappVolumeSnapReserve(d.Get("snap_reserve"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("snap_reserve"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, snapReserveProp)) {
+		obj["snapReserve"] = snapReserveProp
+	}
 	snapshotDirectoryProp, err := expandNetappVolumeSnapshotDirectory(d.Get("snapshot_directory"), d, config)
 	if err != nil {
 		return err
@@ -1500,6 +1518,10 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("snap_reserve") {
+		updateMask = append(updateMask, "snapReserve")
 	}
 
 	if d.HasChange("snapshot_directory") {
@@ -2035,6 +2057,10 @@ func flattenNetappVolumeLabels(v interface{}, d *schema.ResourceData, config *tr
 }
 
 func flattenNetappVolumeDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeSnapReserve(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3006,6 +3032,10 @@ func expandNetappVolumeDescription(v interface{}, d tpgresource.TerraformResourc
 	return v, nil
 }
 
+func expandNetappVolumeSnapReserve(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetappVolumeSnapshotDirectory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -3881,6 +3911,9 @@ func ResourceNetappVolumeFlatten(d *schema.ResourceData, meta interface{}, res m
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
 	if err = d.Set("description", flattenNetappVolumeDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
+	if err = d.Set("snap_reserve", flattenNetappVolumeSnapReserve(res["snapReserve"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
 	if err = d.Set("snapshot_directory", flattenNetappVolumeSnapshotDirectory(res["snapshotDirectory"], d, config)); err != nil {

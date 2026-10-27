@@ -87,6 +87,7 @@ fields:
     - api_field: serviceLevel
     - api_field: shareName
     - api_field: smbSettings
+    - api_field: snapReserve
     - api_field: snapshotDirectory
     - api_field: snapshotPolicy.dailySchedule.hour
     - api_field: snapshotPolicy.dailySchedule.minute
