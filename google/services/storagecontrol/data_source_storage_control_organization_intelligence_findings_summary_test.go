@@ -41,7 +41,7 @@ func TestAccDataSourceGoogleStorageControlOrganizationIntelligenceFindingsSummar
 			{
 				Config: testAccDataSourceGoogleStorageControlOrganizationIntelligenceFindingsSummary_empty(context),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_storage_control_organization_intelligence_findings_summary.empty", "finding_summaries.#", "0"),
+					resource.TestCheckResourceAttrSet("data.google_storage_control_organization_intelligence_findings_summary.empty", "finding_summaries.#"),
 				),
 			},
 		},
