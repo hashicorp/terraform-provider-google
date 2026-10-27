@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
@@ -85,4 +86,146 @@ resource "google_compute_router_route_policy" "route_policy" {
   }
 }
 `, routerName, routerName, routePolicyName)
+}
+
+func TestAccComputeRouterRoutePolicy_concurrentWithBgpPeer(t *testing.T) {
+	t.Parallel()
+
+	routerName := fmt.Sprintf("tf-test-router-%s", acctest.RandString(t, 10))
+	routePolicyPrefix := fmt.Sprintf("tf-test-rp-%s", acctest.RandString(t, 5))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterRoutePolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterRoutePolicyConcurrentWithBgpPeer(routerName, routePolicyPrefix, 10, "192.168.10.0/24"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_router_route_policy.rp_import_1", "terms.0.priority", "10"),
+					resource.TestCheckResourceAttr("google_compute_router_route_policy.rp_import_2", "terms.0.priority", "10"),
+					resource.TestCheckResourceAttr("google_compute_router_route_policy.rp_export_1", "terms.0.priority", "10"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_router_route_policy.rp_import_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterRoutePolicyConcurrentWithBgpPeer(routerName, routePolicyPrefix, 20, "192.168.20.0/24"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_router_route_policy.rp_import_1", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_router_route_policy.rp_import_2", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_router_route_policy.rp_export_1", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_router_route_policy.rp_import_1", "terms.0.priority", "20"),
+					resource.TestCheckResourceAttr("google_compute_router_route_policy.rp_import_2", "terms.0.priority", "20"),
+					resource.TestCheckResourceAttr("google_compute_router_route_policy.rp_export_1", "terms.0.priority", "20"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_router_route_policy.rp_import_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRouterRoutePolicyConcurrentWithBgpPeer(routerName, routePolicyPrefix string, priority int, prefix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "vpc" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_router" "router" {
+  name    = "%s"
+  region  = "us-central1"
+  network = google_compute_network.vpc.id
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_route_policy" "rp_import_1" {
+  name   = "%s-imp-1"
+  router = google_compute_router.router.name
+  region = google_compute_router.router.region
+  type   = "ROUTE_POLICY_TYPE_IMPORT"
+
+  terms {
+    priority = %d
+    match {
+      expression = "destination == '%s'"
+    }
+    actions {
+      expression = "accept()"
+    }
+  }
+}
+
+resource "google_compute_router_route_policy" "rp_import_2" {
+  name   = "%s-imp-2"
+  router = google_compute_router.router.name
+  region = google_compute_router.router.region
+  type   = "ROUTE_POLICY_TYPE_IMPORT"
+
+  terms {
+    priority = %d
+    match {
+      expression = "destination == '%s'"
+    }
+    actions {
+      expression = "accept()"
+    }
+  }
+}
+
+resource "google_compute_router_route_policy" "rp_export_1" {
+  name   = "%s-exp-1"
+  router = google_compute_router.router.name
+  region = google_compute_router.router.region
+  type   = "ROUTE_POLICY_TYPE_EXPORT"
+
+  terms {
+    priority = %d
+    match {
+      expression = "destination == '%s'"
+    }
+    actions {
+      expression = "accept()"
+    }
+  }
+}
+
+resource "google_compute_router_interface" "iface" {
+  name     = "%s-iface"
+  router   = google_compute_router.router.name
+  region   = google_compute_router.router.region
+  ip_range = "169.254.1.1/30"
+}
+
+resource "google_compute_router_peer" "peer" {
+  name            = "%s-peer"
+  router          = google_compute_router.router.name
+  region          = google_compute_router.router.region
+  interface       = google_compute_router_interface.iface.name
+  peer_ip_address = "169.254.1.2"
+  peer_asn        = 64515
+  enable          = false
+
+  import_policies = [
+    google_compute_router_route_policy.rp_import_1.name,
+    google_compute_router_route_policy.rp_import_2.name,
+  ]
+  export_policies = [
+    google_compute_router_route_policy.rp_export_1.name,
+  ]
+}
+`, routerName, routerName, routePolicyPrefix, priority, prefix, routePolicyPrefix, priority, prefix, routePolicyPrefix, priority, prefix, routerName, routerName)
 }

@@ -310,6 +310,13 @@ func resourceComputeRouterRoutePolicyCreate(d *schema.ResourceData, meta interfa
 		obj["name"] = nameProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{router}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/routers/{{router}}/updateRoutePolicy")
 	if err != nil {
 		return err
@@ -578,6 +585,13 @@ func resourceComputeRouterRoutePolicyUpdate(d *schema.ResourceData, meta interfa
 		obj["name"] = nameProp
 	}
 
+	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{router}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/routers/{{router}}/updateRoutePolicy")
 	if err != nil {
 		return err
@@ -666,6 +680,13 @@ func resourceComputeRouterRoutePolicyDelete(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error fetching project for RouterRoutePolicy: %s", err)
 	}
 	billingProject = project
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{router}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/routers/{{router}}/deleteRoutePolicy?policy={{name}}")
 	if err != nil {
 		return err

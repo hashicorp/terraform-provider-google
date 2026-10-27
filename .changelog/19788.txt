@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed concurrent mutation contention in `google_compute_router_route_policy` and `google_compute_router_named_set` by serializing operations per Cloud Router
+```

@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -130,6 +131,149 @@ resource "google_compute_router_named_set" "prefix_set" {
 }
 `)
 	return b.String()
+}
+
+func TestAccComputeRouterNamedSet_concurrentWithBgpPeer(t *testing.T) {
+	t.Parallel()
+
+	routerName := fmt.Sprintf("tf-test-router-%s", acctest.RandString(t, 10))
+	namedSetPrefix := fmt.Sprintf("tf-test-ns-%s", acctest.RandString(t, 5))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterNamedSetsDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterNamedSetConcurrentWithBgpPeer(routerName, namedSetPrefix, 10),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_router_named_set.ns_1", "elements.0.expression", "'10.10.1.0/24'"),
+					resource.TestCheckResourceAttr("google_compute_router_named_set.ns_2", "elements.0.expression", "'10.10.2.0/24'"),
+					resource.TestCheckResourceAttr("google_compute_router_named_set.ns_3", "elements.0.expression", "'10.10.3.0/24'"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_router_named_set.ns_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterNamedSetConcurrentWithBgpPeer(routerName, namedSetPrefix, 20),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_compute_router_named_set.ns_1", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_router_named_set.ns_2", plancheck.ResourceActionUpdate),
+						plancheck.ExpectResourceAction("google_compute_router_named_set.ns_3", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_router_named_set.ns_1", "elements.0.expression", "'10.20.1.0/24'"),
+					resource.TestCheckResourceAttr("google_compute_router_named_set.ns_2", "elements.0.expression", "'10.20.2.0/24'"),
+					resource.TestCheckResourceAttr("google_compute_router_named_set.ns_3", "elements.0.expression", "'10.20.3.0/24'"),
+				),
+			},
+			{
+				ResourceName:      "google_compute_router_named_set.ns_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeRouterNamedSetConcurrentWithBgpPeer(routerName, namedSetPrefix string, octet int) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "vpc" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_router" "router" {
+  name    = "%s"
+  region  = "us-central1"
+  network = google_compute_network.vpc.id
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_router_named_set" "ns_1" {
+  name        = "%s-1"
+  router      = google_compute_router.router.name
+  region      = google_compute_router.router.region
+  type        = "NAMED_SET_TYPE_PREFIX"
+  description = "Prefix set 1 (%d)"
+
+  elements {
+    expression = "'10.%d.1.0/24'"
+    title      = "ns-1-elem"
+  }
+}
+
+resource "google_compute_router_named_set" "ns_2" {
+  name        = "%s-2"
+  router      = google_compute_router.router.name
+  region      = google_compute_router.router.region
+  type        = "NAMED_SET_TYPE_PREFIX"
+  description = "Prefix set 2 (%d)"
+
+  elements {
+    expression = "'10.%d.2.0/24'"
+    title      = "ns-2-elem"
+  }
+}
+
+resource "google_compute_router_named_set" "ns_3" {
+  name        = "%s-3"
+  router      = google_compute_router.router.name
+  region      = google_compute_router.router.region
+  type        = "NAMED_SET_TYPE_PREFIX"
+  description = "Prefix set 3 (%d)"
+
+  elements {
+    expression = "'10.%d.3.0/24'"
+    title      = "ns-3-elem"
+  }
+}
+
+resource "google_compute_router_route_policy" "rp_import" {
+  name   = "%s-rp"
+  router = google_compute_router.router.name
+  region = google_compute_router.router.region
+  type   = "ROUTE_POLICY_TYPE_IMPORT"
+
+  terms {
+    priority = 10
+    match {
+      expression = "destination.inAnyRange(prefixSets('${google_compute_router_named_set.ns_1.name}')) || destination.inAnyRange(prefixSets('${google_compute_router_named_set.ns_2.name}')) || destination.inAnyRange(prefixSets('${google_compute_router_named_set.ns_3.name}'))"
+    }
+    actions {
+      expression = "accept()"
+    }
+  }
+}
+
+resource "google_compute_router_interface" "iface" {
+  name     = "%s-iface"
+  router   = google_compute_router.router.name
+  region   = google_compute_router.router.region
+  ip_range = "169.254.1.1/30"
+}
+
+resource "google_compute_router_peer" "peer" {
+  name            = "%s-peer"
+  router          = google_compute_router.router.name
+  region          = google_compute_router.router.region
+  interface       = google_compute_router_interface.iface.name
+  peer_ip_address = "169.254.1.2"
+  peer_asn        = 64515
+  enable          = false
+
+  import_policies = [
+    google_compute_router_route_policy.rp_import.name,
+  ]
+}
+`, routerName, routerName, namedSetPrefix, octet, octet, namedSetPrefix, octet, octet, namedSetPrefix, octet, octet, namedSetPrefix, routerName, routerName)
 }
 
 func testAccCheckComputeRouterNamedSetsDestroyProducer(t *testing.T) func(s *terraform.State) error {
