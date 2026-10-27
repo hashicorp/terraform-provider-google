@@ -208,6 +208,22 @@ resource "google_secret_manager_regional_secret" "regional-secret-with-version-d
   version_destroy_ttl = "86400s"
 }
 ```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=regional_secret_cloud_sql_db_credentials&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Regional Secret Cloud Sql Db Credentials
+
+
+```hcl
+resource "google_secret_manager_regional_secret" "regional-secret-cloud-sql-db-credentials" {
+  secret_id   = "tf-reg-secret"
+  location    = "us-central1"
+  secret_type = "CLOUD_SQL_DB_CREDENTIALS"
+}
+```
 
 ## Argument Reference
 
@@ -278,7 +294,7 @@ The following arguments are supported:
   (Optional)
   The rotation time and period for a regional secret. At `next_rotation_time`, Secret Manager
   will send a Pub/Sub notification to the topics configured on the Secret. `topics` must be
-  set to configure rotation.
+  set to configure rotation, unless `secret_type` is `CLOUD_SQL_DB_CREDENTIALS`.
   Structure is [documented below](#nested_rotation).
 
 * `expire_time` -
@@ -311,6 +327,15 @@ The following arguments are supported:
   (Optional)
   This defines the type of the secret. Enforces certain structural requirements on the SecretVersions.
   For secret of type UNSPECIFIED, the SecretVersions can be of any type.
+  Supported values are:
+  * `CLOUD_SQL_DB_CREDENTIALS`: Secrets used for managed rotation of Cloud SQL single-user
+    credentials. Managed rotation can be enabled on these secrets using the
+    `google_secret_manager_regional_secret_managed_rotation` resource. Secret versions cannot
+    be added manually to secrets of this type.
+  * `OTHER_DB_CREDENTIALS`: Secrets where the payload contains database credentials.
+  * `ACCESS_KEY`: Secrets where the payload contains an access key.
+  * `CERTIFICATE`: Secrets where the payload contains a certificate.
+  * `OTHER`: Secrets whose type doesn't belong to any of the above types.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -369,6 +394,11 @@ In addition to the arguments listed above, the following computed attributes are
 * `create_time` -
   The time at which the regional secret was created.
 
+* `policy_member` -
+  An object containing a unique resource identity tied to the regional secret. This identity can be
+  granted the permissions required by features such as managed rotation.
+  Structure is [documented below](#nested_policy_member).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -379,6 +409,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_annotations` -
   All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
+
+<a name="nested_policy_member"></a>The `policy_member` block contains:
+
+* `iam_policy_uid_principal` -
+  (Output)
+  IAM policy binding member referring to a Google Cloud resource by system-assigned unique identifier.
+  If a resource is deleted and recreated with the same name, the binding will not be applicable to the
+  new resource. Format:
+  `principal://secretmanager.googleapis.com/projects/{{project_number}}/uid/locations/{{location}}/secrets/{{secret_id}}-{{uid}}`
 
 ## Timeouts
 
