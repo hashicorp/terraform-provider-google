@@ -18,6 +18,7 @@ fields:
   - field: 'clone.source_project'
   - api_field: 'connectionName'
   - api_field: 'databaseVersion'
+  - api_field: 'databaseCenterIntegration'
   - field: 'deletion_protection'
     provider_only: true
   - api_field: 'dnsName'

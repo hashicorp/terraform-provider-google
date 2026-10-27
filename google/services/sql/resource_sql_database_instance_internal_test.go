@@ -240,6 +240,59 @@ func TestDatabaseVersionDiffSuppress(t *testing.T) {
 	}
 }
 
+func TestDatabaseCenterIntegrationDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New       string
+		AppData        map[string]interface{}
+		ShouldSuppress bool
+	}{
+		"replica with unset configuration should suppress diff against inherited state": {
+			Old: "DISABLED",
+			New: "",
+			AppData: map[string]interface{}{
+				"master_instance_name": "primary-instance",
+			},
+			ShouldSuppress: true,
+		},
+		"replica with explicit configuration should not suppress diff": {
+			Old: "DISABLED",
+			New: "ENABLED",
+			AppData: map[string]interface{}{
+				"master_instance_name": "primary-instance",
+			},
+			ShouldSuppress: false,
+		},
+		"primary instance with unset configuration should not suppress diff": {
+			Old:            "DISABLED",
+			New:            "",
+			AppData:        map[string]interface{}{},
+			ShouldSuppress: false,
+		},
+		"primary instance with explicit configuration should not suppress diff": {
+			Old:            "DISABLED",
+			New:            "ENABLED",
+			AppData:        map[string]interface{}{},
+			ShouldSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		tc := tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+			rd := schema.TestResourceDataRaw(t, map[string]*schema.Schema{
+				"master_instance_name": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+			}, tc.AppData)
+			if databaseCenterIntegrationDiffSuppress("database_center_integration", tc.Old, tc.New, rd) != tc.ShouldSuppress {
+				t.Fatalf("%q => %q (AppData=%v) expect DiffSuppress to return %t", tc.Old, tc.New, tc.AppData, tc.ShouldSuppress)
+			}
+		})
+	}
+}
+
 func TestDenyMaintenancePeriodDateDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Old, New       string

@@ -359,6 +359,7 @@ The following arguments are supported:
 * `settings` - (Optional) The settings to use for the database. The
     configuration is detailed below. Required if `clone` is not set.
 
+* `database_center_integration` - (Optional) The Database Center integration control. Supported values include `ENABLED` and `DISABLED`.
 * `database_version` - (Required) The MySQL, PostgreSQL or
 SQL Server version to use. Supported values include `MYSQL_5_6`,
 `MYSQL_5_7`, `MYSQL_8_0`, `MYSQL_8_4`, `POSTGRES_9_6`,`POSTGRES_10`, `POSTGRES_11`,
