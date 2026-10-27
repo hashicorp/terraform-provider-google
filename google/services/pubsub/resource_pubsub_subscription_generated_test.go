@@ -36,7 +36,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/tags"
+	"github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -1174,8 +1174,8 @@ func TestAccPubsubSubscription_pubsubSubscriptionTagsExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"subscription_name": "tf-test-example-subscription" + randomSuffix,
-		"tag_key":           "tf_test_tag_key" + randomSuffix,
-		"tag_value":         "tf_test_tag_value" + randomSuffix,
+		"tag_key":           tags.BootstrapSharedTestProjectTagKey(t, "pubsub-subscription-tagkey", nil),
+		"tag_value":         tags.BootstrapSharedTestProjectTagValue(t, "pubsub-subscription-tagvalue", tags.BootstrapSharedTestProjectTagKey(t, "pubsub-subscription-tagkey", nil)),
 		"topic_name":        "tf-test-example-topic" + randomSuffix,
 		"random_suffix":     randomSuffix,
 	}
@@ -1214,20 +1214,19 @@ resource "google_pubsub_subscription" "example" {
   name  = "%{subscription_name}"
   topic = google_pubsub_topic.example.id
   tags = {
-    (google_tags_tag_key.tag_key.namespaced_name) = google_tags_tag_value.tag_value.short_name
+    (data.google_tags_tag_key.tag_key.namespaced_name) = data.google_tags_tag_value.tag_value.short_name
   }
 }
 
 data "google_project" "project" {}
 
-resource "google_tags_tag_key" "tag_key" {
+data "google_tags_tag_key" "tag_key" {
   parent     = data.google_project.project.id
   short_name = "%{tag_key}"
-  depends_on = [google_pubsub_topic.example]
 }
 
-resource "google_tags_tag_value" "tag_value" {
-  parent     = google_tags_tag_key.tag_key.id
+data "google_tags_tag_value" "tag_value" {
+  parent     = data.google_tags_tag_key.tag_key.id
   short_name = "%{tag_value}"
 }
 `, context)
