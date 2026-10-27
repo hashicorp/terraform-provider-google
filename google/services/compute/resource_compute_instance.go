@@ -2962,6 +2962,23 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if opErr != nil {
 				return opErr
 			}
+			// re-read fingerprint
+			freshUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instances/{{name}}")
+			if err != nil {
+				return err
+			}
+			instance, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    freshUrl,
+				UserAgent: userAgent,
+			})
+			if err != nil {
+				return err
+			}
+			instNics, _ = instance["networkInterfaces"].([]interface{})
+			instNetworkInterface, _ = instNics[i].(map[string]interface{})
 		}
 
 		if !updateDuringStop && d.HasChange(prefix+".igmp_query") {
@@ -2993,6 +3010,23 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if opErr != nil {
 				return opErr
 			}
+			// re-read fingerprint
+			freshUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instances/{{name}}")
+			if err != nil {
+				return err
+			}
+			instance, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    freshUrl,
+				UserAgent: userAgent,
+			})
+			if err != nil {
+				return err
+			}
+			instNics, _ = instance["networkInterfaces"].([]interface{})
+			instNetworkInterface, _ = instNics[i].(map[string]interface{})
 		}
 
 		if !updateDuringStop && d.HasChange(prefix+".ipv6_address") {
@@ -3024,12 +3058,29 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			if opErr != nil {
 				return opErr
 			}
+			// re-read fingerprint
+			freshUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/instances/{{name}}")
+			if err != nil {
+				return err
+			}
+			instance, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   project,
+				RawURL:    freshUrl,
+				UserAgent: userAgent,
+			})
+			if err != nil {
+				return err
+			}
+			instNics, _ = instance["networkInterfaces"].([]interface{})
+			instNetworkInterface, _ = instNics[i].(map[string]interface{})
 		}
 
 		if !updateDuringStop && d.HasChange(prefix+".internal_ipv6_prefix_length") {
 
 			niBody := map[string]interface{}{
-				"internalIpv6PrefixLength": d.Get(prefix + ".internal_ipv6_prefix_length").(int64),
+				"internalIpv6PrefixLength": int64(d.Get(prefix + ".internal_ipv6_prefix_length").(int)),
 				"fingerprint":              instNetworkInterface["fingerprint"],
 			}
 			url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/updateNetworkInterface")
