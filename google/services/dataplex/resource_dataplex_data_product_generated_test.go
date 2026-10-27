@@ -182,6 +182,9 @@ resource "google_dataplex_data_product" "example" {
     principal {
       google_group = "tf-test-analysts-%{random_suffix}@example.com"
     }
+    default_iam_role_config {
+      role = "roles/bigquery.dataViewer"
+    }
   }
 
   access_groups {

@@ -10,6 +10,8 @@ fields:
     - api_field: accessApprovalConfig.approverEmails
     - api_field: accessGroups.key
       field: access_groups.id
+    - api_field: accessGroups.value.defaultIamRoleConfig.role
+      field: access_groups.default_iam_role_config.role
     - api_field: accessGroups.value.description
       field: access_groups.description
     - api_field: accessGroups.value.displayName
