@@ -124,6 +124,11 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `snap_reserve` -
+  (Optional)
+  Optional. Snap_reserve specifies percentage of volume storage reserved for
+  snapshot storage. Default is 0 percent.
+
 * `snapshot_directory` -
   (Optional)
   If enabled, a NFS volume will contain a read-only .snapshot directory which provides access to each of the volume's snapshots. Will enable "Previous Versions" support for SMB.
