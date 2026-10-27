@@ -22,9 +22,13 @@ description: |-
 
 ## 403 Service API disabled
 
-```
-<service> API has not been used in project <project> before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/<service>.googleapis.com/overview?project=<project> then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
-```
+<pre style="white-space: pre-wrap; overflow-wrap: anywhere;"><code>&lt;service&gt; API has not been used in project &lt;project&gt; before or it is disabled.
+Enable it by visiting
+https://console.developers.google.com/apis/api/&lt;service&gt;.googleapis.com/overview?
+project=&lt;project&gt; then retry.
+If you enabled this API recently, wait a few minutes for the action to
+propagate to our systems and retry.
+</code></pre>
 
 Services must be [enabled in a project](https://cloud.google.com/service-usage/docs/enable-disable) before their service API can be used by the provider. The [`google_project_service` resource](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_project_service) enables GCP service APIs with Terraform. 
 
