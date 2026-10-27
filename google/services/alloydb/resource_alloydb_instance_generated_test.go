@@ -101,7 +101,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "%{alloydb_cluster_name}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -156,7 +156,7 @@ func testAccAlloydbInstance_alloydbSecondaryInstanceBasicTestExample(context map
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "%{alloydb_primary_cluster_name}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -258,7 +258,7 @@ resource "google_alloydb_instance" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "%{alloydb_cluster_name}"
-  location   = "us-central1"
+  location   = "us-east1"
 
   initial_user {
     password = "%{alloydb_cluster_name}"

@@ -50,7 +50,7 @@ func testAccAlloydbDatabaseClusterDatasourceConfig(context map[string]interface{
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -67,7 +67,7 @@ data "google_compute_network" "default" {
 
 data "google_alloydb_cluster" "default" {
   cluster_id = google_alloydb_cluster.default.cluster_id
-  location = "us-central1"
+  location = "us-east1"
 }
 `, context)
 }

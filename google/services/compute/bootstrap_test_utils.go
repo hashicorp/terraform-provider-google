@@ -298,8 +298,11 @@ func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName s
 }
 
 func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subnetName string) string {
+	return BootstrapNetworkAttachmentInRegion(t, networkAttachmentName, subnetName, envvar.GetTestRegionFromEnv())
+}
+
+func BootstrapNetworkAttachmentInRegion(t *testing.T, networkAttachmentName string, subnetName string, region string) string {
 	projectID := envvar.GetTestProjectFromEnv()
-	region := envvar.GetTestRegionFromEnv()
 
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {

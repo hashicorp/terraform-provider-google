@@ -67,7 +67,7 @@ func TestAccAlloydbBackup_update(t *testing.T) {
 func testAccAlloydbBackup_alloydbBackupBasic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
-  location     = "us-central1"
+  location     = "us-east1"
   backup_id    = "tf-test-alloydb-backup%{random_suffix}"
   cluster_name = google_alloydb_cluster.default.name
 
@@ -80,7 +80,7 @@ resource "google_alloydb_backup" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -108,7 +108,7 @@ data "google_compute_network" "default" {
 func testAccAlloydbBackup_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
-  location     = "us-central1"
+  location     = "us-east1"
   backup_id    = "tf-test-alloydb-backup%{random_suffix}"
   cluster_name = google_alloydb_cluster.default.name
 
@@ -122,7 +122,7 @@ resource "google_alloydb_backup" "default" {
 
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-  location   = "us-central1"
+  location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
@@ -171,13 +171,13 @@ func testAccAlloydbBackup_createBackupWithMandatoryFields(context map[string]int
 	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
   backup_id    = "tf-test-alloydb-backup%{random_suffix}"
-  location = "us-central1"
+  location = "us-east1"
   cluster_name = google_alloydb_cluster.default.name
   depends_on = [google_alloydb_instance.default]
 }
 
 resource "google_alloydb_cluster" "default" {
-  location = "us-central1"
+  location = "us-east1"
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   network_config {
     network = data.google_compute_network.default.id
@@ -210,7 +210,7 @@ func TestAccAlloydbBackup_usingCMEK(t *testing.T) {
 	context := map[string]interface{}{
 		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "alloydb-1"),
 		"random_suffix": acctest.RandString(t, 10),
-		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-alloydb-backup-key1").CryptoKey.Name,
+		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-bootstrap-alloydb-backup-key1").CryptoKey.Name,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -234,7 +234,7 @@ func TestAccAlloydbBackup_usingCMEK(t *testing.T) {
 func testAccAlloydbBackup_usingCMEK(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
-	location     = "us-central1"
+	location     = "us-east1"
 	backup_id    = "tf-test-alloydb-backup%{random_suffix}"
 	cluster_name = google_alloydb_cluster.default.name
 	description = "example description"
@@ -253,7 +253,7 @@ resource "google_alloydb_backup" "default" {
 	  
 resource "google_alloydb_cluster" "default" {
 	cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
-	location   = "us-central1"
+	location   = "us-east1"
   network_config {
     network = data.google_compute_network.default.id
   }
