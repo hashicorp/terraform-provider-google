@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a crash and invalid fingerprint error when updating `network_interface.internal_ipv6_prefix_length` in-place on `google_compute_instance`
+```

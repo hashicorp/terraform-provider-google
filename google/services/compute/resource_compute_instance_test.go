@@ -879,6 +879,14 @@ func TestAccComputeInstance_internalIPv6PrefixLength(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccComputeInstance_internalIpv6PrefixLength("", instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep("us-west2-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
 				Config: testAccComputeInstance_internalIpv6PrefixLength("96", instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -6840,6 +6848,12 @@ func testAccComputeInstance_internalIpv6(ip, instance string) string {
 }
 
 func testAccComputeInstance_internalIpv6PrefixLength(length, instance string) string {
+	stackType := "IPV4_ONLY"
+	prefixLengthConfig := ""
+	if length != "" {
+		stackType = "IPV4_IPV6"
+		prefixLengthConfig = fmt.Sprintf("internal_ipv6_prefix_length = %s", length)
+	}
 	return fmt.Sprintf(`
 resource "google_compute_network" "vpc" {
   name                     = "%s-network"
@@ -6870,14 +6884,14 @@ resource "google_compute_instance" "foobar" {
   network_interface {
     network    = google_compute_network.vpc.self_link
     subnetwork = google_compute_subnetwork.subnetwork.self_link
-    stack_type = "IPV4_IPV6"
+    stack_type = "%s"
     access_config {
       network_tier = "STANDARD"
     }
-    internal_ipv6_prefix_length = %s
+    %s
   }
 }
-`, instance, instance, instance, length)
+`, instance, instance, instance, stackType, prefixLengthConfig)
 }
 func testAccComputeInstance_ipv6ExternalReservation(instance string) string {
 	return fmt.Sprintf(`
