@@ -18,6 +18,8 @@ fields:
     - api_field: inspectConfig.customInfoTypes.infoType.sensitivityScore.score
     - api_field: inspectConfig.customInfoTypes.infoType.version
     - api_field: inspectConfig.customInfoTypes.likelihood
+    - api_field: inspectConfig.customInfoTypes.metadataKeyValueExpression.keyRegex
+    - api_field: inspectConfig.customInfoTypes.metadataKeyValueExpression.valueRegex
     - api_field: inspectConfig.customInfoTypes.regex.groupIndexes
     - api_field: inspectConfig.customInfoTypes.regex.pattern
     - api_field: inspectConfig.customInfoTypes.sensitivityScore.score
@@ -47,6 +49,12 @@ fields:
     - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByHotword.hotwordRegex.pattern
     - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByHotword.proximity.windowAfter
     - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByHotword.proximity.windowBefore
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByImageFindings.imageContainmentType.encloses
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByImageFindings.imageContainmentType.fullyInside
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByImageFindings.imageContainmentType.overlaps
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByImageFindings.infoTypes.name
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByImageFindings.infoTypes.sensitivityScore.score
+    - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeByImageFindings.infoTypes.version
     - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeInfoTypes.infoTypes.name
     - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeInfoTypes.infoTypes.sensitivityScore.score
     - api_field: inspectConfig.ruleSet.rules.exclusionRule.excludeInfoTypes.infoTypes.version

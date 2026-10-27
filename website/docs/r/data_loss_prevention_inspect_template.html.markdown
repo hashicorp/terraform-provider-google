@@ -163,8 +163,29 @@ resource "google_data_loss_prevention_inspect_template" "custom" {
 			}
 		}
 
+		custom_info_types {
+			info_type {
+				name = "MY_METADATA_KV_TYPE"
+			}
+
+			likelihood = "POSSIBLE"
+
+			metadata_key_value_expression {
+				key_regex   = "key.*"
+				value_regex = "val.*"
+			}
+		}
+
 		info_types {
 			name = "EMAIL_ADDRESS"
+		}
+
+		info_types {
+			name = "OBJECT_TYPE/PERSON"
+		}
+
+		info_types {
+			name = "OBJECT_TYPE/PERSON/PASSPORT"
 		}
 
 		min_likelihood = "UNLIKELY"
@@ -178,6 +199,29 @@ resource "google_data_loss_prevention_inspect_template" "custom" {
 						pattern = ".+@example.com"
 					}
 					matching_type = "MATCHING_TYPE_FULL_MATCH"
+				}
+			}
+		}
+
+		rule_set {
+			info_types {
+				name = "OBJECT_TYPE/PERSON"
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_RULE_SPECIFIC"
+					exclude_by_image_findings {
+						info_types {
+							name    = "OBJECT_TYPE/PERSON/PASSPORT"
+							version = "latest"
+							sensitivity_score {
+								score = "SENSITIVITY_LOW"
+							}
+						}
+						image_containment_type {
+							fully_inside {}
+						}
+					}
 				}
 			}
 		}
@@ -620,7 +664,7 @@ The following arguments are supported:
 * `matching_type` -
   (Required)
   How the rule is applied. See the documentation for more information: https://cloud.google.com/dlp/docs/reference/rest/v2/InspectConfig#MatchingType
-  Possible values are: `MATCHING_TYPE_FULL_MATCH`, `MATCHING_TYPE_PARTIAL_MATCH`, `MATCHING_TYPE_INVERSE_MATCH`.
+  Possible values are: `MATCHING_TYPE_FULL_MATCH`, `MATCHING_TYPE_PARTIAL_MATCH`, `MATCHING_TYPE_INVERSE_MATCH`, `MATCHING_TYPE_RULE_SPECIFIC`.
 
 * `dictionary` -
   (Optional)
@@ -642,6 +686,11 @@ The following arguments are supported:
   Drop if the hotword rule is contained in the proximate context.
   For tabular data, the context includes the column name.
   Structure is [documented below](#nested_inspect_config_rule_set_rules_exclusion_rule_exclude_by_hotword).
+
+* `exclude_by_image_findings` -
+  (Optional)
+  The rule to exclude image findings based on spatial relationships with other image findings.
+  Structure is [documented below](#nested_inspect_config_rule_set_rules_exclusion_rule_exclude_by_image_findings).
 
 
 <a name="nested_inspect_config_rule_set_rules_exclusion_rule_dictionary"></a>The `dictionary` block supports:
@@ -752,6 +801,56 @@ The following arguments are supported:
   (Optional)
   Number of characters after the finding to consider.
 
+<a name="nested_inspect_config_rule_set_rules_exclusion_rule_exclude_by_image_findings"></a>The `exclude_by_image_findings` block supports:
+
+* `info_types` -
+  (Required)
+  A list of image-supported infoTypes to be used as context for the exclusion rule.
+  Structure is [documented below](#nested_inspect_config_rule_set_rules_exclusion_rule_exclude_by_image_findings_info_types).
+
+* `image_containment_type` -
+  (Optional)
+  Specifies the required spatial relationship between the bounding boxes of the target finding and the context infoType findings.
+  Structure is [documented below](#nested_inspect_config_rule_set_rules_exclusion_rule_exclude_by_image_findings_image_containment_type).
+
+
+<a name="nested_inspect_config_rule_set_rules_exclusion_rule_exclude_by_image_findings_info_types"></a>The `info_types` block supports:
+
+* `name` -
+  (Required)
+  Name of the information type.
+
+* `version` -
+  (Optional)
+  Version name for this InfoType.
+
+* `sensitivity_score` -
+  (Optional)
+  Optional custom sensitivity for this InfoType.
+  Structure is [documented below](#nested_inspect_config_rule_set_rules_exclusion_rule_exclude_by_image_findings_info_types_sensitivity_score).
+
+
+<a name="nested_inspect_config_rule_set_rules_exclusion_rule_exclude_by_image_findings_info_types_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
+
+<a name="nested_inspect_config_rule_set_rules_exclusion_rule_exclude_by_image_findings_image_containment_type"></a>The `image_containment_type` block supports:
+
+* `encloses` -
+  (Optional)
+  Defines a condition where one bounding box encloses another.
+
+* `fully_inside` -
+  (Optional)
+  Defines a condition where one bounding box is fully inside another.
+
+* `overlaps` -
+  (Optional)
+  Defines a condition for overlapping bounding boxes.
+
 <a name="nested_inspect_config_custom_info_types"></a>The `custom_info_types` block supports:
 
 * `info_type` -
@@ -797,6 +896,11 @@ The following arguments are supported:
   (Optional)
   A reference to a StoredInfoType to use with scanning.
   Structure is [documented below](#nested_inspect_config_custom_info_types_stored_type).
+
+* `metadata_key_value_expression` -
+  (Optional)
+  Configuration for a custom infoType that detects key-value pairs in the metadata matching the specified regular expressions.
+  Structure is [documented below](#nested_inspect_config_custom_info_types_metadata_key_value_expression).
 
 
 <a name="nested_inspect_config_custom_info_types_info_type"></a>The `info_type` block supports:
@@ -873,6 +977,16 @@ The following arguments are supported:
   (Required)
   Resource name of the requested StoredInfoType, for example `organizations/433245324/storedInfoTypes/432452342`
   or `projects/project-id/storedInfoTypes/432452342`.
+
+<a name="nested_inspect_config_custom_info_types_metadata_key_value_expression"></a>The `metadata_key_value_expression` block supports:
+
+* `key_regex` -
+  (Required)
+  The regular expression for the key.
+
+* `value_regex` -
+  (Required)
+  The regular expression for the value.
 
 ## Attributes Reference
 

@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: added `inspect_config.rule_set.rules.exclusion_rule.exclude_by_image_findings` and `inspect_config.custom_info_types.metadata_key_value_expression` fields to `google_data_loss_prevention_inspect_template` resource
+```

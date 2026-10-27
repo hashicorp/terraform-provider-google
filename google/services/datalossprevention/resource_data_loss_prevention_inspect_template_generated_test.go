@@ -253,8 +253,29 @@ resource "google_data_loss_prevention_inspect_template" "custom" {
 			}
 		}
 
+		custom_info_types {
+			info_type {
+				name = "MY_METADATA_KV_TYPE"
+			}
+
+			likelihood = "POSSIBLE"
+
+			metadata_key_value_expression {
+				key_regex   = "key.*"
+				value_regex = "val.*"
+			}
+		}
+
 		info_types {
 			name = "EMAIL_ADDRESS"
+		}
+
+		info_types {
+			name = "OBJECT_TYPE/PERSON"
+		}
+
+		info_types {
+			name = "OBJECT_TYPE/PERSON/PASSPORT"
 		}
 
 		min_likelihood = "UNLIKELY"
@@ -268,6 +289,29 @@ resource "google_data_loss_prevention_inspect_template" "custom" {
 						pattern = ".+@example.com"
 					}
 					matching_type = "MATCHING_TYPE_FULL_MATCH"
+				}
+			}
+		}
+
+		rule_set {
+			info_types {
+				name = "OBJECT_TYPE/PERSON"
+			}
+			rules {
+				exclusion_rule {
+					matching_type = "MATCHING_TYPE_RULE_SPECIFIC"
+					exclude_by_image_findings {
+						info_types {
+							name    = "OBJECT_TYPE/PERSON/PASSPORT"
+							version = "latest"
+							sensitivity_score {
+								score = "SENSITIVITY_LOW"
+							}
+						}
+						image_containment_type {
+							fully_inside {}
+						}
+					}
 				}
 			}
 		}
