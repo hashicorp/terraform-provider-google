@@ -32,6 +32,7 @@ fields:
     - api_field: defaultCollation
     - api_field: defaultEncryptionConfiguration.kmsKeyName
     - api_field: defaultPartitionExpirationMs
+    - api_field: defaultRoundingMode
     - api_field: defaultTableExpirationMs
     - field: delete_contents_on_destroy
       provider_only: true

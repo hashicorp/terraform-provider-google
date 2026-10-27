@@ -359,6 +359,17 @@ The following arguments are supported:
   - 'und:ci': undetermined locale, case insensitive.
   - '': empty string. Default to case-sensitive behavior.
 
+* `default_rounding_mode` -
+  (Optional)
+  Defines the default rounding mode specification of new tables created
+  within this dataset. During table creation, if this field is specified,
+  the table within this dataset will inherit the default rounding mode of
+  the dataset. Setting the default rounding mode on a table overrides this
+  specification. Existing tables in the dataset are unaffected. If columns
+  are defined during that table creation, they will immediately inherit the
+  table's default rounding mode, unless otherwise specified.
+  Possible values are: `ROUND_HALF_AWAY_FROM_ZERO`, `ROUND_HALF_EVEN`.
+
 * `storage_billing_model` -
   (Optional)
   Specifies the storage billing model for the dataset.
