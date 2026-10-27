@@ -346,6 +346,33 @@ with the same dimension.`,
 				Description:  `The scope at which a query is run. Default value: "COLLECTION" Possible values: ["COLLECTION", "COLLECTION_GROUP", "COLLECTION_RECURSIVE"]`,
 				Default:      "COLLECTION",
 			},
+			"search_index_options": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Optional. Options to configure the search index.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"text_language": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							ForceNew: true,
+							Description: `Optional. The language code used to parse all text fields included in the search index,
+for example, "en", "es", "jp".`,
+						},
+						"text_language_override_field_path": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Optional. The path to the field that records the text language override of each document.`,
+						},
+					},
+				},
+			},
 			"unique": {
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -437,6 +464,12 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("unique"); !tpgresource.IsEmptyValue(reflect.ValueOf(uniqueProp)) && (ok || !reflect.DeepEqual(v, uniqueProp)) {
 		obj["unique"] = uniqueProp
+	}
+	searchIndexOptionsProp, err := expandFirestoreIndexSearchIndexOptions(d.Get("search_index_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("search_index_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(searchIndexOptionsProp)) && (ok || !reflect.DeepEqual(v, searchIndexOptionsProp)) {
+		obj["searchIndexOptions"] = searchIndexOptionsProp
 	}
 	fieldsProp, err := expandFirestoreIndexFields(d.Get("fields"), d, config)
 	if err != nil {
@@ -746,6 +779,29 @@ func flattenFirestoreIndexUnique(v interface{}, d *schema.ResourceData, config *
 	return v
 }
 
+func flattenFirestoreIndexSearchIndexOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["text_language"] =
+		flattenFirestoreIndexSearchIndexOptionsTextLanguage(original["textLanguage"], d, config)
+	transformed["text_language_override_field_path"] =
+		flattenFirestoreIndexSearchIndexOptionsTextLanguageOverrideFieldPath(original["textLanguageOverrideFieldPath"], d, config)
+	return []interface{}{transformed}
+}
+func flattenFirestoreIndexSearchIndexOptionsTextLanguage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirestoreIndexSearchIndexOptionsTextLanguageOverrideFieldPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -916,6 +972,43 @@ func expandFirestoreIndexMultikey(v interface{}, d tpgresource.TerraformResource
 }
 
 func expandFirestoreIndexUnique(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreIndexSearchIndexOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTextLanguage, err := expandFirestoreIndexSearchIndexOptionsTextLanguage(original["text_language"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTextLanguage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["textLanguage"] = transformedTextLanguage
+	}
+
+	transformedTextLanguageOverrideFieldPath, err := expandFirestoreIndexSearchIndexOptionsTextLanguageOverrideFieldPath(original["text_language_override_field_path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTextLanguageOverrideFieldPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["textLanguageOverrideFieldPath"] = transformedTextLanguageOverrideFieldPath
+	}
+
+	return transformed, nil
+}
+
+func expandFirestoreIndexSearchIndexOptionsTextLanguage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreIndexSearchIndexOptionsTextLanguageOverrideFieldPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1181,6 +1274,9 @@ func ResourceFirestoreIndexFlatten(d *schema.ResourceData, meta interface{}, res
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 	if err = d.Set("unique", flattenFirestoreIndexUnique(res["unique"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
+	if err = d.Set("search_index_options", flattenFirestoreIndexSearchIndexOptions(res["searchIndexOptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
 	if err = d.Set("fields", flattenFirestoreIndexFields(res["fields"], d, config)); err != nil {
