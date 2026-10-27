@@ -1143,6 +1143,13 @@ API (for read pools, effective_availability_type may differ from availability_ty
 				Description:      `The MySQL, PostgreSQL or SQL Server version to use. Supported values include MYSQL_5_6, MYSQL_5_7, MYSQL_8_0, MYSQL_8_4, POSTGRES_9_6, POSTGRES_10, POSTGRES_11, POSTGRES_12, POSTGRES_13, POSTGRES_14, POSTGRES_15, POSTGRES_16, POSTGRES_17, POSTGRES_18, SQLSERVER_2022_STANDARD, SQLSERVER_2022_ENTERPRISE, SQLSERVER_2022_EXPRESS, SQLSERVER_2022_WEB, SQLSERVER_2025_STANDARD, SQLSERVER_2025_ENTERPRISE, SQLSERVER_2025_EXPRESS, SQLSERVER_2025_WEB. Database Version Policies includes an up-to-date reference of supported versions.`,
 				DiffSuppressFunc: databaseVersionDiffSuppress,
 			},
+			"database_center_integration": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: databaseCenterIntegrationDiffSuppress,
+				ValidateFunc:     validation.StringInSlice([]string{"ENABLED", "DISABLED"}, false),
+				Description:      `The Database Center integration control.`,
+			},
 			"switch_transaction_logs_to_cloud_storage_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -1728,11 +1735,12 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	databaseVersion := d.Get("database_version").(string)
 
 	instance := &sqladmin.DatabaseInstance{
-		Name:                 name,
-		Region:               region,
-		DatabaseVersion:      databaseVersion,
-		MasterInstanceName:   d.Get("master_instance_name").(string),
-		ReplicaConfiguration: expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
+		Name:                      name,
+		Region:                    region,
+		DatabaseVersion:           databaseVersion,
+		DatabaseCenterIntegration: d.Get("database_center_integration").(string),
+		MasterInstanceName:        d.Get("master_instance_name").(string),
+		ReplicaConfiguration:      expandReplicaConfiguration(d.Get("replica_configuration").([]interface{})),
 	}
 
 	if d.Get("enforce_new_sql_network_architecture").(bool) {
@@ -1915,7 +1923,8 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	// If we've created an instance as a clone or pitr, we need to update it to set any user defined settings
 	if len(s.([]interface{})) != 0 && (cloneContext != nil || pointInTimeRestoreContext != nil) && desiredSettings != nil {
 		instanceUpdate := &sqladmin.DatabaseInstance{
-			Settings: desiredSettings,
+			Settings:                  desiredSettings,
+			DatabaseCenterIntegration: d.Get("database_center_integration").(string),
 		}
 		_settings := s.([]interface{})[0].(map[string]interface{})
 		instanceUpdate.Settings.SettingsVersion = int64(_settings["version"].(int))
@@ -2490,6 +2499,9 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("database_version", instance.DatabaseVersion); err != nil {
 		return fmt.Errorf("Error setting database_version: %s", err)
 	}
+	if err := d.Set("database_center_integration", instance.DatabaseCenterIntegration); err != nil {
+		return fmt.Errorf("Error setting database_center_integration: %s", err)
+	}
 	if err := d.Set("connection_name", instance.ConnectionName); err != nil {
 		return fmt.Errorf("Error setting connection_name: %s", err)
 	}
@@ -2921,7 +2933,8 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	desiredSetting := d.Get("settings")
 	instance = &sqladmin.DatabaseInstance{
-		Settings: expandSqlDatabaseInstanceSettings(desiredSetting.([]interface{}), databaseVersion),
+		Settings:                  expandSqlDatabaseInstanceSettings(desiredSetting.([]interface{}), databaseVersion),
+		DatabaseCenterIntegration: d.Get("database_center_integration").(string),
 	}
 
 	// A disk_size decrease is a storage shrink, which is carried out by the dedicated
@@ -3179,6 +3192,15 @@ func serverCertificateRotationModeDiffSuppress(_, oldMode, newMode string, _ *sc
 	// If the value is not set in the configuration (new is empty)
 	// and the API returns the default UNSPECIFIED value, suppress the diff.
 	if newMode == "" && oldMode == "SERVER_CERTIFICATE_ROTATION_MODE_UNSPECIFIED" {
+		return true
+	}
+	return false
+}
+
+func databaseCenterIntegrationDiffSuppress(_, old, new string, d *schema.ResourceData) bool {
+	// Replicas inherit database_center_integration from their primary instance.
+	// When unset in configuration on a replica, suppress the diff against the inherited state.
+	if !sqlDatabaseIsMaster(d) && new == "" {
 		return true
 	}
 	return false

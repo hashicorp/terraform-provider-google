@@ -10558,3 +10558,186 @@ resource "google_sql_database_instance" "instance" {
 }
 `, instanceName, enforce)
 }
+
+func TestAccSqlDatabaseInstance_databaseCenterIntegration(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_databaseCenterIntegration(map[string]interface{}{
+					"random_suffix":               randomSuffix,
+					"database_center_integration": "DISABLED",
+					"user_labels":                 nil,
+				}),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "settings.0.edition"},
+			},
+			{
+				Config: testAccSqlDatabaseInstance_databaseCenterIntegration(map[string]interface{}{
+					"random_suffix":               randomSuffix,
+					"database_center_integration": "ENABLED",
+					"user_labels":                 nil,
+				}),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_sql_database_instance.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "settings.0.edition"},
+			},
+			{
+				Config: testAccSqlDatabaseInstance_databaseCenterIntegration(map[string]interface{}{
+					"random_suffix":               randomSuffix,
+					"database_center_integration": "DISABLED",
+					"user_labels":                 `{ foo = "bar" }`,
+				}),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_sql_database_instance.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "settings.0.edition"},
+			},
+			{
+				Config: testAccSqlDatabaseInstance_databaseCenterIntegration(map[string]interface{}{
+					"random_suffix":               randomSuffix,
+					"database_center_integration": nil,
+					"user_labels":                 `{ foo = "bar" }`,
+				}),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_sql_database_instance.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "settings.0.edition"},
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_databaseCenterIntegration_replica(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSqlDatabaseInstance_databaseCenterIntegrationReplica(map[string]interface{}{
+					"random_suffix": randomSuffix,
+					"user_labels":   nil,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.replica", "database_center_integration", "DISABLED"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "settings.0.edition"},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+			{
+				Config: testAccSqlDatabaseInstance_databaseCenterIntegrationReplica(map[string]interface{}{
+					"random_suffix": randomSuffix,
+					"user_labels":   `{ foo = "bar" }`,
+				}),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_sql_database_instance.replica", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_sql_database_instance.replica",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: ignoredReplicaConfigurationFields,
+			},
+		},
+	})
+}
+
+func testAccSqlDatabaseInstance_databaseCenterIntegration(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_sql_database_instance" "primary" {
+  name                        = "tf-test-inst-%{random_suffix}"
+  database_version            = "POSTGRES_15"
+  region                      = "us-central1"
+  database_center_integration = "%{database_center_integration}"
+  deletion_protection         = false
+
+  settings {
+    tier        = "db-custom-2-7680"
+    user_labels = %{user_labels}
+  }
+}
+`, context)
+}
+
+func testAccSqlDatabaseInstance_databaseCenterIntegrationReplica(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_sql_database_instance" "primary" {
+  name                        = "tf-test-inst-%{random_suffix}"
+  database_version            = "POSTGRES_15"
+  region                      = "us-central1"
+  database_center_integration = "DISABLED"
+  deletion_protection         = false
+
+  settings {
+    tier = "db-custom-2-7680"
+  }
+}
+
+resource "google_sql_database_instance" "replica" {
+  name                 = "tf-test-replica-%{random_suffix}"
+  master_instance_name = google_sql_database_instance.primary.name
+  database_version     = "POSTGRES_15"
+  region               = "us-central1"
+  deletion_protection  = false
+
+  replica_configuration {
+    failover_target = false
+  }
+
+  settings {
+    tier        = "db-custom-2-7680"
+    user_labels = %{user_labels}
+  }
+}
+`, context)
+}
