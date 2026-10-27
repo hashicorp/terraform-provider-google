@@ -107,6 +107,21 @@ func (r *WorkflowTemplatePlacementManagedClusterConfig) validate() error {
 			return err
 		}
 	}
+	if !dcl.IsEmptyValueIndirect(r.MasterFlexibleConfig) {
+		if err := r.MasterFlexibleConfig.validate(); err != nil {
+			return err
+		}
+	}
+	if !dcl.IsEmptyValueIndirect(r.WorkerFlexibleConfig) {
+		if err := r.WorkerFlexibleConfig.validate(); err != nil {
+			return err
+		}
+	}
+	if !dcl.IsEmptyValueIndirect(r.SecondaryWorkerFlexibleConfig) {
+		if err := r.SecondaryWorkerFlexibleConfig.validate(); err != nil {
+			return err
+		}
+	}
 	if !dcl.IsEmptyValueIndirect(r.SoftwareConfig) {
 		if err := r.SoftwareConfig.validate(); err != nil {
 			return err
@@ -155,6 +170,23 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) validate
 			return err
 		}
 	}
+	if !dcl.IsEmptyValueIndirect(r.MultiZoneConfig) {
+		if err := r.MultiZoneConfig.validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig) validate() error {
+	return nil
+}
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig) validate() error {
 	return nil
 }
 func (r *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity) validate() error {
@@ -1349,6 +1381,9 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfig(des, initial *Wor
 	cDes.MasterConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterConfig(des.MasterConfig, initial.MasterConfig, opts...)
 	cDes.WorkerConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(des.WorkerConfig, initial.WorkerConfig, opts...)
 	cDes.SecondaryWorkerConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(des.SecondaryWorkerConfig, initial.SecondaryWorkerConfig, opts...)
+	cDes.MasterFlexibleConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig(des.MasterFlexibleConfig, initial.MasterFlexibleConfig, opts...)
+	cDes.WorkerFlexibleConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig(des.WorkerFlexibleConfig, initial.WorkerFlexibleConfig, opts...)
+	cDes.SecondaryWorkerFlexibleConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig(des.SecondaryWorkerFlexibleConfig, initial.SecondaryWorkerFlexibleConfig, opts...)
 	cDes.SoftwareConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(des.SoftwareConfig, initial.SoftwareConfig, opts...)
 	cDes.InitializationActions = canonicalizeWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice(des.InitializationActions, initial.InitializationActions, opts...)
 	cDes.EncryptionConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(des.EncryptionConfig, initial.EncryptionConfig, opts...)
@@ -1406,6 +1441,9 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfig(c *DclClient, 
 	nw.MasterConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c, des.MasterConfig, nw.MasterConfig)
 	nw.WorkerConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c, des.WorkerConfig, nw.WorkerConfig)
 	nw.SecondaryWorkerConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c, des.SecondaryWorkerConfig, nw.SecondaryWorkerConfig)
+	nw.MasterFlexibleConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig(c, des.MasterFlexibleConfig, nw.MasterFlexibleConfig)
+	nw.WorkerFlexibleConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig(c, des.WorkerFlexibleConfig, nw.WorkerFlexibleConfig)
+	nw.SecondaryWorkerFlexibleConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig(c, des.SecondaryWorkerFlexibleConfig, nw.SecondaryWorkerFlexibleConfig)
 	nw.SoftwareConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c, des.SoftwareConfig, nw.SoftwareConfig)
 	nw.InitializationActions = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice(c, des.InitializationActions, nw.InitializationActions)
 	nw.EncryptionConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(c, des.EncryptionConfig, nw.EncryptionConfig)
@@ -1530,6 +1568,7 @@ func canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(d
 	cDes.ReservationAffinity = canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(des.ReservationAffinity, initial.ReservationAffinity, opts...)
 	cDes.NodeGroupAffinity = canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(des.NodeGroupAffinity, initial.NodeGroupAffinity, opts...)
 	cDes.ShieldedInstanceConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(des.ShieldedInstanceConfig, initial.ShieldedInstanceConfig, opts...)
+	cDes.MultiZoneConfig = canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig(des.MultiZoneConfig, initial.MultiZoneConfig, opts...)
 
 	return cDes
 }
@@ -1591,6 +1630,7 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	nw.ReservationAffinity = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(c, des.ReservationAffinity, nw.ReservationAffinity)
 	nw.NodeGroupAffinity = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(c, des.NodeGroupAffinity, nw.NodeGroupAffinity)
 	nw.ShieldedInstanceConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(c, des.ShieldedInstanceConfig, nw.ShieldedInstanceConfig)
+	nw.MultiZoneConfig = canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig(c, des.MultiZoneConfig, nw.MultiZoneConfig)
 
 	return nw
 }
@@ -1639,6 +1679,195 @@ func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	}
 
 	return items
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig{}
+
+	if dcl.IsZeroValue(des.TargetShape) || (dcl.IsEmptyValueIndirect(des.TargetShape) && dcl.IsEmptyValueIndirect(initial.TargetShape)) {
+		cDes.TargetShape = initial.TargetShape
+	} else {
+		cDes.TargetShape = des.TargetShape
+	}
+
+	return cDes
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig {
+	if des == nil {
+		return nw
+	}
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig while comparing non-nil desired to nil actual. Returning desired object.")
+			return des
+		}
+		return nil
+	}
+	return nw
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig{}
+
+	if dcl.IsZeroValue(des.NumInstances) || (dcl.IsEmptyValueIndirect(des.NumInstances) && dcl.IsEmptyValueIndirect(initial.NumInstances)) {
+		cDes.NumInstances = initial.NumInstances
+	} else {
+		cDes.NumInstances = des.NumInstances
+	}
+	if dcl.IsZeroValue(des.CoreCount) || (dcl.IsEmptyValueIndirect(des.CoreCount) && dcl.IsEmptyValueIndirect(initial.CoreCount)) {
+		cDes.CoreCount = initial.CoreCount
+	} else {
+		cDes.CoreCount = des.CoreCount
+	}
+	if dcl.IsZeroValue(des.BootDiskSizeGb) || (dcl.IsEmptyValueIndirect(des.BootDiskSizeGb) && dcl.IsEmptyValueIndirect(initial.BootDiskSizeGb)) {
+		cDes.BootDiskSizeGb = initial.BootDiskSizeGb
+	} else {
+		cDes.BootDiskSizeGb = des.BootDiskSizeGb
+	}
+	if dcl.IsZeroValue(des.HardwareClass) || (dcl.IsEmptyValueIndirect(des.HardwareClass) && dcl.IsEmptyValueIndirect(initial.HardwareClass)) {
+		cDes.HardwareClass = initial.HardwareClass
+	} else {
+		cDes.HardwareClass = des.HardwareClass
+	}
+
+	return cDes
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig) *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig {
+	if des == nil {
+		return nw
+	}
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig while comparing non-nil desired to nil actual. Returning desired object.")
+			return des
+		}
+		return nil
+	}
+	return nw
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig{}
+
+	if dcl.IsZeroValue(des.NumInstances) || (dcl.IsEmptyValueIndirect(des.NumInstances) && dcl.IsEmptyValueIndirect(initial.NumInstances)) {
+		cDes.NumInstances = initial.NumInstances
+	} else {
+		cDes.NumInstances = des.NumInstances
+	}
+	if dcl.IsZeroValue(des.CoreCount) || (dcl.IsEmptyValueIndirect(des.CoreCount) && dcl.IsEmptyValueIndirect(initial.CoreCount)) {
+		cDes.CoreCount = initial.CoreCount
+	} else {
+		cDes.CoreCount = des.CoreCount
+	}
+	if dcl.IsZeroValue(des.BootDiskSizeGb) || (dcl.IsEmptyValueIndirect(des.BootDiskSizeGb) && dcl.IsEmptyValueIndirect(initial.BootDiskSizeGb)) {
+		cDes.BootDiskSizeGb = initial.BootDiskSizeGb
+	} else {
+		cDes.BootDiskSizeGb = des.BootDiskSizeGb
+	}
+	if dcl.IsZeroValue(des.HardwareClass) || (dcl.IsEmptyValueIndirect(des.HardwareClass) && dcl.IsEmptyValueIndirect(initial.HardwareClass)) {
+		cDes.HardwareClass = initial.HardwareClass
+	} else {
+		cDes.HardwareClass = des.HardwareClass
+	}
+
+	return cDes
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig) *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig {
+	if des == nil {
+		return nw
+	}
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig while comparing non-nil desired to nil actual. Returning desired object.")
+			return des
+		}
+		return nil
+	}
+	return nw
+}
+
+func canonicalizeWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig(des, initial *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig {
+	if des == nil {
+		return initial
+	}
+	if des.empty {
+		return des
+	}
+	if initial == nil {
+		return des
+	}
+
+	cDes := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig{}
+
+	if dcl.IsZeroValue(des.NumInstances) || (dcl.IsEmptyValueIndirect(des.NumInstances) && dcl.IsEmptyValueIndirect(initial.NumInstances)) {
+		cDes.NumInstances = initial.NumInstances
+	} else {
+		cDes.NumInstances = des.NumInstances
+	}
+	if dcl.IsZeroValue(des.CoreCount) || (dcl.IsEmptyValueIndirect(des.CoreCount) && dcl.IsEmptyValueIndirect(initial.CoreCount)) {
+		cDes.CoreCount = initial.CoreCount
+	} else {
+		cDes.CoreCount = des.CoreCount
+	}
+	if dcl.IsZeroValue(des.BootDiskSizeGb) || (dcl.IsEmptyValueIndirect(des.BootDiskSizeGb) && dcl.IsEmptyValueIndirect(initial.BootDiskSizeGb)) {
+		cDes.BootDiskSizeGb = initial.BootDiskSizeGb
+	} else {
+		cDes.BootDiskSizeGb = des.BootDiskSizeGb
+	}
+	if dcl.IsZeroValue(des.HardwareClass) || (dcl.IsEmptyValueIndirect(des.HardwareClass) && dcl.IsEmptyValueIndirect(initial.HardwareClass)) {
+		cDes.HardwareClass = initial.HardwareClass
+	} else {
+		cDes.HardwareClass = des.HardwareClass
+	}
+
+	return cDes
+}
+
+func canonicalizeNewWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig(c *DclClient, des, nw *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig {
+	if des == nil {
+		return nw
+	}
+	if nw == nil {
+		if dcl.IsEmptyValueIndirect(des) {
+			c.Config.Logger.Info("Found explicitly empty value for WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig while comparing non-nil desired to nil actual. Returning desired object.")
+			return des
+		}
+		return nil
+	}
+	return nw
 }
 
 func canonicalizeWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(des, initial *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity, opts ...dcl.ApplyOption) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity {
@@ -9296,6 +9525,27 @@ func compareWorkflowTemplatePlacementManagedClusterConfigNewStyle(d, a interface
 		diffs = append(diffs, ds...)
 	}
 
+	if ds, err := dcl.Diff(desired.MasterFlexibleConfig, actual.MasterFlexibleConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("MasterFlexibleConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.WorkerFlexibleConfig, actual.WorkerFlexibleConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("WorkerFlexibleConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.SecondaryWorkerFlexibleConfig, actual.SecondaryWorkerFlexibleConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("SecondaryWorkerFlexibleConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
 	if ds, err := dcl.Diff(desired.SoftwareConfig, actual.SoftwareConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("SoftwareConfig")); len(ds) != 0 || err != nil {
 		if err != nil {
 			return nil, err
@@ -9445,6 +9695,183 @@ func compareWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNewStyl
 	}
 
 	if ds, err := dcl.Diff(desired.ShieldedInstanceConfig, actual.ShieldedInstanceConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("ShieldedInstanceConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+
+	if ds, err := dcl.Diff(desired.MultiZoneConfig, actual.MultiZoneConfig, dcl.DiffInfo{ObjectFunction: compareWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigNewStyle, EmptyObject: EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig, OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("MultiZoneConfig")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig or *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.TargetShape, actual.TargetShape, dcl.DiffInfo{Type: "EnumType", OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("TargetShape")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig or *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.NumInstances, actual.NumInstances, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("NumInstances")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	if ds, err := dcl.Diff(desired.CoreCount, actual.CoreCount, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("CoreCount")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	if ds, err := dcl.Diff(desired.BootDiskSizeGb, actual.BootDiskSizeGb, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskSizeGb")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	if ds, err := dcl.Diff(desired.HardwareClass, actual.HardwareClass, dcl.DiffInfo{Type: "EnumType", OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("HardwareClass")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig or *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.NumInstances, actual.NumInstances, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("NumInstances")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	if ds, err := dcl.Diff(desired.CoreCount, actual.CoreCount, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("CoreCount")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	if ds, err := dcl.Diff(desired.BootDiskSizeGb, actual.BootDiskSizeGb, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskSizeGb")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	if ds, err := dcl.Diff(desired.HardwareClass, actual.HardwareClass, dcl.DiffInfo{Type: "EnumType", OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("HardwareClass")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	return diffs, nil
+}
+
+func compareWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigNewStyle(d, a interface{}, fn dcl.FieldName) ([]*dcl.FieldDiff, error) {
+	var diffs []*dcl.FieldDiff
+
+	desired, ok := d.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig)
+	if !ok {
+		desiredNotPointer, ok := d.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig or *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig", d)
+		}
+		desired = &desiredNotPointer
+	}
+	actual, ok := a.(*WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig)
+	if !ok {
+		actualNotPointer, ok := a.(WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig)
+		if !ok {
+			return nil, fmt.Errorf("obj %v is not a WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig", a)
+		}
+		actual = &actualNotPointer
+	}
+
+	if ds, err := dcl.Diff(desired.NumInstances, actual.NumInstances, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("NumInstances")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	if ds, err := dcl.Diff(desired.CoreCount, actual.CoreCount, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("CoreCount")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	if ds, err := dcl.Diff(desired.BootDiskSizeGb, actual.BootDiskSizeGb, dcl.DiffInfo{OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("BootDiskSizeGb")); len(ds) != 0 || err != nil {
+		if err != nil {
+			return nil, err
+		}
+		diffs = append(diffs, ds...)
+	}
+	if ds, err := dcl.Diff(desired.HardwareClass, actual.HardwareClass, dcl.DiffInfo{Type: "EnumType", OperationSelector: dcl.RequiresRecreate()}, fn.AddNest("HardwareClass")); len(ds) != 0 || err != nil {
 		if err != nil {
 			return nil, err
 		}
@@ -13074,6 +13501,21 @@ func expandWorkflowTemplatePlacementManagedClusterConfig(c *DclClient, f *Workfl
 	} else if !dcl.IsEmptyValueIndirect(v) {
 		m["secondaryWorkerConfig"] = v
 	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig(c, f.MasterFlexibleConfig, res); err != nil {
+		return nil, fmt.Errorf("error expanding MasterFlexibleConfig into masterFlexibleConfig: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["masterFlexibleConfig"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig(c, f.WorkerFlexibleConfig, res); err != nil {
+		return nil, fmt.Errorf("error expanding WorkerFlexibleConfig into workerFlexibleConfig: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["workerFlexibleConfig"] = v
+	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig(c, f.SecondaryWorkerFlexibleConfig, res); err != nil {
+		return nil, fmt.Errorf("error expanding SecondaryWorkerFlexibleConfig into secondaryWorkerFlexibleConfig: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["secondaryWorkerFlexibleConfig"] = v
+	}
 	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c, f.SoftwareConfig, res); err != nil {
 		return nil, fmt.Errorf("error expanding SoftwareConfig into softwareConfig: %w", err)
 	} else if !dcl.IsEmptyValueIndirect(v) {
@@ -13132,6 +13574,9 @@ func flattenWorkflowTemplatePlacementManagedClusterConfig(c *DclClient, i interf
 	r.MasterConfig = flattenWorkflowTemplatePlacementManagedClusterConfigMasterConfig(c, m["masterConfig"], res)
 	r.WorkerConfig = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerConfig(c, m["workerConfig"], res)
 	r.SecondaryWorkerConfig = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig(c, m["secondaryWorkerConfig"], res)
+	r.MasterFlexibleConfig = flattenWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig(c, m["masterFlexibleConfig"], res)
+	r.WorkerFlexibleConfig = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig(c, m["workerFlexibleConfig"], res)
+	r.SecondaryWorkerFlexibleConfig = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig(c, m["secondaryWorkerFlexibleConfig"], res)
 	r.SoftwareConfig = flattenWorkflowTemplatePlacementManagedClusterConfigSoftwareConfig(c, m["softwareConfig"], res)
 	r.InitializationActions = flattenWorkflowTemplatePlacementManagedClusterConfigInitializationActionsSlice(c, m["initializationActions"], res)
 	r.EncryptionConfig = flattenWorkflowTemplatePlacementManagedClusterConfigEncryptionConfig(c, m["encryptionConfig"], res)
@@ -13274,6 +13719,11 @@ func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(c *DclC
 	} else if !dcl.IsEmptyValueIndirect(v) {
 		m["shieldedInstanceConfig"] = v
 	}
+	if v, err := expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig(c, f.MultiZoneConfig, res); err != nil {
+		return nil, fmt.Errorf("error expanding MultiZoneConfig into multiZoneConfig: %w", err)
+	} else if !dcl.IsEmptyValueIndirect(v) {
+		m["multiZoneConfig"] = v
+	}
 
 	return m, nil
 }
@@ -13303,8 +13753,193 @@ func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig(c *Dcl
 	r.ReservationAffinity = flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity(c, m["reservationAffinity"], res)
 	r.NodeGroupAffinity = flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity(c, m["nodeGroupAffinity"], res)
 	r.ShieldedInstanceConfig = flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig(c, m["shieldedInstanceConfig"], res)
+	r.MultiZoneConfig = flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig(c, m["multiZoneConfig"], res)
 
 	return r
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.TargetShape; !dcl.IsEmptyValueIndirect(v) {
+		m["targetShape"] = v
+	}
+
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig
+	}
+	r.TargetShape = flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnum(m["targetShape"])
+
+	return r
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnum(i interface{}) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnum {
+	s, ok := i.(string)
+	if !ok {
+		return nil
+	}
+	return WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnumRef(s)
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.NumInstances; !dcl.IsEmptyValueIndirect(v) {
+		m["numInstances"] = v
+	}
+	if v := f.CoreCount; !dcl.IsEmptyValueIndirect(v) {
+		m["coreCount"] = v
+	}
+	if v := f.BootDiskSizeGb; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskSizeGb"] = v
+	}
+	if v := f.HardwareClass; !dcl.IsEmptyValueIndirect(v) {
+		m["hardwareClass"] = v
+	}
+
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig
+	}
+	r.NumInstances = dcl.FlattenInteger(m["numInstances"])
+	r.CoreCount = dcl.FlattenInteger(m["coreCount"])
+	r.BootDiskSizeGb = dcl.FlattenInteger(m["bootDiskSizeGb"])
+	r.HardwareClass = flattenWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnum(m["hardwareClass"])
+
+	return r
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnum(i interface{}) *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnum {
+	s, ok := i.(string)
+	if !ok {
+		return nil
+	}
+	return WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnumRef(s)
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.NumInstances; !dcl.IsEmptyValueIndirect(v) {
+		m["numInstances"] = v
+	}
+	if v := f.CoreCount; !dcl.IsEmptyValueIndirect(v) {
+		m["coreCount"] = v
+	}
+	if v := f.BootDiskSizeGb; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskSizeGb"] = v
+	}
+	if v := f.HardwareClass; !dcl.IsEmptyValueIndirect(v) {
+		m["hardwareClass"] = v
+	}
+
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig
+	}
+	r.NumInstances = dcl.FlattenInteger(m["numInstances"])
+	r.CoreCount = dcl.FlattenInteger(m["coreCount"])
+	r.BootDiskSizeGb = dcl.FlattenInteger(m["bootDiskSizeGb"])
+	r.HardwareClass = flattenWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnum(m["hardwareClass"])
+
+	return r
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnum(i interface{}) *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnum {
+	s, ok := i.(string)
+	if !ok {
+		return nil
+	}
+	return WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnumRef(s)
+}
+
+func expandWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig(c *DclClient, f *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig, res *WorkflowTemplate) (map[string]interface{}, error) {
+	if dcl.IsEmptyValueIndirect(f) {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+	if v := f.NumInstances; !dcl.IsEmptyValueIndirect(v) {
+		m["numInstances"] = v
+	}
+	if v := f.CoreCount; !dcl.IsEmptyValueIndirect(v) {
+		m["coreCount"] = v
+	}
+	if v := f.BootDiskSizeGb; !dcl.IsEmptyValueIndirect(v) {
+		m["bootDiskSizeGb"] = v
+	}
+	if v := f.HardwareClass; !dcl.IsEmptyValueIndirect(v) {
+		m["hardwareClass"] = v
+	}
+
+	return m, nil
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig(c *DclClient, i interface{}, res *WorkflowTemplate) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	r := &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig{}
+
+	if dcl.IsEmptyValueIndirect(i) {
+		return EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig
+	}
+	r.NumInstances = dcl.FlattenInteger(m["numInstances"])
+	r.CoreCount = dcl.FlattenInteger(m["coreCount"])
+	r.BootDiskSizeGb = dcl.FlattenInteger(m["bootDiskSizeGb"])
+	r.HardwareClass = flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnum(m["hardwareClass"])
+
+	return r
+}
+
+func flattenWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnum(i interface{}) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnum {
+	s, ok := i.(string)
+	if !ok {
+		return nil
+	}
+	return WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnumRef(s)
 }
 
 // expandWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityMap expands the contents of WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity into a JSON
@@ -21008,6 +21643,39 @@ func extractWorkflowTemplatePlacementManagedClusterConfigFields(r *WorkflowTempl
 	if !dcl.IsEmptyValueIndirect(vSecondaryWorkerConfig) {
 		o.SecondaryWorkerConfig = vSecondaryWorkerConfig
 	}
+	vMasterFlexibleConfig := o.MasterFlexibleConfig
+	if vMasterFlexibleConfig == nil {
+		// note: explicitly not the empty object.
+		vMasterFlexibleConfig = &WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig{}
+	}
+	if err := extractWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigFields(r, vMasterFlexibleConfig); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vMasterFlexibleConfig) {
+		o.MasterFlexibleConfig = vMasterFlexibleConfig
+	}
+	vWorkerFlexibleConfig := o.WorkerFlexibleConfig
+	if vWorkerFlexibleConfig == nil {
+		// note: explicitly not the empty object.
+		vWorkerFlexibleConfig = &WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig{}
+	}
+	if err := extractWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigFields(r, vWorkerFlexibleConfig); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vWorkerFlexibleConfig) {
+		o.WorkerFlexibleConfig = vWorkerFlexibleConfig
+	}
+	vSecondaryWorkerFlexibleConfig := o.SecondaryWorkerFlexibleConfig
+	if vSecondaryWorkerFlexibleConfig == nil {
+		// note: explicitly not the empty object.
+		vSecondaryWorkerFlexibleConfig = &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig{}
+	}
+	if err := extractWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigFields(r, vSecondaryWorkerFlexibleConfig); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vSecondaryWorkerFlexibleConfig) {
+		o.SecondaryWorkerFlexibleConfig = vSecondaryWorkerFlexibleConfig
+	}
 	vSoftwareConfig := o.SoftwareConfig
 	if vSoftwareConfig == nil {
 		// note: explicitly not the empty object.
@@ -21110,6 +21778,17 @@ func extractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigFields(
 	if !dcl.IsEmptyValueIndirect(vShieldedInstanceConfig) {
 		o.ShieldedInstanceConfig = vShieldedInstanceConfig
 	}
+	vMultiZoneConfig := o.MultiZoneConfig
+	if vMultiZoneConfig == nil {
+		// note: explicitly not the empty object.
+		vMultiZoneConfig = &WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig{}
+	}
+	if err := extractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigFields(r, vMultiZoneConfig); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vMultiZoneConfig) {
+		o.MultiZoneConfig = vMultiZoneConfig
+	}
 	return nil
 }
 func extractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity) error {
@@ -21119,6 +21798,9 @@ func extractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGro
 	return nil
 }
 func extractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig) error {
+	return nil
+}
+func extractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig) error {
 	return nil
 }
 func extractWorkflowTemplatePlacementManagedClusterConfigMasterConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigMasterConfig) error {
@@ -21221,6 +21903,15 @@ func extractWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigMa
 	return nil
 }
 func extractWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) error {
+	return nil
+}
+func extractWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig) error {
+	return nil
+}
+func extractWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig) error {
+	return nil
+}
+func extractWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig) error {
 	return nil
 }
 func extractWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig) error {
@@ -21702,6 +22393,39 @@ func postReadExtractWorkflowTemplatePlacementManagedClusterConfigFields(r *Workf
 	if !dcl.IsEmptyValueIndirect(vSecondaryWorkerConfig) {
 		o.SecondaryWorkerConfig = vSecondaryWorkerConfig
 	}
+	vMasterFlexibleConfig := o.MasterFlexibleConfig
+	if vMasterFlexibleConfig == nil {
+		// note: explicitly not the empty object.
+		vMasterFlexibleConfig = &WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig{}
+	}
+	if err := extractWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigFields(r, vMasterFlexibleConfig); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vMasterFlexibleConfig) {
+		o.MasterFlexibleConfig = vMasterFlexibleConfig
+	}
+	vWorkerFlexibleConfig := o.WorkerFlexibleConfig
+	if vWorkerFlexibleConfig == nil {
+		// note: explicitly not the empty object.
+		vWorkerFlexibleConfig = &WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig{}
+	}
+	if err := extractWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigFields(r, vWorkerFlexibleConfig); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vWorkerFlexibleConfig) {
+		o.WorkerFlexibleConfig = vWorkerFlexibleConfig
+	}
+	vSecondaryWorkerFlexibleConfig := o.SecondaryWorkerFlexibleConfig
+	if vSecondaryWorkerFlexibleConfig == nil {
+		// note: explicitly not the empty object.
+		vSecondaryWorkerFlexibleConfig = &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig{}
+	}
+	if err := extractWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigFields(r, vSecondaryWorkerFlexibleConfig); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vSecondaryWorkerFlexibleConfig) {
+		o.SecondaryWorkerFlexibleConfig = vSecondaryWorkerFlexibleConfig
+	}
 	vSoftwareConfig := o.SoftwareConfig
 	if vSoftwareConfig == nil {
 		// note: explicitly not the empty object.
@@ -21804,6 +22528,17 @@ func postReadExtractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	if !dcl.IsEmptyValueIndirect(vShieldedInstanceConfig) {
 		o.ShieldedInstanceConfig = vShieldedInstanceConfig
 	}
+	vMultiZoneConfig := o.MultiZoneConfig
+	if vMultiZoneConfig == nil {
+		// note: explicitly not the empty object.
+		vMultiZoneConfig = &WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig{}
+	}
+	if err := extractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigFields(r, vMultiZoneConfig); err != nil {
+		return err
+	}
+	if !dcl.IsEmptyValueIndirect(vMultiZoneConfig) {
+		o.MultiZoneConfig = vMultiZoneConfig
+	}
 	return nil
 }
 func postReadExtractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity) error {
@@ -21813,6 +22548,9 @@ func postReadExtractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfi
 	return nil
 }
 func postReadExtractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig) error {
+	return nil
+}
+func postReadExtractWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig) error {
 	return nil
 }
 func postReadExtractWorkflowTemplatePlacementManagedClusterConfigMasterConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigMasterConfig) error {
@@ -21915,6 +22653,15 @@ func postReadExtractWorkflowTemplatePlacementManagedClusterConfigSecondaryWorker
 	return nil
 }
 func postReadExtractWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAcceleratorsFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfigAccelerators) error {
+	return nil
+}
+func postReadExtractWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig) error {
+	return nil
+}
+func postReadExtractWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig) error {
+	return nil
+}
+func postReadExtractWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig) error {
 	return nil
 }
 func postReadExtractWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigFields(r *WorkflowTemplate, o *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig) error {

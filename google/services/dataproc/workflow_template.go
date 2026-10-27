@@ -74,6 +74,118 @@ func (v WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigPrivateIPv6
 	}
 }
 
+// The enum WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnum.
+type WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnum string
+
+func WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnumRef(s string) *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnum {
+	if s == "" {
+		return nil
+	}
+	v := WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnum(s)
+	return &v
+}
+
+func (v WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnum) Validate() error {
+	if string(v) == "" {
+		// Empty enum is okay.
+		return nil
+	}
+	for _, s := range []string{"TARGET_SHAPE_UNSPECIFIED", "ANY"} {
+		if string(v) == s {
+			return nil
+		}
+	}
+	return &dcl.EnumInvalidError{
+		Enum:  "WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnum",
+		Value: string(v),
+		Valid: []string{"TARGET_SHAPE_UNSPECIFIED", "ANY"},
+	}
+}
+
+// The enum WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnum.
+type WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnum string
+
+func WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnumRef(s string) *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnum {
+	if s == "" {
+		return nil
+	}
+	v := WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnum(s)
+	return &v
+}
+
+func (v WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnum) Validate() error {
+	if string(v) == "" {
+		// Empty enum is okay.
+		return nil
+	}
+	for _, s := range []string{"HARDWARE_CLASS_UNSPECIFIED", "STANDARD", "PERFORMANCE"} {
+		if string(v) == s {
+			return nil
+		}
+	}
+	return &dcl.EnumInvalidError{
+		Enum:  "WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnum",
+		Value: string(v),
+		Valid: []string{"HARDWARE_CLASS_UNSPECIFIED", "STANDARD", "PERFORMANCE"},
+	}
+}
+
+// The enum WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnum.
+type WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnum string
+
+func WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnumRef(s string) *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnum {
+	if s == "" {
+		return nil
+	}
+	v := WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnum(s)
+	return &v
+}
+
+func (v WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnum) Validate() error {
+	if string(v) == "" {
+		// Empty enum is okay.
+		return nil
+	}
+	for _, s := range []string{"HARDWARE_CLASS_UNSPECIFIED", "STANDARD", "PERFORMANCE"} {
+		if string(v) == s {
+			return nil
+		}
+	}
+	return &dcl.EnumInvalidError{
+		Enum:  "WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnum",
+		Value: string(v),
+		Valid: []string{"HARDWARE_CLASS_UNSPECIFIED", "STANDARD", "PERFORMANCE"},
+	}
+}
+
+// The enum WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnum.
+type WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnum string
+
+func WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnumRef(s string) *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnum {
+	if s == "" {
+		return nil
+	}
+	v := WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnum(s)
+	return &v
+}
+
+func (v WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnum) Validate() error {
+	if string(v) == "" {
+		// Empty enum is okay.
+		return nil
+	}
+	for _, s := range []string{"HARDWARE_CLASS_UNSPECIFIED", "STANDARD", "PERFORMANCE"} {
+		if string(v) == s {
+			return nil
+		}
+	}
+	return &dcl.EnumInvalidError{
+		Enum:  "WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnum",
+		Value: string(v),
+		Valid: []string{"HARDWARE_CLASS_UNSPECIFIED", "STANDARD", "PERFORMANCE"},
+	}
+}
+
 // The enum WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnum.
 type WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinityConsumeReservationTypeEnum string
 
@@ -357,20 +469,23 @@ func (r *WorkflowTemplatePlacementManagedCluster) HashCode() string {
 }
 
 type WorkflowTemplatePlacementManagedClusterConfig struct {
-	empty                 bool                                                                 `json:"-"`
-	StagingBucket         *string                                                              `json:"stagingBucket"`
-	TempBucket            *string                                                              `json:"tempBucket"`
-	GceClusterConfig      *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig       `json:"gceClusterConfig"`
-	MasterConfig          *WorkflowTemplatePlacementManagedClusterConfigMasterConfig           `json:"masterConfig"`
-	WorkerConfig          *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig           `json:"workerConfig"`
-	SecondaryWorkerConfig *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig  `json:"secondaryWorkerConfig"`
-	SoftwareConfig        *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig         `json:"softwareConfig"`
-	InitializationActions []WorkflowTemplatePlacementManagedClusterConfigInitializationActions `json:"initializationActions"`
-	EncryptionConfig      *WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig       `json:"encryptionConfig"`
-	AutoscalingConfig     *WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig      `json:"autoscalingConfig"`
-	SecurityConfig        *WorkflowTemplatePlacementManagedClusterConfigSecurityConfig         `json:"securityConfig"`
-	LifecycleConfig       *WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig        `json:"lifecycleConfig"`
-	EndpointConfig        *WorkflowTemplatePlacementManagedClusterConfigEndpointConfig         `json:"endpointConfig"`
+	empty                         bool                                                                        `json:"-"`
+	StagingBucket                 *string                                                                     `json:"stagingBucket"`
+	TempBucket                    *string                                                                     `json:"tempBucket"`
+	GceClusterConfig              *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig              `json:"gceClusterConfig"`
+	MasterConfig                  *WorkflowTemplatePlacementManagedClusterConfigMasterConfig                  `json:"masterConfig"`
+	WorkerConfig                  *WorkflowTemplatePlacementManagedClusterConfigWorkerConfig                  `json:"workerConfig"`
+	SecondaryWorkerConfig         *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerConfig         `json:"secondaryWorkerConfig"`
+	MasterFlexibleConfig          *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig          `json:"masterFlexibleConfig"`
+	WorkerFlexibleConfig          *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig          `json:"workerFlexibleConfig"`
+	SecondaryWorkerFlexibleConfig *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig `json:"secondaryWorkerFlexibleConfig"`
+	SoftwareConfig                *WorkflowTemplatePlacementManagedClusterConfigSoftwareConfig                `json:"softwareConfig"`
+	InitializationActions         []WorkflowTemplatePlacementManagedClusterConfigInitializationActions        `json:"initializationActions"`
+	EncryptionConfig              *WorkflowTemplatePlacementManagedClusterConfigEncryptionConfig              `json:"encryptionConfig"`
+	AutoscalingConfig             *WorkflowTemplatePlacementManagedClusterConfigAutoscalingConfig             `json:"autoscalingConfig"`
+	SecurityConfig                *WorkflowTemplatePlacementManagedClusterConfigSecurityConfig                `json:"securityConfig"`
+	LifecycleConfig               *WorkflowTemplatePlacementManagedClusterConfigLifecycleConfig               `json:"lifecycleConfig"`
+	EndpointConfig                *WorkflowTemplatePlacementManagedClusterConfigEndpointConfig                `json:"endpointConfig"`
 }
 
 type jsonWorkflowTemplatePlacementManagedClusterConfig WorkflowTemplatePlacementManagedClusterConfig
@@ -399,6 +514,12 @@ func (r *WorkflowTemplatePlacementManagedClusterConfig) UnmarshalJSON(data []byt
 		r.WorkerConfig = res.WorkerConfig
 
 		r.SecondaryWorkerConfig = res.SecondaryWorkerConfig
+
+		r.MasterFlexibleConfig = res.MasterFlexibleConfig
+
+		r.WorkerFlexibleConfig = res.WorkerFlexibleConfig
+
+		r.SecondaryWorkerFlexibleConfig = res.SecondaryWorkerFlexibleConfig
 
 		r.SoftwareConfig = res.SoftwareConfig
 
@@ -452,6 +573,7 @@ type WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig struct {
 	ReservationAffinity     *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigReservationAffinity         `json:"reservationAffinity"`
 	NodeGroupAffinity       *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigNodeGroupAffinity           `json:"nodeGroupAffinity"`
 	ShieldedInstanceConfig  *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigShieldedInstanceConfig      `json:"shieldedInstanceConfig"`
+	MultiZoneConfig         *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig             `json:"multiZoneConfig"`
 }
 
 type jsonWorkflowTemplatePlacementManagedClusterConfigGceClusterConfig WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig
@@ -493,6 +615,8 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) Unmarsha
 
 		r.ShieldedInstanceConfig = res.ShieldedInstanceConfig
 
+		r.MultiZoneConfig = res.MultiZoneConfig
+
 	}
 	return nil
 }
@@ -513,6 +637,180 @@ func (r *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) String()
 func (r *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfig) HashCode() string {
 	// Placeholder for a more complex hash method that handles ordering, etc
 	// Hash resource body for easy comparison later
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig struct {
+	empty       bool                                                                                         `json:"-"`
+	TargetShape *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfigTargetShapeEnum `json:"targetShape"`
+}
+
+type jsonWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig) UnmarshalJSON(data []byte) error {
+	var res jsonWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if len(m) == 0 {
+		*r = *EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig
+	} else {
+		r.TargetShape = res.TargetShape
+	}
+	return nil
+}
+
+var EmptyWorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig = &WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig{empty: true}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig) Empty() bool {
+	return r.empty
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigGceClusterConfigMultiZoneConfig) HashCode() string {
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig struct {
+	empty          bool                                                                                `json:"-"`
+	NumInstances   *int64                                                                              `json:"numInstances"`
+	CoreCount      *int64                                                                              `json:"coreCount"`
+	BootDiskSizeGb *int64                                                                              `json:"bootDiskSizeGb"`
+	HardwareClass  *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfigHardwareClassEnum `json:"hardwareClass"`
+}
+
+type jsonWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig) UnmarshalJSON(data []byte) error {
+	var res jsonWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if len(m) == 0 {
+		*r = *EmptyWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig
+	} else {
+		r.NumInstances = res.NumInstances
+		r.CoreCount = res.CoreCount
+		r.BootDiskSizeGb = res.BootDiskSizeGb
+		r.HardwareClass = res.HardwareClass
+	}
+	return nil
+}
+
+var EmptyWorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig = &WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig{empty: true}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig) Empty() bool {
+	return r.empty
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigMasterFlexibleConfig) HashCode() string {
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig struct {
+	empty          bool                                                                                `json:"-"`
+	NumInstances   *int64                                                                              `json:"numInstances"`
+	CoreCount      *int64                                                                              `json:"coreCount"`
+	BootDiskSizeGb *int64                                                                              `json:"bootDiskSizeGb"`
+	HardwareClass  *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfigHardwareClassEnum `json:"hardwareClass"`
+}
+
+type jsonWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig) UnmarshalJSON(data []byte) error {
+	var res jsonWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if len(m) == 0 {
+		*r = *EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig
+	} else {
+		r.NumInstances = res.NumInstances
+		r.CoreCount = res.CoreCount
+		r.BootDiskSizeGb = res.BootDiskSizeGb
+		r.HardwareClass = res.HardwareClass
+	}
+	return nil
+}
+
+var EmptyWorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig = &WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig{empty: true}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig) Empty() bool {
+	return r.empty
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigWorkerFlexibleConfig) HashCode() string {
+	hash := sha256.Sum256([]byte(r.String()))
+	return fmt.Sprintf("%x", hash)
+}
+
+type WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig struct {
+	empty          bool                                                                                         `json:"-"`
+	NumInstances   *int64                                                                                       `json:"numInstances"`
+	CoreCount      *int64                                                                                       `json:"coreCount"`
+	BootDiskSizeGb *int64                                                                                       `json:"bootDiskSizeGb"`
+	HardwareClass  *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfigHardwareClassEnum `json:"hardwareClass"`
+}
+
+type jsonWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig) UnmarshalJSON(data []byte) error {
+	var res jsonWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+
+	var m map[string]interface{}
+	json.Unmarshal(data, &m)
+
+	if len(m) == 0 {
+		*r = *EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig
+	} else {
+		r.NumInstances = res.NumInstances
+		r.CoreCount = res.CoreCount
+		r.BootDiskSizeGb = res.BootDiskSizeGb
+		r.HardwareClass = res.HardwareClass
+	}
+	return nil
+}
+
+var EmptyWorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig = &WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig{empty: true}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig) Empty() bool {
+	return r.empty
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig) String() string {
+	return dcl.SprintResource(r)
+}
+
+func (r *WorkflowTemplatePlacementManagedClusterConfigSecondaryWorkerFlexibleConfig) HashCode() string {
 	hash := sha256.Sum256([]byte(r.String()))
 	return fmt.Sprintf("%x", hash)
 }
