@@ -323,6 +323,9 @@ func resourceWorkstationsWorkstationCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Creating new Workstation: %#v", obj)
 	billingProject := ""
@@ -360,8 +363,10 @@ func resourceWorkstationsWorkstationCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(id)
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = WorkstationsOperationWaitTime(
-		config, res, project, "Creating Workstation", userAgent,
+		config, res, project, endpointLocation, "Creating Workstation", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -416,6 +421,9 @@ func resourceWorkstationsWorkstationRead(d *schema.ResourceData, meta interface{
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}/workstationConfigs/{{workstation_config_id}}/workstations/{{workstation_id}}")
 	if err != nil {
 		return err
+	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
 	}
 
 	billingProject := ""
@@ -595,6 +603,9 @@ func resourceWorkstationsWorkstationUpdate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	log.Printf("[DEBUG] Updating Workstation %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
@@ -646,8 +657,10 @@ func resourceWorkstationsWorkstationUpdate(d *schema.ResourceData, meta interfac
 			log.Printf("[DEBUG] Finished updating Workstation %q: %#v", d.Id(), res)
 		}
 
+		// Derive location for use in REP endpoints
+		endpointLocation := tpgresource.LocationFromId(d.Id())
 		err = WorkstationsOperationWaitTime(
-			config, res, project, "Updating Workstation", userAgent,
+			config, res, project, endpointLocation, "Updating Workstation", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -683,6 +696,9 @@ func resourceWorkstationsWorkstationDelete(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	if strings.Contains(url, "{{location}}") {
+		return fmt.Errorf("failed to qualify endpoint for a resource with a regionalized endpoint %s", url)
+	}
 
 	var obj map[string]interface{}
 
@@ -708,8 +724,10 @@ func resourceWorkstationsWorkstationDelete(d *schema.ResourceData, meta interfac
 		return transport_tpg.HandleNotFoundError(err, d, "Workstation")
 	}
 
+	// Derive location for use in REP endpoints
+	endpointLocation := tpgresource.LocationFromId(d.Id())
 	err = WorkstationsOperationWaitTime(
-		config, res, project, "Deleting Workstation", userAgent,
+		config, res, project, endpointLocation, "Deleting Workstation", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
