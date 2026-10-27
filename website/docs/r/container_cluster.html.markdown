@@ -1445,6 +1445,10 @@ sole_tenant_config {
 
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
+~> **Note:** `gpu_driver_installation_config` and `gpu_sharing_config` are updated in place. Changing
+`type`, `count` or `gpu_partition_size` recreates the node pool, because the GKE API does not support
+updating them on an existing node pool.
+
 * `type` (Required) - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
 
 * `count` (Required) - The number of the guest accelerator cards exposed to this instance.
