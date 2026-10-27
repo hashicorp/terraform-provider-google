@@ -723,6 +723,50 @@ func TestAccPubsubSubscription_javascriptUdfUpdate(t *testing.T) {
 	})
 }
 
+func TestAccPubsubSubscription_compressionUpdate(t *testing.T) {
+	t.Parallel()
+
+	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
+	subscriptionShort := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10))
+	functionName := "my_func"
+	code := "function my_func(message, metadata) {return null;}"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_compressionSettings(topic, subscriptionShort, "ZLIB", "COMPRESS", false),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscriptionShort,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubSubscription_compressionSettings(topic, subscriptionShort, "ZLIB", "DECOMPRESS", true),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscriptionShort,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubSubscription_javascriptUdfSettings_noEnabled(topic, subscriptionShort, functionName, code),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscriptionShort,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestGetComputedTopicName(t *testing.T) {
 	type testData struct {
 		project  string
@@ -1273,6 +1317,26 @@ resource "google_pubsub_subscription" "foo" {
   }
 }
 `, topic, subscription, functionName, code)
+}
+
+func testAccPubsubSubscription_compressionSettings(topic, subscription, algorithm, mode string, disabled bool) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "%s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name  = "%s"
+  topic = google_pubsub_topic.foo.id
+  message_transforms {
+    disabled = %t
+    compression {
+      compression_algorithm = "%s"
+      compression_mode      = "%s"
+    }
+  }
+}
+`, topic, subscription, disabled, algorithm, mode)
 }
 
 func testAccPubsubSubscription_tags(context map[string]interface{}) string {

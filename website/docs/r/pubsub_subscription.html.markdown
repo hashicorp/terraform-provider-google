@@ -1238,6 +1238,12 @@ The following arguments are supported:
   be sent to.
   Structure is [documented below](#nested_message_transforms_ai_inference).
 
+* `compression` -
+  (Optional)
+  Compression/Decompression. Configuration for compressing/decompressing
+  message data using a user-specified compression algorithm.
+  Structure is [documented below](#nested_message_transforms_compression).
+
 * `javascript_udf` -
   (Optional)
   Javascript User Defined Function. If multiple Javascript UDFs are specified on a resource,
@@ -1277,6 +1283,18 @@ The following arguments are supported:
   A parameters object to be included in each inference request.
   The parameters object is combined with the data field of the Pub/Sub
   message to form the inference request.
+
+<a name="nested_message_transforms_compression"></a>The `compression` block supports:
+
+* `compression_algorithm` -
+  (Required)
+  Specifies the compression algorithm to use.
+  Possible values include `ZLIB`.
+
+* `compression_mode` -
+  (Required)
+  Specifies whether to compress or decompress the message.
+  Possible values are: `COMPRESS`, `DECOMPRESS`.
 
 <a name="nested_message_transforms_javascript_udf"></a>The `javascript_udf` block supports:
 
