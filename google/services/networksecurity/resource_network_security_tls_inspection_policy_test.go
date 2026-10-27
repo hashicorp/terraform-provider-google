@@ -15,3 +15,147 @@
 //
 // ----------------------------------------------------------------------------
 package networksecurity_test
+
+import (
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/certificatemanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+)
+
+func TestAccNetworkSecurityTlsInspectionPolicy_certificateIssuanceMode(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"projectNumber":             envvar.GetTestProjectNumberFromEnv(),
+		"randomSuffix":              randomSuffix,
+		"certificate_issuance_mode": "LOCAL_INTERMEDIATE_CA_SIGNING",
+	}
+
+	contextUpdated := map[string]interface{}{
+		"projectNumber":             envvar.GetTestProjectNumberFromEnv(),
+		"randomSuffix":              randomSuffix,
+		"certificate_issuance_mode": "DIRECT_LEAF_PROVISIONING",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkSecurityTlsInspectionPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkSecurityTlsInspectionPolicy_certificateIssuanceMode(context),
+			},
+			{
+				ResourceName:      "google_network_security_tls_inspection_policy.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccNetworkSecurityTlsInspectionPolicy_certificateIssuanceMode(contextUpdated),
+			},
+			{
+				ResourceName:      "google_network_security_tls_inspection_policy.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccNetworkSecurityTlsInspectionPolicy_certificateIssuanceMode(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_privateca_ca_pool" "default" {
+  name     = "tf-test-cap-cim-%{randomSuffix}"
+  location = "us-central1"
+  tier     = "DEVOPS"
+
+  publishing_options {
+    publish_ca_cert = false
+    publish_crl     = false
+  }
+
+  issuance_policy {
+    maximum_lifetime = "1209600s"
+    baseline_values {
+      ca_options {
+        is_ca = false
+      }
+      key_usage {
+        base_key_usage {}
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  pool                                   = google_privateca_ca_pool.default.name
+  certificate_authority_id               = "tf-test-ca-cim-%{randomSuffix}"
+  location                               = "us-central1"
+  lifetime                               = "86400s"
+  type                                   = "SELF_SIGNED"
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+
+  config {
+    subject_config {
+      subject {
+        organization = "Test LLC"
+        common_name  = "my-ca"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign  = true
+        }
+        extended_key_usage {
+          server_auth = false
+        }
+      }
+    }
+  }
+
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+}
+
+data "google_project" "project" {}
+
+resource "google_privateca_ca_pool_iam_member" "tls_inspection_permission" {
+  ca_pool = google_privateca_ca_pool.default.id
+  role    = "roles/privateca.certificateManager"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-networksecurity.iam.gserviceaccount.com"
+}
+
+resource "google_network_security_tls_inspection_policy" "default" {
+  name                      = "tf-test-tip-cim-%{randomSuffix}"
+  location                  = "us-central1"
+  ca_pool                   = google_privateca_ca_pool.default.id
+  exclude_public_ca_set     = false
+  certificate_issuance_mode = "%{certificate_issuance_mode}"
+
+  depends_on = [
+    google_privateca_ca_pool.default,
+    google_privateca_certificate_authority.default,
+    google_privateca_ca_pool_iam_member.tls_inspection_permission,
+  ]
+}
+`, context)
+}

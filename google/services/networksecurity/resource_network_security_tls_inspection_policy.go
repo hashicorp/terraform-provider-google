@@ -151,6 +151,13 @@ func ResourceNetworkSecurityTlsInspectionPolicy() *schema.Resource {
 				Required:    true,
 				Description: `Short name of the TlsInspectionPolicy resource to be created.`,
 			},
+			"certificate_issuance_mode": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ValidateFunc:     verify.ValidateEnum([]string{"DIRECT_LEAF_PROVISIONING", "LOCAL_INTERMEDIATE_CA_SIGNING", ""}),
+				DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("CERTIFICATE_ISSUANCE_MODE_UNSPECIFIED"),
+				Description:      `The mode used to issue certificates (local CA signing vs direct leaf). Possible values: ["DIRECT_LEAF_PROVISIONING", "LOCAL_INTERMEDIATE_CA_SIGNING"]`,
+			},
 			"custom_tls_features": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -276,6 +283,12 @@ func resourceNetworkSecurityTlsInspectionPolicyCreate(d *schema.ResourceData, me
 		return err
 	} else if v, ok := d.GetOkExists("exclude_public_ca_set"); !tpgresource.IsEmptyValue(reflect.ValueOf(excludePublicCaSetProp)) && (ok || !reflect.DeepEqual(v, excludePublicCaSetProp)) {
 		obj["excludePublicCaSet"] = excludePublicCaSetProp
+	}
+	certificateIssuanceModeProp, err := expandNetworkSecurityTlsInspectionPolicyCertificateIssuanceMode(d.Get("certificate_issuance_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("certificate_issuance_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(certificateIssuanceModeProp)) && (ok || !reflect.DeepEqual(v, certificateIssuanceModeProp)) {
+		obj["certificateIssuanceMode"] = certificateIssuanceModeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/tlsInspectionPolicies?tlsInspectionPolicyId={{name}}")
@@ -535,6 +548,12 @@ func resourceNetworkSecurityTlsInspectionPolicyUpdate(d *schema.ResourceData, me
 	} else if v, ok := d.GetOkExists("exclude_public_ca_set"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, excludePublicCaSetProp)) {
 		obj["excludePublicCaSet"] = excludePublicCaSetProp
 	}
+	certificateIssuanceModeProp, err := expandNetworkSecurityTlsInspectionPolicyCertificateIssuanceMode(d.Get("certificate_issuance_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("certificate_issuance_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, certificateIssuanceModeProp)) {
+		obj["certificateIssuanceMode"] = certificateIssuanceModeProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/tlsInspectionPolicies/{{name}}")
 	if err != nil {
@@ -571,6 +590,10 @@ func resourceNetworkSecurityTlsInspectionPolicyUpdate(d *schema.ResourceData, me
 
 	if d.HasChange("exclude_public_ca_set") {
 		updateMask = append(updateMask, "excludePublicCaSet")
+	}
+
+	if d.HasChange("certificate_issuance_mode") {
+		updateMask = append(updateMask, "certificateIssuanceMode")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -733,6 +756,10 @@ func flattenNetworkSecurityTlsInspectionPolicyExcludePublicCaSet(v interface{}, 
 	return v
 }
 
+func flattenNetworkSecurityTlsInspectionPolicyCertificateIssuanceMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandNetworkSecurityTlsInspectionPolicyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -758,6 +785,10 @@ func expandNetworkSecurityTlsInspectionPolicyCustomTlsFeatures(v interface{}, d 
 }
 
 func expandNetworkSecurityTlsInspectionPolicyExcludePublicCaSet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityTlsInspectionPolicyCertificateIssuanceMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -789,6 +820,9 @@ func ResourceNetworkSecurityTlsInspectionPolicyFlatten(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
 	}
 	if err = d.Set("exclude_public_ca_set", flattenNetworkSecurityTlsInspectionPolicyExcludePublicCaSet(res["excludePublicCaSet"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err = d.Set("certificate_issuance_mode", flattenNetworkSecurityTlsInspectionPolicyCertificateIssuanceMode(res["certificateIssuanceMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
 	}
 

@@ -229,10 +229,11 @@ resource "google_network_security_tls_inspection_policy" "default" {
   location = "us-central1"
   ca_pool  = google_privateca_ca_pool.default.id
 
-  exclude_public_ca_set = false
-  min_tls_version       = "TLS_1_0"
-  trust_config          = google_certificate_manager_trust_config.default.id
-  tls_feature_profile   = "PROFILE_CUSTOM"
+  exclude_public_ca_set     = false
+  min_tls_version           = "TLS_1_0"
+  trust_config              = google_certificate_manager_trust_config.default.id
+  tls_feature_profile       = "PROFILE_CUSTOM"
+  certificate_issuance_mode = "LOCAL_INTERMEDIATE_CA_SIGNING"
 
   custom_tls_features = [
     "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
@@ -300,6 +301,11 @@ The following arguments are supported:
 * `exclude_public_ca_set` -
   (Optional)
   If FALSE (the default), use our default set of public CAs in addition to any CAs specified in trustConfig. These public CAs are currently based on the Mozilla Root Program and are subject to change over time. If TRUE, do not accept our default set of public CAs. Only CAs specified in trustConfig will be accepted.
+
+* `certificate_issuance_mode` -
+  (Optional)
+  The mode used to issue certificates (local CA signing vs direct leaf).
+  Possible values are: `DIRECT_LEAF_PROVISIONING`, `LOCAL_INTERMEDIATE_CA_SIGNING`.
 
 * `location` -
   (Optional)
