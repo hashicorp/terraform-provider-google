@@ -324,31 +324,31 @@ func TestUnitComputeNetworkEndpoints_diffGetChange(t *testing.T) {
 	}
 	state := d.State()
 
-	config := terraform.NewResourceConfigRaw(map[string]interface{}{
-		"network_endpoint_group": "my-neg",
-		"network_endpoints": []interface{}{
-			map[string]interface{}{
-				"instance":   "vm1",
-				"ip_address": "10.0.0.2",
-				"port":       100,
-			},
+	schemaMap := schema.InternalMap(r.Schema)
+	diffEndpoints := func(endpoints []interface{}) (*schema.Set, *schema.Set) {
+		config := terraform.NewResourceConfigRaw(map[string]interface{}{
+			"network_endpoint_group": "my-neg",
+			"network_endpoints":      endpoints,
+		})
+		diff, err := schemaMap.Diff(context.Background(), state, config, nil, nil, false)
+		if err != nil {
+			t.Fatalf("unexpected error from schemaMap.Diff: %v", err)
+		}
+		dDiff, err := schemaMap.Data(state, diff)
+		if err != nil {
+			t.Fatalf("unexpected error from schemaMap.Data: %v", err)
+		}
+		o, n := dDiff.GetChange("network_endpoints")
+		return o.(*schema.Set), n.(*schema.Set)
+	}
+
+	oldSet, newSet := diffEndpoints([]interface{}{
+		map[string]interface{}{
+			"instance":   "vm1",
+			"ip_address": "10.0.0.2",
+			"port":       100,
 		},
 	})
-
-	schemaMap := schema.InternalMap(r.Schema)
-	diff, err := schemaMap.Diff(context.Background(), state, config, nil, nil, false)
-	if err != nil {
-		t.Fatalf("unexpected error from schemaMap.Diff: %v", err)
-	}
-
-	dDiff, err := schemaMap.Data(state, diff)
-	if err != nil {
-		t.Fatalf("unexpected error from schemaMap.Data: %v", err)
-	}
-	o, n := dDiff.GetChange("network_endpoints")
-	oldSet := o.(*schema.Set)
-	newSet := n.(*schema.Set)
-
 	if oldSet.Len() != 1 {
 		t.Fatalf("expected oldSet.Len() == 1, got %d: %#v", oldSet.Len(), oldSet.List())
 	}
@@ -358,5 +358,23 @@ func TestUnitComputeNetworkEndpoints_diffGetChange(t *testing.T) {
 	gotNew := newSet.List()[0].(map[string]interface{})
 	if gotNew["port"] != 100 || gotNew["ip_address"] != "10.0.0.2" || gotNew["instance"] != "vm1" {
 		t.Errorf("unexpected new endpoint map: %#v", gotNew)
+	}
+
+	if _, emptyNewSet := diffEndpoints([]interface{}{}); emptyNewSet.Len() != 0 {
+		t.Fatalf("expected newSet.Len() == 0 on removal, got %d: %#v", emptyNewSet.Len(), emptyNewSet.List())
+	}
+
+	if err := d.Set("network_endpoints", []interface{}{
+		map[string]interface{}{"instance": "vm1", "ip_address": "10.0.0.2", "ipv6_address": "", "port": 90},
+		map[string]interface{}{"instance": "vm2", "ip_address": "", "ipv6_address": "2600:1900:4000:1::1", "port": 90},
+	}); err != nil {
+		t.Fatalf("failed to set network_endpoints: %v", err)
+	}
+	state = d.State()
+	if _, mixedNewSet := diffEndpoints([]interface{}{
+		map[string]interface{}{"instance": "vm1", "ip_address": "10.0.0.2", "port": 100},
+		map[string]interface{}{"instance": "vm2", "ipv6_address": "2600:1900:4000:0001:0000:0000:0000:0001", "port": 90},
+	}); mixedNewSet.Len() != 2 {
+		t.Fatalf("expected newSet.Len() == 2 with IPv6 sibling, got %d: %#v", mixedNewSet.Len(), mixedNewSet.List())
 	}
 }
