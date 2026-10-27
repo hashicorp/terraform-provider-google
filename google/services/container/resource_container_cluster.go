@@ -236,6 +236,24 @@ func isBeenEnabled(_ context.Context, old, new, _ interface{}) bool {
 	return false
 }
 
+func suppressDiffForDnsConfig(k, oldValue, newValue string, d *schema.ResourceData) bool {
+	if suppressDiffForAutopilot(k, oldValue, newValue, d) {
+		return true
+	}
+	// If ever set, the API permanently returns an empty block in the response
+	if k == "dns_config.#" && oldValue == "1" && newValue == "0" {
+		clusterDns, _ := d.GetChange("dns_config.0.cluster_dns")
+		clusterDnsScope, _ := d.GetChange("dns_config.0.cluster_dns_scope")
+		clusterDnsDomain, _ := d.GetChange("dns_config.0.cluster_dns_domain")
+		avpcDomain, _ := d.GetChange("dns_config.0.additive_vpc_scope_dns_domain")
+		return (clusterDns == "" || clusterDns == "PROVIDER_UNSPECIFIED") &&
+			(clusterDnsScope == "" || clusterDnsScope == "DNS_SCOPE_UNSPECIFIED") &&
+			clusterDnsDomain == "" &&
+			avpcDomain == ""
+	}
+	return false
+}
+
 func suppressDiffForClusterDns(k, o, n string, d *schema.ResourceData) bool {
 	if o == "" && n == "PROVIDER_UNSPECIFIED" {
 		return true
@@ -244,7 +262,7 @@ func suppressDiffForClusterDns(k, o, n string, d *schema.ResourceData) bool {
 }
 
 func suppressDiffForClusterDnsScope(k, o, n string, d *schema.ResourceData) bool {
-	if o == "" && n == "DNS_SCOPE_UNSPECIFIED" {
+	if (o == "" && n == "DNS_SCOPE_UNSPECIFIED") || (o == "DNS_SCOPE_UNSPECIFIED" && n == "") {
 		return true
 	}
 	return false
@@ -2583,7 +2601,7 @@ func ResourceContainerCluster() *schema.Resource {
 				Type:             schema.TypeList,
 				Optional:         true,
 				MaxItems:         1,
-				DiffSuppressFunc: suppressDiffForAutopilot,
+				DiffSuppressFunc: suppressDiffForDnsConfig,
 				Description:      `Configuration for Cloud DNS for Kubernetes Engine.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -4049,9 +4067,13 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("dns_config") {
+		dnsConfig := expandDnsConfig(d.Get("dns_config"))
+		if dnsConfig == nil {
+			dnsConfig = &container.DNSConfig{}
+		}
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredDnsConfig: expandDnsConfig(d.Get("dns_config")),
+				DesiredDnsConfig: dnsConfig,
 			},
 		}
 

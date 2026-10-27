@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed an error and subsequent permadiff when removing the `dns_config` block from `google_container_cluster`
+```
