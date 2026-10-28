@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_oracle_database_odb_dns_zone`
+```
+```release-note:new-datasource
+`google_oracle_database_odb_dns_zone`
+```

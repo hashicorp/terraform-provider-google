@@ -1,0 +1,30 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_oracle_database_odb_dns_zone
+generation_type: mmv1
+source_file: products/oracledatabase/OdbDnsZone.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: OdbDnsZone
+autogen_status: true
+autogen_version: 2
+fields:
+    - api_field: createTime
+    - field: deletion_protection
+      provider_only: true
+    - api_field: domain
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: odb_dns_zone_id
+      provider_only: true
+    - field: odbnetwork
+      provider_only: true
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
