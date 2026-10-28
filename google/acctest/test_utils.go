@@ -318,18 +318,6 @@ func ProtoV6ProviderFactories(t *testing.T) map[string]func() (tfprotov6.Provide
 
 var EchoResourceName string = "echo.test"
 
-// EchoResourceConfig returns some HCL that configures the echo provider with a reference to an ephemeral value (e.g. an ephemeral resource)
-// and provisions an echo resource that surfaces that ephemeral data in a non-ephemeral way, for testing purposes.
-// See: https://github.com/hashicorp/terraform-plugin-testing/pull/389
-func EchoResourceConfig(ephemeralReference string) string {
-	return fmt.Sprintf(`
-provider "echo" {
-  data = %s
-}
-resource "echo" "test" {}
-`, ephemeralReference)
-}
-
 // This is a Printf sibling (Nprintf; Named Printf), which handles strings like
 // Nprintf("Hello %{target}!", map[string]interface{}{"target":"world"}) == "Hello world!".
 // This is particularly useful for generated tests, where we don't want to use Printf,
