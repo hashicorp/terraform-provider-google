@@ -1082,7 +1082,8 @@ The following arguments are supported:
 * `min_replica_count` -
   (Required)
   The minimum number of machine replicas that will be always deployed on.
-  This value must be greater than or equal to 1.
+  This value must be greater than or equal to 1. To enable scale-to-zero
+  (in beta), set this value to 0 and also set `initial_replica_count`.
   If traffic increases, it may dynamically be deployed onto more replicas,
   and as traffic decreases, some of these extra replicas may be freed.
 
@@ -1108,6 +1109,21 @@ The following arguments are supported:
   available_replica_count reaches required_replica_count, and the rest of
   the replicas will be retried. If not set, the default
   required_replica_count will be min_replica_count.
+
+* `initial_replica_count` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Number of initial replicas being deployed on when scaling the workload up
+  from zero or when creating the workload in case min_replica_count = 0.
+  When min_replica_count > 0 (meaning that the scale-to-zero feature is not
+  enabled), initial_replica_count should not be set. When min_replica_count
+  = 0 (meaning that the scale-to-zero feature is enabled),
+  initial_replica_count should be larger than zero, but no greater than
+  max_replica_count.
+
+* `scale_to_zero_spec` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Specification for scale-to-zero feature.
+  Structure is [documented below](#nested_deploy_config_dedicated_resources_scale_to_zero_spec).
 
 * `autoscaling_metric_specs` -
   (Optional)
@@ -1212,6 +1228,19 @@ The following arguments are supported:
   (Optional)
   Corresponds to the label values of a reservation resource. This must be the
   full resource name of the reservation or reservation block.
+
+<a name="nested_deploy_config_dedicated_resources_scale_to_zero_spec"></a>The `scale_to_zero_spec` block supports:
+
+* `min_scaleup_period` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Minimum duration that a deployment will be scaled up before traffic is
+  evaluated for potential scale-down. [MinValue=300] (5 minutes)
+  [MaxValue=28800] (8 hours)
+
+* `idle_scaledown_period` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Duration of no traffic before scaling to zero. [MinValue=300] (5
+  minutes) [MaxValue=28800] (8 hours)
 
 <a name="nested_deploy_config_dedicated_resources_autoscaling_metric_specs"></a>The `autoscaling_metric_specs` block supports:
 
