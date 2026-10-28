@@ -128,7 +128,12 @@ func TestAccEphemeralServiceAccountJwt_withExpiresIn(t *testing.T) {
 }
 
 func testAccEphemeralServiceAccountJwt_basic(context map[string]interface{}) string {
-	return acctest.EchoResourceConfig(context["ephemeral_reference"].(string)) + acctest.Nprintf(`
+	return acctest.Nprintf(`
+provider "echo" {
+  data = %{ephemeral_reference}
+}
+resource "echo" "test" {}
+
 ephemeral "google_service_account_jwt" "%{ephemeral_resource_name}" {
   target_service_account = "%{target_service_account}"
   payload               = jsonencode({
@@ -140,7 +145,12 @@ ephemeral "google_service_account_jwt" "%{ephemeral_resource_name}" {
 }
 
 func testAccEphemeralServiceAccountJwt_withDelegates(context map[string]interface{}) string {
-	return acctest.EchoResourceConfig(context["ephemeral_reference"].(string)) + acctest.Nprintf(`
+	return acctest.Nprintf(`
+provider "echo" {
+  data = %{ephemeral_reference}
+}
+resource "echo" "test" {}
+
 ephemeral "google_service_account_jwt" "%{ephemeral_resource_name}" {
   target_service_account = "%{target_service_account}"
   delegates = [
@@ -156,7 +166,12 @@ ephemeral "google_service_account_jwt" "%{ephemeral_resource_name}" {
 }
 
 func testAccEphemeralServiceAccountJwt_withExpiresIn(context map[string]interface{}) string {
-	return acctest.EchoResourceConfig(context["ephemeral_reference"].(string)) + acctest.Nprintf(`
+	return acctest.Nprintf(`
+provider "echo" {
+  data = %{ephemeral_reference}
+}
+resource "echo" "test" {}
+
 ephemeral "google_service_account_jwt" "%{ephemeral_resource_name}" {
   target_service_account = "%{target_service_account}"
   expires_in            = %{expires_in}
