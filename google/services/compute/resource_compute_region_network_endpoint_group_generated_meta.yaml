@@ -19,7 +19,10 @@ fields:
     - api_field: name
     - api_field: network
     - api_field: networkEndpointType
+    - api_field: pscData.consumerPscAddress
     - api_field: pscData.producerPort
+    - api_field: pscData.pscConnectionId
+    - api_field: pscData.pscConnectionStatus
     - api_field: pscTargetService
     - api_field: region
     - api_field: subnetwork

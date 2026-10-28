@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `psc_data.psc_connection_id`, `psc_data.psc_connection_status`, and `psc_data.consumer_psc_address` fields to `google_compute_region_network_endpoint_group` resource
+```

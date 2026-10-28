@@ -500,6 +500,21 @@ The following arguments are supported:
   private-service-connect, then PSC NEG will be connected to a first port in the
   available PSC producer port range.
 
+* `psc_connection_id` -
+  (Output)
+  The PSC connection id of the PSC Network Endpoint Group Consumer.
+
+* `psc_connection_status` -
+  (Output)
+  The connection status of the PSC Network Endpoint Group Consumer.
+  Possible values: `STATUS_UNSPECIFIED`, `PENDING`, `ACCEPTED`,
+  `REJECTED`, `CLOSED`, `NEEDS_ATTENTION`
+
+* `consumer_psc_address` -
+  (Output)
+  Address allocated from given subnetwork for PSC. This IP address acts
+  as a VIP for a PSC NEG, allowing it to act as an endpoint in L7 PSC-XLB.
+
 <a name="nested_cloud_run"></a>The `cloud_run` block supports:
 
 * `service` -
