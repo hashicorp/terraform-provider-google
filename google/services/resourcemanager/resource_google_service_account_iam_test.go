@@ -17,6 +17,7 @@
 package resourcemanager_test
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -213,8 +214,8 @@ func TestAccServiceAccountIamMember_concurrentConflicts(t *testing.T) {
 	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	email := envvar.ServiceAccountCanonicalEmail(account)
 	identity := fmt.Sprintf("serviceAccount:%s", email)
-	stopCh := make(chan struct{})
-	defer close(stopCh)
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -224,14 +225,20 @@ func TestAccServiceAccountIamMember_concurrentConflicts(t *testing.T) {
 				Config: testAccServiceAccountIamMember_accountOnly(account),
 			},
 			{
-				PreConfig: triggerConcurrentServiceAccountIamConflicts(t, account, stopCh),
+				PreConfig: func() { go triggerConcurrentServiceAccountIamConflicts(ctx, t, account) },
 				// The service account already exists from the first step, and PreConfig starts a background
-				// goroutine that rapidly re-writes its IAM policy for 25s to keep rotating the policy etag.
+				// goroutine that rapidly re-writes its IAM policy for up to 25s to keep rotating the policy etag.
 				// Applying google_service_account_iam_member.foo during this window forces repeated 409 ABORTED
 				// RMW conflicts that previously exhausted the 5-attempt cap (~15s), verifying the retry loop
 				// backs off across the conflict window and succeeds once the concurrent writes subside.
 				Config: testAccServiceAccountIamMember_basic(account, email),
-				Check:  testAccCheckGoogleServiceAccountIam(t, account, 1),
+				Check: resource.ComposeTestCheckFunc(
+					func(s *terraform.State) error {
+						cancel()
+						return nil
+					},
+					testAccCheckGoogleServiceAccountIam(t, account, 1),
+				),
 			},
 			{
 				ResourceName:      "google_service_account_iam_member.foo",
@@ -243,45 +250,42 @@ func TestAccServiceAccountIamMember_concurrentConflicts(t *testing.T) {
 	})
 }
 
-func triggerConcurrentServiceAccountIamConflicts(t *testing.T, account string, stopCh <-chan struct{}) func() {
-	return func() {
-		config := acctest.GoogleProviderConfig(t)
-		url := fmt.Sprintf("https://iam.googleapis.com/v1/%s", serviceAccountCanonicalId(account))
-		go func() {
-			deadline := time.Now().Add(25 * time.Second)
-			var policy map[string]interface{}
-			for time.Now().Before(deadline) {
-				select {
-				case <-stopCh:
-					return
-				default:
-				}
-				if policy == nil {
-					var err error
-					policy, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-						Config:    config,
-						Method:    "POST",
-						RawURL:    fmt.Sprintf("%s:getIamPolicy?options.requestedPolicyVersion=%d", url, tpgiamresource.IamPolicyVersion),
-						UserAgent: config.UserAgent,
-					})
-					if err != nil {
-						continue
-					}
-				}
-				updated, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-					Config:    config,
-					Method:    "POST",
-					RawURL:    url + ":setIamPolicy",
-					UserAgent: config.UserAgent,
-					Body:      map[string]interface{}{"policy": policy},
-				})
-				if err != nil {
-					policy = nil
-					continue
-				}
-				policy = updated
+func triggerConcurrentServiceAccountIamConflicts(ctx context.Context, t *testing.T, account string) {
+	config := acctest.GoogleProviderConfig(t)
+	url := fmt.Sprintf("https://iam.googleapis.com/v1/%s", serviceAccountCanonicalId(account))
+	deadline := time.Now().Add(25 * time.Second)
+	var policy map[string]interface{}
+	for time.Now().Before(deadline) && ctx.Err() == nil {
+		if policy == nil {
+			var err error
+			policy, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				RawURL:    fmt.Sprintf("%s:getIamPolicy?options.requestedPolicyVersion=%d", url, tpgiamresource.IamPolicyVersion),
+				UserAgent: config.UserAgent,
+			})
+			if err != nil {
+				continue
 			}
-		}()
+			// Once google_service_account_iam_member.foo has succeeded in writing its
+			// binding, stop mutating the policy so the background loop does not rotate
+			// the policy etag after Create's Read or during Step 3's ImportStateVerify.
+			if bindings, ok := policy["bindings"].([]interface{}); ok && len(bindings) > 0 {
+				return
+			}
+		}
+		updated, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			RawURL:    url + ":setIamPolicy",
+			UserAgent: config.UserAgent,
+			Body:      map[string]interface{}{"policy": policy},
+		})
+		if err != nil {
+			policy = nil
+			continue
+		}
+		policy = updated
 	}
 }
 
