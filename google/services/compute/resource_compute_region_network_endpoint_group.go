@@ -329,6 +329,24 @@ this flag isn't specified for a PSC NEG with endpoint type
 private-service-connect, then PSC NEG will be connected to a first port in the
 available PSC producer port range.`,
 						},
+						"consumer_psc_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Address allocated from given subnetwork for PSC. This IP address acts
+as a VIP for a PSC NEG, allowing it to act as an endpoint in L7 PSC-XLB.`,
+						},
+						"psc_connection_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The PSC connection id of the PSC Network Endpoint Group Consumer.`,
+						},
+						"psc_connection_status": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The connection status of the PSC Network Endpoint Group Consumer.
+Possible values: 'STATUS_UNSPECIFIED', 'PENDING', 'ACCEPTED',
+'REJECTED', 'CLOSED', 'NEEDS_ATTENTION'`,
+						},
 					},
 				},
 			},
@@ -747,10 +765,28 @@ func flattenComputeRegionNetworkEndpointGroupPscData(v interface{}, d *schema.Re
 	transformed := make(map[string]interface{})
 	transformed["producer_port"] =
 		flattenComputeRegionNetworkEndpointGroupPscDataProducerPort(original["producerPort"], d, config)
+	transformed["psc_connection_id"] =
+		flattenComputeRegionNetworkEndpointGroupPscDataPscConnectionId(original["pscConnectionId"], d, config)
+	transformed["psc_connection_status"] =
+		flattenComputeRegionNetworkEndpointGroupPscDataPscConnectionStatus(original["pscConnectionStatus"], d, config)
+	transformed["consumer_psc_address"] =
+		flattenComputeRegionNetworkEndpointGroupPscDataConsumerPscAddress(original["consumerPscAddress"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRegionNetworkEndpointGroupPscDataProducerPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("psc_data.0.producer_port")
+}
+
+func flattenComputeRegionNetworkEndpointGroupPscDataPscConnectionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionNetworkEndpointGroupPscDataPscConnectionStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionNetworkEndpointGroupPscDataConsumerPscAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeRegionNetworkEndpointGroupCloudRun(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -889,10 +925,43 @@ func expandComputeRegionNetworkEndpointGroupPscData(v interface{}, d tpgresource
 		transformed["producerPort"] = transformedProducerPort
 	}
 
+	transformedPscConnectionId, err := expandComputeRegionNetworkEndpointGroupPscDataPscConnectionId(original["psc_connection_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPscConnectionId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pscConnectionId"] = transformedPscConnectionId
+	}
+
+	transformedPscConnectionStatus, err := expandComputeRegionNetworkEndpointGroupPscDataPscConnectionStatus(original["psc_connection_status"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPscConnectionStatus); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pscConnectionStatus"] = transformedPscConnectionStatus
+	}
+
+	transformedConsumerPscAddress, err := expandComputeRegionNetworkEndpointGroupPscDataConsumerPscAddress(original["consumer_psc_address"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConsumerPscAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["consumerPscAddress"] = transformedConsumerPscAddress
+	}
+
 	return transformed, nil
 }
 
 func expandComputeRegionNetworkEndpointGroupPscDataProducerPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionNetworkEndpointGroupPscDataPscConnectionId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionNetworkEndpointGroupPscDataPscConnectionStatus(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionNetworkEndpointGroupPscDataConsumerPscAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
