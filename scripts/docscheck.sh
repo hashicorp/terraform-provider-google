@@ -7,37 +7,9 @@ for doc in $docs; do
   dirname=$(dirname "$doc")
   category=$(basename "$dirname")
 
-
   case "$category" in
-    "guides")
-      # Guides require a page_title
-      grep "^page_title: " "$doc" > /dev/null
-      if [[ "$?" == "1" ]]; then
-        echo "Guide is missing a page_title: $doc"
-        error=true
-      fi
-      ;;
-
-    "d" | "r" | "list-resources")
-      # Resources, data sources, and list resources require a subcategory
-      grep "^subcategory: " "$doc" > /dev/null
-      if [[ "$?" == "1" ]]; then
-        echo "Doc is missing a subcategory: $doc"
-        error=true
-      fi
-      ;;
-
-    "ephemeral-resources")
-      # Ephemeral resources require a subcategory
-      grep "^subcategory: " "$doc" > /dev/null
-      if [[ "$?" == "1" ]]; then
-        echo "Doc is missing a subcategory: $doc"
-        error=true
-      fi
-      ;;
-
-    "functions")
-      # Functions require a page_title
+    "guides" | "functions")
+      # Guides and functions require a page_title
       grep "^page_title: " "$doc" > /dev/null
       if [[ "$?" == "1" ]]; then
         echo "Doc is missing a page_title: $doc"
@@ -45,10 +17,19 @@ for doc in $docs; do
       fi
       ;;
 
+    "d" | "r" | "list-resources" | "ephemeral-resources" | "actions")
+      # Resources, data sources, list resources, ephemeral resources and actions require a subcategory
+      grep "^subcategory: " "$doc" > /dev/null
+      if [[ "$?" == "1" ]]; then
+        echo "Doc is missing a subcategory: $doc"
+        error=true
+      fi
+      ;;
+      
     *)
       error=true
       echo "Unknown category \"$category\". " \
-        "Docs can only exist in r/, d/, list-resources/, ephemeral-resources/, functions/ or guides/ folders."
+        "Docs can only exist in r/, d/, actions/, list-resources/, ephemeral-resources/, functions/ or guides/ folders."
       ;;
   esac
 done
