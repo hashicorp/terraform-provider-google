@@ -58,7 +58,7 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
+  region        = "us-west4"
   network       = google_compute_network.default.name
 }
 
@@ -66,7 +66,7 @@ resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
+  location               = "us-west4"
   
   labels = {
     "label" = "key"
@@ -77,15 +77,20 @@ resource "google_workstations_workstation_cluster" "default" {
   }
 }
 
+resource "google_service_account" "default" {
+  account_id   = "my-account"
+  display_name = "Service Account"
+}
+
 resource "google_workstations_workstation_config" "default" {
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location   		         = "us-central1"
+  location   		         = "us-west4"
 
   idle_timeout = "600s"
   running_timeout = "21600s"
 
-  replica_zones = ["us-central1-a", "us-central1-b"]
+  replica_zones = ["us-west4-a", "us-west4-b"]
   annotations = {
     label-one = "value-one"
   }
@@ -100,10 +105,23 @@ resource "google_workstations_workstation_config" "default" {
     gce_instance {
       machine_type                = "e2-standard-4"
       boot_disk_size_gb           = 35
+      pool_size                   = 0
+      service_account             = google_service_account.default.email
+      service_account_scopes      = ["https://www.googleapis.com/auth/cloud-platform"]
       disable_public_ip_addresses = true
       disable_ssh                 = false
       vm_tags = {
         (google_tags_tag_key.tag_key1.id) = google_tags_tag_value.tag_value1.id
+      }
+
+      shielded_instance_config {
+        enable_secure_boot          = false
+        enable_vtpm                 = false
+        enable_integrity_monitoring = false
+      }
+
+      confidential_instance_config {
+        enable_confidential_compute = false
       }
     }
   }
@@ -119,119 +137,8 @@ resource "google_workstations_workstation_config" "default" {
 
 
 ```hcl
-resource "google_compute_network" "default" {
-  name                    = "workstation-cluster"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "default" {
-  name          = "workstation-cluster"
-  ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
-  network       = google_compute_network.default.name
-}
-
-resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "workstation-cluster"
-  network                = google_compute_network.default.id
-  subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-  
-  labels = {
-    "label" = "key"
-  }
-
-  annotations = {
-    label-one = "value-one"
-  }
-}
-
-resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "workstation-config"
-  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location   		         = "us-central1"
-
-  host {
-    gce_instance {
-      machine_type                 = "n1-standard-4"
-      boot_disk_size_gb            = 35
-      disable_public_ip_addresses  = true
-      enable_nested_virtualization = true
-    }
-  }
-
-  container {
-    image = "intellij"
-    env = {
-      NAME = "FOO"
-      BABE = "bar"
-    }
-  }
-}
-```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_hyperdisk&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
-
-## Example Usage - Workstation Config Hyperdisk
-
-
-```hcl
-resource "google_compute_network" "default" {
-  name                    = "workstation-cluster"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "default" {
-  name          = "workstation-cluster"
-  ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
-  network       = google_compute_network.default.name
-}
-
-resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "workstation-cluster"
-  network                = google_compute_network.default.id
-  subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-}
-
-resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "workstation-config"
-  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location               = "us-central1"
-
-  host {
-    gce_instance {
-      # C3 machine types require Hyperdisk storage
-      machine_type = "c3-standard-22"
-    }
-  }
-
-  persistent_directories {
-    mount_path = "/home"
-    gce_hd {
-      size_gb         = 200
-      reclaim_policy  = "DELETE"
-      archive_timeout = "3600s"
-    }
-  }
-}
-```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_hyperdisk_source_snapshot&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
-
-## Example Usage - Workstation Config Hyperdisk Source Snapshot
-
-
-```hcl
 resource "google_tags_tag_key" "tag_key1" {
-  parent     = "organizations/0123456789"
+  parent     = "organizations/123456789"
   short_name = "keyname"
 }
 
@@ -248,75 +155,7 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
-  network       = google_compute_network.default.name
-}
-
-resource "google_compute_disk" "my_source_disk" {
-  name  = "workstation-config-source-disk"
-  size  = 10
-  type  = "pd-ssd"
-  zone  = "us-central1-a"
-}
-
-resource "google_compute_snapshot" "my_source_snapshot" {
-  name        = "workstation-config-source-snapshot"
-  source_disk = google_compute_disk.my_source_disk.name
-  zone        = "us-central1-a"
-}
-
-resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "workstation-cluster"
-  network                = google_compute_network.default.id
-  subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-}
-
-resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "workstation-config"
-  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location               = "us-central1"
-
-  host {
-      gce_instance {
-        machine_type                = "c3-standard-22"
-        boot_disk_size_gb           = 35
-        disable_public_ip_addresses = true
-        vm_tags = {
-          (google_tags_tag_key.tag_key1.id) = google_tags_tag_value.tag_value1.id
-        }
-      }
-    }
-
-  persistent_directories {
-    mount_path = "/home"
-    gce_hd {
-      source_snapshot = google_compute_snapshot.my_source_snapshot.id
-      reclaim_policy  = "DELETE"
-      archive_timeout = "3600s"
-    }
-  }
-}
-```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_persistent_directories&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
-
-## Example Usage - Workstation Config Persistent Directories
-
-
-```hcl
-resource "google_compute_network" "default" {
-  name                    = "workstation-cluster"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "default" {
-  name          = "workstation-cluster"
-  ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
+  region        = "us-west4"
   network       = google_compute_network.default.name
 }
 
@@ -324,8 +163,8 @@ resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-  
+  location               = "us-west4"
+
   labels = {
     "label" = "key"
   }
@@ -335,44 +174,79 @@ resource "google_workstations_workstation_cluster" "default" {
   }
 }
 
+resource "google_service_account" "default" {
+  account_id   = "my-account"
+  display_name = "Service Account"
+}
+
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "workstation-config"
-  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location   		         = "us-central1"
+  workstation_config_id   = "workstation-config"
+  workstation_cluster_id  = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location                = "us-west4"
+  display_name            = "Display Name N"
+  idle_timeout            = "1200s"
+  running_timeout         = "43200s"
+  replica_zones           = ["us-west4-a", "us-west4-b"]
+  disable_tcp_connections = true
+  max_usable_workstations = 2
+
+  labels = {
+    foo = "bar"
+  }
+
+  readiness_checks {
+    path = "/"
+    port = 80
+  }
+
+  allowed_ports {
+    first = 80
+    last  = 80
+  }
 
   host {
     gce_instance {
-      machine_type                = "e2-standard-4"
-      boot_disk_size_gb           = 35
-      disable_public_ip_addresses = true
-      shielded_instance_config {
-        enable_secure_boot = true
-        enable_vtpm        = true
+      machine_type                 = "n1-standard-4"
+      boot_disk_size_gb            = 35
+      disable_public_ip_addresses  = true
+      enable_nested_virtualization = true
+      instance_metadata = {
+        "startup-key"  = "startup-value"
+        "custom-field" = "custom-value"
       }
     }
   }
 
-  persistent_directories {
-    mount_path = "/home"
-    gce_pd {
-      size_gb        = 200
-      fs_type        = "ext4"
-      disk_type      = "pd-standard"
-      reclaim_policy = "DELETE"
+  container {
+    image       = "us-central1-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest"
+    working_dir = "/test"
+    env = {
+      NAME = "FOO"
+      BABE = "bar"
     }
   }
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_source_snapshot&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_allowed_ports&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
 </div>
 
-## Example Usage - Workstation Config Source Snapshot
+## Example Usage - Workstation Config Allowed Ports
 
 
 ```hcl
+resource "google_tags_tag_key" "tag_key1" {
+  parent     = "organizations/123456789"
+  short_name = "keyname"
+}
+
+resource "google_tags_tag_value" "tag_value1" {
+  parent     = google_tags_tag_key.tag_key1.id
+  short_name = "valuename"
+}
+
 resource "google_compute_network" "default" {
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
@@ -381,41 +255,89 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
+  region        = "us-west4"
   network       = google_compute_network.default.name
-}
-
-resource "google_compute_disk" "my_source_disk" {
-  name     = "workstation-config"
-  size     = 10
-  type     = "pd-ssd"
-  zone     = "us-central1-a"
-}
-
-resource "google_compute_snapshot" "my_source_snapshot" {
-  name        = "workstation-config"
-  source_disk = google_compute_disk.my_source_disk.name
-  zone        = "us-central1-a"
 }
 
 resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
+  location               = "us-west4"
+
+  labels = {
+    "label" = "key"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+}
+
+resource "google_service_account" "default" {
+  account_id   = "my-account"
+  display_name = "Service Account"
 }
 
 resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "workstation-config"
-  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location               = google_workstations_workstation_cluster.default.location
+  workstation_config_id   = "workstation-config"
+  workstation_cluster_id  = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location                = "us-west4"
+  display_name            = "Display Name N2"
+  idle_timeout            = "600s"
+  running_timeout         = "21600s"
+  replica_zones           = ["us-west4-a", "us-west4-b"]
+  disable_tcp_connections = false
+  max_usable_workstations = 1
 
-  persistent_directories {
-    mount_path = "/home"
+  annotations = {
+    label-one = "value-one"
+  }
 
-    gce_pd {
-      source_snapshot = google_compute_snapshot.my_source_snapshot.id
-      reclaim_policy  = "DELETE"
+  labels = {
+    "label" = "key"
+  }
+
+  readiness_checks {
+    path = "/healthz"
+    port = 8080
+  }
+
+  # Allow only port 80 (HTTP)
+  allowed_ports {
+    first = 80
+    last  = 80
+  }
+
+  # Allow only port 22 (SSH)
+  allowed_ports {
+    first = 22
+    last  = 22
+  }
+
+  # Allow port range 1024-65535
+  allowed_ports {
+    first = 1024
+    last  = 65535
+  }
+
+  container {
+    image       = "us-central1-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest"
+  }
+
+  host {
+    gce_instance {
+      machine_type                = "e2-standard-4"
+      boot_disk_size_gb           = 35
+      disable_public_ip_addresses = true
+      disable_ssh                 = false
+      vm_tags = {
+        (google_tags_tag_key.tag_key1.id) = google_tags_tag_value.tag_value1.id
+      }
+      instance_metadata = {
+        "startup-key" = "startup-value-changed"
+        "second-key"  = "second-value"
+      }
     }
   }
 }
@@ -430,6 +352,16 @@ resource "google_workstations_workstation_config" "default" {
 
 
 ```hcl
+resource "google_tags_tag_key" "tag_key1" {
+  parent     = "organizations/123456789"
+  short_name = "keyname"
+}
+
+resource "google_tags_tag_value" "tag_value1" {
+  parent     = google_tags_tag_key.tag_key1.id
+  short_name = "valuename"
+}
+
 resource "google_compute_network" "default" {
   name                    = "workstation-cluster"
   auto_create_subnetworks = false
@@ -438,7 +370,7 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
+  region        = "us-west4"
   network       = google_compute_network.default.name
 }
 
@@ -446,8 +378,8 @@ resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-  
+  location               = "us-west4"
+
   labels = {
     "label" = "key"
   }
@@ -457,74 +389,36 @@ resource "google_workstations_workstation_cluster" "default" {
   }
 }
 
+resource "google_service_account" "default" {
+  account_id   = "my-account"
+  display_name = "Service Account"
+}
+
 resource "google_workstations_workstation_config" "default" {
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location   		         = "us-central1"
+  location               = "us-west4"
+
+  enable_audit_agent = true
 
   host {
     gce_instance {
-      machine_type                = "e2-standard-4"
+      machine_type                = "n2d-standard-2"
       boot_disk_size_gb           = 35
-      disable_public_ip_addresses = true
+      pool_size                   = 1
+      service_account             = google_service_account.default.email
+      service_account_scopes      = ["https://www.googleapis.com/auth/cloud-platform"]
+      disable_public_ip_addresses = false
+      tags                        = ["foo", "bar"]
+
       shielded_instance_config {
-        enable_secure_boot = true
-        enable_vtpm        = true
+        enable_secure_boot          = true
+        enable_vtpm                 = true
+        enable_integrity_monitoring = true
       }
-    }
-  }
-}
-```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_accelerators&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
 
-## Example Usage - Workstation Config Accelerators
-
-
-```hcl
-resource "google_compute_network" "default" {
-  name                    = "workstation-cluster"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "default" {
-  name          = "workstation-cluster"
-  ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
-  network       = google_compute_network.default.name
-}
-
-resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "workstation-cluster"
-  network                = google_compute_network.default.id
-  subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-  
-  labels = {
-    "label" = "key"
-  }
-
-  annotations = {
-    label-one = "value-one"
-  }
-}
-
-resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "workstation-config"
-  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location               = "us-central1"
-
-  host {
-    gce_instance {
-      machine_type                = "n1-standard-2"
-      boot_disk_size_gb           = 35
-      disable_public_ip_addresses = true
-      accelerators {
-        type  = "nvidia-tesla-t4"
-        count = "1"
+      confidential_instance_config {
+        enable_confidential_compute = true
       }
     }
   }
@@ -548,7 +442,7 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
+  region        = "europe-west4"
   network       = google_compute_network.default.name
 }
 
@@ -556,7 +450,7 @@ resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
+  location               = "europe-west4"
   
   labels = {
     "label" = "key"
@@ -570,7 +464,7 @@ resource "google_workstations_workstation_cluster" "default" {
 resource "google_workstations_workstation_config" "default" {
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location               = "us-central1"
+  location               = "europe-west4"
 
   host {
     gce_instance {
@@ -597,6 +491,419 @@ resource "google_workstations_workstation_config" "default" {
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_accelerators&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Workstation Config Accelerators
+
+
+```hcl
+resource "google_compute_network" "default" {
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "europe-west4"
+  network       = google_compute_network.default.name
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "europe-west4"
+
+  labels = {
+    "label" = "key"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+}
+
+resource "google_workstations_workstation_config" "default" {
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "europe-west4"
+
+  host {
+    gce_instance {
+      machine_type                = "n1-standard-2"
+      boot_disk_size_gb           = 35
+      disable_public_ip_addresses = true
+      accelerators {
+        type  = "nvidia-tesla-t4"
+        count = "1"
+      }
+    }
+  }
+}
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_persistent_directories&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Workstation Config Persistent Directories
+
+
+```hcl
+resource "google_compute_network" "default" {
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-west4"
+  network       = google_compute_network.default.name
+}
+
+resource "google_compute_disk" "my_source_disk" {
+  name = "workstation-config"
+  size = 10
+  type = "pd-ssd"
+  zone = "us-west4-a"
+}
+
+resource "google_compute_snapshot" "my_source_snapshot" {
+  name        = "workstation-config"
+  source_disk = google_compute_disk.my_source_disk.name
+  zone        = "us-west4-a"
+}
+
+resource "google_compute_image" "my_source_image" {
+  name              = "workstation-config"
+  source_disk       = google_compute_disk.my_source_disk.self_link
+  storage_locations = ["us-west4"]
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-west4"
+
+  labels = {
+    "label" = "key"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+}
+
+resource "google_workstations_workstation_config" "default" {
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-west4"
+
+  persistent_directories {
+    mount_path = "/home"
+    gce_pd {
+      source_snapshot = google_compute_snapshot.my_source_snapshot.id
+      reclaim_policy  = "DELETE"
+    }
+  }
+}
+
+resource "google_workstations_workstation_config" "persistent" {
+  workstation_config_id  = "workstation-config-pd"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-west4"
+
+  host {
+    gce_instance {
+      machine_type                = "e2-standard-4"
+      boot_disk_size_gb           = 35
+      disable_public_ip_addresses = true
+      shielded_instance_config {
+        enable_secure_boot = true
+        enable_vtpm        = true
+      }
+    }
+  }
+
+  persistent_directories {
+    mount_path = "/home"
+    gce_pd {
+      size_gb        = 200
+      fs_type        = "ext4"
+      disk_type      = "pd-standard"
+      reclaim_policy = "DELETE"
+    }
+  }
+}
+
+resource "google_workstations_workstation_config" "ephemeral_snapshot" {
+  workstation_config_id  = "workstation-config-eph-snap"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-west4"
+
+  ephemeral_directories {
+    mount_path = "/cache"
+    gce_pd {
+      source_snapshot = google_compute_snapshot.my_source_snapshot.id
+      read_only       = true
+    }
+  }
+}
+
+resource "google_workstations_workstation_config" "ephemeral_image" {
+  workstation_config_id  = "workstation-config-eph-img"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-west4"
+
+  ephemeral_directories {
+    mount_path = "/cache"
+    gce_pd {
+      disk_type    = "pd-standard"
+      source_image = google_compute_image.my_source_image.id
+    }
+  }
+}
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_source_snapshot&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Workstation Config Source Snapshot
+
+
+```hcl
+resource "google_compute_network" "default" {
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-west4"
+  network       = google_compute_network.default.name
+}
+
+resource "google_compute_disk" "my_source_disk" {
+  name = "workstation-config"
+  size = 10
+  type = "pd-ssd"
+  zone = "us-west4-a"
+}
+
+resource "google_compute_snapshot" "my_source_snapshot" {
+  name        = "workstation-config"
+  source_disk = google_compute_disk.my_source_disk.name
+  zone        = "us-west4-a"
+}
+
+resource "google_compute_snapshot" "my_source_snapshot2" {
+  name        = "workstation-config-2"
+  source_disk = google_compute_disk.my_source_disk.name
+  zone        = "us-west4-a"
+}
+
+resource "google_compute_image" "my_source_image" {
+  name              = "workstation-config"
+  source_disk       = google_compute_disk.my_source_disk.self_link
+  storage_locations = ["us-west4"]
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-west4"
+
+  labels = {
+    "label" = "key"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+}
+
+resource "google_workstations_workstation_config" "default" {
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-west4"
+
+  persistent_directories {
+    mount_path = "/home"
+    gce_pd {
+      source_snapshot = google_compute_snapshot.my_source_snapshot2.id
+      reclaim_policy  = "RETAIN"
+    }
+  }
+}
+
+resource "google_workstations_workstation_config" "persistent" {
+  workstation_config_id  = "workstation-config-pd"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-west4"
+
+  host {
+    gce_instance {
+      machine_type                = "e2-standard-4"
+      boot_disk_size_gb           = 35
+      disable_public_ip_addresses = true
+      shielded_instance_config {
+        enable_secure_boot = true
+        enable_vtpm        = true
+      }
+    }
+  }
+
+  persistent_directories {
+    mount_path = "/home"
+    gce_pd {
+      size_gb        = 200
+      fs_type        = "ext4"
+      disk_type      = "pd-standard"
+      reclaim_policy = "DELETE"
+    }
+  }
+}
+
+resource "google_workstations_workstation_config" "ephemeral_snapshot" {
+  workstation_config_id  = "workstation-config-eph-snap"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-west4"
+
+  ephemeral_directories {
+    mount_path = "/cache"
+    gce_pd {
+      source_snapshot = google_compute_snapshot.my_source_snapshot.id
+      read_only       = true
+    }
+  }
+}
+
+resource "google_workstations_workstation_config" "ephemeral_image" {
+  workstation_config_id  = "workstation-config-eph-img"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-west4"
+
+  ephemeral_directories {
+    mount_path = "/cache"
+    gce_pd {
+      disk_type    = "pd-standard"
+      source_image = google_compute_image.my_source_image.id
+    }
+  }
+}
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_hyperdisk&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Workstation Config Hyperdisk
+
+
+```hcl
+resource "google_tags_tag_key" "tag_key1" {
+  parent     = "organizations/0123456789"
+  short_name = "keyname"
+}
+
+resource "google_tags_tag_value" "tag_value1" {
+  parent     = google_tags_tag_key.tag_key1.id
+  short_name = "valuename"
+}
+
+resource "google_compute_network" "default" {
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-east5"
+  network       = google_compute_network.default.name
+}
+
+resource "google_compute_disk" "my_source_disk" {
+  name = "workstation-config-source-disk"
+  size = 10
+  type = "pd-ssd"
+  zone = "us-east5-a"
+}
+
+resource "google_compute_snapshot" "my_source_snapshot" {
+  name        = "workstation-config-source-snapshot"
+  source_disk = google_compute_disk.my_source_disk.name
+  zone        = "us-east5-a"
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-east5"
+}
+
+resource "google_workstations_workstation_config" "default" {
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-east5"
+
+  host {
+    gce_instance {
+      # C3 machine types require Hyperdisk storage
+      machine_type = "c3-standard-22"
+    }
+  }
+
+  persistent_directories {
+    mount_path = "/home"
+    gce_hd {
+      size_gb         = 200
+      reclaim_policy  = "DELETE"
+      archive_timeout = "3600s"
+    }
+  }
+}
+
+resource "google_workstations_workstation_config" "source_snapshot" {
+  workstation_config_id  = "workstation-config-hd-snap"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-east5"
+
+  host {
+    gce_instance {
+      machine_type                = "c3-standard-22"
+      boot_disk_size_gb           = 35
+      disable_public_ip_addresses = true
+      vm_tags = {
+        (google_tags_tag_key.tag_key1.id) = google_tags_tag_value.tag_value1.id
+      }
+    }
+  }
+
+  persistent_directories {
+    mount_path = "/home"
+    gce_hd {
+      source_snapshot = google_compute_snapshot.my_source_snapshot.id
+      reclaim_policy  = "DELETE"
+      archive_timeout = "3600s"
+    }
+  }
+}
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_encryption_key&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
@@ -616,7 +923,7 @@ resource "google_compute_subnetwork" "default" {
 
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
+  region        = "us-east5"
   network       = google_compute_network.default.name
 }
 
@@ -625,7 +932,7 @@ resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
+  location               = "us-east5"
   
   labels = {
     "label" = "key"
@@ -639,7 +946,7 @@ resource "google_workstations_workstation_cluster" "default" {
 resource "google_kms_key_ring" "default" {
 
   name     = "workstation-cluster"
-  location = "us-central1"
+  location = "us-east5"
 }
 
 resource "google_kms_crypto_key" "default" {
@@ -658,7 +965,7 @@ resource "google_workstations_workstation_config" "default" {
 
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location   		         = "us-central1"
+  location   		         = "us-east5"
 
   host {
     gce_instance {
@@ -675,75 +982,6 @@ resource "google_workstations_workstation_config" "default" {
   encryption_key {
     kms_key                 = google_kms_crypto_key.default.id
     kms_key_service_account = google_service_account.default.email
-  }
-}
-```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_allowed_ports&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
-
-## Example Usage - Workstation Config Allowed Ports
-
-
-```hcl
-resource "google_compute_network" "default" {
-  name                    = "workstation-cluster"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "default" {
-  name          = "workstation-cluster"
-  ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
-  network       = google_compute_network.default.name
-}
-
-resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "workstation-cluster"
-  network                = google_compute_network.default.id
-  subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-  
-  labels = {
-    "label" = "key"
-  }
-
-  annotations = {
-    label-one = "value-one"
-  }
-}
-
-resource "google_workstations_workstation_config" "default" {
-  workstation_config_id  = "workstation-config"
-  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location               = "us-central1"
-
-  host {
-    gce_instance {
-      machine_type                = "e2-standard-4"
-      boot_disk_size_gb           = 35
-      disable_public_ip_addresses = true
-    }
-  }
-
-  # Allow only port 80 (HTTP)
-  allowed_ports {
-    first = 80
-    last  = 80
-  }
-
-  # Allow only port 22 (SSH)
-  allowed_ports {
-    first = 22
-    last  = 22
-  }
-
-  # Allow port range 1024-65535
-  allowed_ports {
-    first = 1024
-    last  = 65535
   }
 }
 ```
@@ -767,7 +1005,7 @@ resource "google_compute_subnetwork" "default" {
   provider      = google-beta
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
+  region        = "us-west4"
   network       = google_compute_network.default.name
 }
 
@@ -776,23 +1014,23 @@ resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
+  location               = "us-west4"
 }
 
 resource "google_workstations_workstation_config" "default" {
   provider               = google-beta
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location               = "us-central1"
+  location               = "us-west4"
 
   idle_timeout = "600s"
   idle_action  = "SUSPEND"
 
   host {
     gce_instance {
-      machine_type                 = "e2-standard-4"
-      boot_disk_size_gb            = 35
-      disable_public_ip_addresses  = true
+      machine_type                = "e2-standard-4"
+      boot_disk_size_gb           = 35
+      disable_public_ip_addresses = true
     }
   }
 }
