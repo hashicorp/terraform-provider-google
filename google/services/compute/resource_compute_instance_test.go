@@ -536,12 +536,6 @@ func TestAccComputeInstance_diskResourcePolicies_attachmentDiff(t *testing.T) {
 	context_1 := map[string]interface{}{
 		"instance_name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
 		"random_suffix": acctest.RandString(t, 10),
-		"comment":       "",
-	}
-	context_2 := map[string]interface{}{
-		"instance_name": context_1["instance_name"],
-		"random_suffix": context_1["random_suffix"],
-		"comment":       "#",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -561,7 +555,7 @@ func TestAccComputeInstance_diskResourcePolicies_attachmentDiff(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeInstance_diskResourcePoliciesAttachment(context_2),
+				Config: testAccComputeInstance_diskResourcePoliciesNoAttachment(context_1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
 				),
@@ -6513,7 +6507,7 @@ resource "google_compute_instance" "foobar" {
 `, context)
 }
 
-func testAccComputeInstance_diskResourcePoliciesAttachment(context map[string]interface{}) string {
+func testAccComputeInstance_diskResourcePoliciesNoAttachment(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-13"
@@ -6559,12 +6553,16 @@ resource "google_compute_instance" "foobar" {
     network = "default"
   }
 }
+`, context)
+}
 
-%{comment} resource "google_compute_disk_resource_policy_attachment" "attachment" {
-%{comment}   name = google_compute_resource_policy.test-snapshot-policy2.name
-%{comment}   disk = google_compute_instance.foobar.name
-%{comment}   zone = google_compute_instance.foobar.zone
-%{comment} }
+func testAccComputeInstance_diskResourcePoliciesAttachment(context map[string]interface{}) string {
+	return testAccComputeInstance_diskResourcePoliciesNoAttachment(context) + acctest.Nprintf(`
+resource "google_compute_disk_resource_policy_attachment" "attachment" {
+  name = google_compute_resource_policy.test-snapshot-policy2.name
+  disk = google_compute_instance.foobar.name
+  zone = google_compute_instance.foobar.zone
+}
 `, context)
 }
 
