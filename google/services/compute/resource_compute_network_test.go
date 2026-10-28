@@ -1028,10 +1028,10 @@ resource "google_compute_network" "baz" {
 func testAccComputeNetwork_bgp(name, bgpBestPathSelectionMode, bgpAlwaysCompareMed, deleteBgpAlwaysCompareMed string) string {
 	var medLine, deleteMedLine string
 	if bgpAlwaysCompareMed != "" {
-		medLine = fmt.Sprintf("  bgp_always_compare_med = %s\n", bgpAlwaysCompareMed)
+		medLine = fmt.Sprintf("bgp_always_compare_med = %s", bgpAlwaysCompareMed)
 	}
 	if deleteBgpAlwaysCompareMed != "" {
-		deleteMedLine = fmt.Sprintf("  delete_bgp_always_compare_med = %s\n", deleteBgpAlwaysCompareMed)
+		deleteMedLine = fmt.Sprintf("delete_bgp_always_compare_med = %s", deleteBgpAlwaysCompareMed)
 	}
 
 	return fmt.Sprintf(`
@@ -1041,7 +1041,9 @@ resource "google_compute_network" "vpc_network" {
   routing_mode            = "GLOBAL"
   project                 = "%s"
   bgp_best_path_selection_mode = "%s"
-%s%s}
+  %s
+  %s
+}
 `, name, envvar.GetTestProjectFromEnv(), bgpBestPathSelectionMode, medLine, deleteMedLine)
 }
 
