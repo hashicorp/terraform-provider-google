@@ -5228,6 +5228,309 @@ func TestAccSqlDatabaseInstance_editionUpdateForEnhancedBackupTierInstance(t *te
 	})
 }
 
+func TestAccSqlDatabaseInstance_blueGreenDeployment_mvuSwitchover(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-bgd-" + acctest.RandString(t, 10)
+	deploymentName := "tf-test-dep-" + acctest.RandString(t, 10)
+	var instanceID string
+	var oldSourceInstanceName string
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Step 1: Create MYSQL_8_0 Blue instance via Terraform with no BGD block.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_noBgd(instanceName, "MYSQL_8_0"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCaptureID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "database_version", "MYSQL_8_0"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "0"),
+				),
+			},
+			// Step 2 (TC-H01): Add blue_green_deployment block via Update (target_database_version = MYSQL_8_4, active_environment = SOURCE).
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_withBgd(instanceName, "MYSQL_8_0", deploymentName, "MYSQL_8_4", "SOURCE", false),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_sql_database_instance.instance", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "database_version", "MYSQL_8_0"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "1"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.deployment_name", deploymentName),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.target_database_version", "MYSQL_8_4"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.active_environment", "SOURCE"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.delete_old_source_on_destroy", "false"),
+					resource.TestCheckResourceAttrSet("google_sql_database_instance.instance", "blue_green_deployment.0.target_instance_name"),
+					resource.TestCheckResourceAttrSet("google_sql_database_instance.instance", "blue_green_deployment.0.target_instance_connection_name"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.old_source_instance_name", ""),
+				),
+			},
+			// Step 3 (TC-H08): Verify ImportState at SOURCE.
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "blue_green_deployment.0.delete_old_source_on_destroy"},
+			},
+			// Step 4 (TC-NH01): Plan-time guard blocking in-place rename of deployment_name.
+			{
+				Config:      testGoogleSqlDatabaseInstance_blueGreenDeployment_withBgd(instanceName, "MYSQL_8_0", deploymentName+"-renamed", "MYSQL_8_4", "SOURCE", false),
+				ExpectError: regexp.MustCompile("Source instance '.*' already has a blue-green deployment\\."),
+			},
+			// Step 5 (TC-NH02): Plan-time guard blocking modification of target_database_version.
+			{
+				Config:      testGoogleSqlDatabaseInstance_blueGreenDeployment_withBgd(instanceName, "MYSQL_8_0", deploymentName, "MYSQL_8_0", "SOURCE", false),
+				ExpectError: regexp.MustCompile("target_database_version is immutable and cannot be changed from .* to .*"),
+			},
+			// Step 6 (TC-NH04): Plan-time guard blocking switchover without updating root database_version.
+			{
+				Config:      testGoogleSqlDatabaseInstance_blueGreenDeployment_withBgd(instanceName, "MYSQL_8_0", deploymentName, "MYSQL_8_4", "TARGET", false),
+				ExpectError: regexp.MustCompile("(?s)cannot switchover deployment .*: update terraform configuration to match green instance .*database_version \\(configured: MYSQL_8_0, green instance: MYSQL_8_4\\)"),
+			},
+			// Plan-time guard blocking changing database_version while active_environment stays SOURCE.
+			{
+				Config:      testGoogleSqlDatabaseInstance_blueGreenDeployment_withBgd(instanceName, "MYSQL_8_4", deploymentName, "MYSQL_8_4", "SOURCE", false),
+				ExpectError: regexp.MustCompile("cannot change database_version while active_environment is \"SOURCE\"; to perform a switchover, you must update both active_environment to \"TARGET\" and database_version together"),
+			},
+			// Step 7 (TC-H01): Single-step atomic switchover to TARGET + update root database_version = MYSQL_8_4.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_withBgd(instanceName, "MYSQL_8_4", deploymentName, "MYSQL_8_4", "TARGET", false),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_sql_database_instance.instance", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "database_version", "MYSQL_8_4"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.active_environment", "TARGET"),
+					resource.TestCheckResourceAttrSet("google_sql_database_instance.instance", "blue_green_deployment.0.old_source_instance_name"),
+					resource.TestCheckResourceAttrSet("google_sql_database_instance.instance", "blue_green_deployment.0.old_source_instance_connection_name"),
+					testAccSqlDatabaseInstanceCaptureAttr("google_sql_database_instance.instance", "blue_green_deployment.0.old_source_instance_name", &oldSourceInstanceName),
+				),
+			},
+			// Step 8 (TC-H08): Verify ImportState at TARGET.
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "blue_green_deployment.0.delete_old_source_on_destroy"},
+			},
+			// Step 9 (TC-NH03): Plan-time guard blocking reversal of active_environment from TARGET back to SOURCE.
+			{
+				Config:      testGoogleSqlDatabaseInstance_blueGreenDeployment_withBgd(instanceName, "MYSQL_8_4", deploymentName, "MYSQL_8_4", "SOURCE", false),
+				ExpectError: regexp.MustCompile("switchover is irreversible: cannot revert active_environment from \"TARGET\" to \"SOURCE\" on deployment"),
+			},
+			// Step 10 (TC-H06): Update delete_old_source_on_destroy = true in-place post-switchover.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_withBgd(instanceName, "MYSQL_8_4", deploymentName, "MYSQL_8_4", "TARGET", true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.delete_old_source_on_destroy", "true"),
+				),
+			},
+			// Step 11 (TC-H01 / Delete Scenario #1): Remove BGD block post-switchover with delete_old_source_on_destroy = true.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_noBgd(instanceName, "MYSQL_8_4"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "database_version", "MYSQL_8_4"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "0"),
+					testAccSqlDatabaseInstanceCheckBgdDeleted(t, "us-central1", deploymentName),
+					testAccSqlDatabaseInstanceCheckInstanceDeletedByPtr(t, &oldSourceInstanceName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_blueGreenDeployment_createAndAbort(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-bgd-" + acctest.RandString(t, 10)
+	deploymentName := "tf-test-dep-" + acctest.RandString(t, 10)
+	var instanceID string
+	var targetInstanceName string
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Step 1 (TC-NH05): Schema ValidateFunc check for invalid active_environment.
+			{
+				Config:      testGoogleSqlDatabaseInstance_blueGreenDeployment_sameVersion(instanceName, "MYSQL_8_0", deploymentName, "GREEN", true),
+				ExpectError: regexp.MustCompile("expected blue_green_deployment\\.0\\.active_environment to be one of \\[\"SOURCE\" \"TARGET\"\\], got GREEN"),
+			},
+			// Step 2 (TC-NH06): Schema Required check when deployment_name is omitted.
+			{
+				Config:      testGoogleSqlDatabaseInstance_blueGreenDeployment_missingDeploymentName(instanceName, "MYSQL_8_0"),
+				ExpectError: regexp.MustCompile("The argument \"deployment_name\" is required"),
+			},
+			// Step 3 (TC-NH09): Plan-time guard blocking initial BGD creation with active_environment = TARGET.
+			{
+				Config:      testGoogleSqlDatabaseInstance_blueGreenDeployment_sameVersion(instanceName, "MYSQL_8_0", deploymentName, "TARGET", true),
+				ExpectError: regexp.MustCompile("cannot create deployment .* with active_environment \"TARGET\": initial value must be \"SOURCE\""),
+			},
+			// Step 4 (TC-H02, TC-H03): Create instance and initiate same-version BGD in a single apply.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_sameVersion(instanceName, "MYSQL_8_0", deploymentName, "SOURCE", true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCaptureID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "database_version", "MYSQL_8_0"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "1"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.deployment_name", deploymentName),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.active_environment", "SOURCE"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.delete_old_source_on_destroy", "true"),
+					resource.TestCheckResourceAttrSet("google_sql_database_instance.instance", "blue_green_deployment.0.target_instance_name"),
+					testAccSqlDatabaseInstanceCaptureAttr("google_sql_database_instance.instance", "blue_green_deployment.0.target_instance_name", &targetInstanceName),
+				),
+			},
+			// Step 5 (TC-H04 / Delete Scenario #3): Remove BGD block pre-switchover (active_environment = SOURCE).
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_noBgd(instanceName, "MYSQL_8_0"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "0"),
+					testAccSqlDatabaseInstanceCheckBgdDeleted(t, "us-central1", deploymentName),
+					testAccSqlDatabaseInstanceCheckInstanceDeletedByPtr(t, &targetInstanceName),
+					testAccSqlDatabaseInstanceCheckInstanceExists(t, instanceName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_blueGreenDeployment_retainOldSource(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-bgd-" + acctest.RandString(t, 10)
+	deploymentName := "tf-test-dep-" + acctest.RandString(t, 10)
+	var instanceID string
+	var oldSourceInstanceName string
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Step 1: Create MYSQL_8_0 instance WITH BGD block in Step 1.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_sameVersion(instanceName, "MYSQL_8_0", deploymentName, "SOURCE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCaptureID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "1"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.active_environment", "SOURCE"),
+				),
+			},
+			// Step 2: Switchover to TARGET with delete_old_source_on_destroy = false.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_sameVersion(instanceName, "MYSQL_8_0", deploymentName, "TARGET", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.active_environment", "TARGET"),
+					resource.TestCheckResourceAttrSet("google_sql_database_instance.instance", "blue_green_deployment.0.old_source_instance_name"),
+					testAccSqlDatabaseInstanceCaptureAttr("google_sql_database_instance.instance", "blue_green_deployment.0.old_source_instance_name", &oldSourceInstanceName),
+				),
+			},
+			// Step 3 (TC-H05 / Delete Scenario #2): Remove BGD block post-switchover with delete_old_source_on_destroy = false.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_noBgd(instanceName, "MYSQL_8_0"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "0"),
+					testAccSqlDatabaseInstanceCheckBgdDeleted(t, "us-central1", deploymentName),
+					testAccSqlDatabaseInstanceCheckOldSourceRetainedAndCleanup(t, &oldSourceInstanceName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_blueGreenDeployment_outOfBandCreate(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-bgd-" + acctest.RandString(t, 10)
+	deploymentName := "tf-test-dep-" + acctest.RandString(t, 10)
+	var instanceID string
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Step 1: Create MYSQL_8_0 Blue instance via Terraform with NO blue_green_deployment block.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_noBgd(instanceName, "MYSQL_8_0"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCaptureID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "0"),
+				),
+			},
+			// Step 2 (TC-NH08): Create BGD out-of-band in PreConfig; re-apply .tf with no BGD block -> discovers and deletes out-of-band BGD.
+			{
+				PreConfig: func() {
+					testAccSqlDatabaseInstanceCreateBgdOutOfBand(t, instanceName, "us-central1", deploymentName)
+				},
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_noBgd(instanceName, "MYSQL_8_0"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "0"),
+					testAccSqlDatabaseInstanceCheckBgdDeleted(t, "us-central1", deploymentName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSqlDatabaseInstance_blueGreenDeployment_outOfBandDelete(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-bgd-" + acctest.RandString(t, 10)
+	deploymentName := "tf-test-dep-" + acctest.RandString(t, 10)
+	var instanceID string
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Step 1: Create MYSQL_8_0 instance WITH blue_green_deployment block via Terraform.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_sameVersion(instanceName, "MYSQL_8_0", deploymentName, "SOURCE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCaptureID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "1"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.deployment_name", deploymentName),
+				),
+			},
+			// Step 2 (TC-NH07): Delete BGD out-of-band in PreConfig; verify refresh clears state and detects drift.
+			{
+				PreConfig: func() {
+					testAccSqlDatabaseInstanceDeleteBgdOutOfBand(t, "us-central1", deploymentName)
+				},
+				Config:             testGoogleSqlDatabaseInstance_blueGreenDeployment_sameVersion(instanceName, "MYSQL_8_0", deploymentName, "SOURCE", false),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+			},
+			// Step 3 (TC-NH07): Remove BGD block from .tf config cleanly without error.
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_noBgd(instanceName, "MYSQL_8_0"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func testGoogleSqlDatabaseInstance_attachGCBDR(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "project" {}
@@ -10557,6 +10860,281 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection =  false
 }
 `, instanceName, enforce)
+}
+
+func testAccSqlDatabaseInstanceCaptureAttr(resourceName, attrName string, target *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource %s not found in state", resourceName)
+		}
+		val, ok := rs.Primary.Attributes[attrName]
+		if !ok || val == "" {
+			return fmt.Errorf("attribute %q not set on resource %s", attrName, resourceName)
+		}
+		*target = val
+		return nil
+	}
+}
+
+func testAccSqlDatabaseInstanceCheckBgdDeleted(t *testing.T, region, deploymentName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+		bgdName := fmt.Sprintf("projects/%s/locations/%s/blueGreenDeployments/%s", config.Project, region, deploymentName)
+		_, err := sql.NewClient(config, config.UserAgent).BlueGreenDeployments.Get(bgdName).Do()
+		if err == nil {
+			return fmt.Errorf("expected Blue-Green Deployment %q to be deleted, but it still exists", deploymentName)
+		}
+		if !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+			return fmt.Errorf("unexpected error checking Blue-Green Deployment %q deletion: %s", deploymentName, err)
+		}
+		return nil
+	}
+}
+
+func testAccSqlDatabaseInstanceCheckInstanceDeletedByPtr(t *testing.T, instanceNamePtr *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceNamePtr == nil || *instanceNamePtr == "" {
+			return fmt.Errorf("instanceNamePtr is empty")
+		}
+		config := acctest.GoogleProviderConfig(t)
+		_, err := sql.NewClient(config, config.UserAgent).Instances.Get(config.Project, *instanceNamePtr).Do()
+		if err == nil {
+			return fmt.Errorf("expected Cloud SQL instance %q to be deleted, but it still exists", *instanceNamePtr)
+		}
+		if !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+			return fmt.Errorf("unexpected error checking Cloud SQL instance %q deletion: %s", *instanceNamePtr, err)
+		}
+		return nil
+	}
+}
+
+func testAccSqlDatabaseInstanceCheckInstanceExists(t *testing.T, instanceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+		inst, err := sql.NewClient(config, config.UserAgent).Instances.Get(config.Project, instanceName).Do()
+		if err != nil {
+			return fmt.Errorf("expected Cloud SQL instance %q to exist, but got error: %s", instanceName, err)
+		}
+		if inst.State != "RUNNABLE" {
+			return fmt.Errorf("expected Cloud SQL instance %q to be RUNNABLE, got %q", instanceName, inst.State)
+		}
+		return nil
+	}
+}
+
+func testAccSqlDatabaseInstanceCheckOldSourceRetainedAndCleanup(t *testing.T, oldSourceInstanceNamePtr *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if oldSourceInstanceNamePtr == nil || *oldSourceInstanceNamePtr == "" {
+			return fmt.Errorf("oldSourceInstanceNamePtr is empty")
+		}
+		oldSourceName := *oldSourceInstanceNamePtr
+		config := acctest.GoogleProviderConfig(t)
+		sqlClient := sql.NewClient(config, config.UserAgent)
+
+		_, err := sqlClient.Instances.Get(config.Project, oldSourceName).Do()
+		if err != nil {
+			return fmt.Errorf("expected old source instance %q to be retained when delete_old_source_on_destroy = false, but got error: %s", oldSourceName, err)
+		}
+
+		// Clean up the retained old source instance for test hygiene.
+		var op *sqladmin.Operation
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = sqlClient.Instances.Delete(config.Project, oldSourceName).Do()
+				return rerr
+			},
+			Timeout:              20 * time.Minute,
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
+		if err != nil {
+			return fmt.Errorf("failed to delete retained old source instance %q during test cleanup: %s", oldSourceName, err)
+		}
+		if op != nil && op.Name != "" {
+			if err := sql.SqlAdminOperationWaitTime(config, op, config.Project, "Delete Retained Old Source Instance", config.UserAgent, 40*time.Minute); err != nil {
+				return fmt.Errorf("failed waiting for retained old source instance %q deletion: %s", oldSourceName, err)
+			}
+		}
+		return nil
+	}
+}
+
+func testAccSqlDatabaseInstanceCreateBgdOutOfBand(t *testing.T, instanceName, region, deploymentName string) {
+	config := acctest.GoogleProviderConfig(t)
+	parent := fmt.Sprintf("projects/%s/locations/%s", config.Project, region)
+	bgdReq := &sqladmin.BlueGreenDeployment{
+		SourceInstance: instanceName,
+	}
+
+	var op *sqladmin.Operation
+	err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (rerr error) {
+			op, rerr = sql.NewClient(config, config.UserAgent).BlueGreenDeployments.Create(parent, bgdReq).BlueGreenDeploymentId(deploymentName).Do()
+			return rerr
+		},
+		Timeout:              90 * time.Minute,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
+	if err != nil {
+		t.Fatalf("Error creating out-of-band Blue-Green Deployment %q on instance %q: %s", deploymentName, instanceName, err)
+	}
+
+	if err := sql.SqlAdminOperationWaitTime(config, op, config.Project, "Creating Out-of-Band Blue-Green Deployment", config.UserAgent, 90*time.Minute); err != nil {
+		t.Fatalf("Error waiting for out-of-band Blue-Green Deployment %q creation on instance %q: %s", deploymentName, instanceName, err)
+	}
+}
+
+func testAccSqlDatabaseInstanceDeleteBgdOutOfBand(t *testing.T, region, deploymentName string) {
+	config := acctest.GoogleProviderConfig(t)
+	bgdName := fmt.Sprintf("projects/%s/locations/%s/blueGreenDeployments/%s", config.Project, region, deploymentName)
+
+	var op *sqladmin.Operation
+	err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (rerr error) {
+			op, rerr = sql.NewClient(config, config.UserAgent).BlueGreenDeployments.Delete(bgdName).DeleteOldSource(false).Do()
+			return rerr
+		},
+		Timeout:              90 * time.Minute,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
+	if err != nil {
+		t.Fatalf("Error deleting out-of-band Blue-Green Deployment %q: %s", deploymentName, err)
+	}
+
+	if op != nil && op.Name != "" {
+		if err := sql.SqlAdminOperationWaitTime(config, op, config.Project, "Deleting Out-of-Band Blue-Green Deployment", config.UserAgent, 90*time.Minute); err != nil {
+			t.Fatalf("Error waiting for out-of-band Blue-Green Deployment %q deletion: %s", deploymentName, err)
+		}
+	}
+}
+
+func testGoogleSqlDatabaseInstance_blueGreenDeployment_noBgd(instanceName, dbVersion string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "%s"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-custom-1-3840"
+    edition           = "ENTERPRISE"
+    availability_type = "ZONAL"
+    disk_size         = 10
+
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+
+    database_flags {
+      name  = "cloudsql_iam_authentication"
+      value = "on"
+    }
+  }
+}
+`, instanceName, dbVersion)
+}
+
+func testGoogleSqlDatabaseInstance_blueGreenDeployment_withBgd(instanceName, dbVersion, deploymentName, targetDbVersion, activeEnv string, deleteOldSource bool) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "%s"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-custom-1-3840"
+    edition           = "ENTERPRISE"
+    availability_type = "ZONAL"
+    disk_size         = 10
+
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+
+    database_flags {
+      name  = "cloudsql_iam_authentication"
+      value = "on"
+    }
+  }
+
+  blue_green_deployment {
+    deployment_name              = "%s"
+    target_database_version      = "%s"
+    active_environment           = "%s"
+    delete_old_source_on_destroy = %t
+  }
+}
+`, instanceName, dbVersion, deploymentName, targetDbVersion, activeEnv, deleteOldSource)
+}
+
+func testGoogleSqlDatabaseInstance_blueGreenDeployment_sameVersion(instanceName, dbVersion, deploymentName, activeEnv string, deleteOldSource bool) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "%s"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-custom-1-3840"
+    edition           = "ENTERPRISE"
+    availability_type = "ZONAL"
+    disk_size         = 10
+
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+
+    database_flags {
+      name  = "cloudsql_iam_authentication"
+      value = "on"
+    }
+  }
+
+  blue_green_deployment {
+    deployment_name              = "%s"
+    active_environment           = "%s"
+    delete_old_source_on_destroy = %t
+  }
+}
+`, instanceName, dbVersion, deploymentName, activeEnv, deleteOldSource)
+}
+
+func testGoogleSqlDatabaseInstance_blueGreenDeployment_missingDeploymentName(instanceName, dbVersion string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "%s"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-custom-1-3840"
+    edition           = "ENTERPRISE"
+    availability_type = "ZONAL"
+    disk_size         = 10
+
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+
+    database_flags {
+      name  = "cloudsql_iam_authentication"
+      value = "on"
+    }
+  }
+
+  blue_green_deployment {
+    active_environment = "SOURCE"
+  }
+}
+`, instanceName, dbVersion)
 }
 
 func TestAccSqlDatabaseInstance_databaseCenterIntegration(t *testing.T) {
