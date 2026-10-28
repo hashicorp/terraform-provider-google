@@ -454,7 +454,7 @@ includes an up-to-date reference of supported versions.
     management without updating or deleting the resource in the API.
     When set to "DELETE", deleting the resource is allowed.
 
-* `blue_green_deployment` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The configuration for a Cloud SQL Blue-Green Deployment on this instance. The configuration is detailed below.
+* `blue_green_deployment` - (Optional) The configuration for a Cloud SQL Blue-Green Deployment on this instance. The configuration is detailed below.
   ~> **WARNING:** Because `blue_green_deployment` is authoritatively managed by Terraform on the primary instance resource, if a Blue-Green Deployment is created on this instance outside of Terraform (for example, via `gcloud` or the Cloud Console) and the `blue_green_deployment` block is not present in your Terraform configuration, running `terraform apply` will delete the out-of-band Blue-Green Deployment along with its green target instance.
     
 The `settings` block supports:
@@ -882,25 +882,25 @@ The optional `settings.connection_pool_config.flags` sublist supports:
 
 * `value` - (Required) Value of the flag.
 
-The optional `blue_green_deployment` ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) block supports:
+The optional `blue_green_deployment` block supports:
 
-* `deployment_name` - (Required, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The user-defined name for the Blue-Green Deployment. Must be 1-63 characters, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens. Cannot be changed while the deployment is active.
+* `deployment_name` - (Required) The user-defined name for the Blue-Green Deployment. Must be 1-63 characters, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens. Cannot be changed while the deployment is active.
 
-* `target_database_version` - (Optional, Computed, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The target database version for the green environment (for example, `MYSQL_8_0` or `POSTGRES_16`). If omitted, the green environment inherits the source instance's `database_version`. Cannot be changed while the deployment is active.
+* `target_database_version` - (Optional, Computed) The target database version for the green environment (for example, `MYSQL_8_0` or `POSTGRES_16`). If omitted, the green environment inherits the source instance's `database_version`. Cannot be changed while the deployment is active.
 
-* `active_environment` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Controls which environment is currently serving primary traffic. Valid values are `SOURCE` and `TARGET`. Defaults to `SOURCE`. Must be `SOURCE` when first creating a Blue-Green Deployment; changing this field from `SOURCE` to `TARGET` triggers the Blue-Green Deployment switchover.
+* `active_environment` - (Optional) Controls which environment is currently serving primary traffic. Valid values are `SOURCE` and `TARGET`. Defaults to `SOURCE`. Must be `SOURCE` when first creating a Blue-Green Deployment; changing this field from `SOURCE` to `TARGET` triggers the Blue-Green Deployment switchover.
 
-* `delete_old_source_on_destroy` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Whether to also delete the old source (blue) instance when deleting the Blue-Green Deployment after a switchover (`active_environment = "TARGET"`). Defaults to `false`.
+* `delete_old_source_on_destroy` - (Optional) Whether to also delete the old source (blue) instance when deleting the Blue-Green Deployment after a switchover (`active_environment = "TARGET"`). Defaults to `false`.
 
-* `target_instance_name` - (Computed, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The name of the green (target) instance created for the Blue-Green Deployment.
+* `target_instance_name` - (Computed) The name of the green (target) instance created for the Blue-Green Deployment.
 
-* `target_instance_connection_name` - (Computed, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The connection name of the green (target) instance.
+* `target_instance_connection_name` - (Computed) The connection name of the green (target) instance.
 
-* `target_instance_ip_addresses` - (Computed, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The IP addresses assigned to the green (target) instance. Structure is documented below.
+* `target_instance_ip_addresses` - (Computed) The IP addresses assigned to the green (target) instance. Structure is documented below.
 
-* `old_source_instance_name` - (Computed, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The name of the old source (blue) instance, populated after switchover (`active_environment = "TARGET"`).
+* `old_source_instance_name` - (Computed) The name of the old source (blue) instance, populated after switchover (`active_environment = "TARGET"`).
 
-* `old_source_instance_connection_name` - (Computed, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The connection name of the old source (blue) instance, populated after switchover (`active_environment = "TARGET"`).
+* `old_source_instance_connection_name` - (Computed) The connection name of the old source (blue) instance, populated after switchover (`active_environment = "TARGET"`).
 
 The `blue_green_deployment.target_instance_ip_addresses` sublist supports:
 
@@ -1003,21 +1003,21 @@ performing filtering in a Terraform config.
 
 * `server_ca_cert.0.sha1_fingerprint` - SHA Fingerprint of the CA Cert.
 
-* `blue_green_deployment.target_instance_name` - (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The name of the green (target) instance created for the Blue-Green Deployment.
+* `blue_green_deployment.target_instance_name` - (Output) The name of the green (target) instance created for the Blue-Green Deployment.
 
-* `blue_green_deployment.target_instance_connection_name` - (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The connection name of the green (target) instance.
+* `blue_green_deployment.target_instance_connection_name` - (Output) The connection name of the green (target) instance.
 
-* `blue_green_deployment.target_instance_ip_addresses` - (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The IP addresses assigned to the green (target) instance.
+* `blue_green_deployment.target_instance_ip_addresses` - (Output) The IP addresses assigned to the green (target) instance.
 
-* `blue_green_deployment.target_instance_ip_addresses.ip_address` - (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The IPv4 address assigned to the green (target) instance.
+* `blue_green_deployment.target_instance_ip_addresses.ip_address` - (Output) The IPv4 address assigned to the green (target) instance.
 
-* `blue_green_deployment.target_instance_ip_addresses.time_to_retire` - (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The time this IP address will be retired, in RFC 3339 format.
+* `blue_green_deployment.target_instance_ip_addresses.time_to_retire` - (Output) The time this IP address will be retired, in RFC 3339 format.
 
-* `blue_green_deployment.target_instance_ip_addresses.type` - (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The type of this IP address.
+* `blue_green_deployment.target_instance_ip_addresses.type` - (Output) The type of this IP address.
 
-* `blue_green_deployment.old_source_instance_name` - (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The name of the old source (blue) instance after a Blue-Green Deployment switchover.
+* `blue_green_deployment.old_source_instance_name` - (Output) The name of the old source (blue) instance after a Blue-Green Deployment switchover.
 
-* `blue_green_deployment.old_source_instance_connection_name` - (Output, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The connection name of the old source (blue) instance after a Blue-Green Deployment switchover.
+* `blue_green_deployment.old_source_instance_connection_name` - (Output) The connection name of the old source (blue) instance after a Blue-Green Deployment switchover.
 
 ## Switchover
 Users can perform a switchover on a replica by following the steps below.
@@ -1055,7 +1055,7 @@ SQL Server: Create a `cascadable` replica in a different region from the primary
 - Only the 2 instances involved in switchover have planned changes
 - (Recommended) Use `deletion_protection` on instances as a safety measure
 
-## Blue-Green Deployment (Beta)
+## Blue-Green Deployment
 
 You can manage the full lifecycle of a Cloud SQL Blue-Green Deployment using the `blue_green_deployment` block on the primary `google_sql_database_instance` resource across a 4-step workflow:
 
@@ -1068,7 +1068,6 @@ You can manage the full lifecycle of a Cloud SQL Blue-Green Deployment using the
 
    ```hcl
    resource "google_sql_database_instance" "primary" {
-     provider         = google-beta
      name             = "my-primary-instance"
      database_version = "MYSQL_5_7"
      region           = "us-central1"
@@ -1099,7 +1098,6 @@ You can manage the full lifecycle of a Cloud SQL Blue-Green Deployment using the
 
    ```hcl
    resource "google_sql_database_instance" "primary" {
-     provider         = google-beta
      name             = "my-primary-instance"
      database_version = "MYSQL_8_0"
      region           = "us-central1"

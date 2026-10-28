@@ -1,0 +1,3 @@
+```release-note:enhancement
+sql: promoted `blue_green_deployment` on `google_sql_database_instance` to GA
+```

@@ -247,6 +247,7 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 			nodeCountCustomDiff,
 			autoUpgradeEnabledCustomizeDiff,
 			activeDirectoryCustomizeDiff,
+			blueGreenDeploymentCustomizeDiff,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
@@ -1603,6 +1604,81 @@ API (for read pools, effective_availability_type may differ from availability_ty
 					},
 				},
 			},
+			"blue_green_deployment": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Configuration for Blue-Green Deployment to perform near-zero downtime major version upgrades.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"deployment_name": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringIsNotEmpty,
+							Description:  `A unique identifier for the blue-green deployment within the project and region.`,
+						},
+						"target_database_version": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The target database version for Major Version Upgrades (e.g., MYSQL_8_4 or POSTGRES_15).`,
+						},
+						"active_environment": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "SOURCE",
+							ValidateFunc: validation.StringInSlice([]string{"SOURCE", "TARGET"}, false),
+							Description:  `Permissible values: "SOURCE" (default) or "TARGET". Changing to "TARGET" triggers the atomic switchover.`,
+						},
+						"delete_old_source_on_destroy": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: `Defaults to false. If true, removing the blue_green_deployment block after switchover automatically deletes the former Blue (Source) instance from GCP.`,
+						},
+						"target_instance_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The auto-generated name of the Green instance (e.g., my-prod-mysql-target-xxxx).`,
+						},
+						"target_instance_connection_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The Cloud SQL Auth Proxy connection string for the Green instance.`,
+						},
+						"target_instance_ip_addresses": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Standard Cloud SQL IP address list for the Green instance.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"ip_address": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"type": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"time_to_retire": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"old_source_instance_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Renamed GCP identifier of the former Blue (Source) instance post-switchover.`,
+						},
+						"old_source_instance_connection_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Auth Proxy connection string for the former Blue instance post-switchover.`,
+						},
+					},
+				},
+			},
 			//UDP schema start
 			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
 			//UDP schema end
@@ -1966,6 +2042,13 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return err
 		}
+	}
+
+	if d.HasChange("blue_green_deployment") {
+		if err := handleBlueGreenDeploymentUpdate(d, config, project, region, d.Timeout(schema.TimeoutCreate), userAgent); err != nil {
+			return err
+		}
+		return resourceSqlDatabaseInstanceRead(d, meta)
 	}
 
 	return nil
@@ -2607,6 +2690,9 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := tpgresource.DeletionPolicyReadDefault(d, config, "DELETE"); err != nil {
 		return err
 	}
+	if err := readBlueGreenDeployment(d, config, project, instance, userAgent); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -2656,462 +2742,472 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			}
 		}
 	}
-	var op *sqladmin.Operation
-	var instance *sqladmin.DatabaseInstance
 
-	databaseVersion := d.Get("database_version").(string)
+	if !isBlueGreenSwitchover(d) {
+		var op *sqladmin.Operation
+		var instance *sqladmin.DatabaseInstance
 
-	// Check if the activation policy is being updated. If it is being changed to ALWAYS this should be done first.
-	if d.HasChange("settings.0.activation_policy") && d.Get("settings.0.activation_policy").(string) == "ALWAYS" {
-		instance = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{ActivationPolicy: "ALWAYS"}}
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: func() (rerr error) {
-				op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
-				return rerr
-			},
-			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-		})
-		if err != nil {
-			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
-		}
-		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-		err = resourceSqlDatabaseInstanceRead(d, meta)
-		if err != nil {
-			return err
-		}
-	}
+		databaseVersion := d.Get("database_version").(string)
 
-	// We check for HasChange because we only want to trigger the network architecture upgrade
-	// if the configuration has explicitly changed. We also check the current value to ensure
-	// it's true, as this is an irreversible opt-in.
-	if d.HasChange("enforce_new_sql_network_architecture") && d.Get("enforce_new_sql_network_architecture").(bool) {
-		instance = &sqladmin.DatabaseInstance{SqlNetworkArchitecture: "NEW_NETWORK_ARCHITECTURE"}
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: func() (rerr error) {
-				op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
-				return rerr
-			},
-			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-		})
-		if err != nil {
-			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", d.Get("name").(string), err)
+		// Check if the activation policy is being updated. If it is being changed to ALWAYS this should be done first.
+		if d.HasChange("settings.0.activation_policy") && d.Get("settings.0.activation_policy").(string) == "ALWAYS" {
+			instance = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{ActivationPolicy: "ALWAYS"}}
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: func() (rerr error) {
+					op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+					return rerr
+				},
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
+			}
+			err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+			err = resourceSqlDatabaseInstanceRead(d, meta)
+			if err != nil {
+				return err
+			}
 		}
-		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-		err = resourceSqlDatabaseInstanceRead(d, meta)
-		if err != nil {
-			return err
-		}
-	}
 
-	// Check if the database version is being updated, because patching database version is an atomic operation and can not be
-	// performed with other fields, we first patch database version before updating the rest of the fields.
-	if d.HasChange("database_version") {
-		instance = &sqladmin.DatabaseInstance{
-			DatabaseVersion:                       databaseVersion,
-			IncludeReplicasForMajorVersionUpgrade: d.Get("include_replicas_for_major_version_upgrade").(bool),
+		// We check for HasChange because we only want to trigger the network architecture upgrade
+		// if the configuration has explicitly changed. We also check the current value to ensure
+		// it's true, as this is an irreversible opt-in.
+		if d.HasChange("enforce_new_sql_network_architecture") && d.Get("enforce_new_sql_network_architecture").(bool) {
+			instance = &sqladmin.DatabaseInstance{SqlNetworkArchitecture: "NEW_NETWORK_ARCHITECTURE"}
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: func() (rerr error) {
+					op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+					return rerr
+				},
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error, failed to patch instance settings for %s: %s", d.Get("name").(string), err)
+			}
+			err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+			err = resourceSqlDatabaseInstanceRead(d, meta)
+			if err != nil {
+				return err
+			}
 		}
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: func() (rerr error) {
-				op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
-				return rerr
-			},
-			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-		})
-		if err != nil {
-			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
-		}
-		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-		err = resourceSqlDatabaseInstanceRead(d, meta)
-		if err != nil {
-			return err
-		}
-	}
 
-	// Check if the root_password is being updated, because updating root_password is an atomic operation and can not be
-	// performed with other fields, we first update root password before updating the rest of the fields.
-	if d.HasChange("root_password") || d.HasChange("root_password_wo_version") {
-		var oldPwd, newPwd interface{}
-		if d.HasChange("root_password_wo_version") {
-			oldPwd = ""
-			newPwd = tpgresource.GetRawConfigAttributeAsString(d, "root_password_wo")
-		} else {
-			oldPwd, newPwd = d.GetChange("root_password")
+		// Check if the database version is being updated, because patching database version is an atomic operation and can not be
+		// performed with other fields, we first patch database version before updating the rest of the fields.
+		if d.HasChange("database_version") {
+			instance = &sqladmin.DatabaseInstance{
+				DatabaseVersion:                       databaseVersion,
+				IncludeReplicasForMajorVersionUpgrade: d.Get("include_replicas_for_major_version_upgrade").(bool),
+			}
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: func() (rerr error) {
+					op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+					return rerr
+				},
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
+			}
+			err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+			err = resourceSqlDatabaseInstanceRead(d, meta)
+			if err != nil {
+				return err
+			}
 		}
-		password := newPwd.(string)
-		dv := d.Get("database_version").(string)
-		name := ""
-		host := ""
-		if strings.Contains(dv, "MYSQL") {
-			name = "root"
-			host = "%"
-		} else if strings.Contains(dv, "POSTGRES") {
-			name = "postgres"
-		} else if strings.Contains(dv, "SQLSERVER") {
-			name = "sqlserver"
-			if len(password) == 0 {
+
+		// Check if the root_password is being updated, because updating root_password is an atomic operation and can not be
+		// performed with other fields, we first update root password before updating the rest of the fields.
+		if d.HasChange("root_password") || d.HasChange("root_password_wo_version") {
+			var oldPwd, newPwd interface{}
+			if d.HasChange("root_password_wo_version") {
+				oldPwd = ""
+				newPwd = tpgresource.GetRawConfigAttributeAsString(d, "root_password_wo")
+			} else {
+				oldPwd, newPwd = d.GetChange("root_password")
+			}
+			password := newPwd.(string)
+			dv := d.Get("database_version").(string)
+			name := ""
+			host := ""
+			if strings.Contains(dv, "MYSQL") {
+				name = "root"
+				host = "%"
+			} else if strings.Contains(dv, "POSTGRES") {
+				name = "postgres"
+			} else if strings.Contains(dv, "SQLSERVER") {
+				name = "sqlserver"
+				if len(password) == 0 {
+					if err := d.Set("root_password", oldPwd.(string)); err != nil {
+						return fmt.Errorf("Error re-setting root_password: %s", err)
+					}
+					return fmt.Errorf("Error, root password cannot be empty for SQL Server instance.")
+				}
+			} else {
 				if err := d.Set("root_password", oldPwd.(string)); err != nil {
 					return fmt.Errorf("Error re-setting root_password: %s", err)
 				}
-				return fmt.Errorf("Error, root password cannot be empty for SQL Server instance.")
+				return fmt.Errorf("Error, invalid database version")
 			}
-		} else {
-			if err := d.Set("root_password", oldPwd.(string)); err != nil {
-				return fmt.Errorf("Error re-setting root_password: %s", err)
+			instance := d.Get("name").(string)
+
+			user := &sqladmin.User{
+				Name:     name,
+				Instance: instance,
+				Password: password,
 			}
-			return fmt.Errorf("Error, invalid database version")
-		}
-		instance := d.Get("name").(string)
 
-		user := &sqladmin.User{
-			Name:     name,
-			Instance: instance,
-			Password: password,
-		}
+			transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
+			var op *sqladmin.Operation
+			updateFunc := func() error {
+				op, err = NewClient(config, userAgent).Users.Update(project, instance, user).Host(host).Name(name).Do()
+				return err
+			}
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: updateFunc,
+				Timeout:   d.Timeout(schema.TimeoutUpdate),
+			})
 
-		transport_tpg.MutexStore.Lock(instanceMutexKey(project, instance))
-		var op *sqladmin.Operation
-		updateFunc := func() error {
-			op, err = NewClient(config, userAgent).Users.Update(project, instance, user).Host(host).Name(name).Do()
-			return err
-		}
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: updateFunc,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-		})
+			if err != nil {
+				transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
+				if err := d.Set("root_password", oldPwd.(string)); err != nil {
+					return fmt.Errorf("Error re-setting root_password: %s", err)
+				}
+				return fmt.Errorf("Error, failed to update root_password : %s", err)
+			}
 
-		if err != nil {
+			err = SqlAdminOperationWaitTime(config, op, project, "Insert User", userAgent, d.Timeout(schema.TimeoutUpdate))
 			transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
-			if err := d.Set("root_password", oldPwd.(string)); err != nil {
-				return fmt.Errorf("Error re-setting root_password: %s", err)
-			}
-			return fmt.Errorf("Error, failed to update root_password : %s", err)
-		}
 
-		err = SqlAdminOperationWaitTime(config, op, project, "Insert User", userAgent, d.Timeout(schema.TimeoutUpdate))
-		transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instance))
-
-		if err != nil {
-			if err := d.Set("root_password", oldPwd.(string)); err != nil {
-				return fmt.Errorf("Error re-setting root_password: %s", err)
-			}
-			return fmt.Errorf("Error, failed to update root_password : %s", err)
-		}
-	}
-
-	// Check if the maintenance version is being updated, because patching maintenance version is an atomic operation and can not be
-	// performed with other fields, we first patch maintenance version before updating the rest of the fields.
-	if d.HasChange("maintenance_version") {
-		instance = &sqladmin.DatabaseInstance{MaintenanceVersion: maintenance_version}
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: func() (rerr error) {
-				op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
-				return rerr
-			},
-			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-		})
-		if err != nil {
-			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
-		}
-		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-		err = resourceSqlDatabaseInstanceRead(d, meta)
-		if err != nil {
-			return err
-		}
-	}
-
-	if replicaDRKind != replicaDRNone {
-		var retryFunc func() (rerr error)
-		switch replicaDRKind {
-		case replicaDRByPromote:
-			retryFunc = func() (rerr error) {
-				op, rerr = NewClient(config, userAgent).Instances.PromoteReplica(project, d.Get("name").(string)).Do()
-				return rerr
-			}
-		case replicaDRBySwitchover:
-			retryFunc = func() (rerr error) {
-				op, rerr = NewClient(config, userAgent).Instances.Switchover(project, d.Get("name").(string)).Do()
-				return rerr
-			}
-		default:
-			return fmt.Errorf("unknown replica DR scenario: %v", replicaDRKind)
-		}
-
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc:            retryFunc,
-			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-		})
-		if err != nil {
-			return fmt.Errorf("Error, failed to promote read replica instance as primary stand-alone %s: %s", d.Get("name"), err)
-		}
-		err = SqlAdminOperationWaitTime(config, op, project, "Promote Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-		err = resourceSqlDatabaseInstanceRead(d, meta)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Check if the edition is being updated, because patching edition is an atomic operation and can not be
-	// performed with other fields, we first patch edition, tier and data cache config before updating the rest of the fields.
-	if d.HasChange("settings.0.edition") {
-		edition := d.Get("settings.0.edition").(string)
-		tier := d.Get("settings.0.tier").(string)
-		dataCacheConfig := expandDataCacheConfig(d.Get("settings.0.data_cache_config").([]interface{}))
-		instance = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{Edition: edition, Tier: tier, DataCacheConfig: dataCacheConfig}}
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: func() (rerr error) {
-				op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
-				return rerr
-			},
-			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-		})
-		if err != nil {
-			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
-		}
-		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-		err = resourceSqlDatabaseInstanceRead(d, meta)
-		if err != nil {
-			return err
-		}
-	}
-
-	if d.HasChange("settings.0.entraid_config") {
-		entraidConfig := expandEntraidConfig(d.Get("settings.0.entraid_config").([]interface{}))
-
-		patchSettings := &sqladmin.Settings{
-			EntraidConfig: entraidConfig,
-		}
-
-		instance := &sqladmin.DatabaseInstance{
-			Settings: patchSettings,
-		}
-
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: func() (rerr error) {
-				op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
-				return rerr
-			},
-			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-		})
-		if err != nil {
-			return fmt.Errorf("Error, failed to patch entraid_config for %s: %s", instance.Name, err)
-		}
-		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance Entra ID", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-
-		err = resourceSqlDatabaseInstanceRead(d, meta)
-		if err != nil {
-			return err
-		}
-	}
-
-	desiredSetting := d.Get("settings")
-	instance = &sqladmin.DatabaseInstance{
-		Settings:                  expandSqlDatabaseInstanceSettings(desiredSetting.([]interface{}), databaseVersion),
-		DatabaseCenterIntegration: d.Get("database_center_integration").(string),
-	}
-
-	// A disk_size decrease is a storage shrink, which is carried out by the dedicated
-	// Instances.PerformDiskShrink operation below rather than by the settings update. For a
-	// shrink, keep the current (larger) size on the update call so disk size is unchanged
-	// there, and record that a shrink must be performed. Increases are already applied via
-	// the expanded settings (DataDiskSizeGb) on the update call.
-	diskShrink := false
-	if d.HasChange("settings.0.disk_size") {
-		oldDiskSizeI, newDiskSizeI := d.GetChange("settings.0.disk_size")
-		if newDiskSizeI.(int) < oldDiskSizeI.(int) {
-			diskShrink = true
-			instance.Settings.DataDiskSizeGb = int64(oldDiskSizeI.(int))
-		}
-	}
-
-	s := d.Get("settings")
-	_settings := s.([]interface{})[0].(map[string]interface{})
-	// Instance.Patch operation on completion updates the settings proto version by +8. As terraform does not know this it tries
-	// to make an update call with the proto version before patch and fails. To resolve this issue we update the setting version
-	// before making the update call.
-	instance.Settings.SettingsVersion = int64(_settings["version"].(int))
-	// Collation cannot be included in the update request
-	instance.Settings.Collation = ""
-	instance.Settings.DataCacheConfig = expandDataCacheConfig(_settings["data_cache_config"].([]interface{}))
-
-	// Lock on the master_instance_name just in case updating any replica
-	// settings causes operations on the master.
-	if v, ok := d.GetOk("master_instance_name"); ok {
-		transport_tpg.MutexStore.Lock(instanceMutexKey(project, v.(string)))
-		defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, v.(string)))
-	}
-
-	if _, ok := d.GetOk("instance_type"); ok {
-		instance.InstanceType = d.Get("instance_type").(string)
-	}
-
-	if _, ok := d.GetOk("node_count"); ok {
-		instance.NodeCount = int64(d.Get("node_count").(int))
-	}
-
-	if _, ok := d.GetOk("psc_service_attachment_link"); ok {
-		instance.PscServiceAttachmentLink = d.Get("psc_service_attachment_link").(string)
-	}
-
-	// Database Version is required for all calls with Google ML Integration, Auto Upgrade,
-	// and Connection Pool enabled, or it will be rejected by the API.
-	if d.Get("settings.0.enable_google_ml_integration").(bool) ||
-		d.Get("settings.0.auto_upgrade_enabled").(bool) ||
-		len(_settings["connection_pool_config"].(*schema.Set).List()) > 0 {
-		instance.DatabaseVersion = databaseVersion
-	}
-
-	failoverDrReplicaName := d.Get("replication_cluster.0.failover_dr_replica_name").(string)
-	psaWriteEndpoint := d.Get("replication_cluster.0.psa_write_endpoint").(string)
-	if failoverDrReplicaName != "" || psaWriteEndpoint != "" {
-		if failoverDrReplicaName != "" && psaWriteEndpoint != "" {
-			instance.ReplicationCluster = &sqladmin.ReplicationCluster{
-				FailoverDrReplicaName: failoverDrReplicaName,
-				PsaWriteEndpoint:      psaWriteEndpoint,
-			}
-		} else if failoverDrReplicaName != "" {
-			instance.ReplicationCluster = &sqladmin.ReplicationCluster{
-				FailoverDrReplicaName: failoverDrReplicaName,
-			}
-		} else {
-			instance.ReplicationCluster = &sqladmin.ReplicationCluster{
-				PsaWriteEndpoint: psaWriteEndpoint,
+			if err != nil {
+				if err := d.Set("root_password", oldPwd.(string)); err != nil {
+					return fmt.Errorf("Error re-setting root_password: %s", err)
+				}
+				return fmt.Errorf("Error, failed to update root_password : %s", err)
 			}
 		}
-	}
 
-	// switch_transaction_logs_to_cloud_storage_enabled is input-only; send it only when toggled.
-	if d.HasChange("switch_transaction_logs_to_cloud_storage_enabled") {
-		instance.SwitchTransactionLogsToCloudStorageEnabled = d.Get("switch_transaction_logs_to_cloud_storage_enabled").(bool)
-	}
-
-	err = transport_tpg.Retry(transport_tpg.RetryOptions{
-		RetryFunc: func() (rerr error) {
-			op, rerr = NewClient(config, userAgent).Instances.Update(project, d.Get("name").(string), instance).Do()
-			return rerr
-		},
-		Timeout:              d.Timeout(schema.TimeoutUpdate),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-	})
-	if err != nil {
-		return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
-	}
-
-	err = SqlAdminOperationWaitTime(config, op, project, "Update Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
-	if err != nil {
-		return err
-	}
-
-	// Perform an in-place storage shrink if disk_size was reduced. This is a dedicated,
-	// disruptive operation (the instance restarts) and is run after the settings update.
-	if diskShrink {
-		name := d.Get("name").(string)
-		targetSizeGb := int64(d.Get("settings.0.disk_size").(int))
-
-		// Pre-flight: the smallest size an instance can shrink to depends on its current
-		// storage usage. Fetch that minimum and surface a clear error up front instead of
-		// letting the shrink operation start and then fail.
-		var shrinkConfig *sqladmin.SqlInstancesGetDiskShrinkConfigResponse
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: func() (rerr error) {
-				shrinkConfig, rerr = NewClient(config, userAgent).Projects.Instances.GetDiskShrinkConfig(project, name).Do()
-				return rerr
-			},
-			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-		})
-		if err != nil {
-			return fmt.Errorf("Error, failed to get storage shrink config for %s: %s", name, err)
-		}
-		if targetSizeGb < shrinkConfig.MinimalTargetSizeGb {
-			return fmt.Errorf("Error, cannot shrink storage of %s to %d GB: the minimum size this instance can currently shrink to is %d GB", name, targetSizeGb, shrinkConfig.MinimalTargetSizeGb)
-		}
-
-		shrinkContext := &sqladmin.PerformDiskShrinkContext{
-			TargetSizeGb: targetSizeGb,
-		}
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: func() (rerr error) {
-				op, rerr = NewClient(config, userAgent).Projects.Instances.PerformDiskShrink(project, name, shrinkContext).Do()
-				return rerr
-			},
-			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-		})
-		if err != nil {
-			return fmt.Errorf("Error, failed to perform storage shrink for %s: %s", name, err)
-		}
-		err = SqlAdminOperationWaitTime(config, op, project, "Perform Disk Shrink", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
-
-	// Perform a backup restore if the backup context exists and has changed
-	if r, ok := d.GetOk("restore_backup_context"); ok {
-		if d.HasChange("restore_backup_context") {
-			err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, d.Get("name").(string), r, "")
+		// Check if the maintenance version is being updated, because patching maintenance version is an atomic operation and can not be
+		// performed with other fields, we first patch maintenance version before updating the rest of the fields.
+		if d.HasChange("maintenance_version") {
+			instance = &sqladmin.DatabaseInstance{MaintenanceVersion: maintenance_version}
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: func() (rerr error) {
+					op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+					return rerr
+				},
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
+			}
+			err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+			err = resourceSqlDatabaseInstanceRead(d, meta)
 			if err != nil {
 				return err
 			}
 		}
-	} else if b, ok := d.GetOk("backupdr_backup"); ok && b.(string) != "" {
-		if d.HasChange("backupdr_backup") {
-			err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, d.Get("name").(string), nil, b)
+
+		if replicaDRKind != replicaDRNone {
+			var retryFunc func() (rerr error)
+			switch replicaDRKind {
+			case replicaDRByPromote:
+				retryFunc = func() (rerr error) {
+					op, rerr = NewClient(config, userAgent).Instances.PromoteReplica(project, d.Get("name").(string)).Do()
+					return rerr
+				}
+			case replicaDRBySwitchover:
+				retryFunc = func() (rerr error) {
+					op, rerr = NewClient(config, userAgent).Instances.Switchover(project, d.Get("name").(string)).Do()
+					return rerr
+				}
+			default:
+				return fmt.Errorf("unknown replica DR scenario: %v", replicaDRKind)
+			}
+
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc:            retryFunc,
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error, failed to promote read replica instance as primary stand-alone %s: %s", d.Get("name"), err)
+			}
+			err = SqlAdminOperationWaitTime(config, op, project, "Promote Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+			err = resourceSqlDatabaseInstanceRead(d, meta)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Check if the edition is being updated, because patching edition is an atomic operation and can not be
+		// performed with other fields, we first patch edition, tier and data cache config before updating the rest of the fields.
+		if d.HasChange("settings.0.edition") {
+			edition := d.Get("settings.0.edition").(string)
+			tier := d.Get("settings.0.tier").(string)
+			dataCacheConfig := expandDataCacheConfig(d.Get("settings.0.data_cache_config").([]interface{}))
+			instance = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{Edition: edition, Tier: tier, DataCacheConfig: dataCacheConfig}}
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: func() (rerr error) {
+					op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+					return rerr
+				},
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
+			}
+			err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+			err = resourceSqlDatabaseInstanceRead(d, meta)
+			if err != nil {
+				return err
+			}
+		}
+
+		if d.HasChange("settings.0.entraid_config") {
+			entraidConfig := expandEntraidConfig(d.Get("settings.0.entraid_config").([]interface{}))
+
+			patchSettings := &sqladmin.Settings{
+				EntraidConfig: entraidConfig,
+			}
+
+			instance := &sqladmin.DatabaseInstance{
+				Settings: patchSettings,
+			}
+
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: func() (rerr error) {
+					op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+					return rerr
+				},
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error, failed to patch entraid_config for %s: %s", instance.Name, err)
+			}
+			err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance Entra ID", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+
+			err = resourceSqlDatabaseInstanceRead(d, meta)
+			if err != nil {
+				return err
+			}
+		}
+
+		desiredSetting := d.Get("settings")
+		instance = &sqladmin.DatabaseInstance{
+			Settings:                  expandSqlDatabaseInstanceSettings(desiredSetting.([]interface{}), databaseVersion),
+			DatabaseCenterIntegration: d.Get("database_center_integration").(string),
+		}
+
+		// A disk_size decrease is a storage shrink, which is carried out by the dedicated
+		// Instances.PerformDiskShrink operation below rather than by the settings update. For a
+		// shrink, keep the current (larger) size on the update call so disk size is unchanged
+		// there, and record that a shrink must be performed. Increases are already applied via
+		// the expanded settings (DataDiskSizeGb) on the update call.
+		diskShrink := false
+		if d.HasChange("settings.0.disk_size") {
+			oldDiskSizeI, newDiskSizeI := d.GetChange("settings.0.disk_size")
+			if newDiskSizeI.(int) < oldDiskSizeI.(int) {
+				diskShrink = true
+				instance.Settings.DataDiskSizeGb = int64(oldDiskSizeI.(int))
+			}
+		}
+
+		s := d.Get("settings")
+		_settings := s.([]interface{})[0].(map[string]interface{})
+		// Instance.Patch operation on completion updates the settings proto version by +8. As terraform does not know this it tries
+		// to make an update call with the proto version before patch and fails. To resolve this issue we update the setting version
+		// before making the update call.
+		instance.Settings.SettingsVersion = int64(_settings["version"].(int))
+		// Collation cannot be included in the update request
+		instance.Settings.Collation = ""
+		instance.Settings.DataCacheConfig = expandDataCacheConfig(_settings["data_cache_config"].([]interface{}))
+
+		// Lock on the master_instance_name just in case updating any replica
+		// settings causes operations on the master.
+		if v, ok := d.GetOk("master_instance_name"); ok {
+			transport_tpg.MutexStore.Lock(instanceMutexKey(project, v.(string)))
+			defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, v.(string)))
+		}
+
+		if _, ok := d.GetOk("instance_type"); ok {
+			instance.InstanceType = d.Get("instance_type").(string)
+		}
+
+		if _, ok := d.GetOk("node_count"); ok {
+			instance.NodeCount = int64(d.Get("node_count").(int))
+		}
+
+		if _, ok := d.GetOk("psc_service_attachment_link"); ok {
+			instance.PscServiceAttachmentLink = d.Get("psc_service_attachment_link").(string)
+		}
+
+		// Database Version is required for all calls with Google ML Integration, Auto Upgrade,
+		// and Connection Pool enabled, or it will be rejected by the API.
+		if d.Get("settings.0.enable_google_ml_integration").(bool) ||
+			d.Get("settings.0.auto_upgrade_enabled").(bool) ||
+			len(_settings["connection_pool_config"].(*schema.Set).List()) > 0 {
+			instance.DatabaseVersion = databaseVersion
+		}
+
+		failoverDrReplicaName := d.Get("replication_cluster.0.failover_dr_replica_name").(string)
+		psaWriteEndpoint := d.Get("replication_cluster.0.psa_write_endpoint").(string)
+		if failoverDrReplicaName != "" || psaWriteEndpoint != "" {
+			if failoverDrReplicaName != "" && psaWriteEndpoint != "" {
+				instance.ReplicationCluster = &sqladmin.ReplicationCluster{
+					FailoverDrReplicaName: failoverDrReplicaName,
+					PsaWriteEndpoint:      psaWriteEndpoint,
+				}
+			} else if failoverDrReplicaName != "" {
+				instance.ReplicationCluster = &sqladmin.ReplicationCluster{
+					FailoverDrReplicaName: failoverDrReplicaName,
+				}
+			} else {
+				instance.ReplicationCluster = &sqladmin.ReplicationCluster{
+					PsaWriteEndpoint: psaWriteEndpoint,
+				}
+			}
+		}
+
+		// switch_transaction_logs_to_cloud_storage_enabled is input-only; send it only when toggled.
+		if d.HasChange("switch_transaction_logs_to_cloud_storage_enabled") {
+			instance.SwitchTransactionLogsToCloudStorageEnabled = d.Get("switch_transaction_logs_to_cloud_storage_enabled").(bool)
+		}
+
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = NewClient(config, userAgent).Instances.Update(project, d.Get("name").(string), instance).Do()
+				return rerr
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
+		if err != nil {
+			return fmt.Errorf("Error, failed to update instance settings for %s: %s", instance.Name, err)
+		}
+
+		err = SqlAdminOperationWaitTime(config, op, project, "Update Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+
+		// Perform an in-place storage shrink if disk_size was reduced. This is a dedicated,
+		// disruptive operation (the instance restarts) and is run after the settings update.
+		if diskShrink {
+			name := d.Get("name").(string)
+			targetSizeGb := int64(d.Get("settings.0.disk_size").(int))
+
+			// Pre-flight: the smallest size an instance can shrink to depends on its current
+			// storage usage. Fetch that minimum and surface a clear error up front instead of
+			// letting the shrink operation start and then fail.
+			var shrinkConfig *sqladmin.SqlInstancesGetDiskShrinkConfigResponse
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: func() (rerr error) {
+					shrinkConfig, rerr = NewClient(config, userAgent).Projects.Instances.GetDiskShrinkConfig(project, name).Do()
+					return rerr
+				},
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error, failed to get storage shrink config for %s: %s", name, err)
+			}
+			if targetSizeGb < shrinkConfig.MinimalTargetSizeGb {
+				return fmt.Errorf("Error, cannot shrink storage of %s to %d GB: the minimum size this instance can currently shrink to is %d GB", name, targetSizeGb, shrinkConfig.MinimalTargetSizeGb)
+			}
+
+			shrinkContext := &sqladmin.PerformDiskShrinkContext{
+				TargetSizeGb: targetSizeGb,
+			}
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: func() (rerr error) {
+					op, rerr = NewClient(config, userAgent).Projects.Instances.PerformDiskShrink(project, name, shrinkContext).Do()
+					return rerr
+				},
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error, failed to perform storage shrink for %s: %s", name, err)
+			}
+			err = SqlAdminOperationWaitTime(config, op, project, "Perform Disk Shrink", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+		}
+
+		// Perform a backup restore if the backup context exists and has changed
+		if r, ok := d.GetOk("restore_backup_context"); ok {
+			if d.HasChange("restore_backup_context") {
+				err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, d.Get("name").(string), r, "")
+				if err != nil {
+					return err
+				}
+			}
+		} else if b, ok := d.GetOk("backupdr_backup"); ok && b.(string) != "" {
+			if d.HasChange("backupdr_backup") {
+				err = sqlDatabaseInstanceRestoreFromBackup(d, config, userAgent, project, d.Get("name").(string), nil, b)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		// Check if timezone is updated
+		if d.HasChange("settings.0.time_zone") {
+			timezone := d.Get("settings.0.time_zone").(string)
+			instance = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{TimeZone: timezone}}
+			err = transport_tpg.Retry(transport_tpg.RetryOptions{
+				RetryFunc: func() (rerr error) {
+					op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+					return err
+				},
+				Timeout:              d.Timeout(schema.TimeoutUpdate),
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+			})
+			if err != nil {
+				return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
+			}
+			err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return err
+			}
+			err = resourceSqlDatabaseInstanceRead(d, meta)
 			if err != nil {
 				return err
 			}
 		}
 	}
 
-	// Check if timezone is updated
-	if d.HasChange("settings.0.time_zone") {
-		timezone := d.Get("settings.0.time_zone").(string)
-		instance = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{TimeZone: timezone}}
-		err = transport_tpg.Retry(transport_tpg.RetryOptions{
-			RetryFunc: func() (rerr error) {
-				op, rerr = NewClient(config, userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
-				return err
-			},
-			Timeout:              d.Timeout(schema.TimeoutUpdate),
-			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
-		})
-		if err != nil {
-			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
-		}
-		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-		err = resourceSqlDatabaseInstanceRead(d, meta)
-		if err != nil {
+	if d.HasChange("blue_green_deployment") {
+		if err := handleBlueGreenDeploymentUpdate(d, config, project, d.Get("region").(string), d.Timeout(schema.TimeoutUpdate), userAgent); err != nil {
+			_ = resourceSqlDatabaseInstanceRead(d, meta)
 			return err
 		}
 	}
@@ -3265,6 +3361,14 @@ func resourceSqlDatabaseInstanceDelete(d *schema.ResourceData, meta interface{})
 
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("Error, failed to delete instance because deletion_protection is set to true. Set it to false to proceed with instance deletion")
+	}
+
+	if bgdStateMap := getExistingBgdStateMap(d); bgdStateMap != nil {
+		deploymentName, _ := bgdStateMap["deployment_name"].(string)
+		deleteOldSourceCfg, _ := bgdStateMap["delete_old_source_on_destroy"].(bool)
+		if err := deleteBlueGreenDeployment(d, config, project, d.Get("name").(string), d.Get("region").(string), deploymentName, deleteOldSourceCfg, d.Timeout(schema.TimeoutDelete), userAgent); err != nil {
+			return err
+		}
 	}
 
 	// Lock on the master_instance_name just in case deleting a replica causes
@@ -4127,6 +4231,520 @@ func normalizeDRReplicaName(drReplicaName, project string) string {
 		return drReplicaName
 	}
 	return fmt.Sprintf("%s:%s", project, drReplicaName)
+}
+
+func blueGreenDeploymentCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	if d.Id() != "" && d.HasChange("database_version") {
+		if _, n := d.GetChange("blue_green_deployment"); len(n.([]interface{})) > 0 && n.([]interface{})[0] != nil {
+			if n.([]interface{})[0].(map[string]interface{})["active_environment"] != "TARGET" {
+				return fmt.Errorf("cannot change database_version while active_environment is \"SOURCE\"; to perform a switchover, you must update both active_environment to \"TARGET\" and database_version together")
+			}
+		}
+	}
+
+	if !d.HasChange("blue_green_deployment") {
+		return nil
+	}
+
+	oldVal, newVal := d.GetChange("blue_green_deployment")
+	oldList := oldVal.([]interface{})
+	newList := newVal.([]interface{})
+
+	// Ensure active_environment is only "SOURCE" during creation of a new Blue-Green Deployment.
+	if len(oldList) == 0 && len(newList) > 0 && newList[0] != nil {
+		newMap := newList[0].(map[string]interface{})
+		newName, _ := newMap["deployment_name"].(string)
+		newEnv, _ := newMap["active_environment"].(string)
+		if newEnv == "TARGET" {
+			return fmt.Errorf(
+				"cannot create deployment %q with active_environment %q: initial value must be \"SOURCE\"",
+				newName, newEnv,
+			)
+		}
+	}
+
+	// Validate changes to an existing Blue-Green Deployment.
+	if len(oldList) > 0 && len(newList) > 0 && oldList[0] != nil && newList[0] != nil {
+		oldMap := oldList[0].(map[string]interface{})
+		newMap := newList[0].(map[string]interface{})
+
+		// deployment_name cannot be changed for an existing Blue-Green Deployment; only one deployment can exist at a time.
+		oldName, _ := oldMap["deployment_name"].(string)
+		newName, _ := newMap["deployment_name"].(string)
+		if oldName != "" && newName != "" && oldName != newName {
+			return fmt.Errorf(
+				"Source instance '%s' already has a blue-green deployment.",
+				d.Get("name").(string),
+			)
+		}
+
+		// target_database_version is immutable and cannot be changed after the Blue-Green Deployment is created.
+		oldDbVer, _ := oldMap["target_database_version"].(string)
+		newDbVer, _ := newMap["target_database_version"].(string)
+		if oldDbVer != newDbVer {
+			return fmt.Errorf(
+				"target_database_version is immutable and cannot be changed from %q to %q (deployment: %q)",
+				oldDbVer, newDbVer, oldName,
+			)
+		}
+
+		// active_environment cannot be reverted from "TARGET" back to "SOURCE" once switchover has occurred.
+		oldEnv, _ := oldMap["active_environment"].(string)
+		newEnv, _ := newMap["active_environment"].(string)
+		if oldEnv == "TARGET" && newEnv == "SOURCE" {
+			return fmt.Errorf(
+				"switchover is irreversible: cannot revert active_environment from %q to %q on deployment %q",
+				oldEnv, newEnv, oldName,
+			)
+		}
+
+		// When switching over (active_environment changing from "SOURCE" to "TARGET"),
+		// the resource configuration must match the Green (target) instance configuration.
+		if oldEnv == "SOURCE" && newEnv == "TARGET" {
+			targetInstanceName, _ := oldMap["target_instance_name"].(string)
+			if meta != nil && targetInstanceName != "" {
+				if config, ok := meta.(*transport_tpg.Config); ok && config != nil {
+					if err := validateSwitchoverMatchesGreenInstance(d, config, oldName, targetInstanceName); err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func isBlueGreenSwitchover(d *schema.ResourceData) bool {
+	if !d.HasChange("blue_green_deployment") {
+		return false
+	}
+	oldVal, newVal := d.GetChange("blue_green_deployment")
+	oldList, okOld := oldVal.([]interface{})
+	newList, okNew := newVal.([]interface{})
+	if !okOld || !okNew || len(oldList) == 0 || len(newList) == 0 || oldList[0] == nil || newList[0] == nil {
+		return false
+	}
+	oldMap := oldList[0].(map[string]interface{})
+	newMap := newList[0].(map[string]interface{})
+	oldEnv, _ := oldMap["active_environment"].(string)
+	newEnv, _ := newMap["active_environment"].(string)
+	return oldEnv == "SOURCE" && newEnv == "TARGET"
+}
+
+var skipGreenComparisonFields = map[string]bool{
+	// Top-level fields expected to differ on the Green instance before switchover because Green is a BGD target replica of Blue:
+	"name":                  true, // Green has an auto-generated target name until switchover swaps the Blue and Green names.
+	"blue_green_deployment": true, // The BGD configuration block itself is being updated to trigger the switchover.
+	"instance_type":         true, // Green is a READ_REPLICA_INSTANCE until switchover promotes it to CLOUD_SQL_INSTANCE.
+	"master_instance_name":  true, // Green points to the Blue instance as its master until switchover promotes it to primary.
+	"replica_configuration": true, // Green carries replica configuration until switchover promotes it to primary.
+	"replica_names":         true, // Replica list is attached to the Blue primary until switchover swaps roles.
+	"replication_cluster":   true, // DR replication cluster metadata belongs to the primary until switchover.
+	// Password management fields that are never returned by the Cloud SQL Admin API:
+	"root_password":            true, // root_password is not returned by Cloud SQL Admin API and cannot be read on Green instance.
+	"root_password_wo_version": true, // Write-only version tracker for root_password is not returned by the API.
+	// Settings sub-fields expected to differ on the Green replica before switchover:
+	"settings.0.backup_configuration":        true, // Backups are disabled on the Green instance until switchover completes.
+	"settings.0.password_validation_policy":  true, // Password validation policy is not returned on the Green replica before switchover.
+	"settings.0.ip_configuration":            true, // IP and PSC configuration can differ between Blue and Green before switchover.
+	"settings.0.replication_lag_max_seconds": true, // Replica-only setting populated on Green while replicating from Blue.
+	"settings.0.location_preference":         true, // Primary zone preference can differ between Blue and Green instances.
+}
+
+func validateSwitchoverMatchesGreenInstance(d *schema.ResourceDiff, config *transport_tpg.Config, deploymentName, targetInstanceName string) error {
+	rawConfig := d.GetRawConfig()
+	if rawConfig.IsNull() || !rawConfig.IsKnown() {
+		return nil
+	}
+
+	project, err := tpgresource.GetProjectFromDiff(d, config)
+	if err != nil {
+		return err
+	}
+
+	resourceSchema := ResourceSqlDatabaseInstance().Schema
+	greenData := ResourceSqlDatabaseInstance().Data(nil)
+	for k := range resourceSchema {
+		oldVal, _ := d.GetChange(k)
+		_ = greenData.Set(k, oldVal)
+	}
+	_ = greenData.Set("project", project)
+	_ = greenData.Set("name", targetInstanceName)
+	greenData.SetId(targetInstanceName)
+
+	if err := resourceSqlDatabaseInstanceRead(greenData, config); err != nil {
+		return fmt.Errorf("Error reading green instance %q to validate switchover for deployment %q: %s", targetInstanceName, deploymentName, err)
+	}
+	if greenData.Id() == "" {
+		return nil
+	}
+
+	var mismatches []string
+	for k, fieldSchema := range resourceSchema {
+		compareConfiguredField(k, rawConfig.GetAttr(k), fieldSchema, d, greenData, &mismatches)
+	}
+
+	slices.Sort(mismatches)
+	if len(mismatches) > 0 {
+		return fmt.Errorf(
+			"cannot switchover deployment %q: update terraform configuration to match green instance %q. Mismatched fields:\n - %s",
+			deploymentName, targetInstanceName, strings.Join(mismatches, "\n - "),
+		)
+	}
+
+	return nil
+}
+
+func compareConfiguredField(key string, rawVal cty.Value, fieldSchema *schema.Schema, d *schema.ResourceDiff, greenData *schema.ResourceData, mismatches *[]string) {
+	if !rawVal.IsKnown() || skipGreenComparisonFields[key] || fieldSchema.WriteOnly || (!fieldSchema.Optional && !fieldSchema.Required) {
+		return
+	}
+
+	isUnsetInConfig := rawVal.IsNull() || ((fieldSchema.Type == schema.TypeList || fieldSchema.Type == schema.TypeSet) && len(rawVal.AsValueSlice()) == 0)
+	if isUnsetInConfig && fieldSchema.Computed {
+		return
+	}
+
+	if fieldSchema.Type == schema.TypeList {
+		if subRes, ok := fieldSchema.Elem.(*schema.Resource); ok && !isUnsetInConfig {
+			rawSlice := rawVal.AsValueSlice()
+			greenSlice, okGreen := greenData.Get(key).([]interface{})
+			if okGreen && len(greenSlice) == len(rawSlice) {
+				for i, rawElem := range rawSlice {
+					if rawElem.IsNull() || !rawElem.IsKnown() {
+						continue
+					}
+					for subName, subSchema := range subRes.Schema {
+						effectiveSchema := subSchema
+						if fieldSchema.Sensitive && !subSchema.Sensitive {
+							copied := *subSchema
+							copied.Sensitive = true
+							effectiveSchema = &copied
+						}
+						compareConfiguredField(fmt.Sprintf("%s.%d.%s", key, i, subName), rawElem.GetAttr(subName), effectiveSchema, d, greenData, mismatches)
+					}
+				}
+				return
+			}
+		}
+	}
+
+	cfgVal, greenVal := d.Get(key), greenData.Get(key)
+	if key == "settings.0.disk_size" && greenData.Get("settings.0.disk_autoresize").(bool) && greenVal.(int) > cfgVal.(int) {
+		return
+	}
+	if fieldSchema.DiffSuppressFunc != nil {
+		if cfgStr, ok1 := cfgVal.(string); ok1 {
+			if greenStr, ok2 := greenVal.(string); ok2 && fieldSchema.DiffSuppressFunc(key, greenStr, cfgStr, greenData) {
+				return
+			}
+		}
+	}
+
+	equal := reflect.DeepEqual(cfgVal, greenVal)
+	if eq, ok := cfgVal.(schema.Equal); ok {
+		equal = eq.Equal(greenVal)
+	}
+	if !equal {
+		if fieldSchema.Sensitive {
+			*mismatches = append(*mismatches, fmt.Sprintf("%s (configured: (sensitive), green instance: (sensitive))", key))
+		} else {
+			*mismatches = append(*mismatches, fmt.Sprintf("%s (configured: %v, green instance: %v)", key, formatSchemaValue(cfgVal), formatSchemaValue(greenVal)))
+		}
+	}
+}
+
+func formatSchemaValue(v interface{}) interface{} {
+	if s, ok := v.(*schema.Set); ok {
+		v = s.List()
+	}
+	if list, ok := v.([]interface{}); ok {
+		res := make([]interface{}, len(list))
+		for i, elem := range list {
+			res[i] = formatSchemaValue(elem)
+		}
+		return res
+	}
+	if m, ok := v.(map[string]interface{}); ok {
+		res := make(map[string]interface{}, len(m))
+		for k, val := range m {
+			res[k] = formatSchemaValue(val)
+		}
+		return res
+	}
+	return v
+}
+
+func getExistingBgdStateMap(d *schema.ResourceData) map[string]interface{} {
+	if v, ok := d.GetOk("blue_green_deployment"); ok && len(v.([]interface{})) > 0 && v.([]interface{})[0] != nil {
+		return v.([]interface{})[0].(map[string]interface{})
+	}
+	oldVal, newVal := d.GetChange("blue_green_deployment")
+	if newVal != nil {
+		if newList, ok := newVal.([]interface{}); ok && len(newList) > 0 && newList[0] != nil {
+			return newList[0].(map[string]interface{})
+		}
+	}
+	if oldVal != nil {
+		if oldList, ok := oldVal.([]interface{}); ok && len(oldList) > 0 && oldList[0] != nil {
+			return oldList[0].(map[string]interface{})
+		}
+	}
+	return nil
+}
+
+func readBlueGreenDeployment(d *schema.ResourceData, config *transport_tpg.Config, project string, instance *sqladmin.DatabaseInstance, userAgent string) error {
+	bgdStateMap := getExistingBgdStateMap(d)
+	deploymentName := ""
+	if instance != nil && instance.DeploymentInfo != nil && instance.DeploymentInfo.DeploymentId != "" {
+		deploymentName = instance.DeploymentInfo.DeploymentId
+	}
+
+	if deploymentName == "" {
+		if err := d.Set("blue_green_deployment", nil); err != nil {
+			return fmt.Errorf("Error clearing blue_green_deployment: %s", err)
+		}
+		return nil
+	}
+
+	bgdName := fmt.Sprintf("projects/%s/locations/%s/blueGreenDeployments/%s", project, instance.Region, deploymentName)
+	bgdRes, err := NewClient(config, userAgent).BlueGreenDeployments.Get(bgdName).Do()
+	if err != nil {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+			if err := d.Set("blue_green_deployment", nil); err != nil {
+				return fmt.Errorf("Error clearing blue_green_deployment: %s", err)
+			}
+			return nil
+		}
+		return fmt.Errorf("Error reading BlueGreenDeployment %q: %s", deploymentName, err)
+	}
+
+	targetDbVersion := ""
+	if bgdRes.RequestedConfig != nil && bgdRes.RequestedConfig.DatabaseVersion != "" {
+		targetDbVersion = bgdRes.RequestedConfig.DatabaseVersion
+	}
+	if targetDbVersion == "" && bgdStateMap != nil {
+		if dbVer, ok := bgdStateMap["target_database_version"].(string); ok {
+			targetDbVersion = dbVer
+		}
+	}
+
+	activeEnv := "SOURCE"
+	if bgdRes.State == "SWITCHOVER_COMPLETED" {
+		activeEnv = "TARGET"
+	} else if bgdRes.State == "DELETING" && bgdStateMap != nil {
+		if prevEnv, ok := bgdStateMap["active_environment"].(string); ok && prevEnv != "" {
+			activeEnv = prevEnv
+		}
+	}
+
+	if (activeEnv == "SOURCE" && bgdRes.SourceInstance != "" && bgdRes.SourceInstance != instance.Name) ||
+		(activeEnv == "TARGET" && bgdRes.SwitchoverTargetInstance != "" && bgdRes.SwitchoverTargetInstance != instance.Name) {
+		if err := d.Set("blue_green_deployment", nil); err != nil {
+			return fmt.Errorf("Error clearing blue_green_deployment: %s", err)
+		}
+		return nil
+	}
+
+	deleteOldSource := false
+	if bgdStateMap != nil {
+		if val, ok := bgdStateMap["delete_old_source_on_destroy"].(bool); ok {
+			deleteOldSource = val
+		}
+	}
+
+	targetInstanceName := bgdRes.SwitchoverTargetInstance
+	targetConnName := ""
+	targetIpAddresses := []map[string]interface{}{}
+	oldSourceInstanceName := ""
+	oldSourceConnName := ""
+	if activeEnv == "TARGET" {
+		oldSourceInstanceName = bgdRes.SourceInstance
+	}
+
+	for _, mapping := range bgdRes.DeploymentMappings {
+		if mapping == nil {
+			continue
+		}
+		if mapping.Target != nil && (targetInstanceName == "" || mapping.Target.Instance == targetInstanceName) {
+			if targetInstanceName == "" {
+				targetInstanceName = mapping.Target.Instance
+			}
+			targetConnName = mapping.Target.Connection
+			targetIpAddresses = flattenIpAddresses(mapping.Target.IpMappings)
+		}
+		if activeEnv == "TARGET" && mapping.Source != nil && (oldSourceInstanceName == "" || mapping.Source.Instance == oldSourceInstanceName) {
+			if oldSourceInstanceName == "" {
+				oldSourceInstanceName = mapping.Source.Instance
+			}
+			oldSourceConnName = mapping.Source.Connection
+		}
+	}
+
+	bgdMap := map[string]interface{}{
+		"deployment_name":                     deploymentName,
+		"target_database_version":             targetDbVersion,
+		"active_environment":                  activeEnv,
+		"delete_old_source_on_destroy":        deleteOldSource,
+		"target_instance_name":                targetInstanceName,
+		"target_instance_connection_name":     targetConnName,
+		"target_instance_ip_addresses":        targetIpAddresses,
+		"old_source_instance_name":            oldSourceInstanceName,
+		"old_source_instance_connection_name": oldSourceConnName,
+	}
+
+	if err := d.Set("blue_green_deployment", []map[string]interface{}{bgdMap}); err != nil {
+		return fmt.Errorf("Error setting blue_green_deployment: %s", err)
+	}
+
+	return nil
+}
+
+func handleBlueGreenDeploymentUpdate(d *schema.ResourceData, config *transport_tpg.Config, project, region string, timeout time.Duration, userAgent string) error {
+	oldVal, newVal := d.GetChange("blue_green_deployment")
+	oldList := oldVal.([]interface{})
+	newList := newVal.([]interface{})
+
+	instanceName := d.Get("name").(string)
+
+	// Case 1: Adding a new blue_green_deployment block
+	if len(oldList) == 0 && len(newList) > 0 && newList[0] != nil {
+		newMap := newList[0].(map[string]interface{})
+		deploymentName, _ := newMap["deployment_name"].(string)
+		targetDbVersion, _ := newMap["target_database_version"].(string)
+
+		return createBlueGreenDeployment(d, config, project, instanceName, region, deploymentName, targetDbVersion, timeout, userAgent)
+	}
+
+	// Case 2: Removing an existing blue_green_deployment block (or deleting out-of-band BGD in Scenario A)
+	if len(oldList) > 0 && len(newList) == 0 && oldList[0] != nil {
+		oldMap := oldList[0].(map[string]interface{})
+		deploymentName, _ := oldMap["deployment_name"].(string)
+		deleteOldSourceCfg, _ := oldMap["delete_old_source_on_destroy"].(bool)
+
+		return deleteBlueGreenDeployment(d, config, project, instanceName, region, deploymentName, deleteOldSourceCfg, d.Timeout(schema.TimeoutUpdate), userAgent)
+	}
+
+	// Case 3: Modifying an existing blue_green_deployment block
+	if len(oldList) > 0 && len(newList) > 0 && oldList[0] != nil && newList[0] != nil {
+		oldMap := oldList[0].(map[string]interface{})
+		newMap := newList[0].(map[string]interface{})
+		newName, _ := newMap["deployment_name"].(string)
+
+		oldEnv, _ := oldMap["active_environment"].(string)
+		newEnv, _ := newMap["active_environment"].(string)
+		if oldEnv == "SOURCE" && newEnv == "TARGET" {
+			return switchoverBlueGreenDeployment(d, config, project, instanceName, region, newName, userAgent)
+		}
+	}
+
+	return nil
+}
+
+func switchoverBlueGreenDeployment(d *schema.ResourceData, config *transport_tpg.Config, project, instanceName, region, deploymentName, userAgent string) error {
+	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instanceName))
+	defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instanceName))
+
+	bgdName := fmt.Sprintf("projects/%s/locations/%s/blueGreenDeployments/%s", project, region, deploymentName)
+
+	var op *sqladmin.Operation
+	err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (rerr error) {
+			op, rerr = NewClient(config, userAgent).BlueGreenDeployments.Switchover(bgdName, &sqladmin.SwitchoverBlueGreenDeploymentRequest{}).Do()
+			return rerr
+		},
+		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
+	if err != nil {
+		return fmt.Errorf("Error switching over Blue-Green Deployment %q on instance %q: %s", deploymentName, instanceName, err)
+	}
+
+	err = SqlAdminOperationWaitTime(
+		config, op, project, "Switching Over Blue-Green Deployment", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createBlueGreenDeployment(d *schema.ResourceData, config *transport_tpg.Config, project, instanceName, region, deploymentName, targetDbVersion string, timeout time.Duration, userAgent string) error {
+	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instanceName))
+	defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instanceName))
+
+	parent := fmt.Sprintf("projects/%s/locations/%s", project, region)
+	bgdReq := &sqladmin.BlueGreenDeployment{
+		SourceInstance: instanceName,
+	}
+	if targetDbVersion != "" {
+		bgdReq.RequestedConfig = &sqladmin.RequestedConfig{
+			DatabaseVersion: targetDbVersion,
+		}
+	}
+
+	var op *sqladmin.Operation
+	err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (rerr error) {
+			op, rerr = NewClient(config, userAgent).BlueGreenDeployments.Create(parent, bgdReq).BlueGreenDeploymentId(deploymentName).Do()
+			return rerr
+		},
+		Timeout:              timeout,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating Blue-Green Deployment %q on instance %q: %s", deploymentName, instanceName, err)
+	}
+
+	err = SqlAdminOperationWaitTime(
+		config, op, project, "Creating Blue-Green Deployment", userAgent,
+		timeout)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func deleteBlueGreenDeployment(d *schema.ResourceData, config *transport_tpg.Config, project, instanceName, region, deploymentName string, deleteOldSource bool, timeout time.Duration, userAgent string) error {
+	if deploymentName == "" {
+		return nil
+	}
+
+	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instanceName))
+	defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instanceName))
+
+	bgdName := fmt.Sprintf("projects/%s/locations/%s/blueGreenDeployments/%s", project, region, deploymentName)
+
+	var op *sqladmin.Operation
+	err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (rerr error) {
+			op, rerr = NewClient(config, userAgent).BlueGreenDeployments.Delete(bgdName).DeleteOldSource(deleteOldSource).Do()
+			return rerr
+		},
+		Timeout:              timeout,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
+	if err != nil {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+			log.Printf("[DEBUG] Blue-Green Deployment %q on instance %q already deleted, ignoring 404", deploymentName, instanceName)
+			return nil
+		}
+		return fmt.Errorf("Error deleting Blue-Green Deployment %q on instance %q: %s", deploymentName, instanceName, err)
+	}
+
+	if op != nil && op.Name != "" {
+		err = SqlAdminOperationWaitTime(
+			config, op, project, "Deleting Blue-Green Deployment", userAgent,
+			timeout)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func init() {
