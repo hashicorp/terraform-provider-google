@@ -88,6 +88,13 @@ func (mc *MetadataCache) Populate() error {
 
 	mc.cache = make(map[string]Metadata)
 
+	type apiResourceKey struct {
+		serviceName      string
+		version          string
+		resourceTypeKind string
+	}
+	seenApiResources := make(map[string]map[apiResourceKey]string)
+
 	var malformed_yaml_errs []string
 
 	// Walk through all service directories once
@@ -115,10 +122,6 @@ func (mc *MetadataCache) Populate() error {
 			return nil
 		}
 
-		if _, ok := mc.cache[metadata.Resource]; ok {
-			return fmt.Errorf("duplicate resource: %s in %s", metadata.Resource, path)
-		}
-
 		metadata.Path = path
 		metadata.FileName = filepath.Base(path)
 		pathParts := strings.Split(path, string(os.PathSeparator))
@@ -127,6 +130,34 @@ func (mc *MetadataCache) Populate() error {
 			return fmt.Errorf("no service found for %s (%s)", metadata.Resource, path)
 		}
 		metadata.ServicePackage = pathParts[servicesIndex+1]
+
+		apiKey := apiResourceKey{
+			serviceName:      metadata.ApiServiceName,
+			version:          metadata.ApiVersion,
+			resourceTypeKind: metadata.ApiResourceTypeKind,
+		}
+		if seenForResource, ok := seenApiResources[metadata.Resource]; ok {
+			if prevPath, duplicate := seenForResource[apiKey]; duplicate {
+				return fmt.Errorf("duplicate API resource (%s, %s, %s) for %s in %s and %s", metadata.ApiServiceName, metadata.ApiVersion, metadata.ApiResourceTypeKind, metadata.Resource, prevPath, path)
+			}
+		} else {
+			seenApiResources[metadata.Resource] = make(map[apiResourceKey]string)
+		}
+		seenApiResources[metadata.Resource][apiKey] = path
+
+		if existing, ok := mc.cache[metadata.Resource]; ok {
+			if isPrimaryMetadataFile(existing) && isPrimaryMetadataFile(metadata) {
+				return fmt.Errorf("duplicate resource: %s in %s", metadata.Resource, path)
+			}
+			primary, secondary := existing, metadata
+			if isPrimaryMetadataFile(metadata) {
+				primary, secondary = metadata, existing
+			}
+			primary.Fields = append(primary.Fields, secondary.Fields...)
+			mc.cache[metadata.Resource] = primary
+			return nil
+		}
+
 		mc.cache[metadata.Resource] = metadata
 		return nil
 	})
@@ -162,6 +193,19 @@ func (mc *MetadataCache) Get(key string) (Metadata, bool) {
 
 func (mc *MetadataCache) Cache() map[string]Metadata {
 	return mc.cache
+}
+
+func isPrimaryMetadataFile(metadata Metadata) bool {
+	shortName := strings.TrimPrefix(metadata.Resource, "google_")
+	switch metadata.FileName {
+	case fmt.Sprintf("resource_%s_meta.yaml", shortName),
+		fmt.Sprintf("resource_%s_generated_meta.yaml", shortName),
+		fmt.Sprintf("resource_%s_meta.yaml", metadata.Resource),
+		fmt.Sprintf("resource_%s_generated_meta.yaml", metadata.Resource):
+		return true
+	default:
+		return false
+	}
 }
 
 // getServicesDir returns the path to the services directory
