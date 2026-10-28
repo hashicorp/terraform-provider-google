@@ -52,8 +52,14 @@ var (
 func TestAccComputeRouterNamedSet_updatePrefix(t *testing.T) {
 	t.Parallel()
 
+	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"random_suffix": randomSuffix,
+		"description":   "A sample prefix named set",
+	}
+	updatedContext := map[string]interface{}{
+		"random_suffix": randomSuffix,
+		"description":   "An updated sample prefix named set",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -62,14 +68,14 @@ func TestAccComputeRouterNamedSet_updatePrefix(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeRouterNamedSetsDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRouterNamedSet_routerNamedSetPrefix(context, "A sample prefix named set", false),
+				Config: testAccComputeRouterNamedSet_routerNamedSetPrefix(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_compute_router_named_set.prefix_set", "description", "A sample prefix named set"),
 					resource.TestCheckResourceAttr("google_compute_router_named_set.prefix_set", "elements.#", "2"),
 				),
 			},
 			{
-				Config: testAccComputeRouterNamedSet_routerNamedSetPrefix(context, "An updated sample prefix named set", true),
+				Config: testAccComputeRouterNamedSet_routerNamedSetPrefixUpdate(updatedContext),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_compute_router_named_set.prefix_set", "description", "An updated sample prefix named set"),
 					resource.TestCheckResourceAttr("google_compute_router_named_set.prefix_set", "elements.#", "3"),
@@ -86,9 +92,8 @@ func TestAccComputeRouterNamedSet_updatePrefix(t *testing.T) {
 	})
 }
 
-func testAccComputeRouterNamedSet_routerNamedSetPrefix(context map[string]interface{}, description string, addElement bool) string {
-	var b strings.Builder
-	b.WriteString(acctest.Nprintf(`
+func testAccComputeRouterNamedSet_routerNamedSetPrefix(context map[string]interface{}) string {
+	return acctest.Nprintf(`
 resource "google_compute_network" "net" {
   name                    = "tf-test-my-network%{random_suffix}"
   auto_create_subnetworks = false
@@ -104,7 +109,7 @@ resource "google_compute_router_named_set" "prefix_set" {
   name        = "tf-test-my-prefix-set%{random_suffix}"
   router      = google_compute_router.router.name
   region      = "us-central1"
-  description = "`+description+`"
+  description = "%{description}"
   type        = "NAMED_SET_TYPE_PREFIX"
 
   elements {
@@ -117,20 +122,47 @@ resource "google_compute_router_named_set" "prefix_set" {
     expression  = "'172.16.0.0/12'"
     title       = "seventeen-two-slash-sixteen"
   }
-`, context))
+}
+`, context)
+}
 
-	if addElement {
-		b.WriteString(`
+func testAccComputeRouterNamedSet_routerNamedSetPrefixUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "net" {
+  name                    = "tf-test-my-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_router" "router" {
+  name    = "tf-test-my-router%{random_suffix}"
+  network = google_compute_network.net.name
+  region  = "us-central1"
+}
+
+resource "google_compute_router_named_set" "prefix_set" {
+  name        = "tf-test-my-prefix-set%{random_suffix}"
+  router      = google_compute_router.router.name
+  region      = "us-central1"
+  description = "%{description}"
+  type        = "NAMED_SET_TYPE_PREFIX"
+
+  elements {
+    expression  = "'10.0.0.0/8'"
+    title       = "ten-slash-eight"
+    description = "A sample IPv4 prefix"
+  }
+
+  elements {
+    expression  = "'172.16.0.0/12'"
+    title       = "seventeen-two-slash-sixteen"
+  }
+
   elements {
     expression  = "'192.168.0.0/16'"
     title       = "one-nine-two"
   }
-`)
-	}
-	b.WriteString(`
 }
-`)
-	return b.String()
+`, context)
 }
 
 func TestAccComputeRouterNamedSet_concurrentWithBgpPeer(t *testing.T) {
