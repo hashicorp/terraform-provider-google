@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -63,6 +64,15 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterBasicExample(t *tes
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"annotation_value":         "value-one",
+		"label_value":              "key",
+		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
+		"random_suffix":            randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"annotation_value":         "value-updated",
+		"label_value":              "updated-key",
 		"workstation_cluster_name": "tf-test-workstation-cluster" + randomSuffix,
 		"random_suffix":            randomSuffix,
 	}
@@ -87,6 +97,26 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterBasicExample(t *tes
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
+			{
+				Config: testAccWorkstationsWorkstationCluster_workstationClusterBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_workstations_workstation_cluster.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_workstations_workstation_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "tags", "terraform_labels", "workstation_cluster_id"},
+			},
+			{
+				ResourceName:       "google_workstations_workstation_cluster.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -97,14 +127,14 @@ resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-  
+  location               = "us-west4"
+
   labels = {
-    "label" = "key"
+    "label" = "%{label_value}"
   }
 
   annotations = {
-    label-one = "value-one"
+    label-one = "%{annotation_value}"
   }
 }
 
@@ -119,7 +149,7 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
+  region        = "us-west4"
   network       = google_compute_network.default.name
 }
 `, context)
@@ -131,6 +161,15 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterPrivateExample(t *t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"key_short_name":           "tf-test-keyname" + randomSuffix,
+		"value_short_name":         "tf-test-valuename" + randomSuffix,
+		"workstation_cluster_name": "tf-test-workstation-cluster-private" + randomSuffix,
+		"random_suffix":            randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"key_short_name":           "tf-test-keyname" + randomSuffix,
+		"value_short_name":         "tf-test-valuename" + randomSuffix,
 		"workstation_cluster_name": "tf-test-workstation-cluster-private" + randomSuffix,
 		"random_suffix":            randomSuffix,
 	}
@@ -155,161 +194,31 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterPrivateExample(t *t
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
+			{
+				Config: testAccWorkstationsWorkstationCluster_workstationClusterPrivateUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_workstations_workstation_cluster.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_workstations_workstation_cluster.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "tags", "terraform_labels", "workstation_cluster_id"},
+			},
+			{
+				ResourceName:       "google_workstations_workstation_cluster.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
 
 func testAccWorkstationsWorkstationCluster_workstationClusterPrivateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "%{workstation_cluster_name}"
-  network                = google_compute_network.default.id
-  subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-
-  private_cluster_config {
-    enable_private_endpoint = true
-  }
-
-  labels = {
-    "label" = "key"
-  }
-
-  annotations = {
-    label-one = "value-one"
-  }
-}
-
-data "google_project" "project" {
-}
-
-resource "google_compute_network" "default" {
-  name                    = "%{workstation_cluster_name}"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "default" {
-  name          = "%{workstation_cluster_name}"
-  ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
-  network       = google_compute_network.default.name
-}
-`, context)
-}
-
-func TestAccWorkstationsWorkstationCluster_workstationClusterCustomDomainExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"workstation_cluster_name": "tf-test-workstation-cluster-custom-domain" + randomSuffix,
-		"random_suffix":            randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckWorkstationsWorkstationClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccWorkstationsWorkstationCluster_workstationClusterCustomDomainExample(context),
-			},
-			{
-				ResourceName:            "google_workstations_workstation_cluster.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "tags", "terraform_labels", "workstation_cluster_id"},
-			},
-			{
-				ResourceName:       "google_workstations_workstation_cluster.default",
-				RefreshState:       true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccWorkstationsWorkstationCluster_workstationClusterCustomDomainExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "%{workstation_cluster_name}"
-  network                = google_compute_network.default.id
-  subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-
-  private_cluster_config {
-    enable_private_endpoint = true
-  }
-
-  domain_config {
-    domain = "workstations.example.com"
-  }
-
-  labels = {
-    "label" = "key"
-  }
-
-  annotations = {
-    label-one = "value-one"
-  }
-}
-
-data "google_project" "project" {
-}
-
-resource "google_compute_network" "default" {
-  name                    = "%{workstation_cluster_name}"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "default" {
-  name          = "%{workstation_cluster_name}"
-  ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
-  network       = google_compute_network.default.name
-}
-`, context)
-}
-
-func TestAccWorkstationsWorkstationCluster_workstationClusterTagsExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"key_short_name":           "tf-test-key-" + acctest.RandString(t, 10),
-		"value_short_name":         "tf-test-value-" + acctest.RandString(t, 10),
-		"workstation_cluster_name": "tf-test-workstation-cluster-tags" + randomSuffix,
-		"random_suffix":            randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckWorkstationsWorkstationClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccWorkstationsWorkstationCluster_workstationClusterTagsExample(context),
-			},
-			{
-				ResourceName:            "google_workstations_workstation_cluster.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "tags", "terraform_labels", "workstation_cluster_id"},
-			},
-			{
-				ResourceName:       "google_workstations_workstation_cluster.default",
-				RefreshState:       true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccWorkstationsWorkstationCluster_workstationClusterTagsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "project" {
 }
@@ -328,8 +237,28 @@ resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "%{workstation_cluster_name}"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-  
+  location               = "europe-west4"
+  display_name           = "cluster-display-name"
+
+  private_cluster_config {
+    enable_private_endpoint = true
+  }
+
+  domain_config {
+    domain = "workstations.example.com"
+  }
+
+  workstation_authorization_url = "https://console.cloud.google.com/workstations/auth"
+  workstation_launch_url        = "https://console.cloud.google.com/workstations/launch"
+
+  labels = {
+    "label" = "key"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+
   tags = {
     "${data.google_project.project.project_id}/${google_tags_tag_key.tag_key.short_name}" = "${google_tags_tag_value.tag_value.short_name}"
   }
@@ -343,71 +272,68 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
+  region        = "europe-west4"
   network       = google_compute_network.default.name
 }
 `, context)
 }
 
-func TestAccWorkstationsWorkstationCluster_workstationClusterUrlsExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"cluster_id":           "custom-urls-cluster",
-		"cluster_network_name": "tf-test-workstations-network" + randomSuffix,
-		"random_suffix":        randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckWorkstationsWorkstationClusterDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccWorkstationsWorkstationCluster_workstationClusterCustomUrlsExample(context),
-			},
-			{
-				ResourceName:            "google_workstations_workstation_cluster.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "tags", "terraform_labels", "workstation_cluster_id"},
-			},
-			{
-				ResourceName:       "google_workstations_workstation_cluster.default",
-				RefreshState:       true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccWorkstationsWorkstationCluster_workstationClusterCustomUrlsExample(context map[string]interface{}) string {
+func testAccWorkstationsWorkstationCluster_workstationClusterPrivateUpdateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_workstations_workstation_cluster" "default" {
-  workstation_cluster_id = "%{cluster_id}"
-  network                = google_compute_network.default.id
-  subnetwork             = google_compute_subnetwork.default.id
-  location               = "us-central1"
-
-  workstation_authorization_url = "https://console.cloud.google.com/workstations/auth"
-  workstation_launch_url        = "https://console.cloud.google.com/workstations/launch"
-}
-
 data "google_project" "project" {
 }
 
+resource "google_tags_tag_key" "tag_key" {
+  parent     = "projects/${data.google_project.project.number}"
+  short_name = "%{key_short_name}"
+}
+
+resource "google_tags_tag_value" "tag_value" {
+  parent     = "tagKeys/${google_tags_tag_key.tag_key.name}"
+  short_name = "%{value_short_name}"
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  workstation_cluster_id = "%{workstation_cluster_name}"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "europe-west4"
+  display_name           = "cluster-display-name-updated"
+
+  private_cluster_config {
+    enable_private_endpoint = true
+    allowed_projects        = ["${data.google_project.project.project_id}"]
+  }
+
+  domain_config {
+    domain = "workstations.example.com"
+  }
+
+  workstation_authorization_url = "https://console.cloud.google.com/workstations/auth-updated"
+  workstation_launch_url        = "https://console.cloud.google.com/workstations/launch-updated"
+
+  labels = {
+    foo = "bar"
+  }
+
+  annotations = {
+    label-one = "value-updated"
+  }
+
+  tags = {
+    "${data.google_project.project.project_id}/${google_tags_tag_key.tag_key.short_name}" = "${google_tags_tag_value.tag_value.short_name}"
+  }
+}
+
 resource "google_compute_network" "default" {
-  name                    = "%{cluster_network_name}"
+  name                    = "%{workstation_cluster_name}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-  name          = "%{cluster_network_name}"
+  name          = "%{workstation_cluster_name}"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "us-central1"
+  region        = "europe-west4"
   network       = google_compute_network.default.name
 }
 `, context)

@@ -56,12 +56,24 @@ func listAndActionWorkstationsWorkstationCluster(action sweeper.ResourceAction) 
 	var configs []*tpgresource.ResourceDataMock
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
-	// Default single config
-	intermediateValues := []map[string]string{
-		{
-			"region": "us-central1",
-		},
-	}
+	// Build URL substitution maps individually to ensure proper formatting
+	intermediateValues := make([]map[string]string, 8)
+	intermediateValues[0] = map[string]string{}
+	intermediateValues[0]["region"] = "us-central1"
+	intermediateValues[1] = map[string]string{}
+	intermediateValues[1]["region"] = "us-east1"
+	intermediateValues[2] = map[string]string{}
+	intermediateValues[2]["region"] = "us-east4"
+	intermediateValues[3] = map[string]string{}
+	intermediateValues[3]["region"] = "us-east5"
+	intermediateValues[4] = map[string]string{}
+	intermediateValues[4]["region"] = "us-west1"
+	intermediateValues[5] = map[string]string{}
+	intermediateValues[5]["region"] = "us-west4"
+	intermediateValues[6] = map[string]string{}
+	intermediateValues[6]["region"] = "europe-west1"
+	intermediateValues[7] = map[string]string{}
+	intermediateValues[7]["region"] = "europe-west4"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {
@@ -222,6 +234,8 @@ func deleteResourceWorkstationsWorkstationCluster(config *transport_tpg.Config, 
 		deletionerror = err
 	}
 	url = url + name
+	// Apply additional query string defined in Sweeper config
+	url = url + "?force=true"
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
