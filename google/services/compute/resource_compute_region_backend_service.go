@@ -1243,7 +1243,7 @@ If it is not provided, the provider region is used.`,
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: `URL to networkservices.ServiceLbPolicy resource.
-Can only be set if load balancing scheme is EXTERNAL_MANAGED or INTERNAL_MANAGED.
+Can only be set if load balancing scheme is EXTERNAL_MANAGED, INTERNAL_MANAGED or INTERNAL_SELF_MANAGED.
 The service lb policy must be regional and in the same region as the backend service.`,
 			},
 			"session_affinity": {
