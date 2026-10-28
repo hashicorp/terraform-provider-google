@@ -69,6 +69,55 @@ resource "google_discovery_engine_data_store" "basic" {
 `, context)
 }
 
+// Same config as the document_processing_config_layout example, which runs in global, but in the eu multi-region.
+func TestAccDiscoveryEngineDataStore_documentProcessingConfigLayoutEuNoDiff(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineDataStore_documentProcessingConfigLayoutEu(context),
+			},
+			{
+				Config:             testAccDiscoveryEngineDataStore_documentProcessingConfigLayoutEu(context),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineDataStore_documentProcessingConfigLayoutEu(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "layout_eu" {
+  location                    = "eu"
+  data_store_id               = "tf-test-dpc-eu-ds%{random_suffix}"
+  display_name                = "tf-test-dpc-eu-datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "CONTENT_REQUIRED"
+  solution_types              = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search = false
+  document_processing_config {
+    default_parsing_config {
+      layout_parsing_config {}
+    }
+    chunking_config {
+      layout_based_chunking_config {
+        chunk_size                = 500
+        include_ancestor_headings = true
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "basic" {
