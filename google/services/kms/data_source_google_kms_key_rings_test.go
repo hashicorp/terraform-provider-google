@@ -40,7 +40,7 @@ func TestAccDataSourceGoogleKmsKeyRings_basic(t *testing.T) {
 	findsNoKeysId := fmt.Sprintf("%s/filter=%s", keyRingsID, filterNameFindsNoKeys)
 
 	context := map[string]interface{}{
-		"filter":   "", // Can be overridden using 2nd argument to config funcs
+		"filter":   nil, // Can be overridden using 2nd argument to config funcs
 		"location": location,
 	}
 
@@ -49,14 +49,14 @@ func TestAccDataSourceGoogleKmsKeyRings_basic(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleKmsKeyRings_basic(context, ""),
+				Config: testAccDataSourceGoogleKmsKeyRings_basic(context, nil),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_kms_key_rings.all_key_rings", "id", keyRingsID),
 					resource.TestMatchResourceAttr("data.google_kms_key_rings.all_key_rings", "key_rings.#", regexp.MustCompile("[1-9]+[0-9]*")),
 				),
 			},
 			{
-				Config: testAccDataSourceGoogleKmsKeyRings_basic(context, fmt.Sprintf("filter = \"%s\"", filterNameFindSharedKeys)),
+				Config: testAccDataSourceGoogleKmsKeyRings_basic(context, filterNameFindSharedKeys),
 				Check: resource.ComposeTestCheckFunc(
 					// This filter should retrieve the bootstrapped KMS key rings used by the test
 					resource.TestCheckResourceAttr("data.google_kms_key_rings.all_key_rings", "id", findSharedKeysId),
@@ -64,7 +64,7 @@ func TestAccDataSourceGoogleKmsKeyRings_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceGoogleKmsKeyRings_basic(context, fmt.Sprintf("filter = \"%s\"", filterNameFindsNoKeys)),
+				Config: testAccDataSourceGoogleKmsKeyRings_basic(context, filterNameFindsNoKeys),
 				Check: resource.ComposeTestCheckFunc(
 					// This filter should retrieve no keys
 					resource.TestCheckResourceAttr("data.google_kms_key_rings.all_key_rings", "id", findsNoKeysId),
@@ -75,13 +75,13 @@ func TestAccDataSourceGoogleKmsKeyRings_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceGoogleKmsKeyRings_basic(context map[string]interface{}, filter string) string {
+func testAccDataSourceGoogleKmsKeyRings_basic(context map[string]interface{}, filter interface{}) string {
 	context["filter"] = filter
 
 	return acctest.Nprintf(`
 data "google_kms_key_rings" "all_key_rings" {
   location = "%{location}"
-  %{filter}
+  filter   = "%{filter}"
 }
 `, context)
 }

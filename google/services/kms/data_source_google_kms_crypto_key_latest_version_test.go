@@ -40,7 +40,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"crypto_key": asymSignKey.CryptoKey.Name,
-		"filter":     "", // Can be overridden using 2nd argument to config funcs
+		"filter":     nil, // Can be overridden using 2nd argument to config funcs
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -48,7 +48,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(context, ""),
+				Config: testAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(context, nil),
 				// Test will attempt to get the latest version from the list of cryptoKeyVersions, if the latest is not enabled it will return an error
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_kms_crypto_key_latest_version.latest_version", "id", id),
@@ -57,7 +57,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(context, fmt.Sprintf("filter = \"%s\"", filterNameFindEnabledLatestCryptoKeyVersion)),
+				Config: testAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(context, filterNameFindEnabledLatestCryptoKeyVersion),
 				Check: resource.ComposeTestCheckFunc(
 					// This filter should retrieve the latest ENABLED cryptoKeyVersion in the bootstrapped KMS crypto key used by the test
 					resource.TestCheckResourceAttr("data.google_kms_crypto_key_latest_version.latest_version", "id", findsEnabledLatestCryptoKeyVersionId),
@@ -66,7 +66,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(context, fmt.Sprintf("filter = \"%s\"", filterNameFindsNoLatestCryptoKeyVersion)),
+				Config: testAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(context, filterNameFindsNoLatestCryptoKeyVersion),
 				Check: resource.ComposeTestCheckFunc(
 					// This filter should retrieve no latest version
 					resource.TestCheckResourceAttr("data.google_kms_crypto_key_latest_version.latest_version", "id", findsNoLatestCryptoKeyVersionId),
@@ -78,13 +78,13 @@ func TestAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(context map[string]interface{}, filter string) string {
+func testAccDataSourceGoogleKmsCryptoKeyLatestVersion_basic(context map[string]interface{}, filter interface{}) string {
 	context["filter"] = filter
 
 	return acctest.Nprintf(`
 data "google_kms_crypto_key_latest_version" "latest_version" {
 	crypto_key = "%{crypto_key}"
-	%{filter}
+	filter     = "%{filter}"
 }
 `, context)
 }
