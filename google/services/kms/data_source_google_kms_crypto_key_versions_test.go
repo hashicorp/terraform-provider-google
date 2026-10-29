@@ -44,7 +44,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyVersions_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"crypto_key": asymSignKey.CryptoKey.Name,
-		"filter":     "", // Can be overridden using 2nd argument to config funcs
+		"filter":     nil, // Can be overridden using 2nd argument to config funcs
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -52,7 +52,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyVersions_basic(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context, ""),
+				Config: testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context, nil),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_kms_crypto_key_versions.all_versions_in_key", "id", id),
 					resource.TestCheckResourceAttr("data.google_kms_crypto_key_versions.all_versions_in_key", "crypto_key", asymSignKey.CryptoKey.Name),
@@ -60,7 +60,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyVersions_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context, fmt.Sprintf("filter = \"%s\"", filterNameFindSharedCryptoKeyVersions)),
+				Config: testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context, filterNameFindSharedCryptoKeyVersions),
 				Check: resource.ComposeTestCheckFunc(
 					// This filter should retrieve cryptoKeyVersions in the bootstrapped KMS crypto key used by the test
 					resource.TestCheckResourceAttr("data.google_kms_crypto_key_versions.all_versions_in_key", "id", findSharedCryptoKeyVersionsId),
@@ -69,7 +69,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyVersions_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context, fmt.Sprintf("filter = \"%s\"", filterNameFindsNoCryptoKeyVersions)),
+				Config: testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context, filterNameFindsNoCryptoKeyVersions),
 				Check: resource.ComposeTestCheckFunc(
 					// This filter should retrieve no cryptoKeyVersions
 					resource.TestCheckResourceAttr("data.google_kms_crypto_key_versions.all_versions_in_key", "id", findsNoCryptoKeyVersionsId),
@@ -78,7 +78,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyVersions_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context, fmt.Sprintf("filter = \"%s\"", filterNameFindEnabledCryptoKeyVersions)),
+				Config: testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context, filterNameFindEnabledCryptoKeyVersions),
 				Check: resource.ComposeTestCheckFunc(
 					// This filter should retrieve versions that are enabled
 					resource.TestCheckResourceAttr("data.google_kms_crypto_key_versions.all_versions_in_key", "id", findsEnabledCryptoKeyVersionsId),
@@ -87,7 +87,7 @@ func TestAccDataSourceGoogleKmsCryptoKeyVersions_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context, fmt.Sprintf("filter = \"%s\"", filterNameFindDisabledCryptoKeyVersions)),
+				Config: testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context, filterNameFindDisabledCryptoKeyVersions),
 				Check: resource.ComposeTestCheckFunc(
 					// This filter should retrieve versions that are disabled
 					resource.TestCheckResourceAttr("data.google_kms_crypto_key_versions.all_versions_in_key", "id", findsDisabledCryptoKeyVersionsId),
@@ -99,13 +99,13 @@ func TestAccDataSourceGoogleKmsCryptoKeyVersions_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context map[string]interface{}, filter string) string {
+func testAccDataSourceGoogleKmsCryptoKeyVersions_basic(context map[string]interface{}, filter interface{}) string {
 	context["filter"] = filter
 
 	return acctest.Nprintf(`
 data "google_kms_crypto_key_versions" "all_versions_in_key" {
 	crypto_key = "%{crypto_key}"
-	%{filter}
+	filter     = "%{filter}"
 }
 `, context)
 }
