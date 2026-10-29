@@ -58,9 +58,7 @@ resource "google_vertex_ai_tensorboard_run" "tensorboard_run" {
   tensorboard       = basename(google_vertex_ai_tensorboard.tensorboard.id)
   experiment        = google_vertex_ai_tensorboard_experiment.experiment.tensorboard_experiment_id
   tensorboard_run_id = "run"
-  labels            = {
-    "key" : "value"
-  }
+  labels            = { "key" : "value" }
 }
 ```
 

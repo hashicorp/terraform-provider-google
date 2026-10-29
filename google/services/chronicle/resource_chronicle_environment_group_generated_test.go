@@ -62,11 +62,15 @@ func TestAccChronicleEnvironmentGroup_chronicleEnvironmentgroupUpdateExample(t *
 
 	context := map[string]interface{}{
 		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"description":   "My Environment Description",
+		"display_name":  "myEnvironmentGroup",
 		"random_suffix": randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
 		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"description":   "My Environment Description1",
+		"display_name":  "myEnvironmentGroup1",
 		"random_suffix": randomSuffix,
 	}
 
@@ -91,7 +95,7 @@ func TestAccChronicleEnvironmentGroup_chronicleEnvironmentgroupUpdateExample(t *
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccChronicleEnvironmentGroup_chronicleEnvironmentgroupFullExample(context_1),
+				Config: testAccChronicleEnvironmentGroup_chronicleEnvironmentgroupBasicExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_chronicle_environment_group.sample", plancheck.ResourceActionUpdate),
@@ -120,23 +124,8 @@ resource "google_chronicle_environment_group" "sample" {
   location = "us"
   instance = "%{chronicle_id}"
 
-  display_name = "myEnvironmentGroup"
-  description = "My Environment Description"
-  environments_ids = [
-    "Default Environment"
-  ]
-}
-`, context)
-}
-
-func testAccChronicleEnvironmentGroup_chronicleEnvironmentgroupFullExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_chronicle_environment_group" "sample" {
-  location = "us"
-  instance = "%{chronicle_id}"
-
-  display_name = "myEnvironmentGroup1"
-  description = "My Environment Description1"
+  display_name = "%{display_name}"
+  description = "%{description}"
   environments_ids = [
     "Default Environment"
   ]

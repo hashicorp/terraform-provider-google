@@ -251,13 +251,17 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"cert_name":     "tf-test-self-managed-cert" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"cert_name":       "tf-test-self-managed-cert" + randomSuffix,
+		"pem_certificate": "test-fixtures/cert.pem",
+		"pem_private_key": "test-fixtures/private-key.pem",
+		"random_suffix":   randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"cert_name":     "tf-test-self-managed-cert" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"cert_name":       "tf-test-self-managed-cert" + randomSuffix,
+		"pem_certificate": "test-fixtures/cert-updated.pem",
+		"pem_private_key": "test-fixtures/private-key-updated.pem",
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -281,7 +285,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateUpdateExample(context_1),
+				Config: testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_certificate_manager_certificate.default", plancheck.ResourceActionUpdate),
@@ -311,22 +315,8 @@ resource "google_certificate_manager_certificate" "default" {
   description = "Global cert"
   scope       = "ALL_REGIONS"
   self_managed {
-    pem_certificate = file("test-fixtures/cert.pem")
-    pem_private_key = file("test-fixtures/private-key.pem")
-  }
-}
-`, context)
-}
-
-func testAccCertificateManagerCertificate_certificateManagerSelfManagedCertificateUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_certificate_manager_certificate" "default" {
-  name        = "%{cert_name}"
-  description = "Global cert"
-  scope       = "ALL_REGIONS"
-  self_managed {
-    pem_certificate = file("test-fixtures/cert-updated.pem")
-    pem_private_key = file("test-fixtures/private-key-updated.pem")
+    pem_certificate = file("%{pem_certificate}")
+    pem_private_key = file("%{pem_private_key}")
   }
 }
 `, context)

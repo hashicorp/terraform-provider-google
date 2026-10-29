@@ -1243,12 +1243,16 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceSandboxTemplatesExample(t *testin
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"args":                   "[\"-c\", \"echo hello\"]",
 		"cloud_run_service_name": "tf-test-cloudrun-service" + randomSuffix,
+		"env_value":              9000,
 		"random_suffix":          randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
+		"args":                   "[\"-c\", \"echo goodbye\"]",
 		"cloud_run_service_name": "tf-test-cloudrun-service" + randomSuffix,
+		"env_value":              9001,
 		"random_suffix":          randomSuffix,
 	}
 
@@ -1273,7 +1277,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceSandboxTemplatesExample(t *testin
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccCloudRunV2Service_cloudrunv2ServiceSandboxTemplatesUpdateExample(context_1),
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceSandboxTemplatesExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_cloud_run_v2_service.default", plancheck.ResourceActionUpdate),
@@ -1317,56 +1321,10 @@ resource "google_cloud_run_v2_service" "default" {
         name  = "hello"
         image = "us-docker.pkg.dev/cloudrun/container/hello"
         command = ["/bin/sh"]
-        args = ["-c", "echo hello"]
+        args = %{args}
         env {
           name = "PORT"
-          value = "9000"
-        }
-        volume_mounts {
-          name = "empty-dir-volume"
-          mount_path = "/mnt"
-          sub_path = "/home/user"
-        }
-        working_dir = "/mnt/app"
-      }
-    }
-    volumes {
-      name = "empty-dir-volume"
-      empty_dir {
-        medium = "MEMORY"
-        size_limit = "256Mi"
-      }
-    }
-  }
-}
-`, context)
-}
-
-func testAccCloudRunV2Service_cloudrunv2ServiceSandboxTemplatesUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_cloud_run_v2_service" "default" {
-  name     = "%{cloud_run_service_name}"
-  location = "us-central1"
-  deletion_protection = false
-  launch_stage = "ALPHA"
-  template {
-    containers {
-      image = "us-docker.pkg.dev/cloudrun/container/hello"
-      sandbox_launcher = true
-      volume_mounts {
-        name = "empty-dir-volume"
-        mount_path = "/mnt"
-      }
-    }
-    sandboxes {
-      templates {
-        name  = "hello"
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
-        command = ["/bin/sh"]
-        args = ["-c", "echo goodbye"]
-        env {
-          name = "PORT"
-          value = "9001"
+          value = "%{env_value}"
         }
         volume_mounts {
           name = "empty-dir-volume"

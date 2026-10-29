@@ -66,11 +66,13 @@ func TestAccVertexAIPersistentResource_vertexAiPersistentResourceExample(t *test
 
 	context := map[string]interface{}{
 		"persistent_resource_id": "tf-test-example-persistent-resource" + randomSuffix,
+		"replica_count":          2,
 		"random_suffix":          randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
 		"persistent_resource_id": "tf-test-example-persistent-resource" + randomSuffix,
+		"replica_count":          1,
 		"random_suffix":          randomSuffix,
 	}
 
@@ -95,7 +97,7 @@ func TestAccVertexAIPersistentResource_vertexAiPersistentResourceExample(t *test
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccVertexAIPersistentResource_vertexAiPersistentResourceUpdateExample(context_1),
+				Config: testAccVertexAIPersistentResource_vertexAiPersistentResourceExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_vertex_ai_persistent_resource.persistent_resource", plancheck.ResourceActionUpdate),
@@ -130,31 +132,7 @@ resource "google_vertex_ai_persistent_resource" "persistent_resource" {
       machine_type = "n1-standard-8"
     }
 
-    replica_count = 2
-  }
-
-  resource_runtime_spec {
-    ray_spec {
-      image_uri = "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-33.py310:latest"
-    }
-  }
-}
-`, context)
-}
-
-func testAccVertexAIPersistentResource_vertexAiPersistentResourceUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_vertex_ai_persistent_resource" "persistent_resource" {
-  name         = "%{persistent_resource_id}"
-  location     = "us-central1"
-  display_name = "Example persistent resource"
-
-  resource_pools {
-    machine_spec {
-      machine_type = "n1-standard-8"
-    }
-
-    replica_count = 1
+    replica_count = %{replica_count}
   }
 
   resource_runtime_spec {

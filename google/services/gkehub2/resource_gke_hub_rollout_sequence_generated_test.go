@@ -249,6 +249,7 @@ func TestAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredExample(t *
 		"org_id":              envvar.GetTestOrgFromEnv(t),
 		"cluster_name":        "tf-test-rs-cluster" + randomSuffix,
 		"membership_id":       "tf-test-rs-membership" + randomSuffix,
+		"min_node_version":    nil,
 		"network_name":        "tf-test-rs-network" + randomSuffix,
 		"project_id":          "tf-test-rs-project" + randomSuffix,
 		"rollout_sequence_id": "tf-test-rs-user-triggered" + randomSuffix,
@@ -261,6 +262,7 @@ func TestAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredExample(t *
 		"org_id":              envvar.GetTestOrgFromEnv(t),
 		"cluster_name":        "tf-test-rs-cluster" + randomSuffix,
 		"membership_id":       "tf-test-rs-membership" + randomSuffix,
+		"min_node_version":    "data.google_container_engine_versions.versions.release_channel_latest_version[\"REGULAR\"]",
 		"network_name":        "tf-test-rs-network" + randomSuffix,
 		"project_id":          "tf-test-rs-project" + randomSuffix,
 		"rollout_sequence_id": "tf-test-rs-user-triggered" + randomSuffix,
@@ -292,7 +294,7 @@ func TestAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredExample(t *
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredUpdateExample(context_1),
+				Config: testAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredCreateExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_gke_hub_rollout_sequence.rollout_sequence", plancheck.ResourceActionUpdate),
@@ -391,104 +393,7 @@ resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
   display_name        = "User Triggered Rollout Sequence"
 
   min_control_plane_version = data.google_container_engine_versions.versions.release_channel_latest_version["REGULAR"]
-
-  # Ensures that any rollouts created from this sequence will ignore all clusters in the project, other than the cluster we create for this test.
-  ignored_clusters_selector {
-    label_selector = "!(has(resource.labels.rs_test_cluster) && resource.labels.rs_test_cluster == 'tf-test-%{random_suffix}')"
-  }
-
-  stages {
-    fleet_projects = ["projects/${google_project.project.project_id}"]
-    soak_duration  = "30s"
-  }
-
-  auto_upgrade_config {
-    rollout_creation_scope {
-      upgrade_types = []
-    }
-  }
-
-  depends_on = [google_container_cluster.primary]
-}
-`, context)
-}
-
-func testAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_project" "project" {
-  project_id      = "%{project_id}"
-  name            = "%{project_id}"
-  org_id          = "%{org_id}"
-  billing_account = "%{billing_acct}"
-  deletion_policy = "DELETE"
-}
-
-// Enable APIs in a deterministic order to avoid inconsistent VCR recordings
-resource "google_project_service" "gkehub" {
-  project            = google_project.project.project_id
-  service            = "gkehub.googleapis.com"
-}
-
-resource "google_project_service" "container" {
-  project            = google_project.project.project_id
-  service            = "container.googleapis.com"
-  depends_on = [google_project_service.gkehub]
-}
-
-resource "google_project_service" "compute" {
-  project            = google_project.project.project_id
-  service            = "compute.googleapis.com"
-  depends_on = [google_project_service.container]
-}
-
-// wait for API enablement
-resource "time_sleep" "wait_120_seconds" {
-  create_duration = "120s"
-  depends_on = [google_project_service.compute]
-}
-
-resource "google_gke_hub_fleet" "default" {
-  display_name = "rs-fleet"
-  project = google_project.project.project_id
-}
-
-data "google_container_engine_versions" "versions" {
-  location = "us-central1-a"
-  project = google_project.project.project_id
-  depends_on = [time_sleep.wait_120_seconds]
-}
-
-resource "google_container_cluster" "primary" {
-  project            = google_project.project.project_id
-  name               = "%{cluster_name}"
-  location           = "us-central1-a"
-  initial_node_count = 1
-  min_master_version = data.google_container_engine_versions.versions.release_channel_default_version["REGULAR"]
-  node_version = data.google_container_engine_versions.versions.release_channel_default_version["REGULAR"]
-  deletion_protection = false
-
-  release_channel {
-    channel = "REGULAR"
-  }
-
-  resource_labels = {
-    rs_test_cluster = "tf-test-%{random_suffix}"
-  }
-
-  fleet {
-    project = google_project.project.number
-  }
-
-  depends_on = [google_gke_hub_fleet.default]
-}
-
-resource "google_gke_hub_rollout_sequence" "rollout_sequence" {
-  project             = google_project.project.project_id
-  rollout_sequence_id = "%{rollout_sequence_id}"
-  display_name        = "User Triggered Rollout Sequence"
-
-  min_control_plane_version = data.google_container_engine_versions.versions.release_channel_latest_version["REGULAR"]
-  min_node_version          = data.google_container_engine_versions.versions.release_channel_latest_version["REGULAR"]
+  min_node_version          = %{min_node_version}
 
   # Ensures that any rollouts created from this sequence will ignore all clusters in the project, other than the cluster we create for this test.
   ignored_clusters_selector {

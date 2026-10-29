@@ -51,9 +51,7 @@ resource "google_vertex_ai_tensorboard_experiment" "tensorboard_experiment" {
   tensorboard             = basename(google_vertex_ai_tensorboard.tensorboard.id)
   tensorboard_experiment_id = "experiment"
   source                  = "a custom training job"
-  labels                  = {
-    "key" : "value"
-  }
+  labels                  = { "key" : "value" }
 }
 ```
 
