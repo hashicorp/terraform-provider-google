@@ -65,7 +65,12 @@ func TestAccVertexAISemanticGovernancePolicy_vertexAiSemanticGovernancePolicyUpd
 	context := map[string]interface{}{
 		"billing_account":                 envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":                          envvar.GetTestOrgFromEnv(t),
+		"denial_message":                  "Access denied: constraint violation",
+		"description":                     nil,
+		"display_name":                    nil,
 		"mcp_service_id":                  "tf-test-sgp-mcp" + randomSuffix,
+		"mcp_tool":                        "get_order_status",
+		"natural_language_constraint":     "Do not access internal developer endpoints",
 		"project_id":                      "tf-test-sgp" + randomSuffix,
 		"reasoning_engine_display_name":   "tf-test-sgp-agent" + randomSuffix,
 		"reasoning_engine_display_name_2": "tf-test-sgp-agent-2" + randomSuffix,
@@ -76,9 +81,11 @@ func TestAccVertexAISemanticGovernancePolicy_vertexAiSemanticGovernancePolicyUpd
 	context_1 := map[string]interface{}{
 		"billing_account":                 envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":                          envvar.GetTestOrgFromEnv(t),
+		"denial_message":                  "Access denied by semantic governance policy",
 		"description":                     "Updated description for semantic governance policy",
 		"display_name":                    "updated-policy",
 		"mcp_service_id":                  "tf-test-sgp-mcp" + randomSuffix,
+		"mcp_tool":                        "get_customer_profile",
 		"natural_language_constraint":     "Do not access restricted storage buckets",
 		"project_id":                      "tf-test-sgp" + randomSuffix,
 		"reasoning_engine_display_name":   "tf-test-sgp-agent" + randomSuffix,
@@ -123,7 +130,7 @@ func TestAccVertexAISemanticGovernancePolicy_vertexAiSemanticGovernancePolicyUpd
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccVertexAISemanticGovernancePolicy_vertexAiSemanticGovernancePolicyTestUpdateExample(context_1),
+				Config: testAccVertexAISemanticGovernancePolicy_vertexAiSemanticGovernancePolicyTestCreateExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_vertex_ai_semantic_governance_policy.policy", plancheck.ResourceActionUpdate),
@@ -278,135 +285,6 @@ resource "google_vertex_ai_semantic_governance_policy" "policy" {
   project                       = google_project.project.project_id
   semantic_governance_policy_id = "%{semantic_governance_policy_id}"
   region                        = "us-central1"
-  natural_language_constraint   = "Do not access internal developer endpoints"
-  agent                         = data.google_agent_registry_agent.agent.id
-
-  mcp_tools {
-    mcp_server = data.google_agent_registry_mcp_server.mcp_server.id
-    tools      = ["get_order_status"]
-  }
-
-  agent_response_customization {
-    denial_message = "Access denied: constraint violation"
-  }
-
-  depends_on = [google_vertex_ai_semantic_governance_policy_engine.sgpe]
-}
-`, context)
-}
-
-func testAccVertexAISemanticGovernancePolicy_vertexAiSemanticGovernancePolicyTestUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_project" "project" {
-  project_id      = "%{project_id}"
-  name            = "%{project_id}"
-  org_id          = "%{org_id}"
-  billing_account = "%{billing_account}"
-  deletion_policy = "DELETE"
-}
-
-resource "google_project_service" "aiplatform" {
-  project = google_project.project.project_id
-  service = "aiplatform.googleapis.com"
-}
-
-resource "google_project_service" "agentregistry" {
-  project    = google_project.project.project_id
-  service    = "agentregistry.googleapis.com"
-  depends_on = [google_project_service.aiplatform]
-}
-
-resource "google_project_service" "compute" {
-  project    = google_project.project.project_id
-  service    = "compute.googleapis.com"
-  depends_on = [google_project_service.agentregistry]
-}
-
-resource "time_sleep" "wait_for_api_enablement" {
-  depends_on      = [google_project_service.compute]
-  create_duration = "120s"
-}
-
-resource "google_vertex_ai_semantic_governance_policy_engine" "sgpe" {
-  project = google_project.project.project_id
-  region  = "us-central1"
-
-  depends_on = [time_sleep.wait_for_api_enablement]
-}
-
-resource "google_vertex_ai_reasoning_engine" "agent" {
-  project      = google_project.project.project_id
-  display_name = "%{reasoning_engine_display_name}"
-  region       = "us-central1"
-
-  spec {
-    identity_type = "AGENT_IDENTITY"
-  }
-
-  depends_on = [time_sleep.wait_for_api_enablement]
-}
-
-# Second agent, used to verify that the policy's agent can be updated in place.
-resource "google_vertex_ai_reasoning_engine" "agent_2" {
-  project      = google_project.project.project_id
-  display_name = "%{reasoning_engine_display_name_2}"
-  region       = "us-central1"
-
-  spec {
-    identity_type = "AGENT_IDENTITY"
-  }
-
-  depends_on = [time_sleep.wait_for_api_enablement]
-}
-
-resource "google_agent_registry_service" "mcp_service" {
-  project      = google_project.project.project_id
-  location     = "us-central1"
-  service_id   = "%{mcp_service_id}"
-  display_name = "%{mcp_service_id}"
-
-  interfaces {
-    url              = "https://example.com"
-    protocol_binding = "JSONRPC"
-  }
-
-  mcp_server_spec {
-    type = "NO_SPEC"
-  }
-
-  depends_on = [time_sleep.wait_for_api_enablement]
-}
-
-resource "time_sleep" "wait_for_ingestion" {
-  depends_on      = [google_vertex_ai_reasoning_engine.agent, google_vertex_ai_reasoning_engine.agent_2, google_agent_registry_service.mcp_service]
-  create_duration = "120s"
-}
-
-data "google_agent_registry_agent" "agent" {
-  project    = google_project.project.project_id
-  location   = "us-central1"
-  filter     = "displayName=\"${google_vertex_ai_reasoning_engine.agent.display_name}\""
-  depends_on = [time_sleep.wait_for_ingestion]
-}
-
-data "google_agent_registry_agent" "agent_2" {
-  project    = google_project.project.project_id
-  location   = "us-central1"
-  filter     = "displayName=\"${google_vertex_ai_reasoning_engine.agent_2.display_name}\""
-  depends_on = [time_sleep.wait_for_ingestion]
-}
-
-data "google_agent_registry_mcp_server" "mcp_server" {
-  project    = google_project.project.project_id
-  location   = "us-central1"
-  filter     = "displayName=\"${google_agent_registry_service.mcp_service.display_name}\""
-  depends_on = [time_sleep.wait_for_ingestion]
-}
-
-resource "google_vertex_ai_semantic_governance_policy" "policy" {
-  project                       = google_project.project.project_id
-  semantic_governance_policy_id = "%{semantic_governance_policy_id}"
-  region                        = "us-central1"
   display_name                  = "%{display_name}"
   description                   = "%{description}"
   natural_language_constraint   = "%{natural_language_constraint}"
@@ -414,11 +292,11 @@ resource "google_vertex_ai_semantic_governance_policy" "policy" {
 
   mcp_tools {
     mcp_server = data.google_agent_registry_mcp_server.mcp_server.id
-    tools      = ["get_customer_profile"]
+    tools      = ["%{mcp_tool}"]
   }
 
   agent_response_customization {
-    denial_message = "Access denied by semantic governance policy"
+    denial_message = "%{denial_message}"
   }
 
   depends_on = [google_vertex_ai_semantic_governance_policy_engine.sgpe]

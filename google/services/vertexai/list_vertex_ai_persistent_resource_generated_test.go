@@ -47,6 +47,7 @@ func TestAccVertexAIPersistentResourceListQuery_generated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"persistent_resource_id": "tf-test-example-persistent-resource" + randomSuffix,
+		"replica_count":          2,
 		"location":               envvar.GetTestRegionFromEnv(),
 		"project":                envvar.GetTestProjectFromEnv(),
 		"random_suffix":          randomSuffix,

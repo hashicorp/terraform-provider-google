@@ -61,12 +61,18 @@ func TestAccVertexAITensorboardExperiment_vertexAiTensorboardExperimentExample(t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"description":             nil,
+		"display_name":            "sample experiment",
+		"labels":                  "{ \"key\" : \"value\" }",
 		"tensorboard":             "tf-test-tensorboard" + randomSuffix,
 		"tensorboardExperimentId": "tf-test-experiment" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
+		"description":             "updated description",
+		"display_name":            "sample experiment updated",
+		"labels":                  "{ \"key\" : \"value-updated\", \"new-key\" : \"new-value\" }",
 		"tensorboard":             "tf-test-tensorboard" + randomSuffix,
 		"tensorboardExperimentId": "tf-test-experiment" + randomSuffix,
 		"random_suffix":           randomSuffix,
@@ -93,7 +99,7 @@ func TestAccVertexAITensorboardExperiment_vertexAiTensorboardExperimentExample(t
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccVertexAITensorboardExperiment_vertexAiTensorboardExperimentUpdateExample(context_1),
+				Config: testAccVertexAITensorboardExperiment_vertexAiTensorboardExperimentBasicExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_vertex_ai_tensorboard_experiment.tensorboard_experiment", plancheck.ResourceActionUpdate),
@@ -125,35 +131,12 @@ resource "google_vertex_ai_tensorboard" "tensorboard" {
 
 resource "google_vertex_ai_tensorboard_experiment" "tensorboard_experiment" {
   location                = "us-central1"
-  display_name            = "sample experiment"
+  display_name            = "%{display_name}"
+  description             = "%{description}"
   tensorboard             = basename(google_vertex_ai_tensorboard.tensorboard.id)
   tensorboard_experiment_id = "%{tensorboardExperimentId}"
   source                  = "a custom training job"
-  labels                  = {
-    "key" : "value"
-  }
-}
-`, context)
-}
-
-func testAccVertexAITensorboardExperiment_vertexAiTensorboardExperimentUpdateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_vertex_ai_tensorboard" "tensorboard" {
-  display_name = "Tensorboard for Experiment"
-  region       = "us-central1"
-}
-
-resource "google_vertex_ai_tensorboard_experiment" "tensorboard_experiment" {
-  location                = "us-central1"
-  display_name            = "sample experiment updated"
-  description             = "updated description"
-  tensorboard             = basename(google_vertex_ai_tensorboard.tensorboard.id)
-  tensorboard_experiment_id = "%{tensorboardExperimentId}"
-  source                  = "a custom training job"
-  labels                  = {
-    "key" : "value-updated"
-    "new-key" : "new-value"
-  }
+  labels                  = %{labels}
 }
 `, context)
 }

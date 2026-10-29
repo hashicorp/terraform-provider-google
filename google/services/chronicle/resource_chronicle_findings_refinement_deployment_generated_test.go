@@ -94,7 +94,7 @@ func TestAccChronicleFindingsRefinementDeployment_chronicleFindingsRefinementDep
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccChronicleFindingsRefinementDeployment_chronicleFindingsRefinementDeploymentUpdateExample(context_1),
+				Config: testAccChronicleFindingsRefinementDeployment_chronicleFindingsRefinementDeploymentFullExample(context_1),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_chronicle_findings_refinement_deployment.example", plancheck.ResourceActionUpdate),
@@ -118,31 +118,6 @@ func TestAccChronicleFindingsRefinementDeployment_chronicleFindingsRefinementDep
 }
 
 func testAccChronicleFindingsRefinementDeployment_chronicleFindingsRefinementDeploymentFullExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_chronicle_findings_refinement" "my-findings-refinement" {
-  location = "us"
-  instance = "%{chronicle_id}"
-  display_name = "%{display_name}" 
-  type = "DETECTION_EXCLUSION" 
-  query = "network.dns.response = true" 
-  outcome_filters {
-    outcome_variable = "risk_score"
-    outcome_filter_operator = "EQUAL"
-    outcome_value = "value"
-  }
-}
-
-resource "google_chronicle_findings_refinement_deployment" "example" {
- location = "us"
- instance = "%{chronicle_id}"
- findings_refinement = element(split("/", resource.google_chronicle_findings_refinement.my-findings-refinement.name), length(split("/", resource.google_chronicle_findings_refinement.my-findings-refinement.name)) - 1)
- enabled = "%{enabled}"
- archived = false
-}
-`, context)
-}
-
-func testAccChronicleFindingsRefinementDeployment_chronicleFindingsRefinementDeploymentUpdateExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_chronicle_findings_refinement" "my-findings-refinement" {
   location = "us"

@@ -196,6 +196,7 @@ func TestAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGr
 		"project":                        envvar.GetTestProjectFromEnv(),
 		"security_profile_group_name":    "tf-test-sec-profile-group" + randomSuffix,
 		"threat_prevention_profile_name": "tf-test-tp-sec-profile" + randomSuffix,
+		"wildfire_analysis_profile":      "google_network_security_security_profile.wildfire_profile_updated.id",
 		"wildfire_profile_name":          "tf-test-wf-sec-profile" + randomSuffix,
 		"wildfire_profile_updated_name":  "tf-test-wf-sec-profile-updated" + randomSuffix,
 		"random_suffix":                  randomSuffix,
@@ -205,6 +206,7 @@ func TestAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGr
 		"project":                        envvar.GetTestProjectFromEnv(),
 		"security_profile_group_name":    "tf-test-sec-profile-group" + randomSuffix,
 		"threat_prevention_profile_name": "tf-test-tp-sec-profile" + randomSuffix,
+		"wildfire_analysis_profile":      nil,
 		"wildfire_profile_name":          "tf-test-wf-sec-profile" + randomSuffix,
 		"wildfire_profile_updated_name":  "tf-test-wf-sec-profile-updated" + randomSuffix,
 		"random_suffix":                  randomSuffix,
@@ -251,7 +253,7 @@ func TestAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGr
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
-				Config: testAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGroupWildfireRemoveExample(context_2),
+				Config: testAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGroupWildfireUpdateExample(context_2),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_network_security_security_profile_group.default", plancheck.ResourceActionUpdate),
@@ -320,64 +322,7 @@ resource "google_network_security_security_profile_group" "default" {
   parent                    = "projects/%{project}"
   description               = "my updated description"
   threat_prevention_profile = google_network_security_security_profile.threat_prevention_profile.id
-  wildfire_analysis_profile = google_network_security_security_profile.wildfire_profile_updated.id
-
-  labels = {
-    foo = "updated"
-  }
-}
-
-resource "google_network_security_security_profile" "threat_prevention_profile" {
-  name     = "%{threat_prevention_profile_name}"
-  type     = "THREAT_PREVENTION"
-  parent   = "projects/%{project}"
-  location = "global"
-}
-
-resource "google_network_security_security_profile" "wildfire_profile" {
-  name     = "%{wildfire_profile_name}"
-  type     = "WILDFIRE_ANALYSIS"
-  parent   = "projects/%{project}"
-  location = "global"
-
-  wildfire_analysis_profile {
-    wildfire_realtime_lookup = true
-
-    wildfire_submission_rules {
-      direction           = "BOTH"
-      file_selection_mode = "ALL_FILE_TYPES"
-    }
-  }
-}
-
-resource "google_network_security_security_profile" "wildfire_profile_updated" {
-  name     = "%{wildfire_profile_updated_name}"
-  type     = "WILDFIRE_ANALYSIS"
-  parent   = "projects/%{project}"
-  location = "global"
-
-  wildfire_analysis_profile {
-    wildfire_realtime_lookup = false
-
-    wildfire_submission_rules {
-      direction           = "DOWNLOAD"
-      file_selection_mode = "CUSTOM_FILE_TYPES"
-      custom_file_types {
-        file_types = ["PDF", "SCRIPT"]
-      }
-    }
-  }
-}
-`, context)
-}
-
-func testAccNetworkSecuritySecurityProfileGroup_networkSecuritySecurityProfileGroupWildfireRemoveExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_network_security_security_profile_group" "default" {
-  name                      = "%{security_profile_group_name}"
-  parent                    = "projects/%{project}"
-  description               = "my updated description"
-  threat_prevention_profile = google_network_security_security_profile.threat_prevention_profile.id
+  wildfire_analysis_profile = %{wildfire_analysis_profile}
 
   labels = {
     foo = "updated"
