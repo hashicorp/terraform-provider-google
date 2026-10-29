@@ -92,7 +92,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 			},
 			{
 				ResourceName:       "google_database_migration_service_migration_job.mysqltomysql",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -243,7 +243,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 			},
 			{
 				ResourceName:       "google_database_migration_service_migration_job.psqltopsql",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -380,7 +380,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 			},
 			{
 				ResourceName:       "google_database_migration_service_migration_job.psqltopsqlobjects",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -535,7 +535,7 @@ func TestAccDatabaseMigrationServiceMigrationJob_databaseMigrationServiceMigrati
 			},
 			{
 				ResourceName:       "google_database_migration_service_migration_job.psqltoalloydb",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

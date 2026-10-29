@@ -86,7 +86,7 @@ func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_fusion_instance.basic_instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -134,7 +134,7 @@ func TestAccDataFusionInstance_dataFusionInstanceFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_fusion_instance.extended_instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -218,7 +218,7 @@ func TestAccDataFusionInstance_dataFusionInstancePscExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_fusion_instance.psc_instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -296,7 +296,7 @@ func TestAccDataFusionInstance_dataFusionInstanceCmekExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_fusion_instance.cmek",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -375,7 +375,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEnterpriseExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_data_fusion_instance.enterprise_instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -421,7 +421,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEventExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_fusion_instance.event",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -474,7 +474,7 @@ func TestAccDataFusionInstance_dataFusionInstanceZoneExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_fusion_instance.zone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -519,7 +519,7 @@ func TestAccDataFusionInstance_dataFusionInstancePatchRevisionExample(t *testing
 			},
 			{
 				ResourceName:       "google_data_fusion_instance.data_fusion_instance_patch_revision",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

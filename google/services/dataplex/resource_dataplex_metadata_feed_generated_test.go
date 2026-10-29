@@ -92,7 +92,7 @@ func TestAccDataplexMetadataFeed_dataplexMetadataFeedBasicExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_dataplex_metadata_feed.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -112,7 +112,7 @@ func TestAccDataplexMetadataFeed_dataplexMetadataFeedBasicExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_dataplex_metadata_feed.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -250,7 +250,7 @@ func TestAccDataplexMetadataFeed_dataplexMetadataFeedProjectsExample(t *testing.
 			},
 			{
 				ResourceName:       "google_dataplex_metadata_feed.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -270,7 +270,7 @@ func TestAccDataplexMetadataFeed_dataplexMetadataFeedProjectsExample(t *testing.
 			},
 			{
 				ResourceName:       "google_dataplex_metadata_feed.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

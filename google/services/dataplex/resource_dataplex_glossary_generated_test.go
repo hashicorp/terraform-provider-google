@@ -80,7 +80,7 @@ func TestAccDataplexGlossary_dataplexGlossaryBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_glossary.glossary_test_id",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -123,7 +123,7 @@ func TestAccDataplexGlossary_dataplexGlossaryFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_glossary.glossary_test_id_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

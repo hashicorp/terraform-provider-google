@@ -81,7 +81,7 @@ func TestAccContactCenterInsightsAutoLabelingRule_contactCenterInsightsAutoLabel
 			},
 			{
 				ResourceName:       "google_contact_center_insights_auto_labeling_rule.auto_labeling_rule_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

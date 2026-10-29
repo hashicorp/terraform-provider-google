@@ -79,7 +79,7 @@ func TestAccContactCenterInsightsAnalysisRule_contactCenterInsightsAnalysisRuleB
 			},
 			{
 				ResourceName:       "google_contact_center_insights_analysis_rule.analysis_rule_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -122,7 +122,7 @@ func TestAccContactCenterInsightsAnalysisRule_contactCenterInsightsAnalysisRuleF
 			},
 			{
 				ResourceName:       "google_contact_center_insights_analysis_rule.analysis_rule_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -189,7 +189,7 @@ func TestAccContactCenterInsightsAnalysisRule_contactCenterInsightsAnalysisRuleP
 			},
 			{
 				ResourceName:       "google_contact_center_insights_analysis_rule.analysis_rule_profile",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

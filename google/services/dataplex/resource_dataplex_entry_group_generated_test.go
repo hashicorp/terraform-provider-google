@@ -81,7 +81,7 @@ func TestAccDataplexEntryGroup_dataplexEntryGroupBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_entry_group.test_entry_group_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -126,7 +126,7 @@ func TestAccDataplexEntryGroup_dataplexEntryGroupFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_entry_group.test_entry_group_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

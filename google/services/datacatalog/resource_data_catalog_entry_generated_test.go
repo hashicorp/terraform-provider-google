@@ -81,7 +81,7 @@ func TestAccDataCatalogEntry_dataCatalogEntryBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_catalog_entry.basic_entry",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -132,7 +132,7 @@ func TestAccDataCatalogEntry_dataCatalogEntryFilesetExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_catalog_entry.basic_entry",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -186,7 +186,7 @@ func TestAccDataCatalogEntry_dataCatalogEntryFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_catalog_entry.basic_entry",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

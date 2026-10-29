@@ -80,7 +80,7 @@ func TestAccContactCenterInsightsQaScorecard_contactCenterInsightsQaScorecardBas
 			},
 			{
 				ResourceName:       "google_contact_center_insights_qa_scorecard.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -79,7 +79,7 @@ func TestAccContactCenterInsightsView_contactCenterInsightsViewBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_contact_center_insights_view.basic_view",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -122,7 +122,7 @@ func TestAccContactCenterInsightsView_contactCenterInsightsViewFullExample(t *te
 			},
 			{
 				ResourceName:       "google_contact_center_insights_view.full_view",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

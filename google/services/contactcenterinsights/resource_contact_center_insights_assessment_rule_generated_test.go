@@ -82,7 +82,7 @@ func TestAccContactCenterInsightsAssessmentRule_contactCenterInsightsAssessmentR
 			},
 			{
 				ResourceName:       "google_contact_center_insights_assessment_rule.assessment_rule_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -135,7 +135,7 @@ func TestAccContactCenterInsightsAssessmentRule_contactCenterInsightsAssessmentR
 			},
 			{
 				ResourceName:       "google_contact_center_insights_assessment_rule.assessment_rule_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

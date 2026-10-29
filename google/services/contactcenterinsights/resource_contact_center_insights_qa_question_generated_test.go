@@ -81,7 +81,7 @@ func TestAccContactCenterInsightsQaQuestion_contactCenterInsightsQaQuestionBasic
 			},
 			{
 				ResourceName:       "google_contact_center_insights_qa_question.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

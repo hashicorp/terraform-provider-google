@@ -79,7 +79,7 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteBasicExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_container_analysis_note.note",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -125,7 +125,7 @@ func TestAccContainerAnalysisNote_containerAnalysisNoteAttestationFullExample(t 
 			},
 			{
 				ResourceName:       "google_container_analysis_note.note",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
