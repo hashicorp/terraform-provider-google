@@ -1,0 +1,11 @@
+```release-note:enhancement
+networksecurity: added `mtls_policy.client_validation_relaxations` field and `ALLOW_VALIDATION_RELAXATIONS` enum value to `google_network_security_server_tls_policy` resource
+```
+
+```release-note:enhancement
+networksecurity: updated `mtls_policy.client_validation_mode` and `mtls_policy.client_validation_trust_config` on `google_network_security_server_tls_policy` to support in-place updates
+```
+
+```release-note:bug
+networksecurity: fixed permadiff on `mtls_policy.client_validation_trust_config` in `google_network_security_server_tls_policy` when configured with a project ID
+```

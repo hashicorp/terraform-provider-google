@@ -18,6 +18,7 @@ fields:
     - api_field: mtlsPolicy.clientValidationCa.certificateProviderInstance.pluginInstance
     - api_field: mtlsPolicy.clientValidationCa.grpcEndpoint.targetUri
     - api_field: mtlsPolicy.clientValidationMode
+    - api_field: mtlsPolicy.clientValidationRelaxations
     - api_field: mtlsPolicy.clientValidationTrustConfig
     - field: name
       provider_only: true
