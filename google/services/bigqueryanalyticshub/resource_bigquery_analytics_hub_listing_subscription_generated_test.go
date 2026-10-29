@@ -85,7 +85,7 @@ func TestAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingS
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing_subscription.subscription",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -171,7 +171,7 @@ func TestAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingS
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing_subscription.subscription",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

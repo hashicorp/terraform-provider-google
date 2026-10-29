@@ -82,7 +82,7 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 			},
 			{
 				ResourceName:       "google_certificate_manager_dns_authorization.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -141,7 +141,7 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 			},
 			{
 				ResourceName:       "google_certificate_manager_dns_authorization.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

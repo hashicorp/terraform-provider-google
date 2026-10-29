@@ -83,7 +83,7 @@ func TestAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyBasicExampl
 			},
 			{
 				ResourceName:       "google_bigquery_datapolicy_data_policy.data_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -143,7 +143,7 @@ func TestAccBigqueryDatapolicyDataPolicy_bigqueryDatapolicyDataPolicyRoutineExam
 			},
 			{
 				ResourceName:       "google_bigquery_datapolicy_data_policy.data_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

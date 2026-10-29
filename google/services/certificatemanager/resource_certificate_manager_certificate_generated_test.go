@@ -86,7 +86,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -159,7 +159,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -280,7 +280,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -300,7 +300,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -349,7 +349,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -398,7 +398,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -449,7 +449,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -565,7 +565,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -634,7 +634,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedRegiona
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -692,7 +692,7 @@ func TestAccCertificateManagerCertificate_certificateManagerClientAuthCertificat
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

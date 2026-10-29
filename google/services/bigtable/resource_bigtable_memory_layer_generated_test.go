@@ -83,7 +83,7 @@ func TestAccBigtableMemoryLayer_bigtableMemoryLayerExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_bigtable_memory_layer.memory_layer",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

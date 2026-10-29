@@ -92,7 +92,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudResourceExample(
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -145,7 +145,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionBasicExample(t *testi
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -233,7 +233,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionFullExample(t *testin
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -319,7 +319,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAwsExample(t *testing
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -375,7 +375,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAzureExample(t *testi
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -430,7 +430,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerExample(t
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -484,7 +484,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerDataboost
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -535,7 +535,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSparkExample(t *testi
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -624,7 +624,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSalesforceDataCloudEx
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -644,7 +644,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSalesforceDataCloudEx
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -664,7 +664,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSalesforceDataCloudEx
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -739,7 +739,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekExample(t 
 			},
 			{
 				ResourceName:       "google_bigquery_connection.bq-connection-cmek",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -825,7 +825,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionSqlWithCmekPasswordWo
 			},
 			{
 				ResourceName:       "google_bigquery_connection.bq-connection-cmek",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -911,7 +911,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionConnectorConfiguratio
 			},
 			{
 				ResourceName:       "google_bigquery_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

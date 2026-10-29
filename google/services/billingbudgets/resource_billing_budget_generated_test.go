@@ -84,7 +84,7 @@ func TestAccBillingBudgetsBudget_billingBudgetBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_billing_budget.budget",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -141,7 +141,7 @@ func TestAccBillingBudgetsBudget_billingBudgetLastperiodExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_billing_budget.budget",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -208,7 +208,7 @@ func TestAccBillingBudgetsBudget_billingBudgetFilterExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_billing_budget.budget",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -283,7 +283,7 @@ func TestAccBillingBudgetsBudget_billingBudgetNotifyExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_billing_budget.budget",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -369,7 +369,7 @@ func TestAccBillingBudgetsBudget_billingBudgetNotifyProjectRecipientExample(t *t
 			},
 			{
 				ResourceName:       "google_billing_budget.budget",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -436,7 +436,7 @@ func TestAccBillingBudgetsBudget_billingBudgetCustomperiodExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_billing_budget.budget",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -521,7 +521,7 @@ func TestAccBillingBudgetsBudget_billingBudgetOptionalExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_billing_budget.budget",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

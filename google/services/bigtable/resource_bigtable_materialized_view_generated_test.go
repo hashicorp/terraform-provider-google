@@ -84,7 +84,7 @@ func TestAccBigtableMaterializedView_bigtableMaterializedViewExample(t *testing.
 			},
 			{
 				ResourceName:       "google_bigtable_materialized_view.materialized_view",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
