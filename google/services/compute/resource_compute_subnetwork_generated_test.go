@@ -394,9 +394,11 @@ func TestAccComputeSubnetwork_subnetworkIpv6OnlyInternalExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"network_name":    "tf-test-network-ipv6-only" + randomSuffix,
-		"subnetwork_name": "tf-test-subnet-ipv6-only" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"enable_ula_internal_ipv6": true,
+		"ipv6_access_type":         "INTERNAL",
+		"network_name":             "tf-test-network-ipv6-only" + randomSuffix,
+		"subnetwork_name":          "tf-test-subnet-ipv6-only" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -430,13 +432,13 @@ resource "google_compute_subnetwork" "subnetwork-ipv6-only" {
   region        = "us-central1"
   network       = google_compute_network.custom-test.id
   stack_type    = "IPV6_ONLY"
-  ipv6_access_type = "INTERNAL"
+  ipv6_access_type = "%{ipv6_access_type}"
 }
 
 resource "google_compute_network" "custom-test" {
   name                    = "%{network_name}"
   auto_create_subnetworks = false
-  enable_ula_internal_ipv6 = true
+  enable_ula_internal_ipv6 = %{enable_ula_internal_ipv6}
 }
 `, context)
 }
@@ -447,10 +449,12 @@ func TestAccComputeSubnetwork_subnetworkWithSubnetModePdpExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"ip_collection_url": "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/tf-test-subnet-mode-pdp",
-		"network_name":      "tf-test-network-byoipv6-external" + randomSuffix,
-		"subnetwork_name":   "tf-test-subnet-mode-pdp-subnet" + randomSuffix,
-		"random_suffix":     randomSuffix,
+		"internal_ipv6_prefix": nil,
+		"ip_collection_url":    "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/tf-test-subnet-mode-pdp",
+		"ipv6_access_type":     "EXTERNAL",
+		"network_name":         "tf-test-network-byoipv6-external" + randomSuffix,
+		"subnetwork_name":      "tf-test-subnet-mode-pdp-subnet" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -480,12 +484,13 @@ func TestAccComputeSubnetwork_subnetworkWithSubnetModePdpExample(t *testing.T) {
 func testAccComputeSubnetwork_subnetworkWithSubnetModePdpExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "subnetwork-with-subnet-mode-pdp" {
-  name             = "%{subnetwork_name}"
-  region           = "us-central1"
-  network          = google_compute_network.custom-test-network.id
-  stack_type       = "IPV6_ONLY"
-  ipv6_access_type = "EXTERNAL"
-  ip_collection    = "%{ip_collection_url}"
+  name                 = "%{subnetwork_name}"
+  region               = "us-central1"
+  network              = google_compute_network.custom-test-network.id
+  stack_type           = "IPV6_ONLY"
+  ipv6_access_type     = "%{ipv6_access_type}"
+  ip_collection        = "%{ip_collection_url}"
+  internal_ipv6_prefix = "%{internal_ipv6_prefix}"
 }
 
 resource "google_compute_network" "custom-test-network" {
@@ -501,10 +506,12 @@ func TestAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExample(t *test
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"ip_collection_url": "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/terraform-v6-internal-sub-pdp",
-		"network_name":      "tf-test-network-byoipv6-internal" + randomSuffix,
-		"subnetwork_name":   "tf-test-internal-subnet-mode-pdp-subnet" + randomSuffix,
-		"random_suffix":     randomSuffix,
+		"internal_ipv6_prefix": nil,
+		"ip_collection_url":    "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/terraform-v6-internal-sub-pdp",
+		"ipv6_access_type":     "INTERNAL",
+		"network_name":         "tf-test-network-byoipv6-internal" + randomSuffix,
+		"subnetwork_name":      "tf-test-internal-subnet-mode-pdp-subnet" + randomSuffix,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -534,12 +541,13 @@ func TestAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExample(t *test
 func testAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "subnetwork-with-internal-subnet-mode-pdp" {
-  name             = "%{subnetwork_name}"
-  region           = "us-central1"
-  network          = google_compute_network.custom-test-network.id
-  stack_type       = "IPV6_ONLY"
-  ipv6_access_type = "INTERNAL"
-  ip_collection    = "%{ip_collection_url}"
+  name                 = "%{subnetwork_name}"
+  region               = "us-central1"
+  network              = google_compute_network.custom-test-network.id
+  stack_type           = "IPV6_ONLY"
+  ipv6_access_type     = "%{ipv6_access_type}"
+  ip_collection        = "%{ip_collection_url}"
+  internal_ipv6_prefix = "%{internal_ipv6_prefix}"
 }
 
 resource "google_compute_network" "custom-test-network" {
@@ -557,6 +565,7 @@ func TestAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExplicitIpPrefi
 	context := map[string]interface{}{
 		"internal_ipv6_prefix": fmt.Sprintf("2600:1904:9:%x::/64", acctest.RandIntRange(t, 16, 95)),
 		"ip_collection_url":    "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/terraform-v6-internal-sub-pdp",
+		"ipv6_access_type":     "INTERNAL",
 		"network_name":         "tf-test-network-byoipv6-internal-prefix" + randomSuffix,
 		"subnetwork_name":      "tf-test-subnet-mode-pdp-subnet-internal-prefix" + randomSuffix,
 		"random_suffix":        randomSuffix,
@@ -589,12 +598,12 @@ func TestAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExplicitIpPrefi
 func testAccComputeSubnetwork_subnetworkWithInternalSubnetModePdpExplicitIpPrefixExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_subnetwork" "subnetwork-with-internal-subnet-mode-pdp-explicit-ip-prefix" {
-  name             = "%{subnetwork_name}"
-  region           = "us-central1"
-  network          = google_compute_network.custom-test-network.id
-  stack_type       = "IPV6_ONLY"
-  ipv6_access_type = "INTERNAL"
-  ip_collection    = "%{ip_collection_url}"
+  name                 = "%{subnetwork_name}"
+  region               = "us-central1"
+  network              = google_compute_network.custom-test-network.id
+  stack_type           = "IPV6_ONLY"
+  ipv6_access_type     = "%{ipv6_access_type}"
+  ip_collection        = "%{ip_collection_url}"
   internal_ipv6_prefix = "%{internal_ipv6_prefix}"
 }
 
@@ -611,9 +620,11 @@ func TestAccComputeSubnetwork_subnetworkIpv6OnlyExternalExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"network_name":    "tf-test-network-ipv6-only" + randomSuffix,
-		"subnetwork_name": "tf-test-subnet-ipv6-only" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"enable_ula_internal_ipv6": nil,
+		"ipv6_access_type":         "EXTERNAL",
+		"network_name":             "tf-test-network-ipv6-only" + randomSuffix,
+		"subnetwork_name":          "tf-test-subnet-ipv6-only" + randomSuffix,
+		"random_suffix":            randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -647,12 +658,13 @@ resource "google_compute_subnetwork" "subnetwork-ipv6-only" {
   region        = "us-central1"
   network       = google_compute_network.custom-test.id
   stack_type    = "IPV6_ONLY"
-  ipv6_access_type = "EXTERNAL"
+  ipv6_access_type = "%{ipv6_access_type}"
 }
 
 resource "google_compute_network" "custom-test" {
   name                    = "%{network_name}"
   auto_create_subnetworks = false
+  enable_ula_internal_ipv6 = %{enable_ula_internal_ipv6}
 }
 `, context)
 }

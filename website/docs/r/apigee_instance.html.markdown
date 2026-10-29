@@ -63,9 +63,9 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name     = "my-instance-name"
-  location = "us-central1"
-  org_id   = google_apigee_organization.apigee_org.id
+  name               = "my-instance-name"
+  location           = "us-central1"
+  org_id             = google_apigee_organization.apigee_org.id
 }
 ```
 
@@ -101,9 +101,9 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name     = "my-instance-name"
-  location = "us-central1"
-  org_id   = google_apigee_organization.apigee_org.id
+  name               = "my-instance-name"
+  location           = "us-central1"
+  org_id             = google_apigee_organization.apigee_org.id
   peering_cidr_range = "SLASH_22"
 }
 ```
@@ -140,10 +140,10 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name     = "my-instance-name"
-  location = "us-central1"
-  org_id   = google_apigee_organization.apigee_org.id
-  ip_range = "10.87.8.0/22"
+  name               = "my-instance-name"
+  location           = "us-central1"
+  org_id             = google_apigee_organization.apigee_org.id
+  ip_range           = "10.87.8.0/22"
 }
 ```
 

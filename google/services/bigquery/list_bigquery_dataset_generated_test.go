@@ -47,10 +47,14 @@ func TestAccBigQueryDatasetListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"account_name":  "tf-test-bqowner" + randomSuffix,
-		"dataset_id":    "tf_test_example_dataset" + randomSuffix,
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": randomSuffix,
+		"account_name":          "tf-test-bqowner" + randomSuffix,
+		"dataset_id":            "tf_test_example_dataset" + randomSuffix,
+		"default_collation":     nil,
+		"is_case_insensitive":   nil,
+		"max_time_travel_hours": nil,
+		"owner_role":            "roles/bigquery.dataOwner",
+		"project":               envvar.GetTestProjectFromEnv(),
+		"random_suffix":         randomSuffix,
 	}
 
 	var listDisplayName acctest.ListDisplayName

@@ -60,8 +60,10 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExamp
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": randomSuffix,
+		"project":                     envvar.GetTestProjectFromEnv(),
+		"characters_to_skip":          nil,
+		"common_characters_to_ignore": "PUNCTUATION",
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -138,7 +140,8 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 						number_to_mask = 4
 						reverse_order = true
 						characters_to_ignore {
-							common_characters_to_ignore = "PUNCTUATION"
+							common_characters_to_ignore = "%{common_characters_to_ignore}"
+							characters_to_skip = "%{characters_to_skip}"
 						}
 					}
 				}
@@ -198,8 +201,10 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharac
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": randomSuffix,
+		"project":                     envvar.GetTestProjectFromEnv(),
+		"characters_to_skip":          "@",
+		"common_characters_to_ignore": nil,
+		"random_suffix":               randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -276,7 +281,8 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
 						number_to_mask = 4
 						reverse_order = true
 						characters_to_ignore {
-							characters_to_skip = "@"
+							common_characters_to_ignore = "%{common_characters_to_ignore}"
+							characters_to_skip = "%{characters_to_skip}"
 						}
 					}
 				}
@@ -321,6 +327,9 @@ resource "google_data_loss_prevention_deidentify_template" "basic" {
           }
         }
       }
+		}
+		transformation_error_handling {
+			throw_error {}
 		}
 	}
 }

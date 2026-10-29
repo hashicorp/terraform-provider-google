@@ -64,9 +64,12 @@ func TestAccApigeeInstance_apigeeInstanceBasicTestExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   randomSuffix,
+		"billing_account":    envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":             envvar.GetTestOrgFromEnv(t),
+		"ip_range":           nil,
+		"peering_cidr_range": nil,
+		"prefix_length":      16,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -144,7 +147,7 @@ resource "google_compute_global_address" "apigee_range" {
   name          = "apigee-range"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
-  prefix_length = 16
+  prefix_length = %{prefix_length}
   network       = google_compute_network.apigee_network.id
   project       = google_project.project.project_id
 }
@@ -167,9 +170,11 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name     = "tf-test%{random_suffix}"
-  location = "us-central1"
-  org_id   = google_apigee_organization.apigee_org.id
+  name               = "tf-test%{random_suffix}"
+  location           = "us-central1"
+  org_id             = google_apigee_organization.apigee_org.id
+  peering_cidr_range = "%{peering_cidr_range}"
+  ip_range           = "%{ip_range}"
 }
 `, context)
 }
@@ -181,9 +186,12 @@ func TestAccApigeeInstance_apigeeInstanceCidrRangeTestExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   randomSuffix,
+		"billing_account":    envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":             envvar.GetTestOrgFromEnv(t),
+		"ip_range":           nil,
+		"peering_cidr_range": "SLASH_22",
+		"prefix_length":      22,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -261,7 +269,7 @@ resource "google_compute_global_address" "apigee_range" {
   name          = "apigee-range"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
-  prefix_length = 22
+  prefix_length = %{prefix_length}
   network       = google_compute_network.apigee_network.id
   project       = google_project.project.project_id
 }
@@ -284,10 +292,11 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name     = "tf-test%{random_suffix}"
-  location = "us-central1"
-  org_id   = google_apigee_organization.apigee_org.id
-  peering_cidr_range = "SLASH_22"
+  name               = "tf-test%{random_suffix}"
+  location           = "us-central1"
+  org_id             = google_apigee_organization.apigee_org.id
+  peering_cidr_range = "%{peering_cidr_range}"
+  ip_range           = "%{ip_range}"
 }
 `, context)
 }
@@ -299,9 +308,12 @@ func TestAccApigeeInstance_apigeeInstanceIpRangeTestExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"random_suffix":   randomSuffix,
+		"billing_account":    envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":             envvar.GetTestOrgFromEnv(t),
+		"ip_range":           "${google_compute_global_address.apigee_range.address}/22",
+		"peering_cidr_range": nil,
+		"prefix_length":      21,
+		"random_suffix":      randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -379,7 +391,7 @@ resource "google_compute_global_address" "apigee_range" {
   name          = "apigee-range"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
-  prefix_length = 21
+  prefix_length = %{prefix_length}
   network       = google_compute_network.apigee_network.id
   project       = google_project.project.project_id
 }
@@ -402,10 +414,11 @@ resource "google_apigee_organization" "apigee_org" {
 }
 
 resource "google_apigee_instance" "apigee_instance" {
-  name     = "tf-test%{random_suffix}"
-  location = "us-central1"
-  org_id   = google_apigee_organization.apigee_org.id
-  ip_range = "${google_compute_global_address.apigee_range.address}/22"
+  name               = "tf-test%{random_suffix}"
+  location           = "us-central1"
+  org_id             = google_apigee_organization.apigee_org.id
+  peering_cidr_range = "%{peering_cidr_range}"
+  ip_range           = "%{ip_range}"
 }
 `, context)
 }

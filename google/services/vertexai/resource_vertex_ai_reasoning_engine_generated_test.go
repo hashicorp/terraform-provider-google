@@ -64,8 +64,11 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"name":          "tf-test-reasoning-engine" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"deletion_policy": "FORCE",
+		"description":     "A reasoning engine with deletion policy",
+		"labels":          nil,
+		"name":            "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -96,9 +99,10 @@ func testAccVertexAIReasoningEngine_vertexAiReasoningEngineDeletionPolicyExample
 	return acctest.Nprintf(`
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name    = "%{name}"
-  description     = "A reasoning engine with deletion policy"
+  description     = "%{description}"
+  labels          = %{labels}
   region          = "us-central1"
-  deletion_policy = "FORCE"
+  deletion_policy = "%{deletion_policy}"
 }
 `, context)
 }
@@ -109,8 +113,11 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testi
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"name":          "tf-test-reasoning-engine" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"deletion_policy": nil,
+		"description":     "A basic reasoning engine",
+		"labels":          "{\"key\" = \"value\"}",
+		"name":            "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -140,12 +147,11 @@ func TestAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(t *testi
 func testAccVertexAIReasoningEngine_vertexAiReasoningEngineBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
-  display_name = "%{name}"
-  description  = "A basic reasoning engine"
-  labels       = {
-    "key" = "value"
-  }
-  region       = "us-central1"
+  display_name    = "%{name}"
+  description     = "%{description}"
+  labels          = %{labels}
+  region          = "us-central1"
+  deletion_policy = "%{deletion_policy}"
 }
 `, context)
 }

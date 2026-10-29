@@ -46,10 +46,13 @@ func TestAccVertexAIReasoningEngineListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"name":          "tf-test-reasoning-engine" + randomSuffix,
-		"region":        envvar.GetTestRegionFromEnv(),
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": randomSuffix,
+		"deletion_policy": "FORCE",
+		"description":     "A reasoning engine with deletion policy",
+		"labels":          nil,
+		"name":            "tf-test-reasoning-engine" + randomSuffix,
+		"region":          envvar.GetTestRegionFromEnv(),
+		"project":         envvar.GetTestProjectFromEnv(),
+		"random_suffix":   randomSuffix,
 	}
 
 	var listDisplayName acctest.ListDisplayName
