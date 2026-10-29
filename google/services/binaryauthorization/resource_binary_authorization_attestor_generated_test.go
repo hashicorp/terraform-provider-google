@@ -81,7 +81,7 @@ func TestAccBinaryAuthorizationAttestor_binaryAuthorizationAttestorBasicExample(
 			},
 			{
 				ResourceName:       "google_binary_authorization_attestor.attestor",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -81,7 +81,7 @@ func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_blockchain_node_engine_blockchain_nodes.default_node",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -141,7 +141,7 @@ func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesGethDetailsExampl
 			},
 			{
 				ResourceName:       "google_blockchain_node_engine_blockchain_nodes.default_node_geth",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -204,7 +204,7 @@ func TestAccBlockchainNodeEngineBlockchainNodes_blockchainNodesBeaconFeeRecipien
 			},
 			{
 				ResourceName:       "google_blockchain_node_engine_blockchain_nodes.default_node_beacon_fee",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -84,7 +84,7 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingBasicExample(
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing.listing",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -150,7 +150,7 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingRestrictedExa
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing.listing",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -221,7 +221,7 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingDcrExample(t 
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing.listing",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -323,7 +323,7 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingLogLinkedData
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing.listing",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -391,7 +391,7 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingPubsubExample
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing.listing",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -460,7 +460,7 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingDcrRoutineExa
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing.listing",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -555,7 +555,7 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubPublicListingExample
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing.listing",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -624,7 +624,7 @@ func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingMarketplaceEx
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_listing.listing",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

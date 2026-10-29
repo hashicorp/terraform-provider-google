@@ -84,7 +84,7 @@ func TestAccBigtableLogicalView_bigtableLogicalViewExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_bigtable_logical_view.logical_view",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

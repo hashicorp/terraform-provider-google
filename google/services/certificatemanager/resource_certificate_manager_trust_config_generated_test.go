@@ -80,7 +80,7 @@ func TestAccCertificateManagerTrustConfig_certificateManagerTrustConfigExample(t
 			},
 			{
 				ResourceName:       "google_certificate_manager_trust_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -137,7 +137,7 @@ func TestAccCertificateManagerTrustConfig_certificateManagerTrustConfigAllowlist
 			},
 			{
 				ResourceName:       "google_certificate_manager_trust_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

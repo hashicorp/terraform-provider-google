@@ -83,7 +83,7 @@ func TestAccBigtableSchemaBundle_bigtableSchemaBundleExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_bigtable_schema_bundle.schema_bundle",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

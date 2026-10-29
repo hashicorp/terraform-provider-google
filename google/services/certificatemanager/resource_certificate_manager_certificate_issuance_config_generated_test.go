@@ -83,7 +83,7 @@ func TestAccCertificateManagerCertificateIssuanceConfig_certificateManagerCertif
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate_issuance_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

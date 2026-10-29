@@ -81,7 +81,7 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeBas
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_data_exchange.data_exchange",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -127,7 +127,7 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeDcr
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_data_exchange.data_exchange",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -176,7 +176,7 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubDataExchangeLog
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_data_exchange.data_exchange",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -223,7 +223,7 @@ func TestAccBigqueryAnalyticsHubDataExchange_bigqueryAnalyticshubPublicDataExcha
 			},
 			{
 				ResourceName:       "google_bigquery_analytics_hub_data_exchange.data_exchange",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

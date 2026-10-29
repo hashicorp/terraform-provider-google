@@ -109,7 +109,7 @@ func TestAccBigqueryDataTransferConfig_bigquerydatatransferConfigScheduleOptions
 			},
 			{
 				ResourceName:       "google_bigquery_data_transfer_config.event_driven_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -129,7 +129,7 @@ func TestAccBigqueryDataTransferConfig_bigquerydatatransferConfigScheduleOptions
 			},
 			{
 				ResourceName:       "google_bigquery_data_transfer_config.event_driven_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

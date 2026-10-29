@@ -81,7 +81,7 @@ func TestAccBigqueryDatapolicyv2DataPolicy_bigqueryDatapolicyv2DatapolicyBasicEx
 			},
 			{
 				ResourceName:       "google_bigquery_datapolicyv2_data_policy.basic_data_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -125,7 +125,7 @@ func TestAccBigqueryDatapolicyv2DataPolicy_bigqueryDatapolicyv2DatapolicyPredefi
 			},
 			{
 				ResourceName:       "google_bigquery_datapolicyv2_data_policy.predefined_masking_data_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -173,7 +173,7 @@ func TestAccBigqueryDatapolicyv2DataPolicy_bigqueryDatapolicyv2DatapolicyRoutine
 			},
 			{
 				ResourceName:       "google_bigquery_datapolicyv2_data_policy.routine_data_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -240,7 +240,7 @@ func TestAccBigqueryDatapolicyv2DataPolicy_bigqueryDatapolicyv2DatapolicyWithgra
 			},
 			{
 				ResourceName:       "google_bigquery_datapolicyv2_data_policy.data_policy_with_grantees",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

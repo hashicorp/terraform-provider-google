@@ -83,7 +83,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_bigtable_app_profile.ap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -158,7 +158,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 			},
 			{
 				ResourceName:       "google_bigtable_app_profile.ap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -224,7 +224,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 			},
 			{
 				ResourceName:       "google_bigtable_app_profile.ap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -300,7 +300,7 @@ func TestAccBigtableAppProfile_bigtableAppProfilePriorityExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_bigtable_app_profile.ap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

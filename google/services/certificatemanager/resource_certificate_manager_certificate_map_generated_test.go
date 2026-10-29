@@ -80,7 +80,7 @@ func TestAccCertificateManagerCertificateMap_certificateManagerCertificateMapBas
 			},
 			{
 				ResourceName:       "google_certificate_manager_certificate_map.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
