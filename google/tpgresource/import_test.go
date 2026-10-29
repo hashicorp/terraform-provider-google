@@ -19,6 +19,7 @@ package tpgresource
 import (
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -161,5 +162,62 @@ func TestParseImportId(t *testing.T) {
 		} else if !tc.ExpectError {
 			t.Errorf("%s failed; unexpected error: %s", tn, err)
 		}
+	}
+}
+
+func TestParseImportId_identityImport(t *testing.T) {
+	r := &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+		},
+		Identity: &schema.ResourceIdentity{
+			Version: 1,
+			SchemaFunc: func() map[string]*schema.Schema {
+				return map[string]*schema.Schema{
+					"name": {
+						Type:              schema.TypeString,
+						RequiredForImport: true,
+					},
+					"project": {
+						Type:              schema.TypeString,
+						OptionalForImport: true,
+					},
+				}
+			},
+		},
+	}
+
+	d := r.Data(nil)
+	identity, err := d.Identity()
+	if err != nil {
+		t.Fatalf("unexpected error getting identity: %v", err)
+	}
+	if err := identity.Set("name", "my-resource"); err != nil {
+		t.Fatalf("unexpected error setting identity name: %v", err)
+	}
+	if err := identity.Set("project", "my-project"); err != nil {
+		t.Fatalf("unexpected error setting identity project: %v", err)
+	}
+
+	config := &transport_tpg.Config{}
+	if err := ParseImportId([]string{"(?P<project>[^/]+)/(?P<name>[^/]+)", "(?P<name>.+)"}, d, config); err != nil {
+		t.Fatalf("ParseImportId failed: %v", err)
+	}
+
+	if got := d.Get("name"); got != "my-resource" {
+		t.Errorf("expected name %q, got %q", "my-resource", got)
+	}
+	if got := d.Get("project"); got != "my-project" {
+		t.Errorf("expected project %q, got %q", "my-project", got)
+	}
+	if got := d.Id(); got != "my-resource" {
+		t.Errorf("expected Id() to be populated as %q when empty during identity import, got %q", "my-resource", got)
 	}
 }
