@@ -89,7 +89,7 @@ func TestAccChronicleFindingsRefinementDeployment_chronicleFindingsRefinementDep
 			},
 			{
 				ResourceName:       "google_chronicle_findings_refinement_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -109,7 +109,7 @@ func TestAccChronicleFindingsRefinementDeployment_chronicleFindingsRefinementDep
 			},
 			{
 				ResourceName:       "google_chronicle_findings_refinement_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

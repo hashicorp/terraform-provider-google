@@ -82,7 +82,7 @@ func TestAccClouddeployAutomation_clouddeployAutomationBasicExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_clouddeploy_automation.b-automation",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -176,7 +176,7 @@ func TestAccClouddeployAutomation_clouddeployAutomationFullExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_clouddeploy_automation.f-automation",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

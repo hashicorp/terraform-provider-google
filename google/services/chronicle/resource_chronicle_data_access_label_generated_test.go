@@ -82,7 +82,7 @@ func TestAccChronicleDataAccessLabel_chronicleDataaccesslabelBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_chronicle_data_access_label.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

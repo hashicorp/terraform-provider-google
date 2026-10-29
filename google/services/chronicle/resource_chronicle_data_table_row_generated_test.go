@@ -81,7 +81,7 @@ func TestAccChronicleDataTableRow_chronicleDataTableRowBasicExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_chronicle_data_table_row.example_row",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

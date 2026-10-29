@@ -91,7 +91,7 @@ func TestAccChronicleDataExport_chronicleDataExportBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_chronicle_data_export.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -157,7 +157,7 @@ func TestAccChronicleDataExport_chronicleDataExportFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_chronicle_data_export.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

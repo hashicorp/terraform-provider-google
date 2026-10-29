@@ -80,7 +80,7 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentBasicExample(t *testi
 			},
 			{
 				ResourceName:       "google_chronicle_rule_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -135,7 +135,7 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentDisabledExample(t *te
 			},
 			{
 				ResourceName:       "google_chronicle_rule_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -188,7 +188,7 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentRunFrequencyMissingEx
 			},
 			{
 				ResourceName:       "google_chronicle_rule_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -257,7 +257,7 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomization
 			},
 			{
 				ResourceName:       "google_chronicle_rule_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -277,7 +277,7 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomization
 			},
 			{
 				ResourceName:       "google_chronicle_rule_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -297,7 +297,7 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomization
 			},
 			{
 				ResourceName:       "google_chronicle_rule_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -317,7 +317,7 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentScheduleCustomization
 			},
 			{
 				ResourceName:       "google_chronicle_rule_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -506,7 +506,7 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentLegacyRunFrequencyDif
 			},
 			{
 				ResourceName:       "google_chronicle_rule_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -573,7 +573,7 @@ func TestAccChronicleRuleDeployment_chronicleRuledeploymentSingleEventDiffSuppre
 			},
 			{
 				ResourceName:       "google_chronicle_rule_deployment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

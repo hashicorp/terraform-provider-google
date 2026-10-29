@@ -81,7 +81,7 @@ func TestAccChronicleReferenceList_chronicleReferencelistBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_chronicle_reference_list.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

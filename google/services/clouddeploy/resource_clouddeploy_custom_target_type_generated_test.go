@@ -80,7 +80,7 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeBasicExample(
 			},
 			{
 				ResourceName:       "google_clouddeploy_custom_target_type.custom-target-type",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -136,7 +136,7 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGitSkaffoldMo
 			},
 			{
 				ResourceName:       "google_clouddeploy_custom_target_type.custom-target-type",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -192,7 +192,7 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGcsSkaffoldMo
 			},
 			{
 				ResourceName:       "google_clouddeploy_custom_target_type.custom-target-type",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -247,7 +247,7 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGcbRepoSkaffo
 			},
 			{
 				ResourceName:       "google_clouddeploy_custom_target_type.custom-target-type",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -303,7 +303,7 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeTasksExample(
 			},
 			{
 				ResourceName:       "google_clouddeploy_custom_target_type.custom-target-type",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

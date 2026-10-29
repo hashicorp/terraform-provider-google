@@ -90,7 +90,7 @@ func TestAccChronicleEnvironmentGroup_chronicleEnvironmentgroupUpdateExample(t *
 			},
 			{
 				ResourceName:       "google_chronicle_environment_group.sample",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -110,7 +110,7 @@ func TestAccChronicleEnvironmentGroup_chronicleEnvironmentgroupUpdateExample(t *
 			},
 			{
 				ResourceName:       "google_chronicle_environment_group.sample",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
