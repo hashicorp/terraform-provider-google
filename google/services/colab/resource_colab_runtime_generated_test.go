@@ -81,7 +81,7 @@ func TestAccColabRuntime_colabRuntimeBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_colab_runtime.runtime",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -149,7 +149,7 @@ func TestAccColabRuntime_colabRuntimeStoppedExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_colab_runtime.runtime",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -220,7 +220,7 @@ func TestAccColabRuntime_colabRuntimeFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_colab_runtime.runtime",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

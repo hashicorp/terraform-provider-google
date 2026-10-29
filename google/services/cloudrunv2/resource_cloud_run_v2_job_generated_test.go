@@ -85,7 +85,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -137,7 +137,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobLimitsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -201,7 +201,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobSandboxExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -258,7 +258,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobSqlExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -370,7 +370,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobVpcaccessExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -447,7 +447,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobDirectvpcExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -507,7 +507,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobSecretExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -602,7 +602,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobEmptydirExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -665,7 +665,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobEmptydirDiskExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -734,7 +734,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobMulticontainerExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -791,7 +791,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobGpuExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
