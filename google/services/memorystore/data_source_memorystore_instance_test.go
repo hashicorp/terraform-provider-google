@@ -51,14 +51,14 @@ func testAccMemorystoreInstanceDatasourceConfig(context map[string]interface{}) 
 resource "google_memorystore_instance" "instance-basic" {
   instance_id                 = "tf-test-memorystore-instance%{random_suffix}"
   shard_count                 = 1
-  location                    = "us-east4"
+  location                    = "northamerica-south1"
   node_type                   = "SHARED_CORE_NANO"
   deletion_protection_enabled = false
 }
 
 data "google_memorystore_instance" "default" {
   instance_id                 = google_memorystore_instance.instance-basic.instance_id
-  location                    = "us-east4"
+  location                    = "northamerica-south1"
 }
 `, context)
 }
