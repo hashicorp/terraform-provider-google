@@ -238,7 +238,6 @@ func firestoreFieldIndexConfigIndexesSchema() *schema.Resource {
 				ValidateFunc: verify.ValidateEnum([]string{"CONTAINS", ""}),
 				Description: `Indicates that this field supports operations on arrayValues. Only one of 'order' and 'arrayConfig' can
 be specified. Possible values: ["CONTAINS"]`,
-				ExactlyOneOf: []string{},
 			},
 			"order": {
 				Type:         schema.TypeString,
@@ -246,7 +245,6 @@ be specified. Possible values: ["CONTAINS"]`,
 				ValidateFunc: verify.ValidateEnum([]string{"ASCENDING", "DESCENDING", ""}),
 				Description: `Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=, !=.
 Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCENDING", "DESCENDING"]`,
-				ExactlyOneOf: []string{},
 			},
 			"query_scope": {
 				Type:         schema.TypeString,

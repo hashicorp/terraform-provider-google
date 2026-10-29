@@ -168,10 +168,9 @@ func ResourceConfigDeployment() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"gcs_source": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Description:  `URI of a GCS object containing the zipped Terraform blueprint.`,
-							ExactlyOneOf: []string{},
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `URI of a GCS object containing the zipped Terraform blueprint.`,
 						},
 						"git_source": {
 							Type:        schema.TypeList,
@@ -197,7 +196,6 @@ func ResourceConfigDeployment() *schema.Resource {
 									},
 								},
 							},
-							ExactlyOneOf: []string{},
 						},
 						"input_values": {
 							Type:        schema.TypeSet,

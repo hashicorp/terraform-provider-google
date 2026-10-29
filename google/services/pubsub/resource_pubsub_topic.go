@@ -294,7 +294,6 @@ bytes of each object will be set to the 'data' field of a Pub/Sub message.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"match_glob": {
 										Type:     schema.TypeString,
@@ -321,7 +320,6 @@ will be restored when publishing.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"text_format": {
 										Type:     schema.TypeList,
@@ -342,7 +340,6 @@ message. When unset, '\n' is used.`,
 												},
 											},
 										},
-										ExactlyOneOf: []string{},
 									},
 								},
 							},

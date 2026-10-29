@@ -386,7 +386,6 @@ blocks in an update and then apply another update adding all of them back simult
 						},
 					},
 				},
-				AtLeastOneOf: []string{},
 			},
 			"visibility": {
 				Type:             schema.TypeString,

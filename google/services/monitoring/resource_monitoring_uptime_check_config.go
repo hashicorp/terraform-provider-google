@@ -480,7 +480,6 @@ uptime checks:
 									},
 								},
 							},
-							ExactlyOneOf: []string{},
 						},
 					},
 				},

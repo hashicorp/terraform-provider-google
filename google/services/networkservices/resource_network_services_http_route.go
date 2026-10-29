@@ -542,10 +542,9 @@ If a default rule is desired to be configured, add a rule with no matches specif
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"full_path_match": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Description:  `The HTTP request path value should exactly match this value.`,
-										ExactlyOneOf: []string{},
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The HTTP request path value should exactly match this value.`,
 									},
 									"headers": {
 										Type:        schema.TypeList,
@@ -554,10 +553,9 @@ If a default rule is desired to be configured, add a rule with no matches specif
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"exact_match": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													Description:  `The value of the header should match exactly the content of exactMatch.`,
-													ExactlyOneOf: []string{},
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The value of the header should match exactly the content of exactMatch.`,
 												},
 												"header": {
 													Type:        schema.TypeString,
@@ -570,16 +568,14 @@ If a default rule is desired to be configured, add a rule with no matches specif
 													Description: `If specified, the match result will be inverted before checking. Default value is set to false.`,
 												},
 												"prefix_match": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													Description:  `The value of the header must start with the contents of prefixMatch.`,
-													ExactlyOneOf: []string{},
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The value of the header must start with the contents of prefixMatch.`,
 												},
 												"present_match": {
-													Type:         schema.TypeBool,
-													Optional:     true,
-													Description:  `A header with headerName must exist. The match takes place whether or not the header has a value.`,
-													ExactlyOneOf: []string{},
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `A header with headerName must exist. The match takes place whether or not the header has a value.`,
 												},
 												"range_match": {
 													Type:        schema.TypeList,
@@ -600,19 +596,16 @@ If a default rule is desired to be configured, add a rule with no matches specif
 															},
 														},
 													},
-													ExactlyOneOf: []string{},
 												},
 												"regex_match": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													Description:  `The value of the header must match the regular expression specified in regexMatch.`,
-													ExactlyOneOf: []string{},
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The value of the header must match the regular expression specified in regexMatch.`,
 												},
 												"suffix_match": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													Description:  `The value of the header must end with the contents of suffixMatch.`,
-													ExactlyOneOf: []string{},
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The value of the header must end with the contents of suffixMatch.`,
 												},
 											},
 										},
@@ -623,10 +616,9 @@ If a default rule is desired to be configured, add a rule with no matches specif
 										Description: `Specifies if prefixMatch and fullPathMatch matches are case sensitive. The default value is false.`,
 									},
 									"prefix_match": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Description:  `The HTTP request path value must begin with specified prefixMatch. prefixMatch must begin with a /.`,
-										ExactlyOneOf: []string{},
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The HTTP request path value must begin with specified prefixMatch. prefixMatch must begin with a /.`,
 									},
 									"query_parameters": {
 										Type:        schema.TypeList,
@@ -635,16 +627,14 @@ If a default rule is desired to be configured, add a rule with no matches specif
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"exact_match": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													Description:  `The value of the query parameter must exactly match the contents of exactMatch.`,
-													ExactlyOneOf: []string{},
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The value of the query parameter must exactly match the contents of exactMatch.`,
 												},
 												"present_match": {
-													Type:         schema.TypeBool,
-													Optional:     true,
-													Description:  `Specifies that the QueryParameterMatcher matches if request contains query parameter, irrespective of whether the parameter has a value or not.`,
-													ExactlyOneOf: []string{},
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Specifies that the QueryParameterMatcher matches if request contains query parameter, irrespective of whether the parameter has a value or not.`,
 												},
 												"query_parameter": {
 													Type:        schema.TypeString,
@@ -652,19 +642,17 @@ If a default rule is desired to be configured, add a rule with no matches specif
 													Description: `The name of the query parameter to match.`,
 												},
 												"regex_match": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													Description:  `The value of the query parameter must match the regular expression specified by regexMatch.For regular expression grammar, please see https://github.com/google/re2/wiki/Syntax`,
-													ExactlyOneOf: []string{},
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The value of the query parameter must match the regular expression specified by regexMatch.For regular expression grammar, please see https://github.com/google/re2/wiki/Syntax`,
 												},
 											},
 										},
 									},
 									"regex_match": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Description:  `The HTTP request path value must satisfy the regular expression specified by regexMatch after removing any query parameters and anchor supplied with the original URL. For regular expression grammar, please see https://github.com/google/re2/wiki/Syntax`,
-										ExactlyOneOf: []string{},
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The HTTP request path value must satisfy the regular expression specified by regexMatch after removing any query parameters and anchor supplied with the original URL. For regular expression grammar, please see https://github.com/google/re2/wiki/Syntax`,
 									},
 								},
 							},

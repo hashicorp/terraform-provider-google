@@ -1058,7 +1058,6 @@ Default time is ten minutes (600s).`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{},
 						},
 						"git_repository_link_type": {
 							Type:        schema.TypeString,
@@ -1067,7 +1066,6 @@ Default time is ten minutes (600s).`,
 						},
 					},
 				},
-				ExactlyOneOf: []string{},
 			},
 			"disabled": {
 				Type:        schema.TypeBool,
@@ -1333,7 +1331,6 @@ Only populated on get requests.`,
 
 The syntax of the regular expressions accepted is the syntax accepted by
 RE2 and described at https://github.com/google/re2/wiki/Syntax`,
-										ExactlyOneOf: []string{},
 									},
 									"comment_control": {
 										Type:         schema.TypeString,
@@ -1348,7 +1345,6 @@ RE2 and described at https://github.com/google/re2/wiki/Syntax`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{},
 						},
 						"push": {
 							Type:        schema.TypeList,
@@ -1364,7 +1360,6 @@ RE2 and described at https://github.com/google/re2/wiki/Syntax`,
 
 The syntax of the regular expressions accepted is the syntax accepted by
 RE2 and described at https://github.com/google/re2/wiki/Syntax`,
-										ExactlyOneOf: []string{},
 									},
 									"invert_regex": {
 										Type:        schema.TypeBool,
@@ -1378,11 +1373,9 @@ RE2 and described at https://github.com/google/re2/wiki/Syntax`,
 
 The syntax of the regular expressions accepted is the syntax accepted by
 RE2 and described at https://github.com/google/re2/wiki/Syntax`,
-										ExactlyOneOf: []string{},
 									},
 								},
 							},
-							ExactlyOneOf: []string{},
 						},
 						"repository": {
 							Type:        schema.TypeString,

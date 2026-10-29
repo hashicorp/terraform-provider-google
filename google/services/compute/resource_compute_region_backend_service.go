@@ -1356,16 +1356,14 @@ subjectAltNames.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"dns_name": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Description:  `The SAN specified as a DNS Name.`,
-										ExactlyOneOf: []string{},
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The SAN specified as a DNS Name.`,
 									},
 									"uniform_resource_identifier": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Description:  `The SAN specified as a URI.`,
-										ExactlyOneOf: []string{},
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The SAN specified as a URI.`,
 									},
 								},
 							},

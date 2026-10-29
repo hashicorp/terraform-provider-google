@@ -214,7 +214,6 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 												},
 											},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"google_cloud_build_repo": {
 										Type:        schema.TypeList,
@@ -240,7 +239,6 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 												},
 											},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"google_cloud_storage": {
 										Type:        schema.TypeList,
@@ -261,7 +259,6 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 												},
 											},
 										},
-										ExactlyOneOf: []string{},
 									},
 								},
 							},
