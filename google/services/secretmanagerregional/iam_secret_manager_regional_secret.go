@@ -279,7 +279,7 @@ func (u *SecretManagerRegionalRegionalSecretIamUpdater) SetResourceIamPolicy(pol
 }
 
 func (u *SecretManagerRegionalRegionalSecretIamUpdater) qualifyRegionalSecretUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{SecretManagerRegionalBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/secrets/%s", u.project, u.location, u.secretId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/secrets/%s", u.project, u.location, u.secretId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

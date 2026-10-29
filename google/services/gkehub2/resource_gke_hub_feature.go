@@ -913,7 +913,7 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	headers := make(http.Header)
 	// Check if the fleet feature already exists. Do an update if so.
 
-	getUrl, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
+	getUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/features/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1252,7 +1252,7 @@ func resourceGKEHub2FeatureDelete(d *schema.ResourceData, meta interface{}) erro
 	if d.Get("name").(string) == "rbacrolebindingactuation" {
 		log.Printf("[DEBUG] Mandatory feature 'rbacrolebindingactuation' detected. Resetting instead of deleting.")
 
-		patchUrl, err := tpgresource.ReplaceVarsForId(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
+		patchUrl, err := tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/features/{{name}}")
 		if err != nil {
 			return err
 		}

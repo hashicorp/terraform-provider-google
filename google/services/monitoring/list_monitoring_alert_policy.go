@@ -122,7 +122,7 @@ func ListMonitoringAlertPolicys(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{MonitoringBasePath}}v3/projects/{{project}}/alertPolicies")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"v3/projects/{{project}}/alertPolicies")
 	if err != nil {
 		return err
 	}

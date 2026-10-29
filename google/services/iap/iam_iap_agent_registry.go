@@ -269,7 +269,7 @@ func (u *IapAgentRegistryIamUpdater) SetResourceIamPolicy(policy *cloudresourcem
 }
 
 func (u *IapAgentRegistryIamUpdater) qualifyAgentRegistryUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/iap_web/agentRegistry", u.project, u.location), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/iap_web/agentRegistry", u.project, u.location), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

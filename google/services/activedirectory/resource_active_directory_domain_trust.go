@@ -603,7 +603,7 @@ func resourceActiveDirectoryDomainTrustDelete(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains/{{domain}}:detachTrust")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/domains/{{domain}}:detachTrust")
 	if err != nil {
 		return err
 	}

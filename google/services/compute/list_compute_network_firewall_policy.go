@@ -122,7 +122,7 @@ func ListComputeNetworkFirewallPolicys(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVarsForId(resourceData, config, "{{ComputeBasePath}}projects/{{project}}/global/firewallPolicies")
+	url, err := tpgresource.ReplaceVarsForId(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/firewallPolicies")
 	if err != nil {
 		return err
 	}

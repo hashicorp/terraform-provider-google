@@ -582,7 +582,7 @@ func resourceOrgPolicyPolicyRead(d *schema.ResourceData, meta interface{}) error
 	// Call the encoder to shorten name even if the resource is created by another provider version.
 	resourceOrgPolicyPolicyEncoder(d, nil, nil)
 	// Re-create the url.
-	url, err = tpgresource.ReplaceVars(d, config, "{{OrgPolicyBasePath}}{{parent}}/policies/{{name}}")
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/policies/{{name}}")
 	if err != nil {
 		return err
 	}

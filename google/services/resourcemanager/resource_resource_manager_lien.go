@@ -433,7 +433,7 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	// in theory, we should find a way to disable the default URL and not construct
 	// both, but that's a problem for another day. Today, we cheat.
 	log.Printf("[DEBUG] replacing URL %q with a custom delete URL", url)
-	url, err = tpgresource.ReplaceVars(d, config, "{{ResourceManagerBasePath}}liens/{{name}}")
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"liens/{{name}}")
 	if err != nil {
 		return err
 	}

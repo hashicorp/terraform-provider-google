@@ -598,7 +598,7 @@ func resourceAccessContextManagerIngressPolicyPatchDeleteEncoder(d *schema.Resou
 // extracting list of objects.
 func resourceAccessContextManagerIngressPolicyListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{ingress_policy_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{ingress_policy_name}}")
 	if err != nil {
 		return nil, err
 	}

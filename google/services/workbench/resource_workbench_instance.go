@@ -249,7 +249,7 @@ func waitForWorkbenchInstanceActive(d *schema.ResourceData, config *transport_tp
 }
 
 func modifyWorkbenchInstanceState(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, state string) (map[string]interface{}, error) {
-	url, err := tpgresource.ReplaceVars(d, config, "{{WorkbenchBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:"+state)
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{name}}:"+state)
 	if err != nil {
 		return nil, err
 	}
@@ -317,7 +317,7 @@ func resizeWorkbenchInstanceDisk(config *transport_tpg.Config, d *schema.Resourc
 	disk["diskSizeGb"] = d.Get(sizeString)
 	diskObj[diskKey] = disk
 
-	resizeUrl, err := tpgresource.ReplaceVars(d, config, "{{WorkbenchBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:resizeDisk")
+	resizeUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{name}}:resizeDisk")
 	if err != nil {
 		return err
 	}

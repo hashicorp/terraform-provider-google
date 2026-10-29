@@ -1156,7 +1156,7 @@ func expandComputeRouterNccGateway(v interface{}, d tpgresource.TerraformResourc
 	// Anything else is assumed to be a regional resource, with a partial link that begins with the resource name.
 	// This isn't very likely - it's a last-ditch effort to extract something useful here.  We can do a better job
 	// as soon as MultiResourceRefs are working since we'll know the types that this field is supposed to point to.
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityBasePath}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(registry.GetProduct("networkconnectivity"), config))
 	if err != nil {
 		return nil, err
 	}

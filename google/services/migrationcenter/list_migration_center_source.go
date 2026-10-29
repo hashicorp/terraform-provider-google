@@ -132,7 +132,7 @@ func ListMigrationCenterSources(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{MigrationCenterBasePath}}projects/{{project}}/locations/{{location}}/sources")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/sources")
 	if err != nil {
 		return err
 	}

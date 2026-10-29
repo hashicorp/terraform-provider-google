@@ -288,7 +288,7 @@ func resourceContactCenterInsightsQaScorecardRevisionCreate(d *schema.ResourceDa
 
 	headers := make(http.Header)
 	if v, ok := d.GetOk("qa_scorecard_revision_id"); !ok || v == "" {
-		getUrl, err := tpgresource.ReplaceVars(d, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard}}/revisions")
+		getUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/qaScorecards/{{qa_scorecard}}/revisions")
 		if err != nil {
 			return err
 		}

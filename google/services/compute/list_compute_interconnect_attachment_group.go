@@ -122,7 +122,7 @@ func ListComputeInterconnectAttachmentGroups(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ComputeBasePath}}projects/{{project}}/global/interconnectAttachmentGroups")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/interconnectAttachmentGroups")
 	if err != nil {
 		return err
 	}

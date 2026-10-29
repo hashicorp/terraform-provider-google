@@ -257,7 +257,7 @@ func (u *DNSManagedZoneIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 }
 
 func (u *DNSManagedZoneIamUpdater) qualifyManagedZoneUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{DNSBasePath}}%s:%s", fmt.Sprintf("projects/%s/managedZones/%s", u.project, u.managedZone), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/managedZones/%s", u.project, u.managedZone), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

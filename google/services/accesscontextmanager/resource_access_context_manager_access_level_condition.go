@@ -1180,7 +1180,7 @@ func resourceAccessContextManagerAccessLevelConditionPatchDeleteEncoder(d *schem
 // extracting list of objects.
 func resourceAccessContextManagerAccessLevelConditionListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{access_level}}")
 	if err != nil {
 		return nil, err
 	}

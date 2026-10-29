@@ -451,7 +451,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if d.Get("delete_default_routes_on_create").(bool) {
-		networkUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
+		networkUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/networks/{{name}}")
 		if err != nil {
 			return err
 		}
@@ -482,7 +482,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 			if token != "" {
 				params["pageToken"] = token
 			}
-			routesUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes")
+			routesUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/routes")
 			if err != nil {
 				return err
 			}
@@ -516,7 +516,7 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 				if !ok || routeName == "" {
 					continue
 				}
-				routeUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/routes/"+routeName)
+				routeUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/routes/"+routeName)
 				if err != nil {
 					return err
 				}

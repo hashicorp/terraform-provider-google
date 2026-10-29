@@ -938,7 +938,7 @@ func resourceComputeRegionNetworkFirewallPolicyWithRulesCreate(d *schema.Resourc
 
 	log.Printf("[DEBUG] Post-create for RegionNetworkFirewallPolicyWithRules %q", d.Id())
 
-	url, err = tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
+	url, err = tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/firewallPolicies/{{name}}")
 	if err != nil {
 		return err
 	}

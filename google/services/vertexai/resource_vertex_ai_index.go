@@ -717,7 +717,7 @@ func resourceVertexAIIndexUpdate(d *schema.ResourceData, meta interface{}) error
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/indexes/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -1599,7 +1599,7 @@ func expandDNSManagedZonePrivateVisibilityConfigNetworksNetworkUrl(v interface{}
 	} else if strings.HasPrefix(v.(string), "https://") {
 		return v, nil
 	}
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(registry.GetProduct("compute"), config)+v.(string))
 	if err != nil {
 		return "", err
 	}
@@ -1781,7 +1781,7 @@ func expandDNSManagedZonePeeringConfigTargetNetworkNetworkUrl(v interface{}, d t
 	} else if strings.HasPrefix(v.(string), "https://") {
 		return v, nil
 	}
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(registry.GetProduct("compute"), config)+v.(string))
 	if err != nil {
 		return "", err
 	}

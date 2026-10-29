@@ -516,7 +516,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 
 			obj["statements"] = updateDdls
 
-			url, err = tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
+			url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/databases/{{name}}/ddl")
 			if err != nil {
 				return err
 			}
@@ -552,7 +552,7 @@ func resourceSpannerDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	dropProtection := enableDropProtection.(bool)
 	if enableDropProtectionOk && dropProtection {
 		updateMask := []string{"enableDropProtection"}
-		url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{instance}}/databases/{{name}}")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/databases/{{name}}")
 		if err != nil {
 			return err
 		}

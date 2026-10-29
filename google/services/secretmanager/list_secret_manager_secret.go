@@ -122,7 +122,7 @@ func ListSecretManagerSecrets(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/secrets")
 	if err != nil {
 		return err
 	}

@@ -275,7 +275,7 @@ func (u *GeminiDataAnalyticsDataAgentIamUpdater) SetResourceIamPolicy(policy *cl
 }
 
 func (u *GeminiDataAnalyticsDataAgentIamUpdater) qualifyDataAgentUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{GeminiDataAnalyticsBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/dataAgents/%s", u.project, u.location, u.dataAgentId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/dataAgents/%s", u.project, u.location, u.dataAgentId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

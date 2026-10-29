@@ -69,7 +69,7 @@ func securityActionEnableDisable(config *transport_tpg.Config, d *schema.Resourc
 		return fmt.Errorf("unsupported security action state %q (must be ENABLED or DISABLED)", desiredState)
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}:"+action)
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}:"+action)
 	if err != nil {
 		return err
 	}
@@ -709,7 +709,7 @@ func resourceApigeeSecurityActionUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	if len(updateMask) > 0 {
-		url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/environments/{{env_id}}/securityActions/{{security_action_id}}")
 		if err != nil {
 			return err
 		}

@@ -275,7 +275,7 @@ func (u *ColabRuntimeTemplateIamUpdater) SetResourceIamPolicy(policy *cloudresou
 }
 
 func (u *ColabRuntimeTemplateIamUpdater) qualifyRuntimeTemplateUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{ColabBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s", u.project, u.location, u.runtimeTemplate), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/notebookRuntimeTemplates/%s", u.project, u.location, u.runtimeTemplate), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

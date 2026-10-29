@@ -522,7 +522,7 @@ func resourceComputeBackendBucketCreate(d *schema.ResourceData, meta interface{}
 			sBody["securityPolicy"] = link
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}/setEdgeSecurityPolicy")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/backendBuckets/{{name}}/setEdgeSecurityPolicy")
 		if err != nil {
 			return err
 		}
@@ -810,7 +810,7 @@ func resourceComputeBackendBucketUpdate(d *schema.ResourceData, meta interface{}
 			sBody["securityPolicy"] = link
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{name}}/setEdgeSecurityPolicy")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/backendBuckets/{{name}}/setEdgeSecurityPolicy")
 		if err != nil {
 			return err
 		}

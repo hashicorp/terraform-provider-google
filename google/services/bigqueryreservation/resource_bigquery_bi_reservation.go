@@ -515,7 +515,7 @@ func resourceBigqueryReservationBiReservationDelete(d *schema.ResourceData, meta
 	obj["preferredTables"] = []string{}
 	obj["size"] = 0
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/biReservation")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/biReservation")
 	if err != nil {
 		return err
 	}

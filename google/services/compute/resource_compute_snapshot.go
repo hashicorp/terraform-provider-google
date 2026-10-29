@@ -794,7 +794,7 @@ func resourceComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("error updating Snapshot %q KMS key: %w", d.Id(), err)
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/snapshots/{{name}}/updateKmsKey")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/snapshots/{{name}}/updateKmsKey")
 		if err != nil {
 			d.Partial(true)
 			return err

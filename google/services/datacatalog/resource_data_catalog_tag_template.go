@@ -57,7 +57,7 @@ import (
 // Use it to delete TagTemplate Field
 func deleteTagTemplateField(d *schema.ResourceData, config *transport_tpg.Config, name, billingProject, userAgent string) error {
 
-	url_delete, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields/"+name+"?force={{force_delete}}")
+	url_delete, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}/fields/"+name+"?force={{force_delete}}")
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func deleteTagTemplateField(d *schema.ResourceData, config *transport_tpg.Config
 // Use it to create TagTemplate Field
 func createTagTemplateField(d *schema.ResourceData, config *transport_tpg.Config, body map[string]interface{}, name, billingProject, userAgent string) error {
 
-	url_create, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields")
+	url_create, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}/fields")
 	if err != nil {
 		return err
 	}
@@ -692,7 +692,7 @@ func resourceDataCatalogTagTemplateUpdate(d *schema.ResourceData, meta interface
 
 		// if we have old and new values, but are not equal, update with the new state
 		if !reflect.DeepEqual(changeOldProp, changeNewProp) {
-			url1, err := tpgresource.ReplaceVars(d, config, "{{DataCatalogBasePath}}{{name}}/fields/"+name)
+			url1, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}/fields/"+name)
 			if err != nil {
 				return err
 			}

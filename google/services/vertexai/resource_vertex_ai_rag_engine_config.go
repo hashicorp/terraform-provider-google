@@ -511,7 +511,7 @@ func resourceVertexAIRagEngineConfigDelete(d *schema.ResourceData, meta interfac
 	}
 
 	// Update RagEngineConfig tier to Unprovisioned
-	deleteUrl, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/ragEngineConfig")
+	deleteUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/ragEngineConfig")
 	if err != nil {
 		return err
 	}

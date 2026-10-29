@@ -132,7 +132,7 @@ func ListDiscoveryEngineCmekConfigs(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/cmekConfigs")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/cmekConfigs")
 	if err != nil {
 		return err
 	}

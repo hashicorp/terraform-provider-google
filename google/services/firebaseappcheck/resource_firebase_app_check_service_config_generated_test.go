@@ -222,7 +222,7 @@ func testAccCheckFirebaseAppCheckServiceConfigDestroyProducer(t *testing.T) func
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{FirebaseAppCheckBasePath}}projects/{{project}}/services/{{service_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(firebaseappcheck.Product, config)+"projects/{{project}}/services/{{service_id}}")
 			if err != nil {
 				return err
 			}

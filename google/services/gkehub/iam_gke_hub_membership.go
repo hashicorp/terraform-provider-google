@@ -275,7 +275,7 @@ func (u *GKEHubMembershipIamUpdater) SetResourceIamPolicy(policy *cloudresourcem
 }
 
 func (u *GKEHubMembershipIamUpdater) qualifyMembershipUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{GKEHubBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/memberships/%s", u.project, u.location, u.membershipId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/memberships/%s", u.project, u.location, u.membershipId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

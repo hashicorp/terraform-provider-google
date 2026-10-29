@@ -275,7 +275,7 @@ func (u *SecureSourceManagerInstanceIamUpdater) SetResourceIamPolicy(policy *clo
 }
 
 func (u *SecureSourceManagerInstanceIamUpdater) qualifyInstanceUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{SecureSourceManagerBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/instances/%s", u.project, u.location, u.instanceId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/instances/%s", u.project, u.location, u.instanceId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

@@ -280,7 +280,7 @@ func (u *IapTunnelDestGroupIamUpdater) SetResourceIamPolicy(policy *cloudresourc
 }
 
 func (u *IapTunnelDestGroupIamUpdater) qualifyTunnelDestGroupUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_tunnel/locations/%s/destGroups/%s", u.project, u.region, u.destGroup), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/iap_tunnel/locations/%s/destGroups/%s", u.project, u.region, u.destGroup), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

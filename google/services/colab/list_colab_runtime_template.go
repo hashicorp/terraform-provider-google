@@ -132,7 +132,7 @@ func ListColabRuntimeTemplates(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ColabBasePath}}projects/{{project}}/locations/{{location}}/notebookRuntimeTemplates")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notebookRuntimeTemplates")
 	if err != nil {
 		return err
 	}

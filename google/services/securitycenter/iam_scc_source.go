@@ -232,7 +232,7 @@ func (u *SecurityCenterSourceIamUpdater) SetResourceIamPolicy(policy *cloudresou
 }
 
 func (u *SecurityCenterSourceIamUpdater) qualifySourceUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{SecurityCenterBasePath}}%s:%s", fmt.Sprintf("organizations/%s/sources/%s", u.organization, u.source), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("organizations/%s/sources/%s", u.organization, u.source), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

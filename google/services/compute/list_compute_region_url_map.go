@@ -132,7 +132,7 @@ func ListComputeRegionUrlMaps(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/urlMaps")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/urlMaps")
 	if err != nil {
 		return err
 	}

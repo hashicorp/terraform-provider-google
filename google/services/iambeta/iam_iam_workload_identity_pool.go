@@ -256,7 +256,7 @@ func (u *IAMBetaWorkloadIdentityPoolIamUpdater) SetResourceIamPolicy(policy *clo
 }
 
 func (u *IAMBetaWorkloadIdentityPoolIamUpdater) qualifyWorkloadIdentityPoolUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{IAMBetaBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/global/workloadIdentityPools/%s", u.project, u.workloadIdentityPoolId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/global/workloadIdentityPools/%s", u.project, u.workloadIdentityPoolId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

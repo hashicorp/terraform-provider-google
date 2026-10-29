@@ -749,7 +749,7 @@ func resourceComputeInterconnectCreate(d *schema.ResourceData, meta interface{})
 		labelFingerprintProp := d.Get("label_fingerprint")
 		obj["labelFingerprint"] = labelFingerprintProp
 
-		url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/interconnects/{{name}}/setLabels")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/interconnects/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}

@@ -132,7 +132,7 @@ func ListNetworkSecurityMirroringEndpointGroupAssociations(config *transport_tpg
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/mirroringEndpointGroupAssociations")
 	if err != nil {
 		return err
 	}

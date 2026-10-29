@@ -305,7 +305,7 @@ func (u *WorkstationsWorkstationIamUpdater) SetResourceIamPolicy(policy *cloudre
 }
 
 func (u *WorkstationsWorkstationIamUpdater) qualifyWorkstationUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{WorkstationsBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/workstationClusters/%s/workstationConfigs/%s/workstations/%s", u.project, u.location, u.workstationClusterId, u.workstationConfigId, u.workstationId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/workstationClusters/%s/workstationConfigs/%s/workstations/%s", u.project, u.location, u.workstationClusterId, u.workstationConfigId, u.workstationId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

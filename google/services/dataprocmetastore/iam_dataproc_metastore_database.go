@@ -290,7 +290,7 @@ func (u *DataprocMetastoreDatabaseIamUpdater) SetResourceIamPolicy(policy *cloud
 }
 
 func (u *DataprocMetastoreDatabaseIamUpdater) qualifyDatabaseUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{DataprocMetastoreBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s", u.project, u.location, u.serviceId, u.database), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/services/%s/databases/%s", u.project, u.location, u.serviceId, u.database), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

@@ -572,7 +572,7 @@ func resourceIdentityPlatformConfigCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/identityPlatform:initializeAuth")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/identityPlatform:initializeAuth")
 	if err != nil {
 		return err
 	}

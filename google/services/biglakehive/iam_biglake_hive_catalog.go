@@ -251,7 +251,7 @@ func (u *BiglakeHiveHiveCatalogIamUpdater) SetResourceIamPolicy(policy *cloudres
 }
 
 func (u *BiglakeHiveHiveCatalogIamUpdater) qualifyHiveCatalogUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{BiglakeHiveBasePath}}%s:%s", fmt.Sprintf("v1/projects/%s/catalogs/%s", u.project, u.name), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("v1/projects/%s/catalogs/%s", u.project, u.name), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

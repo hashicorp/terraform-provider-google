@@ -801,7 +801,7 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		labelFingerprintProp := d.Get("label_fingerprint")
 		obj["labelFingerprint"] = labelFingerprintProp
 
-		url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}/setLabels")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/vpnTunnels/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}
@@ -1459,7 +1459,7 @@ func expandComputeVpnTunnelRouter(v interface{}, d tpgresource.TerraformResource
 		return nil, fmt.Errorf("Invalid value for router: %s", err)
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}"+f.RelativeLink())
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+f.RelativeLink())
 	if err != nil {
 		return nil, err
 	}

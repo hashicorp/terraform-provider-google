@@ -122,7 +122,7 @@ func ListKMSCryptoKeyVersions(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{KMSBasePath}}{{crypto_key}}/cryptoKeyVersions")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"{{crypto_key}}/cryptoKeyVersions")
 	if err != nil {
 		return err
 	}

@@ -573,7 +573,7 @@ func resourceAccessApprovalFolderSettingsDelete(d *schema.ResourceData, meta int
 	obj["enrolledServices"] = []string{}
 	obj["activeKeyVersion"] = ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessApprovalBasePath}}folders/{{folder_id}}/accessApprovalSettings")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"folders/{{folder_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}

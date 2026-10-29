@@ -122,7 +122,7 @@ func ListPubsubSubscriptions(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{PubsubBasePath}}projects/{{project}}/subscriptions")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/subscriptions")
 	if err != nil {
 		return err
 	}

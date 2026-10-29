@@ -802,7 +802,7 @@ func resourceComputeRegionResizeRequestDelete(d *schema.ResourceData, meta inter
 
 	// Get cancel url
 	var cancelUrl string
-	cancelUrl, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{instance_group_manager}}/resizeRequests/{{name}}/cancel")
+	cancelUrl, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{instance_group_manager}}/resizeRequests/{{name}}/cancel")
 
 	if err != nil {
 		return err
@@ -810,7 +810,7 @@ func resourceComputeRegionResizeRequestDelete(d *schema.ResourceData, meta inter
 
 	// Get delete url
 	var deleteUrl string
-	deleteUrl, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{instance_group_manager}}/resizeRequests/{{name}}")
+	deleteUrl, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{instance_group_manager}}/resizeRequests/{{name}}")
 	if err != nil {
 		return err
 	}

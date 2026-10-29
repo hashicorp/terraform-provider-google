@@ -300,7 +300,7 @@ func resourceNetappkmsconfigCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error waiting to create kmsconfig: %s", err)
 	}
 
-	url_kms_verify, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/kmsConfigs/{{name}}:verify")
+	url_kms_verify, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/kmsConfigs/{{name}}:verify")
 	if err != nil {
 		return err
 	}

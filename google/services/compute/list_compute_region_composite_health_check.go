@@ -132,7 +132,7 @@ func ListComputeRegionCompositeHealthChecks(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/compositeHealthChecks")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/compositeHealthChecks")
 	if err != nil {
 		return err
 	}

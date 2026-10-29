@@ -275,7 +275,7 @@ func (u *NetworkSecurityProjectAddressGroupIamUpdater) SetResourceIamPolicy(poli
 }
 
 func (u *NetworkSecurityProjectAddressGroupIamUpdater) qualifyProjectAddressGroupUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{NetworkSecurityBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/addressGroups/%s", u.project, u.location, u.name), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/addressGroups/%s", u.project, u.location, u.name), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

@@ -937,7 +937,7 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 		if old.(string) != new.(string) {
 			var action string
 
-			actionUrl, err := tpgresource.ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
+			actionUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/queues/{{name}}")
 			if err != nil {
 				return err
 			}

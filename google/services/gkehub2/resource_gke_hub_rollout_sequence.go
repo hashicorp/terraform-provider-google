@@ -121,7 +121,7 @@ func shouldUpgradeRolloutSequence(minVer, targetVer string) (bool, error) {
 // than INITIALIZING or until the 1h timeout passes.
 func pollSequenceInitialization(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/rolloutSequences/{{rollout_sequence_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/rolloutSequences/{{rollout_sequence_id}}")
 	if err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func fetchCurrentTargetVersions(d *schema.ResourceData, meta interface{}) (strin
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/rolloutSequences/{{rollout_sequence_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/rolloutSequences/{{rollout_sequence_id}}")
 	if err != nil {
 		return "", "", err
 	}
@@ -240,7 +240,7 @@ func fetchCurrentTargetVersions(d *schema.ResourceData, meta interface{}) (strin
 // Makes an UpgradeRolloutSequence call for the provided upgradeType and version.
 func triggerUpgradeRolloutSequence(d *schema.ResourceData, meta interface{}, upgradeType string, version string) error {
 	config := meta.(*transport_tpg.Config)
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/rolloutSequences/{{rollout_sequence_id}}:upgrade")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/rolloutSequences/{{rollout_sequence_id}}:upgrade")
 	if err != nil {
 		return err
 	}

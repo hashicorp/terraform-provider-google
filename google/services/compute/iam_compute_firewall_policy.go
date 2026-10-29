@@ -217,7 +217,7 @@ func (u *ComputeFirewallPolicyIamUpdater) SetResourceIamPolicy(policy *cloudreso
 }
 
 func (u *ComputeFirewallPolicyIamUpdater) qualifyFirewallPolicyUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("locations/global/firewallPolicies/%s", u.name), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s/%s", fmt.Sprintf("locations/global/firewallPolicies/%s", u.name), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

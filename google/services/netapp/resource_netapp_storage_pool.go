@@ -854,7 +854,7 @@ func resourceNetappStoragePoolUpdate(d *schema.ResourceData, meta interface{}) e
 				oldZone, newZone := d.GetChange("zone")
 				oldReplicaZone, newReplicaZone := d.GetChange("replica_zone")
 				if newZone == oldReplicaZone && newReplicaZone == oldZone {
-					rawurl, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/storagePools/{{name}}:switch")
+					rawurl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/storagePools/{{name}}:switch")
 					if err != nil {
 						return err
 					}
@@ -893,7 +893,7 @@ func resourceNetappStoragePoolUpdate(d *schema.ResourceData, meta interface{}) e
 					delete(obj, "replicaZone")
 
 					// PATCH URL was already build prior to this code. We need to rebuild it to catch our changes
-					url, err = tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/storagePools/{{name}}")
+					url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/storagePools/{{name}}")
 					if err != nil {
 						return err
 					}

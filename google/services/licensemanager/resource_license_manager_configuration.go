@@ -631,7 +631,7 @@ func resourceLicenseManagerConfigurationUpdate(d *schema.ResourceData, meta inte
 			action = "deactivate"
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{LicenseManagerBasePath}}projects/{{project}}/locations/{{location}}/configurations/{{configuration_id}}:"+action)
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/configurations/{{configuration_id}}:"+action)
 		if err != nil {
 			return err
 		}

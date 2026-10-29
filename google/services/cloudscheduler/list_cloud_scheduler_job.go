@@ -132,7 +132,7 @@ func ListCloudSchedulerJobs(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{CloudSchedulerBasePath}}projects/{{project}}/locations/{{region}}/jobs")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/jobs")
 	if err != nil {
 		return err
 	}

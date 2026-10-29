@@ -132,7 +132,7 @@ func ListNetworkServicesMulticastGroupRangeActivations(config *transport_tpg.Con
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastGroupRangeActivations")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/multicastGroupRangeActivations")
 	if err != nil {
 		return err
 	}

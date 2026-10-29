@@ -55,7 +55,7 @@ import (
 )
 
 func ModifyFilestoreInstanceReplica(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, method string) error {
-	url, err := tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:"+method)
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{name}}:"+method)
 	if err != nil {
 		return err
 	}
@@ -797,7 +797,7 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	if strings.Contains(url, "locations//") {
 		// re-compute url now that location must be set
-		url, err = tpgresource.ReplaceVars(d, config, "{{FilestoreBasePath}}projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances?instanceId={{name}}")
 		if err != nil {
 			return err
 		}

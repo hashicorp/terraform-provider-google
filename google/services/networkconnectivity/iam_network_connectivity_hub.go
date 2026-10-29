@@ -251,7 +251,7 @@ func (u *NetworkConnectivityHubIamUpdater) SetResourceIamPolicy(policy *cloudres
 }
 
 func (u *NetworkConnectivityHubIamUpdater) qualifyHubUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{NetworkConnectivityBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/global/hubs/%s", u.project, u.hub), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/global/hubs/%s", u.project, u.hub), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

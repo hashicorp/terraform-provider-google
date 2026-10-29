@@ -62,7 +62,7 @@ func NetappVolumeReplicationWaitForMirror(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/replications/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/replications/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -971,7 +971,7 @@ func resourceNetappVolumeReplicationUpdate(d *schema.ResourceData, meta interfac
 
 	if do_change {
 		// We need to send STOP/RESUME API calls
-		rawurl, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/replications/{{name}}:"+action)
+		rawurl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/replications/{{name}}:"+action)
 		if err != nil {
 			return err
 		}
@@ -1047,7 +1047,7 @@ func resourceNetappVolumeReplicationDelete(d *schema.ResourceData, meta interfac
 	// FYI: Stopping a PREPARING mirror currently doesn't work. User have to wait until
 	// mirror reaches MIRRORED.
 	if d.Get("mirror_state") != "STOPPED" {
-		rawurl, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/replications/{{name}}:stop")
+		rawurl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/volumes/{{volume_name}}/replications/{{name}}:stop")
 		if err != nil {
 			return err
 		}
@@ -1103,7 +1103,7 @@ func resourceNetappVolumeReplicationDelete(d *schema.ResourceData, meta interfac
 	if d.Get("delete_destination_volume").(bool) == true {
 		log.Printf("[DEBUG] delete_destination_volume is true. Deleting destination volume %v", d.Get("destination_volume"))
 		destination_volume := d.Get("destination_volume").(string)
-		del_url, err := tpgresource.ReplaceVars(d, config, "{{NetappBasePath}}"+destination_volume+"?force=true")
+		del_url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+destination_volume+"?force=true")
 		if err != nil {
 			return err
 		}

@@ -518,7 +518,7 @@ func resourceDNSResponsePolicyDelete(d *schema.ResourceData, meta interface{}) e
 		patched := make(map[string]interface{})
 		patched["gkeClusters"] = nil
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/responsePolicies/{{response_policy_name}}")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/responsePolicies/{{response_policy_name}}")
 		if err != nil {
 			return err
 		}
@@ -542,7 +542,7 @@ func resourceDNSResponsePolicyDelete(d *schema.ResourceData, meta interface{}) e
 		patched := make(map[string]interface{})
 		patched["networks"] = nil
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{DNSBasePath}}projects/{{project}}/responsePolicies/{{response_policy_name}}")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/responsePolicies/{{response_policy_name}}")
 		if err != nil {
 			return err
 		}
@@ -693,7 +693,7 @@ func expandDNSResponsePolicyNetworksNetworkUrl(v interface{}, d tpgresource.Terr
 	} else if strings.HasPrefix(v.(string), "https://") {
 		return v, nil
 	}
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(registry.GetProduct("compute"), config)+v.(string))
 	if err != nil {
 		return "", err
 	}

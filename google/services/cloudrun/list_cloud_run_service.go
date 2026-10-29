@@ -132,7 +132,7 @@ func ListCloudRunServices(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{CloudRunBasePath}}apis/serving.knative.dev/v1/namespaces/{{project}}/services")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"apis/serving.knative.dev/v1/namespaces/{{project}}/services")
 	if err != nil {
 		return err
 	}

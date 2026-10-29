@@ -242,7 +242,7 @@ func resourceParameterManagerRegionalRegionalParameterVersionCreate(d *schema.Re
 	}
 
 	// Override the url after setting the location
-	url, err = tpgresource.ReplaceVars(d, config, "{{ParameterManagerRegionalBasePath}}{{parameter}}/versions?parameter_version_id={{parameter_version_id}}")
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parameter}}/versions?parameter_version_id={{parameter_version_id}}")
 	if err != nil {
 		return err
 	}

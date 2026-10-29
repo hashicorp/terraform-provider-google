@@ -132,7 +132,7 @@ func ListNetworkSecurityInterceptDeploymentGroups(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{NetworkSecurityBasePath}}projects/{{project}}/locations/{{location}}/interceptDeploymentGroups")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/interceptDeploymentGroups")
 	if err != nil {
 		return err
 	}

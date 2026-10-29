@@ -132,7 +132,7 @@ func ListSQLDatabases(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{SQLBasePath}}projects/{{project}}/instances/{{instance}}/databases")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/databases")
 	if err != nil {
 		return err
 	}

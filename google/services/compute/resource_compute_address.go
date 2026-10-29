@@ -557,7 +557,7 @@ func resourceComputeAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		labelFingerprintProp := d.Get("label_fingerprint")
 		obj["labelFingerprint"] = labelFingerprintProp
 
-		url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/addresses/{{name}}/setLabels")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/addresses/{{name}}/setLabels")
 		if err != nil {
 			return err
 		}

@@ -63,7 +63,7 @@ func gatewaysSameLocation(d *schema.ResourceData, config *transport_tpg.Config, 
 	log.Print("[DEBUG] Looking for gateways under the same location.")
 	var gateways []interface{}
 
-	gatewaysUrl, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/gateways")
+	gatewaysUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/gateways")
 	if err != nil {
 		return gateways, err
 	}
@@ -125,7 +125,7 @@ func isLastSWGGateway(gateways []interface{}, network string) bool {
 func deleteSWGAutoGenRouter(d *schema.ResourceData, config *transport_tpg.Config, billingProject, userAgent string) error {
 	log.Printf("[DEBUG] Searching the network id by name %q.", d.Get("network"))
 
-	networkPath := fmt.Sprintf("{{ComputeBasePath}}%s", d.Get("network"))
+	networkPath := fmt.Sprintf(transport_tpg.BaseUrl(tpgcompute.Product, config)+"%s", d.Get("network"))
 	networkUrl, err := tpgresource.ReplaceVars(d, config, networkPath)
 	if err != nil {
 		return err
@@ -146,7 +146,7 @@ func deleteSWGAutoGenRouter(d *schema.ResourceData, config *transport_tpg.Config
 	routerId := fmt.Sprintf("swg-autogen-router-%s", resp["id"])
 	log.Printf("[DEBUG] Deleting the auto generated router %q.", routerId)
 
-	routerPath := fmt.Sprintf("{{ComputeBasePath}}projects/{{project}}/regions/{{location}}/routers/%s", routerId)
+	routerPath := fmt.Sprintf(transport_tpg.BaseUrl(tpgcompute.Product, config)+"projects/{{project}}/regions/{{location}}/routers/%s", routerId)
 	routerUrl, err := tpgresource.ReplaceVars(d, config, routerPath)
 	if err != nil {
 		return err

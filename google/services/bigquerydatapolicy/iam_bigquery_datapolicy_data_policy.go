@@ -275,7 +275,7 @@ func (u *BigqueryDatapolicyDataPolicyIamUpdater) SetResourceIamPolicy(policy *cl
 }
 
 func (u *BigqueryDatapolicyDataPolicyIamUpdater) qualifyDataPolicyUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{BigqueryDatapolicyBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/dataPolicies/%s", u.project, u.location, u.dataPolicyId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/dataPolicies/%s", u.project, u.location, u.dataPolicyId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

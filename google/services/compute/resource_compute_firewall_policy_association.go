@@ -301,7 +301,7 @@ func resourceComputeFirewallPolicyAssociationRead(d *schema.ResourceData, meta i
 
 	headers := make(http.Header)
 	expandComputeFirewallPolicyAssociationFirewallPolicy(d.Get("firewall_policy"), d, config)
-	url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/getAssociation?name={{name}}")
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies/{{firewall_policy}}/getAssociation?name={{name}}")
 	if err != nil {
 		return err
 	}
@@ -401,7 +401,7 @@ func resourceComputeFirewallPolicyAssociationUpdate(d *schema.ResourceData, meta
 		obj["firewallPolicy"] = firewallPolicyProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{firewall_policy}}/addAssociation?replaceExistingAssociation=true")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies/{{firewall_policy}}/addAssociation?replaceExistingAssociation=true")
 	if err != nil {
 		return err
 	}
