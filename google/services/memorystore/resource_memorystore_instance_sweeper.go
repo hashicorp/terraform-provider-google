@@ -57,13 +57,17 @@ func listAndActionMemorystoreInstance(action sweeper.ResourceAction) error {
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	// Build URL substitution maps individually to ensure proper formatting
-	intermediateValues := make([]map[string]string, 3)
+	intermediateValues := make([]map[string]string, 5)
 	intermediateValues[0] = map[string]string{}
 	intermediateValues[0]["region"] = "us-central1"
 	intermediateValues[1] = map[string]string{}
 	intermediateValues[1]["region"] = "us-west1"
 	intermediateValues[2] = map[string]string{}
 	intermediateValues[2]["region"] = "us-east4"
+	intermediateValues[3] = map[string]string{}
+	intermediateValues[3]["region"] = "northamerica-south1"
+	intermediateValues[4] = map[string]string{}
+	intermediateValues[4]["region"] = "europe-north1"
 
 	// Create configs from intermediate values
 	for _, values := range intermediateValues {
