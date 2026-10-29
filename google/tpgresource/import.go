@@ -135,6 +135,11 @@ func identityImport(re *regexp.Regexp, identity *schema.IdentityData, d Terrafor
 			log.Printf("[DEBUG] No value was found for %s in identity import block", group)
 		}
 	}
+	if d.Id() == "" {
+		if name, ok := d.Get("name").(string); ok && name != "" {
+			d.SetId(name)
+		}
+	}
 
 	return nil
 }
