@@ -89,7 +89,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloudfunctions2_function.function",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -173,7 +173,7 @@ func TestAccCloudfunctions2function_cloudfunctions2FullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloudfunctions2_function.function",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -291,7 +291,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicGcsExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_cloudfunctions2_function.function",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -444,7 +444,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicAuditlogsExample(t *test
 			},
 			{
 				ResourceName:       "google_cloudfunctions2_function.function",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -600,7 +600,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicBuilderExample(t *testin
 			},
 			{
 				ResourceName:       "google_cloudfunctions2_function.function",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -725,7 +725,7 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretEnvExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_cloudfunctions2_function.function",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -840,7 +840,7 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretVolumeExample(t *testin
 			},
 			{
 				ResourceName:       "google_cloudfunctions2_function.function",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -948,7 +948,7 @@ func TestAccCloudfunctions2function_cloudfunctions2PrivateWorkerpoolExample(t *t
 			},
 			{
 				ResourceName:       "google_cloudfunctions2_function.function",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1040,7 +1040,7 @@ func TestAccCloudfunctions2function_cloudfunctions2DirectvpcExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_cloudfunctions2_function.function",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

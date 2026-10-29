@@ -81,7 +81,7 @@ func TestAccChronicleDashboardChart_chronicleDashboardchartBasicExample(t *testi
 			},
 			{
 				ResourceName:       "google_chronicle_dashboard_chart.my_chart",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -205,7 +205,7 @@ func TestAccChronicleDashboardChart_chronicleDashboardchartFullExample(t *testin
 			},
 			{
 				ResourceName:       "google_chronicle_dashboard_chart.my_chart",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -82,7 +82,7 @@ func TestAccChronicleNativeDashboard_chronicleNativedashboardBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_chronicle_native_dashboard.my_basic_dashboard",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

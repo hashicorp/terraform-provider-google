@@ -81,7 +81,7 @@ func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyBasicExample(t *testi
 			},
 			{
 				ResourceName:       "google_clouddeploy_deploy_policy.b-deploy-policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -148,7 +148,7 @@ func TestAccClouddeployDeployPolicy_clouddeployDeployPolicyFullExample(t *testin
 			},
 			{
 				ResourceName:       "google_clouddeploy_deploy_policy.f-deploy-policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

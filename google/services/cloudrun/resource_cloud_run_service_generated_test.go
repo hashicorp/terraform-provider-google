@@ -84,7 +84,7 @@ func TestAccCloudRunService_cloudRunServiceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -141,7 +141,7 @@ func TestAccCloudRunService_cloudRunServiceGpuExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -215,7 +215,7 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -287,7 +287,7 @@ func TestAccCloudRunService_cloudRunServiceNoauthExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -357,7 +357,7 @@ func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -436,7 +436,7 @@ func TestAccCloudRunService_cloudRunServiceSecretEnvironmentVariablesExample(t *
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -540,7 +540,7 @@ func TestAccCloudRunService_cloudRunServiceSecretVolumesExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -649,7 +649,7 @@ func TestAccCloudRunService_cloudRunServiceProbesExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -726,7 +726,7 @@ func TestAccCloudRunService_cloudRunServiceReadinessProbeExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -798,7 +798,7 @@ func TestAccCloudRunService_cloudRunServiceIapExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -856,7 +856,7 @@ func TestAccCloudRunService_cloudRunServiceSandboxExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

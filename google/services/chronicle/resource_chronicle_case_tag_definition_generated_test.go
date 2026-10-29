@@ -98,7 +98,7 @@ func TestAccChronicleCaseTagDefinition_chronicleCasetagdefinitionUpdateExample(t
 			},
 			{
 				ResourceName:       "google_chronicle_case_tag_definition.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -118,7 +118,7 @@ func TestAccChronicleCaseTagDefinition_chronicleCasetagdefinitionUpdateExample(t
 			},
 			{
 				ResourceName:       "google_chronicle_case_tag_definition.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

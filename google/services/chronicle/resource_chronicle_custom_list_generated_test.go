@@ -86,7 +86,7 @@ func TestAccChronicleCustomList_chronicleCustomlistUpdateExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_chronicle_custom_list.sample",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -106,7 +106,7 @@ func TestAccChronicleCustomList_chronicleCustomlistUpdateExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_chronicle_custom_list.sample",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

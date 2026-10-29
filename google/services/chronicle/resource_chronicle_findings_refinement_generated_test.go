@@ -81,7 +81,7 @@ func TestAccChronicleFindingsRefinement_chronicleFindingsRefinementBasicExample(
 			},
 			{
 				ResourceName:       "google_chronicle_findings_refinement.findings_refinement_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -146,7 +146,7 @@ func TestAccChronicleFindingsRefinement_chronicleFindingsRefinementUpdateExample
 			},
 			{
 				ResourceName:       "google_chronicle_findings_refinement.findings_refinement_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -166,7 +166,7 @@ func TestAccChronicleFindingsRefinement_chronicleFindingsRefinementUpdateExample
 			},
 			{
 				ResourceName:       "google_chronicle_findings_refinement.findings_refinement_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

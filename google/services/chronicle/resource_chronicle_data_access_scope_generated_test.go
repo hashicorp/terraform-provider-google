@@ -82,7 +82,7 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithLogtypeExample(
 			},
 			{
 				ResourceName:       "google_chronicle_data_access_scope.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -136,7 +136,7 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithDataaccesslabel
 			},
 			{
 				ResourceName:       "google_chronicle_data_access_scope.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -193,7 +193,7 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithAssetNamespaceE
 			},
 			{
 				ResourceName:       "google_chronicle_data_access_scope.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -243,7 +243,7 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithIngestionLabelE
 			},
 			{
 				ResourceName:       "google_chronicle_data_access_scope.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -297,7 +297,7 @@ func TestAccChronicleDataAccessScope_chronicleDataaccessscopeWithDeniedLabelsExa
 			},
 			{
 				ResourceName:       "google_chronicle_data_access_scope.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

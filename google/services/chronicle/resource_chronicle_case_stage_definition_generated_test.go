@@ -81,7 +81,7 @@ func TestAccChronicleCaseStageDefinition_chronicleCasestagedefinitionBasicExampl
 			},
 			{
 				ResourceName:       "google_chronicle_case_stage_definition.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

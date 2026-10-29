@@ -84,7 +84,7 @@ func TestAccChronicleFeed_chronicleFeedBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_chronicle_feed.example_feed",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -142,7 +142,7 @@ func TestAccChronicleFeed_chronicleFeedGcsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_chronicle_feed.example_feed",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

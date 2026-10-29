@@ -88,7 +88,7 @@ func TestAccChronicleEnvironment_chronicleEnvironmentUpdateExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_chronicle_environment.sample",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -108,7 +108,7 @@ func TestAccChronicleEnvironment_chronicleEnvironmentUpdateExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_chronicle_environment.sample",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -81,7 +81,7 @@ func TestAccChronicleBigQueryExport_chronicleBigqueryExportBasicExample(t *testi
 			},
 			{
 				ResourceName:       "google_chronicle_big_query_export.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -130,7 +130,7 @@ func TestAccChronicleBigQueryExport_chronicleBigqueryExportFullExample(t *testin
 			},
 			{
 				ResourceName:       "google_chronicle_big_query_export.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

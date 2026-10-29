@@ -80,7 +80,7 @@ func TestAccCloudbuildv2Connection_cloudbuildv2ConnectionExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloudbuildv2_connection.my-connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

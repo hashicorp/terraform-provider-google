@@ -90,7 +90,7 @@ func TestAccChronicleCaseCloseDefinition_chronicleCaseclosedefinitionUpdateExamp
 			},
 			{
 				ResourceName:       "google_chronicle_case_close_definition.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -110,7 +110,7 @@ func TestAccChronicleCaseCloseDefinition_chronicleCaseclosedefinitionUpdateExamp
 			},
 			{
 				ResourceName:       "google_chronicle_case_close_definition.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

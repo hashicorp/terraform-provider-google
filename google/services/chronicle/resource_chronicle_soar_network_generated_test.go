@@ -86,7 +86,7 @@ func TestAccChronicleSoarNetwork_chronicleSoarnetworkUpdateExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_chronicle_soar_network.sample",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -106,7 +106,7 @@ func TestAccChronicleSoarNetwork_chronicleSoarnetworkUpdateExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_chronicle_soar_network.sample",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

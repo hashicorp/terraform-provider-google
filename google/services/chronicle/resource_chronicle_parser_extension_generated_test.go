@@ -80,7 +80,7 @@ func TestAccChronicleParserExtension_chronicleParserextensionBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_chronicle_parser_extension.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -126,7 +126,7 @@ func TestAccChronicleParserExtension_chronicleParserextensionFullExample(t *test
 			},
 			{
 				ResourceName:       "google_chronicle_parser_extension.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -196,7 +196,7 @@ func TestAccChronicleParserExtension_chronicleParserextensionDynamicExample(t *t
 			},
 			{
 				ResourceName:       "google_chronicle_parser_extension.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
