@@ -302,16 +302,17 @@ resource "google_dns_managed_zone" "foobar" {
 }
 
 func testAccDnsManagedZone_basic(suffix, description string, labels map[string]string) string {
-	labelsRep := ""
+	labelsRep := "{"
 	for k, v := range labels {
 		labelsRep += fmt.Sprintf("%s = %q, ", k, v)
 	}
+	labelsRep += "}"
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foobar" {
   name        = "tf-test-mzone-%s"
   dns_name    = "tf-acctest-%s.hashicorptest.com."
   description = "%s"
-  labels 	  = {%s}
+  labels 	  = %s
   visibility = "public"
 }
 `, suffix, suffix, description, labelsRep)
