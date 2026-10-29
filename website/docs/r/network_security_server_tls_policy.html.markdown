@@ -119,9 +119,6 @@ resource "google_network_security_server_tls_policy" "default" {
 
 
 ```hcl
-data "google_project" "project" {
-}
-
 resource "google_network_security_server_tls_policy" "default" {
   name     = "my-server-tls-policy"
 
@@ -131,7 +128,57 @@ resource "google_network_security_server_tls_policy" "default" {
 
   mtls_policy {
     client_validation_mode         = "REJECT_INVALID"
-    client_validation_trust_config = "projects/${data.google_project.project.number}/locations/global/trustConfigs/${google_certificate_manager_trust_config.default.name}"
+    client_validation_trust_config = google_certificate_manager_trust_config.default.id
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_certificate_manager_trust_config" "default" {
+  name        = "my-trust-config"
+  description = "sample trust config description"
+  location    = "global"
+
+  trust_stores {
+    trust_anchors {
+      pem_certificate = file("test-fixtures/ca_cert.pem")
+    }
+    intermediate_cas {
+      pem_certificate = file("test-fixtures/ca_cert.pem")
+    }
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_security_server_tls_policy_mtls_validation_relaxations&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Network Security Server Tls Policy Mtls Validation Relaxations
+
+
+```hcl
+resource "google_network_security_server_tls_policy" "default" {
+  name        = "my-server-tls-policy"
+  description = "ServerTlsPolicy with mTLS validation relaxations"
+  location    = "global"
+  allow_open  = "false"
+
+  mtls_policy {
+    client_validation_mode = "ALLOW_VALIDATION_RELAXATIONS"
+    client_validation_relaxations = [
+      "ALLOW_MISSING_EKU",
+      "ALLOW_SHA1_HASHING",
+      "ALLOW_EXPIRED_LEAF_CERTIFICATE",
+    ]
+    client_validation_trust_config = google_certificate_manager_trust_config.default.id
   }
 
   labels = {
@@ -244,7 +291,14 @@ The following arguments are supported:
   (Optional)
   When the client presents an invalid certificate or no certificate to the load balancer, the clientValidationMode specifies how the client connection is handled.
   Required if the policy is to be used with the external HTTPS load balancing. For Traffic Director it must be empty.
-  Possible values are: `CLIENT_VALIDATION_MODE_UNSPECIFIED`, `ALLOW_INVALID_OR_MISSING_CLIENT_CERT`, `REJECT_INVALID`.
+  Possible values are: `CLIENT_VALIDATION_MODE_UNSPECIFIED`, `ALLOW_INVALID_OR_MISSING_CLIENT_CERT`, `REJECT_INVALID`, `ALLOW_VALIDATION_RELAXATIONS`.
+
+* `client_validation_relaxations` -
+  (Optional)
+  List of validation relaxations to apply when validating client certificates.
+  Must be non-empty when clientValidationMode is set to ALLOW_VALIDATION_RELAXATIONS,
+  and must be empty for all other clientValidationMode values.
+  Each value may be one of: `ALLOW_MISSING_EKU`, `ALLOW_SHA1_HASHING`, `ALLOW_EXPIRED_LEAF_CERTIFICATE`.
 
 * `client_validation_trust_config` -
   (Optional)

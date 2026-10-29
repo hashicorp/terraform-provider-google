@@ -33,7 +33,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/certificatemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -256,9 +255,6 @@ func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyMtlsExa
 
 func testAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyMtlsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-data "google_project" "project" {
-}
-
 resource "google_network_security_server_tls_policy" "default" {
   name     = "%{resource_name}"
 
@@ -268,7 +264,86 @@ resource "google_network_security_server_tls_policy" "default" {
 
   mtls_policy {
     client_validation_mode         = "REJECT_INVALID"
-    client_validation_trust_config = "projects/${data.google_project.project.number}/locations/global/trustConfigs/${google_certificate_manager_trust_config.default.name}"
+    client_validation_trust_config = google_certificate_manager_trust_config.default.id
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_certificate_manager_trust_config" "default" {
+  name        = "%{trust_config_name}"
+  description = "sample trust config description"
+  location    = "global"
+
+  trust_stores {
+    trust_anchors {
+      pem_certificate = file("test-fixtures/ca_cert.pem")
+    }
+    intermediate_cas {
+      pem_certificate = file("test-fixtures/ca_cert.pem")
+    }
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+`, context)
+}
+
+func TestAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyMtlsValidationRelaxationsExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"resource_name":     "tf-test-my-server-tls-policy" + randomSuffix,
+		"trust_config_name": "tf-test-my-trust-config" + randomSuffix,
+		"random_suffix":     randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkSecurityServerTlsPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyMtlsValidationRelaxationsExample(context),
+			},
+			{
+				ResourceName:            "google_network_security_server_tls_policy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_security_server_tls_policy.default",
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccNetworkSecurityServerTlsPolicy_networkSecurityServerTlsPolicyMtlsValidationRelaxationsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_security_server_tls_policy" "default" {
+  name        = "%{resource_name}"
+  description = "ServerTlsPolicy with mTLS validation relaxations"
+  location    = "global"
+  allow_open  = "false"
+
+  mtls_policy {
+    client_validation_mode = "ALLOW_VALIDATION_RELAXATIONS"
+    client_validation_relaxations = [
+      "ALLOW_MISSING_EKU",
+      "ALLOW_SHA1_HASHING",
+      "ALLOW_EXPIRED_LEAF_CERTIFICATE",
+    ]
+    client_validation_trust_config = google_certificate_manager_trust_config.default.id
   }
 
   labels = {
