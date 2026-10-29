@@ -380,7 +380,7 @@ func testAccCheckGeminiDataAnalyticsDataAgentDestroyProducer(t *testing.T) func(
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{GeminiDataAnalyticsBasePath}}projects/{{project}}/locations/{{location}}/dataAgents/{{data_agent_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(geminidataanalytics.Product, config)+"projects/{{project}}/locations/{{location}}/dataAgents/{{data_agent_id}}")
 			if err != nil {
 				return err
 			}

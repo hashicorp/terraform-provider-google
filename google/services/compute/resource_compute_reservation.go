@@ -943,7 +943,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if d.HasChange("share_settings") {
-		url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 		if err != nil {
 			return err
 		}
@@ -1010,7 +1010,7 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 
 		headers := make(http.Header)
 		if d.HasChange("share_settings") {
-			url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
+			url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
 			if err != nil {
 				return err
 			}

@@ -199,7 +199,7 @@ func testAccCheckBigqueryReservationBiReservationDestroyProducer(t *testing.T) f
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/biReservation")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(bigqueryreservation.Product, config)+"projects/{{project}}/locations/{{location}}/biReservation")
 			if err != nil {
 				return err
 			}

@@ -259,7 +259,7 @@ func (u *SourceRepoRepositoryIamUpdater) SetResourceIamPolicy(policy *cloudresou
 }
 
 func (u *SourceRepoRepositoryIamUpdater) qualifyRepositoryUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{SourceRepoBasePath}}%s:%s", fmt.Sprintf("projects/%s/repos/%s", u.project, u.repository), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/repos/%s", u.project, u.repository), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

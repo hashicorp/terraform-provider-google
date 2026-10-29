@@ -326,7 +326,7 @@ func resourceLoggingLogViewRead(d *schema.ResourceData, meta interface{}) error 
 
 	headers := make(http.Header)
 	resourceLoggingLogViewEncoder(d, nil, nil)
-	url, err = tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
 	if err != nil {
 		return err
 	}

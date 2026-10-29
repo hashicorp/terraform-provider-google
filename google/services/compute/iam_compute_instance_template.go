@@ -255,7 +255,7 @@ func (u *ComputeInstanceTemplateIamUpdater) SetResourceIamPolicy(policy *cloudre
 }
 
 func (u *ComputeInstanceTemplateIamUpdater) qualifyInstanceTemplateUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{ComputeBasePath}}%s/%s", fmt.Sprintf("projects/%s/global/instanceTemplates/%s", u.project, u.name), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s/%s", fmt.Sprintf("projects/%s/global/instanceTemplates/%s", u.project, u.name), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

@@ -128,7 +128,7 @@ func expandIcebergTableSortOrderForCommit(v interface{}) map[string]interface{} 
 // looked up at request time. Catalogs in the default end-user mode reject the
 // header, so it is only added when vending is actually enabled.
 func addIcebergTableAccessDelegationHeader(d *schema.ResourceData, config *transport_tpg.Config, billingProject, userAgent string, headers http.Header) error {
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{catalog}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{catalog}}")
 	if err != nil {
 		return err
 	}

@@ -122,7 +122,7 @@ func ListApigeeTargetServers(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ApigeeBasePath}}{{env_id}}/targetservers")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"{{env_id}}/targetservers")
 	if err != nil {
 		return err
 	}

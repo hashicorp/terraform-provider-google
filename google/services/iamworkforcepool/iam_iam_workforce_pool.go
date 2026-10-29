@@ -241,7 +241,7 @@ func (u *IAMWorkforcePoolWorkforcePoolIamUpdater) SetResourceIamPolicy(policy *c
 }
 
 func (u *IAMWorkforcePoolWorkforcePoolIamUpdater) qualifyWorkforcePoolUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{IAMWorkforcePoolBasePath}}%s:%s", fmt.Sprintf("locations/%s/workforcePools/%s", u.location, u.workforcePoolId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("locations/%s/workforcePools/%s", u.location, u.workforcePoolId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

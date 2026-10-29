@@ -132,7 +132,7 @@ func ListColabNotebookExecutions(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ColabBasePath}}projects/{{project}}/locations/{{location}}/notebookExecutionJobs")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notebookExecutionJobs")
 	if err != nil {
 		return err
 	}

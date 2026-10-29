@@ -572,7 +572,7 @@ func resourceRedisClusterUserCreatedConnectionsDelete(d *schema.ResourceData, me
 	obj := make(map[string]interface{})
 	// not setting clusterEndpoints in obj
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/clusters/{{name}}")
 	if err != nil {
 		return err
 	}

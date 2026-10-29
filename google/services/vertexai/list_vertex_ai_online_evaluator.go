@@ -132,7 +132,7 @@ func ListVertexAIOnlineEvaluators(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/onlineEvaluators")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/onlineEvaluators")
 	if err != nil {
 		return err
 	}

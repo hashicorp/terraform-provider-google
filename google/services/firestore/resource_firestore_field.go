@@ -613,7 +613,7 @@ func resourceFirestoreFieldDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 	billingProject = project
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}

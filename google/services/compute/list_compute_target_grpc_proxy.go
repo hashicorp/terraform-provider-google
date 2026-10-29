@@ -122,7 +122,7 @@ func ListComputeTargetGrpcProxys(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ComputeBasePath}}projects/{{project}}/global/targetGrpcProxies")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/targetGrpcProxies")
 	if err != nil {
 		return err
 	}

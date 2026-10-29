@@ -55,7 +55,7 @@ import (
 )
 
 func ModifyColabRuntimeOperation(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, method string) (map[string]interface{}, error) {
-	url, err := tpgresource.ReplaceVars(d, config, "{{ColabBasePath}}projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}:"+method)
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/notebookRuntimes/{{name}}:"+method)
 	if err != nil {
 		return nil, err
 	}

@@ -132,7 +132,7 @@ func ListNetworkServicesMulticastConsumerAssociations(config *transport_tpg.Conf
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/multicastConsumerAssociations")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/multicastConsumerAssociations")
 	if err != nil {
 		return err
 	}

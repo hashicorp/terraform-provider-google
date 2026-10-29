@@ -243,7 +243,7 @@ func (u *IapTunnelIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.
 }
 
 func (u *IapTunnelIamUpdater) qualifyTunnelUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_tunnel", u.project), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/iap_tunnel", u.project), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

@@ -275,7 +275,7 @@ func (u *AgentIdentityAuthProviderIamUpdater) SetResourceIamPolicy(policy *cloud
 }
 
 func (u *AgentIdentityAuthProviderIamUpdater) qualifyAuthProviderUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{AgentIdentityBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/authProviders/%s", u.project, u.location, u.authProviderId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/authProviders/%s", u.project, u.location, u.authProviderId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

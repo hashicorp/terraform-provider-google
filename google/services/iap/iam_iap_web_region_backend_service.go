@@ -280,7 +280,7 @@ func (u *IapWebRegionBackendServiceIamUpdater) SetResourceIamPolicy(policy *clou
 }
 
 func (u *IapWebRegionBackendServiceIamUpdater) qualifyWebRegionBackendServiceUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/compute-%s/services/%s", u.project, u.region, u.webRegionBackendService), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/iap_web/compute-%s/services/%s", u.project, u.region, u.webRegionBackendService), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

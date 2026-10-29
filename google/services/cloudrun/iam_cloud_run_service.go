@@ -277,7 +277,7 @@ func (u *CloudRunServiceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 }
 
 func (u *CloudRunServiceIamUpdater) qualifyServiceUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{CloudRunBasePath}}%s:%s", fmt.Sprintf("v1/projects/%s/locations/%s/services/%s", u.project, u.location, u.service), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("v1/projects/%s/locations/%s/services/%s", u.project, u.location, u.service), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

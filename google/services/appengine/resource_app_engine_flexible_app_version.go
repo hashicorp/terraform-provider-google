@@ -1644,7 +1644,7 @@ func resourceAppEngineFlexibleAppVersionDelete(d *schema.ResourceData, meta inte
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	if d.Get("delete_service_on_destroy") == true {
-		url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"apps/{{project}}/services/{{service}}")
 		if err != nil {
 			return err
 		}
@@ -1673,7 +1673,7 @@ func resourceAppEngineFlexibleAppVersionDelete(d *schema.ResourceData, meta inte
 		log.Printf("[DEBUG] Finished deleting Service %q: %#v", d.Id(), res)
 		return nil
 	} else {
-		url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/services/{{service}}/versions/{{version_id}}")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"apps/{{project}}/services/{{service}}/versions/{{version_id}}")
 		if err != nil {
 			return err
 		}

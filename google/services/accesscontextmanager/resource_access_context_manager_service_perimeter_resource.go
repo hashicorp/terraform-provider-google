@@ -647,7 +647,7 @@ func resourceAccessContextManagerServicePerimeterResourcePatchDeleteEncoder(d *s
 // extracting list of objects.
 func resourceAccessContextManagerServicePerimeterResourceListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter_name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter_name}}")
 	if err != nil {
 		return nil, err
 	}

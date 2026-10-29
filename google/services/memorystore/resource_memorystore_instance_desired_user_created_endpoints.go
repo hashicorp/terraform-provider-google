@@ -572,7 +572,7 @@ func resourceMemorystoreInstanceDesiredUserCreatedEndpointsDelete(d *schema.Reso
 	obj := make(map[string]interface{})
 	// not setting desiredUserCreatedEndpoints in obj
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{MemorystoreBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/instances/{{name}}")
 	if err != nil {
 		return err
 	}

@@ -70,7 +70,7 @@ func replicasHash(v interface{}) int {
 }
 
 func getBaseInstanceConfigReplicas(d *schema.ResourceData, config *transport_tpg.Config, baseConfigProp interface{}, billingProject, userAgent string) ([]interface{}, error) {
-	url, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config))
 	if err != nil {
 		return nil, err
 	}

@@ -122,7 +122,7 @@ func ListAppEngineServiceSplitTraffics(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{AppEngineBasePath}}apps/{{project}}/services")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"apps/{{project}}/services")
 	if err != nil {
 		return err
 	}

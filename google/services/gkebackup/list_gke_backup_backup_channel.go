@@ -132,7 +132,7 @@ func ListGKEBackupBackupChannels(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupChannels")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/backupChannels")
 	if err != nil {
 		return err
 	}

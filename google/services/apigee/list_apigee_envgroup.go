@@ -122,7 +122,7 @@ func ListApigeeEnvgroups(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ApigeeBasePath}}{{org_id}}/envgroups")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/envgroups")
 	if err != nil {
 		return err
 	}

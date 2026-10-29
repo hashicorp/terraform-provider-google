@@ -286,7 +286,7 @@ func (u *IapAppEngineVersionIamUpdater) SetResourceIamPolicy(policy *cloudresour
 }
 
 func (u *IapAppEngineVersionIamUpdater) qualifyAppEngineVersionUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{IapBasePath}}%s:%s", fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", u.project, u.appId, u.service, u.versionId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/iap_web/appengine-%s/services/%s/versions/%s", u.project, u.appId, u.service, u.versionId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

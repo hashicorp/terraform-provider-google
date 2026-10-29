@@ -291,7 +291,7 @@ func (u *DataplexTaskIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanag
 }
 
 func (u *DataplexTaskIamUpdater) qualifyTaskUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{DataplexBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/lakes/%s/tasks/%s", u.project, u.location, u.lake, u.taskId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/lakes/%s/tasks/%s", u.project, u.location, u.lake, u.taskId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

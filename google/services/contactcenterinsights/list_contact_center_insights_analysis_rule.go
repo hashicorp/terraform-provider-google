@@ -132,7 +132,7 @@ func ListContactCenterInsightsAnalysisRules(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ContactCenterInsightsBasePath}}projects/{{project}}/locations/{{location}}/analysisRules")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/analysisRules")
 	if err != nil {
 		return err
 	}

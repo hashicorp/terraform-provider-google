@@ -122,7 +122,7 @@ func ListComputeRolloutPlans(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ComputeBasePath}}projects/{{project}}/global/rolloutPlans")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/rolloutPlans")
 	if err != nil {
 		return err
 	}

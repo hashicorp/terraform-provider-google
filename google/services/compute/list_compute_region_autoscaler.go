@@ -132,7 +132,7 @@ func ListComputeRegionAutoscalers(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/autoscalers")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/autoscalers")
 	if err != nil {
 		return err
 	}

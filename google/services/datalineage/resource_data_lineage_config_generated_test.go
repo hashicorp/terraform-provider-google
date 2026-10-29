@@ -274,7 +274,7 @@ func testAccCheckDataLineageConfigDestroyProducer(t *testing.T) func(s *terrafor
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{DataLineageBasePath}}{{parent}}/locations/{{location}}/config")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(datalineage.Product, config)+"{{parent}}/locations/{{location}}/config")
 			if err != nil {
 				return err
 			}

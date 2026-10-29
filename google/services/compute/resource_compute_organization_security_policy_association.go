@@ -260,7 +260,7 @@ func resourceComputeOrganizationSecurityPolicyAssociationCreate(d *schema.Resour
 
 	// `parent` is needed to poll the asynchronous operations but its available only on the policy.
 
-	policyUrl := fmt.Sprintf("{{ComputeBasePath}}%s", d.Get("policy_id"))
+	policyUrl := fmt.Sprintf(transport_tpg.BaseUrl(Product, config)+"%s", d.Get("policy_id"))
 	url, err = tpgresource.ReplaceVars(d, config, policyUrl)
 	if err != nil {
 		return err
@@ -437,7 +437,7 @@ func resourceComputeOrganizationSecurityPolicyAssociationDelete(d *schema.Resour
 
 	// `parent` is needed to poll the asynchronous operations but its available only on the policy.
 
-	policyUrl := fmt.Sprintf("{{ComputeBasePath}}%s", d.Get("policy_id"))
+	policyUrl := fmt.Sprintf(transport_tpg.BaseUrl(Product, config)+"%s", d.Get("policy_id"))
 	url, err = tpgresource.ReplaceVars(d, config, policyUrl)
 	if err != nil {
 		return err

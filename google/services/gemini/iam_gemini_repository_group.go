@@ -292,7 +292,7 @@ func (u *GeminiRepositoryGroupIamUpdater) SetResourceIamPolicy(policy *cloudreso
 }
 
 func (u *GeminiRepositoryGroupIamUpdater) qualifyRepositoryGroupUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{GeminiBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/codeRepositoryIndexes/%s/repositoryGroups/%s", u.project, u.location, u.codeRepositoryIndex, u.repositoryGroupId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/codeRepositoryIndexes/%s/repositoryGroups/%s", u.project, u.location, u.codeRepositoryIndex, u.repositoryGroupId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

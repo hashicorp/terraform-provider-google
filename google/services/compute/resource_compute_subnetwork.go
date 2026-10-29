@@ -1595,7 +1595,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 				// The rest is the same as the secondary_ip_range generated update code
 				// without the secondaryIpRangesProp logic
 
-				getUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+				getUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
 				if err != nil {
 					return err
 				}
@@ -1618,7 +1618,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 
 				obj["fingerprint"] = getRes["fingerprint"]
 
-				url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+				url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
 				if err != nil {
 					return err
 				}
@@ -1664,7 +1664,7 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 
 		removalsRaw := oldRanges.Difference(newRanges)
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
 		if err != nil {
 			return err
 		}

@@ -270,7 +270,7 @@ func (u *BeyondcorpSecurityGatewayApplicationIamUpdater) SetResourceIamPolicy(po
 }
 
 func (u *BeyondcorpSecurityGatewayApplicationIamUpdater) qualifySecurityGatewayApplicationUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{BeyondcorpBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s", u.project, u.securityGatewayId, u.applicationId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/global/securityGateways/%s/applications/%s", u.project, u.securityGatewayId, u.applicationId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

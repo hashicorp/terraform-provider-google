@@ -132,7 +132,7 @@ func ListComputeRegionInstantSnapshots(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instantSnapshots")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/regions/{{region}}/instantSnapshots")
 	if err != nil {
 		return err
 	}

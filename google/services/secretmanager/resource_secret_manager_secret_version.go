@@ -60,7 +60,7 @@ func setEnabled(v interface{}, d tpgresource.TerraformResourceData, config *tran
 		return nil
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}")
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 		}
 
 		// Override the url after updating the secret
-		url, err = tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}{{secret}}:addVersion")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{secret}}:addVersion")
 		if err != nil {
 			return err
 		}
@@ -560,7 +560,7 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 	headers := make(http.Header)
 	deletionPolicy := d.Get("deletion_policy")
 	if deletionPolicy == "DISABLE" {
-		url, err = tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:disable")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}:disable")
 		if err != nil {
 			return err
 		}
@@ -683,7 +683,7 @@ func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceD
 	}
 
 	// build access URL; if it fails, preserve state
-	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:access")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}:access")
 	if err != nil {
 		log.Printf("[ERROR] Failed to build secret access URL: %v", err)
 		return safeTransformed(d.Get("secret_data"))

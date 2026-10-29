@@ -110,7 +110,7 @@ func ListApigeeAddonsConfigs(config *transport_tpg.Config,
 ) error {
 	resourceData := ResourceApigeeAddonsConfig().Data(&terraform.InstanceState{})
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ApigeeBasePath}}organizations")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"organizations")
 	if err != nil {
 		return err
 	}

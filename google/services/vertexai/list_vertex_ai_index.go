@@ -132,7 +132,7 @@ func ListVertexAIIndexs(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexes")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/indexes")
 	if err != nil {
 		return err
 	}

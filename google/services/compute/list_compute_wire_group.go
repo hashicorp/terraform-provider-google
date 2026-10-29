@@ -132,7 +132,7 @@ func ListComputeWireGroups(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ComputeBasePath}}projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/crossSiteNetworks/{{cross_site_network}}/wireGroups")
 	if err != nil {
 		return err
 	}

@@ -122,7 +122,7 @@ func ListApigeeEnvironmentKeyvaluemapss(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ApigeeBasePath}}{{env_id}}/keyvaluemaps")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"{{env_id}}/keyvaluemaps")
 	if err != nil {
 		return err
 	}

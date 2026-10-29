@@ -122,7 +122,7 @@ func ListAppEngineDomainMappings(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{AppEngineBasePath}}apps/{{project}}/domainMappings")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"apps/{{project}}/domainMappings")
 	if err != nil {
 		return err
 	}

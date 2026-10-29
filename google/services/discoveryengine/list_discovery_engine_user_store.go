@@ -132,7 +132,7 @@ func ListDiscoveryEngineUserStores(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/userStores")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/userStores")
 	if err != nil {
 		return err
 	}

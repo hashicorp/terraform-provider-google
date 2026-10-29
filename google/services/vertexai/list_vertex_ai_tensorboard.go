@@ -132,7 +132,7 @@ func ListVertexAITensorboards(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/tensorboards")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/tensorboards")
 	if err != nil {
 		return err
 	}

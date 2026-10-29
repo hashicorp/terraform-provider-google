@@ -277,7 +277,7 @@ func (u *WorkbenchInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresource
 }
 
 func (u *WorkbenchInstanceIamUpdater) qualifyInstanceUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{WorkbenchBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/instances/%s", u.project, u.location, u.name), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/instances/%s", u.project, u.location, u.name), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

@@ -251,7 +251,7 @@ func (u *GKEHub2ScopeIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanag
 }
 
 func (u *GKEHub2ScopeIamUpdater) qualifyScopeUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{GKEHub2BasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/global/scopes/%s", u.project, u.scopeId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/global/scopes/%s", u.project, u.scopeId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

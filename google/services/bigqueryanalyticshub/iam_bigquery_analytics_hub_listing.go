@@ -290,7 +290,7 @@ func (u *BigqueryAnalyticsHubListingIamUpdater) SetResourceIamPolicy(policy *clo
 }
 
 func (u *BigqueryAnalyticsHubListingIamUpdater) qualifyListingUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{BigqueryAnalyticsHubBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", u.project, u.location, u.dataExchangeId, u.listingId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/dataExchanges/%s/listings/%s", u.project, u.location, u.dataExchangeId, u.listingId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

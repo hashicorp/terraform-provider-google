@@ -132,7 +132,7 @@ func ListVertexAIReasoningEngines(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/reasoningEngines")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/reasoningEngines")
 	if err != nil {
 		return err
 	}

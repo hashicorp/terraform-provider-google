@@ -122,7 +122,7 @@ func ListIdentityPlatformInboundSamlConfigs(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{IdentityPlatformBasePath}}projects/{{project}}/inboundSamlConfigs")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/inboundSamlConfigs")
 	if err != nil {
 		return err
 	}

@@ -747,7 +747,7 @@ func resourceComputeSecurityPolicyRuleCreate(d *schema.ResourceData, meta interf
 
 	if ok && rulePriority.(int) == 2147483647 {
 		log.Printf("[WARN] SecurityPolicyRule represents a default rule, will attempt an Update instead")
-		newUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/securityPolicies/{{security_policy}}/patchRule?priority={{priority}}")
+		newUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/securityPolicies/{{security_policy}}/patchRule?priority={{priority}}")
 		if err != nil {
 			return err
 		}

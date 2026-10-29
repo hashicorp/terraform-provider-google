@@ -132,7 +132,7 @@ func ListComputeBackendBucketSignedUrlKeys(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ComputeBasePath}}projects/{{project}}/global/backendBuckets/{{backend_bucket}}")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/backendBuckets/{{backend_bucket}}")
 	if err != nil {
 		return err
 	}

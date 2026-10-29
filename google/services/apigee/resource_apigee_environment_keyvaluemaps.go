@@ -177,7 +177,7 @@ func resourceApigeeEnvironmentKeyvaluemapsCreate(d *schema.ResourceData, meta in
 		obj["name"] = nameProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{env_id}}/keyvaluemaps")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{env_id}}/keyvaluemaps")
 	if err != nil {
 		return err
 	}

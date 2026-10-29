@@ -679,7 +679,7 @@ func resourceAccessContextManagerAccessLevelsDelete(d *schema.ResourceData, meta
 	obj := make(map[string]interface{})
 	obj["accessLevels"] = []string{}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/accessLevels:replaceAll")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/accessLevels:replaceAll")
 	if err != nil {
 		return err
 	}

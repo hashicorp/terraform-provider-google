@@ -214,7 +214,7 @@ func resourceCESAppRootAgentAssociationCreate(d *schema.ResourceData, meta inter
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}"+parsedAppId+"?updateMask=rootAgent")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+parsedAppId+"?updateMask=rootAgent")
 	if err != nil {
 		return err
 	}
@@ -418,7 +418,7 @@ func resourceCESAppRootAgentAssociationUpdate(d *schema.ResourceData, meta inter
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}"+parsedAppId+"?updateMask=rootAgent")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+parsedAppId+"?updateMask=rootAgent")
 	if err != nil {
 		return err
 	}
@@ -490,7 +490,7 @@ func resourceCESAppRootAgentAssociationDelete(d *schema.ResourceData, meta inter
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CESBasePath}}"+parsedAppId+"?updateMask=rootAgent")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+parsedAppId+"?updateMask=rootAgent")
 	if err != nil {
 		return err
 	}

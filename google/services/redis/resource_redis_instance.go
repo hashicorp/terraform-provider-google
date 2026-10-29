@@ -2185,7 +2185,7 @@ func resourceRedisInstanceDecoder(d *schema.ResourceData, meta interface{}, res 
 
 	if v, ok := res["authEnabled"].(bool); ok {
 		if v {
-			url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}/authString")
+			url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/instances/{{name}}/authString")
 			if err != nil {
 				return nil, err
 			}

@@ -122,7 +122,7 @@ func ListApigeeEndpointAttachments(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ApigeeBasePath}}{{org_id}}/endpointAttachments")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/endpointAttachments")
 	if err != nil {
 		return err
 	}

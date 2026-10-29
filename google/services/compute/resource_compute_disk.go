@@ -1469,7 +1469,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		url, _ := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels")
+		url, _ := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/disks/{{name}}/setLabels")
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config: config, Method: "POST", Project: billingProject, RawURL: url, UserAgent: userAgent, Body: obj, Timeout: d.Timeout(schema.TimeoutUpdate),
 		})
@@ -1490,7 +1490,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		url, _ := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/resize")
+		url, _ := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/disks/{{name}}/resize")
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config: config, Method: "POST", Project: billingProject, RawURL: url, UserAgent: userAgent, Body: obj, Timeout: d.Timeout(schema.TimeoutUpdate),
 		})
@@ -1520,7 +1520,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		baseUrl, _ := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}")
+		baseUrl, _ := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/disks/{{name}}")
 		url := fmt.Sprintf("%s?paths=%s", baseUrl, strings.Join(paths, "&paths="))
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config: config, Method: "PATCH", Project: billingProject, RawURL: url, UserAgent: userAgent, Body: obj, Timeout: d.Timeout(schema.TimeoutUpdate),
@@ -1543,7 +1543,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		url, _ := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}?paths=accessMode")
+		url, _ := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/disks/{{name}}?paths=accessMode")
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config: config, Method: "PATCH", Project: billingProject, RawURL: url, UserAgent: userAgent, Body: obj, Timeout: d.Timeout(schema.TimeoutUpdate),
 		})
@@ -1562,7 +1562,7 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return fmt.Errorf("error updating Disk %q KMS key: %w", d.Id(), err)
 		}
-		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}/updateKmsKey")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/disks/{{name}}/updateKmsKey")
 		if err != nil {
 			return err
 		}

@@ -276,7 +276,7 @@ func (u *DataplexAspectTypeIamUpdater) SetResourceIamPolicy(policy *cloudresourc
 }
 
 func (u *DataplexAspectTypeIamUpdater) qualifyAspectTypeUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{DataplexBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/aspectTypes/%s", u.project, u.location, u.aspectTypeId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/aspectTypes/%s", u.project, u.location, u.aspectTypeId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

@@ -1515,7 +1515,7 @@ func resourceAccessContextManagerServicePerimetersDelete(d *schema.ResourceData,
 	obj := make(map[string]interface{})
 	obj["servicePerimeters"] = []string{}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{parent}}/servicePerimeters:replaceAll")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/servicePerimeters:replaceAll")
 	if err != nil {
 		return err
 	}

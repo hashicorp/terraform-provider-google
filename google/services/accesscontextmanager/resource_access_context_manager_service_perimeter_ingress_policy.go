@@ -1560,7 +1560,7 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyPatchDeleteEncoder
 // extracting list of objects.
 func resourceAccessContextManagerServicePerimeterIngressPolicyListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{perimeter}}")
 	if err != nil {
 		return nil, err
 	}

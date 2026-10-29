@@ -74,7 +74,7 @@ func deleteSpannerBackups(d *schema.ResourceData, config *transport_tpg.Config, 
 
 		log.Printf("[DEBUG] Found backups for resource %q: %#v)", d.Id(), item)
 
-		path := "{{SpannerBasePath}}" + backupName
+		path := transport_tpg.BaseUrl(Product, config) + backupName
 
 		url, err := tpgresource.ReplaceVars(d, config, path)
 		if err != nil {
@@ -984,7 +984,7 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	headers := make(http.Header)
 
 	if d.Get("force_destroy").(bool) {
-		backupsUrl, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}/backups")
+		backupsUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{name}}/backups")
 		if err != nil {
 			return err
 		}

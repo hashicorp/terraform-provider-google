@@ -4413,7 +4413,7 @@ func resourceChronicleFeedCreate(d *schema.ResourceData, meta interface{}) error
 		if sourceType == "GOOGLE_CLOUD_STORAGE" || sourceType == "GOOGLE_CLOUD_STORAGE_EVENT_DRIVEN" {
 			log.Printf("[DEBUG] Fetching service account for Chronicle feed of type %s", sourceType)
 
-			url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/feedServiceAccounts:fetchServiceAccountForCustomer")
+			url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/feedServiceAccounts:fetchServiceAccountForCustomer")
 			if err != nil {
 				return err
 			}
@@ -4477,7 +4477,7 @@ func resourceChronicleFeedCreate(d *schema.ResourceData, meta interface{}) error
 	if v, ok := d.GetOk("details.0.feed_source_type"); ok && v.(string) == "HTTPS_PUSH_AMAZON_KINESIS_FIREHOSE" {
 		log.Printf("[DEBUG] Generating secret for HTTPS_PUSH_AMAZON_KINESIS_FIREHOSE feed %q", d.Id())
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/feeds/{{feed}}:generateSecret")
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/feeds/{{feed}}:generateSecret")
 		if err != nil {
 			return err
 		}
@@ -4783,9 +4783,9 @@ func resourceChronicleFeedUpdate(d *schema.ResourceData, meta interface{}) error
 		var stateUrl string
 
 		if newEnabled.(bool) {
-			stateUrl, err = tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/feeds/{{feed}}:enable")
+			stateUrl, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/feeds/{{feed}}:enable")
 		} else {
-			stateUrl, err = tpgresource.ReplaceVars(d, config, "{{ChronicleBasePath}}projects/{{project}}/locations/{{location}}/instances/{{instance}}/feeds/{{feed}}:disable")
+			stateUrl, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/instances/{{instance}}/feeds/{{feed}}:disable")
 		}
 
 		if err != nil {

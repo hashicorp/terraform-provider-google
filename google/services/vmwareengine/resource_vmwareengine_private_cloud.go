@@ -89,7 +89,7 @@ func isMultiNodePrivateCloud(d *schema.ResourceData) bool {
 }
 
 func isPrivateCloudInDeletedState(config *transport_tpg.Config, d *schema.ResourceData, billingProject string, userAgent string) (bool, error) {
-	baseurl, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
+	baseurl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
 	if err != nil {
 		return false, err
 	}
@@ -707,7 +707,7 @@ func resourceVmwareenginePrivateCloudCreate(d *schema.ResourceData, meta interfa
 	}
 	if pcMarkedForDeletion {
 		log.Printf("[DEBUG] Private Cloud exists and is marked for deletion. Triggering UNDELETE of the Private Cloud.\n")
-		url, err = tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}:undelete")
+		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/privateClouds/{{name}}:undelete")
 		if err != nil {
 			return err
 		}
@@ -753,7 +753,7 @@ func resourceVmwareenginePrivateCloudCreate(d *schema.ResourceData, meta interfa
 	}
 
 	mgmtMap := mgmtClusterProp.(map[string]interface{})
-	parentUrl, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
+	parentUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1075,7 +1075,7 @@ func resourceVmwareenginePrivateCloudUpdate(d *schema.ResourceData, meta interfa
 	}
 
 	mgmtMap := mgmtClusterProp.(map[string]interface{})
-	parentUrl, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
+	parentUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -1197,7 +1197,7 @@ func resourceVmwareenginePrivateCloudDelete(d *schema.ResourceData, meta interfa
 	privateCloudPollRead := func(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 		return func() (map[string]interface{}, error) {
 			config := meta.(*transport_tpg.Config)
-			url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
+			url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
 			if err != nil {
 				return nil, err
 			}
@@ -2233,7 +2233,7 @@ func resourceVmwareenginePrivateCloudDecoder(d *schema.ResourceData, meta interf
 		return nil, err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}/clusters")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/privateClouds/{{name}}/clusters")
 	if err != nil {
 		return nil, err
 	}

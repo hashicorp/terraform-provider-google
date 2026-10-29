@@ -778,7 +778,7 @@ func resourceNetworkConnectivityv1InternalRangeDelete(d *schema.ResourceData, me
 	}
 
 	var url string
-	url, err = tpgresource.ReplaceVars(d, config, "{{NetworkConnectivityv1BasePath}}projects/{{project}}/locations/global/internalRanges/{{name}}")
+	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/global/internalRanges/{{name}}")
 	if err != nil {
 		return err
 	}

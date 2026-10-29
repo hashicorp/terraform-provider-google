@@ -217,7 +217,7 @@ func (u *AccessContextManagerAccessPolicyIamUpdater) SetResourceIamPolicy(policy
 }
 
 func (u *AccessContextManagerAccessPolicyIamUpdater) qualifyAccessPolicyUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{AccessContextManagerBasePath}}%s:%s", fmt.Sprintf("accessPolicies/%s", u.name), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("accessPolicies/%s", u.name), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

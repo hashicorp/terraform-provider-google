@@ -217,7 +217,7 @@ func (u *DataCatalogPolicyTagIamUpdater) SetResourceIamPolicy(policy *cloudresou
 }
 
 func (u *DataCatalogPolicyTagIamUpdater) qualifyPolicyTagUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{DataCatalogBasePath}}%s:%s", fmt.Sprintf("%s", u.policyTag), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("%s", u.policyTag), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

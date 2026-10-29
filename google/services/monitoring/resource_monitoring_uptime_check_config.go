@@ -1028,7 +1028,7 @@ func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta inte
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{MonitoringBasePath}}v3/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"v3/{{name}}")
 	if err != nil {
 		return err
 	}

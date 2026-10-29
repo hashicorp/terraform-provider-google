@@ -1638,7 +1638,7 @@ func resourceVertexAIEndpointWithModelGardenDeploymentCreate(d *schema.ResourceD
 
 	// Extract deployedModelId and deployedModelDisplayName of model deployed to the endpoint
 	// Make API call to read the endpoint and retrieve deployed model ID and display name
-	readUrl, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}")
+	readUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}")
 	if err != nil {
 		return err
 	}
@@ -1908,7 +1908,7 @@ func resourceVertexAIEndpointWithModelGardenDeploymentUpdate(d *schema.ResourceD
 		"updateMask": strings.Join(updateMask, ","),
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}:mutateDeployedModel")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}:mutateDeployedModel")
 	if err != nil {
 		return err
 	}
@@ -1986,7 +1986,7 @@ func resourceVertexAIEndpointWithModelGardenDeploymentDelete(d *schema.ResourceD
 	}
 
 	// Undeploy the model
-	undeployUrl, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}:undeployModel")
+	undeployUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}:undeployModel")
 	if err != nil {
 		return err
 	}
@@ -2024,7 +2024,7 @@ func resourceVertexAIEndpointWithModelGardenDeploymentDelete(d *schema.ResourceD
 	log.Printf("[DEBUG] Finished undeploying model %s from EndpointWithModelGardenDeployment %q: %#v", deployedModelDisplayName, d.Id(), undeployRes)
 
 	// Delete Endpoint
-	deleteUrl, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}")
+	deleteUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/endpoints/{{endpoint}}")
 	if err != nil {
 		return err
 	}

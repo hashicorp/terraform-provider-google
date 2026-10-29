@@ -918,7 +918,7 @@ func resourceComputeFirewallPolicyWithRulesCreate(d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
-	url, err = tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}locations/global/firewallPolicies/{{policy_id}}")
+	url, err = tpgresource.ReplaceVarsForId(d, config, transport_tpg.BaseUrl(Product, config)+"locations/global/firewallPolicies/{{policy_id}}")
 	if err != nil {
 		return err
 	}

@@ -232,7 +232,7 @@ func (u *ServiceManagementServiceConsumersIamUpdater) SetResourceIamPolicy(polic
 }
 
 func (u *ServiceManagementServiceConsumersIamUpdater) qualifyServiceConsumersUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{ServiceManagementBasePath}}%s:%s", fmt.Sprintf("services/%s/consumers/%s", u.serviceName, u.consumerProject), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("services/%s/consumers/%s", u.serviceName, u.consumerProject), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

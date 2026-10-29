@@ -122,7 +122,7 @@ func ListApigeeDatastores(config *transport_tpg.Config,
 		}
 	}
 
-	url, err := tpgresource.ReplaceVars(resourceData, config, "{{ApigeeBasePath}}{{org_id}}/analytics/datastores")
+	url, err := tpgresource.ReplaceVars(resourceData, config, transport_tpg.BaseUrl(Product, config)+"{{org_id}}/analytics/datastores")
 	if err != nil {
 		return err
 	}

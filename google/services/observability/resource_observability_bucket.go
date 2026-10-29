@@ -274,7 +274,7 @@ func resourceObservabilityBucketCreate(d *schema.ResourceData, meta interface{})
 	headers := make(http.Header)
 	// Check if the Observability Bucket already exists. Do an update if so.
 
-	getUrl, err := tpgresource.ReplaceVars(d, config, "{{ObservabilityBasePath}}projects/{{project}}/locations/{{location}}/buckets/{{bucket_id}}")
+	getUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/buckets/{{bucket_id}}")
 	if err != nil {
 		return err
 	}

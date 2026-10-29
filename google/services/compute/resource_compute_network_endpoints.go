@@ -681,7 +681,7 @@ func resourceComputeNetworkEndpointsUpdate(d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Updating NetworkEndpoints %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 
-	detachUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}/detachNetworkEndpoints")
+	detachUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}/detachNetworkEndpoints")
 	o, n := d.GetChange("network_endpoints")
 
 	oldEndpoints := make(map[NetworkEndpointsNetworkEndpoint]struct{})
@@ -1055,7 +1055,7 @@ func resourceComputeNetworkEndpointsDecoder(d *schema.ResourceData, meta interfa
 		return nil, err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}/listNetworkEndpoints")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}/listNetworkEndpoints")
 	if err != nil {
 		return nil, err
 	}

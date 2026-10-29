@@ -729,7 +729,7 @@ func resourceIapSettingsDelete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}{{name}}:iapSettings")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{name}}:iapSettings")
 	if err != nil {
 		return err
 	}

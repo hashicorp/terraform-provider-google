@@ -3256,7 +3256,7 @@ func resourceRedisClusterDecoder(d *schema.ResourceData, meta interface{}, res m
 		return res, nil
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{RedisBasePath}}projects/{{project}}/locations/{{region}}/clusters/{{name}}/certificateAuthority")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{region}}/clusters/{{name}}/certificateAuthority")
 	if err != nil {
 		return nil, err
 	}

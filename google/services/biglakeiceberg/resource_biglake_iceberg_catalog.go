@@ -701,7 +701,7 @@ func resourceBiglakeIcebergIcebergCatalogUpdate(d *schema.ResourceData, meta int
 		obj["federated-catalog-options"] = federatedCatalogOptionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeIcebergBasePath}}iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"iceberg/v1/restcatalog/extensions/projects/{{project}}/catalogs/{{name}}")
 	if err != nil {
 		return err
 	}

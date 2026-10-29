@@ -163,7 +163,7 @@ func testAccCheckMonitoringMonitoredProjectDestroyProducer(t *testing.T) func(s 
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{MonitoringBasePath}}v1/locations/global/metricsScopes/{{metrics_scope}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, transport_tpg.BaseUrl(monitoring.Product, config)+"v1/locations/global/metricsScopes/{{metrics_scope}}")
 			if err != nil {
 				return err
 			}

@@ -234,7 +234,7 @@ func (u *ApigeeEnvironmentIamUpdater) SetResourceIamPolicy(policy *cloudresource
 }
 
 func (u *ApigeeEnvironmentIamUpdater) qualifyEnvironmentUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{ApigeeBasePath}}%s:%s", fmt.Sprintf("%s/environments/%s", u.orgId, u.envId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("%s/environments/%s", u.orgId, u.envId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

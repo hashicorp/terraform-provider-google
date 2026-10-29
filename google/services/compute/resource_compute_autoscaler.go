@@ -1693,7 +1693,7 @@ func expandComputeAutoscalerTarget(v interface{}, d tpgresource.TerraformResourc
 		return nil, fmt.Errorf("Invalid value for target: %s", err)
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}"+f.RelativeLink())
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+f.RelativeLink())
 	if err != nil {
 		return nil, err
 	}

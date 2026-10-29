@@ -534,7 +534,7 @@ func resourceAccessApprovalOrganizationSettingsDelete(d *schema.ResourceData, me
 	obj["enrolledServices"] = []string{}
 	obj["activeKeyVersion"] = ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessApprovalBasePath}}organizations/{{organization_id}}/accessApprovalSettings")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{organization_id}}/accessApprovalSettings")
 	if err != nil {
 		return err
 	}

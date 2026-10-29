@@ -275,7 +275,7 @@ func (u *DataprocMetastoreFederationIamUpdater) SetResourceIamPolicy(policy *clo
 }
 
 func (u *DataprocMetastoreFederationIamUpdater) qualifyFederationUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{DataprocMetastoreBasePath}}%s:%s", fmt.Sprintf("projects/%s/locations/%s/federations/%s", u.project, u.location, u.federationId), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("projects/%s/locations/%s/federations/%s", u.project, u.location, u.federationId), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err

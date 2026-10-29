@@ -251,7 +251,7 @@ func (u *BiglakeIcebergIcebergCatalogIamUpdater) SetResourceIamPolicy(policy *cl
 }
 
 func (u *BiglakeIcebergIcebergCatalogIamUpdater) qualifyIcebergCatalogUrl(methodIdentifier string) (string, error) {
-	urlTemplate := fmt.Sprintf("{{BiglakeIcebergBasePath}}%s:%s", fmt.Sprintf("v1/projects/%s/catalogs/%s", u.project, u.name), methodIdentifier)
+	urlTemplate := fmt.Sprintf(transport_tpg.BaseUrl(Product, u.Config)+"%s:%s", fmt.Sprintf("v1/projects/%s/catalogs/%s", u.project, u.name), methodIdentifier)
 	url, err := tpgresource.ReplaceVars(u.d, u.Config, urlTemplate)
 	if err != nil {
 		return "", err
