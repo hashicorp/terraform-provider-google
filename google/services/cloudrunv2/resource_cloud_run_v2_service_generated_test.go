@@ -88,7 +88,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -159,7 +159,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceScalingControlsExample(t *testing
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -179,7 +179,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceScalingControlsExample(t *testing
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -199,7 +199,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceScalingControlsExample(t *testing
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -256,7 +256,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceLimitsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -317,7 +317,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceSqlExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -439,7 +439,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceVpcaccessExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -514,7 +514,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceDirectvpcExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -571,7 +571,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceGpuExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -638,7 +638,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceProbesExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -702,7 +702,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceReadinessProbesExample(t *testing
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -762,7 +762,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceSecretExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -851,7 +851,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceMulticontainerExample(t *testing.
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -931,7 +931,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceMountGcsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1003,7 +1003,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceMountNfsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1091,7 +1091,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceIapExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1144,7 +1144,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceEmptydirDiskExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1212,7 +1212,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceSandboxExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1272,7 +1272,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceSandboxTemplatesExample(t *testin
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1292,7 +1292,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceSandboxTemplatesExample(t *testin
 			},
 			{
 				ResourceName:       "google_cloud_run_v2_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

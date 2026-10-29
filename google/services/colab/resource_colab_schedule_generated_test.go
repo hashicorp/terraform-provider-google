@@ -90,7 +90,7 @@ func TestAccColabSchedule_colabScheduleBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_colab_schedule.schedule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -221,7 +221,7 @@ func TestAccColabSchedule_colabSchedulePausedExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_colab_schedule.schedule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -357,7 +357,7 @@ func TestAccColabSchedule_colabScheduleNotebookFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_colab_schedule.schedule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -536,7 +536,7 @@ func TestAccColabSchedule_colabSchedulePipelineExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_colab_schedule.schedule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -556,7 +556,7 @@ func TestAccColabSchedule_colabSchedulePipelineExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_colab_schedule.schedule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

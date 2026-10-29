@@ -81,7 +81,7 @@ func TestAccCloudTasksQueue_queueBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_tasks_queue.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -124,7 +124,7 @@ func TestAccCloudTasksQueue_cloudTasksQueueAdvancedExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_tasks_queue.advanced_configuration",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -190,7 +190,7 @@ func TestAccCloudTasksQueue_cloudTasksQueueHttpTargetOidcExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_tasks_queue.http_target_oidc",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -270,7 +270,7 @@ func TestAccCloudTasksQueue_cloudTasksQueueHttpTargetOauthExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_cloud_tasks_queue.http_target_oauth",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

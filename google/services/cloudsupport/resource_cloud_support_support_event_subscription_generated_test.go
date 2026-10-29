@@ -85,7 +85,7 @@ func TestAccCloudSupportSupportEventSubscription_cloudSupportEventSubscriptionBa
 			},
 			{
 				ResourceName:       "google_cloud_support_support_event_subscription.subscription",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -154,7 +154,7 @@ func TestAccCloudSupportSupportEventSubscription_cloudSupportEventSubscriptionUp
 			},
 			{
 				ResourceName:       "google_cloud_support_support_event_subscription.subscription",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

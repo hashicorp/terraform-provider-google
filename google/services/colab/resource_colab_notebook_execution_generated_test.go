@@ -85,7 +85,7 @@ func TestAccColabNotebookExecution_colabNotebookExecutionBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_colab_notebook_execution.notebook-execution",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -204,7 +204,7 @@ func TestAccColabNotebookExecution_colabNotebookExecutionCustomEnvExample(t *tes
 			},
 			{
 				ResourceName:       "google_colab_notebook_execution.notebook-execution",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -342,7 +342,7 @@ func TestAccColabNotebookExecution_colabNotebookExecutionWorkbenchRuntimeCustomC
 			},
 			{
 				ResourceName:       "google_colab_notebook_execution.notebook-execution",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -462,7 +462,7 @@ func TestAccColabNotebookExecution_colabNotebookExecutionWorkbenchRuntimeCustomC
 			},
 			{
 				ResourceName:       "google_colab_notebook_execution.notebook-execution",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -581,7 +581,7 @@ func TestAccColabNotebookExecution_colabNotebookExecutionWorkbenchRuntimeVmExamp
 			},
 			{
 				ResourceName:       "google_colab_notebook_execution.notebook-execution",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -699,7 +699,7 @@ func TestAccColabNotebookExecution_colabNotebookExecutionWorkbenchRuntimeVmNameE
 			},
 			{
 				ResourceName:       "google_colab_notebook_execution.notebook-execution",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

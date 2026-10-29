@@ -82,7 +82,7 @@ func TestAccColabRuntimeTemplate_colabRuntimeTemplateBasicExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_colab_runtime_template.runtime-template",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -177,7 +177,7 @@ func TestAccColabRuntimeTemplate_colabRuntimeTemplateFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_colab_runtime_template.runtime-template",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

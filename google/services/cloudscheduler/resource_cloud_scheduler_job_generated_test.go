@@ -83,7 +83,7 @@ func TestAccCloudSchedulerJob_schedulerJobPubsubExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_scheduler_job.job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -137,7 +137,7 @@ func TestAccCloudSchedulerJob_schedulerJobHttpExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_scheduler_job.job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -196,7 +196,7 @@ func TestAccCloudSchedulerJob_schedulerJobPausedExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_scheduler_job.job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -256,7 +256,7 @@ func TestAccCloudSchedulerJob_schedulerJobAppEngineExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_scheduler_job.job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -323,7 +323,7 @@ func TestAccCloudSchedulerJob_schedulerJobOauthExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_scheduler_job.job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -381,7 +381,7 @@ func TestAccCloudSchedulerJob_schedulerJobOidcExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_scheduler_job.job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
