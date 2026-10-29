@@ -383,9 +383,10 @@ func TestAccFirestoreDatabase_firestoreDatabaseDataAccessTestExample(t *testing.
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestProjectFromEnv(),
-		"database_id":   "tf-test-data-access-database-id" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"project_id":      envvar.GetTestProjectFromEnv(),
+		"database_id":     "tf-test-data-access-database-id" + randomSuffix,
+		"deletion_policy": "DELETE",
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -423,7 +424,7 @@ resource "google_firestore_database" "firestore_access_database_test" {
   firestore_data_access_mode          = "DATA_ACCESS_MODE_ENABLED"
   mongodb_compatible_data_access_mode = "DATA_ACCESS_MODE_DISABLED"
   realtime_updates_mode               = "REALTIME_UPDATES_MODE_DISABLED"
-  deletion_policy                     = "DELETE"
+  deletion_policy                     = "%{deletion_policy}"
 }
 `, context)
 }

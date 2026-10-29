@@ -60,7 +60,8 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
+		"capacity_commitment_id": "tf-test-capacity-" + randomSuffix,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -94,7 +95,7 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 func testAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCommitmentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_capacity_commitment" "commitment" {
-  capacity_commitment_id = "tf-test-capacity-%{random_suffix}"
+  capacity_commitment_id = "%{capacity_commitment_id}"
 
   location   = "us-west2"
   slot_count = 100
@@ -117,7 +118,8 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
+		"capacity_commitment_id": nil,
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -151,6 +153,8 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 func testAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCommitmentNoIdExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_capacity_commitment" "commitment" {
+  capacity_commitment_id = "%{capacity_commitment_id}"
+
   location   = "us-west2"
   slot_count = 100
   plan       = "FLEX_FLAT_RATE"
@@ -158,9 +162,9 @@ resource "google_bigquery_capacity_commitment" "commitment" {
 }
 
 resource "time_sleep" "wait_61_seconds" {
-  depends_on = [google_bigquery_capacity_commitment.commitment]
+	depends_on = [google_bigquery_capacity_commitment.commitment]
 
-  # Only needed for CI tests to be able to tear down the commitment once it's expired
+	# Only needed for CI tests to be able to tear down the commitment once it's expired
   create_duration = "61s"
 }
 `, context)

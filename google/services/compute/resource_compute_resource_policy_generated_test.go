@@ -61,6 +61,7 @@ func TestAccComputeResourcePolicy_resourcePolicyBasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"name":          "tf-test-gce-policy" + randomSuffix,
+		"start_time":    "04:00",
 		"random_suffix": randomSuffix,
 	}
 
@@ -97,7 +98,7 @@ resource "google_compute_resource_policy" "foo" {
     schedule {
       daily_schedule {
         days_in_cycle = 1
-        start_time    = "04:00"
+        start_time    = "%{start_time}"
       }
     }
   }
@@ -112,6 +113,7 @@ func TestAccComputeResourcePolicy_resourcePolicyHourlyFormatExample(t *testing.T
 
 	context := map[string]interface{}{
 		"name":          "tf-test-gce-policy" + randomSuffix,
+		"start_time":    "4:00",
 		"random_suffix": randomSuffix,
 	}
 
@@ -148,7 +150,7 @@ resource "google_compute_resource_policy" "foo" {
     schedule {
       daily_schedule {
         days_in_cycle = 1
-        start_time    = "4:00"
+        start_time    = "%{start_time}"
       }
     }
   }

@@ -47,9 +47,12 @@ func TestAccVertexAIReasoningEngineIamBindingGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
-		"role":          "roles/viewer",
-		"name":          "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix":   randomSuffix,
+		"role":            "roles/viewer",
+		"deletion_policy": "FORCE",
+		"description":     "A reasoning engine with deletion policy",
+		"labels":          nil,
+		"name":            "tf-test-reasoning-engine" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -85,9 +88,12 @@ func TestAccVertexAIReasoningEngineIamMemberGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
-		"role":          "roles/viewer",
-		"name":          "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix":   randomSuffix,
+		"role":            "roles/viewer",
+		"deletion_policy": "FORCE",
+		"description":     "A reasoning engine with deletion policy",
+		"labels":          nil,
+		"name":            "tf-test-reasoning-engine" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -121,9 +127,12 @@ func TestAccVertexAIReasoningEngineIamPolicyGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
-		"role":          "roles/viewer",
-		"name":          "tf-test-reasoning-engine" + randomSuffix,
+		"random_suffix":   randomSuffix,
+		"role":            "roles/viewer",
+		"deletion_policy": "FORCE",
+		"description":     "A reasoning engine with deletion policy",
+		"labels":          nil,
+		"name":            "tf-test-reasoning-engine" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -157,9 +166,10 @@ func testAccVertexAIReasoningEngineIamMember_basicGenerated(context map[string]i
 	return acctest.Nprintf(`
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name    = "%{name}"
-  description     = "A reasoning engine with deletion policy"
+  description     = "%{description}"
+  labels          = %{labels}
   region          = "us-central1"
-  deletion_policy = "FORCE"
+  deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_vertex_ai_reasoning_engine_iam_member" "foo" {
@@ -176,9 +186,10 @@ func testAccVertexAIReasoningEngineIamPolicy_basicGenerated(context map[string]i
 	return acctest.Nprintf(`
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name    = "%{name}"
-  description     = "A reasoning engine with deletion policy"
+  description     = "%{description}"
+  labels          = %{labels}
   region          = "us-central1"
-  deletion_policy = "FORCE"
+  deletion_policy = "%{deletion_policy}"
 }
 
 data "google_iam_policy" "foo" {
@@ -210,9 +221,10 @@ func testAccVertexAIReasoningEngineIamPolicy_emptyBinding(context map[string]int
 	return acctest.Nprintf(`
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name    = "%{name}"
-  description     = "A reasoning engine with deletion policy"
+  description     = "%{description}"
+  labels          = %{labels}
   region          = "us-central1"
-  deletion_policy = "FORCE"
+  deletion_policy = "%{deletion_policy}"
 }
 
 data "google_iam_policy" "foo" {
@@ -231,9 +243,10 @@ func testAccVertexAIReasoningEngineIamBinding_basicGenerated(context map[string]
 	return acctest.Nprintf(`
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name    = "%{name}"
-  description     = "A reasoning engine with deletion policy"
+  description     = "%{description}"
+  labels          = %{labels}
   region          = "us-central1"
-  deletion_policy = "FORCE"
+  deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_vertex_ai_reasoning_engine_iam_binding" "foo" {
@@ -250,9 +263,10 @@ func testAccVertexAIReasoningEngineIamBinding_updateGenerated(context map[string
 	return acctest.Nprintf(`
 resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
   display_name    = "%{name}"
-  description     = "A reasoning engine with deletion policy"
+  description     = "%{description}"
+  labels          = %{labels}
   region          = "us-central1"
-  deletion_policy = "FORCE"
+  deletion_policy = "%{deletion_policy}"
 }
 
 resource "google_vertex_ai_reasoning_engine_iam_binding" "foo" {

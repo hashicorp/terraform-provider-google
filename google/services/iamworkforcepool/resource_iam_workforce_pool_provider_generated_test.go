@@ -193,10 +193,14 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcBa
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":            envvar.GetTestOrgFromEnv(t),
-		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
-		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
-		"random_suffix":     randomSuffix,
+		"org_id":                    envvar.GetTestOrgFromEnv(t),
+		"assertion_claims_behavior": "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS",
+		"detailed_audit_logging":    nil,
+		"jwks_json":                 nil,
+		"provider_id":               "tf-test-example-prvdr" + randomSuffix,
+		"response_type":             "CODE",
+		"workforce_pool_id":         "tf-test-example-pool" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -247,10 +251,12 @@ resource "google_iam_workforce_pool_provider" "example" {
       }
     }
     web_sso_config {
-      response_type             = "CODE"
-      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+      response_type             = "%{response_type}"
+      assertion_claims_behavior = "%{assertion_claims_behavior}"
     }
+    jwks_json = "%{jwks_json}"
   }
+  detailed_audit_logging = %{detailed_audit_logging}
 }
 `, context)
 }
@@ -347,10 +353,14 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcUp
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":            envvar.GetTestOrgFromEnv(t),
-		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
-		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
-		"random_suffix":     randomSuffix,
+		"org_id":                    envvar.GetTestOrgFromEnv(t),
+		"assertion_claims_behavior": "ONLY_ID_TOKEN_CLAIMS",
+		"detailed_audit_logging":    nil,
+		"jwks_json":                 "{\\\"keys\\\":[{\\\"kty\\\":\\\"RSA\\\",\\\"e\\\":\\\"AQAB\\\",\\\"use\\\":\\\"sig\\\",\\\"kid\\\":\\\"1i-PmZZrF1j2rOUAxkcQaaz3MnOXcwwziuch_XWjvqI\\\",\\\"alg\\\":\\\"RS256\\\",\\\"n\\\":\\\"kFpYE2Zm32y--cnUiFLm4cYmFO8tR4-5KU5-aqhRwiHPP0FkgdQZSoSyp_1DO6PruYfluRMviwOpbmM6LH7KemxVdxLKqLDkHSG0XC3dZkACRFNvBBOdFrvJ0ABXv3vVx592lFE0m-Je5-FerRSQCml6E7icNiTSxizEmvDsTIe8mvArjsODDrgWP25bEFwDPBd5cCl3_2gtW6YdaCRewLXdzuB5Wmp_vOu6trTUzEKbnQlWFtDDCPfOpywYXF8dY1Lbwas5iwwIZozwD2_CuTiyXa3T2_4oa119_rQrIC2BAv7q_S1Xoa2lk3q2GZUSVQ5i3gIbJuDHmp-6yh3k4w\\\"}]}",
+		"provider_id":               "tf-test-example-prvdr" + randomSuffix,
+		"response_type":             "ID_TOKEN",
+		"workforce_pool_id":         "tf-test-example-pool" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -401,11 +411,12 @@ resource "google_iam_workforce_pool_provider" "example" {
       }
     }
     web_sso_config {
-      response_type             = "ID_TOKEN"
-      assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+      response_type             = "%{response_type}"
+      assertion_claims_behavior = "%{assertion_claims_behavior}"
     }
-    jwks_json        = "{\"keys\":[{\"kty\":\"RSA\",\"e\":\"AQAB\",\"use\":\"sig\",\"kid\":\"1i-PmZZrF1j2rOUAxkcQaaz3MnOXcwwziuch_XWjvqI\",\"alg\":\"RS256\",\"n\":\"kFpYE2Zm32y--cnUiFLm4cYmFO8tR4-5KU5-aqhRwiHPP0FkgdQZSoSyp_1DO6PruYfluRMviwOpbmM6LH7KemxVdxLKqLDkHSG0XC3dZkACRFNvBBOdFrvJ0ABXv3vVx592lFE0m-Je5-FerRSQCml6E7icNiTSxizEmvDsTIe8mvArjsODDrgWP25bEFwDPBd5cCl3_2gtW6YdaCRewLXdzuB5Wmp_vOu6trTUzEKbnQlWFtDDCPfOpywYXF8dY1Lbwas5iwwIZozwD2_CuTiyXa3T2_4oa119_rQrIC2BAv7q_S1Xoa2lk3q2GZUSVQ5i3gIbJuDHmp-6yh3k4w\"}]}"
+    jwks_json = "%{jwks_json}"
   }
+  detailed_audit_logging = %{detailed_audit_logging}
 }
 `, context)
 }
@@ -895,10 +906,14 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderOidcDe
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":            envvar.GetTestOrgFromEnv(t),
-		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
-		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
-		"random_suffix":     randomSuffix,
+		"org_id":                    envvar.GetTestOrgFromEnv(t),
+		"assertion_claims_behavior": "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS",
+		"detailed_audit_logging":    true,
+		"jwks_json":                 nil,
+		"provider_id":               "tf-test-example-prvdr" + randomSuffix,
+		"response_type":             "CODE",
+		"workforce_pool_id":         "tf-test-example-pool" + randomSuffix,
+		"random_suffix":             randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -949,11 +964,12 @@ resource "google_iam_workforce_pool_provider" "example" {
       }
     }
     web_sso_config {
-      response_type             = "CODE"
-      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+      response_type             = "%{response_type}"
+      assertion_claims_behavior = "%{assertion_claims_behavior}"
     }
+    jwks_json = "%{jwks_json}"
   }
-  detailed_audit_logging = true
+  detailed_audit_logging = %{detailed_audit_logging}
 }
 `, context)
 }
