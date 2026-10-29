@@ -96,7 +96,7 @@ func testAccRedisInstance_redisInstanceBasicExample(context map[string]interface
 resource "google_redis_instance" "cache" {
   name           = "%{instance_name}"
   memory_size_gb = 1
-  region         = "us-east1"
+  region         = "northamerica-south1"
   deletion_protection = false
 
   lifecycle {
@@ -148,10 +148,10 @@ resource "google_redis_instance" "cache" {
   name           = "%{instance_name}"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
-  region         = "us-east1"
+  region         = "northamerica-south1"
 
-  location_id             = "us-east1-b"
-  alternative_location_id = "us-east1-c"
+  location_id             = "northamerica-south1-a"
+  alternative_location_id = "northamerica-south1-b"
 
   authorized_network = data.google_compute_network.redis-network.id
 
@@ -237,9 +237,9 @@ resource "google_redis_instance" "cache-persis" {
   name           = "%{instance_name}"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
-  region                  = "us-east1"
-  location_id             = "us-east1-b"
-  alternative_location_id = "us-east1-c"
+  region                  = "northamerica-south1"
+  location_id             = "northamerica-south1-a"
+  alternative_location_id = "northamerica-south1-b"
 
   persistence_config {
     persistence_mode = "RDB"
@@ -308,9 +308,9 @@ resource "google_redis_instance" "cache" {
   tier           = "STANDARD_HA"
   memory_size_gb = 1
 
-  region                  = "us-east1"
-  location_id             = "us-east1-b"
-  alternative_location_id = "us-east1-c"
+  region                  = "northamerica-south1"
+  location_id             = "northamerica-south1-a"
+  alternative_location_id = "northamerica-south1-b"
 
   authorized_network = data.google_compute_network.redis-network.id
   connect_mode       = "PRIVATE_SERVICE_ACCESS"
@@ -368,9 +368,9 @@ resource "google_redis_instance" "cache" {
   tier           = "STANDARD_HA"
   memory_size_gb = 5
 
-  region                  = "us-east1"
-  location_id             = "us-east1-b"
-  alternative_location_id = "us-east1-c"
+  region                  = "northamerica-south1"
+  location_id             = "northamerica-south1-a"
+  alternative_location_id = "northamerica-south1-b"
 
   authorized_network = data.google_compute_network.redis-network.id
 

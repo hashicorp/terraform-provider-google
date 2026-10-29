@@ -43,7 +43,7 @@ To get more information about Instance, see:
 resource "google_redis_instance" "cache" {
   name           = "memory-cache"
   memory_size_gb = 1
-  region         = "us-east1"
+  region         = "northamerica-south1"
   deletion_protection = false
 
   lifecycle {
@@ -65,10 +65,10 @@ resource "google_redis_instance" "cache" {
   name           = "ha-memory-cache"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
-  region         = "us-east1"
+  region         = "northamerica-south1"
 
-  location_id             = "us-east1-b"
-  alternative_location_id = "us-east1-c"
+  location_id             = "northamerica-south1-a"
+  alternative_location_id = "northamerica-south1-b"
 
   authorized_network = data.google_compute_network.redis-network.id
 
@@ -124,9 +124,9 @@ resource "google_redis_instance" "cache-persis" {
   name           = "ha-memory-cache-persis"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
-  region                  = "us-east1"
-  location_id             = "us-east1-b"
-  alternative_location_id = "us-east1-c"
+  region                  = "northamerica-south1"
+  location_id             = "northamerica-south1-a"
+  alternative_location_id = "northamerica-south1-b"
 
   persistence_config {
     persistence_mode = "RDB"
@@ -174,9 +174,9 @@ resource "google_redis_instance" "cache" {
   tier           = "STANDARD_HA"
   memory_size_gb = 1
 
-  region                  = "us-east1"
-  location_id             = "us-east1-b"
-  alternative_location_id = "us-east1-c"
+  region                  = "northamerica-south1"
+  location_id             = "northamerica-south1-a"
+  alternative_location_id = "northamerica-south1-b"
 
   authorized_network = google_compute_network.redis-network.id
   connect_mode       = "PRIVATE_SERVICE_ACCESS"
@@ -206,9 +206,9 @@ resource "google_redis_instance" "cache" {
   tier           = "STANDARD_HA"
   memory_size_gb = 5
 
-  region                  = "us-east1"
-  location_id             = "us-east1-b"
-  alternative_location_id = "us-east1-c"
+  region                  = "northamerica-south1"
+  location_id             = "northamerica-south1-a"
+  alternative_location_id = "northamerica-south1-b"
 
   authorized_network = data.google_compute_network.redis-network.id
 
@@ -248,10 +248,10 @@ resource "google_redis_instance" "cache" {
   name           = "cmek-memory-cache"
   tier           = "STANDARD_HA"
   memory_size_gb = 1
-  region         = "us-east1"
+  region         = "northamerica-south1"
 
-  location_id             = "us-east1-b"
-  alternative_location_id = "us-east1-c"
+  location_id             = "northamerica-south1-a"
+  alternative_location_id = "northamerica-south1-b"
 
   authorized_network = data.google_compute_network.redis-network.id
 
@@ -271,7 +271,7 @@ resource "google_redis_instance" "cache" {
 
 resource "google_kms_key_ring" "redis_keyring" {
   name     = "redis-keyring"
-  location = "us-east1"
+  location = "northamerica-south1"
 }
 
 resource "google_kms_crypto_key" "redis_key" {

@@ -60,7 +60,7 @@ func testAccRedisClusterAclPolicy_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_redis_cluster_acl_policy" "test" {
   acl_policy_id               = "tf-test-policy-%{random_suffix}"
-  location                    = "us-east1"
+  location                    = "northamerica-south1"
   rules {
     rule                      = "on allkeys +get"
     username                  = "default"
@@ -73,7 +73,7 @@ func testAccRedisClusterAclPolicy_update(context map[string]interface{}) string 
 	return acctest.Nprintf(`
 resource "google_redis_cluster_acl_policy" "test" {
   acl_policy_id               = "tf-test-policy-%{random_suffix}"
-  location                    = "us-east1"
+  location                    = "northamerica-south1"
   rules {
     rule                      = "on allkeys +set"
     username                  = "default"
@@ -116,7 +116,7 @@ func testAccRedisClusterAclPolicy_withCluster(context map[string]interface{}) st
 	return acctest.Nprintf(`
 resource "google_redis_cluster_acl_policy" "test" {
   acl_policy_id               = "tf-test-policy-%{random_suffix}"
-  location                    = "us-east1"
+  location                    = "northamerica-south1"
   rules {
     rule                      = "on allkeys +get"
     username                  = "default"
@@ -127,7 +127,7 @@ resource "google_redis_cluster" "test" {
   name                        = "tf-test-redis-%{random_suffix}"
   shard_count                 = 1
   node_type                   = "REDIS_SHARED_CORE_NANO"
-  region                      = "us-east1"
+  region                      = "northamerica-south1"
   deletion_protection_enabled = false
 
   acl_policy                  = google_redis_cluster_acl_policy.test.id
