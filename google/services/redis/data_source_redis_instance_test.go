@@ -47,7 +47,7 @@ func testAccRedisInstanceDatasourceConfig(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_redis_instance" "redis" {
   name               = "redis-test-%s"
-  region             = "us-east1"
+  region             = "northamerica-south1"
   memory_size_gb     = 1
 
   labels   = {
@@ -57,7 +57,7 @@ resource "google_redis_instance" "redis" {
 
 data "google_redis_instance" "redis" {
   name   = google_redis_instance.redis.name
-  region = "us-east1"
+  region = "northamerica-south1"
 }
 `, suffix)
 }

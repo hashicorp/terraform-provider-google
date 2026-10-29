@@ -107,7 +107,7 @@ func testAccRedisClusterUserCreatedConnections_redisClusterUserCreatedConnection
 	return acctest.Nprintf(`
 resource "google_redis_cluster_user_created_connections" "cluster-user-conn" {
   name = "%{cluster_name}"
-  region = "us-east1"
+  region = "northamerica-south1"
   cluster_endpoints {
     connections {
       psc_connection {
@@ -153,7 +153,7 @@ resource "google_redis_cluster_user_created_connections" "cluster-user-conn" {
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
   name                   = "%{forwarding_rule1_network1_name}"
-  region                 = "us-east1"
+  region                 = "northamerica-south1"
   ip_address             = google_compute_address.ip1_network1.id
   load_balancing_scheme  = ""
   network                = google_compute_network.network1.id
@@ -162,7 +162,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network1" {
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {
   name                   = "%{forwarding_rule2_network1_name}"
-  region                 = "us-east1"
+  region                 = "northamerica-south1"
   ip_address             = google_compute_address.ip2_network1.id
   load_balancing_scheme  = ""
   network                = google_compute_network.network1.id
@@ -171,7 +171,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network1" {
 
 resource "google_compute_address" "ip1_network1" {
   name         = "%{ip1_network1_name}"
-  region       = "us-east1"
+  region       = "northamerica-south1"
   subnetwork   = google_compute_subnetwork.subnet_network1.id
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
@@ -179,7 +179,7 @@ resource "google_compute_address" "ip1_network1" {
 
 resource "google_compute_address" "ip2_network1" {
   name         = "%{ip2_network1_name}"
-  region       = "us-east1"
+  region       = "northamerica-south1"
   subnetwork   = google_compute_subnetwork.subnet_network1.id
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
@@ -188,7 +188,7 @@ resource "google_compute_address" "ip2_network1" {
 resource "google_compute_subnetwork" "subnet_network1" {
   name          = "%{subnet_network1_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-east1"
+  region        = "northamerica-south1"
   network       = google_compute_network.network1.id
 }
 
@@ -199,7 +199,7 @@ resource "google_compute_network" "network1" {
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
   name                   = "%{forwarding_rule1_network2_name}"
-  region                 = "us-east1"
+  region                 = "northamerica-south1"
   ip_address             = google_compute_address.ip1_network2.id
   load_balancing_scheme  = ""
   network                = google_compute_network.network2.id
@@ -208,7 +208,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
   name                   = "%{forwarding_rule2_network2_name}"
-  region                 = "us-east1"
+  region                 = "northamerica-south1"
   ip_address             = google_compute_address.ip2_network2.id
   load_balancing_scheme  = ""
   network                = google_compute_network.network2.id
@@ -217,7 +217,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
 
 resource "google_compute_address" "ip1_network2" {
   name         = "%{ip1_network2_name}"
-  region       = "us-east1"
+  region       = "northamerica-south1"
   subnetwork   = google_compute_subnetwork.subnet_network2.id
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
@@ -225,7 +225,7 @@ resource "google_compute_address" "ip1_network2" {
 
 resource "google_compute_address" "ip2_network2" {
   name         = "%{ip2_network2_name}"
-  region       = "us-east1"
+  region       = "northamerica-south1"
   subnetwork   = google_compute_subnetwork.subnet_network2.id
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
@@ -234,7 +234,7 @@ resource "google_compute_address" "ip2_network2" {
 resource "google_compute_subnetwork" "subnet_network2" {
   name          = "%{subnet_network2_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-east1"
+  region        = "northamerica-south1"
   network       = google_compute_network.network2.id
 }
 
@@ -248,7 +248,7 @@ resource "google_redis_cluster" "cluster-user-conn" {
   name           = "%{cluster_name}"
   shard_count    = 1
   node_type = "REDIS_SHARED_CORE_NANO"
-  region = "us-east1"
+  region = "northamerica-south1"
   replica_count = 0
   deletion_protection_enabled = false
 }
@@ -305,7 +305,7 @@ func testAccRedisClusterUserCreatedConnections_redisClusterUserAndAutoCreatedCon
 	return acctest.Nprintf(`
 resource "google_redis_cluster_user_created_connections" "cluster-user-auto-conn" {
   name = "%{cluster_name}"
-  region = "us-east1"
+  region = "northamerica-south1"
   cluster_endpoints {
     connections {
       psc_connection {
@@ -330,7 +330,7 @@ resource "google_redis_cluster_user_created_connections" "cluster-user-auto-conn
 
 resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
   name                   = "%{forwarding_rule1_network2_name}"
-  region                 = "us-east1"
+  region                 = "northamerica-south1"
   ip_address             = google_compute_address.ip1_network2.id
   load_balancing_scheme  = ""
   network                = google_compute_network.network2.id
@@ -339,7 +339,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule1_network2" {
 
 resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
   name                   = "%{forwarding_rule2_network2_name}"
-  region                 = "us-east1"
+  region                 = "northamerica-south1"
   ip_address             = google_compute_address.ip2_network2.id
   load_balancing_scheme  = ""
   network                = google_compute_network.network2.id
@@ -348,7 +348,7 @@ resource "google_compute_forwarding_rule" "forwarding_rule2_network2" {
 
 resource "google_compute_address" "ip1_network2" {
   name         = "%{ip1_network2_name}"
-  region       = "us-east1"
+  region       = "northamerica-south1"
   subnetwork   = google_compute_subnetwork.subnet_network2.id
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
@@ -356,7 +356,7 @@ resource "google_compute_address" "ip1_network2" {
 
 resource "google_compute_address" "ip2_network2" {
   name         = "%{ip2_network2_name}"
-  region       = "us-east1"
+  region       = "northamerica-south1"
   subnetwork   = google_compute_subnetwork.subnet_network2.id
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
@@ -365,7 +365,7 @@ resource "google_compute_address" "ip2_network2" {
 resource "google_compute_subnetwork" "subnet_network2" {
   name          = "%{subnet_network2_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-east1"
+  region        = "northamerica-south1"
   network       = google_compute_network.network2.id
 }
 
@@ -379,7 +379,7 @@ resource "google_redis_cluster" "cluster-user-auto-conn" {
   name           = "%{cluster_name}"
   shard_count    = 1
   node_type = "REDIS_SHARED_CORE_NANO"
-  region = "us-east1"
+  region = "northamerica-south1"
   replica_count = 0
   deletion_protection_enabled = false
   psc_configs {
@@ -392,7 +392,7 @@ resource "google_redis_cluster" "cluster-user-auto-conn" {
 
 resource "google_network_connectivity_service_connection_policy" "default" {
   name = "%{policy_name}"
-  location = "us-east1"
+  location = "northamerica-south1"
   service_class = "gcp-memorystore-redis"
   description   = "my basic service connection policy"
   network = google_compute_network.network1.id
@@ -404,7 +404,7 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 resource "google_compute_subnetwork" "subnet_network1" {
   name          = "%{subnet_network1_name}"
   ip_cidr_range = "10.0.0.248/29"
-  region        = "us-east1"
+  region        = "northamerica-south1"
   network       = google_compute_network.network1.id
 }
 
