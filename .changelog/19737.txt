@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added `orchestrator_spec.kubernetes_spec` field to `google_vertex_ai_model_development_cluster` (beta)
+```
