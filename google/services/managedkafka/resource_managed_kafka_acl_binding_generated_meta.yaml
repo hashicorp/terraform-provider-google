@@ -1,0 +1,25 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_managed_kafka_acl_binding
+generation_type: mmv1
+source_file: products/managedkafka/AclBinding.yaml
+api_service_name: managedkafka.googleapis.com
+api_version: v1
+api_resource_type_kind: AclBinding
+fields:
+    - field: acl_id
+      provider_only: true
+    - field: cluster
+      provider_only: true
+    - api_field: aclEntries.host
+      field: host
+    - field: location
+      provider_only: true
+    - api_field: aclEntries.operation
+      field: operation
+    - api_field: aclEntries.permissionType
+      field: permission_type
+    - api_field: aclEntries.principal
+      field: principal
+    - field: deletion_policy
+      provider_only: true
