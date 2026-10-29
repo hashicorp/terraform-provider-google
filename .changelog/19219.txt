@@ -1,0 +1,3 @@
+```release-note:bug
+resourcemanager: fixed `google_netblock_ip_ranges` reporting no CIDR ranges, rather than an error, when the Google IP range list could not be retrieved
+```

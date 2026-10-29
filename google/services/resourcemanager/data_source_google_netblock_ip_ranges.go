@@ -260,6 +260,11 @@ func getCidrBlocksFromUrl(url string) (map[string][]string, error) {
 	}
 
 	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Error to retrieve the CIDR list from %s: HTTP %d", url, response.StatusCode)
+	}
+
 	body, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
@@ -282,6 +287,10 @@ func getCidrBlocksFromUrl(url string) (map[string][]string, error) {
 			cidrBlocks["cidr_blocks"] = append(cidrBlocks["cidr_blocks"], element.Ipv6Prefix)
 		}
 
+	}
+
+	if len(cidrBlocks) == 0 {
+		return nil, fmt.Errorf("Error to retrieve the CIDR list from %s: no IP ranges in response", url)
 	}
 
 	return cidrBlocks, nil
