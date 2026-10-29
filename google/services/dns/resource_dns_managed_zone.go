@@ -964,6 +964,7 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 					Change:      chg,
 					Project:     project,
 					ManagedZone: zone,
+					SleepUnit:   config.SleepUnit,
 				}
 				_, err = w.Conf().WaitForState()
 				if err != nil {

@@ -372,6 +372,14 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 		}
 	}
 
+	// Set default of 10s if unset by user in provider.go or LoadAndValidate was invoked directly
+	if c.PollInterval == 0 {
+		c.PollInterval = 10 * time.Second
+	}
+	if c.SleepUnit == 0 {
+		c.SleepUnit = time.Second
+	}
+
 	// 2. Logging Transport - ensure we log HTTP requests to GCP APIs.
 	loggingTransport := logging.NewTransport("Google", client.Transport)
 
@@ -380,6 +388,7 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	// This value should be used if needed to create shallow copies with additional retry predicates.
 	// See ClientWithAdditionalRetries
 	retryTransport := NewTransportWithDefaultRetries(loggingTransport)
+	retryTransport.sleepUnit = c.SleepUnit
 
 	// 4. Header Transport - outer wrapper to inject additional headers we want to apply
 	// before making requests
@@ -409,13 +418,6 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	c.Region = GetRegionFromRegionSelfLink(c.Region)
 	c.RequestBatcherServiceUsage = NewRequestBatcher("Service Usage", ctx, c.BatchingConfig)
 	c.RequestBatcherIam = NewRequestBatcher("IAM", ctx, c.BatchingConfig)
-	// Set default of 10s if unset by user in provider.go or LoadAndValidate was invoked directly
-	if c.PollInterval == 0 {
-		c.PollInterval = 10 * time.Second
-	}
-	if c.SleepUnit == 0 {
-		c.SleepUnit = time.Second
-	}
 
 	c.setRPCClients()
 

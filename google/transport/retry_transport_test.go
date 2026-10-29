@@ -321,3 +321,31 @@ func testRetryTransportRetryPredicate(err error) (bool, string) {
 	}
 	return false, ""
 }
+
+func TestRetryTransport_SleepUnitFastBackoff(t *testing.T) {
+	attempts := 0
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		attempts++
+		if attempts < 3 {
+			w.WriteHeader(testRetryTransportCodeRetry)
+			return
+		}
+		w.WriteHeader(testRetryTransportCodeSuccess)
+	}))
+	defer ts.Close()
+
+	client := ts.Client()
+	rt := NewTransportWithDefaultRetries(http.DefaultTransport)
+	rt.sleepUnit = time.Millisecond
+	client.Transport = rt.WithAddedPredicates(testRetryTransportRetryPredicate)
+
+	start := time.Now()
+	resp, err := client.Get(ts.URL)
+	testRetryTransport_checkSuccess(t, resp, err)
+	if attempts != 3 {
+		t.Fatalf("Expected 3 attempts, got %d", attempts)
+	}
+	if elapsed := time.Since(start); elapsed > 100*time.Millisecond {
+		t.Fatalf("Expected retryTransport with 1ms sleepUnit to finish quickly, took %v", elapsed)
+	}
+}

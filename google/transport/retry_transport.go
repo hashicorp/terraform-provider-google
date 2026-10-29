@@ -67,6 +67,7 @@ func NewTransportWithDefaultRetries(t http.RoundTripper) *retryTransport {
 	return &retryTransport{
 		retryPredicates: defaultErrorRetryPredicates,
 		internal:        t,
+		sleepUnit:       time.Second,
 	}
 }
 
@@ -90,6 +91,7 @@ func (t *retryTransport) WithAddedPredicates(predicates ...RetryErrorPredicateFu
 type retryTransport struct {
 	retryPredicates []RetryErrorPredicateFunc
 	internal        http.RoundTripper
+	sleepUnit       time.Duration
 }
 
 // RoundTrip implements the RoundTripper interface method.
@@ -110,8 +112,12 @@ func (t *retryTransport) RoundTrip(req *http.Request) (resp *http.Response, resp
 	}
 
 	attempts := 0
-	backoff := time.Millisecond * 500
-	nextBackoff := time.Millisecond * 500
+	sleepUnit := t.sleepUnit
+	if sleepUnit <= 0 {
+		sleepUnit = time.Second
+	}
+	backoff := sleepUnit / 2
+	nextBackoff := sleepUnit / 2
 
 	// VCR depends on the original request body being consumed, so
 	// consume here. Since this won't affect the request itself,

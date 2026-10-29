@@ -1957,12 +1957,12 @@ func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.R
 			return instance["id"], status, nil
 		}
 		stateChangeConf := retry.StateChangeConf{
-			Delay:      5 * time.Second,
+			Delay:      5 * config.SleepUnit,
 			Pending:    getAllStatusBut(status),
 			Refresh:    stateRefreshFunc,
 			Target:     []string{status},
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			MinTimeout: 2 * time.Second,
+			MinTimeout: 2 * config.SleepUnit,
 		}
 		_, err := stateChangeConf.WaitForState()
 
