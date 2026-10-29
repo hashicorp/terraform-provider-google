@@ -405,7 +405,6 @@ If this is not specified, the default behavior is defined by gRPC.`,
 																		},
 																	},
 																},
-																ExactlyOneOf: []string{},
 															},
 															"http_get": {
 																Type:        schema.TypeList,
@@ -449,7 +448,6 @@ If not specified, defaults to the same value as container.ports[0].containerPort
 																		},
 																	},
 																},
-																ExactlyOneOf: []string{},
 															},
 															"initial_delay_seconds": {
 																Type:     schema.TypeInt,
@@ -546,7 +544,6 @@ If this is not specified, the default behavior is defined by gRPC.`,
 																		},
 																	},
 																},
-																ExactlyOneOf: []string{},
 															},
 															"http_get": {
 																Type:        schema.TypeList,
@@ -570,7 +567,6 @@ If not specified, defaults to the same value as container.ports[0].containerPort
 																		},
 																	},
 																},
-																ExactlyOneOf: []string{},
 															},
 															"period_seconds": {
 																Type:     schema.TypeInt,
@@ -675,7 +671,6 @@ If this is not specified, the default behavior is defined by gRPC.`,
 																		},
 																	},
 																},
-																ExactlyOneOf: []string{},
 															},
 															"http_get": {
 																Type:        schema.TypeList,
@@ -719,7 +714,6 @@ If not specified, defaults to the same value as container.ports[0].containerPort
 																		},
 																	},
 																},
-																ExactlyOneOf: []string{},
 															},
 															"initial_delay_seconds": {
 																Type:     schema.TypeInt,
@@ -752,7 +746,6 @@ If not specified, defaults to the same value as container.ports[0].containerPort
 																		},
 																	},
 																},
-																ExactlyOneOf: []string{},
 															},
 															"timeout_seconds": {
 																Type:     schema.TypeInt,

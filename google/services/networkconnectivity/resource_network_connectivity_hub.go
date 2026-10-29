@@ -189,10 +189,9 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				},
 			},
 			"state": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Description:  `Output only. The current lifecycle state of this hub.`,
-				ExactlyOneOf: []string{},
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The current lifecycle state of this hub.`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,

@@ -236,10 +236,9 @@ and configurations, such as shortcuts.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"url": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													Description:  `Image URL.`,
-													ExactlyOneOf: []string{},
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Image URL.`,
 												},
 											},
 										},
@@ -271,10 +270,9 @@ favicons, and colors.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"url": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Description:  `Image URL.`,
-										ExactlyOneOf: []string{},
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Image URL.`,
 									},
 								},
 							},

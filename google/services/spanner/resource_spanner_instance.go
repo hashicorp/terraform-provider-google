@@ -246,11 +246,9 @@ the instance.`,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"max_nodes": {
-																Type:         schema.TypeInt,
-																Optional:     true,
-																Description:  `The maximum number of nodes for this specific replica.`,
-																ExactlyOneOf: []string{},
-																RequiredWith: []string{},
+																Type:        schema.TypeInt,
+																Optional:    true,
+																Description: `The maximum number of nodes for this specific replica.`,
 															},
 															"max_processing_units": {
 																Type:     schema.TypeInt,
@@ -258,23 +256,17 @@ the instance.`,
 																Description: `The maximum number of processing units for this specific replica.
 If set, this number should be multiples of 1000 and be greater than or equal to
 min_processing_units.`,
-																ExactlyOneOf: []string{},
-																RequiredWith: []string{},
 															},
 															"min_nodes": {
-																Type:         schema.TypeInt,
-																Optional:     true,
-																Description:  `The minimum number of nodes for this specific replica.`,
-																ExactlyOneOf: []string{},
-																RequiredWith: []string{},
+																Type:        schema.TypeInt,
+																Optional:    true,
+																Description: `The minimum number of nodes for this specific replica.`,
 															},
 															"min_processing_units": {
 																Type:     schema.TypeInt,
 																Optional: true,
 																Description: `The minimum number of processing units for this specific replica.
 If set, this number should be multiples of 1000.`,
-																ExactlyOneOf: []string{},
-																RequiredWith: []string{},
 															},
 														},
 													},
@@ -343,8 +335,6 @@ min_limit and max_limit.`,
 										Optional: true,
 										Description: `Specifies maximum number of nodes allocated to the instance. If set, this number
 should be greater than or equal to min_nodes.`,
-										ExactlyOneOf: []string{},
-										RequiredWith: []string{},
 									},
 									"max_processing_units": {
 										Type:     schema.TypeInt,
@@ -352,22 +342,18 @@ should be greater than or equal to min_nodes.`,
 										Description: `Specifies maximum number of processing units allocated to the instance.
 If set, this number should be multiples of 1000 and be greater than or equal to
 min_processing_units.`,
-										ExactlyOneOf: []string{},
 									},
 									"min_nodes": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Description: `Specifies number of nodes allocated to the instance. If set, this number
 should be greater than or equal to 1.`,
-										ExactlyOneOf: []string{},
-										RequiredWith: []string{},
 									},
 									"min_processing_units": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Description: `Specifies minimum number of processing units allocated to the instance.
 If set, this number should be multiples of 1000.`,
-										ExactlyOneOf: []string{},
 									},
 								},
 							},

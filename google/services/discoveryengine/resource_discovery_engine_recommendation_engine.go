@@ -247,7 +247,6 @@ engine. Currently supported values: 'view-home-page', 'generic'.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{},
 						},
 						"optimization_objective": {
 							Type:     schema.TypeString,

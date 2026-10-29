@@ -206,10 +206,9 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `Output only. The name of the route table that corresponds to this group. They use the following form: 'projects/{projectNumber}/locations/global/hubs/{hubId}/routeTables/{route_table_id}'`,
 			},
 			"state": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Description:  `Output only. The current lifecycle state of this hub.`,
-				ExactlyOneOf: []string{},
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The current lifecycle state of this hub.`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,

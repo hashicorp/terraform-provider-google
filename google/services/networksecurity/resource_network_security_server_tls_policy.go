@@ -206,7 +206,6 @@ Defines a mechanism to provision server identity (public and private keys). Cann
 												},
 											},
 										},
-										ExactlyOneOf: []string{},
 									},
 									"grpc_endpoint": {
 										Type:        schema.TypeList,
@@ -222,7 +221,6 @@ Defines a mechanism to provision server identity (public and private keys). Cann
 												},
 											},
 										},
-										ExactlyOneOf: []string{},
 									},
 								},
 							},
@@ -279,7 +277,6 @@ Defines a mechanism to provision server identity (public and private keys). Cann
 									},
 								},
 							},
-							ExactlyOneOf: []string{},
 						},
 						"grpc_endpoint": {
 							Type:        schema.TypeList,
@@ -295,7 +292,6 @@ Defines a mechanism to provision server identity (public and private keys). Cann
 									},
 								},
 							},
-							ExactlyOneOf: []string{},
 						},
 					},
 				},
