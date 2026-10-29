@@ -60,7 +60,7 @@ resource "google_compute_subnetwork" "subnet" {
   provider                 = google-beta
   name                     = "mdc-subnet"
   ip_cidr_range            = "10.0.0.0/24"
-  region                   = "us-central1"
+  region                   = "us-east4"
   network                  = google_compute_network.net.id
   private_ip_google_access = true
 }
@@ -88,7 +88,7 @@ resource "google_compute_firewall" "internal" {
 resource "google_filestore_instance" "home" {
   provider = google-beta
   name     = "mdc-home"
-  location = "us-central1-b"
+  location = "us-east4-b"
   tier     = "BASIC_HDD"
 
   file_shares {
@@ -105,7 +105,7 @@ resource "google_filestore_instance" "home" {
 resource "google_filestore_instance" "data" {
   provider = google-beta
   name     = "mdc-data"
-  location = "us-central1-b"
+  location = "us-east4-b"
   tier     = "BASIC_HDD"
 
   file_shares {
@@ -122,7 +122,7 @@ resource "google_filestore_instance" "data" {
 resource "google_compute_reservation" "res" {
   provider                      = google-beta
   name                          = "mdc-res"
-  zone                          = "us-central1-b"
+  zone                          = "us-east4-b"
   specific_reservation_required = true
 
   specific_reservation {
@@ -135,7 +135,7 @@ resource "google_compute_reservation" "res" {
 
 resource "google_vertex_ai_model_development_cluster" "default" {
   provider                     = google-beta
-  region                       = "us-central1"
+  region                       = "us-east4"
   model_development_cluster_id = "tftest"
   display_name                 = "tftest"
   deletion_policy              = "DELETE"
@@ -196,7 +196,7 @@ resource "google_vertex_ai_model_development_cluster" "default" {
 
   node_pools {
     id                 = "compute"
-    zone               = "us-central1-b"
+    zone               = "us-east4-b"
     provisioning_model = "ON_DEMAND"
     node_image         = "projects/clusterdirector-public-images/global/images/family/common-ubuntu-2204-amd64-nvidia-580-slurm-2505-v20251113"
     startup_script     = "#!/bin/bash\necho hello"
@@ -224,7 +224,7 @@ resource "google_vertex_ai_model_development_cluster" "default" {
 
   node_pools {
     id                      = "flexpool"
-    zone                    = "us-central1-b"
+    zone                    = "us-east4-b"
     provisioning_model      = "FLEX_START"
     flex_start_max_duration = "3600s"
     node_image              = "projects/clusterdirector-public-images/global/images/family/common-ubuntu-2204-amd64-nvidia-580-slurm-2505-v20251113"
@@ -253,7 +253,7 @@ resource "google_vertex_ai_model_development_cluster" "default" {
 
   node_pools {
     id                 = "login"
-    zone               = "us-central1-b"
+    zone               = "us-east4-b"
     provisioning_model = "ON_DEMAND"
     node_image         = "projects/clusterdirector-public-images/global/images/family/common-ubuntu-2204-amd64-nvidia-580-slurm-2505-v20251113"
     startup_script     = "#!/bin/bash\necho hello"
@@ -281,7 +281,7 @@ resource "google_vertex_ai_model_development_cluster" "default" {
 
   node_pools {
     id                 = "respool"
-    zone               = "us-central1-b"
+    zone               = "us-east4-b"
     provisioning_model = "RESERVATION"
     node_image         = "projects/clusterdirector-public-images/global/images/family/common-ubuntu-2204-amd64-nvidia-580-slurm-2505-v20251113"
     startup_script     = "#!/bin/bash\necho hello"
@@ -415,7 +415,10 @@ The following arguments are supported:
 
 * `node_pools` -
   (Required)
-  The spec of the pools of different resources.
+  The spec of the pools of different resources. Node pools can be added,
+  removed, or reordered in place; changing some fields on an existing node
+  pool may require replacing the node pool (validated server-side by the
+  API).
   Structure is [documented below](#nested_node_pools).
 
 * `orchestrator_spec` -
@@ -519,7 +522,9 @@ The following arguments are supported:
 
 * `id` -
   (Required)
-  The unique ID referring to this node pool.
+  The unique ID referring to this node pool. Cannot be modified in
+  place on an existing node pool; changing `id` updates the list of
+  node pools by adding/removing pools (validated server-side).
 
 * `labels` -
   (Optional)
