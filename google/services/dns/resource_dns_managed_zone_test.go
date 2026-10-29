@@ -277,6 +277,7 @@ func testAccCheckManagedZoneCreateRRs(t *testing.T, suffix string, project strin
 			Change:      chg,
 			Project:     project,
 			ManagedZone: zone,
+			SleepUnit:   config.SleepUnit,
 		}
 		_, err = w.Conf().WaitForState()
 		if err != nil {

@@ -279,8 +279,8 @@ func HandleVCRConfiguration(ctx context.Context, testName string, rndTripper htt
 	case "REPLAYING":
 		vcrMode = recorder.ModeReplaying
 		// When replaying, set the poll interval and sleep unit low to speed up tests
-		pollInterval = 10 * time.Millisecond
 		sleepUnit = time.Millisecond
+		pollInterval = sleepUnit
 	default:
 		tflog.Debug(ctx, fmt.Sprintf("No valid environment var set for VCR_MODE, expected RECORDING or REPLAYING, skipping VCR. VCR_MODE: %s", vcrEnv))
 		return pollInterval, sleepUnit, rndTripper, diags

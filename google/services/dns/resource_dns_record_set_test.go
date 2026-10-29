@@ -564,6 +564,7 @@ func testAccCheckDnsRecordSetSetRoutingPolicyOutOfBand(t *testing.T, zoneName, r
 			Change:      chg,
 			Project:     config.Project,
 			ManagedZone: zoneName,
+			SleepUnit:   config.SleepUnit,
 		}
 		if _, err = w.Conf().WaitForState(); err != nil {
 			t.Errorf("Error waiting for out of band Google DNS change: %s", err)
@@ -603,6 +604,7 @@ func testAccCheckDnsRecordSetSetRrdataOutOfBand(t *testing.T, zoneName, rrsetNam
 			Change:      chg,
 			Project:     config.Project,
 			ManagedZone: zoneName,
+			SleepUnit:   config.SleepUnit,
 		}
 		if _, err = w.Conf().WaitForState(); err != nil {
 			t.Errorf("Error waiting for out of band Google DNS change: %s", err)

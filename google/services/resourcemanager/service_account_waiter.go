@@ -49,11 +49,15 @@ func (w *ServiceAccountKeyWaiter) RefreshFunc() retry.StateRefreshFunc {
 	}
 }
 
-func ServiceAccountKeyWaitTime(client *iam.ProjectsServiceAccountsKeysService, keyName, publicKeyType, activity string, timeout time.Duration) error {
+func ServiceAccountKeyWaitTime(client *iam.ProjectsServiceAccountsKeysService, keyName, publicKeyType, activity string, timeout time.Duration, sleepUnit time.Duration) error {
 	w := &ServiceAccountKeyWaiter{
 		Service:       client,
 		PublicKeyType: publicKeyType,
 		KeyName:       keyName,
+	}
+
+	if sleepUnit <= 0 {
+		sleepUnit = time.Second
 	}
 
 	c := &retry.StateChangeConf{
@@ -61,7 +65,7 @@ func ServiceAccountKeyWaitTime(client *iam.ProjectsServiceAccountsKeysService, k
 		Target:     []string{"DONE"},
 		Refresh:    w.RefreshFunc(),
 		Timeout:    timeout,
-		MinTimeout: 2 * time.Second,
+		MinTimeout: 2 * sleepUnit,
 	}
 	_, err := c.WaitForState()
 	if err != nil {

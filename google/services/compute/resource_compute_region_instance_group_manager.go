@@ -1074,11 +1074,13 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 
 func computeRIGMWaitForInstanceStatus(d *schema.ResourceData, meta interface{}) error {
 	waitForUpdates := d.Get("wait_for_instances_status").(string) == "UPDATED"
+	config := meta.(*transport_tpg.Config)
 	conf := retry.StateChangeConf{
-		Pending: []string{"creating", "error", "updating per instance configs", "reaching version target", "updating all instances config"},
-		Target:  []string{"created"},
-		Refresh: waitForRegionInstancesRefreshFunc(getRegionalManager, waitForUpdates, d, meta),
-		Timeout: d.Timeout(schema.TimeoutCreate),
+		Pending:    []string{"creating", "error", "updating per instance configs", "reaching version target", "updating all instances config"},
+		Target:     []string{"created"},
+		Refresh:    waitForRegionInstancesRefreshFunc(getRegionalManager, waitForUpdates, d, meta),
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		MinTimeout: config.SleepUnit / 2,
 	}
 	_, err := conf.WaitForState()
 	if err != nil {

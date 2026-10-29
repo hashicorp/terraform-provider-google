@@ -460,6 +460,7 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		Change:      chg,
 		Project:     project,
 		ManagedZone: zone,
+		SleepUnit:   config.SleepUnit,
 	}
 	_, err = w.Conf().WaitForState()
 	if err != nil {
@@ -623,6 +624,7 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 		Change:      chg,
 		Project:     project,
 		ManagedZone: zone,
+		SleepUnit:   config.SleepUnit,
 	}
 	_, err = w.Conf().WaitForState()
 	if err != nil {
@@ -709,6 +711,7 @@ func resourceDnsRecordSetUpdate(d *schema.ResourceData, meta interface{}) error 
 		Change:      chg,
 		Project:     project,
 		ManagedZone: zone,
+		SleepUnit:   config.SleepUnit,
 	}
 	if _, err = w.Conf().WaitForState(); err != nil {
 		return fmt.Errorf("Error waiting for Google DNS change: %s", err)

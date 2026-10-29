@@ -186,7 +186,7 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error setting private_key: %s", err)
 	}
 
-	err = ServiceAccountKeyWaitTime(iambeta.NewClient(config, userAgent).Projects.ServiceAccounts.Keys, d.Id(), d.Get("public_key_type").(string), "Creating Service account key", 4*time.Minute)
+	err = ServiceAccountKeyWaitTime(iambeta.NewClient(config, userAgent).Projects.ServiceAccounts.Keys, d.Id(), d.Get("public_key_type").(string), "Creating Service account key", 4*time.Minute, config.SleepUnit)
 	if err != nil {
 		return err
 	}
