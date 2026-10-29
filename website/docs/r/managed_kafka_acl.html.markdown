@@ -25,6 +25,12 @@ A Managed Service for Apache Kafka ACL. Apache Kafka is a trademark owned by the
 
 
 
+~> **Warning:** `google_managed_kafka_acl` cannot be used in conjunction with
+`google_managed_kafka_acl_binding` for the same ACL (same `cluster` and
+`acl_id`), or they will fight over which ACL entries are set.
+`google_managed_kafka_acl` is authoritative: on every apply it replaces
+the full `acl_entries` list, removing any entry added by a
+`google_managed_kafka_acl_binding`.
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=managedkafka_acl_basic&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
