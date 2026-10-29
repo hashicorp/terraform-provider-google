@@ -82,7 +82,7 @@ func TestAccDataPipelinePipeline_dataPipelinePipelineExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_pipeline_pipeline.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

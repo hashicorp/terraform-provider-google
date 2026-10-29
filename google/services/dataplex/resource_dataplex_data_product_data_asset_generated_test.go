@@ -83,7 +83,7 @@ func TestAccDataplexDataProductDataAsset_dataplexDataProductDataAssetBasicExampl
 			},
 			{
 				ResourceName:       "google_dataplex_data_product_data_asset.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -156,7 +156,7 @@ func TestAccDataplexDataProductDataAsset_dataplexDataProductDataAssetFullExample
 			},
 			{
 				ResourceName:       "google_dataplex_data_product_data_asset.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

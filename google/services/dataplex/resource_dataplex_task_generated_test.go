@@ -82,7 +82,7 @@ func TestAccDataplexTask_dataplexTaskBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_task.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -167,7 +167,7 @@ func TestAccDataplexTask_dataplexTaskSparkExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_task.example_spark",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -267,7 +267,7 @@ func TestAccDataplexTask_dataplexTaskNotebookExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_task.example_notebook",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

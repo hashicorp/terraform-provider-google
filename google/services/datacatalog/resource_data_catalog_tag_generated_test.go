@@ -83,7 +83,7 @@ func TestAccDataCatalogTag_dataCatalogEntryTagBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_catalog_tag.basic_tag",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -190,7 +190,7 @@ func TestAccDataCatalogTag_dataCatalogEntryGroupTagExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_catalog_tag.entry_group_tag",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -305,7 +305,7 @@ func TestAccDataCatalogTag_dataCatalogEntryTagFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_catalog_tag.basic_tag",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -479,7 +479,7 @@ func TestAccDataCatalogTag_dataCatalogEntryTagFalseExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_catalog_tag.basic_tag",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

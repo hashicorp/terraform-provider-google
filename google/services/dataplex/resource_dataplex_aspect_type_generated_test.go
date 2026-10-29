@@ -81,7 +81,7 @@ func TestAccDataplexAspectType_dataplexAspectTypeBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_aspect_type.test_aspect_type_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -154,7 +154,7 @@ func TestAccDataplexAspectType_dataplexAspectTypeFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_aspect_type.test_aspect_type_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

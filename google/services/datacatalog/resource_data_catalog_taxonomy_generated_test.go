@@ -80,7 +80,7 @@ func TestAccDataCatalogTaxonomy_dataCatalogTaxonomyBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_data_catalog_taxonomy.basic_taxonomy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -90,7 +90,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 			},
 			{
 				ResourceName:       "google_database_migration_service_connection_profile.cloudsqlprofile",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -219,7 +219,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 			},
 			{
 				ResourceName:       "google_database_migration_service_connection_profile.postgresprofile",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -310,7 +310,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 			},
 			{
 				ResourceName:       "google_database_migration_service_connection_profile.postgresprofile",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -398,7 +398,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 			},
 			{
 				ResourceName:       "google_database_migration_service_connection_profile.postgresprofile",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -483,7 +483,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 			},
 			{
 				ResourceName:       "google_database_migration_service_connection_profile.existing-mysql",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -548,7 +548,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 			},
 			{
 				ResourceName:       "google_database_migration_service_connection_profile.existing-psql",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -614,7 +614,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 			},
 			{
 				ResourceName:       "google_database_migration_service_connection_profile.existing-alloydb",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -85,7 +85,7 @@ func TestAccDataplexEntry_dataplexEntryBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_entry.test_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -147,7 +147,7 @@ func TestAccDataplexEntry_dataplexEntryFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_entry.test_entry_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -323,7 +323,7 @@ func TestAccDataplexEntry_dataplexEntryBigqueryTableExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_entry.tf_test_table",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -494,7 +494,7 @@ func TestAccDataplexEntry_dataplexEntryGlossaryTermExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_entry.tf_test_glossary_term",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

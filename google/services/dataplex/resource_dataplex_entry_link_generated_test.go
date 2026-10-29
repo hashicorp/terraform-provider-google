@@ -82,7 +82,7 @@ func TestAccDataplexEntryLink_dataplexEntryLinkBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_entry_link.basic_entry_link",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -169,7 +169,7 @@ func TestAccDataplexEntryLink_dataplexEntryLinkFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_entry_link.full_entry_link",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -264,7 +264,7 @@ func TestAccDataplexEntryLink_dataplexEntryLinkWithAspectExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataplex_entry_link.full_entry_link_with_aspect",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

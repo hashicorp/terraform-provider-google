@@ -81,7 +81,7 @@ func TestAccContainerAttachedCluster_containerAttachedClusterBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_container_attached_cluster.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -142,7 +142,7 @@ func TestAccContainerAttachedCluster_containerAttachedClusterFullExample(t *test
 			},
 			{
 				ResourceName:       "google_container_attached_cluster.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -230,7 +230,7 @@ func TestAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample
 			},
 			{
 				ResourceName:       "google_container_attached_cluster.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

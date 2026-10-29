@@ -83,7 +83,7 @@ func TestAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePr
 			},
 			{
 				ResourceName:       "google_database_migration_service_private_connection.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -146,7 +146,7 @@ func TestAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePr
 			},
 			{
 				ResourceName:       "google_database_migration_service_private_connection.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -219,7 +219,7 @@ func TestAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePr
 			},
 			{
 				ResourceName:       "google_database_migration_service_private_connection.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
