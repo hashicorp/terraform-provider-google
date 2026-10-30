@@ -93,7 +93,7 @@ func TestAccApphubWorkload_apphubWorkloadBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apphub_workload.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -278,7 +278,7 @@ func TestAccApphubWorkload_apphubWorkloadFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apphub_workload.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

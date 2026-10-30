@@ -83,7 +83,7 @@ func TestAccAlloydbCluster_alloydbClusterBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_alloydb_cluster.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -139,7 +139,7 @@ func TestAccAlloydbCluster_alloydbClusterBeforeUpgradeExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_alloydb_cluster.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -209,7 +209,7 @@ func TestAccAlloydbCluster_alloydbClusterAfterUpgradeExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_alloydb_cluster.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -277,7 +277,7 @@ func TestAccAlloydbCluster_alloydbClusterFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_alloydb_cluster.full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -374,7 +374,7 @@ func TestAccAlloydbCluster_alloydbSecondaryClusterBasicTestExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_alloydb_cluster.secondary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

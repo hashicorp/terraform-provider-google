@@ -80,7 +80,7 @@ func TestAccAppEngineServiceNetworkSettings_appEngineServiceNetworkSettingsExamp
 			},
 			{
 				ResourceName:       "google_app_engine_service_network_settings.internalapp",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

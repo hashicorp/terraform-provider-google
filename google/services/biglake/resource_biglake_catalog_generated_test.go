@@ -80,7 +80,7 @@ func TestAccBiglakeCatalog_bigqueryBiglakeCatalogExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_biglake_catalog.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

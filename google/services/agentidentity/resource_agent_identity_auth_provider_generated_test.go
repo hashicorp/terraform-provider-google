@@ -80,7 +80,7 @@ func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_agent_identity_auth_provider.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

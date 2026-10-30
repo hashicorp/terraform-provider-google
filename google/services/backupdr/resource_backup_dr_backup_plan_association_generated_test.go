@@ -88,7 +88,7 @@ func TestAccBackupDRBackupPlanAssociation_backupDrBpaExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_backup_dr_backup_plan_association.my-backup-plan-association",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -200,7 +200,7 @@ func TestAccBackupDRBackupPlanAssociation_backupDrBpaFilestoreExample(t *testing
 			},
 			{
 				ResourceName:       "google_backup_dr_backup_plan_association.my-backup-plan-association-filestore",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

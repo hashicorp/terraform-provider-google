@@ -86,7 +86,7 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 			},
 			{
 				ResourceName:       "google_app_engine_standard_app_version.myapp_v1",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -220,7 +220,7 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionBundledServic
 			},
 			{
 				ResourceName:       "google_app_engine_standard_app_version.gae-std-app-ver-bundled",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

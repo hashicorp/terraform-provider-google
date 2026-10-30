@@ -82,7 +82,7 @@ func TestAccAgentRegistryBinding_agentRegistryBindingBasicExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_agent_registry_binding.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -160,7 +160,7 @@ func TestAccAgentRegistryBinding_agentRegistryBindingTargetOnlyExample(t *testin
 			},
 			{
 				ResourceName:       "google_agent_registry_binding.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

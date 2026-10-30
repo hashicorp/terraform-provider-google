@@ -79,7 +79,7 @@ func TestAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_app_engine_domain_mapping.domain_mapping",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

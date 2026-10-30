@@ -104,7 +104,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaBasicExamp
 			},
 			{
 				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -124,7 +124,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaBasicExamp
 			},
 			{
 				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -211,7 +211,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaFullExampl
 			},
 			{
 				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -231,7 +231,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaFullExampl
 			},
 			{
 				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -688,7 +688,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodolog
 			},
 			{
 				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -708,7 +708,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMethodolog
 			},
 			{
 				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -793,7 +793,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaAuditTrail
 			},
 			{
 				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -813,7 +813,7 @@ func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaAuditTrail
 			},
 			{
 				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

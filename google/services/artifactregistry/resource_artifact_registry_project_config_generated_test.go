@@ -85,7 +85,7 @@ func TestAccArtifactRegistryProjectConfig_artifactRegistryProjectConfigExample(t
 			},
 			{
 				ResourceName:       "google_artifact_registry_project_config.my-config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -105,7 +105,7 @@ func TestAccArtifactRegistryProjectConfig_artifactRegistryProjectConfigExample(t
 			},
 			{
 				ResourceName:       "google_artifact_registry_project_config.my-config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

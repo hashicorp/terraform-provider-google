@@ -80,7 +80,7 @@ func TestAccAppEngineApplicationUrlDispatchRules_appEngineApplicationUrlDispatch
 			},
 			{
 				ResourceName:       "google_app_engine_application_url_dispatch_rules.web_service",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

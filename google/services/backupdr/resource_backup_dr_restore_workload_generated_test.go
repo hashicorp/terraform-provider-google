@@ -85,7 +85,7 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadComputeInstanceBasicE
 			},
 			{
 				ResourceName:       "google_backup_dr_restore_workload.restore_compute_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -145,7 +145,7 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadComputeInstanceFullEx
 			},
 			{
 				ResourceName:       "google_backup_dr_restore_workload.restore_compute_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -275,7 +275,7 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadDiskBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_backup_dr_restore_workload.restore_disk_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -343,7 +343,7 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadRegionalDiskExample(t
 			},
 			{
 				ResourceName:       "google_backup_dr_restore_workload.restore_regional_disk",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -418,7 +418,7 @@ func TestAccBackupDRRestoreWorkload_backupDrRestoreWorkloadWithoutDeleteExample(
 			},
 			{
 				ResourceName:       "google_backup_dr_restore_workload.restore_without_delete",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

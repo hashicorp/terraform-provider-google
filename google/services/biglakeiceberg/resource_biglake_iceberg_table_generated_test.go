@@ -83,7 +83,7 @@ func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableBasicExample(t *testin
 			},
 			{
 				ResourceName:       "google_biglake_iceberg_table.my_iceberg_table",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -171,7 +171,7 @@ func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableSortOrderExample(t *te
 			},
 			{
 				ResourceName:       "google_biglake_iceberg_table.my_iceberg_table",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -251,7 +251,7 @@ func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableNestedTypesExample(t *
 			},
 			{
 				ResourceName:       "google_biglake_iceberg_table.my_iceberg_table",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -363,7 +363,7 @@ func TestAccBiglakeIcebergIcebergTable_biglakeIcebergTableUpdateExample(t *testi
 			},
 			{
 				ResourceName:       "google_biglake_iceberg_table.my_iceberg_table",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
