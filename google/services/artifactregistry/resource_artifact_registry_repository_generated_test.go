@@ -84,7 +84,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryBasicExample(t 
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -130,7 +130,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryMultiRegionExam
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -176,7 +176,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryDockerExample(t
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -226,7 +226,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryCmekExample(t *
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -287,7 +287,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryVirtualExample(
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -361,7 +361,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteExample(t
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -418,7 +418,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryConnectorExampl
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -501,7 +501,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteAptExampl
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -557,7 +557,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteYumExampl
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -613,7 +613,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryCleanupExample(
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -705,7 +705,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerhub
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -789,7 +789,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerCus
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -875,7 +875,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteMavenCust
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -961,7 +961,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteNpmCustom
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1047,7 +1047,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemotePythonCus
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1131,7 +1131,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRep
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1193,7 +1193,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRep
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1260,7 +1260,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCommonRep
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1340,7 +1340,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryVulnerabilitySc
 			},
 			{
 				ResourceName:       "google_artifact_registry_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

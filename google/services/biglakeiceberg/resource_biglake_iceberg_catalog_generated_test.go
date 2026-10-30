@@ -81,7 +81,7 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogExample(t *testing
 			},
 			{
 				ResourceName:       "google_biglake_iceberg_catalog.my_iceberg_catalog",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -144,7 +144,7 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogPrimaryLocationExa
 			},
 			{
 				ResourceName:       "google_biglake_iceberg_catalog.my_iceberg_catalog",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -199,7 +199,7 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogBiglakeExample(t *
 			},
 			{
 				ResourceName:       "google_biglake_iceberg_catalog.my_iceberg_catalog",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -264,7 +264,7 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogFederatedUnityExam
 			},
 			{
 				ResourceName:       "google_biglake_iceberg_catalog.my_iceberg_catalog",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -321,7 +321,7 @@ func TestAccBiglakeIcebergIcebergCatalog_biglakeIcebergCatalogFederatedGlueExamp
 			},
 			{
 				ResourceName:       "google_biglake_iceberg_catalog.my_iceberg_catalog",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

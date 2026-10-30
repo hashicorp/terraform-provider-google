@@ -80,7 +80,7 @@ func TestAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_beyondcorp_security_gateway.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -124,7 +124,7 @@ func TestAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewayLoggingExample(t 
 			},
 			{
 				ResourceName:       "google_beyondcorp_security_gateway.example-logging",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -169,7 +169,7 @@ func TestAccBeyondcorpSecurityGateway_beyondcorpSecurityGatewaySpaExample(t *tes
 			},
 			{
 				ResourceName:       "google_beyondcorp_security_gateway.example-spa",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

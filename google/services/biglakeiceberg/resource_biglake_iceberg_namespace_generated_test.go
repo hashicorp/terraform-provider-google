@@ -82,7 +82,7 @@ func TestAccBiglakeIcebergIcebergNamespace_biglakeIcebergNamespaceExample(t *tes
 			},
 			{
 				ResourceName:       "google_biglake_iceberg_namespace.my_iceberg_namespace",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

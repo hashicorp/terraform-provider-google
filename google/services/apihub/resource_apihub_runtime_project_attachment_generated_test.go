@@ -86,7 +86,7 @@ func TestAccApihubRuntimeProjectAttachment_apihubRuntimeProjectAttachmentBasicEx
 			},
 			{
 				ResourceName:       "google_apihub_runtime_project_attachment.apihub_runtime_project_attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

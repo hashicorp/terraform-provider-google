@@ -84,7 +84,7 @@ func TestAccBiglakeTable_biglakeTableExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_biglake_table.table",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

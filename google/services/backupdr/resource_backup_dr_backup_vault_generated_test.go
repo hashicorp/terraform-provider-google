@@ -83,7 +83,7 @@ func TestAccBackupDRBackupVault_backupDrBackupVaultSimpleExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_backup_dr_backup_vault.backup-vault-test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -150,7 +150,7 @@ func TestAccBackupDRBackupVault_backupDrBackupVaultCmekExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_backup_dr_backup_vault.backup-vault-cmek",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -80,7 +80,7 @@ func TestAccAgentRegistryService_agentRegistryServiceBasicExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_agent_registry_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -134,7 +134,7 @@ func TestAccAgentRegistryService_agentRegistryServiceMcpServerExample(t *testing
 			},
 			{
 				ResourceName:       "google_agent_registry_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

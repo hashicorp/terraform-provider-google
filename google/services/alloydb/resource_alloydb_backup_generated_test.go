@@ -85,7 +85,7 @@ func TestAccAlloydbBackup_alloydbBackupBasicTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_alloydb_backup.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -155,7 +155,7 @@ func TestAccAlloydbBackup_alloydbBackupFullTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_alloydb_backup.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

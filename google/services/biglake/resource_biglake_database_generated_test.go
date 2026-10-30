@@ -83,7 +83,7 @@ func TestAccBiglakeDatabase_biglakeDatabaseExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_biglake_database.database",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

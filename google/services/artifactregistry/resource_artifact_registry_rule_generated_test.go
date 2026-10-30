@@ -83,7 +83,7 @@ func TestAccArtifactRegistryRule_artifactRegistryRuleBasicExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_artifact_registry_rule.my-rule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -144,7 +144,7 @@ func TestAccArtifactRegistryRule_artifactRegistryRuleFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_artifact_registry_rule.my-rule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

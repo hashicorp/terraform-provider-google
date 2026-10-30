@@ -87,7 +87,7 @@ func TestAccApphubServiceProjectAttachment_serviceProjectAttachmentBasicExample(
 			},
 			{
 				ResourceName:       "google_apphub_service_project_attachment.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -149,7 +149,7 @@ func TestAccApphubServiceProjectAttachment_serviceProjectAttachmentFullExample(t
 			},
 			{
 				ResourceName:       "google_apphub_service_project_attachment.example2",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
