@@ -1,0 +1,24 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dataflow_config_store_setting
+generation_type: mmv1
+source_file: products/dataflow/ConfigStoreSetting.yaml
+api_service_name: dataflow.googleapis.com
+api_version: v1b3
+api_resource_type_kind: ConfigStoreSetting
+api_variant_patterns:
+    - projects/{project}/locations/{location}/configStoreSettings/{config_store_setting}
+    - folders/{folder}/locations/{location}/configStoreSettings/{config_store_setting}
+    - organizations/{organization}/locations/{location}/configStoreSettings/{config_store_setting}
+fields:
+    - field: config_store_setting_id
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: parent
+      provider_only: true
+    - api_field: value.boolValue
+    - api_field: value.stringValue
+    - field: deletion_policy
+      provider_only: true
