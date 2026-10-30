@@ -432,7 +432,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServicePrivateServiceConne
 				ResourceName:            "google_dataproc_metastore_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "tags", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "location", "service_id", "tags", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_dataproc_metastore_service.default",
@@ -460,9 +460,10 @@ resource "google_compute_subnetwork" "subnet" {
 }
 
 resource "google_dataproc_metastore_service" "default" {
-  service_id = "%{metastore_service_name}"
-  location   = "us-central1"
-  tier       = "DEVELOPER"
+  service_id      = "%{metastore_service_name}"
+  location        = "us-central1"
+  tier            = "DEVELOPER"
+  deletion_policy = "FORCE"
 
   hive_metastore_config {
     version = "3.1.2"

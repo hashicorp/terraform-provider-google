@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataprocmetastore: added `FORCE` option to `deletion_policy` on `google_dataproc_metastore_service` to clean up PSC forwarding rules and internal IP addresses in consumer subnetworks on delete
+```
