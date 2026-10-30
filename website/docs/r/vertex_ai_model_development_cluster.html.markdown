@@ -139,6 +139,7 @@ resource "google_vertex_ai_model_development_cluster" "default" {
   model_development_cluster_id = "tftest"
   display_name                 = "tftest"
   deletion_policy              = "DELETE"
+  update_mode                  = "USER_AND_SERVICE"
   depends_on                   = [google_compute_firewall.internal]
 
   labels = {
@@ -484,6 +485,13 @@ The following arguments are supported:
 	When set to "ABANDON", the command will remove the resource from Terraform
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
+* `update_mode` - (Optional) Whether the service also refreshes service-managed fields (startup and
+prolog/epilog scripts, default node images) on update. `USER_ONLY` applies
+only your changes; adding a node pool requires `USER_AND_SERVICE`.
+Only applies to Slurm clusters (`orchestrator_spec.slurm_spec`); ignored
+for GKE clusters (`kubernetes_spec`).
+Defaults to `USER_AND_SERVICE`. Possible values are `USER_ONLY` and
+`USER_AND_SERVICE`.
 
 
 <a name="nested_node_pools"></a>The `node_pools` block supports:
