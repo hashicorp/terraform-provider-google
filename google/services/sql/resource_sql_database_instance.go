@@ -2743,6 +2743,16 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
+	// Cloud SQL rejects some instance updates, such as major version upgrades, while a
+	// Blue-Green Deployment exists. Delete a removed deployment first so those updates can
+	// be applied in the same apply.
+	if isBlueGreenDelete(d) {
+		if err := handleBlueGreenDeploymentDelete(d, config, project, d.Get("region").(string), d.Timeout(schema.TimeoutUpdate), userAgent); err != nil {
+			_ = resourceSqlDatabaseInstanceRead(d, meta)
+			return err
+		}
+	}
+
 	if !isBlueGreenSwitchover(d) {
 		var op *sqladmin.Operation
 		var instance *sqladmin.DatabaseInstance
@@ -3205,7 +3215,7 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	if d.HasChange("blue_green_deployment") {
+	if d.HasChange("blue_green_deployment") && !isBlueGreenDelete(d) {
 		if err := handleBlueGreenDeploymentUpdate(d, config, project, d.Get("region").(string), d.Timeout(schema.TimeoutUpdate), userAgent); err != nil {
 			_ = resourceSqlDatabaseInstanceRead(d, meta)
 			return err
@@ -4332,6 +4342,19 @@ func isBlueGreenSwitchover(d *schema.ResourceData) bool {
 	return oldEnv == "SOURCE" && newEnv == "TARGET"
 }
 
+func isBlueGreenDelete(d *schema.ResourceData) bool {
+	if !d.HasChange("blue_green_deployment") {
+		return false
+	}
+	oldVal, newVal := d.GetChange("blue_green_deployment")
+	oldList, ok := oldVal.([]interface{})
+	if !ok || len(oldList) == 0 || oldList[0] == nil {
+		return false
+	}
+	newList, _ := newVal.([]interface{})
+	return len(newList) == 0 || newList[0] == nil
+}
+
 var skipGreenComparisonFields = map[string]bool{
 	// Top-level fields expected to differ on the Green instance before switchover because Green is a BGD target replica of Blue:
 	"name":                  true, // Green has an auto-generated target name until switchover swaps the Blue and Green names.
@@ -4601,6 +4624,52 @@ func readBlueGreenDeployment(d *schema.ResourceData, config *transport_tpg.Confi
 	return nil
 }
 
+func handleBlueGreenDeploymentDelete(d *schema.ResourceData, config *transport_tpg.Config, project, region string, timeout time.Duration, userAgent string) error {
+	oldVal, _ := d.GetChange("blue_green_deployment")
+	oldList, ok := oldVal.([]interface{})
+	if !ok || len(oldList) == 0 || oldList[0] == nil {
+		return nil
+	}
+	oldMap := oldList[0].(map[string]interface{})
+	deploymentName, _ := oldMap["deployment_name"].(string)
+	deleteOldSourceCfg, _ := oldMap["delete_old_source_on_destroy"].(bool)
+
+	if err := deleteBlueGreenDeployment(d, config, project, d.Get("name").(string), region, deploymentName, deleteOldSourceCfg, timeout, userAgent); err != nil {
+		return err
+	}
+
+	// Deleting the deployment updates the instance and increments its settings version.
+	// Refresh the version so the instance update that follows isn't rejected as stale (412).
+	return refreshSqlDatabaseInstanceSettingsVersion(d, config, project, timeout, userAgent)
+}
+
+// refreshSqlDatabaseInstanceSettingsVersion updates only settings.0.version from the API,
+// leaving the rest of the planned settings unchanged.
+func refreshSqlDatabaseInstanceSettingsVersion(d *schema.ResourceData, config *transport_tpg.Config, project string, timeout time.Duration, userAgent string) error {
+	instanceName := d.Get("name").(string)
+	var instance *sqladmin.DatabaseInstance
+	err := transport_tpg.Retry(transport_tpg.RetryOptions{
+		RetryFunc: func() (rerr error) {
+			instance, rerr = NewClient(config, userAgent).Instances.Get(project, instanceName).Do()
+			return rerr
+		},
+		Timeout:              timeout,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+	})
+	if err != nil {
+		return fmt.Errorf("Error reading instance %q to refresh settings version: %s", instanceName, err)
+	}
+	if instance.Settings == nil {
+		return nil
+	}
+	settings, ok := d.Get("settings").([]interface{})
+	if !ok || len(settings) == 0 || settings[0] == nil {
+		return nil
+	}
+	settings[0].(map[string]interface{})["version"] = int(instance.Settings.SettingsVersion)
+	return d.Set("settings", settings)
+}
+
 func handleBlueGreenDeploymentUpdate(d *schema.ResourceData, config *transport_tpg.Config, project, region string, timeout time.Duration, userAgent string) error {
 	oldVal, newVal := d.GetChange("blue_green_deployment")
 	oldList := oldVal.([]interface{})
@@ -4617,16 +4686,10 @@ func handleBlueGreenDeploymentUpdate(d *schema.ResourceData, config *transport_t
 		return createBlueGreenDeployment(d, config, project, instanceName, region, deploymentName, targetDbVersion, timeout, userAgent)
 	}
 
-	// Case 2: Removing an existing blue_green_deployment block (or deleting out-of-band BGD in Scenario A)
-	if len(oldList) > 0 && len(newList) == 0 && oldList[0] != nil {
-		oldMap := oldList[0].(map[string]interface{})
-		deploymentName, _ := oldMap["deployment_name"].(string)
-		deleteOldSourceCfg, _ := oldMap["delete_old_source_on_destroy"].(bool)
+	// Removing a blue_green_deployment block is handled by handleBlueGreenDeploymentDelete at
+	// the start of resourceSqlDatabaseInstanceUpdate.
 
-		return deleteBlueGreenDeployment(d, config, project, instanceName, region, deploymentName, deleteOldSourceCfg, d.Timeout(schema.TimeoutUpdate), userAgent)
-	}
-
-	// Case 3: Modifying an existing blue_green_deployment block
+	// Case 2: Modifying an existing blue_green_deployment block
 	if len(oldList) > 0 && len(newList) > 0 && oldList[0] != nil && newList[0] != nil {
 		oldMap := oldList[0].(map[string]interface{})
 		newMap := newList[0].(map[string]interface{})
