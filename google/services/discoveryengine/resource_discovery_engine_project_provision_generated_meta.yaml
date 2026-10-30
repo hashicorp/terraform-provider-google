@@ -1,0 +1,15 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_discovery_engine_project_provision
+generation_type: mmv1
+source_file: products/discoveryengine/ProjectProvision.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: ProjectProvision
+fields:
+    - api_field: acceptDataUseTerms
+    - api_field: dataUseTermsVersion
+    - field: location
+      provider_only: true
+    - api_field: saasParams.acceptBizQos
+    - api_field: saasParams.isBiz
