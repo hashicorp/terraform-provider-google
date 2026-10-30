@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
@@ -489,6 +490,66 @@ func TestAccComputeRouterPeer_UpdateMd5AuthenticationKey(t *testing.T) {
 	})
 }
 
+// Updating a google_compute_router must not remove the MD5 authentication keys
+// that google_compute_router_peer added to the router, even when the deprecated
+// md5_authentication_keys field is set on the router.
+func TestAccComputeRouterPeer_routerUpdateKeepsMd5AuthenticationKeys(t *testing.T) {
+	t.Parallel()
+
+	routerName := fmt.Sprintf("tf-test-router-%s", acctest.RandString(t, 10))
+	routerResourceName := "google_compute_router.foobar"
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterPeerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterPeerWithMd5AuthKeyAndRouterKey(routerName, 20, "router-key-value"),
+			},
+			{
+				ResourceName:            routerResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"md5_authentication_keys"},
+			},
+			{
+				Config: testAccComputeRouterPeerWithMd5AuthKeyAndRouterKey(routerName, 25, "router-key-value"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(routerResourceName, plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            routerResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"md5_authentication_keys"},
+			},
+			{
+				Config: testAccComputeRouterPeerWithMd5AuthKeyAndRouterKey(routerName, 25, "router-key-value-changed"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(routerResourceName, plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            routerResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"md5_authentication_keys"},
+			},
+			{
+				ResourceName:            "google_compute_router_peer.foobar1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"md5_authentication_key.0.key", "is_advertised_route_priority_set", "zero_custom_learned_route_priority"},
+			},
+		},
+	})
+}
+
 func testAccCheckComputeRouterPeerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -833,6 +894,79 @@ func testAccComputeRouterPeerWithMd5AuthKey(routerName string) string {
   }
 `, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName,
 		routerName, routerName)
+}
+
+// testAccComputeRouterPeerWithMd5AuthKeyAndRouterKey creates a router with two
+// peers that each own an MD5 authentication key, and also sets the deprecated
+// md5_authentication_keys field on the router with the name of one of those keys.
+func testAccComputeRouterPeerWithMd5AuthKeyAndRouterKey(routerName string, keepaliveInterval int, routerKeyValue string) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "foobar" {
+  name                    = "%{router_name}-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%{router_name}"
+  region  = "us-central1"
+  network = google_compute_network.foobar.self_link
+  bgp {
+    asn                = 64514
+    keepalive_interval = %{keepalive_interval}
+  }
+  md5_authentication_keys {
+    name = "%{router_name}-peer-key"
+    key  = "%{router_key_value}"
+  }
+}
+
+resource "google_compute_router_interface" "foobar" {
+  name     = "%{router_name}"
+  router   = google_compute_router.foobar.name
+  region   = google_compute_router.foobar.region
+  ip_range = "169.254.3.1/30"
+}
+
+resource "google_compute_router_interface" "foobar1" {
+  name       = "%{router_name}1"
+  router     = google_compute_router.foobar.name
+  region     = google_compute_router.foobar.region
+  ip_range   = "169.254.4.1/30"
+  depends_on = [google_compute_router_interface.foobar]
+}
+
+resource "google_compute_router_peer" "foobar" {
+  name            = "%{router_name}-peer"
+  router          = google_compute_router.foobar.name
+  region          = google_compute_router.foobar.region
+  peer_asn        = 65515
+  interface       = google_compute_router_interface.foobar.name
+  peer_ip_address = "169.254.3.2"
+  md5_authentication_key {
+    name = "%{router_name}-peer-key"
+    key  = "%{router_name}-peer-key-value"
+  }
+  depends_on = [google_compute_router_interface.foobar1]
+}
+
+resource "google_compute_router_peer" "foobar1" {
+  name            = "%{router_name}-peer1"
+  router          = google_compute_router.foobar.name
+  region          = google_compute_router.foobar.region
+  peer_asn        = 65516
+  interface       = google_compute_router_interface.foobar1.name
+  peer_ip_address = "169.254.4.2"
+  md5_authentication_key {
+    name = "%{router_name}-peer1-key"
+    key  = "%{router_name}-peer1-key-value"
+  }
+  depends_on = [google_compute_router_peer.foobar]
+}
+`, map[string]interface{}{
+		"router_name":        routerName,
+		"keepalive_interval": keepaliveInterval,
+		"router_key_value":   routerKeyValue,
+	})
 }
 
 func testAccComputeRouterPeerWithMd5AuthKeyUpdate(routerName string) string {

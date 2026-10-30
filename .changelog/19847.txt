@@ -1,0 +1,7 @@
+```release-note:bug
+compute: fixed `google_compute_router` updates removing MD5 authentication keys added by `google_compute_router_peer`
+```
+
+```release-note:deprecation
+compute: deprecated `md5_authentication_keys` on `google_compute_router`; it no longer has any effect. Use `md5_authentication_key` on `google_compute_router_peer` instead.
+```

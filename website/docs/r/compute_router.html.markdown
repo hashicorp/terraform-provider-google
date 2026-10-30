@@ -30,6 +30,10 @@ To get more information about Router, see:
 * How-to Guides
     * [Google Cloud Router](https://cloud.google.com/router/docs/)
 
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `md5_authentication_keys.key`.
+[Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
+
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=router_basic&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
@@ -185,9 +189,11 @@ The following arguments are supported:
   attachments (interconnectAttachments).
 
 * `md5_authentication_keys` -
-  (Optional)
+  (Optional, Deprecated)
   Keys used for MD5 authentication.
   Structure is [documented below](#nested_md5_authentication_keys).
+
+  ~> **Warning:** `md5_authentication_keys` is deprecated and will be removed in a future major release. It has no effect; use the `md5_authentication_key` block of `google_compute_router_peer` to configure MD5 authentication for a BGP peer instead.
 
 * `ncc_gateway` -
   (Optional)
@@ -288,6 +294,7 @@ The following arguments are supported:
 * `key` -
   (Required)
   Value of the key used for MD5 authentication.
+  **Note**: This property is sensitive and will not be displayed in the plan.
 
 <a name="nested_params"></a>The `params` block supports:
 
