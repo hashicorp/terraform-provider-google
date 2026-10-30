@@ -812,9 +812,11 @@ The `specific_reservation` block supports:
 
 <a name="nested_workload_identity_config"></a>The `workload_identity_config` block supports:
 
-* `identity` - (Required) Identity SPIFFE id.
+* `identity` - (Optional) Identity SPIFFE id.
 
-* `identity_certificate_enabled` - (Required) Specifies whether identity certificates are enabled.
+* `identity_certificate_enabled` - (Optional) Specifies whether identity certificates are enabled.
+
+* `identity_type` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The type of identity to use.
 
 ## Attributes Reference
 

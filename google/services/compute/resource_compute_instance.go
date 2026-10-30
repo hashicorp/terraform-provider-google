@@ -1633,18 +1633,21 @@ be from 0 to 999,999,999 inclusive.`,
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `Workload identity config.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identity": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							ForceNew:    true,
 							Description: `Identity SPIFFE id.`,
 						},
 						"identity_certificate_enabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Computed:    true,
 							ForceNew:    true,
 							Description: `Specifies whether identity certificates are enabled.`,
 						},
@@ -2414,6 +2417,15 @@ func populateComputeInstanceResourceData(d *schema.ResourceData, instance map[st
 	instanceEncryptionKeyMap, _ := instance["instanceEncryptionKey"].(map[string]interface{})
 	if err := d.Set("instance_encryption_key", flattenComputeInstanceEncryptionKey(instanceEncryptionKeyMap)); err != nil {
 		return fmt.Errorf("Error setting instance_encryption_key: %s", err)
+	}
+	if wicMap, ok := instance["workloadIdentityConfig"].(map[string]interface{}); ok && len(wicMap) > 0 {
+		if err := d.Set("workload_identity_config", flattenWorkloadIdentityConfig(wicMap)); err != nil {
+			return fmt.Errorf("Error setting workload_identity_config: %s", err)
+		}
+	} else {
+		if err := d.Set("workload_identity_config", nil); err != nil {
+			return fmt.Errorf("Error setting workload_identity_config: %s", err)
+		}
 	}
 
 	return nil
