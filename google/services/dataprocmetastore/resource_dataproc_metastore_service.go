@@ -54,6 +54,107 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+import (
+	neturl "net/url"
+
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+)
+
+// Clean up PSC forwarding rules and reserved internal addresses created by the Dataproc Metastore
+// service agent in consumer subnetworks so that the subnetworks are not left in use after deletion.
+func deleteDataprocMetastoreServicePscEndpoints(d *schema.ResourceData, config *transport_tpg.Config, billingProject, userAgent string) error {
+	computeBasePath := transport_tpg.BaseUrl(tpgcompute.Product, config)
+
+	deleteResource := func(project, url, desc string) error {
+		opRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "DELETE",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Timeout:   d.Timeout(schema.TimeoutDelete),
+		})
+		if err != nil {
+			if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+				return nil
+			}
+			return err
+		}
+		return tpgcompute.ComputeOperationWaitTime(config, opRes, project, desc, userAgent, d.Timeout(schema.TimeoutDelete))
+	}
+
+	consumers, _ := d.Get("network_config.0.consumers").([]interface{})
+	for _, itemRaw := range consumers {
+		consumer, ok := itemRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		subnetwork, _ := consumer["subnetwork"].(string)
+		endpointUri, _ := consumer["endpoint_uri"].(string)
+		if subnetwork == "" || endpointUri == "" {
+			continue
+		}
+		u, err := neturl.Parse(endpointUri)
+		if err != nil || u.Hostname() == "" {
+			continue
+		}
+
+		fv, err := tpgresource.ParseSubnetworkFieldValue(subnetwork, d, config)
+		if err != nil {
+			return err
+		}
+
+		// The Metastore API only exposes the reserved IP in endpoint_uri (e.g. thrift://10.0.0.2:9083),
+		// not the GCE address or forwarding rule names (metastore-addr-<uuid> / metastore-forwarding-rule-<uuid>),
+		// so we look up the address by IP in the consumer subnetwork to find its name and forwarding rule users.
+		addressesUrl := fmt.Sprintf("%sprojects/%s/regions/%s/addresses?filter=address%%3D%%22%s%%22", computeBasePath, fv.Project, fv.Region, u.Hostname())
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    addressesUrl,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return err
+		}
+
+		subnetworkSuffix := fmt.Sprintf("/regions/%s/subnetworks/%s", fv.Region, fv.Name)
+		items, _ := res["items"].([]interface{})
+		for _, addrRaw := range items {
+			addr, ok := addrRaw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			addrSubnetwork, _ := addr["subnetwork"].(string)
+			if !strings.HasSuffix(addrSubnetwork, subnetworkSuffix) {
+				continue
+			}
+
+			users, _ := addr["users"].([]interface{})
+			for _, userRaw := range users {
+				userURL, ok := userRaw.(string)
+				if !ok || userURL == "" {
+					continue
+				}
+				fwRuleName := tpgresource.GetResourceNameFromSelfLink(userURL)
+				fwRuleURL := fmt.Sprintf("%sprojects/%s/regions/%s/forwardingRules/%s", computeBasePath, fv.Project, fv.Region, fwRuleName)
+				if err := deleteResource(fv.Project, fwRuleURL, "Deleting Dataproc Metastore PSC forwarding rule"); err != nil {
+					return err
+				}
+			}
+
+			addrName, _ := addr["name"].(string)
+			addrURL := fmt.Sprintf("%sprojects/%s/regions/%s/addresses/%s", computeBasePath, fv.Project, fv.Region, addrName)
+			if err := deleteResource(fv.Project, addrURL, "Deleting Dataproc Metastore PSC address"); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -595,16 +696,10 @@ Keys must be in the format tagKeys/{tag_key_id}, and values are in the format ta
 				ForceNew: true,
 			},
 			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
-When a 'terraform destroy' or 'terraform apply' would delete the instance,
-the command will fail if this field is set to "PREVENT" in Terraform state.
-When set to "ABANDON", the command will remove the resource from Terraform
-management without updating or deleting the resource in the API.
-When set to "DELETE", deleting the resource is allowed.
-`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `This field uses a custom implementation please refer to documentation under /hashicorp/terraform-provider-google-beta/website/docs/r/dataproc_metastore_service.html.markdown for specifics`,
 			},
 		},
 		UseJSONNumber: true,
@@ -1150,6 +1245,11 @@ func resourceDataprocMetastoreServiceDelete(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	if d.Get("deletion_policy").(string) == "FORCE" {
+		if err := deleteDataprocMetastoreServicePscEndpoints(d, config, billingProject, userAgent); err != nil {
+			return fmt.Errorf("Error cleaning up Dataproc Metastore PSC endpoints in consumer subnetworks (deletion_policy = \"FORCE\"): %w", err)
+		}
+	}
 
 	log.Printf("[DEBUG] Finished deleting Service %q: %#v", d.Id(), res)
 	return nil
@@ -1171,6 +1271,8 @@ func resourceDataprocMetastoreServiceImport(d *schema.ResourceData, meta interfa
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }
