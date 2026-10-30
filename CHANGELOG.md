@@ -45,6 +45,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * biglakeiceberg: fixed `google_biglake_iceberg_table` failing to read or import tables with list, map or struct columns; these types can now be set in `schema.fields.type` with `jsonencode` ([#30410](https://github.com/hashicorp/terraform-provider-google/pull/30410))
 * compute: fixed a crash and invalid fingerprint error when updating `network_interface.internal_ipv6_prefix_length` in-place on `google_compute_instance` ([#30441](https://github.com/hashicorp/terraform-provider-google/pull/30441))
+* compute: fixed an issue where updating or removing IPv4 endpoints in `google_compute_network_endpoints` could act on a phantom empty endpoint ([#30396](https://github.com/hashicorp/terraform-provider-google/pull/30396))
 * compute: fixed errors when concurrently creating, updating, or deleting `google_compute_router_route_policy` and `google_compute_router_named_set` resources on the same Cloud Router ([#30440](https://github.com/hashicorp/terraform-provider-google/pull/30440))
 * container: fixed an error and subsequent permadiff when removing the `dns_config` block from `google_container_cluster` ([#30429](https://github.com/hashicorp/terraform-provider-google/pull/30429))
 * developerconnect: fixed perma-diff on `target_projects.project_ids` in `google_developer_connect_insights_config` when `projects/{project}` format is used ([#30401](https://github.com/hashicorp/terraform-provider-google/pull/30401))
