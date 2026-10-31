@@ -38,6 +38,9 @@ data "google_scc_v2_organization_source_iam_policy" "policy" {
 
 The following arguments are supported:
 
+* `organization` - (Required) The organization whose Cloud Security Command Center the Source
+lives in.
+ Used to find the parent resource to bind the IAM policy to
 * `source` - (Required) Used to find the parent resource to bind the IAM policy to
 
 ## Attributes Reference
