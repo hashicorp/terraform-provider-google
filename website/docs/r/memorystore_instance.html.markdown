@@ -649,7 +649,9 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 * `desired_psc_auto_connections` - (Optional) `desired_psc_auto_connections` is deprecated  Use `desired_auto_created_endpoints` instead `terraform import` will only work with desired_auto_created_endpoints`.
+  Structure is [documented below](#nested_desired_psc_auto_connections).
 * `desired_auto_created_endpoints` - (Optional) Immutable. User inputs for the auto-created endpoints connections. 
+  Structure is [documented below](#nested_desired_auto_created_endpoints).
 
 
 <a name="nested_automated_backup_config"></a>The `automated_backup_config` block supports:
@@ -912,6 +914,28 @@ The following arguments are supported:
 * `backup` -
   (Required)
   Example: `projects/{project}/locations/{location}/backupCollections/{collection}/backups/{backup}`.
+
+<a name="nested_desired_psc_auto_connections"></a>The `desired_psc_auto_connections` block supports:
+
+* `project_id` -
+  (Required)
+  Required. The consumer project_id where the forwarding rule is created from.
+
+* `network` -
+  (Required)
+  Required. The consumer network where the IP address resides, in the form of
+  projects/{project_id}/global/networks/{network_id}.
+
+<a name="nested_desired_auto_created_endpoints"></a>The `desired_auto_created_endpoints` block supports:
+
+* `project_id` -
+  (Required)
+  Required. The consumer project_id where the forwarding rule is created from.
+
+* `network` -
+  (Required)
+  Required. The consumer network where the IP address resides, in the form of
+  projects/{project_id}/global/networks/{network_id}.
 
 ## Attributes Reference
 
