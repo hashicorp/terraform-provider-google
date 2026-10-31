@@ -72,7 +72,7 @@ data "google_compute_network" "default" {
 }
   
 resource "google_cloud_ids_endpoint" "endpoint" {
-  name              = "cloud-ids-test-%{random_suffix}"
+  name              = "tf-test-cloud-ids-%{random_suffix}"
   location          = "us-central1-f"
   network           = data.google_compute_network.default.id
   severity          = "INFORMATIONAL"
@@ -88,7 +88,7 @@ data "google_compute_network" "default" {
 }
   
 resource "google_cloud_ids_endpoint" "endpoint" {
-  name              = "cloud-ids-test-%{random_suffix}"
+  name              = "tf-test-cloud-ids-%{random_suffix}"
   location          = "us-central1-f"
   network           = data.google_compute_network.default.id
   severity          = "INFORMATIONAL"
