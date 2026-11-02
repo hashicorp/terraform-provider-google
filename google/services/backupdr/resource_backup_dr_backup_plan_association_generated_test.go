@@ -34,7 +34,9 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/backupdr"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/filestore"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/netapp"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -261,6 +263,111 @@ resource "google_backup_dr_backup_plan_association" "my-backup-plan-association-
   resource_type = "file.googleapis.com/Instance"
   backup_plan_association_id = "%{backup_plan_association_id}"
   resource = google_filestore_instance.my_filestore_instance.id
+  backup_plan = google_backup_dr_backup_plan.my_backup_plan.name
+}
+`, context)
+}
+
+func TestAccBackupDRBackupPlanAssociation_backupDrBpaNetappExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":                    envvar.GetTestProjectFromEnv(),
+		"backup_plan_association_id": "tf-test-my-bpa-netapp" + randomSuffix,
+		"backup_plan_id":             "tf-test-bp-bpa-netapp" + randomSuffix,
+		"backup_vault_id":            "tf-test-bv-bpa-netapp" + randomSuffix,
+		"netapp_pool_id":             "tf-test-test-pool-bpa" + randomSuffix,
+		"netapp_volume_id":           "tf_test_test_volume_bpa" + randomSuffix,
+		"network_name":               servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-3", servicenetworking.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"random_suffix":              randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBackupDRBackupPlanAssociationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBackupDRBackupPlanAssociation_backupDrBpaNetappExample(context),
+			},
+			{
+				ResourceName:            "google_backup_dr_backup_plan_association.my-backup-plan-association-netapp",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backup_plan_association_id", "location", "resource"},
+			},
+			{
+				ResourceName:       "google_backup_dr_backup_plan_association.my-backup-plan-association-netapp",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBackupDRBackupPlanAssociation_backupDrBpaNetappExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_network" "default" {
+  name = "%{network_name}"
+}
+
+resource "google_netapp_storage_pool" "default" {
+  name = "%{netapp_pool_id}"
+  location = "us-central1-a"
+  service_level = "FLEX"
+  type = "UNIFIED"
+  capacity_gib = "1024"
+  network = data.google_compute_network.default.id
+}
+
+resource "google_netapp_volume" "my_volume" {
+  location = "us-central1-a"
+  name = "%{netapp_volume_id}"
+  capacity_gib = "100"
+  share_name = "%{netapp_volume_id}"
+  storage_pool = google_netapp_storage_pool.default.name
+  protocols = ["NFSV3"]
+  deletion_policy = "FORCE"
+}
+
+resource "google_backup_dr_backup_vault" "my_backup_vault" {
+  location = "us-central1"
+  backup_vault_id = "%{backup_vault_id}"
+  backup_minimum_enforced_retention_duration = "100000s"
+  force_delete = true
+}
+
+resource "google_backup_dr_backup_plan" "my_backup_plan" {
+  location = "us-central1"
+  backup_plan_id = "%{backup_plan_id}"
+  resource_type = "netapp.googleapis.com/Volume"
+  backup_vault = google_backup_dr_backup_vault.my_backup_vault.id
+
+  backup_rules {
+    rule_id = "rule-1"
+    backup_retention_days = 5
+
+    standard_schedule {
+      recurrence_type = "HOURLY"
+      hourly_frequency = 6
+      time_zone = "UTC"
+
+      backup_window {
+        start_hour_of_day = 0
+        end_hour_of_day = 6
+      }
+    }
+  }
+}
+
+resource "google_backup_dr_backup_plan_association" "my-backup-plan-association-netapp" {
+  location = "us-central1"
+  resource_type = "netapp.googleapis.com/Volume"
+  backup_plan_association_id = "%{backup_plan_association_id}"
+  resource = google_netapp_volume.my_volume.id
   backup_plan = google_backup_dr_backup_plan.my_backup_plan.name
 }
 `, context)
