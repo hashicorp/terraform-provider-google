@@ -80,7 +80,7 @@ func TestAccLicenseManagerConfiguration_licensemanagerConfigurationBasicExample(
 			},
 			{
 				ResourceName:       "google_license_manager_configuration.example-configuration",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

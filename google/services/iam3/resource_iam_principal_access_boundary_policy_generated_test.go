@@ -85,7 +85,7 @@ func TestAccIAM3PrincipalAccessBoundaryPolicy_iamPrincipalAccessBoundaryPolicyEx
 			},
 			{
 				ResourceName:       "google_iam_principal_access_boundary_policy.pab-policy-for-org",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

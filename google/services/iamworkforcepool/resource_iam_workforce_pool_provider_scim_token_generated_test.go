@@ -84,7 +84,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimToken_iamWorkforcePoolProvi
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider_scim_token.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

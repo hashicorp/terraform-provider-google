@@ -88,7 +88,7 @@ func TestAccIAM3ProjectsPolicyBinding_iamProjectsPolicyBindingExample(t *testing
 			},
 			{
 				ResourceName:       "google_iam_projects_policy_binding.binding-for-all-project-principals",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -163,7 +163,7 @@ func TestAccIAM3ProjectsPolicyBinding_iamProjectsPolicyBindingAccessPolicyExampl
 			},
 			{
 				ResourceName:       "google_iam_projects_policy_binding.my-project-access-policy-binding",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -82,7 +82,7 @@ func TestAccIAMBetaWorkloadIdentityPoolManagedIdentity_iamWorkloadIdentityPoolMa
 			},
 			{
 				ResourceName:       "google_iam_workload_identity_pool_managed_identity.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -139,7 +139,7 @@ func TestAccIAMBetaWorkloadIdentityPoolManagedIdentity_iamWorkloadIdentityPoolMa
 			},
 			{
 				ResourceName:       "google_iam_workload_identity_pool_managed_identity.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

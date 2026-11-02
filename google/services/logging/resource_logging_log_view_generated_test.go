@@ -81,7 +81,7 @@ func TestAccLoggingLogView_loggingLogViewBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_logging_log_view.logging_log_view",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -133,7 +133,7 @@ func TestAccLoggingLogView_loggingLogViewLongNameExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_logging_log_view.logging_log_view",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

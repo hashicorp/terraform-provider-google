@@ -83,7 +83,7 @@ func TestAccIdentityPlatformTenantInboundSamlConfig_identityPlatformTenantInboun
 			},
 			{
 				ResourceName:       "google_identity_platform_tenant_inbound_saml_config.tenant_saml_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

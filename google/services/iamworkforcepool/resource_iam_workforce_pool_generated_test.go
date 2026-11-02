@@ -81,7 +81,7 @@ func TestAccIAMWorkforcePoolWorkforcePool_iamWorkforcePoolBasicExample(t *testin
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -126,7 +126,7 @@ func TestAccIAMWorkforcePoolWorkforcePool_iamWorkforcePoolFullExample(t *testing
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

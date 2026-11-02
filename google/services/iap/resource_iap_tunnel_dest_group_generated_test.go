@@ -84,7 +84,7 @@ func TestAccIapTunnelDestGroup_iapDestgroupExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_iap_tunnel_dest_group.dest_group",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

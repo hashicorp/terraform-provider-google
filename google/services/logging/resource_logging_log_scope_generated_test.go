@@ -83,7 +83,7 @@ func TestAccLoggingLogScope_loggingLogScopeBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_logging_log_scope.logging_log_scope",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

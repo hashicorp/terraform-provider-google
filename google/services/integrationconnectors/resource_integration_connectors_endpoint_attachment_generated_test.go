@@ -80,7 +80,7 @@ func TestAccIntegrationConnectorsEndpointAttachment_integrationConnectorsEndpoin
 			},
 			{
 				ResourceName:       "google_integration_connectors_endpoint_attachment.sampleendpointattachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

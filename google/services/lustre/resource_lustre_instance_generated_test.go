@@ -85,7 +85,7 @@ func TestAccLustreInstance_lustreInstanceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_lustre_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
