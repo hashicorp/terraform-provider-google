@@ -84,7 +84,7 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExam
 			},
 			{
 				ResourceName:       "google_secure_source_manager_repository.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -141,7 +141,7 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryInitialCo
 			},
 			{
 				ResourceName:       "google_secure_source_manager_repository.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -207,7 +207,7 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryServiceAc
 			},
 			{
 				ResourceName:       "google_secure_source_manager_repository.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -268,7 +268,7 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositorySecretSca
 			},
 			{
 				ResourceName:       "google_secure_source_manager_repository.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -352,7 +352,7 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositorySecretSca
 			},
 			{
 				ResourceName:       "google_secure_source_manager_repository.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

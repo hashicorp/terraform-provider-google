@@ -81,7 +81,7 @@ func TestAccSourceRepoRepository_sourcerepoRepositoryBasicExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_sourcerepo_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -124,7 +124,7 @@ func TestAccSourceRepoRepository_sourcerepoRepositoryFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_sourcerepo_repository.my-repo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

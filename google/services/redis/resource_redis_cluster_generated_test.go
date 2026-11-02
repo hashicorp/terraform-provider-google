@@ -89,7 +89,7 @@ func TestAccRedisCluster_redisClusterHaWithLabelsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_cluster.cluster-ha-with-labels",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -193,7 +193,7 @@ func TestAccRedisCluster_redisClusterHaExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_cluster.cluster-ha",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -293,7 +293,7 @@ func TestAccRedisCluster_redisClusterHaSingleZoneExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_cluster.cluster-ha-single-zone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -392,7 +392,7 @@ func TestAccRedisCluster_redisClusterSecondaryExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_cluster.secondary_cluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -586,7 +586,7 @@ func TestAccRedisCluster_redisClusterRdbExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_cluster.cluster-rdb",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -693,7 +693,7 @@ func TestAccRedisCluster_redisClusterAofExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_cluster.cluster-aof",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -806,7 +806,7 @@ func TestAccRedisCluster_redisClusterCmekExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_cluster.cluster-cmek",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -898,7 +898,7 @@ func TestAccRedisCluster_redisClusterFlexibleCaExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_cluster.test-cluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

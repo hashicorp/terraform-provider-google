@@ -83,7 +83,7 @@ func TestAccSecurityCenterV2OrganizationNotificationConfig_sccV2OrganizationNoti
 			},
 			{
 				ResourceName:       "google_scc_v2_organization_notification_config.custom_organization_notification_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

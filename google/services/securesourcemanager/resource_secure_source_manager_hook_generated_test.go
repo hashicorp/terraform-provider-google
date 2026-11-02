@@ -85,7 +85,7 @@ func TestAccSecureSourceManagerHook_secureSourceManagerHookBasicExample(t *testi
 			},
 			{
 				ResourceName:       "google_secure_source_manager_hook.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -153,7 +153,7 @@ func TestAccSecureSourceManagerHook_secureSourceManagerHookWithFieldsExample(t *
 			},
 			{
 				ResourceName:       "google_secure_source_manager_hook.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -226,7 +226,7 @@ func TestAccSecureSourceManagerHook_secureSourceManagerHookServiceAccountAuthExa
 			},
 			{
 				ResourceName:       "google_secure_source_manager_hook.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
