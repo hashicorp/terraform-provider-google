@@ -82,7 +82,7 @@ func TestAccNetworkSecurityBackendAuthenticationConfig_networkSecurityBackendAut
 			},
 			{
 				ResourceName:       "google_network_security_backend_authentication_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -131,7 +131,7 @@ func TestAccNetworkSecurityBackendAuthenticationConfig_networkSecurityBackendAut
 			},
 			{
 				ResourceName:       "google_network_security_backend_authentication_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -215,7 +215,7 @@ func TestAccNetworkSecurityBackendAuthenticationConfig_backendServiceTlsSettings
 			},
 			{
 				ResourceName:       "google_network_security_backend_authentication_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

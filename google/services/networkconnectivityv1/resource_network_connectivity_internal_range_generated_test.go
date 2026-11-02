@@ -83,7 +83,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 			},
 			{
 				ResourceName:       "google_network_connectivity_internal_range.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -140,7 +140,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 			},
 			{
 				ResourceName:       "google_network_connectivity_internal_range.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -195,7 +195,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 			},
 			{
 				ResourceName:       "google_network_connectivity_internal_range.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -252,7 +252,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 			},
 			{
 				ResourceName:       "google_network_connectivity_internal_range.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -321,7 +321,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 			},
 			{
 				ResourceName:       "google_network_connectivity_internal_range.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -388,7 +388,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 			},
 			{
 				ResourceName:       "google_network_connectivity_internal_range.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -446,7 +446,7 @@ func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRanges
 			},
 			{
 				ResourceName:       "google_network_connectivity_internal_range.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

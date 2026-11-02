@@ -87,7 +87,7 @@ func TestAccNetworkSecurityMirroringDeployment_networkSecurityMirroringDeploymen
 			},
 			{
 				ResourceName:       "google_network_security_mirroring_deployment.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

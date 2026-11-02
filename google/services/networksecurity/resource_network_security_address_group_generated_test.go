@@ -81,7 +81,7 @@ func TestAccNetworkSecurityAddressGroup_networkSecurityAddressGroupsBasicExample
 			},
 			{
 				ResourceName:       "google_network_security_address_group.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -129,7 +129,7 @@ func TestAccNetworkSecurityAddressGroup_networkSecurityAddressGroupsOrganization
 			},
 			{
 				ResourceName:       "google_network_security_address_group.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -177,7 +177,7 @@ func TestAccNetworkSecurityAddressGroup_networkSecurityAddressGroupsAdvancedExam
 			},
 			{
 				ResourceName:       "google_network_security_address_group.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

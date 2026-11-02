@@ -84,7 +84,7 @@ func TestAccNetworkConnectivityv1ServiceConnectionPolicy_networkConnectivityPoli
 			},
 			{
 				ResourceName:       "google_network_connectivity_service_connection_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

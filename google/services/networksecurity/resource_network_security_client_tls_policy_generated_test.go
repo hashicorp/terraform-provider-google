@@ -81,7 +81,7 @@ func TestAccNetworkSecurityClientTlsPolicy_networkSecurityClientTlsPolicyBasicEx
 			},
 			{
 				ResourceName:       "google_network_security_client_tls_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -129,7 +129,7 @@ func TestAccNetworkSecurityClientTlsPolicy_networkSecurityClientTlsPolicyAdvance
 			},
 			{
 				ResourceName:       "google_network_security_client_tls_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

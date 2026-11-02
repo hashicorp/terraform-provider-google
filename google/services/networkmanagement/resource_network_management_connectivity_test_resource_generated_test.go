@@ -84,7 +84,7 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestI
 			},
 			{
 				ResourceName:       "google_network_management_connectivity_test.instance-test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -184,7 +184,7 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestA
 			},
 			{
 				ResourceName:       "google_network_management_connectivity_test.address-test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -267,7 +267,7 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestE
 			},
 			{
 				ResourceName:       "google_network_management_connectivity_test.endpoints-test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -334,7 +334,7 @@ func TestAccNetworkManagementConnectivityTest_networkManagementConnectivityTestG
 			},
 			{
 				ResourceName:       "google_network_management_connectivity_test.pod-test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
