@@ -83,7 +83,7 @@ func TestAccComputeRouterNamedSet_routerNamedSetRoutePolicyExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_compute_router_named_set.my_prefix_set",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -178,7 +178,7 @@ func TestAccComputeRouterNamedSet_routerNamedSetPrefixExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_router_named_set.prefix_set",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -248,7 +248,7 @@ func TestAccComputeRouterNamedSet_routerNamedSetCommunityExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_router_named_set.community_set",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

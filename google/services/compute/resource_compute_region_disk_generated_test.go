@@ -82,7 +82,7 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_region_disk.regiondisk",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -146,7 +146,7 @@ func TestAccComputeRegionDisk_regionDiskDiskEncryptionKeyWoExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_compute_region_disk.regiondisk",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -214,7 +214,7 @@ func TestAccComputeRegionDisk_regionDiskRsaEncryptedKeyWoExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_region_disk.regiondisk",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -281,7 +281,7 @@ func TestAccComputeRegionDisk_regionDiskAsyncExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_region_disk.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -341,7 +341,7 @@ func TestAccComputeRegionDisk_regionDiskFeaturesExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_region_disk.regiondisk",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -402,7 +402,7 @@ func TestAccComputeRegionDisk_regionDiskHyperdiskBalancedHaWriteManyExample(t *t
 			},
 			{
 				ResourceName:       "google_compute_region_disk.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

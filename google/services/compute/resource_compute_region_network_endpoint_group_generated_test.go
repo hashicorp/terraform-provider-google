@@ -87,7 +87,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunction
 			},
 			{
 				ResourceName:       "google_compute_region_network_endpoint_group.function_neg",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -159,7 +159,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrun
 			},
 			{
 				ResourceName:       "google_compute_region_network_endpoint_group.cloudrun_neg",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -225,7 +225,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 			},
 			{
 				ResourceName:       "google_compute_region_network_endpoint_group.appengine_neg",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -339,7 +339,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 			},
 			{
 				ResourceName:       "google_compute_region_network_endpoint_group.appengine_neg",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -386,7 +386,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExamp
 			},
 			{
 				ResourceName:       "google_compute_region_network_endpoint_group.psc_neg",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -439,7 +439,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServi
 			},
 			{
 				ResourceName:       "google_compute_region_network_endpoint_group.psc_neg_service_attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -547,7 +547,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternet
 			},
 			{
 				ResourceName:       "google_compute_region_network_endpoint_group.region_network_endpoint_group_internet_ip_port",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -598,7 +598,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternet
 			},
 			{
 				ResourceName:       "google_compute_region_network_endpoint_group.region_network_endpoint_group_internet_fqdn_port",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

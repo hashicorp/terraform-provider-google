@@ -80,7 +80,7 @@ func TestAccComputeRegionResizeRequest_computeRmigResizeRequestExample(t *testin
 			},
 			{
 				ResourceName:       "google_compute_region_resize_request.a3_resize_request",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

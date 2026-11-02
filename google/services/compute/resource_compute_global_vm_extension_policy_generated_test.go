@@ -97,7 +97,7 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyBasicEx
 			},
 			{
 				ResourceName:       "google_compute_global_vm_extension_policy.ops_agent_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -117,7 +117,7 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyBasicEx
 			},
 			{
 				ResourceName:       "google_compute_global_vm_extension_policy.ops_agent_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -198,7 +198,7 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyRollout
 			},
 			{
 				ResourceName:       "google_compute_global_vm_extension_policy.ops_agent_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -218,7 +218,7 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyRollout
 			},
 			{
 				ResourceName:       "google_compute_global_vm_extension_policy.ops_agent_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -253,7 +253,7 @@ func TestAccComputeGlobalVmExtensionPolicy_computeGlobalVmExtensionPolicyCustomR
 			},
 			{
 				ResourceName:       "google_compute_global_vm_extension_policy.ops_agent_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

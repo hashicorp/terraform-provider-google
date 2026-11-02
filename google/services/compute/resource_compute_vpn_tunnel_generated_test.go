@@ -87,7 +87,7 @@ func TestAccComputeVpnTunnel_vpnTunnelBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_vpn_tunnel.tunnel1",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -195,7 +195,7 @@ func TestAccComputeVpnTunnel_vpnTunnelCipherSuiteExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_vpn_tunnel.tunnel1",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -83,7 +83,7 @@ func TestAccComputeRegionDiskResourcePolicyAttachment_regionDiskResourcePolicyAt
 			},
 			{
 				ResourceName:       "google_compute_region_disk_resource_policy_attachment.attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

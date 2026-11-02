@@ -81,7 +81,7 @@ func TestAccComputeRoute_routeBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -136,7 +136,7 @@ func TestAccComputeRoute_routeIlbExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_route.route-ilb",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

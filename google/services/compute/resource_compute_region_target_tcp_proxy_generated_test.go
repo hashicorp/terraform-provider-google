@@ -84,7 +84,7 @@ func TestAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBasicExample(t *test
 			},
 			{
 				ResourceName:       "google_compute_region_target_tcp_proxy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -149,7 +149,7 @@ func TestAccComputeRegionTargetTcpProxy_regionTargetTcpProxyBackendlessExample(t
 			},
 			{
 				ResourceName:       "google_compute_region_target_tcp_proxy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -196,7 +196,7 @@ func TestAccComputeRegionTargetTcpProxy_regionTargetTcpProxyTlsRouteExample(t *t
 			},
 			{
 				ResourceName:       "google_compute_region_target_tcp_proxy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -81,7 +81,7 @@ func TestAccComputeRegionInstantSnapshot_regionInstantSnapshotBasicExample(t *te
 			},
 			{
 				ResourceName:       "google_compute_region_instant_snapshot.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

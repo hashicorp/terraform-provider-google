@@ -82,7 +82,7 @@ func TestAccComputeNetworkEdgeSecurityService_computeNetworkEdgeSecurityServiceB
 			},
 			{
 				ResourceName:       "google_compute_network_edge_security_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

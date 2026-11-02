@@ -81,7 +81,7 @@ func TestAccComputeFirewall_firewallBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_firewall.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -140,7 +140,7 @@ func TestAccComputeFirewall_firewallWithTargetTagsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_firewall.rules",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

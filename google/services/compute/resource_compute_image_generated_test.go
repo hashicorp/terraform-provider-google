@@ -81,7 +81,7 @@ func TestAccComputeImage_imageBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_image.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -139,7 +139,7 @@ func TestAccComputeImage_imageGuestOsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_image.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -221,7 +221,7 @@ func TestAccComputeImage_imageBasicStorageLocationExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_image.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

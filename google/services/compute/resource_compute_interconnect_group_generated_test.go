@@ -80,7 +80,7 @@ func TestAccComputeInterconnectGroup_interconnectGroupBasicExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_compute_interconnect_group.example-interconnect-group",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

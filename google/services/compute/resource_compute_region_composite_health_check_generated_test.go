@@ -82,7 +82,7 @@ func TestAccComputeRegionCompositeHealthCheck_computeRegionCompositeHealthCheckB
 			},
 			{
 				ResourceName:       "google_compute_region_composite_health_check.example_test_composite_health_check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

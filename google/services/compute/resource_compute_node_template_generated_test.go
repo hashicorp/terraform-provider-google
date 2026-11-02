@@ -80,7 +80,7 @@ func TestAccComputeNodeTemplate_nodeTemplateBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_node_template.template",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -124,7 +124,7 @@ func TestAccComputeNodeTemplate_nodeTemplateServerBindingExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_node_template.template",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -180,7 +180,7 @@ func TestAccComputeNodeTemplate_nodeTemplateAcceleratorsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_node_template.template",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -233,7 +233,7 @@ func TestAccComputeNodeTemplate_nodeTemplateDisksExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_node_template.template",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

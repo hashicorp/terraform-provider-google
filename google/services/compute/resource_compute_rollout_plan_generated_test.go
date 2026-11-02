@@ -78,7 +78,7 @@ func TestAccComputeRolloutPlan_rolloutPlanBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_rollout_plan.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

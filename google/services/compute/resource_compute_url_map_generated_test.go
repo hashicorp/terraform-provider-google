@@ -85,7 +85,7 @@ func TestAccComputeUrlMap_urlMapBucketAndServiceExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -201,7 +201,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRouteExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -325,7 +325,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorRoutePartialExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -420,7 +420,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -564,7 +564,7 @@ func TestAccComputeUrlMap_urlMapTrafficDirectorPathPartialExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -683,7 +683,7 @@ func TestAccComputeUrlMap_urlMapHeaderBasedRoutingExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -803,7 +803,7 @@ func TestAccComputeUrlMap_urlMapParameterBasedRoutingExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -922,7 +922,7 @@ func TestAccComputeUrlMap_urlMapDefaultMirrorPercentExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1014,7 +1014,7 @@ func TestAccComputeUrlMap_urlMapPathMatcherDefaultMirrorPercentExample(t *testin
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1105,7 +1105,7 @@ func TestAccComputeUrlMap_urlMapCachePolicyBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1188,7 +1188,7 @@ func TestAccComputeUrlMap_urlMapCachePolicyMultiLevelExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1375,7 +1375,7 @@ func TestAccComputeUrlMap_urlMapPathRuleMirrorPercentExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1467,7 +1467,7 @@ func TestAccComputeUrlMap_urlMapRouteRuleMirrorPercentExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1562,7 +1562,7 @@ func TestAccComputeUrlMap_urlMapTestHeadersExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1661,7 +1661,7 @@ func TestAccComputeUrlMap_urlMapTestExpectedOutputUrlExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1755,7 +1755,7 @@ func TestAccComputeUrlMap_urlMapTestRedirectResponseCodeExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1872,7 +1872,7 @@ func TestAccComputeUrlMap_urlMapPathTemplateMatchExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1990,7 +1990,7 @@ func TestAccComputeUrlMap_urlMapCustomErrorResponsePolicyExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

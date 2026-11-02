@@ -80,7 +80,7 @@ func TestAccComputeRegionSslPolicy_regionSslPolicyBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_region_ssl_policy.region-ssl-policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -124,7 +124,7 @@ func TestAccComputeRegionSslPolicy_regionSslPolicyPostQuantumExample(t *testing.
 			},
 			{
 				ResourceName:       "google_compute_region_ssl_policy.post-quantum-region-ssl-policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

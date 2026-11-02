@@ -79,7 +79,7 @@ func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupExample(
 			},
 			{
 				ResourceName:       "google_compute_global_network_endpoint_group.neg",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -122,7 +122,7 @@ func TestAccComputeGlobalNetworkEndpointGroup_globalNetworkEndpointGroupIpAddres
 			},
 			{
 				ResourceName:       "google_compute_global_network_endpoint_group.neg",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

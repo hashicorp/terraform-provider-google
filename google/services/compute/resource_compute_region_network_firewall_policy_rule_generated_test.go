@@ -90,7 +90,7 @@ func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRu
 			},
 			{
 				ResourceName:       "google_compute_region_network_firewall_policy_rule.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -198,7 +198,7 @@ func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRu
 			},
 			{
 				ResourceName:       "google_compute_region_network_firewall_policy_rule.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -268,7 +268,7 @@ func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRu
 			},
 			{
 				ResourceName:       "google_compute_region_network_firewall_policy_rule.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

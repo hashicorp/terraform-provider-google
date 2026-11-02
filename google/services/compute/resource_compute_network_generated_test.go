@@ -80,7 +80,7 @@ func TestAccComputeNetwork_networkBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_network.vpc_network",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -123,7 +123,7 @@ func TestAccComputeNetwork_networkCustomMtuExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_network.vpc_network",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -169,7 +169,7 @@ func TestAccComputeNetwork_networkCustomFirewallEnforcementOrderExample(t *testi
 			},
 			{
 				ResourceName:       "google_compute_network.vpc_network",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -215,7 +215,7 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_compute_network.vpc_network",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -260,7 +260,7 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardExample(t *tes
 			},
 			{
 				ResourceName:       "google_compute_network.vpc_network",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -306,7 +306,7 @@ func TestAccComputeNetwork_networkBgpBestPathSelectionModeStandardCustomFieldsEx
 			},
 			{
 				ResourceName:       "google_compute_network.vpc_network",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -354,7 +354,7 @@ func TestAccComputeNetwork_networkBgpStandardModeDeleteMedExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_compute_network.vpc_network",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

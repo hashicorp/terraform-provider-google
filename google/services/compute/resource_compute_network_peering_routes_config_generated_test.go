@@ -83,7 +83,7 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigBasicExa
 			},
 			{
 				ResourceName:       "google_compute_network_peering_routes_config.peering_primary_routes",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -164,7 +164,7 @@ func TestAccComputeNetworkPeeringRoutesConfig_networkPeeringRoutesConfigGkePeere
 			},
 			{
 				ResourceName:       "google_compute_network_peering_routes_config.peering_gke_routes",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

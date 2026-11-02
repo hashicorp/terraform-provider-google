@@ -79,7 +79,7 @@ func TestAccComputeNetworkFirewallPolicy_networkFirewallPolicyFullExample(t *tes
 			},
 			{
 				ResourceName:       "google_compute_network_firewall_policy.policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

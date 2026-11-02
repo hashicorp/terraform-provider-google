@@ -80,7 +80,7 @@ func TestAccComputeDisk_diskBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_disk.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -129,7 +129,7 @@ func TestAccComputeDisk_diskBasicWoExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_disk.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -182,7 +182,7 @@ func TestAccComputeDisk_diskRsaEncryptedKeyWoExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_disk.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -232,7 +232,7 @@ func TestAccComputeDisk_diskAsyncExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_disk.secondary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -290,7 +290,7 @@ func TestAccComputeDisk_diskFeaturesExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_disk.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

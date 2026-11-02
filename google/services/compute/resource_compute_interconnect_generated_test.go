@@ -81,7 +81,7 @@ func TestAccComputeInterconnect_computeInterconnectBasicTestExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_compute_interconnect.example-interconnect",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

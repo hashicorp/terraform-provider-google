@@ -89,7 +89,7 @@ func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleExample(t 
 			},
 			{
 				ResourceName:       "google_compute_network_firewall_policy_rule.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -193,7 +193,7 @@ func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleNetworkCon
 			},
 			{
 				ResourceName:       "google_compute_network_firewall_policy_rule.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -259,7 +259,7 @@ func TestAccComputeNetworkFirewallPolicyRule_networkFirewallPolicyRuleNetworkCon
 			},
 			{
 				ResourceName:       "google_compute_network_firewall_policy_rule.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

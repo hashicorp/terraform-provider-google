@@ -83,7 +83,7 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_target_http_proxy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -166,7 +166,7 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyHttpKeepAliveTimeoutExample(t 
 			},
 			{
 				ResourceName:       "google_compute_target_http_proxy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -248,7 +248,7 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyHttpsRedirectExample(t *testin
 			},
 			{
 				ResourceName:       "google_compute_target_http_proxy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -302,7 +302,7 @@ func TestAccComputeTargetHttpProxy_targetHttpProxyFingerprintExample(t *testing.
 			},
 			{
 				ResourceName:       "google_compute_target_http_proxy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

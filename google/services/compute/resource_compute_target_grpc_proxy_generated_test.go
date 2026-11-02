@@ -82,7 +82,7 @@ func TestAccComputeTargetGrpcProxy_targetGrpcProxyBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_target_grpc_proxy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -81,7 +81,7 @@ func TestAccComputeDiskResourcePolicyAttachment_diskResourcePolicyAttachmentBasi
 			},
 			{
 				ResourceName:       "google_compute_disk_resource_policy_attachment.attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

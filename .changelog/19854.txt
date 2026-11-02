@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed default provider `region` not being populated in state and Resource Identity for `google_compute_region_network_policy`, `google_compute_region_network_firewall_policy`, and `google_compute_region_network_firewall_policy_with_rules` when `region` is omitted from configuration
+```
