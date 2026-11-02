@@ -1,0 +1,85 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_evaluation_item
+generation_type: mmv1
+source_file: products/vertexai/EvaluationItem.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: EvaluationItem
+fields:
+    - api_field: createTime
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: error.code
+    - api_field: error.message
+    - api_field: evaluationItemType
+    - api_field: evaluationRequest.candidateResponses.agentData
+      json: true
+    - api_field: evaluationRequest.candidateResponses.candidate
+    - api_field: evaluationRequest.candidateResponses.error.code
+    - api_field: evaluationRequest.candidateResponses.error.message
+    - api_field: evaluationRequest.candidateResponses.text
+    - api_field: evaluationRequest.candidateResponses.value
+      json: true
+    - api_field: evaluationRequest.goldenResponse.agentData
+      json: true
+    - api_field: evaluationRequest.goldenResponse.candidate
+    - api_field: evaluationRequest.goldenResponse.error.code
+    - api_field: evaluationRequest.goldenResponse.error.message
+    - api_field: evaluationRequest.goldenResponse.text
+    - api_field: evaluationRequest.goldenResponse.value
+      json: true
+    - api_field: evaluationRequest.prompt.agentData
+      json: true
+    - api_field: evaluationRequest.prompt.promptTemplateData.values
+      json: true
+    - api_field: evaluationRequest.prompt.text
+    - api_field: evaluationRequest.prompt.userScenario.conversationPlan
+    - api_field: evaluationRequest.prompt.userScenario.startingPrompt
+    - api_field: evaluationRequest.prompt.value
+      json: true
+    - api_field: evaluationRequest.rubrics.key
+      field: evaluation_request.rubrics.name
+    - api_field: evaluationRequest.rubrics.value.displayName
+      field: evaluation_request.rubrics.display_name
+    - api_field: evaluationRequest.rubrics.value.groupId
+      field: evaluation_request.rubrics.group_id
+    - api_field: evaluationRequest.rubrics.value.rubrics.content.property.description
+      field: evaluation_request.rubrics.rubrics.content.property.description
+    - api_field: evaluationRequest.rubrics.value.rubrics.importance
+      field: evaluation_request.rubrics.rubrics.importance
+    - api_field: evaluationRequest.rubrics.value.rubrics.rubricId
+      field: evaluation_request.rubrics.rubrics.rubric_id
+    - api_field: evaluationRequest.rubrics.value.rubrics.type
+      field: evaluation_request.rubrics.rubrics.type
+    - api_field: evaluationResponse.candidateResults.additionalResults
+      json: true
+    - api_field: evaluationResponse.candidateResults.candidate
+    - api_field: evaluationResponse.candidateResults.error.code
+    - api_field: evaluationResponse.candidateResults.error.message
+    - api_field: evaluationResponse.candidateResults.explanation
+    - api_field: evaluationResponse.candidateResults.metric
+    - api_field: evaluationResponse.candidateResults.rubricVerdicts.evaluatedRubric
+      json: true
+    - api_field: evaluationResponse.candidateResults.rubricVerdicts.reasoning
+    - api_field: evaluationResponse.candidateResults.rubricVerdicts.verdict
+    - api_field: evaluationResponse.candidateResults.score
+    - api_field: evaluationResponse.evaluationRequest
+    - api_field: evaluationResponse.evaluationRun
+    - api_field: evaluationResponse.metadata
+      json: true
+    - api_field: evaluationResponse.metric
+    - api_field: evaluationResponse.request
+      json: true
+    - api_field: gcsUri
+    - api_field: labels
+    - api_field: metadata
+      json: true
+    - api_field: name
+    - field: region
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
