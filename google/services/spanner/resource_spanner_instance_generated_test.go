@@ -80,7 +80,7 @@ func TestAccSpannerInstance_spannerInstanceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_spanner_instance.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -129,7 +129,7 @@ func TestAccSpannerInstance_spannerInstanceProcessingUnitsExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_spanner_instance.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -176,7 +176,7 @@ func TestAccSpannerInstance_spannerInstanceMultiRegionalExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_spanner_instance.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

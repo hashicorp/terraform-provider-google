@@ -82,7 +82,7 @@ func TestAccStorageBatchOperationsJob_storageBatchOperationsExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_storage_batch_operations_job.tf-job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -147,7 +147,7 @@ func TestAccStorageBatchOperationsJob_storageBatchOperationsDescriptionExample(t
 			},
 			{
 				ResourceName:       "google_storage_batch_operations_job.tf-job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

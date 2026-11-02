@@ -82,7 +82,7 @@ func TestAccVectorSearchCollection_vectorsearchCollectionBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_vector_search_collection.example-collection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -159,7 +159,7 @@ func TestAccVectorSearchCollection_vectorsearchCollectionCmekExample(t *testing.
 			},
 			{
 				ResourceName:       "google_vector_search_collection.example-cmek-collection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

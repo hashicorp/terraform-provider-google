@@ -82,7 +82,7 @@ func TestAccVectorSearchDataObject_vectorsearchDataObjectBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_vector_search_data_object.example-data-object",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -187,7 +187,7 @@ func TestAccVectorSearchDataObject_vectorsearchDataObjectWithVectorsExample(t *t
 			},
 			{
 				ResourceName:       "google_vector_search_data_object.example-vectors-data-object",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -207,7 +207,7 @@ func TestAccVectorSearchDataObject_vectorsearchDataObjectWithVectorsExample(t *t
 			},
 			{
 				ResourceName:       "google_vector_search_data_object.example-vectors-data-object",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -81,7 +81,7 @@ func TestAccVmwareengineNetwork_vmwareEngineNetworkStandardExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_vmwareengine_network.vmw-engine-network",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -82,7 +82,7 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplateBasicExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_transcoder_job_template.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -205,7 +205,7 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplateOverlaysExample(t *testin
 			},
 			{
 				ResourceName:       "google_transcoder_job_template.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -348,7 +348,7 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplateEncryptionsExample(t *tes
 			},
 			{
 				ResourceName:       "google_transcoder_job_template.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -536,7 +536,7 @@ func TestAccTranscoderJobTemplate_transcoderJobTemplatePubsubExample(t *testing.
 			},
 			{
 				ResourceName:       "google_transcoder_job_template.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

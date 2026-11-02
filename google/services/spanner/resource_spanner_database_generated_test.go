@@ -81,7 +81,7 @@ func TestAccSpannerDatabase_spannerDatabaseBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_spanner_database.database",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

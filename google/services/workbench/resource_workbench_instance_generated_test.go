@@ -83,7 +83,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -133,7 +133,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicContainerExample(t *testing.
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -188,7 +188,7 @@ func TestAccWorkbenchInstance_workbenchInstanceBasicGpuExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -278,7 +278,7 @@ func TestAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -356,7 +356,7 @@ func TestAccWorkbenchInstance_workbenchInstanceFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -541,7 +541,7 @@ func TestAccWorkbenchInstance_workbenchInstanceConfidentialComputeExample(t *tes
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -605,7 +605,7 @@ func TestAccWorkbenchInstance_workbenchInstanceEucExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_workbench_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -83,7 +83,7 @@ func TestAccVmwareengineNetworkPolicy_vmwareEngineNetworkPolicyBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_vmwareengine_network_policy.vmw-engine-network-policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -138,7 +138,7 @@ func TestAccVmwareengineNetworkPolicy_vmwareEngineNetworkPolicyFullExample(t *te
 			},
 			{
 				ResourceName:       "google_vmwareengine_network_policy.vmw-engine-network-policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -85,7 +85,7 @@ func TestAccStorageFtpUser_storageFtpUserBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_storage_ftp_user.user_ftp",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

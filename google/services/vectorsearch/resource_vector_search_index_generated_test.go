@@ -81,7 +81,7 @@ func TestAccVectorSearchIndex_vectorsearchIndexBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vector_search_index.example-index",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -178,7 +178,7 @@ func TestAccVectorSearchIndex_vectorsearchIndexDedicatedExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vector_search_index.example-dedicated-index",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -285,7 +285,7 @@ func TestAccVectorSearchIndex_vectorsearchIndexSkipWaitExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vector_search_index.example-skip-wait-index",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
