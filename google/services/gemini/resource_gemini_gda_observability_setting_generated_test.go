@@ -81,7 +81,7 @@ func TestAccGeminiGdaObservabilitySetting_geminiGdaObservabilitySettingBasicExam
 			},
 			{
 				ResourceName:       "google_gemini_gda_observability_setting.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -129,7 +129,7 @@ func TestAccGeminiGdaObservabilitySetting_geminiGdaObservabilitySettingFullExamp
 			},
 			{
 				ResourceName:       "google_gemini_gda_observability_setting.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -149,7 +149,7 @@ func TestAccGeminiGdaObservabilitySetting_geminiGdaObservabilitySettingFullExamp
 			},
 			{
 				ResourceName:       "google_gemini_gda_observability_setting.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -80,7 +80,7 @@ func TestAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacRoleBindingBasicExample(t
 			},
 			{
 				ResourceName:       "google_gke_hub_scope_rbac_role_binding.scope_rbac_role_binding",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

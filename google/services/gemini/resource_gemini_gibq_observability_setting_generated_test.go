@@ -86,7 +86,7 @@ func TestAccGeminiGibqObservabilitySetting_geminiGibqObservabilitySettingBasicEx
 			},
 			{
 				ResourceName:       "google_gemini_gibq_observability_setting.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -106,7 +106,7 @@ func TestAccGeminiGibqObservabilitySetting_geminiGibqObservabilitySettingBasicEx
 			},
 			{
 				ResourceName:       "google_gemini_gibq_observability_setting.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

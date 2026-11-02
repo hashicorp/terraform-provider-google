@@ -80,7 +80,7 @@ func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_gkeonprem_bare_metal_cluster.cluster-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -190,7 +190,7 @@ func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterManuallbExample(t
 			},
 			{
 				ResourceName:       "google_gkeonprem_bare_metal_cluster.cluster-manuallb",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -291,7 +291,7 @@ func TestAccGkeonpremBareMetalCluster_gkeonpremBareMetalClusterBgplbExample(t *t
 			},
 			{
 				ResourceName:       "google_gkeonprem_bare_metal_cluster.cluster-bgplb",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

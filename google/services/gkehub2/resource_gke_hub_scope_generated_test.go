@@ -81,7 +81,7 @@ func TestAccGKEHub2Scope_gkehubScopeBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_gke_hub_scope.scope",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

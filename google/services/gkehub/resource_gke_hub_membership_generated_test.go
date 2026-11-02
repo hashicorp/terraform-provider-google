@@ -87,7 +87,7 @@ func TestAccGKEHubMembership_gkehubMembershipRegionalExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_gke_hub_membership.membership",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -148,7 +148,7 @@ func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_gke_hub_membership.membership",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -213,7 +213,7 @@ func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_gke_hub_membership.membership",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

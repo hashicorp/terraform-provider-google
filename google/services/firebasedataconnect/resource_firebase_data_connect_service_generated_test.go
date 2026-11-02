@@ -82,7 +82,7 @@ func TestAccFirebaseDataConnectService_firebasedataconnectServiceBasicExample(t 
 			},
 			{
 				ResourceName:       "google_firebase_data_connect_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -146,7 +146,7 @@ func TestAccFirebaseDataConnectService_firebasedataconnectServiceWithForceDeleti
 			},
 			{
 				ResourceName:       "google_firebase_data_connect_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -84,7 +84,7 @@ func TestAccFirebaseAppHostingDomain_firebaseAppHostingDomainMinimalExample(t *t
 			},
 			{
 				ResourceName:       "google_firebase_app_hosting_domain.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -154,7 +154,7 @@ func TestAccFirebaseAppHostingDomain_firebaseAppHostingDomainFullExample(t *test
 			},
 			{
 				ResourceName:       "google_firebase_app_hosting_domain.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

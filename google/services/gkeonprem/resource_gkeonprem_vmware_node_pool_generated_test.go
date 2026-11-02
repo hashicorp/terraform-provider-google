@@ -81,7 +81,7 @@ func TestAccGkeonpremVmwareNodePool_gkeonpremVmwareNodePoolBasicExample(t *testi
 			},
 			{
 				ResourceName:       "google_gkeonprem_vmware_node_pool.nodepool-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -169,7 +169,7 @@ func TestAccGkeonpremVmwareNodePool_gkeonpremVmwareNodePoolFullExample(t *testin
 			},
 			{
 				ResourceName:       "google_gkeonprem_vmware_node_pool.nodepool-full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

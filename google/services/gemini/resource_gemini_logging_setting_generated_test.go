@@ -80,7 +80,7 @@ func TestAccGeminiLoggingSetting_geminiLoggingSettingBasicExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_gemini_logging_setting.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -84,7 +84,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_gke_backup_backup_plan.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -137,7 +137,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanAutopilotExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_gke_backup_backup_plan.autopilot",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -207,7 +207,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanCmekExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_gke_backup_backup_plan.cmek",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -272,7 +272,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanNslabelsExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_gke_backup_backup_plan.nslabels",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -327,7 +327,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_gke_backup_backup_plan.full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -393,7 +393,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanPermissiveExample(t *testing.
 			},
 			{
 				ResourceName:       "google_gke_backup_backup_plan.permissive",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -460,7 +460,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoDailyWindowExample(t *test
 			},
 			{
 				ResourceName:       "google_gke_backup_backup_plan.rpo_daily_window",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -541,7 +541,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoWeeklyWindowExample(t *tes
 			},
 			{
 				ResourceName:       "google_gke_backup_backup_plan.rpo_weekly_window",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
