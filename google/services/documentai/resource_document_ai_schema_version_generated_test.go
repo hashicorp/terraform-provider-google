@@ -90,7 +90,7 @@ func TestAccDocumentAISchemaVersion_documentaiSchemaVersionExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_document_ai_schema_version.schema_version",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -110,7 +110,7 @@ func TestAccDocumentAISchemaVersion_documentaiSchemaVersionExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_document_ai_schema_version.schema_version",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

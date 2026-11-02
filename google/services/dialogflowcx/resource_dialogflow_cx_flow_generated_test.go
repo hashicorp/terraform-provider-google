@@ -83,7 +83,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_flow.basic_flow",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -186,7 +186,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_flow.basic_flow",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -654,7 +654,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowDefaultStartFlowExample(t *testing.
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_flow.default_start_flow",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -769,7 +769,7 @@ func TestAccDialogflowCXFlow_dialogflowcxFlowCustomEndpointExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_flow.custom_endpoint_flow",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -91,7 +91,7 @@ func TestAccEventarcChannel_eventarcChannelWithCmekExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_eventarc_channel.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -136,7 +136,7 @@ func TestAccEventarcChannel_eventarcChannelExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_eventarc_channel.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

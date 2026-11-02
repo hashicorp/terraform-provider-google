@@ -80,7 +80,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookStandardExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_webhook.standard_webhook",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -161,7 +161,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookFlexibleExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_webhook.flexible_webhook",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -234,7 +234,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryStandardExamp
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_webhook.standard_webhook",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -318,7 +318,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryFlexibleExamp
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_webhook.flexible_webhook",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -395,7 +395,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookWithServiceAccountAuthExample
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_webhook.webhook_use_service_account",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -462,7 +462,7 @@ func TestAccDialogflowCXWebhook_dialogflowcxWebhookServiceDirectoryWithServiceAc
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_webhook.webhook_use_service_account",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

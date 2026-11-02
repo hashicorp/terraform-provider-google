@@ -83,7 +83,7 @@ func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionOpenApiExample(t *tes
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_tool_version.open_api_tool_version",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -276,7 +276,7 @@ func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionDataStoreExample(t *t
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_tool_version.data_store_tool_version",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -378,7 +378,7 @@ func TestAccDialogflowCXToolVersion_dialogflowcxToolVersionFunctionExample(t *te
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_tool_version.function_tool_version",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

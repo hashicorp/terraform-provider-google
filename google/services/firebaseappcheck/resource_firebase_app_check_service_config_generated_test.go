@@ -82,7 +82,7 @@ func TestAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigOffExampl
 			},
 			{
 				ResourceName:       "google_firebase_app_check_service_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -133,7 +133,7 @@ func TestAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigEnforcedE
 			},
 			{
 				ResourceName:       "google_firebase_app_check_service_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -185,7 +185,7 @@ func TestAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigUnenforce
 			},
 			{
 				ResourceName:       "google_firebase_app_check_service_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -80,7 +80,7 @@ func TestAccDialogflowCXTestCase_dialogflowcxTestCaseFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_test_case.basic_test_case",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

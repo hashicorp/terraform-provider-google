@@ -81,7 +81,7 @@ func TestAccFilestoreBackup_filestoreBackupBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_filestore_backup.backup",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

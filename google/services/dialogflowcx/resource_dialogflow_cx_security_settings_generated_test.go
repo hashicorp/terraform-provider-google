@@ -82,7 +82,7 @@ func TestAccDialogflowCXSecuritySettings_dialogflowcxSecuritySettingsBasicExampl
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_security_settings.basic_security_settings",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -131,7 +131,7 @@ func TestAccDialogflowCXSecuritySettings_dialogflowcxSecuritySettingsFullExample
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_security_settings.basic_security_settings",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

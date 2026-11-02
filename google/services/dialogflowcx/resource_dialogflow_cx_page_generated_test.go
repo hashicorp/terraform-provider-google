@@ -83,7 +83,7 @@ func TestAccDialogflowCXPage_dialogflowcxPageFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_page.basic_page",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

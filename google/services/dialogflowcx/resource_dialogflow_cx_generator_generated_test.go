@@ -80,7 +80,7 @@ func TestAccDialogflowCXGenerator_dialogflowcxGeneratorBasicExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_generator.generator",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

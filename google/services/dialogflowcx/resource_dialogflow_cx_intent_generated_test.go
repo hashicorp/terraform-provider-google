@@ -80,7 +80,7 @@ func TestAccDialogflowCXIntent_dialogflowcxIntentFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_intent.basic_intent",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -166,7 +166,7 @@ func TestAccDialogflowCXIntent_dialogflowcxIntentDefaultNegativeIntentExample(t 
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_intent.default_negative_intent",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -226,7 +226,7 @@ func TestAccDialogflowCXIntent_dialogflowcxIntentDefaultWelcomeIntentExample(t *
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_intent.default_welcome_intent",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
