@@ -79,7 +79,7 @@ func TestAccComputePreviewFeature_previewFeatureBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_preview_feature.gce_preview_feature",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

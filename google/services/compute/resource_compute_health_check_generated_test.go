@@ -79,7 +79,7 @@ func TestAccComputeHealthCheck_healthCheckTcpExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.tcp-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -127,7 +127,7 @@ func TestAccComputeHealthCheck_healthCheckTcpFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.tcp-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -182,7 +182,7 @@ func TestAccComputeHealthCheck_healthCheckSslExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.ssl-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -230,7 +230,7 @@ func TestAccComputeHealthCheck_healthCheckSslFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.ssl-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -285,7 +285,7 @@ func TestAccComputeHealthCheck_healthCheckHttpExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.http-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -333,7 +333,7 @@ func TestAccComputeHealthCheck_healthCheckHttpFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.http-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -389,7 +389,7 @@ func TestAccComputeHealthCheck_healthCheckHttpsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.https-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -437,7 +437,7 @@ func TestAccComputeHealthCheck_healthCheckHttpsFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.https-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -493,7 +493,7 @@ func TestAccComputeHealthCheck_healthCheckHttp2Example(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.http2-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -541,7 +541,7 @@ func TestAccComputeHealthCheck_healthCheckHttp2FullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.http2-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -597,7 +597,7 @@ func TestAccComputeHealthCheck_healthCheckGrpcExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.grpc-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -645,7 +645,7 @@ func TestAccComputeHealthCheck_healthCheckGrpcFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.grpc-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -695,7 +695,7 @@ func TestAccComputeHealthCheck_healthCheckGrpcWithTlsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.grpc-with-tls-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -743,7 +743,7 @@ func TestAccComputeHealthCheck_healthCheckGrpcWithTlsFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_health_check.grpc-with-tls-health-check",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -796,7 +796,7 @@ func TestAccComputeHealthCheck_computeHealthCheckHttpSourceRegionsExample(t *tes
 			},
 			{
 				ResourceName:       "google_compute_health_check.http-health-check-with-source-regions",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -845,7 +845,7 @@ func TestAccComputeHealthCheck_computeHealthCheckHttpsSourceRegionsExample(t *te
 			},
 			{
 				ResourceName:       "google_compute_health_check.https-health-check-with-source-regions",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -894,7 +894,7 @@ func TestAccComputeHealthCheck_computeHealthCheckTcpSourceRegionsExample(t *test
 			},
 			{
 				ResourceName:       "google_compute_health_check.tcp-health-check-with-source-regions",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

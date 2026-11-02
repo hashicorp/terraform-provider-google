@@ -82,7 +82,7 @@ func TestAccComputeRegionHealthSource_computeRegionHealthSourceBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_compute_region_health_source.example_test_health_source",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

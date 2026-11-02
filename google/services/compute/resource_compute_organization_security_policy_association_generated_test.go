@@ -82,7 +82,7 @@ func TestAccComputeOrganizationSecurityPolicyAssociation_organizationSecurityPol
 			},
 			{
 				ResourceName:       "google_compute_organization_security_policy_association.policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

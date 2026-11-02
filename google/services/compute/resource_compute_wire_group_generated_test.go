@@ -84,7 +84,7 @@ func TestAccComputeWireGroup_computeWireGroupBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_wire_group.example-test-wire-group",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

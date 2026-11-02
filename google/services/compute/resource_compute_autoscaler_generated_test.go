@@ -83,7 +83,7 @@ func TestAccComputeAutoscaler_autoscalerBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_autoscaler.foobar",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

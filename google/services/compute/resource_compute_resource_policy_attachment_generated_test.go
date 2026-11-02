@@ -81,7 +81,7 @@ func TestAccComputeResourcePolicyAttachment_computeResourcePolicyAttachmentBasic
 			},
 			{
 				ResourceName:       "google_compute_resource_policy_attachment.attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -80,7 +80,7 @@ func TestAccComputeAddress_addressBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_address.ip_address",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -124,7 +124,7 @@ func TestAccComputeAddress_addressWithSubnetworkExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_address.internal_with_subnet_and_address",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -181,7 +181,7 @@ func TestAccComputeAddress_addressWithGceEndpointExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_address.internal_with_gce_endpoint",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -225,7 +225,7 @@ func TestAccComputeAddress_addressWithSharedLoadbalancerVipExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_compute_address.internal_with_shared_loadbalancer_vip",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -270,7 +270,7 @@ func TestAccComputeAddress_instanceWithIpExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_address.static",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -337,7 +337,7 @@ func TestAccComputeAddress_computeAddressIpsecInterconnectExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_compute_address.ipsec-interconnect-address",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -392,7 +392,7 @@ func TestAccComputeAddress_computeAddressEnhancedByoipExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_address.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

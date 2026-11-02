@@ -80,7 +80,7 @@ func TestAccComputeGlobalAddress_globalAddressBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_global_address.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

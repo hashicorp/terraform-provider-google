@@ -81,7 +81,7 @@ func TestAccComputeBulkPerInstanceConfig_computeBulkPerInstanceConfigExample(t *
 			},
 			{
 				ResourceName:       "google_compute_bulk_per_instance_config.bulk-igm-per-instance-config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

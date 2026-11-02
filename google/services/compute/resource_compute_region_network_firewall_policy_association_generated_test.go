@@ -84,7 +84,7 @@ func TestAccComputeRegionNetworkFirewallPolicyAssociation_regionNetworkFirewallP
 			},
 			{
 				ResourceName:       "google_compute_region_network_firewall_policy_association.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

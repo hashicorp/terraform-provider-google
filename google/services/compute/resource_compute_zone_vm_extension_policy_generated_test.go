@@ -86,7 +86,7 @@ func TestAccComputeZoneVmExtensionPolicy_computeZoneVmExtensionPolicyBasicExampl
 			},
 			{
 				ResourceName:       "google_compute_zone_vm_extension_policy.ops_agent_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -106,7 +106,7 @@ func TestAccComputeZoneVmExtensionPolicy_computeZoneVmExtensionPolicyBasicExampl
 			},
 			{
 				ResourceName:       "google_compute_zone_vm_extension_policy.ops_agent_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

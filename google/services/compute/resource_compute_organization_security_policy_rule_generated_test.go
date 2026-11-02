@@ -80,7 +80,7 @@ func TestAccComputeOrganizationSecurityPolicyRule_organizationSecurityPolicyRule
 			},
 			{
 				ResourceName:       "google_compute_organization_security_policy_rule.policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

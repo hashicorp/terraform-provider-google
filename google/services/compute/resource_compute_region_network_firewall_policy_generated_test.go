@@ -80,7 +80,7 @@ func TestAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyFullEx
 			},
 			{
 				ResourceName:       "google_compute_region_network_firewall_policy.policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -123,7 +123,7 @@ func TestAccComputeRegionNetworkFirewallPolicy_regionNetworkFirewallPolicyRoceEx
 			},
 			{
 				ResourceName:       "google_compute_region_network_firewall_policy.policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

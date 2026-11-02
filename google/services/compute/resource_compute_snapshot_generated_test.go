@@ -81,7 +81,7 @@ func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_snapshot.snapshot",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -144,7 +144,7 @@ func TestAccComputeSnapshot_snapshotBasicSourceInstantSnapshotExample(t *testing
 			},
 			{
 				ResourceName:       "google_compute_snapshot.snapshot",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -214,7 +214,7 @@ func TestAccComputeSnapshot_snapshotChainnameExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_snapshot.snapshot",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

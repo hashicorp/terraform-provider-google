@@ -88,7 +88,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -212,7 +212,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentNatIpsExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -321,7 +321,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(t 
 			},
 			{
 				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -455,7 +455,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitNetworksExample(t 
 			},
 			{
 				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -599,7 +599,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentReconcileConnectionsExampl
 			},
 			{
 				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -708,7 +708,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentCrossRegionIlbExample(t *t
 			},
 			{
 				ResourceName:       "google_compute_service_attachment.psc_ilb_service_attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

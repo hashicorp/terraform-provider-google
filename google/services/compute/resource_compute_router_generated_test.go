@@ -82,7 +82,7 @@ func TestAccComputeRouter_routerBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_router.foobar",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -142,7 +142,7 @@ func TestAccComputeRouter_computeRouterEncryptedInterconnectExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_compute_router.encrypted-interconnect-router",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -195,7 +195,7 @@ func TestAccComputeRouter_computeRouterMd5encryptedExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_router.foobar",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -261,7 +261,7 @@ func TestAccComputeRouter_routerNccGwExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_router.foobar",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

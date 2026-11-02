@@ -89,7 +89,7 @@ func TestAccComputeFirewallPolicyWithRules_computeFirewallPolicyWithRulesFullExa
 			},
 			{
 				ResourceName:       "google_compute_firewall_policy_with_rules.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

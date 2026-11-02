@@ -83,7 +83,7 @@ func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -136,7 +136,7 @@ func TestAccComputeBackendService_backendServiceExternalIapExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -186,7 +186,7 @@ func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -243,7 +243,7 @@ func TestAccComputeBackendService_backendServiceCacheIncludeHttpHeadersExample(t
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -295,7 +295,7 @@ func TestAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -351,7 +351,7 @@ func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -414,7 +414,7 @@ func TestAccComputeBackendService_backendServiceCacheBypassCacheOnRequestHeaders
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -485,7 +485,7 @@ func TestAccComputeBackendService_backendServiceExternalManagedExample(t *testin
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -537,7 +537,7 @@ func TestAccComputeBackendService_backendServiceIpAddressSelectionPolicyExample(
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -584,7 +584,7 @@ func TestAccComputeBackendService_backendServiceCustomMetricsExample(t *testing.
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -680,7 +680,7 @@ func TestAccComputeBackendService_backendServiceTlsSettingsExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -756,7 +756,7 @@ func TestAccComputeBackendService_backendServiceIdentityExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -776,7 +776,7 @@ func TestAccComputeBackendService_backendServiceIdentityExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_backend_service.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

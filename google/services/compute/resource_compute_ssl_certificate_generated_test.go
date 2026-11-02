@@ -80,7 +80,7 @@ func TestAccComputeSslCertificate_sslCertificateBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_ssl_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -129,7 +129,7 @@ func TestAccComputeSslCertificate_sslCertificateBasicWriteonlyExample(t *testing
 			},
 			{
 				ResourceName:       "google_compute_ssl_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -183,7 +183,7 @@ func TestAccComputeSslCertificate_sslCertificateRandomProviderExample(t *testing
 			},
 			{
 				ResourceName:       "google_compute_ssl_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -249,7 +249,7 @@ func TestAccComputeSslCertificate_sslCertificateTargetHttpsProxiesExample(t *tes
 			},
 			{
 				ResourceName:       "google_compute_ssl_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

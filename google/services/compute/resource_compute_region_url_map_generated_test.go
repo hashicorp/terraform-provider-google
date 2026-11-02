@@ -83,7 +83,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -193,7 +193,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapDefaultRouteActionExample(t *testing
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -403,7 +403,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -545,7 +545,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbPathPartialExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -655,7 +655,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRouteExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -778,7 +778,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapL7IlbRoutePartialExample(t *testing.
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -878,7 +878,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapPathTemplateMatchExample(t *testing.
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.urlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1007,7 +1007,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapPathMatcherDefaultRouteActionExample
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1227,7 +1227,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapDefaultMirrorPercentExample(t *testi
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1323,7 +1323,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapPathMatcherDefaultMirrorPercentExamp
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1419,7 +1419,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapPathRuleMirrorPercentExample(t *test
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1515,7 +1515,7 @@ func TestAccComputeRegionUrlMap_regionUrlMapRouteRuleMirrorPercentExample(t *tes
 			},
 			{
 				ResourceName:       "google_compute_region_url_map.regionurlmap",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

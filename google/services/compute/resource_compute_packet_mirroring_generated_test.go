@@ -85,7 +85,7 @@ func TestAccComputePacketMirroring_computePacketMirroringFullExample(t *testing.
 			},
 			{
 				ResourceName:       "google_compute_packet_mirroring.foobar",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

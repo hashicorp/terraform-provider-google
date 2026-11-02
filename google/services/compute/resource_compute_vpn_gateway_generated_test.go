@@ -89,7 +89,7 @@ func TestAccComputeVpnGateway_targetVpnGatewayBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_vpn_gateway.target_gateway",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -196,7 +196,7 @@ func TestAccComputeVpnGateway_targetVpnGatewayTagsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_vpn_gateway.target_gateway_tags",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

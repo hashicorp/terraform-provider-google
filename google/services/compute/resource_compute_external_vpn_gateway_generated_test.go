@@ -89,7 +89,7 @@ func TestAccComputeExternalVpnGateway_externalVpnGatewayExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_compute_external_vpn_gateway.external_gateway",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -229,7 +229,7 @@ func TestAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(t *testi
 			},
 			{
 				ResourceName:       "google_compute_external_vpn_gateway.external_gateway",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
