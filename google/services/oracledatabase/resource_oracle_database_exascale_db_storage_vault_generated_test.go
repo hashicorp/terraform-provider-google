@@ -92,7 +92,7 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 			},
 			{
 				ResourceName:       "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -112,7 +112,7 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 			},
 			{
 				ResourceName:       "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -170,7 +170,7 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 			},
 			{
 				ResourceName:       "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -233,7 +233,7 @@ func TestAccOracleDatabaseExascaleDbStorageVault_oracledatabaseExascaleDbStorage
 			},
 			{
 				ResourceName:       "google_oracle_database_exascale_db_storage_vault.my_storage_vault",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

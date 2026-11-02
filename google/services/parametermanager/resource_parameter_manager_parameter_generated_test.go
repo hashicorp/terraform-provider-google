@@ -82,7 +82,7 @@ func TestAccParameterManagerParameter_parameterConfigBasicExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_parameter_manager_parameter.parameter-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -124,7 +124,7 @@ func TestAccParameterManagerParameter_parameterWithFormatExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_parameter_manager_parameter.parameter-with-format",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -167,7 +167,7 @@ func TestAccParameterManagerParameter_parameterWithLabelsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_parameter_manager_parameter.parameter-with-labels",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -224,7 +224,7 @@ func TestAccParameterManagerParameter_parameterWithKmsKeyExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_parameter_manager_parameter.parameter-with-kms-key",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

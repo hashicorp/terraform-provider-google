@@ -84,7 +84,7 @@ func TestAccOracleDatabaseOdbDnsZone_oracledatabaseOdbdnszoneBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_oracle_database_odb_dns_zone.my-odbdnszone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

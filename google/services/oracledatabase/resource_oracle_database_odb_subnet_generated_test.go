@@ -97,7 +97,7 @@ func TestAccOracleDatabaseOdbSubnet_oracledatabaseOdbsubnetExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_oracle_database_odb_subnet.my-odbsubnet",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -117,7 +117,7 @@ func TestAccOracleDatabaseOdbSubnet_oracledatabaseOdbsubnetExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_oracle_database_odb_subnet.my-odbsubnet",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

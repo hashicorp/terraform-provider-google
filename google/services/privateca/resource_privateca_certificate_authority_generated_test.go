@@ -83,7 +83,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 			},
 			{
 				ResourceName:       "google_privateca_certificate_authority.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -161,7 +161,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicNoOr
 			},
 			{
 				ResourceName:       "google_privateca_certificate_authority.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -239,7 +239,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordina
 			},
 			{
 				ResourceName:       "google_privateca_certificate_authority.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -361,7 +361,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicWith
 			},
 			{
 				ResourceName:       "google_privateca_certificate_authority.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

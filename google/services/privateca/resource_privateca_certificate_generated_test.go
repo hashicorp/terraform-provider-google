@@ -82,7 +82,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_privateca_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -224,7 +224,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(t *test
 			},
 			{
 				ResourceName:       "google_privateca_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -397,7 +397,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateCsrExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_privateca_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -494,7 +494,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(t *testi
 			},
 			{
 				ResourceName:       "google_privateca_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -623,7 +623,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateCustomSkiExample(t *testing
 			},
 			{
 				ResourceName:       "google_privateca_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -755,7 +755,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateSubjectConfigOrgOptionalExa
 			},
 			{
 				ResourceName:       "google_privateca_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -876,7 +876,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateWithRequestedNotBeforeTimeE
 			},
 			{
 				ResourceName:       "google_privateca_certificate.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

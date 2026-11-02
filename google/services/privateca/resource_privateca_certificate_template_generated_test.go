@@ -80,7 +80,7 @@ func TestAccPrivatecaCertificateTemplate_privatecaTemplateBasicExample(t *testin
 			},
 			{
 				ResourceName:       "google_privateca_certificate_template.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -191,7 +191,7 @@ func TestAccPrivatecaCertificateTemplate_privatecaTemplateZeroMaxIssuerPathLengt
 			},
 			{
 				ResourceName:       "google_privateca_certificate_template.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -83,7 +83,7 @@ func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_oracle_database_odb_network.my-odbnetwork",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -139,7 +139,7 @@ func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkFullExample(t *test
 			},
 			{
 				ResourceName:       "google_oracle_database_odb_network.my-odbnetwork",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

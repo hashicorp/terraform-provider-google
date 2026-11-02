@@ -94,7 +94,7 @@ func TestAccOracleDatabaseGoldengateDeployment_oracledatabaseGoldengateDeploymen
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_deployment.deployment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -114,7 +114,7 @@ func TestAccOracleDatabaseGoldengateDeployment_oracledatabaseGoldengateDeploymen
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_deployment.deployment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -178,7 +178,7 @@ func TestAccOracleDatabaseGoldengateDeployment_oracledatabaseGoldengateDeploymen
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_deployment.deployment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

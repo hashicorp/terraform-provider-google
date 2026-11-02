@@ -82,7 +82,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterBasicExam
 			},
 			{
 				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -125,7 +125,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithForma
 			},
 			{
 				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-with-format",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -169,7 +169,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithLabel
 			},
 			{
 				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-with-labels",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -227,7 +227,7 @@ func TestAccParameterManagerRegionalRegionalParameter_regionalParameterWithKmsKe
 			},
 			{
 				ResourceName:       "google_parameter_manager_regional_parameter.regional-parameter-with-kms-key",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
