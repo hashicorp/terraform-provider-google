@@ -82,7 +82,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationBasicExample(
 			},
 			{
 				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -136,7 +136,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationExample(t *te
 			},
 			{
 				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -209,7 +209,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationPysparkExampl
 			},
 			{
 				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -267,7 +267,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparkrExample
 			},
 			{
 				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -322,7 +322,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlExamp
 			},
 			{
 				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -380,7 +380,7 @@ func TestAccDataprocGdcSparkApplication_dataprocgdcSparkapplicationSparksqlQuery
 			},
 			{
 				ResourceName:       "google_dataproc_gdc_spark_application.spark-application",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

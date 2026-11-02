@@ -80,7 +80,7 @@ func TestAccDialogflowGenerator_dialogflowGeneratorBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_generator.summarization_basic_generator",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -133,7 +133,7 @@ func TestAccDialogflowGenerator_dialogflowGeneratorAgentCoachingExample(t *testi
 			},
 			{
 				ResourceName:       "google_dialogflow_generator.agent_coaching_generator",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -190,7 +190,7 @@ func TestAccDialogflowGenerator_dialogflowGeneratorWithToolsExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_dialogflow_generator.generator_with_tools",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

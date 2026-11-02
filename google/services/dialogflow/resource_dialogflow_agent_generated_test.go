@@ -84,7 +84,7 @@ func TestAccDialogflowAgent_dialogflowAgentFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_agent.full_agent",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

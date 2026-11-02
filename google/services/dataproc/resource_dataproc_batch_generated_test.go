@@ -86,7 +86,7 @@ func TestAccDataprocBatch_dataprocBatchSparkExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataproc_batch.example_batch_spark",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -153,7 +153,7 @@ func TestAccDataprocBatch_dataprocBatchSparkFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataproc_batch.example_batch_spark",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -301,7 +301,7 @@ func TestAccDataprocBatch_dataprocBatchSparksqlExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataproc_batch.example_batch_sparsql",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -365,7 +365,7 @@ func TestAccDataprocBatch_dataprocBatchPysparkExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataproc_batch.example_batch_pyspark",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -433,7 +433,7 @@ func TestAccDataprocBatch_dataprocBatchSparkrExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataproc_batch.example_batch_sparkr",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -497,7 +497,7 @@ func TestAccDataprocBatch_dataprocBatchAutotuningExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataproc_batch.example_batch_autotuning",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

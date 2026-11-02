@@ -80,7 +80,7 @@ func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_dataproc_autoscaling_policy.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -136,7 +136,7 @@ func TestAccDataprocAutoscalingPolicy_dataprocAutoscalingPolicyExample(t *testin
 			},
 			{
 				ResourceName:       "google_dataproc_autoscaling_policy.asp",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

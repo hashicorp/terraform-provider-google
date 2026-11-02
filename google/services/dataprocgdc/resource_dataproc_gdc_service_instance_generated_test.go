@@ -82,7 +82,7 @@ func TestAccDataprocGdcServiceInstance_dataprocgdcServiceinstanceExample(t *test
 			},
 			{
 				ResourceName:       "google_dataproc_gdc_service_instance.service-instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

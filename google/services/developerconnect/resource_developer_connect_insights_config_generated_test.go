@@ -87,7 +87,7 @@ func TestAccDeveloperConnectInsightsConfig_developerConnectInsightsConfigBasicEx
 			},
 			{
 				ResourceName:       "google_developer_connect_insights_config.insights_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -274,7 +274,7 @@ func TestAccDeveloperConnectInsightsConfig_developerConnectInsightsConfigProject
 			},
 			{
 				ResourceName:       "google_developer_connect_insights_config.insights_config_projects",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
