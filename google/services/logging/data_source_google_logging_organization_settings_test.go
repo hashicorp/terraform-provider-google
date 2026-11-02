@@ -28,8 +28,10 @@ import (
 
 func TestAccLoggingOrganizationSettings_datasource(t *testing.T) {
 	// google_logging_organization_settings is a singleton, and multiple tests mutate it.
-	orgSettingsMu.Lock()
-	t.Cleanup(orgSettingsMu.Unlock)
+	if !acctest.IsVcrReplaying() {
+		orgSettingsMu.Lock()
+		t.Cleanup(orgSettingsMu.Unlock)
+	}
 
 	context := map[string]interface{}{
 		"org_id":       envvar.GetTestOrgFromEnv(t),
