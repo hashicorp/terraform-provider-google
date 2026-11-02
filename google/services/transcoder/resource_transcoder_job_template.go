@@ -575,14 +575,6 @@ If empty, the value is populated from Job.input_uri.`,
 							Description: `Manifest configuration.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"type": {
-										Type:         schema.TypeString,
-										Computed:     true,
-										Optional:     true,
-										ForceNew:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"MANIFEST_TYPE_UNSPECIFIED", "HLS", "DASH"}),
-										Description:  `Type of the manifest. Possible values: ["MANIFEST_TYPE_UNSPECIFIED", "HLS", "DASH"]`,
-									},
 									"file_name": {
 										Type:        schema.TypeString,
 										Computed:    true,
@@ -599,6 +591,14 @@ If empty, the value is populated from Job.input_uri.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
+									},
+									"type": {
+										Type:         schema.TypeString,
+										Computed:     true,
+										Optional:     true,
+										ForceNew:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"MANIFEST_TYPE_UNSPECIFIED", "HLS", "DASH", ""}),
+										Description:  `Type of the manifest. Possible values: ["MANIFEST_TYPE_UNSPECIFIED", "HLS", "DASH"]`,
 									},
 								},
 							},

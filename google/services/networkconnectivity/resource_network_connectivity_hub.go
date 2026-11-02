@@ -119,14 +119,6 @@ func ResourceNetworkConnectivityHub() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      `Immutable. The name of the hub. Hub names must be unique. They use the following form: 'projects/{project_number}/locations/global/hubs/{hub_id}'`,
-			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -146,6 +138,14 @@ func ResourceNetworkConnectivityHub() *schema.Resource {
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"name": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `Immutable. The name of the hub. Hub names must be unique. They use the following form: 'projects/{project_number}/locations/global/hubs/{hub_id}'`,
 			},
 			"policy_mode": {
 				Type:         schema.TypeString,

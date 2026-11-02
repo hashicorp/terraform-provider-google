@@ -51,11 +51,6 @@ The following arguments are supported:
   (Required)
   The display name for this plugin instance. Max length is 255 characters.
 
-* `actions` -
-  (Required)
-  The action status for the plugin instance.
-  Structure is [documented below](#nested_actions).
-
 * `location` -
   (Required)
   Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122.
@@ -89,6 +84,11 @@ The following arguments are supported:
   AuthConfig represents the authentication information.
   Structure is [documented below](#nested_auth_config).
 
+* `actions` -
+  (Optional)
+  The action status for the plugin instance.
+  Structure is [documented below](#nested_actions).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -99,107 +99,6 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
-
-<a name="nested_actions"></a>The `actions` block supports:
-
-* `hub_instance_action` -
-  (Output)
-  The execution status for the plugin instance.
-  Structure is [documented below](#nested_actions_hub_instance_action).
-
-* `action_id` -
-  (Required)
-  This should map to one of the action id specified
-  in actions_config in the plugin.
-
-* `state` -
-  (Output)
-  The current state of the plugin action in the plugin instance.
-  Possible values:
-  STATE_UNSPECIFIED
-  ENABLED
-  DISABLED
-  ENABLING
-  DISABLING
-  ERROR
-
-* `schedule_cron_expression` -
-  (Optional)
-  The schedule for this plugin instance action. This can only be set if the
-  plugin supports API_HUB_SCHEDULE_TRIGGER mode for this action.
-
-* `curation_config` -
-  (Optional)
-  The curation information for this plugin instance.
-  Structure is [documented below](#nested_actions_curation_config).
-
-* `schedule_time_zone` -
-  (Optional)
-  The time zone for the schedule cron expression. If not provided, UTC will
-  be used.
-
-
-<a name="nested_actions_hub_instance_action"></a>The `hub_instance_action` block contains:
-
-* `current_execution_state` -
-  (Output)
-  The current state of the execution.
-  Possible values:
-  CURRENT_EXECUTION_STATE_UNSPECIFIED
-  RUNNING
-  NOT_RUNNING
-
-* `last_execution` -
-  (Output)
-  The result of the last execution of the plugin instance.
-  Structure is [documented below](#nested_actions_hub_instance_action_last_execution).
-
-
-<a name="nested_actions_hub_instance_action_last_execution"></a>The `last_execution` block contains:
-
-* `result` -
-  (Output)
-  The result of the last execution of the plugin instance.
-  Possible values:
-  RESULT_UNSPECIFIED
-  SUCCEEDED
-  FAILED
-
-* `error_message` -
-  (Output)
-  Error message describing the failure, if any, during the last
-  execution.
-
-* `start_time` -
-  (Output)
-  The last execution start time of the plugin instance.
-
-* `end_time` -
-  (Output)
-  The last execution end time of the plugin instance.
-
-<a name="nested_actions_curation_config"></a>The `curation_config` block supports:
-
-* `custom_curation` -
-  (Optional)
-  Custom curation information for this plugin instance.
-  Structure is [documented below](#nested_actions_curation_config_custom_curation).
-
-* `curation_type` -
-  (Required)
-  Possible values:
-  CURATION_TYPE_UNSPECIFIED
-  DEFAULT_CURATION_FOR_API_METADATA
-  CUSTOM_CURATION_FOR_API_METADATA
-
-
-<a name="nested_actions_curation_config_custom_curation"></a>The `custom_curation` block supports:
-
-* `curation` -
-  (Required)
-  The unique name of the curation resource. This will be the name of the
-  curation resource in the format:
-  `projects/{project}/locations/{location}/curations/{curation}`
 
 <a name="nested_auth_config"></a>The `auth_config` block supports:
 
@@ -313,6 +212,107 @@ The following arguments are supported:
   (Required)
   The resource name of the secret version in the format,
   format as: `projects/*/secrets/*/versions/*`.
+
+<a name="nested_actions"></a>The `actions` block supports:
+
+* `hub_instance_action` -
+  (Output)
+  The execution status for the plugin instance.
+  Structure is [documented below](#nested_actions_hub_instance_action).
+
+* `action_id` -
+  (Required)
+  This should map to one of the action id specified
+  in actions_config in the plugin.
+
+* `state` -
+  (Output)
+  The current state of the plugin action in the plugin instance.
+  Possible values:
+  STATE_UNSPECIFIED
+  ENABLED
+  DISABLED
+  ENABLING
+  DISABLING
+  ERROR
+
+* `schedule_cron_expression` -
+  (Optional)
+  The schedule for this plugin instance action. This can only be set if the
+  plugin supports API_HUB_SCHEDULE_TRIGGER mode for this action.
+
+* `curation_config` -
+  (Optional)
+  The curation information for this plugin instance.
+  Structure is [documented below](#nested_actions_curation_config).
+
+* `schedule_time_zone` -
+  (Optional)
+  The time zone for the schedule cron expression. If not provided, UTC will
+  be used.
+
+
+<a name="nested_actions_hub_instance_action"></a>The `hub_instance_action` block contains:
+
+* `current_execution_state` -
+  (Output)
+  The current state of the execution.
+  Possible values:
+  CURRENT_EXECUTION_STATE_UNSPECIFIED
+  RUNNING
+  NOT_RUNNING
+
+* `last_execution` -
+  (Output)
+  The result of the last execution of the plugin instance.
+  Structure is [documented below](#nested_actions_hub_instance_action_last_execution).
+
+
+<a name="nested_actions_hub_instance_action_last_execution"></a>The `last_execution` block contains:
+
+* `result` -
+  (Output)
+  The result of the last execution of the plugin instance.
+  Possible values:
+  RESULT_UNSPECIFIED
+  SUCCEEDED
+  FAILED
+
+* `error_message` -
+  (Output)
+  Error message describing the failure, if any, during the last
+  execution.
+
+* `start_time` -
+  (Output)
+  The last execution start time of the plugin instance.
+
+* `end_time` -
+  (Output)
+  The last execution end time of the plugin instance.
+
+<a name="nested_actions_curation_config"></a>The `curation_config` block supports:
+
+* `custom_curation` -
+  (Optional)
+  Custom curation information for this plugin instance.
+  Structure is [documented below](#nested_actions_curation_config_custom_curation).
+
+* `curation_type` -
+  (Optional)
+  Possible values:
+  CURATION_TYPE_UNSPECIFIED
+  DEFAULT_CURATION_FOR_API_METADATA
+  CUSTOM_CURATION_FOR_API_METADATA
+
+
+<a name="nested_actions_curation_config_custom_curation"></a>The `custom_curation` block supports:
+
+* `curation` -
+  (Required)
+  The unique name of the curation resource. This will be the name of the
+  curation resource in the format:
+  `projects/{project}/locations/{location}/curations/{curation}`
 
 ## Attributes Reference
 

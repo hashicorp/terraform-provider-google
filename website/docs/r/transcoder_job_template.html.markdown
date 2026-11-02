@@ -769,7 +769,7 @@ The following arguments are supported:
   The name of the generated file. The default is `manifest`.
 
 * `type` -
-  (Required)
+  (Optional)
   Type of the manifest.
   Possible values are: `MANIFEST_TYPE_UNSPECIFIED`, `HLS`, `DASH`.
 

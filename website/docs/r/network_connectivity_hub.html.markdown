@@ -150,10 +150,10 @@ resource "google_network_connectivity_hub" "primary" {
 The following arguments are supported:
 
 
-* `name` -
-  (Required)
-  Immutable. The name of the hub. Hub names must be unique. They use the following form: `projects/{project_number}/locations/global/hubs/{hub_id}`
 
+* `name` -
+  (Optional)
+  Immutable. The name of the hub. Hub names must be unique. They use the following form: `projects/{project_number}/locations/global/hubs/{hub_id}`
 
 * `labels` -
   (Optional)
@@ -265,7 +265,7 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 ```tf
 import {
   identity = {
-    name = "<-required value->"
+    name = "<-optional value->"
     project = "<-optional value->"
   }
   to = google_network_connectivity_hub.default

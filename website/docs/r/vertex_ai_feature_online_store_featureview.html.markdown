@@ -482,10 +482,6 @@ The following arguments are supported:
   (Required)
   The name of the FeatureOnlineStore to use for the featureview.
 
-* `region` -
-  (Required)
-  The region for the resource. It should be the same as the featureonlinestore region.
-
 
 * `name` -
   (Optional)
@@ -517,6 +513,10 @@ The following arguments are supported:
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   Configuration for vector search. It contains the required configurations to create an index from source data, so that approximate nearest neighbor (a.k.a ANN) algorithms search can be performed during online serving.
   Structure is [documented below](#nested_vector_search_config).
+
+* `region` -
+  (Optional)
+  The region for the resource. It should be the same as the featureonlinestore region.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -658,7 +658,7 @@ import {
   identity = {
     name = "<-optional value->"
     featureOnlineStore = "<-required value->"
-    region = "<-required value->"
+    region = "<-optional value->"
     project = "<-optional value->"
   }
   to = google_vertex_ai_feature_online_store_featureview.default

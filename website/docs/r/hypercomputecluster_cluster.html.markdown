@@ -762,7 +762,7 @@ The following arguments are supported:
 <a name="nested_storage_resources_config_new_bucket_hierarchical_namespace"></a>The `hierarchical_namespace` block supports:
 
 * `enabled` -
-  (Required)
+  (Optional)
   Enables hierarchical namespace setup for the bucket.
 
 <a name="nested_storage_resources_config_new_filestore"></a>The `new_filestore` block supports:

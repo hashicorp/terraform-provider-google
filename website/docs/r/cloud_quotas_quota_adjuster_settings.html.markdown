@@ -51,10 +51,10 @@ The following arguments are supported:
   Required. The configured value of the enablement at the given resource.
   Possible values are: `ENABLED`, `DISABLED`.
 
-* `parent` -
-  (Required)
-  The parent of the quota preference. Allowed parent format is "projects/[project-id / number]".
 
+* `parent` -
+  (Optional)
+  The parent of the quota preference. Allowed parent format is "projects/[project-id / number]".
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
@@ -114,7 +114,7 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 ```tf
 import {
   identity = {
-    parent = "<-required value->"
+    parent = "<-optional value->"
   }
   to = google_cloud_quotas_quota_adjuster_settings.default
 }

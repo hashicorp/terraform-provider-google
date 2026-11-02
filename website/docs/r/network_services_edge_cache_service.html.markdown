@@ -1062,7 +1062,7 @@ The following arguments are supported:
 <a name="nested_log_config"></a>The `log_config` block supports:
 
 * `enable` -
-  (Required)
+  (Optional)
   Specifies whether to enable logging for traffic served by this service.
 
 * `sample_rate` -

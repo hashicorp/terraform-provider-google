@@ -132,7 +132,7 @@ func ResourceVertexAIFeatureOnlineStoreFeatureview() *schema.Resource {
 					},
 					"region": {
 						Type:              schema.TypeString,
-						RequiredForImport: true,
+						OptionalForImport: true,
 					},
 					"project": {
 						Type:              schema.TypeString,
@@ -151,13 +151,6 @@ func ResourceVertexAIFeatureOnlineStoreFeatureview() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `The name of the FeatureOnlineStore to use for the featureview.`,
-			},
-			"region": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The region for the resource. It should be the same as the featureonlinestore region.`,
 			},
 			"big_query_source": {
 				Type:        schema.TypeList,
@@ -236,6 +229,13 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Name of the FeatureView. This value may be up to 60 characters, and valid characters are [a-z0-9_]. The first character cannot be a number.`,
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The region for the resource. It should be the same as the featureonlinestore region.`,
 			},
 			"sync_config": {
 				Type:        schema.TypeList,

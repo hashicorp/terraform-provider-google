@@ -118,7 +118,7 @@ func ResourceCloudQuotasQuotaAdjusterSettings() *schema.Resource {
 				return map[string]*schema.Schema{
 					"parent": {
 						Type:              schema.TypeString,
-						RequiredForImport: true,
+						OptionalForImport: true,
 					},
 				}
 			},
