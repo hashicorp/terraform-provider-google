@@ -560,6 +560,17 @@ func resourceHealthcareDicomStoreImport(d *schema.ResourceData, meta interface{}
 
 	config := meta.(*transport_tpg.Config)
 
+	if d.Id() == "" {
+		if err := tpgresource.ParseImportId([]string{"(?P<dataset>.+)/dicomStores/(?P<name>[^/]+)"}, d, config); err != nil {
+			return nil, err
+		}
+		id, err := tpgresource.ReplaceVars(d, config, "{{dataset}}/dicomStores/{{name}}")
+		if err != nil {
+			return nil, fmt.Errorf("Error constructing id: %s", err)
+		}
+		d.SetId(id)
+	}
+
 	dicomStoreId, err := ParseHealthcareDicomStoreId(d.Id(), config)
 	if err != nil {
 		return nil, err
