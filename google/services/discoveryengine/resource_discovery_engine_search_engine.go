@@ -239,6 +239,7 @@ The supported values: 'APP_TYPE_UNSPECIFIED', 'APP_TYPE_INTRANET'.`,
 			"disable_analytics": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `Whether to disable analytics for searches performed on this engine.`,
 			},
 			"features": {
@@ -736,12 +737,6 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("search_engine_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, searchEngineConfigProp)) {
 		obj["searchEngineConfig"] = searchEngineConfigProp
 	}
-	disableAnalyticsProp, err := expandDiscoveryEngineSearchEngineDisableAnalytics(d.Get("disable_analytics"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("disable_analytics"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableAnalyticsProp)) {
-		obj["disableAnalytics"] = disableAnalyticsProp
-	}
 	featuresProp, err := expandDiscoveryEngineSearchEngineFeatures(d.Get("features"), d, config)
 	if err != nil {
 		return err
@@ -800,10 +795,6 @@ func resourceDiscoveryEngineSearchEngineUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("search_engine_config") {
 		updateMask = append(updateMask, "searchEngineConfig")
-	}
-
-	if d.HasChange("disable_analytics") {
-		updateMask = append(updateMask, "disableAnalytics")
 	}
 
 	if d.HasChange("features") {
@@ -961,7 +952,33 @@ func flattenDiscoveryEngineSearchEngineDisplayName(v interface{}, d *schema.Reso
 }
 
 func flattenDiscoveryEngineSearchEngineDataStoreIds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+
+	rawConfigValue := d.Get("data_store_ids")
+
+	// Convert config value to []string
+	configValue, err := tpgresource.InterfaceSliceToStringSlice(rawConfigValue)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return v
+	}
+
+	// Convert v to []string
+	apiStringValue, err := tpgresource.InterfaceSliceToStringSlice(v)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert API value: %s", err)
+		return v
+	}
+
+	sortedStrings, err := tpgresource.SortStringsByConfigOrder(configValue, apiStringValue)
+	if err != nil {
+		log.Printf("[ERROR] Could not sort API response value: %s", err)
+		return v
+	}
+
+	return sortedStrings
 }
 
 func flattenDiscoveryEngineSearchEngineCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
