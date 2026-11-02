@@ -80,7 +80,7 @@ func TestAccStorageInsightsDatasetConfig_storageInsightsDatasetConfigIncludesExa
 			},
 			{
 				ResourceName:       "google_storage_insights_dataset_config.config_includes",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -144,7 +144,7 @@ func TestAccStorageInsightsDatasetConfig_storageInsightsDatasetConfigExcludesExa
 			},
 			{
 				ResourceName:       "google_storage_insights_dataset_config.config_excludes",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

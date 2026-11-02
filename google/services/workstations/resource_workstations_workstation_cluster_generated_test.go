@@ -93,7 +93,7 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_workstations_workstation_cluster.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -113,7 +113,7 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_workstations_workstation_cluster.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -190,7 +190,7 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterPrivateExample(t *t
 			},
 			{
 				ResourceName:       "google_workstations_workstation_cluster.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -210,7 +210,7 @@ func TestAccWorkstationsWorkstationCluster_workstationClusterPrivateExample(t *t
 			},
 			{
 				ResourceName:       "google_workstations_workstation_cluster.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

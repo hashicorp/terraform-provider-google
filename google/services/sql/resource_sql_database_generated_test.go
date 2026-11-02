@@ -81,7 +81,7 @@ func TestAccSQLDatabase_sqlDatabaseBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_sql_database.database",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -138,7 +138,7 @@ func TestAccSQLDatabase_sqlDatabaseDeletionPolicyExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_sql_database.database_deletion_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -81,7 +81,7 @@ func TestAccStorageFtpServer_storageFtpServerInternalExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_storage_ftp_server.internal_server",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -142,7 +142,7 @@ func TestAccStorageFtpServer_storageFtpServerExternalExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_storage_ftp_server.external_server",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

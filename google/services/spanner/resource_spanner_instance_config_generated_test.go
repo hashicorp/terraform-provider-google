@@ -80,7 +80,7 @@ func TestAccSpannerInstanceConfig_spannerInstanceConfigBasicExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_spanner_instance_config.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

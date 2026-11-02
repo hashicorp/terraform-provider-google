@@ -80,7 +80,7 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstanceBasic
 			},
 			{
 				ResourceName:       "google_sql_source_representation_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -129,7 +129,7 @@ func TestAccSQLSourceRepresentationInstance_sqlSourceRepresentationInstancePostg
 			},
 			{
 				ResourceName:       "google_sql_source_representation_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
