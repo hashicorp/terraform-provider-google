@@ -79,7 +79,7 @@ func TestAccMonitoringGroup_monitoringGroupBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_monitoring_group.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -123,7 +123,7 @@ func TestAccMonitoringGroup_monitoringGroupSubgroupExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_monitoring_group.subgroup",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

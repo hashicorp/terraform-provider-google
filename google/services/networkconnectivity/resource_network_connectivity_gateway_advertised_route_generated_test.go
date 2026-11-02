@@ -84,7 +84,7 @@ func TestAccNetworkConnectivityGatewayAdvertisedRoute_networkConnectivityGateway
 			},
 			{
 				ResourceName:       "google_network_connectivity_gateway_advertised_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

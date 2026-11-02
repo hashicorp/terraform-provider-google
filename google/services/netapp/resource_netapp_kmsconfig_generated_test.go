@@ -82,7 +82,7 @@ func TestAccNetappkmsconfig_kmsConfigCreateExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_netapp_kmsconfig.kmsConfig",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

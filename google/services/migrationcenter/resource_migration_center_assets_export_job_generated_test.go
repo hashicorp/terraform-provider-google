@@ -80,7 +80,7 @@ func TestAccMigrationCenterAssetsExportJob_migrationCenterAssetsExportJobBasicEx
 			},
 			{
 				ResourceName:       "google_migration_center_assets_export_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

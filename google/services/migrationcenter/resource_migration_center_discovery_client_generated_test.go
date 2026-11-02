@@ -105,7 +105,7 @@ func TestAccMigrationCenterDiscoveryClient_migrationCenterDiscoveryClientBasicEx
 			},
 			{
 				ResourceName:       "google_migration_center_discovery_client.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -125,7 +125,7 @@ func TestAccMigrationCenterDiscoveryClient_migrationCenterDiscoveryClientBasicEx
 			},
 			{
 				ResourceName:       "google_migration_center_discovery_client.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

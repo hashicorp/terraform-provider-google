@@ -81,7 +81,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_model_armor_template.template-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -141,7 +141,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateFilterConfigExample(t *testing.
 			},
 			{
 				ResourceName:       "google_model_armor_template.template-filter-config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -247,7 +247,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateTemplateMetadataExample(t *test
 			},
 			{
 				ResourceName:       "google_model_armor_template.template-template-metadata",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -321,7 +321,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateFilterVersionSelectorExample(t 
 			},
 			{
 				ResourceName:       "google_model_armor_template.template-filter-version-selector",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -387,7 +387,7 @@ func TestAccModelArmorTemplate_modelarmorTemplateLabelExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_model_armor_template.template-label-advanced-config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

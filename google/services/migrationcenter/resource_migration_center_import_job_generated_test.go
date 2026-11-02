@@ -92,7 +92,7 @@ func TestAccMigrationCenterImportJob_migrationCenterImportJobBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_migration_center_import_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -112,7 +112,7 @@ func TestAccMigrationCenterImportJob_migrationCenterImportJobBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_migration_center_import_job.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

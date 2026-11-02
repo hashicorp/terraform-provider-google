@@ -82,7 +82,7 @@ func TestAccManagedKafkaTopic_managedkafkaTopicBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_managed_kafka_topic.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

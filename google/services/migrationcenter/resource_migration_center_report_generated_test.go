@@ -83,7 +83,7 @@ func TestAccMigrationCenterReport_migrationCenterReportBasicExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_migration_center_report.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -85,7 +85,7 @@ func TestAccNetappVolumeQuotaRule_netappVolumeQuotaRuleBasicExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_netapp_volume_quota_rule.test_quota_rule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

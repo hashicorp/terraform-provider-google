@@ -84,7 +84,7 @@ func TestAccMigrationCenterImportDataFile_migrationCenterImportDataFileBasicExam
 			},
 			{
 				ResourceName:       "google_migration_center_import_data_file.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

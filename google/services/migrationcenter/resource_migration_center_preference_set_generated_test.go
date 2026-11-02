@@ -80,7 +80,7 @@ func TestAccMigrationCenterPreferenceSet_preferenceSetBasicExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_migration_center_preference_set.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -132,7 +132,7 @@ func TestAccMigrationCenterPreferenceSet_preferenceSetFullExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_migration_center_preference_set.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -206,7 +206,7 @@ func TestAccMigrationCenterPreferenceSet_preferenceSetComputeEnginePreferencesDi
 			},
 			{
 				ResourceName:       "google_migration_center_preference_set.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

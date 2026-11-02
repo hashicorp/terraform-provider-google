@@ -86,7 +86,7 @@ func TestAccNetappBackup_netappBackupExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_netapp_backup.test_backup",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

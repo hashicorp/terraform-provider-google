@@ -84,7 +84,7 @@ func TestAccManagedKafkaCluster_managedkafkaClusterBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_managed_kafka_cluster.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -148,7 +148,7 @@ func TestAccManagedKafkaCluster_managedkafkaClusterMtlsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_managed_kafka_cluster.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -223,7 +223,7 @@ func TestAccManagedKafkaCluster_managedkafkaClusterPublicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_managed_kafka_cluster.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

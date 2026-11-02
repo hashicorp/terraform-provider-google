@@ -82,7 +82,7 @@ func TestAccDataprocMetastoreFederation_dataprocMetastoreFederationBasicExample(
 			},
 			{
 				ResourceName:       "google_dataproc_metastore_federation.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -146,7 +146,7 @@ func TestAccDataprocMetastoreFederation_dataprocMetastoreFederationBigqueryExamp
 			},
 			{
 				ResourceName:       "google_dataproc_metastore_federation.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

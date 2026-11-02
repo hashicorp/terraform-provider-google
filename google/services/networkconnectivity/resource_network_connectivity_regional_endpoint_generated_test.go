@@ -83,7 +83,7 @@ func TestAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpo
 			},
 			{
 				ResourceName:       "google_network_connectivity_regional_endpoint.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -147,7 +147,7 @@ func TestAccNetworkConnectivityRegionalEndpoint_networkConnectivityRegionalEndpo
 			},
 			{
 				ResourceName:       "google_network_connectivity_regional_endpoint.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

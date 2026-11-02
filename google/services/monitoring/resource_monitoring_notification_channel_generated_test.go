@@ -80,7 +80,7 @@ func TestAccMonitoringNotificationChannel_notificationChannelBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_monitoring_notification_channel.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

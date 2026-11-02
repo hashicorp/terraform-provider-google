@@ -82,7 +82,7 @@ func TestAccNetworkConnectivityGroup_networkConnectivityGroupBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_network_connectivity_group.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
