@@ -80,7 +80,7 @@ func TestAccFilestoreInstance_filestoreInstanceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_filestore_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -134,7 +134,7 @@ func TestAccFilestoreInstance_filestoreInstanceFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_filestore_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -203,7 +203,7 @@ func TestAccFilestoreInstance_filestoreInstanceProtocolExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_filestore_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

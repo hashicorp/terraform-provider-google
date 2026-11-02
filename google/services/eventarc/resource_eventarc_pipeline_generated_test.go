@@ -87,7 +87,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithTopicDestinationExample(t *test
 			},
 			{
 				ResourceName:       "google_eventarc_pipeline.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -146,7 +146,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithHttpDestinationExample(t *testi
 			},
 			{
 				ResourceName:       "google_eventarc_pipeline.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -199,7 +199,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithWorkflowDestinationExample(t *t
 			},
 			{
 				ResourceName:       "google_eventarc_pipeline.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -281,7 +281,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithOidcAndJsonFormatExample(t *tes
 			},
 			{
 				ResourceName:       "google_eventarc_pipeline.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -367,7 +367,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithOauthAndProtobufFormatExample(t
 			},
 			{
 				ResourceName:       "google_eventarc_pipeline.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -475,7 +475,7 @@ func TestAccEventarcPipeline_eventarcPipelineWithCmekAndAvroFormatExample(t *tes
 			},
 			{
 				ResourceName:       "google_eventarc_pipeline.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

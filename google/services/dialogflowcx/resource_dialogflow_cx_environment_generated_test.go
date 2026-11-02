@@ -80,7 +80,7 @@ func TestAccDialogflowCXEnvironment_dialogflowcxEnvironmentFullExample(t *testin
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_environment.development",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -148,7 +148,7 @@ func TestAccDialogflowCXEnvironment_dialogflowcxEnvironmentRegionalExample(t *te
 			},
 			{
 				ResourceName:       "google_dialogflow_cx_environment.development",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

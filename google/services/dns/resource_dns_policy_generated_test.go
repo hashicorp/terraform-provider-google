@@ -83,7 +83,7 @@ func TestAccDNSPolicy_dnsPolicyBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_policy.example-policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -160,7 +160,7 @@ func TestAccDNSPolicy_dnsPolicyMultiprojectExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_policy.example-policy-multiproject",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

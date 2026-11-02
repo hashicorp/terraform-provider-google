@@ -82,7 +82,7 @@ func TestAccFirebaseAppCheckResourcePolicy_firebaseAppCheckResourcePolicyOauth2B
 			},
 			{
 				ResourceName:       "google_firebase_app_check_resource_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

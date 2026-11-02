@@ -85,7 +85,7 @@ func TestAccDNSResponsePolicy_dnsResponsePolicyBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_response_policy.example-response-policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

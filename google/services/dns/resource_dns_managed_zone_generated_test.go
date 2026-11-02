@@ -86,7 +86,7 @@ func TestAccDNSManagedZone_dnsManagedZoneQuickstartExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_managed_zone.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -179,7 +179,7 @@ func TestAccDNSManagedZone_dnsRecordSetBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_managed_zone.parent-zone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -235,7 +235,7 @@ func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_managed_zone.example-zone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -288,7 +288,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_managed_zone.private-zone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -362,7 +362,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_dns_managed_zone.private-zone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -522,7 +522,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateForwardingIpv6Example(t *testing
 			},
 			{
 				ResourceName:       "google_dns_managed_zone.private-zone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -587,7 +587,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateGkeExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_managed_zone.private-zone-gke",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -696,7 +696,7 @@ func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_managed_zone.peering-zone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -765,7 +765,7 @@ func TestAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_managed_zone.cloud-logging-enabled-zone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -817,7 +817,7 @@ func TestAccDNSManagedZone_dnsManagedZoneIamConditionExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_managed_zone.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -107,7 +107,7 @@ func TestAccDNSOutboundEndpoint_dnsOutboundEndpointBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_outbound_endpoint.example-endpoint",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -127,7 +127,7 @@ func TestAccDNSOutboundEndpoint_dnsOutboundEndpointBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_outbound_endpoint.example-endpoint",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -147,7 +147,7 @@ func TestAccDNSOutboundEndpoint_dnsOutboundEndpointBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dns_outbound_endpoint.example-endpoint",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

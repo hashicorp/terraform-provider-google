@@ -80,7 +80,7 @@ func TestAccEssentialContactsContact_essentialContactExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_essential_contacts_contact.contact",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -80,7 +80,7 @@ func TestAccDocumentAISchema_documentaiSchemaExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_document_ai_schema.schema",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

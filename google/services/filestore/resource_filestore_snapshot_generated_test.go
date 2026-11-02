@@ -81,7 +81,7 @@ func TestAccFilestoreSnapshot_filestoreSnapshotBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_filestore_snapshot.snapshot",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -142,7 +142,7 @@ func TestAccFilestoreSnapshot_filestoreSnapshotFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_filestore_snapshot.snapshot",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
