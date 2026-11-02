@@ -778,7 +778,33 @@ func flattenDiscoveryEngineChatEngineDisplayName(v interface{}, d *schema.Resour
 }
 
 func flattenDiscoveryEngineChatEngineDataStoreIds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return nil
+	}
+
+	rawConfigValue := d.Get("data_store_ids")
+
+	// Convert config value to []string
+	configValue, err := tpgresource.InterfaceSliceToStringSlice(rawConfigValue)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert config value: %s", err)
+		return v
+	}
+
+	// Convert v to []string
+	apiStringValue, err := tpgresource.InterfaceSliceToStringSlice(v)
+	if err != nil {
+		log.Printf("[ERROR] Failed to convert API value: %s", err)
+		return v
+	}
+
+	sortedStrings, err := tpgresource.SortStringsByConfigOrder(configValue, apiStringValue)
+	if err != nil {
+		log.Printf("[ERROR] Could not sort API response value: %s", err)
+		return v
+	}
+
+	return sortedStrings
 }
 
 func flattenDiscoveryEngineChatEngineCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

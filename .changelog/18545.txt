@@ -1,0 +1,7 @@
+```release-note:bug
+discoveryengine: sort `data_store_ids` to avoid drift in `google_discovery_engine_chat_engine` and `google_discovery_engine_search_engine`
+```
+
+```release-note:bug
+discoveryengine: fixed inability to change value of `disable_analytics` on `google_discovery_engine_search_engine`. Changing this field will now recreate the search engine.
+```
