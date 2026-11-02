@@ -38,17 +38,8 @@ If you wish to work on the provider, you'll need to make changes in [magic-modul
 For guidance on how to contribute, see our [contribution documentation](https://googlecloudplatform.github.io/magic-modules/contribution-process/).
 If you have other development questions we don't cover, please [file an issue](https://github.com/hashicorp/terraform-provider-google/issues/new/choose)!
 
+## Privacy Notice
 
+Individuals, including external contributors, who participate in this repository and related project activities may have personal information associated with their GitHub profiles, contributions, and repository activity processed for security, compliance, audit, vulnerability management, and related governance purposes.
 
-
-
-
-
-
-
-
-
-
-
-
-
+For more information about how personal information may be collected, used, shared, retained, and the rights available to individuals, please review the IBM Privacy Statement: [https://www.ibm.com/privacy](https://www.ibm.com/privacy)
