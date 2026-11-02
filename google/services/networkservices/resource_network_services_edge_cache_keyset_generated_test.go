@@ -81,7 +81,7 @@ func TestAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetBasicEx
 			},
 			{
 				ResourceName:       "google_network_services_edge_cache_keyset.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -134,7 +134,7 @@ func TestAccNetworkServicesEdgeCacheKeyset_networkServicesEdgeCacheKeysetDualTok
 			},
 			{
 				ResourceName:       "google_network_services_edge_cache_keyset.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

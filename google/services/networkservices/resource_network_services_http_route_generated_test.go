@@ -80,7 +80,7 @@ func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_network_services_http_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -136,7 +136,7 @@ func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteMatchesAndActionsEx
 			},
 			{
 				ResourceName:       "google_network_services_http_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -258,7 +258,7 @@ func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteActionsExample(t *t
 			},
 			{
 				ResourceName:       "google_network_services_http_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -356,7 +356,7 @@ func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteMeshBasicExample(t 
 			},
 			{
 				ResourceName:       "google_network_services_http_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

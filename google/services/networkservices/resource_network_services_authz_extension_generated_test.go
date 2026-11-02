@@ -83,7 +83,7 @@ func TestAccNetworkServicesAuthzExtension_networkServicesAuthzExtensionBasicExam
 			},
 			{
 				ResourceName:       "google_network_services_authz_extension.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -145,7 +145,7 @@ func TestAccNetworkServicesAuthzExtension_networkServicesAuthzExtensionIapExampl
 			},
 			{
 				ResourceName:       "google_network_services_authz_extension.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

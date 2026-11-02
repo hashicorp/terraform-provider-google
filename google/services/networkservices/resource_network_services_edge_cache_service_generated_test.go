@@ -84,7 +84,7 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceBasic
 			},
 			{
 				ResourceName:       "google_network_services_edge_cache_service.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -176,7 +176,7 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceAdvan
 			},
 			{
 				ResourceName:       "google_network_services_edge_cache_service.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -402,7 +402,7 @@ func TestAccNetworkServicesEdgeCacheService_networkServicesEdgeCacheServiceDualT
 			},
 			{
 				ResourceName:       "google_network_services_edge_cache_service.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

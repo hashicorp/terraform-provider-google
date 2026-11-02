@@ -83,7 +83,7 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteBasicExample(t *testi
 			},
 			{
 				ResourceName:       "google_network_services_tls_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -154,7 +154,7 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteRegionalBasicExample(
 			},
 			{
 				ResourceName:       "google_network_services_tls_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -229,7 +229,7 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteMeshBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_network_services_tls_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -312,7 +312,7 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteGatewayBasicExample(t
 			},
 			{
 				ResourceName:       "google_network_services_tls_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -398,7 +398,7 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteTargetTcpProxyBasicEx
 			},
 			{
 				ResourceName:       "google_network_services_tls_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -478,7 +478,7 @@ func TestAccNetworkServicesTlsRoute_networkServicesTlsRouteRegionTargetTcpProxyB
 			},
 			{
 				ResourceName:       "google_network_services_tls_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

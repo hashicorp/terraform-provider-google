@@ -98,7 +98,7 @@ func TestAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionBasic
 			},
 			{
 				ResourceName:       "google_network_services_lb_route_extension.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -509,7 +509,7 @@ func TestAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionObser
 			},
 			{
 				ResourceName:       "google_network_services_lb_route_extension.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

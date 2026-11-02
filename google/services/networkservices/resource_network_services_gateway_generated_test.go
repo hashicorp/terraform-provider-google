@@ -83,7 +83,7 @@ func TestAccNetworkServicesGateway_networkServicesGatewayBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_network_services_gateway.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -128,7 +128,7 @@ func TestAccNetworkServicesGateway_networkServicesGatewayAdvancedExample(t *test
 			},
 			{
 				ResourceName:       "google_network_services_gateway.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -184,7 +184,7 @@ func TestAccNetworkServicesGateway_networkServicesGatewaySecureWebProxyExample(t
 			},
 			{
 				ResourceName:       "google_network_services_gateway.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -294,7 +294,7 @@ func TestAccNetworkServicesGateway_networkServicesGatewayMultipleSwpSameNetworkE
 			},
 			{
 				ResourceName:       "google_network_services_gateway.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

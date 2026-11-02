@@ -81,7 +81,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicEx
 			},
 			{
 				ResourceName:       "google_network_services_edge_cache_origin.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -126,7 +126,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvance
 			},
 			{
 				ResourceName:       "google_network_services_edge_cache_origin.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -223,7 +223,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authE
 			},
 			{
 				ResourceName:       "google_network_services_edge_cache_origin.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

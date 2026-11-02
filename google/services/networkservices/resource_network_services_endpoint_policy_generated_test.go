@@ -80,7 +80,7 @@ func TestAccNetworkServicesEndpointPolicy_networkServicesEndpointPolicyBasicExam
 			},
 			{
 				ResourceName:       "google_network_services_endpoint_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -140,7 +140,7 @@ func TestAccNetworkServicesEndpointPolicy_networkServicesEndpointPolicyEmptyMatc
 			},
 			{
 				ResourceName:       "google_network_services_endpoint_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

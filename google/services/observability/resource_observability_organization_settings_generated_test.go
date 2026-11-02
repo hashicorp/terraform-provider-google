@@ -85,7 +85,7 @@ func TestAccObservabilityOrganizationSettings_observabilityOrganizationSettingsB
 			},
 			{
 				ResourceName:       "google_observability_organization_settings.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -151,7 +151,7 @@ func TestAccObservabilityOrganizationSettings_observabilityOrganizationSettingsB
 			},
 			{
 				ResourceName:       "google_observability_organization_settings.primary_global",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

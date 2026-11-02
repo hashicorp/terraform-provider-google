@@ -88,7 +88,7 @@ func TestAccNetworkServicesAgentGateway_networkServicesAgentGatewayFullExample(t
 			},
 			{
 				ResourceName:       "google_network_services_agent_gateway.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -216,7 +216,7 @@ func TestAccNetworkServicesAgentGateway_networkServicesAgentGatewayDnsPeeringExa
 			},
 			{
 				ResourceName:       "google_network_services_agent_gateway.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -329,7 +329,7 @@ func TestAccNetworkServicesAgentGateway_networkServicesAgentGatewayClientToAgent
 			},
 			{
 				ResourceName:       "google_network_services_agent_gateway.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -389,7 +389,7 @@ func TestAccNetworkServicesAgentGateway_networkServicesAgentGatewaySelfManagedEx
 			},
 			{
 				ResourceName:       "google_network_services_agent_gateway.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -84,7 +84,7 @@ func TestAccNetworkServicesMulticastDomainGroup_networkServicesMulticastDomainGr
 			},
 			{
 				ResourceName:       "google_network_services_multicast_domain_group.mdg_test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
