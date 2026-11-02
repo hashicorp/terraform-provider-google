@@ -12,6 +12,8 @@ const val DefaultServiceParallelism = 20
 
 var ServiceParallelism = mapOf(
     // Packages with quota failures in nightly tests are kept at the previous default of 6.
+    // alloydb: Upstream Private CA createCA rate limit (20 req/min per tenant project, 3 CAs per CreateInstance)
+    "alloydb" to 5,
     // gemini: Quota 'Maximum number of Code Repository Indexes' exceeded (limit 10)
     "gemini" to 6,
     // netapp: Quotas 'BackupVaultsPerRegion' (limit 10) and 'ReplicatedVolumesPerRegion' (limit 5) exceeded
