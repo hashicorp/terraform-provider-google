@@ -109,7 +109,7 @@ func TestAccBiglakeHiveHiveTable_biglakeHiveTableExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_biglake_hive_table.my_hive_table",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -129,7 +129,7 @@ func TestAccBiglakeHiveHiveTable_biglakeHiveTableExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_biglake_hive_table.my_hive_table",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -91,7 +91,7 @@ func TestAccBiglakeHiveHiveDatabase_biglakeHiveDatabaseExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_biglake_hive_database.my_hive_database",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -111,7 +111,7 @@ func TestAccBiglakeHiveHiveDatabase_biglakeHiveDatabaseExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_biglake_hive_database.my_hive_database",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
