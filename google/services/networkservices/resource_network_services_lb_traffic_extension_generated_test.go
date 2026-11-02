@@ -308,7 +308,9 @@ resource "google_network_services_lb_traffic_extension" "default" {
           authority = "ext11.com"
           service   = google_compute_region_backend_service.callouts_backend.self_link
           timeout   = "0.1s"
-          fail_open = false
+
+          fail_open          = false
+          observability_mode = true
 
           supported_events = ["REQUEST_HEADERS"]
           forward_headers = ["custom-header"]

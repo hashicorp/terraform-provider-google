@@ -1,0 +1,3 @@
+```release-note:enhancement
+networkservices: added `observability_mode` field to `google_network_services_lb_traffic_extension` resource
+```
