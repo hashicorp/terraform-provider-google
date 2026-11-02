@@ -83,7 +83,7 @@ func TestAccNetappStoragePool_storagePoolCreateExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_netapp_storage_pool.test_pool",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -85,7 +85,7 @@ func TestAccNetappVolumeSnapshot_volumeSnapshotCreateExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_netapp_volume_snapshot.test_snapshot",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

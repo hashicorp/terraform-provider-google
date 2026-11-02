@@ -87,7 +87,7 @@ func TestAccNetappVolumeReplication_netappVolumeReplicationCreateExample(t *test
 			},
 			{
 				ResourceName:       "google_netapp_volume_replication.test_replication",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

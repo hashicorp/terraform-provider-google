@@ -80,7 +80,7 @@ func TestAccNetappActiveDirectory_netappActiveDirectoryFullExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_netapp_active_directory.test_active_directory_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

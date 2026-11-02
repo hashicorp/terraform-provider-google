@@ -83,7 +83,7 @@ func TestAccNetworkConnectivityTransport_networkConnectivityTransportBasicExampl
 			},
 			{
 				ResourceName:       "google_network_connectivity_transport.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

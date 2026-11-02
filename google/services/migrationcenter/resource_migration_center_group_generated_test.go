@@ -80,7 +80,7 @@ func TestAccMigrationCenterGroup_migrationGroupBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_migration_center_group.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

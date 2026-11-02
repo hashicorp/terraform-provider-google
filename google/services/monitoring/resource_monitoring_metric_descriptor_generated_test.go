@@ -81,7 +81,7 @@ func TestAccMonitoringMetricDescriptor_monitoringMetricDescriptorBasicExample(t 
 			},
 			{
 				ResourceName:       "google_monitoring_metric_descriptor.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -139,7 +139,7 @@ func TestAccMonitoringMetricDescriptor_monitoringMetricDescriptorAlertExample(t 
 			},
 			{
 				ResourceName:       "google_monitoring_metric_descriptor.with_alert",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

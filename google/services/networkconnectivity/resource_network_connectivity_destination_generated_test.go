@@ -81,7 +81,7 @@ func TestAccNetworkConnectivityDestination_networkConnectivityDestinationBasicEx
 			},
 			{
 				ResourceName:       "google_network_connectivity_destination.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

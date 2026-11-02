@@ -82,7 +82,7 @@ func TestAccManagedKafkaAcl_managedkafkaAclBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_managed_kafka_acl.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

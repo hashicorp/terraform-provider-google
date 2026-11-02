@@ -81,7 +81,7 @@ func TestAccMonitoringSnooze_monitoringSnoozeBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_monitoring_snooze.snooze",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -152,7 +152,7 @@ func TestAccMonitoringSnooze_monitoringSnoozeFilterExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_monitoring_snooze.snooze",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

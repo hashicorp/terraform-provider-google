@@ -82,7 +82,7 @@ func TestAccNetworkConnectivityPolicyBasedRoute_networkConnectivityPolicyBasedRo
 			},
 			{
 				ResourceName:       "google_network_connectivity_policy_based_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -136,7 +136,7 @@ func TestAccNetworkConnectivityPolicyBasedRoute_networkConnectivityPolicyBasedRo
 			},
 			{
 				ResourceName:       "google_network_connectivity_policy_based_route.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

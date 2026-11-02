@@ -82,7 +82,7 @@ func TestAccMigrationCenterReportConfig_migrationCenterReportConfigBasicExample(
 			},
 			{
 				ResourceName:       "google_migration_center_report_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

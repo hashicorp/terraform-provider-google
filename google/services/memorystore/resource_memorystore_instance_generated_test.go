@@ -89,7 +89,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_memorystore_instance.instance-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -194,7 +194,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_memorystore_instance.instance-full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -315,7 +315,7 @@ func TestAccMemorystoreInstance_memorystoreInstancePersistenceAofExample(t *test
 			},
 			{
 				ResourceName:       "google_memorystore_instance.instance-persistence-aof",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -414,7 +414,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceSecondaryInstanceExample(t *t
 			},
 			{
 				ResourceName:       "google_memorystore_instance.secondary_instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -596,7 +596,7 @@ func TestAccMemorystoreInstance_memorystoreInstanceFlexibleCaExample(t *testing.
 			},
 			{
 				ResourceName:       "google_memorystore_instance.test-instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

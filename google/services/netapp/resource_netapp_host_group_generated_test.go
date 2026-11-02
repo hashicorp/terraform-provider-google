@@ -80,7 +80,7 @@ func TestAccNetappHostGroup_netappHostGroupExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_netapp_host_group.test_host_group",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -80,7 +80,7 @@ func TestAccNetworkConnectivityMulticloudDataTransferConfig_networkConnectivityM
 			},
 			{
 				ResourceName:       "google_network_connectivity_multicloud_data_transfer_config.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

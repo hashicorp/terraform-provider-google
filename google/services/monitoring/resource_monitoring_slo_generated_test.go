@@ -80,7 +80,7 @@ func TestAccMonitoringSlo_monitoringSloAppengineExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_monitoring_slo.appeng_slo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -145,7 +145,7 @@ func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_monitoring_slo.request_based_slo",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -207,7 +207,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t 
 			},
 			{
 				ResourceName:       "google_monitoring_slo.windows_based",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -267,7 +267,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.
 			},
 			{
 				ResourceName:       "google_monitoring_slo.windows_based",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -333,7 +333,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_monitoring_slo.windows_based",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -399,7 +399,7 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *test
 			},
 			{
 				ResourceName:       "google_monitoring_slo.windows_based",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

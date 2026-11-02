@@ -80,7 +80,7 @@ func TestAccNetappBackupPolicy_netappBackupPolicyFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_netapp_backup_policy.test_backup_policy_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

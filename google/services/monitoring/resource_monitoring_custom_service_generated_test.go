@@ -80,7 +80,7 @@ func TestAccMonitoringService_monitoringServiceCustomExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_monitoring_custom_service.custom",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

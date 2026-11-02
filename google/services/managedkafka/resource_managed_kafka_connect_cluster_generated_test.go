@@ -89,7 +89,7 @@ func TestAccManagedKafkaConnectCluster_managedkafkaConnectClusterBasicExample(t 
 			},
 			{
 				ResourceName:       "google_managed_kafka_connect_cluster.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
