@@ -99,7 +99,7 @@ func TestAccObservabilityLink_observabilityLinkBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_observability_link.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -119,7 +119,7 @@ func TestAccObservabilityLink_observabilityLinkBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_observability_link.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

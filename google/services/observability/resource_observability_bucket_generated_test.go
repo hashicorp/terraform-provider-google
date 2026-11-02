@@ -98,7 +98,7 @@ func TestAccObservabilityBucket_observabilityBucketBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_observability_bucket.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -118,7 +118,7 @@ func TestAccObservabilityBucket_observabilityBucketBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_observability_bucket.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

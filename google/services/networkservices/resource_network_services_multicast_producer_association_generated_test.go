@@ -84,7 +84,7 @@ func TestAccNetworkServicesMulticastProducerAssociation_networkServicesMulticast
 			},
 			{
 				ResourceName:       "google_network_services_multicast_producer_association.mpa_test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

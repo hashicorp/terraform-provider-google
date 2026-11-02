@@ -85,7 +85,7 @@ func TestAccNetworkServicesMulticastGroupRange_networkServicesMulticastGroupRang
 			},
 			{
 				ResourceName:       "google_network_services_multicast_group_range.mgr_test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -87,7 +87,7 @@ func TestAccObservabilityProjectSettings_observabilityProjectSettingsBasicExampl
 			},
 			{
 				ResourceName:       "google_observability_project_settings.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -184,7 +184,7 @@ func TestAccObservabilityProjectSettings_observabilityProjectSettingsBasicGlobal
 			},
 			{
 				ResourceName:       "google_observability_project_settings.primary_global",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

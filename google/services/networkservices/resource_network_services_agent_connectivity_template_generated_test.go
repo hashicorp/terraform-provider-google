@@ -92,7 +92,7 @@ func TestAccNetworkServicesAgentConnectivityTemplate_networkServicesAgentConnect
 			},
 			{
 				ResourceName:       "google_network_services_agent_connectivity_template.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -112,7 +112,7 @@ func TestAccNetworkServicesAgentConnectivityTemplate_networkServicesAgentConnect
 			},
 			{
 				ResourceName:       "google_network_services_agent_connectivity_template.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -203,7 +203,7 @@ func TestAccNetworkServicesAgentConnectivityTemplate_networkServicesAgentConnect
 			},
 			{
 				ResourceName:       "google_network_services_agent_connectivity_template.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -223,7 +223,7 @@ func TestAccNetworkServicesAgentConnectivityTemplate_networkServicesAgentConnect
 			},
 			{
 				ResourceName:       "google_network_services_agent_connectivity_template.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

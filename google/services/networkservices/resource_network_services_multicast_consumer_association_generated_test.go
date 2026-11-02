@@ -84,7 +84,7 @@ func TestAccNetworkServicesMulticastConsumerAssociation_networkServicesMulticast
 			},
 			{
 				ResourceName:       "google_network_services_multicast_consumer_association.mca_test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -87,7 +87,7 @@ func TestAccObservabilityFolderSettings_observabilityFolderSettingsBasicExample(
 			},
 			{
 				ResourceName:       "google_observability_folder_settings.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -166,7 +166,7 @@ func TestAccObservabilityFolderSettings_observabilityFolderSettingsBasicGlobalEx
 			},
 			{
 				ResourceName:       "google_observability_folder_settings.primary_global",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
