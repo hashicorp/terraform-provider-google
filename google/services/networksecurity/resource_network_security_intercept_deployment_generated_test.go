@@ -87,7 +87,7 @@ func TestAccNetworkSecurityInterceptDeployment_networkSecurityInterceptDeploymen
 			},
 			{
 				ResourceName:       "google_network_security_intercept_deployment.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

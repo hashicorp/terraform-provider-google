@@ -99,7 +99,7 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyAdvancedExample
 			},
 			{
 				ResourceName:       "google_network_security_authz_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -372,7 +372,7 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyMcpExample(t *t
 			},
 			{
 				ResourceName:       "google_network_security_authz_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -504,7 +504,7 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyNetworkRulesExa
 			},
 			{
 				ResourceName:       "google_network_security_authz_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -524,7 +524,7 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyNetworkRulesExa
 			},
 			{
 				ResourceName:       "google_network_security_authz_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -544,7 +544,7 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyNetworkRulesExa
 			},
 			{
 				ResourceName:       "google_network_security_authz_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -564,7 +564,7 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyNetworkRulesExa
 			},
 			{
 				ResourceName:       "google_network_security_authz_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -584,7 +584,7 @@ func TestAccNetworkSecurityAuthzPolicy_networkSecurityAuthzPolicyNetworkRulesExa
 			},
 			{
 				ResourceName:       "google_network_security_authz_policy.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

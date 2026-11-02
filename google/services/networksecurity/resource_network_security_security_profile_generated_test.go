@@ -83,7 +83,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileBasicEx
 			},
 			{
 				ResourceName:       "google_network_security_security_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -133,7 +133,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileOverrid
 			},
 			{
 				ResourceName:       "google_network_security_security_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -204,7 +204,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileMirrori
 			},
 			{
 				ResourceName:       "google_network_security_security_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -271,7 +271,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileUrlFilt
 			},
 			{
 				ResourceName:       "google_network_security_security_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -337,7 +337,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileBrokerE
 			},
 			{
 				ResourceName:       "google_network_security_security_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -424,7 +424,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfir
 			},
 			{
 				ResourceName:       "google_network_security_security_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -444,7 +444,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfir
 			},
 			{
 				ResourceName:       "google_network_security_security_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -464,7 +464,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfir
 			},
 			{
 				ResourceName:       "google_network_security_security_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -484,7 +484,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfir
 			},
 			{
 				ResourceName:       "google_network_security_security_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -674,7 +674,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileWildfir
 			},
 			{
 				ResourceName:       "google_network_security_security_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

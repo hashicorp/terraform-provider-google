@@ -85,7 +85,7 @@ func TestAccNetworkSecurityMirroringEndpointGroupAssociation_networkSecurityMirr
 			},
 			{
 				ResourceName:       "google_network_security_mirroring_endpoint_group_association.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

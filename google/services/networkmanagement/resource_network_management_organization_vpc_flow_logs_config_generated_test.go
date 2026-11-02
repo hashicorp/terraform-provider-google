@@ -81,7 +81,7 @@ func TestAccNetworkManagementOrganizationVpcFlowLogsConfig_networkManagementOrgV
 			},
 			{
 				ResourceName:       "google_network_management_organization_vpc_flow_logs_config.org-test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

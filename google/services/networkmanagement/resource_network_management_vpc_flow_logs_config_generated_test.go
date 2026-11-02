@@ -85,7 +85,7 @@ func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfi
 			},
 			{
 				ResourceName:       "google_network_management_vpc_flow_logs_config.interconnect-test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -161,7 +161,7 @@ func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfi
 			},
 			{
 				ResourceName:       "google_network_management_vpc_flow_logs_config.vpn-test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -266,7 +266,7 @@ func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfi
 			},
 			{
 				ResourceName:       "google_network_management_vpc_flow_logs_config.network-test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -319,7 +319,7 @@ func TestAccNetworkManagementVpcFlowLogsConfig_networkManagementVpcFlowLogsConfi
 			},
 			{
 				ResourceName:       "google_network_management_vpc_flow_logs_config.subnet-test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
