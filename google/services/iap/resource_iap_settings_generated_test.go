@@ -83,7 +83,7 @@ func TestAccIapSettings_iapSettingsBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_iap_settings.iap_settings",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -191,7 +191,7 @@ func TestAccIapSettings_iapSettingsOauthStorageExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_iap_settings.iap_settings_oauth",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

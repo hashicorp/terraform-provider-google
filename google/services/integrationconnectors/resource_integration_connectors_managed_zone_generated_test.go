@@ -87,7 +87,7 @@ func TestAccIntegrationConnectorsManagedZone_integrationConnectorsManagedZoneExa
 			},
 			{
 				ResourceName:       "google_integration_connectors_managed_zone.testmanagedzone",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

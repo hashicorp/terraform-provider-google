@@ -102,7 +102,7 @@ func TestAccLookerInstance_lookerInstanceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -122,7 +122,7 @@ func TestAccLookerInstance_lookerInstanceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -142,7 +142,7 @@ func TestAccLookerInstance_lookerInstanceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -260,7 +260,7 @@ func TestAccLookerInstance_lookerInstanceEnterpriseFullTestExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -369,7 +369,7 @@ func TestAccLookerInstance_lookerInstancePscExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -470,7 +470,7 @@ func TestAccLookerInstance_lookerInstancePscUpdateExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -490,7 +490,7 @@ func TestAccLookerInstance_lookerInstancePscUpdateExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -510,7 +510,7 @@ func TestAccLookerInstance_lookerInstancePscUpdateExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_looker_instance.looker-instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

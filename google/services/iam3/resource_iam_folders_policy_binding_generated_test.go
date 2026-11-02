@@ -89,7 +89,7 @@ func TestAccIAM3FoldersPolicyBinding_iamFoldersPolicyBindingExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_iam_folders_policy_binding.binding-for-all-folder-principals",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -165,7 +165,7 @@ func TestAccIAM3FoldersPolicyBinding_iamFoldersPolicyBindingAccessPolicyExample(
 			},
 			{
 				ResourceName:       "google_iam_folders_policy_binding.my-folder-access-policy-binding",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

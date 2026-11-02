@@ -85,7 +85,7 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_identity_platform_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -193,7 +193,7 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigMinimalExample(t *testi
 			},
 			{
 				ResourceName:       "google_identity_platform_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -283,7 +283,7 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigWithFalseValuesExample(
 			},
 			{
 				ResourceName:       "google_identity_platform_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

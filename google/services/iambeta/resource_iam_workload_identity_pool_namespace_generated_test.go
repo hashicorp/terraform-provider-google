@@ -81,7 +81,7 @@ func TestAccIAMBetaWorkloadIdentityPoolNamespace_iamWorkloadIdentityPoolNamespac
 			},
 			{
 				ResourceName:       "google_iam_workload_identity_pool_namespace.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -130,7 +130,7 @@ func TestAccIAMBetaWorkloadIdentityPoolNamespace_iamWorkloadIdentityPoolNamespac
 			},
 			{
 				ResourceName:       "google_iam_workload_identity_pool_namespace.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

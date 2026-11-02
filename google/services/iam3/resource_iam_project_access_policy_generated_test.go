@@ -115,7 +115,7 @@ func TestAccIAM3ProjectAccessPolicy_accessPolicyProjectTestExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_iam_project_access_policy.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -135,7 +135,7 @@ func TestAccIAM3ProjectAccessPolicy_accessPolicyProjectTestExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_iam_project_access_policy.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -155,7 +155,7 @@ func TestAccIAM3ProjectAccessPolicy_accessPolicyProjectTestExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_iam_project_access_policy.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

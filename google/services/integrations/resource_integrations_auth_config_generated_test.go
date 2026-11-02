@@ -81,7 +81,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigAdvanceExample(t *testi
 			},
 			{
 				ResourceName:       "google_integrations_auth_config.advance_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -141,7 +141,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigUsernameAndPasswordExam
 			},
 			{
 				ResourceName:       "google_integrations_auth_config.username_and_password_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -193,7 +193,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2AuthorizationCode
 			},
 			{
 				ResourceName:       "google_integrations_auth_config.oauth2_authotization_code_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -248,7 +248,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOauth2ClientCredentials
 			},
 			{
 				ResourceName:       "google_integrations_auth_config.oauth2_client_credentials_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -317,7 +317,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigJwtExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_integrations_auth_config.jwt_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -370,7 +370,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigAuthTokenExample(t *tes
 			},
 			{
 				ResourceName:       "google_integrations_auth_config.auth_token_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -423,7 +423,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(t
 			},
 			{
 				ResourceName:       "google_integrations_auth_config.service_account_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -481,7 +481,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(t *tes
 			},
 			{
 				ResourceName:       "google_integrations_auth_config.oidc_token_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -538,7 +538,7 @@ func TestAccIntegrationsAuthConfig_integrationsAuthConfigClientCertificateOnlyEx
 			},
 			{
 				ResourceName:       "google_integrations_auth_config.client_certificate_example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -115,7 +115,7 @@ func TestAccIAM3OrganizationAccessPolicy_accessPolicyOrganizationTestExample(t *
 			},
 			{
 				ResourceName:       "google_iam_organization_access_policy.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -135,7 +135,7 @@ func TestAccIAM3OrganizationAccessPolicy_accessPolicyOrganizationTestExample(t *
 			},
 			{
 				ResourceName:       "google_iam_organization_access_policy.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -155,7 +155,7 @@ func TestAccIAM3OrganizationAccessPolicy_accessPolicyOrganizationTestExample(t *
 			},
 			{
 				ResourceName:       "google_iam_organization_access_policy.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -79,7 +79,7 @@ func TestAccIdentityPlatformTenant_identityPlatformTenantBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_identity_platform_tenant.tenant",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

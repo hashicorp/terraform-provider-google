@@ -81,7 +81,7 @@ func TestAccIAMWorkforcePoolOauthClientCredential_iamOauthClientCredentialFullEx
 			},
 			{
 				ResourceName:       "google_iam_oauth_client_credential.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

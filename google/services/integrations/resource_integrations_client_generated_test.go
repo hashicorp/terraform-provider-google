@@ -81,7 +81,7 @@ func TestAccIntegrationsClient_integrationsClientBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_integrations_client.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -132,7 +132,7 @@ func TestAccIntegrationsClient_integrationsClientFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_integrations_client.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

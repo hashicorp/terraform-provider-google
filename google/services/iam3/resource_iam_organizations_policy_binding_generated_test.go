@@ -86,7 +86,7 @@ func TestAccIAM3OrganizationsPolicyBinding_iamOrganizationsPolicyBindingExample(
 			},
 			{
 				ResourceName:       "google_iam_organizations_policy_binding.binding-for-all-org-principals",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

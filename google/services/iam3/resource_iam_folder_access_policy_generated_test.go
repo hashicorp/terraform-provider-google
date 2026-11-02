@@ -118,7 +118,7 @@ func TestAccIAM3FolderAccessPolicy_accessPolicyFolderTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_iam_folder_access_policy.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -138,7 +138,7 @@ func TestAccIAM3FolderAccessPolicy_accessPolicyFolderTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_iam_folder_access_policy.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -158,7 +158,7 @@ func TestAccIAM3FolderAccessPolicy_accessPolicyFolderTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_iam_folder_access_policy.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -81,7 +81,7 @@ func TestAccIdentityPlatformTenantOauthIdpConfig_identityPlatformTenantOauthIdpC
 			},
 			{
 				ResourceName:       "google_identity_platform_tenant_oauth_idp_config.tenant_oauth_idp_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

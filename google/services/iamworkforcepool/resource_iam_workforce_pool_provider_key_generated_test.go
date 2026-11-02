@@ -83,7 +83,7 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderKey_iamWorkforcePoolProviderSam
 			},
 			{
 				ResourceName:       "google_iam_workforce_pool_provider_key.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
