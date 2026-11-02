@@ -41,6 +41,9 @@ type IamMember struct {
 // default project due to parallel tests managing the same member/role pairings. Members
 // will have `{project_number}` replaced with the default test project's project number.
 func BootstrapIamMembers(t *testing.T, members []IamMember) {
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return
+	}
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
 		t.Fatal("Could not bootstrap a config for BootstrapIamMembers.")
@@ -89,6 +92,9 @@ func BootstrapIamMembers(t *testing.T, members []IamMember) {
 // BootstrapProject). Members will have `{project_number}` replaced with that
 // project's number.
 func BootstrapProjectIamMembers(t *testing.T, projectId string, members []IamMember) {
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return
+	}
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
 		t.Fatal("Could not bootstrap a config for BootstrapProjectIamMembers.")

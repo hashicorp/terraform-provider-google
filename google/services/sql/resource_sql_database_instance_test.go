@@ -169,6 +169,9 @@ const SharedTestADDomainPrefix = "tf-bootstrap-ad"
 func BootstrapSharedTestADDomain(t *testing.T, testId string, networkName string) string {
 	project := envvar.GetTestProjectFromEnv()
 	sharedADDomain := fmt.Sprintf("%s.%s.com", SharedTestADDomainPrefix, testId)
+	if acctest.IsVcrReplaying() {
+		return sharedADDomain
+	}
 	adDomainName := fmt.Sprintf("projects/%s/locations/global/domains/%s", project, sharedADDomain)
 
 	config := transport_tpg.BootstrapConfig(t)

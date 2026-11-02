@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"maps"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -32,11 +33,17 @@ const sharedTagKeyPrefix = "tf-bootstrap-tagkey"
 const sharedTagKeyParentErr = "Parent %q is not valid. Should be in format: 'organizations/123' OR 'projects/123'."
 
 func BootstrapSharedTestProjectTagKey(t *testing.T, testId string, obj map[string]interface{}) string {
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return fmt.Sprintf("%s-%s", sharedTagKeyPrefix, testId)
+	}
 	pid := envvar.GetTestProjectFromEnv()
 	return BootstrapSharedTestTagKeyDetails(t, testId, "projects/"+pid, obj)["shared_tag_key"]
 }
 
 func BootstrapSharedTestOrganizationTagKey(t *testing.T, testId string, obj map[string]interface{}) string {
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return fmt.Sprintf("%s-%s", sharedTagKeyPrefix, testId)
+	}
 	org := envvar.GetTestOrgFromEnv(t)
 	return BootstrapSharedTestTagKeyDetails(t, testId, "organizations/"+org, obj)["shared_tag_key"]
 }
@@ -61,7 +68,7 @@ func BootstrapSharedTestTagKeyDetails(t *testing.T, testId string, parent string
 
 	log.Printf("[DEBUG] Getting shared test tag key %q", sharedTagKey)
 	getURL := fmt.Sprintf("%stagKeys/namespaced?name=%s", transport_tpg.BaseUrl(Product, config), tagKeyName)
-	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+	getTagKeyResponse, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   config.Project,
@@ -103,16 +110,16 @@ func BootstrapSharedTestTagKeyDetails(t *testing.T, testId string, parent string
 			// The resource didn't actually create
 			t.Fatalf("Error waiting to create TagKey: %s", err)
 		}
-	}
 
-	getTagKeyResponse, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   config.Project,
-		RawURL:    getURL,
-		UserAgent: config.UserAgent,
-		Timeout:   2 * time.Minute,
-	})
+		getTagKeyResponse, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    getURL,
+			UserAgent: config.UserAgent,
+			Timeout:   2 * time.Minute,
+		})
+	}
 
 	if err != nil {
 		t.Fatalf("Error getting shared tag key %q: %s", sharedTagKey, err)
@@ -127,11 +134,17 @@ func BootstrapSharedTestTagKeyDetails(t *testing.T, testId string, parent string
 const sharedTagValuePrefix = "tf-bootstrap-tagvalue"
 
 func BootstrapSharedTestProjectTagValue(t *testing.T, testId string, tagKey string) string {
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return fmt.Sprintf("%s-%s", sharedTagValuePrefix, testId)
+	}
 	pid := envvar.GetTestProjectFromEnv()
 	return BootstrapSharedTestTagValueDetails(t, testId, tagKey, pid)["shared_tag_value"]
 }
 
 func BootstrapSharedTestOrganizationTagValue(t *testing.T, testId string, tagKey string) string {
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return fmt.Sprintf("%s-%s", sharedTagValuePrefix, testId)
+	}
 	org := envvar.GetTestOrgFromEnv(t)
 	return BootstrapSharedTestTagValueDetails(t, testId, tagKey, org)["shared_tag_value"]
 }
@@ -148,7 +161,7 @@ func BootstrapSharedTestTagValueDetails(t *testing.T, testId string, tagKey, par
 
 	log.Printf("[DEBUG] Getting shared test tag value %q", sharedTagValue)
 	getURL := fmt.Sprintf("%stagValues/namespaced?name=%s", transport_tpg.BaseUrl(Product, config), tagValueName)
-	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+	getTagValueResponse, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   config.Project,
@@ -201,15 +214,16 @@ func BootstrapSharedTestTagValueDetails(t *testing.T, testId string, tagKey, par
 			// The resource didn't actually create
 			t.Fatalf("Error waiting to create TagValue: %s", err)
 		}
+
+		getTagValueResponse, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    getURL,
+			UserAgent: config.UserAgent,
+			Timeout:   2 * time.Minute,
+		})
 	}
-	getTagValueResponse, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   config.Project,
-		RawURL:    getURL,
-		UserAgent: config.UserAgent,
-		Timeout:   2 * time.Minute,
-	})
 
 	if err != nil {
 		t.Fatalf("Error getting shared tag value %q: %s", sharedTagValue, err)

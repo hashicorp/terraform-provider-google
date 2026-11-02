@@ -54,6 +54,25 @@ func BootstrapKMSAutokeyKeyHandle(t *testing.T) BootstrappedKMSAutokey {
 }
 
 func BootstrapKMSAutokeyKeyHandleWithLocation(t *testing.T, locationID string) BootstrappedKMSAutokey {
+	if acctest.IsVcrReplaying() {
+		projectIDSuffix := strings.Replace(envvar.GetTestProjectFromEnv(), "ci-test-project-", "", 1)
+		defaultAutokeyTestFolderName := fmt.Sprintf("autokeytest-%s-fd", projectIDSuffix)
+		defaultAutokeyTestKmsProject := fmt.Sprintf("test-kms-%s-prj", projectIDSuffix)
+		defaultAutokeyTestResourceProject := fmt.Sprintf("test-res-%s-prj", projectIDSuffix)
+		autokeyFolder := BootstrapFolder(t, defaultAutokeyTestFolderName)
+		keyHandleName := fmt.Sprintf("projects/%s/locations/%s/keyHandles/%s", defaultAutokeyTestResourceProject, locationID, DefaultKeyHandleName)
+		return BootstrappedKMSAutokey{
+			&cloudkms.AutokeyConfig{
+				Name:       fmt.Sprintf("%s/autokeyConfig", autokeyFolder.Name),
+				KeyProject: fmt.Sprintf("projects/%s", defaultAutokeyTestKmsProject),
+			},
+			&cloudkms.KeyHandle{
+				Name:                 keyHandleName,
+				ResourceTypeSelector: DefaultKeyHandleResourceType,
+			},
+		}
+	}
+
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
 		return BootstrappedKMSAutokey{

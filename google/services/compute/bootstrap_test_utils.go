@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"maps"
+	"os"
 	"testing"
 	"time"
 
@@ -55,6 +56,9 @@ const SharedTestNetworkPrefix = "tf-bootstrap-net-"
 func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 	project := envvar.GetTestProjectFromEnv()
 	networkName := SharedTestNetworkPrefix + testId
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return networkName
+	}
 
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
@@ -141,6 +145,9 @@ const SharedTestGlobalAddressPrefix = "tf-bootstrap-addr-"
 func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...func(*AddressSettings)) string {
 	project := envvar.GetTestProjectFromEnv()
 	addressName := SharedTestGlobalAddressPrefix + testId
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return addressName
+	}
 	networkName := BootstrapSharedTestNetwork(t, testId)
 	networkId := fmt.Sprintf("projects/%v/global/networks/%v", project, networkName)
 
@@ -220,6 +227,9 @@ func BootstrapSubnetInRegion(t *testing.T, subnetName string, networkName string
 }
 
 func BootstrapSubnetWithOverrides(t *testing.T, subnetName string, networkName string, subnetOptions map[string]interface{}) string {
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return subnetName
+	}
 	projectID := envvar.GetTestProjectFromEnv()
 	region := envvar.GetTestRegionFromEnv()
 	if r, ok := subnetOptions["region"].(string); ok && r != "" {
@@ -302,6 +312,9 @@ func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subn
 }
 
 func BootstrapNetworkAttachmentInRegion(t *testing.T, networkAttachmentName string, subnetName string, region string) string {
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return networkAttachmentName
+	}
 	projectID := envvar.GetTestProjectFromEnv()
 
 	config := transport_tpg.BootstrapConfig(t)
@@ -379,6 +392,9 @@ func BootstrapComputeStoragePoolInZone(t *testing.T, storagePoolName, storagePoo
 	projectID := envvar.GetTestProjectFromEnv()
 
 	storagePoolName = SharedStoragePoolPrefix + storagePoolType + "-" + storagePoolName
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return fmt.Sprintf("projects/%s/zones/%s/storagePools/%s", projectID, zone, storagePoolName)
+	}
 
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
