@@ -290,7 +290,7 @@ The following arguments are supported:
   operation completes. During this period, the Organization may be restored to its last known state.
   After this period, the Organization will no longer be able to be restored.
   Default value is `DELETION_RETENTION_UNSPECIFIED`.
-  Possible values are: `DELETION_RETENTION_UNSPECIFIED`, `MINIMUM`.
+  Possible values are: `DELETION_RETENTION_UNSPECIFIED`, `MINIMUM`, `NO_RETENTION`.
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,

@@ -227,11 +227,11 @@ of any Apigee runtime instance and can be updated only when there are no runtime
 			"retention": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"DELETION_RETENTION_UNSPECIFIED", "MINIMUM", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"DELETION_RETENTION_UNSPECIFIED", "MINIMUM", "NO_RETENTION", ""}),
 				Description: `Optional. This setting is applicable only for organizations that are soft-deleted (i.e., BillingType
 is not EVALUATION). It controls how long Organization data will be retained after the initial delete
 operation completes. During this period, the Organization may be restored to its last known state.
-After this period, the Organization will no longer be able to be restored. Default value: "DELETION_RETENTION_UNSPECIFIED" Possible values: ["DELETION_RETENTION_UNSPECIFIED", "MINIMUM"]`,
+After this period, the Organization will no longer be able to be restored. Default value: "DELETION_RETENTION_UNSPECIFIED" Possible values: ["DELETION_RETENTION_UNSPECIFIED", "MINIMUM", "NO_RETENTION"]`,
 				Default: "DELETION_RETENTION_UNSPECIFIED",
 			},
 			"runtime_database_encryption_key_name": {
