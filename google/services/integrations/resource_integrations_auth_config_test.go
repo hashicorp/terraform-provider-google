@@ -36,12 +36,20 @@ type BootstrapClient struct {
 }
 
 func BootstrapIntegrationsClient(t *testing.T, locationID string) BootstrapClient {
+	projectID := envvar.GetTestProjectFromEnv()
+	if acctest.IsVcrReplaying() {
+		return BootstrapClient{
+			ProjectID: projectID,
+			Region:    locationID,
+			IsGMEK:    true,
+		}
+	}
+
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
 		return BootstrapClient{}
 	}
 
-	projectID := envvar.GetTestProjectFromEnv()
 	parent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
 
 	baseURL := fmt.Sprintf("%s%s", transport_tpg.BaseUrl(integrations.Product, config), parent)

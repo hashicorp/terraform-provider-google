@@ -19,6 +19,7 @@ package iambeta
 import (
 	"fmt"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -96,6 +97,9 @@ func impersonationServiceAccountPermissions(config *transport_tpg.Config, sa *ia
 func BootstrapServiceAccount(t *testing.T, testId, testRunner string) string {
 	project := envvar.GetTestProjectFromEnv()
 	serviceAccountEmail := ServiceAccountPrefix + testId
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return fmt.Sprintf("%s@%s.iam.gserviceaccount.com", serviceAccountEmail, project)
+	}
 
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {

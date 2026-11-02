@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"google.golang.org/api/container/v1"
 	"log"
+	"os"
 	"testing"
 	"time"
 
@@ -38,6 +39,9 @@ func BootstrapSharedGKECluster(t *testing.T, testId string) string {
 	clusterName := SharedGKEClusterPrefix + testId
 	parent := fmt.Sprintf("projects/%s/locations/%s", project, location)
 	clusterId := fmt.Sprintf("%s/clusters/%s", parent, clusterName)
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return clusterId
+	}
 
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {

@@ -18,6 +18,7 @@ package kms
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -70,6 +71,32 @@ func BootstrapKMSKeyWithPurposeInLocation(t *testing.T, purpose, locationID stri
 }
 
 func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, locationID, keyShortName string) BootstrappedKMS {
+	projectID := envvar.GetTestProjectFromEnv()
+	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
+	keyRingName := fmt.Sprintf("%s/keyRings/%s", keyRingParent, SharedKeyRing)
+	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
+	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, keyShortName)
+
+	algos := map[string]string{
+		"ENCRYPT_DECRYPT":    "GOOGLE_SYMMETRIC_ENCRYPTION",
+		"ASYMMETRIC_SIGN":    "RSA_SIGN_PKCS1_4096_SHA256",
+		"ASYMMETRIC_DECRYPT": "RSA_DECRYPT_OAEP_4096_SHA256",
+	}
+
+	if os.Getenv("VCR_PATH") != "" && os.Getenv("VCR_MODE") == "REPLAYING" {
+		return BootstrappedKMS{
+			&cloudkms.KeyRing{Name: keyRingName},
+			&cloudkms.CryptoKey{Name: keyName, Purpose: purpose},
+			[]*cloudkms.CryptoKeyVersion{
+				{
+					Name:      fmt.Sprintf("%s/cryptoKeyVersions/1", keyName),
+					State:     "ENABLED",
+					Algorithm: algos[purpose],
+				},
+			},
+		}
+	}
+
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
 		return BootstrappedKMS{
@@ -78,12 +105,6 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 			nil,
 		}
 	}
-
-	projectID := envvar.GetTestProjectFromEnv()
-	keyRingParent := fmt.Sprintf("projects/%s/locations/%s", projectID, locationID)
-	keyRingName := fmt.Sprintf("%s/keyRings/%s", keyRingParent, SharedKeyRing)
-	keyParent := fmt.Sprintf("projects/%s/locations/%s/keyRings/%s", projectID, locationID, SharedKeyRing)
-	keyName := fmt.Sprintf("%s/cryptoKeys/%s", keyParent, keyShortName)
 
 	// Get or Create the hard coded shared keyring for testing
 	kmsClient := NewClient(config, config.UserAgent)
@@ -108,11 +129,6 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 	cryptoKey, err := kmsClient.Projects.Locations.KeyRings.CryptoKeys.Get(keyName).Do()
 	if err != nil {
 		if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
-			algos := map[string]string{
-				"ENCRYPT_DECRYPT":    "GOOGLE_SYMMETRIC_ENCRYPTION",
-				"ASYMMETRIC_SIGN":    "RSA_SIGN_PKCS1_4096_SHA256",
-				"ASYMMETRIC_DECRYPT": "RSA_DECRYPT_OAEP_4096_SHA256",
-			}
 			template := cloudkms.CryptoKeyVersionTemplate{
 				Algorithm: algos[purpose],
 			}

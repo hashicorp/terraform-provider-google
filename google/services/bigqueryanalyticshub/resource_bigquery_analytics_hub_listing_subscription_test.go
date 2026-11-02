@@ -45,6 +45,9 @@ var _ = envvar.GetTestProjectFromEnv
 var _ = os.Getenv
 
 func AddBigQueryDatasetReplica(t *testing.T, projectID string, datasetID string, primaryLocation string, replicaLocation string) (string, error) {
+	if acctest.IsVcrReplaying() {
+		return fmt.Sprintf("projects/%s/datasets/%s", projectID, datasetID), nil
+	}
 	ctx := context.Background()
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
@@ -119,6 +122,9 @@ func AddBigQueryDatasetReplica(t *testing.T, projectID string, datasetID string,
 }
 
 func CleanupBigQueryDatasetAndReplica(t *testing.T, projectID, datasetID, replicaLocation string) {
+	if acctest.IsVcrReplaying() {
+		return
+	}
 	log.Printf("[DEBUG] Cleanup: Starting cleanup for BigQuery dataset: projects/%s/datasets/%s", projectID, datasetID)
 	cleanupCtx := context.Background()
 	config := transport_tpg.BootstrapConfig(t)
