@@ -1,0 +1,3 @@
+```release-note:bug
+cloudidentity: fixed Resource Identity import for `google_cloud_identity_policy`
+```
