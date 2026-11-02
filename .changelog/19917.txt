@@ -1,0 +1,3 @@
+```release-note:bug
+healthcare: fixed Resource Identity import for `google_healthcare_dicom_store`, `google_healthcare_fhir_store`, and `google_healthcare_hl7_v2_store`
+```

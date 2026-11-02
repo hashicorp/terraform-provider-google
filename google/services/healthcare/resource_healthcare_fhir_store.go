@@ -926,6 +926,17 @@ func resourceHealthcareFhirStoreImport(d *schema.ResourceData, meta interface{})
 
 	config := meta.(*transport_tpg.Config)
 
+	if d.Id() == "" {
+		if err := tpgresource.ParseImportId([]string{"(?P<dataset>.+)/fhirStores/(?P<name>[^/]+)"}, d, config); err != nil {
+			return nil, err
+		}
+		id, err := tpgresource.ReplaceVars(d, config, "{{dataset}}/fhirStores/{{name}}")
+		if err != nil {
+			return nil, fmt.Errorf("Error constructing id: %s", err)
+		}
+		d.SetId(id)
+	}
+
 	fhirStoreId, err := ParseHealthcareFhirStoreId(d.Id(), config)
 	if err != nil {
 		return nil, err

@@ -85,7 +85,7 @@ func TestAccHealthcarePipelineJob_healthcarePipelineJobReconciliationExample(t *
 			},
 			{
 				ResourceName:       "google_healthcare_pipeline_job.example-pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -178,7 +178,7 @@ func TestAccHealthcarePipelineJob_healthcarePipelineJobBackfillExample(t *testin
 			},
 			{
 				ResourceName:       "google_healthcare_pipeline_job.example-pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -234,7 +234,7 @@ func TestAccHealthcarePipelineJob_healthcarePipelineJobWhistleMappingExample(t *
 			},
 			{
 				ResourceName:       "google_healthcare_pipeline_job.example-mapping-pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -343,7 +343,7 @@ func TestAccHealthcarePipelineJob_healthcarePipelineJobMappingReconDestExample(t
 			},
 			{
 				ResourceName:       "google_healthcare_pipeline_job.example-mapping-pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

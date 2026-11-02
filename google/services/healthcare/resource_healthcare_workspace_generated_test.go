@@ -82,7 +82,7 @@ func TestAccHealthcareWorkspace_healthcareWorkspaceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_healthcare_workspace.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

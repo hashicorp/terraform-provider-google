@@ -82,7 +82,7 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_healthcare_consent_store.my-consent",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -131,7 +131,7 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreFullExample(t *testing.
 			},
 			{
 				ResourceName:       "google_healthcare_consent_store.my-consent",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -189,7 +189,7 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreIamExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_healthcare_consent_store.my-consent",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
