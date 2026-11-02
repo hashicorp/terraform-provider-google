@@ -98,7 +98,7 @@ func TestAccResourceManagerV3BoundaryConfig_resourceManagerBoundaryConfigBasicEx
 			},
 			{
 				ResourceName:       "google_resource_manager_boundary_config.boundary_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -118,7 +118,7 @@ func TestAccResourceManagerV3BoundaryConfig_resourceManagerBoundaryConfigBasicEx
 			},
 			{
 				ResourceName:       "google_resource_manager_boundary_config.boundary_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

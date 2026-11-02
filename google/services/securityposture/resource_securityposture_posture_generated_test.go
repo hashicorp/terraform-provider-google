@@ -81,7 +81,7 @@ func TestAccSecurityposturePosture_securityposturePostureBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_securityposture_posture.posture1",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

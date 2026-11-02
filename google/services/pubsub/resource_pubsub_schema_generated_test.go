@@ -79,7 +79,7 @@ func TestAccPubsubSchema_pubsubSchemaBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_pubsub_schema.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -123,7 +123,7 @@ func TestAccPubsubSchema_pubsubSchemaProtobufExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_pubsub_schema.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

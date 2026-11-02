@@ -81,7 +81,7 @@ func TestAccSecurityCenterMuteConfig_sccMuteConfigExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_scc_mute_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

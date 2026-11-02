@@ -83,7 +83,7 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_instance.cache",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -134,7 +134,7 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_instance.cache",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -223,7 +223,7 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 			},
 			{
 				ResourceName:       "google_redis_instance.cache-persis",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -281,7 +281,7 @@ func TestAccRedisInstance_redisInstancePrivateServiceTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_instance.cache",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -353,7 +353,7 @@ func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_redis_instance.cache",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -83,7 +83,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretConfigBasicExample
 			},
 			{
 				ResourceName:       "google_secret_manager_regional_secret.regional-secret-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -138,7 +138,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithCmekExample(t 
 			},
 			{
 				ResourceName:       "google_secret_manager_regional_secret.regional-secret-with-cmek",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -197,7 +197,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithRotationExampl
 			},
 			{
 				ResourceName:       "google_secret_manager_regional_secret.regional-secret-with-rotation",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -265,7 +265,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithTtlExample(t *
 			},
 			{
 				ResourceName:       "google_secret_manager_regional_secret.regional-secret-with-ttl",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -323,7 +323,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithExpireTimeExam
 			},
 			{
 				ResourceName:       "google_secret_manager_regional_secret.regional-secret-with-expire-time",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -378,7 +378,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretWithVersionDestroy
 			},
 			{
 				ResourceName:       "google_secret_manager_regional_secret.regional-secret-with-version-destroy-ttl",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -433,7 +433,7 @@ func TestAccSecretManagerRegionalRegionalSecret_regionalSecretCloudSqlDbCredenti
 			},
 			{
 				ResourceName:       "google_secret_manager_regional_secret.regional-secret-cloud-sql-db-credentials",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

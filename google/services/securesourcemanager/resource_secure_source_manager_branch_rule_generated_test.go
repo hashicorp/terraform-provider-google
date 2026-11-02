@@ -83,7 +83,7 @@ func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleBasicExam
 			},
 			{
 				ResourceName:       "google_secure_source_manager_branch_rule.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -149,7 +149,7 @@ func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithField
 			},
 			{
 				ResourceName:       "google_secure_source_manager_branch_rule.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

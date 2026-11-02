@@ -86,7 +86,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceBasicExample(
 			},
 			{
 				ResourceName:       "google_secure_source_manager_instance.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -137,7 +137,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceCmekExample(t
 			},
 			{
 				ResourceName:       "google_secure_source_manager_instance.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -198,7 +198,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTruste
 			},
 			{
 				ResourceName:       "google_secure_source_manager_instance.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -262,7 +262,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateExampl
 			},
 			{
 				ResourceName:       "google_secure_source_manager_instance.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -387,7 +387,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateCustom
 			},
 			{
 				ResourceName:       "google_secure_source_manager_instance.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -526,7 +526,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscBac
 			},
 			{
 				ResourceName:       "google_secure_source_manager_instance.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -758,7 +758,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscEnd
 			},
 			{
 				ResourceName:       "google_secure_source_manager_instance.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -947,7 +947,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceWorkforceIden
 			},
 			{
 				ResourceName:       "google_secure_source_manager_instance.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

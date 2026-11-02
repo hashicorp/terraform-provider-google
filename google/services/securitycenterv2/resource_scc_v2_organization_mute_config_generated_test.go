@@ -81,7 +81,7 @@ func TestAccSecurityCenterV2OrganizationMuteConfig_sccV2OrganizationMuteConfigBa
 			},
 			{
 				ResourceName:       "google_scc_v2_organization_mute_config.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

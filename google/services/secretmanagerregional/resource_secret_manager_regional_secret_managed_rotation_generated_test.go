@@ -83,7 +83,7 @@ func TestAccSecretManagerRegionalRegionalSecretManagedRotation_regionalSecretMan
 			},
 			{
 				ResourceName:       "google_secret_manager_regional_secret_managed_rotation.rotation",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -167,7 +167,7 @@ func TestAccSecretManagerRegionalRegionalSecretManagedRotation_regionalSecretMan
 			},
 			{
 				ResourceName:       "google_secret_manager_regional_secret_managed_rotation.rotation",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

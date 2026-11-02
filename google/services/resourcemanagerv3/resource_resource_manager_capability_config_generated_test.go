@@ -98,7 +98,7 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 			},
 			{
 				ResourceName:       "google_resource_manager_capability_config.capability_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -118,7 +118,7 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 			},
 			{
 				ResourceName:       "google_resource_manager_capability_config.capability_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -138,7 +138,7 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 			},
 			{
 				ResourceName:       "google_resource_manager_capability_config.capability_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -190,7 +190,7 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigFol
 			},
 			{
 				ResourceName:       "google_resource_manager_capability_config.capability_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -265,7 +265,7 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigPro
 			},
 			{
 				ResourceName:       "google_resource_manager_capability_config.capability_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

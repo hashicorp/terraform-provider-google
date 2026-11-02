@@ -95,7 +95,7 @@ func TestAccRedisClusterUserCreatedConnections_redisClusterUserCreatedConnection
 			},
 			{
 				ResourceName:       "google_redis_cluster_user_created_connections.cluster-user-conn",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -293,7 +293,7 @@ func TestAccRedisClusterUserCreatedConnections_redisClusterUserAndAutoCreatedCon
 			},
 			{
 				ResourceName:       "google_redis_cluster_user_created_connections.cluster-user-auto-conn",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
