@@ -715,11 +715,11 @@ The following arguments are supported:
 <a name="nested_node_config"></a>The `node_config` block supports:
 
 * `min_node_count` -
-  (Required)
+  (Optional)
   Minimum number of nodes in the runtime nodes.
 
 * `max_node_count` -
-  (Required)
+  (Optional)
   Minimum number of nodes in the runtime nodes.
 
 <a name="nested_log_config"></a>The `log_config` block supports:

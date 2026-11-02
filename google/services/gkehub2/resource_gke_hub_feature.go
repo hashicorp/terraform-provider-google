@@ -587,22 +587,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"post_conditions": {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Optional:    true,
-										Description: `Post conditions to override for the specified upgrade.`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"soaking": {
-													Type:        schema.TypeString,
-													Required:    true,
-													Description: `Amount of time to "soak" after a rollout has been finished before marking it COMPLETE. Cannot exceed 30 days.`,
-												},
-											},
-										},
-									},
 									"upstream_fleets": {
 										Type:        schema.TypeList,
 										Required:    true,
@@ -651,6 +635,22 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 															},
 														},
 													},
+												},
+											},
+										},
+									},
+									"post_conditions": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Optional:    true,
+										Description: `Post conditions to override for the specified upgrade.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"soaking": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Amount of time to "soak" after a rollout has been finished before marking it COMPLETE. Cannot exceed 30 days.`,
 												},
 											},
 										},

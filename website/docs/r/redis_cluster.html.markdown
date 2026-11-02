@@ -778,11 +778,6 @@ The following arguments are supported:
   (Required)
   Required. Number of shards for the Redis cluster.
 
-* `name` -
-  (Required)
-  Unique name of the resource in this scope including project and location using the form:
-  projects/{projectId}/locations/{locationId}/clusters/{clusterId}
-
 
 * `labels` -
   (Optional)
@@ -891,6 +886,11 @@ The following arguments are supported:
   The resource name of the server CA pool for an instance with SERVER_CA_MODE_CUSTOMER_MANAGED_CAS_CA
   as the server_ca_mode.
   Format: projects/{project}/locations/{region}/caPools/{caPoolId}
+
+* `name` -
+  (Optional)
+  Unique name of the resource in this scope including project and location using the form:
+  projects/{projectId}/locations/{locationId}/clusters/{clusterId}
 
 * `region` -
   (Optional)
@@ -1375,7 +1375,7 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 ```tf
 import {
   identity = {
-    name = "<-required value->"
+    name = "<-optional value->"
     region = "<-optional value->"
     project = "<-optional value->"
   }

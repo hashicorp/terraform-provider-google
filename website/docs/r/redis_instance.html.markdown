@@ -452,7 +452,7 @@ When the field is set to false, deleting the instance is allowed.
 <a name="nested_persistence_config"></a>The `persistence_config` block supports:
 
 * `persistence_mode` -
-  (Required)
+  (Optional)
   Optional. Controls whether Persistence features are enabled. If not provided, the existing value will be used.
   - DISABLED: 	Persistence is disabled for the instance, and any existing snapshots are deleted.
   - RDB: RDB based Persistence is enabled.

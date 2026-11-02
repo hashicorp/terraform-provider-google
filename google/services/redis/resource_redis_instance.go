@@ -380,7 +380,7 @@ resolution and up to nine fractional digits.`,
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "RDB"}),
+							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "RDB", ""}),
 							Description: `Optional. Controls whether Persistence features are enabled. If not provided, the existing value will be used.
 
 - DISABLED: 	Persistence is disabled for the instance, and any existing snapshots are deleted.

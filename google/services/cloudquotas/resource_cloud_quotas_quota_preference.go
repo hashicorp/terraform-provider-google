@@ -131,7 +131,7 @@ func ResourceCloudQuotasQuotaPreference() *schema.Resource {
 					},
 					"parent": {
 						Type:              schema.TypeString,
-						RequiredForImport: true,
+						OptionalForImport: true,
 					},
 				}
 			},
@@ -141,13 +141,6 @@ func ResourceCloudQuotasQuotaPreference() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"parent": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The parent of the quota preference. Allowed parents are "projects/[project-id / number]" or "folders/[folder-id / number]" or "organizations/[org-id / number]".`,
-			},
 			"quota_config": {
 				Type:        schema.TypeList,
 				Required:    true,
@@ -192,19 +185,6 @@ An object containing a list of "key: value" pairs. Example: '{ "name": "wrench",
 					},
 				},
 			},
-			"quota_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				Description: `The id of the quota to which the quota preference is applied. A quota id is unique in the service.
-Example: 'CPUS-per-project-region'.`,
-			},
-			"service": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				Description: `The name of the service to which the quota preference is applied.`,
-			},
 			"contact_email": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -241,6 +221,26 @@ Example: '{"provider": "Foo Inc"}' where "provider" is a service specific dimens
 				Optional:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `The resource name of the quota preference. Required except in the CREATE requests.`,
+			},
+			"parent": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The parent of the quota preference. Allowed parents are "projects/[project-id / number]" or "folders/[folder-id / number]" or "organizations/[org-id / number]".`,
+			},
+			"quota_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `The id of the quota to which the quota preference is applied. A quota id is unique in the service.
+Example: 'CPUS-per-project-region'.`,
+			},
+			"service": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: `The name of the service to which the quota preference is applied.`,
 			},
 			"create_time": {
 				Type:     schema.TypeString,

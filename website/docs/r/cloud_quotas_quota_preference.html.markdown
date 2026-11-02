@@ -53,28 +53,24 @@ resource "google_cloud_quotas_quota_preference" "preference" {
 The following arguments are supported:
 
 
-* `service` -
-  (Required)
-  The name of the service to which the quota preference is applied.
-
-* `quota_id` -
-  (Required)
-  The id of the quota to which the quota preference is applied. A quota id is unique in the service.
-  Example: `CPUS-per-project-region`.
-
 * `quota_config` -
   (Required)
   The preferred quota configuration.
   Structure is [documented below](#nested_quota_config).
 
-* `parent` -
-  (Required)
-  The parent of the quota preference. Allowed parents are "projects/[project-id / number]" or "folders/[folder-id / number]" or "organizations/[org-id / number]".
-
 
 * `name` -
   (Optional)
   The resource name of the quota preference. Required except in the CREATE requests.
+
+* `service` -
+  (Optional)
+  The name of the service to which the quota preference is applied.
+
+* `quota_id` -
+  (Optional)
+  The id of the quota to which the quota preference is applied. A quota id is unique in the service.
+  Example: `CPUS-per-project-region`.
 
 * `dimensions` -
   (Optional)
@@ -90,6 +86,10 @@ The following arguments are supported:
   (Optional)
   An email address that can be used for quota related communication between the Google Cloud and the user in case the Google Cloud needs further information to make a decision on whether the user preferred quota can be granted.
   The Google account for the email address must have quota update permission for the project, folder or organization this quota preference is for.
+
+* `parent` -
+  (Optional)
+  The parent of the quota preference. Allowed parents are "projects/[project-id / number]" or "folders/[folder-id / number]" or "organizations/[org-id / number]".
 
 * `ignore_safety_checks` -
   (Optional)
@@ -175,7 +175,7 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 import {
   identity = {
     name = "<-optional value->"
-    parent = "<-required value->"
+    parent = "<-optional value->"
   }
   to = google_cloud_quotas_quota_preference.default
 }

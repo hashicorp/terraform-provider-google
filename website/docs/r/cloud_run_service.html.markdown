@@ -472,7 +472,7 @@ this field is set to false, the revision name will still autogenerate.)
   Structure is [documented below](#nested_template_metadata).
 
 * `spec` -
-  (Required)
+  (Optional)
   RevisionSpec holds the desired state of the Revision (from the client).
   Structure is [documented below](#nested_template_spec).
 
@@ -565,7 +565,7 @@ this field is set to false, the revision name will still autogenerate.)
 <a name="nested_template_spec"></a>The `spec` block supports:
 
 * `containers` -
-  (Required)
+  (Optional)
   Containers defines the unit of execution for this Revision.
   Structure is [documented below](#nested_template_spec_containers).
 

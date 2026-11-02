@@ -227,7 +227,7 @@ The following arguments are supported:
 <a name="nested_autoscaling_policy"></a>The `autoscaling_policy` block supports:
 
 * `mode` -
-  (Required)
+  (Optional)
   The autoscaling mode. Set to one of the following:
     - OFF: Disables the autoscaler.
     - ON: Enables scaling in and scaling out.
@@ -242,7 +242,7 @@ The following arguments are supported:
   than or equal to max-nodes. The default value is 0.
 
 * `max_nodes` -
-  (Required)
+  (Optional)
   Maximum size of the node group. Set to a value less than or equal
   to 100 and greater than or equal to min-nodes.
 

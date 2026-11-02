@@ -174,24 +174,24 @@ One of 'initial_size' or 'autoscaling_policy' must be configured on resource cre
 							Description: `Maximum size of the node group. Set to a value less than or equal
 to 100 and greater than or equal to min-nodes.`,
 						},
-						"mode": {
-							Type:         schema.TypeString,
-							Computed:     true,
-							Optional:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"OFF", "ON", "ONLY_SCALE_OUT"}),
-							Description: `The autoscaling mode. Set to one of the following:
-  - OFF: Disables the autoscaler.
-  - ON: Enables scaling in and scaling out.
-  - ONLY_SCALE_OUT: Enables only scaling out.
-  You must use this mode if your node groups are configured to
-  restart their hosted VMs on minimal servers. Possible values: ["OFF", "ON", "ONLY_SCALE_OUT"]`,
-						},
 						"min_nodes": {
 							Type:     schema.TypeInt,
 							Computed: true,
 							Optional: true,
 							Description: `Minimum size of the node group. Must be less
 than or equal to max-nodes. The default value is 0.`,
+						},
+						"mode": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"OFF", "ON", "ONLY_SCALE_OUT", ""}),
+							Description: `The autoscaling mode. Set to one of the following:
+  - OFF: Disables the autoscaler.
+  - ON: Enables scaling in and scaling out.
+  - ONLY_SCALE_OUT: Enables only scaling out.
+  You must use this mode if your node groups are configured to
+  restart their hosted VMs on minimal servers. Possible values: ["OFF", "ON", "ONLY_SCALE_OUT"]`,
 						},
 					},
 				},
