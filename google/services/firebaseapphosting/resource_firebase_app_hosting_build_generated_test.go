@@ -83,7 +83,7 @@ func TestAccFirebaseAppHostingBuild_firebaseAppHostingBuildMinimalExample(t *tes
 			},
 			{
 				ResourceName:       "google_firebase_app_hosting_build.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -175,7 +175,7 @@ func TestAccFirebaseAppHostingBuild_firebaseAppHostingBuildFullExample(t *testin
 			},
 			{
 				ResourceName:       "google_firebase_app_hosting_build.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -79,7 +79,7 @@ func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterBasicExample(
 			},
 			{
 				ResourceName:       "google_gkeonprem_vmware_admin_cluster.admin-cluster-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -161,7 +161,7 @@ func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterFullExample(t
 			},
 			{
 				ResourceName:       "google_gkeonprem_vmware_admin_cluster.admin-cluster-full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -294,7 +294,7 @@ func TestAccGkeonpremVmwareAdminCluster_gkeonpremVmwareAdminClusterMetallbExampl
 			},
 			{
 				ResourceName:       "google_gkeonprem_vmware_admin_cluster.admin-cluster-metallb",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

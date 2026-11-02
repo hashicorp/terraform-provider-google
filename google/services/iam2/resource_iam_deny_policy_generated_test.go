@@ -85,7 +85,7 @@ func TestAccIAM2DenyPolicy_iamDenyPolicyBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_iam_deny_policy.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

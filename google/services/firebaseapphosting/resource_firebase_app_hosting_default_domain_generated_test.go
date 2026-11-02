@@ -82,7 +82,7 @@ func TestAccFirebaseAppHostingDefaultDomain_firebaseAppHostingDefaultDomainMinim
 			},
 			{
 				ResourceName:       "google_firebase_app_hosting_default_domain.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -150,7 +150,7 @@ func TestAccFirebaseAppHostingDefaultDomain_firebaseAppHostingDefaultDomainFullE
 			},
 			{
 				ResourceName:       "google_firebase_app_hosting_default_domain.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -220,7 +220,7 @@ func TestAccFirebaseAppHostingDefaultDomain_firebaseAppHostingDefaultDomainDisab
 			},
 			{
 				ResourceName:       "google_firebase_app_hosting_default_domain.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

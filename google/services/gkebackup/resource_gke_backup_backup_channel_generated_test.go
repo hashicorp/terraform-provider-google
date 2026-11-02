@@ -82,7 +82,7 @@ func TestAccGKEBackupBackupChannel_gkebackupBackupchannelBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_gke_backup_backup_channel.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

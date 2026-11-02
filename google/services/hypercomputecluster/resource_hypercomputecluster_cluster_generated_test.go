@@ -82,7 +82,7 @@ func TestAccHypercomputeclusterCluster_hypercomputeclusterClusterBasicExample(t 
 			},
 			{
 				ResourceName:       "google_hypercomputecluster_cluster.cluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -80,7 +80,7 @@ func TestAccGeminiReleaseChannelSetting_geminiReleaseChannelSettingBasicExample(
 			},
 			{
 				ResourceName:       "google_gemini_release_channel_setting.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
