@@ -82,7 +82,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructureExascaleConfig_oracledatabas
 			},
 			{
 				ResourceName:       "google_oracle_database_cloud_exadata_infrastructure_exascale_config.my_exascale_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

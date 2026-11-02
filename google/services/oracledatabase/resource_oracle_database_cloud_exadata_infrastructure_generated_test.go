@@ -92,7 +92,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 			},
 			{
 				ResourceName:       "google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -112,7 +112,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 			},
 			{
 				ResourceName:       "google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -170,7 +170,7 @@ func TestAccOracleDatabaseCloudExadataInfrastructure_oracledatabaseCloudExadataI
 			},
 			{
 				ResourceName:       "google_oracle_database_cloud_exadata_infrastructure.my-cloud-exadata",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

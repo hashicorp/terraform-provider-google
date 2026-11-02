@@ -81,7 +81,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentBasicExample(t *testi
 			},
 			{
 				ResourceName:       "google_os_config_patch_deployment.patch",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -131,7 +131,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyExample(t *testi
 			},
 			{
 				ResourceName:       "google_os_config_patch_deployment.patch",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -190,7 +190,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentDailyMidnightExample(
 			},
 			{
 				ResourceName:       "google_os_config_patch_deployment.patch",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -250,7 +250,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentInstanceExample(t *te
 			},
 			{
 				ResourceName:       "google_os_config_patch_deployment.patch",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -348,7 +348,7 @@ func TestAccOSConfigPatchDeployment_osConfigPatchDeploymentFullExample(t *testin
 			},
 			{
 				ResourceName:       "google_os_config_patch_deployment.patch",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

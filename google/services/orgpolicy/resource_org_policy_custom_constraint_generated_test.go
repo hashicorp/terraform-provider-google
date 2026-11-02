@@ -81,7 +81,7 @@ func TestAccOrgPolicyCustomConstraint_orgPolicyCustomConstraintBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_org_policy_custom_constraint.constraint",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -131,7 +131,7 @@ func TestAccOrgPolicyCustomConstraint_orgPolicyCustomConstraintFullExample(t *te
 			},
 			{
 				ResourceName:       "google_org_policy_custom_constraint.constraint",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

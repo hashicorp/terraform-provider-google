@@ -100,7 +100,7 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterBasicExampl
 			},
 			{
 				ResourceName:       "google_oracle_database_exadb_vm_cluster.my_exadb_vm_cluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -120,7 +120,7 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterBasicExampl
 			},
 			{
 				ResourceName:       "google_oracle_database_exadb_vm_cluster.my_exadb_vm_cluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -209,7 +209,7 @@ func TestAccOracleDatabaseExadbVmCluster_oracledatabaseExadbVmClusterFullExample
 			},
 			{
 				ResourceName:       "google_oracle_database_exadb_vm_cluster.my_exadb_vm_cluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

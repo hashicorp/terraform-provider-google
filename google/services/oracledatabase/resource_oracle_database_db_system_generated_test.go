@@ -102,7 +102,7 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_oracle_database_db_system.my_db_system",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -122,7 +122,7 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_oracle_database_db_system.my_db_system",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -204,7 +204,7 @@ func TestAccOracleDatabaseDbSystem_oracledatabaseDbSystemFullExample(t *testing.
 			},
 			{
 				ResourceName:       "google_oracle_database_db_system.my_db_system",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

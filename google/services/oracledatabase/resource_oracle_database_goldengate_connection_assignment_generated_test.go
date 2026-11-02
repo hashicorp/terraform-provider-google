@@ -96,7 +96,7 @@ func TestAccOracleDatabaseGoldengateConnectionAssignment_oracledatabaseGoldengat
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection_assignment.assignment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -116,7 +116,7 @@ func TestAccOracleDatabaseGoldengateConnectionAssignment_oracledatabaseGoldengat
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection_assignment.assignment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

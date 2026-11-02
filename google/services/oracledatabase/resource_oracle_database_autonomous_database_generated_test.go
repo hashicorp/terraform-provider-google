@@ -95,7 +95,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 			},
 			{
 				ResourceName:       "google_oracle_database_autonomous_database.myADB",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -115,7 +115,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseBas
 			},
 			{
 				ResourceName:       "google_oracle_database_autonomous_database.myADB",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -187,7 +187,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseFul
 			},
 			{
 				ResourceName:       "google_oracle_database_autonomous_database.myADB",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -271,7 +271,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseOdb
 			},
 			{
 				ResourceName:       "google_oracle_database_autonomous_database.myADB",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -330,7 +330,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabasePub
 			},
 			{
 				ResourceName:       "google_oracle_database_autonomous_database.myADB",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -390,7 +390,7 @@ func TestAccOracleDatabaseAutonomousDatabase_oracledatabaseAutonomousDatabaseDis
 			},
 			{
 				ResourceName:       "google_oracle_database_autonomous_database.myADB",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

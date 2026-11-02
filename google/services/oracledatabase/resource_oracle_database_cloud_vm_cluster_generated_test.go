@@ -95,7 +95,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExampl
 			},
 			{
 				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -115,7 +115,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterBasicExampl
 			},
 			{
 				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -202,7 +202,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterOdbnetworkE
 			},
 			{
 				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -281,7 +281,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterOdbdnszoneE
 			},
 			{
 				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -357,7 +357,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterFullExample
 			},
 			{
 				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -467,7 +467,7 @@ func TestAccOracleDatabaseCloudVmCluster_oracledatabaseCloudVmclusterExascaleExa
 			},
 			{
 				ResourceName:       "google_oracle_database_cloud_vm_cluster.my_vmcluster",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

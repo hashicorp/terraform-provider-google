@@ -81,7 +81,7 @@ func TestAccPrivilegedAccessManagerEntitlement_privilegedAccessManagerEntitlemen
 			},
 			{
 				ResourceName:       "google_privileged_access_manager_entitlement.tfentitlement",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

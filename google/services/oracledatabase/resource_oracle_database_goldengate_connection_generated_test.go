@@ -92,7 +92,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -112,7 +112,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -179,7 +179,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -245,7 +245,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -315,7 +315,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -377,7 +377,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -438,7 +438,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -505,7 +505,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -578,7 +578,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -638,7 +638,7 @@ func TestAccOracleDatabaseGoldengateConnection_oracledatabaseGoldengateConnectio
 			},
 			{
 				ResourceName:       "google_oracle_database_goldengate_connection.connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
