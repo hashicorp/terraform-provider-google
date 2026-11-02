@@ -99,7 +99,7 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileBasicExam
 			},
 			{
 				ResourceName:       "google_dialogflow_conversation_profile.basic_profile",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -119,7 +119,7 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileBasicExam
 			},
 			{
 				ResourceName:       "google_dialogflow_conversation_profile.basic_profile",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -187,7 +187,7 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileRecogniti
 			},
 			{
 				ResourceName:       "google_dialogflow_conversation_profile.recognition_result_notification_profile",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

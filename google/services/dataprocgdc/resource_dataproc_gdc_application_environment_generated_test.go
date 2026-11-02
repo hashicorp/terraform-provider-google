@@ -82,7 +82,7 @@ func TestAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentB
 			},
 			{
 				ResourceName:       "google_dataproc_gdc_application_environment.application-environment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -130,7 +130,7 @@ func TestAccDataprocGdcApplicationEnvironment_dataprocgdcApplicationenvironmentE
 			},
 			{
 				ResourceName:       "google_dataproc_gdc_application_environment.application-environment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

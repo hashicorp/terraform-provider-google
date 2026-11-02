@@ -81,7 +81,7 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGit
 			},
 			{
 				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -129,7 +129,7 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGit
 			},
 			{
 				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -179,7 +179,7 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGhe
 			},
 			{
 				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -266,7 +266,7 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorGle
 			},
 			{
 				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -353,7 +353,7 @@ func TestAccDeveloperConnectAccountConnector_developerConnectAccountConnectorBbd
 			},
 			{
 				ResourceName:       "google_developer_connect_account_connector.my-account-connector",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

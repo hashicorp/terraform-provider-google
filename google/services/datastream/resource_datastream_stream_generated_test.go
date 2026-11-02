@@ -97,7 +97,7 @@ func TestAccDatastreamStream_datastreamStreamBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_datastream_stream.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -275,7 +275,7 @@ func TestAccDatastreamStream_datastreamStreamFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_datastream_stream.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -522,7 +522,7 @@ func TestAccDatastreamStream_datastreamStreamPostgresqlBigqueryDatasetIdExample(
 			},
 			{
 				ResourceName:       "google_datastream_stream.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -679,7 +679,7 @@ func TestAccDatastreamStream_datastreamStreamBigqueryExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_datastream_stream.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -845,7 +845,7 @@ func TestAccDatastreamStream_datastreamStreamBigqueryCrossProjectSourceHierachyE
 			},
 			{
 				ResourceName:       "google_datastream_stream.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1024,7 +1024,7 @@ func TestAccDatastreamStream_datastreamStreamBigqueryAppendOnlyExample(t *testin
 			},
 			{
 				ResourceName:       "google_datastream_stream.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

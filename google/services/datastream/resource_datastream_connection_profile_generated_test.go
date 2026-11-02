@@ -82,7 +82,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBasicExample(
 			},
 			{
 				ResourceName:       "google_datastream_connection_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -144,7 +144,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresqlPri
 			},
 			{
 				ResourceName:       "google_datastream_connection_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -314,7 +314,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileFullExample(t
 			},
 			{
 				ResourceName:       "google_datastream_connection_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -372,7 +372,7 @@ func TestAccDatastreamConnectionProfile_datastreamStreamPostgresqlSslconfigServe
 			},
 			{
 				ResourceName:       "google_datastream_connection_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -480,7 +480,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresSecre
 			},
 			{
 				ResourceName:       "google_datastream_connection_profile.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

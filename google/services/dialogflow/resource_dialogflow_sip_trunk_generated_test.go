@@ -80,7 +80,7 @@ func TestAccDialogflowSipTrunk_dialogflowSipTrunkBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_sip_trunk.basic_trunk",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

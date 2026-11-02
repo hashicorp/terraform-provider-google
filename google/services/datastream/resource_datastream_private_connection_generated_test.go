@@ -82,7 +82,7 @@ func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionFullExample(t
 			},
 			{
 				ResourceName:       "google_datastream_private_connection.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -140,7 +140,7 @@ func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionForceDeleteEx
 			},
 			{
 				ResourceName:       "google_datastream_private_connection.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -205,7 +205,7 @@ func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionPscInterfaceE
 			},
 			{
 				ResourceName:       "google_datastream_private_connection.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

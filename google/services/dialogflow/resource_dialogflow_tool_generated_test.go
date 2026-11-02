@@ -83,7 +83,7 @@ func TestAccDialogflowTool_dialogflowToolBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_tool.basic_tool",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -151,7 +151,7 @@ func TestAccDialogflowTool_dialogflowToolConnectorExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_tool.connector_tool",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -271,7 +271,7 @@ func TestAccDialogflowTool_dialogflowToolFunctionExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_tool.function_tool",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -332,7 +332,7 @@ func TestAccDialogflowTool_dialogflowToolAuthExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_tool.auth_tool",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -402,7 +402,7 @@ func TestAccDialogflowTool_dialogflowToolBearerExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_tool.bearer_tool",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -470,7 +470,7 @@ func TestAccDialogflowTool_dialogflowToolOauthExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_tool.oauth_tool",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -551,7 +551,7 @@ func TestAccDialogflowTool_dialogflowToolServiceAgentExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_tool.service_agent_tool",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

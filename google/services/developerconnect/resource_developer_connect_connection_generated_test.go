@@ -81,7 +81,7 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionExistingCredent
 			},
 			{
 				ResourceName:       "google_developer_connect_connection.my-connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -137,7 +137,7 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionGithubExample(t
 			},
 			{
 				ResourceName:       "google_developer_connect_connection.my-connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -188,7 +188,7 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionGithubEnterpris
 			},
 			{
 				ResourceName:       "google_developer_connect_connection.my-connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -239,7 +239,7 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionGitlabExample(t
 			},
 			{
 				ResourceName:       "google_developer_connect_connection.my-connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -294,7 +294,7 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionGitlabEnterpris
 			},
 			{
 				ResourceName:       "google_developer_connect_connection.my-connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -351,7 +351,7 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionBbcExample(t *t
 			},
 			{
 				ResourceName:       "google_developer_connect_connection.my-connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -407,7 +407,7 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionBbdcExample(t *
 			},
 			{
 				ResourceName:       "google_developer_connect_connection.my-connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -464,7 +464,7 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionHttpConnBasicEx
 			},
 			{
 				ResourceName:       "google_developer_connect_connection.my-connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -515,7 +515,7 @@ func TestAccDeveloperConnectConnection_developerConnectConnectionHttpConnBearerE
 			},
 			{
 				ResourceName:       "google_developer_connect_connection.my-connection",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

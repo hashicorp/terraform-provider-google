@@ -83,7 +83,7 @@ func TestAccDialogflowIntent_dialogflowIntentFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dialogflow_intent.full_intent",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

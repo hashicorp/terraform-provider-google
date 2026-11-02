@@ -81,7 +81,7 @@ func TestAccDeveloperConnectGitRepositoryLink_developerConnectGitRepositoryLinkG
 			},
 			{
 				ResourceName:       "google_developer_connect_git_repository_link.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

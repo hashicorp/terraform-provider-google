@@ -87,7 +87,7 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterExample(t *te
 			},
 			{
 				ResourceName:       "google_dataproc_session_template.example_session_templates_jupyter",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -156,7 +156,7 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterFullExample(t
 			},
 			{
 				ResourceName:       "google_dataproc_session_template.dataproc_session_templates_jupyter_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -315,7 +315,7 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesSparkConnectExample(
 			},
 			{
 				ResourceName:       "google_dataproc_session_template.example_session_templates_spark_connect",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
