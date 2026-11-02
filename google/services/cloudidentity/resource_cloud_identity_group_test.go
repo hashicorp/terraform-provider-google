@@ -129,6 +129,12 @@ func testAccCloudIdentityGroup_cloudIdentityGroupsBasicExampleTest(t *testing.T)
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"initial_group_config"},
 			},
+			{
+				ResourceName:       "google_cloud_identity_group.cloud_identity_group_basic",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }

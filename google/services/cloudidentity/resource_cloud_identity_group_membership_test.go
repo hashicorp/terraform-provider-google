@@ -54,6 +54,12 @@ func testAccCloudIdentityGroupMembership_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				ResourceName:       "google_cloud_identity_group_membership.basic",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
 				Config: testAccCloudIdentityGroupMembership_update2(context),
 			},
 			{
@@ -62,12 +68,24 @@ func testAccCloudIdentityGroupMembership_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				ResourceName:       "google_cloud_identity_group_membership.basic",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
 				Config: testAccCloudIdentityGroupMembership_update1(context),
 			},
 			{
 				ResourceName:      "google_cloud_identity_group_membership.basic",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_cloud_identity_group_membership.basic",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -161,6 +179,12 @@ func testAccCloudIdentityGroupMembership_importTest(t *testing.T) {
 				ResourceName:      "google_cloud_identity_group_membership.basic",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_cloud_identity_group_membership.basic",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -304,6 +328,12 @@ func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipExampleTest
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"group"},
 			},
+			{
+				ResourceName:       "google_cloud_identity_group_membership.cloud_identity_group_membership_basic",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -373,6 +403,12 @@ func testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExample
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"group"},
+			},
+			{
+				ResourceName:       "google_cloud_identity_group_membership.cloud_identity_group_membership_basic",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
