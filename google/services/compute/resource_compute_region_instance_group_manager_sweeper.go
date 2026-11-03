@@ -20,8 +20,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -30,7 +32,8 @@ func init() {
 }
 
 // At the time of writing, the CI only passes us-central1 as the region.
-// Since we can read all instances across zones, we don't really use this param.
+// We use the aggregated list so that regional instance group managers in every region are swept,
+// so we don't really use this param.
 func testSweepComputeRegionInstanceGroupManager(region string) error {
 	resourceName := "ComputeRegionInstanceGroupManager"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
@@ -47,7 +50,7 @@ func testSweepComputeRegionInstanceGroupManager(region string) error {
 		return err
 	}
 
-	listUrl := fmt.Sprintf("%sprojects/%s/regions/%s/instanceGroupManagers", transport_tpg.BaseUrl(Product, config), config.Project, region)
+	listUrl := fmt.Sprintf("%sprojects/%s/aggregated/instanceGroupManagers", transport_tpg.BaseUrl(Product, config), config.Project)
 	found, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -62,31 +65,50 @@ func testSweepComputeRegionInstanceGroupManager(region string) error {
 
 	// Keep count of items that aren't sweepable for logging.
 	nonPrefixCount := 0
-	items, _ := found["items"].([]interface{})
-	for _, rigmRaw := range items {
-		rigm, ok := rigmRaw.(map[string]interface{})
+	items, ok := found["items"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	for scope, itemListRaw := range items {
+		// The aggregated list also contains zonal instance group managers (keyed by "zones/..."),
+		// which are handled by the ComputeInstanceGroupManager sweeper.
+		if !strings.HasPrefix(scope, "regions/") {
+			continue
+		}
+		itemList, ok := itemListRaw.(map[string]interface{})
 		if !ok {
 			continue
 		}
-		rigmName, _ := rigm["name"].(string)
-		if !sweeper.IsSweepableTestResource(rigmName) {
-			nonPrefixCount++
+		rigms, ok := itemList["instanceGroupManagers"].([]interface{})
+		if !ok {
 			continue
 		}
+		rigmRegion := tpgresource.GetResourceNameFromSelfLink(scope)
+		for _, rigmRaw := range rigms {
+			rigm, ok := rigmRaw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			rigmName, _ := rigm["name"].(string)
+			if !sweeper.IsSweepableTestResource(rigmName) {
+				nonPrefixCount++
+				continue
+			}
 
-		// Don't wait on operations as we may have a lot to delete
-		deleteUrl := fmt.Sprintf("%sprojects/%s/regions/%s/instanceGroupManagers/%s", transport_tpg.BaseUrl(Product, config), config.Project, region, rigmName)
-		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "DELETE",
-			Project:   config.Project,
-			RawURL:    deleteUrl,
-			UserAgent: config.UserAgent,
-		})
-		if err != nil {
-			log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s : %s", resourceName, rigmName, err)
-		} else {
-			log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, rigmName)
+			// Don't wait on operations as we may have a lot to delete
+			deleteUrl := fmt.Sprintf("%sprojects/%s/regions/%s/instanceGroupManagers/%s", transport_tpg.BaseUrl(Product, config), config.Project, rigmRegion, rigmName)
+			_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				Project:   config.Project,
+				RawURL:    deleteUrl,
+				UserAgent: config.UserAgent,
+			})
+			if err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] Error deleting %s resource %s in %s : %s", resourceName, rigmName, rigmRegion, err)
+			} else {
+				log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s in %s", resourceName, rigmName, rigmRegion)
+			}
 		}
 	}
 
