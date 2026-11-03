@@ -81,7 +81,7 @@ func TestAccServiceNetworkingVPCServiceControls_serviceNetworkingVpcServiceContr
 			},
 			{
 				ResourceName:       "google_service_networking_vpc_service_controls.default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

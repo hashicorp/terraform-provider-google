@@ -237,6 +237,7 @@ functionality, this value is 'servicenetworking.googleapis.com'.`,
 			},
 			"project": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The id of the Google Cloud project containing the consumer network.`,
@@ -274,6 +275,9 @@ func resourceServiceNetworkingVPCServiceControlsRead(d *schema.ResourceData, met
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return err
+	}
+	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading VPCServiceControls: %s", err)
 	}
 	projectNumber, err := getProjectNumber(d, config, project, userAgent)
 	if err != nil {

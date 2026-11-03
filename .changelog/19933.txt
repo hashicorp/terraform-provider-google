@@ -1,0 +1,3 @@
+```release-note:bug
+servicenetworking: fixed `project` not being populated in state and Resource Identity for `google_service_networking_vpc_service_controls`
+```
