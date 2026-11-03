@@ -128,6 +128,12 @@ resource "google_ces_deployment" "my-deployment" {
             }
         }
     }
+    modality = "MODALITY_TEXT"
+    model_settings {
+        model          = "gemini-3.0-flash-001"
+        temperature    = 0.5
+        thinking_level = "LOW"
+    }
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
@@ -206,6 +212,17 @@ The following arguments are supported:
   (Optional)
   Ephemeral Meta credentials required when configuring an Instagram channel profile.
   Structure is [documented below](#nested_instagram_credentials).
+
+* `modality` -
+  (Optional)
+  The modality of the deployment.
+  Possible values are: `MODALITY_TEXT`, `MODALITY_VOICE`, `MODALITY_VIDEO`.
+
+* `model_settings` -
+  (Optional)
+  Model settings for the deployment.
+  Overrides model settings configured at the app/agent levels.
+  Structure is [documented below](#nested_model_settings).
 
 * `whatsapp_credentials` -
   (Optional)
@@ -376,6 +393,25 @@ The following arguments are supported:
 * `auth_code_wo_version` -
   (Optional)
   Triggers update of `auth_code_wo` write-only. Increment this value when an update to `auth_code_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+
+<a name="nested_model_settings"></a>The `model_settings` block supports:
+
+* `model` -
+  (Optional)
+  The LLM model that the agent should use.
+  If not set, the agent will inherit the model from its parent agent.
+
+* `temperature` -
+  (Optional)
+  If set, this temperature will be used for the LLM model. Temperature
+  controls the randomness of the model's responses. Lower temperatures
+  produce responses that are more predictable. Higher temperatures produce
+  responses that are more creative.
+
+* `thinking_level` -
+  (Optional)
+  The thinking level of the model.
+  Possible values are: `DEFAULT`, `LOW`, `MEDIUM`, `HIGH`.
 
 <a name="nested_whatsapp_credentials"></a>The `whatsapp_credentials` block supports:
 
