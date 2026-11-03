@@ -525,24 +525,18 @@ func resourceCESAppRootAgentAssociationDelete(d *schema.ResourceData, meta inter
 }
 
 func resourceCESAppRootAgentAssociationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	// Import format: projects/{project}/locations/{location}/apps/{app_id}/agents/{agent_id}
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 8 || parts[0] != "projects" || parts[2] != "locations" || parts[4] != "apps" || parts[6] != "agents" {
-		return nil, fmt.Errorf("invalid import format for CESAppRootAgentAssociation, expected projects/{{project}}/locations/{{location}}/apps/{{app_id}}/agents/{{agent_id}}, got %q", d.Id())
+	config := meta.(*transport_tpg.Config)
+	if err := tpgresource.ParseImportId([]string{
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/apps/(?P<app_id>[^/]+)/agents/(?P<agent_id>[^/]+)$",
+	}, d, config); err != nil {
+		return nil, err
 	}
 
-	if err := d.Set("project", parts[1]); err != nil {
-		return nil, err
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/apps/{{app_id}}/agents/{{agent_id}}")
+	if err != nil {
+		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
-	if err := d.Set("location", parts[3]); err != nil {
-		return nil, err
-	}
-	if err := d.Set("app_id", parts[5]); err != nil {
-		return nil, err
-	}
-	if err := d.Set("agent_id", parts[7]); err != nil {
-		return nil, err
-	}
+	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
 }

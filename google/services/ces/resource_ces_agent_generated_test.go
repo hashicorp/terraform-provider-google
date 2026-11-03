@@ -85,7 +85,7 @@ func TestAccCESAgent_cesAgentBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_agent.ces_agent_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -313,7 +313,7 @@ func TestAccCESAgent_cesAgentRemoteA2aAgentExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_agent.ces_agent_remote_a2a_agent",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -416,7 +416,7 @@ func TestAccCESAgent_cesAgentRemoteDialogflowAgentExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_agent.ces_agent_remote_dialogflow_agent",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -500,7 +500,7 @@ func TestAccCESAgent_cesAgentRemoteDialogflowAgentInterruptionExample(t *testing
 			},
 			{
 				ResourceName:       "google_ces_agent.ces_agent_remote_dialogflow_agent_interruption",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

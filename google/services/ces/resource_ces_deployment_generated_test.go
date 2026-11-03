@@ -84,7 +84,7 @@ func TestAccCESDeployment_cesDeploymentBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_deployment.my-deployment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -162,7 +162,7 @@ func TestAccCESDeployment_cesDeploymentFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_deployment.my-deployment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -246,7 +246,7 @@ func TestAccCESDeployment_cesDeploymentWhatsappExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_deployment.my-deployment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

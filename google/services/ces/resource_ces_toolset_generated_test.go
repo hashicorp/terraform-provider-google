@@ -84,7 +84,7 @@ func TestAccCESToolset_cesToolsetOpenapiServiceAccountAuthConfigExample(t *testi
 			},
 			{
 				ResourceName:       "google_ces_toolset.ces_toolset_openapi_service_account_auth_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -178,7 +178,7 @@ func TestAccCESToolset_cesToolsetOpenapiOauthConfigExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_toolset.ces_toolset_openapi_oauth_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -275,7 +275,7 @@ func TestAccCESToolset_cesToolsetOpenapiServiceAgentIdTokenAuthConfigExample(t *
 			},
 			{
 				ResourceName:       "google_ces_toolset.ces_toolset_openapi_service_agent_id_token_auth_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -367,7 +367,7 @@ func TestAccCESToolset_cesToolsetOpenapiApiKeyConfigExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_toolset.ces_toolset_openapi_api_key_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -464,7 +464,7 @@ func TestAccCESToolset_cesToolsetBearerTokenConfigExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_toolset.ces_toolset_bearer_token_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -558,7 +558,7 @@ func TestAccCESToolset_cesToolsetMcpServiceAccountAuthConfigExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_ces_toolset.ces_toolset_mcp_service_account_auth_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -642,7 +642,7 @@ func TestAccCESToolset_cesToolsetMcpOauthConfigExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_toolset.ces_toolset_mcp_oauth_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -729,7 +729,7 @@ func TestAccCESToolset_cesToolsetMcpServiceAgentIdTokenAuthConfigExample(t *test
 			},
 			{
 				ResourceName:       "google_ces_toolset.ces_toolset_mcp_service_agent_id_token_auth_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -818,7 +818,7 @@ func TestAccCESToolset_cesToolsetMcpApiKeyConfigExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_toolset.ces_toolset_mcp_api_key_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -905,7 +905,7 @@ func TestAccCESToolset_cesToolsetMcpBearerTokenConfigExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_toolset.ces_toolset_mcp_bearer_token_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

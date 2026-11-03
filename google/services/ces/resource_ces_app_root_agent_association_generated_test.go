@@ -81,7 +81,7 @@ func TestAccCESAppRootAgentAssociation_cesAppRootAgentAssociationBasicExample(t 
 			},
 			{
 				ResourceName:       "google_ces_app_root_agent_association.association",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
