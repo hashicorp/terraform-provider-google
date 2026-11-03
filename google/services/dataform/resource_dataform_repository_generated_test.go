@@ -189,7 +189,7 @@ func TestAccDataformRepository_dataformRepositoryWithCloudsourceRepoAndSshExampl
 			},
 			{
 				ResourceName:       "google_dataform_repository.dataform_repository",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

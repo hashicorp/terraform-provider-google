@@ -115,6 +115,7 @@ func ResourceDataformRepository() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderRegion,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
@@ -235,6 +236,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			},
 			"region": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `A reference to the region`,
@@ -477,6 +479,14 @@ func resourceDataformRepositoryRead(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading Repository: %s", err)
+	}
+
+	region, err := tpgresource.GetRegion(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("region", region); err != nil {
 		return fmt.Errorf("Error reading Repository: %s", err)
 	}
 
