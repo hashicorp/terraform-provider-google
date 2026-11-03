@@ -113,6 +113,8 @@ func testAccCheckServiceAccountJwtValue(name, audience string) resource.TestChec
 }
 
 func TestAccDataSourceGoogleServiceAccountJwt(t *testing.T) {
+	// Mutates package-level DataSourceGoogleServiceAccountJwtNow and uses time.Now() in request body
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	resourceName := "data.google_service_account_jwt.default"
@@ -126,7 +128,7 @@ func TestAccDataSourceGoogleServiceAccountJwt(t *testing.T) {
 		return staticTime
 	}
 
-	resource.Test(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
