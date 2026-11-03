@@ -218,33 +218,28 @@ resource "google_app_engine_standard_app_version" "gae-std-app-ver-bundled" {
 
 ```hcl
 resource "google_service_account" "service_account" {
-  provider     = google-beta
   account_id   = "gae-sa"
   display_name = "Test Service Account for GAE"
 }
 
 resource "google_project_iam_member" "gae_api" {
-  provider = google-beta
-  project  = google_service_account.service_account.project
-  role     = "roles/compute.networkUser"
-  member   = "serviceAccount:${google_service_account.service_account.email}"
+  project = google_service_account.service_account.project
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:${google_service_account.service_account.email}"
 }
 
 resource "google_project_iam_member" "storage_viewer" {
-  provider = google-beta
-  project  = google_service_account.service_account.project
-  role     = "roles/storage.objectViewer"
-  member   = "serviceAccount:${google_service_account.service_account.email}"
+  project = google_service_account.service_account.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.service_account.email}"
 }
 
 resource "google_compute_network" "custom" {
-  provider                = google-beta
   name                    = "vpc-service-net"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "custom" {
-  provider      = google-beta
   name          = "vpc-service-sub"
   ip_cidr_range = "10.0.0.0/24"
   region        = "us-central1"
@@ -252,31 +247,27 @@ resource "google_compute_subnetwork" "custom" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  provider                    = google-beta
   name                        = "gae-bkt-vpc-access"
   location                    = "US"
   uniform_bucket_level_access = true
 }
 
 resource "google_storage_bucket_object" "requirements" {
-  provider = google-beta
-  name     = "requirements.txt"
-  bucket   = google_storage_bucket.bucket.name
-  source   = "./test-fixtures/hello-world-flask/requirements.txt"
+  name   = "requirements.txt"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/hello-world-flask/requirements.txt"
 }
 
 resource "google_storage_bucket_object" "main" {
-  provider = google-beta
-  name     = "main.py"
-  bucket   = google_storage_bucket.bucket.name
-  source   = "./test-fixtures/hello-world-flask/main.py"
+  name   = "main.py"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/hello-world-flask/main.py"
 }
 
 resource "google_app_engine_standard_app_version" "gae-std-app-ver-vpc-access" {
-  provider     = google-beta
-  version_id   = "v1"
-  service      = "vpc-service"
-  runtime      = "python312"
+  version_id = "v1"
+  service    = "vpc-service"
+  runtime    = "python312"
 
   vpc_access {
     vpc_egress = "ALL_TRAFFIC"
@@ -380,7 +371,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_vpc_access_connector).
 
 * `vpc_access` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Direct VPC Access settings for standard apps.
   Structure is [documented below](#nested_vpc_access).
 
@@ -577,7 +568,7 @@ The following arguments are supported:
 <a name="nested_vpc_access"></a>The `vpc_access` block supports:
 
 * `egress_setting` -
-  (Optional, Deprecated)
+  (Optional, [Beta](../guides/provider_versions.html.markdown), Deprecated)
   The egress setting for the VPC Access, controlling what traffic is diverted through it.
 
   ~> **Warning:** `egress_setting` is deprecated and will be removed in a future major release. Use `vpc_egress` instead.
