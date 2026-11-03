@@ -11,6 +11,8 @@ fields:
     - api_field: csvOptions.headerRequired
     - api_field: csvOptions.recordSeparator
     - api_field: displayName
+    - field: effective_labels
+      provider_only: true
     - field: force_destroy
       provider_only: true
     - api_field: frequencyOptions.endDate.day
@@ -20,6 +22,7 @@ fields:
     - api_field: frequencyOptions.startDate.day
     - api_field: frequencyOptions.startDate.month
     - api_field: frequencyOptions.startDate.year
+    - api_field: labels
     - field: location
       provider_only: true
     - api_field: name
@@ -28,5 +31,7 @@ fields:
     - api_field: objectMetadataReportOptions.storageDestinationOptions.destinationPath
     - api_field: objectMetadataReportOptions.storageFilters.bucket
     - api_field: parquetOptions
+    - field: terraform_labels
+      provider_only: true
     - field: deletion_policy
       provider_only: true

@@ -42,19 +42,21 @@ func TestAccStorageInsightsReportConfig_update(t *testing.T) {
 				Config: testAccStorageInsightsReportConfig_full(context),
 			},
 			{
-				ResourceName:            "google_storage_insights_report_config.config",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ResourceName:      "google_storage_insights_report_config.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// labels and terraform_labels are provider-side configuration fields; imported state populates effective_labels from the API.
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccStorageInsightsReportConfig_update(context),
 			},
 			{
-				ResourceName:            "google_storage_insights_report_config.config",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "force_destroy"},
+				ResourceName:      "google_storage_insights_report_config.config",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// labels and terraform_labels are provider-side configuration fields; imported state populates effective_labels from the API.
+				ImportStateVerifyIgnore: []string{"location", "force_destroy", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -210,6 +212,9 @@ data "google_project" "project" {
 resource "google_storage_insights_report_config" "config" {
   display_name = "Test Report Config"
   location = "us-central1"
+  labels = {
+    key = "value"
+  }
   frequency_options {
     frequency = "WEEKLY"
     start_date {
@@ -266,6 +271,9 @@ data "google_project" "project" {
 resource "google_storage_insights_report_config" "config" {
   display_name = "Test Report Config Updated"
   location = "us-central1"
+  labels = {
+    key = "updated"
+  }
   frequency_options {
     frequency = "DAILY"
     start_date {
