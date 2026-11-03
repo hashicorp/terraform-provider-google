@@ -267,6 +267,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"optimized": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Deprecated:  "`optimized` is deprecated because Vertex AI Feature Store Optimized online serving is deprecated and new FeatureOnlineStore creation is no longer supported. Use `bigtable` for online serving instead.",
 				Description: `Settings for the Optimized store that will be created to serve featureValues for all FeatureViews under this FeatureOnlineStore`,
 				MaxItems:    1,
 				Elem: &schema.Resource{

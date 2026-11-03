@@ -1,0 +1,3 @@
+```release-note:deprecation
+vertexai: deprecated `optimized` on `google_vertex_ai_feature_online_store`. Use `bigtable` for online serving instead.
+```
