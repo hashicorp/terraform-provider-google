@@ -86,6 +86,7 @@ fields:
       field: eventing_config.additional_variable.secret_value.secret_version
     - api_field: eventingConfig.additionalVariables.stringValue
       field: eventing_config.additional_variable.string_value
+    - api_field: eventingConfig.allowedEventTypes
     - api_field: eventingConfig.authConfig.additionalVariables.boolValue
       field: eventing_config.auth_config.additional_variable.boolean_value
     - api_field: eventingConfig.authConfig.additionalVariables.encryptionKeyValue.kmsKeyName
@@ -104,7 +105,11 @@ fields:
     - api_field: eventingConfig.authConfig.authType
     - api_field: eventingConfig.authConfig.userPassword.password.secretVersion
     - api_field: eventingConfig.authConfig.userPassword.username
+    - api_field: eventingConfig.deadLetterConfig.projectId
+    - api_field: eventingConfig.deadLetterConfig.topic
+    - api_field: eventingConfig.enrichmentConfig.appendAcl
     - api_field: eventingConfig.enrichmentEnabled
+    - api_field: eventingConfig.globalEventFilter
     - api_field: eventingConfig.registrationDestinationConfig.destinations.host
       field: eventing_config.registration_destination_config.destination.host
     - api_field: eventingConfig.registrationDestinationConfig.destinations.port
