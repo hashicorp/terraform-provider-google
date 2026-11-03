@@ -1,0 +1,3 @@
+```release-note:bug
+bigqueryreservation: fixed server-generated `capacity_commitment_id` not being populated in state and Resource Identity for `google_bigquery_capacity_commitment` when `capacity_commitment_id` is omitted from configuration
+```

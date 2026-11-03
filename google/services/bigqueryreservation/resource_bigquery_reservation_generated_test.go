@@ -80,7 +80,7 @@ func TestAccBigqueryReservationReservation_bigqueryReservationBasicExample(t *te
 			},
 			{
 				ResourceName:       "google_bigquery_reservation.reservation",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -135,7 +135,7 @@ func TestAccBigqueryReservationReservation_bigqueryReservationWithDisasterRecove
 			},
 			{
 				ResourceName:       "google_bigquery_reservation.reservation",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
