@@ -82,7 +82,7 @@ func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_secret_manager_secret.secret-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -140,7 +140,7 @@ func TestAccSecretManagerSecret_secretWithAnnotationsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_secret_manager_secret.secret-with-annotations",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -200,7 +200,7 @@ func TestAccSecretManagerSecret_secretWithVersionDestroyTtlExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_secret_manager_secret.secret-with-version-destroy-ttl",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -249,7 +249,7 @@ func TestAccSecretManagerSecret_secretWithAutomaticCmekExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_secret_manager_secret.secret-with-automatic-cmek",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

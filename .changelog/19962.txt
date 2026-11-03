@@ -1,0 +1,3 @@
+```release-note:bug
+secretmanager: fixed Resource Identity import for `google_secret_manager_secret_version` and `google_secret_manager_regional_secret_version`
+```
