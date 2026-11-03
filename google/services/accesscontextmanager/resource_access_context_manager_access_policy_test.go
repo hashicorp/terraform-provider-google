@@ -101,12 +101,24 @@ func testAccAccessContextManagerAccessPolicy_basicTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				ResourceName:       "google_access_context_manager_access_policy.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
 				Config: testAccAccessContextManagerAccessPolicy_basic(org, "my new policy"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_access_policy.test-access",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_access_context_manager_access_policy.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -168,6 +180,12 @@ func testAccAccessContextManagerAccessPolicy_scopedTest(t *testing.T) {
 				ResourceName:      "google_access_context_manager_access_policy.test-access",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_access_context_manager_access_policy.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
