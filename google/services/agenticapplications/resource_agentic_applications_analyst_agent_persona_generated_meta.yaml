@@ -106,6 +106,8 @@ fields:
     - api_field: mcpDataSources.oauthTokenUrl
     - api_field: mcpDataSources.prompt
     - api_field: mcpDataSources.serverUrl
+    - api_field: mcpDataSources.sessionIdHeader
+    - api_field: mcpDataSources.taskIdHeader
     - api_field: modelDescription
     - api_field: name
     - api_field: resources.bigqueryResource.bigqueryDataset

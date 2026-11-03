@@ -1164,6 +1164,20 @@ and can only contain letters, numbers, spaces, underscores, and hyphens.`,
 							Optional:    true,
 							Description: `The custom prompt for the MCP agent.`,
 						},
+						"session_id_header": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The HTTP header name used to pass the agent session ID in MCP server
+requests (defaults to 'X-Session-Id' when unset). Must be a valid HTTP
+header field name (RFC 9110 token).`,
+						},
+						"task_id_header": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The HTTP header name used to pass the agent task ID in MCP server
+requests (defaults to 'X-Task-Id' when unset). Must be a valid HTTP
+header field name (RFC 9110 token).`,
+						},
 					},
 				},
 			},
@@ -3156,15 +3170,17 @@ func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, 
 			continue
 		}
 		item := map[string]interface{}{
-			"api_key_header":  original["apiKeyHeader"],
-			"api_key_name":    original["apiKeyName"],
-			"client_id":       original["clientId"],
-			"description":     original["description"],
-			"display_name":    original["displayName"],
-			"enabled":         original["enabled"],
-			"oauth_token_url": original["oauthTokenUrl"],
-			"prompt":          original["prompt"],
-			"server_url":      original["serverUrl"],
+			"api_key_header":    original["apiKeyHeader"],
+			"api_key_name":      original["apiKeyName"],
+			"client_id":         original["clientId"],
+			"description":       original["description"],
+			"display_name":      original["displayName"],
+			"enabled":           original["enabled"],
+			"oauth_token_url":   original["oauthTokenUrl"],
+			"prompt":            original["prompt"],
+			"server_url":        original["serverUrl"],
+			"session_id_header": original["sessionIdHeader"],
+			"task_id_header":    original["taskIdHeader"],
 		}
 		if apiKey, ok := d.GetOk(fmt.Sprintf("mcp_data_sources.%d.api_key", i)); ok {
 			item["api_key"] = apiKey
@@ -5237,6 +5253,20 @@ func expandAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, d
 			transformed["serverUrl"] = transformedServerUrl
 		}
 
+		transformedSessionIdHeader, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesSessionIdHeader(original["session_id_header"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSessionIdHeader); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sessionIdHeader"] = transformedSessionIdHeader
+		}
+
+		transformedTaskIdHeader, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesTaskIdHeader(original["task_id_header"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTaskIdHeader); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["taskIdHeader"] = transformedTaskIdHeader
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -5283,6 +5313,14 @@ func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesPrompt(v interfac
 }
 
 func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesServerUrl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesSessionIdHeader(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesTaskIdHeader(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

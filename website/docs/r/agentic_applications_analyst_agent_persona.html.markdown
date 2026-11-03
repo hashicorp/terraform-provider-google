@@ -211,16 +211,18 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
   }
 
   mcp_data_sources {
-    server_url      = "https://mcp.example.com"
-    display_name    = "Sample MCP Source"
-    description     = "Sample MCP data source description"
-    enabled         = true
-    prompt          = "Use this server for queries"
-    api_key_name    = "x-api-key"
-    api_key_header  = "x-api-key-header"
-    client_id       = "sample-client-id"
-    client_secret   = "sample-client-secret"
-    oauth_token_url = "https://example.com/oauth/token"
+    server_url        = "https://mcp.example.com"
+    display_name      = "Sample MCP Source"
+    description       = "Sample MCP data source description"
+    enabled           = true
+    prompt            = "Use this server for queries"
+    api_key_name      = "x-api-key"
+    api_key_header    = "x-api-key-header"
+    client_id         = "sample-client-id"
+    client_secret     = "sample-client-secret"
+    oauth_token_url   = "https://example.com/oauth/token"
+    session_id_header = "X-Session-Id"
+    task_id_header    = "X-Task-Id"
   }
 
   resources {
@@ -324,6 +326,33 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
       export_format               = "MARKDOWN"
       export_audit_trail_artifact = true
     }
+  }
+}
+```
+
+## Example Usage - Analyst Agent Persona Mcp Headers
+
+
+```hcl
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "1111111111111"
+  location                 = "us"
+  analyst_agent_persona_id = "mcp-headers"
+  display_name             = "Test Analyst Persona MCP Headers"
+  display_description      = "Sample analyst agent persona description"
+  model_description        = "Sample model description"
+  role                     = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+
+  mcp_data_sources {
+    server_url        = "https://mcp.example.com"
+    display_name      = "Sample MCP Source"
+    description       = "Sample MCP data source description"
+    enabled           = true
+    prompt            = "Use this server for queries"
+    api_key_name      = "x-api-key"
+    api_key_header    = "x-api-key-header"
+    session_id_header = "X-Custom-Session-Id"
+    task_id_header    = "X-Custom-Task-Id"
   }
 }
 ```
@@ -1150,6 +1179,18 @@ The following arguments are supported:
 * `server_url` -
   (Required)
   The URL of the MCP server.
+
+* `session_id_header` -
+  (Optional)
+  The HTTP header name used to pass the agent session ID in MCP server
+  requests (defaults to `X-Session-Id` when unset). Must be a valid HTTP
+  header field name (RFC 9110 token).
+
+* `task_id_header` -
+  (Optional)
+  The HTTP header name used to pass the agent task ID in MCP server
+  requests (defaults to `X-Task-Id` when unset). Must be a valid HTTP
+  header field name (RFC 9110 token).
 
 <a name="nested_resources"></a>The `resources` block supports:
 
