@@ -266,6 +266,13 @@ func ResourceNetappVolumeReplication() *schema.Resource {
 										Description: `Optional. Time in days to mark the volume's data block as cold and make it eligible for tiering, can be range from 2-183.
 Default is 31.`,
 									},
+									"hot_tier_bypass_mode_enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+										Description: `Flag indicating that the hot tier bypass mode is enabled. Default is false.
+Only applicable to Flex service level.`,
+									},
 									"tier_action": {
 										Type:         schema.TypeString,
 										Optional:     true,
@@ -1491,6 +1498,13 @@ func expandNetappVolumeReplicationDestinationVolumeParametersTieringPolicy(v int
 		transformed["tierAction"] = transformedTierAction
 	}
 
+	transformedHotTierBypassModeEnabled, err := expandNetappVolumeReplicationDestinationVolumeParametersTieringPolicyHotTierBypassModeEnabled(original["hot_tier_bypass_mode_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHotTierBypassModeEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hotTierBypassModeEnabled"] = transformedHotTierBypassModeEnabled
+	}
+
 	return transformed, nil
 }
 
@@ -1499,6 +1513,10 @@ func expandNetappVolumeReplicationDestinationVolumeParametersTieringPolicyCoolin
 }
 
 func expandNetappVolumeReplicationDestinationVolumeParametersTieringPolicyTierAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeReplicationDestinationVolumeParametersTieringPolicyHotTierBypassModeEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

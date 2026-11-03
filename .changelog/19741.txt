@@ -1,0 +1,3 @@
+```release-note:enhancement
+netapp: added `destination_volume_parameters.tiering_policy.hot_tier_bypass_mode_enabled` field to `google_netapp_volume_replication` resource
+```

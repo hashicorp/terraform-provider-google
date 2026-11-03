@@ -16,6 +16,7 @@ fields:
     - api_field: destinationVolumeParameters.shareName
     - api_field: destinationVolumeParameters.storagePool
     - api_field: destinationVolumeParameters.tieringPolicy.coolingThresholdDays
+    - api_field: destinationVolumeParameters.tieringPolicy.hotTierBypassModeEnabled
     - api_field: destinationVolumeParameters.tieringPolicy.tierAction
     - api_field: destinationVolumeParameters.volumeId
     - field: effective_labels
