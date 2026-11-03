@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-provider-google/google/sweeper"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -68,6 +69,11 @@ func testSweepComputeInstanceGroupManager(region string) error {
 		return nil
 	}
 	for zone, itemListRaw := range items {
+		// The aggregated list also contains regional instance group managers (keyed by "regions/..."),
+		// which are handled by the ComputeRegionInstanceGroupManager sweeper.
+		if !strings.HasPrefix(zone, "zones/") {
+			continue
+		}
 		itemList, ok := itemListRaw.(map[string]interface{})
 		if !ok {
 			continue
