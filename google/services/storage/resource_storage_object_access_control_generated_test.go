@@ -81,7 +81,7 @@ func TestAccStorageObjectAccessControl_storageObjectAccessControlPublicObjectExa
 			},
 			{
 				ResourceName:       "google_storage_object_access_control.public_rule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

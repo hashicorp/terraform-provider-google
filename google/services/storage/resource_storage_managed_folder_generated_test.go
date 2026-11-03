@@ -80,7 +80,7 @@ func TestAccStorageManagedFolder_storageManagedFolderBasicExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_storage_managed_folder.folder",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

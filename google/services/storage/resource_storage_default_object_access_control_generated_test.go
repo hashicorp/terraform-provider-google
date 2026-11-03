@@ -80,7 +80,7 @@ func TestAccStorageDefaultObjectAccessControl_storageDefaultObjectAccessControlP
 			},
 			{
 				ResourceName:       "google_storage_default_object_access_control.public_rule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
