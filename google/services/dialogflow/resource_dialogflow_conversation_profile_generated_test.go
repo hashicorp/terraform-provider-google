@@ -63,7 +63,6 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileBasicExam
 
 	context := map[string]interface{}{
 		"end_of_speech_sensitivity":   "END_SENSITIVITY_LOW",
-		"model_id":                    "gemini-3-flash-lite-asr-preview",
 		"prefix_padding_ms":           500,
 		"profile_name":                "tf-test-dialogflow-profile" + randomSuffix,
 		"silence_duration_ms":         1000,
@@ -74,7 +73,6 @@ func TestAccDialogflowConversationProfile_dialogflowConversationProfileBasicExam
 
 	context_1 := map[string]interface{}{
 		"end_of_speech_sensitivity":   "END_SENSITIVITY_HIGH",
-		"model_id":                    "gemini-3-flash-lite-asr-preview-v2",
 		"prefix_padding_ms":           800,
 		"profile_name":                "tf-test-dialogflow-profile" + randomSuffix,
 		"silence_duration_ms":         2000,
@@ -149,7 +147,6 @@ resource "google_dialogflow_conversation_profile" "basic_profile" {
   stt_config {
     use_gemini_asr = %{use_gemini_asr}
     gemini_asr_config {
-      model_id                    = "%{model_id}"
       silence_duration_ms         = %{silence_duration_ms}
       prefix_padding_ms           = %{prefix_padding_ms}
       start_of_speech_sensitivity = "%{start_of_speech_sensitivity}"
