@@ -81,7 +81,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(t *
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_inspect_template.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -225,7 +225,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExampl
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_inspect_template.custom",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -370,7 +370,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeSurrog
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_inspect_template.custom_type_surrogate",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -470,7 +470,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateWithTemplateIdEx
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_inspect_template.with_template_id",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -556,7 +556,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateMaxInfotypePerFi
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_inspect_template.max_infotype_per_finding_default",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

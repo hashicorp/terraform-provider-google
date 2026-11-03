@@ -1971,21 +1971,26 @@ func resourceDataLossPreventionContentPolicyImport(d *schema.ResourceData, meta 
 	config := meta.(*transport_tpg.Config)
 
 	// Custom import to handle parent possibilities
-	if err := tpgresource.ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := tpgresource.ParseImportId([]string{
+		"(?P<parent>.+)/contentPolicies/(?P<name>[^/]+)",
+		"(?P<name>.+)",
+	}, d, config); err != nil {
 		return nil, err
 	}
-	parts := strings.Split(d.Get("name").(string), "/")
-	if len(parts) == 6 && parts[4] == "contentPolicies" {
-		if err := d.Set("name", parts[5]); err != nil {
-			return nil, fmt.Errorf("error setting name: %w", err)
+	if d.Get("parent").(string) == "" {
+		parts := strings.Split(d.Get("name").(string), "/")
+		if len(parts) == 6 && parts[4] == "contentPolicies" {
+			if err := d.Set("name", parts[5]); err != nil {
+				return nil, fmt.Errorf("error setting name: %w", err)
+			}
+		} else {
+			return nil, fmt.Errorf("unexpected import id: %s, expected form {{parent}}/contentPolicies/{{name}}", d.Get("name").(string))
 		}
-	} else {
-		return nil, fmt.Errorf("unexpected import id: %s, expected form {{parent}}/contentPolicies/{{name}}", d.Get("name").(string))
-	}
-	// Remove "/contentPolicies/name" from the id
-	parts = parts[:len(parts)-2]
-	if err := d.Set("parent", strings.Join(parts, "/")); err != nil {
-		return nil, fmt.Errorf("error setting parent: %w", err)
+		// Remove "/contentPolicies/name" from the id
+		parts = parts[:len(parts)-2]
+		if err := d.Set("parent", strings.Join(parts, "/")); err != nil {
+			return nil, fmt.Errorf("error setting parent: %w", err)
+		}
 	}
 
 	// Replace import id for the resource id
