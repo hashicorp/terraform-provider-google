@@ -183,6 +183,124 @@ The following arguments are supported:
   (Optional)
   The token url endpoint to send the token request to.
 
+* `apply_reauth_policy` -
+  (Optional)
+  Indicates if the user has opted in Google Reauth Policy. If opted in, the refresh token will be valid for 20 hours, after which time users must re-authenticate in order to obtain a new one.
+
+* `request_type` -
+  (Optional)
+  Represent how to pass parameters to fetch access token
+  Possible values are: `REQUEST_BODY`, `QUERY_PARAMETERS`, `ENCODED_HEADER`.
+
+* `auth_params` -
+  (Optional)
+  The auth parameters sent along with the auth code request.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_auth_params).
+
+* `token_params` -
+  (Optional)
+  The token parameters sent along with the token request.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_token_params).
+
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_auth_params"></a>The `auth_params` block supports:
+
+* `entries` -
+  (Optional)
+  A list of parameter map entries.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_auth_params_entries).
+
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_auth_params_entries"></a>The `entries` block supports:
+
+* `key` -
+  (Optional)
+  Key of the map entry.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_auth_params_entries_key).
+
+* `value` -
+  (Optional)
+  Value of the map entry.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_auth_params_entries_value).
+
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_auth_params_entries_key"></a>The `key` block supports:
+
+* `literal_value` -
+  (Optional)
+  Literal value of the parameter key.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_auth_params_entries_key_literal_value).
+
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_auth_params_entries_key_literal_value"></a>The `literal_value` block supports:
+
+* `string_value` -
+  (Optional)
+  The string value of the parameter key.
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_auth_params_entries_value"></a>The `value` block supports:
+
+* `literal_value` -
+  (Optional)
+  Literal value of the parameter.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_auth_params_entries_value_literal_value).
+
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_auth_params_entries_value_literal_value"></a>The `literal_value` block supports:
+
+* `string_value` -
+  (Optional)
+  The string value of the parameter.
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_token_params"></a>The `token_params` block supports:
+
+* `entries` -
+  (Optional)
+  A list of parameter map entries.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_token_params_entries).
+
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_token_params_entries"></a>The `entries` block supports:
+
+* `key` -
+  (Optional)
+  Key of the map entry.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_token_params_entries_key).
+
+* `value` -
+  (Optional)
+  Value of the map entry.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_token_params_entries_value).
+
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_token_params_entries_key"></a>The `key` block supports:
+
+* `literal_value` -
+  (Optional)
+  Literal value of the parameter key.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_token_params_entries_key_literal_value).
+
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_token_params_entries_key_literal_value"></a>The `literal_value` block supports:
+
+* `string_value` -
+  (Optional)
+  The string value of the parameter key.
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_token_params_entries_value"></a>The `value` block supports:
+
+* `literal_value` -
+  (Optional)
+  Literal value of the parameter.
+  Structure is [documented below](#nested_decrypted_credential_oauth2_authorization_code_token_params_entries_value_literal_value).
+
+
+<a name="nested_decrypted_credential_oauth2_authorization_code_token_params_entries_value_literal_value"></a>The `literal_value` block supports:
+
+* `string_value` -
+  (Optional)
+  The string value of the parameter.
+
 <a name="nested_decrypted_credential_oauth2_client_credentials"></a>The `oauth2_client_credentials` block supports:
 
 * `client_id` -

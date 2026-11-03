@@ -23,11 +23,17 @@ fields:
     - api_field: decryptedCredential.jwt.jwtHeader
     - api_field: decryptedCredential.jwt.jwtPayload
     - api_field: decryptedCredential.jwt.secret
+    - api_field: decryptedCredential.oauth2AuthorizationCode.applyReauthPolicy
     - api_field: decryptedCredential.oauth2AuthorizationCode.authEndpoint
+    - api_field: decryptedCredential.oauth2AuthorizationCode.authParams.entries.key.literalValue.stringValue
+    - api_field: decryptedCredential.oauth2AuthorizationCode.authParams.entries.value.literalValue.stringValue
     - api_field: decryptedCredential.oauth2AuthorizationCode.clientId
     - api_field: decryptedCredential.oauth2AuthorizationCode.clientSecret
+    - api_field: decryptedCredential.oauth2AuthorizationCode.requestType
     - api_field: decryptedCredential.oauth2AuthorizationCode.scope
     - api_field: decryptedCredential.oauth2AuthorizationCode.tokenEndpoint
+    - api_field: decryptedCredential.oauth2AuthorizationCode.tokenParams.entries.key.literalValue.stringValue
+    - api_field: decryptedCredential.oauth2AuthorizationCode.tokenParams.entries.value.literalValue.stringValue
     - api_field: decryptedCredential.oauth2ClientCredentials.clientId
     - api_field: decryptedCredential.oauth2ClientCredentials.clientSecret
     - api_field: decryptedCredential.oauth2ClientCredentials.requestType
