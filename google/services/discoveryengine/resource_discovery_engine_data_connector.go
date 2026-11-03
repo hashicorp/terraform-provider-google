@@ -524,6 +524,7 @@ this connector will be protected by the KMS key.`,
 			},
 			"tag": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `User-facing, version-independent label for this connector.`,
