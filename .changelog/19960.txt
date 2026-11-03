@@ -1,0 +1,3 @@
+```release-note:bug
+apigee: fixed Resource Identity import for `google_apigee_addons_config`, `google_apigee_endpoint_attachment`, `google_apigee_env_keystore`, `google_apigee_env_references`, `google_apigee_envgroup`, `google_apigee_envgroup_attachment`, `google_apigee_environment`, `google_apigee_instance`, `google_apigee_instance_attachment`, `google_apigee_keystores_aliases_key_cert_file`, `google_apigee_keystores_aliases_self_signed_cert`, `google_apigee_nat_address`, `google_apigee_organization`, `google_apigee_sync_authorization`, and `google_apigee_target_server`
+```

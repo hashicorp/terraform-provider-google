@@ -87,7 +87,7 @@ func TestAccApigeeTargetServer_apigeeTargetServerTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_target_server.apigee_target_server",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -92,7 +92,7 @@ func TestAccApigeeKeystoresAliasesSelfSignedCert_apigeeEnvKeystoreAliasSelfSigne
 			},
 			{
 				ResourceName:       "google_apigee_keystores_aliases_self_signed_cert.apigee_environment_keystore_ss_alias",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

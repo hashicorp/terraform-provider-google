@@ -88,7 +88,7 @@ func TestAccApigeeEnvgroup_apigeeEnvironmentGroupBasicTestExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_apigee_envgroup.apigee_environment_group",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

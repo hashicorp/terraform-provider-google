@@ -88,7 +88,7 @@ func TestAccApigeeEnvgroupAttachment_apigeeEnvironmentGroupAttachmentBasicTestEx
 			},
 			{
 				ResourceName:       "google_apigee_envgroup_attachment.apigee_environment_group_attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

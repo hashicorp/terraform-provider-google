@@ -88,7 +88,7 @@ func TestAccApigeeEnvironment_apigeeEnvironmentBasicTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_environment.apigee_environment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -207,7 +207,7 @@ func TestAccApigeeEnvironment_apigeeEnvironmentBasicDeploymentApiproxyTypeTestEx
 			},
 			{
 				ResourceName:       "google_apigee_environment.apigee_environment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -327,7 +327,7 @@ func TestAccApigeeEnvironment_apigeeEnvironmentBasicPropertiesTestExample(t *tes
 			},
 			{
 				ResourceName:       "google_apigee_environment.apigee_environment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -451,7 +451,7 @@ func TestAccApigeeEnvironment_apigeeEnvironmentClientIpResolutionConfigTestExamp
 			},
 			{
 				ResourceName:       "google_apigee_environment.apigee_environment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

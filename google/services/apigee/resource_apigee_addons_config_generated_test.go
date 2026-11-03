@@ -87,7 +87,7 @@ func TestAccApigeeAddonsConfig_apigeeAddonsTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_addons_config.apigee_org_addons",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

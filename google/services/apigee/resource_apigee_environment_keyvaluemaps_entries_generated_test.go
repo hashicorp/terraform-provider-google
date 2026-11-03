@@ -87,7 +87,7 @@ func TestAccApigeeEnvironmentKeyvaluemapsEntries_apigeeEnvironmentKeyvaluemapsEn
 			},
 			{
 				ResourceName:       "google_apigee_environment_keyvaluemaps_entries.apigee_environment_keyvaluemaps_entries",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

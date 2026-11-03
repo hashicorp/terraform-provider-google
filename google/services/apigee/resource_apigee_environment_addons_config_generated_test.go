@@ -86,7 +86,7 @@ func TestAccApigeeEnvironmentAddonsConfig_apigeeEnvAddonsAnalyticsTestExample(t 
 			},
 			{
 				ResourceName:       "google_apigee_environment_addons_config.apigee_org_addons",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

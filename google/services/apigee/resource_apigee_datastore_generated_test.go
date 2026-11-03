@@ -89,7 +89,7 @@ func TestAccApigeeDatastore_apigeeDatastoreBasicTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_datastore.apigee_datastore",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -225,7 +225,7 @@ func TestAccApigeeDatastore_apigeeDatastoreBigqueryTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_datastore.apigee_datastore",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

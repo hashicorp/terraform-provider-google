@@ -87,7 +87,7 @@ func TestAccApigeeDataCollector_apigeeDataCollectorBasicTestExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_apigee_data_collector.apigee_data_collector",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

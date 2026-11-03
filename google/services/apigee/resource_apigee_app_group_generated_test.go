@@ -88,7 +88,7 @@ func TestAccApigeeAppGroup_apigeeAppGroupBasicTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_app_group.apigee_app_group",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -212,7 +212,7 @@ func TestAccApigeeAppGroup_apigeeAppGroupWithAttributesTestExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_apigee_app_group.apigee_app_group",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
