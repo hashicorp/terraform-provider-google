@@ -375,16 +375,18 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
   }
 
   mcp_data_sources {
-    server_url      = "https://mcp.example.com"
-    display_name    = "Sample MCP Source"
-    description     = "Sample MCP data source description"
-    enabled         = true
-    prompt          = "Use this server for queries"
-    api_key_name    = "x-api-key"
-    api_key_header  = "x-api-key-header"
-    client_id       = "sample-client-id"
-    client_secret   = "sample-client-secret"
-    oauth_token_url = "https://example.com/oauth/token"
+    server_url        = "https://mcp.example.com"
+    display_name      = "Sample MCP Source"
+    description       = "Sample MCP data source description"
+    enabled           = true
+    prompt            = "Use this server for queries"
+    api_key_name      = "x-api-key"
+    api_key_header    = "x-api-key-header"
+    client_id         = "sample-client-id"
+    client_secret     = "sample-client-secret"
+    oauth_token_url   = "https://example.com/oauth/token"
+    session_id_header = "X-Session-Id"
+    task_id_header    = "X-Task-Id"
   }
 
   resources {
@@ -583,16 +585,18 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
   }
 
   mcp_data_sources {
-    server_url      = "https://mcp.example.com"
-    display_name    = "Updated MCP Source"
-    description     = "Updated MCP data source description"
-    enabled         = true
-    prompt          = "Use this server for updated queries"
-    api_key_name    = "x-api-key"
-    api_key_header  = "x-api-key-header-updated"
-    client_id       = "sample-client-id"
-    client_secret   = "sample-client-secret"
-    oauth_token_url = "https://example.com/oauth/token"
+    server_url        = "https://mcp.example.com"
+    display_name      = "Updated MCP Source"
+    description       = "Updated MCP data source description"
+    enabled           = true
+    prompt            = "Use this server for updated queries"
+    api_key_name      = "x-api-key"
+    api_key_header    = "x-api-key-header-updated"
+    client_id         = "sample-client-id"
+    client_secret     = "sample-client-secret"
+    oauth_token_url   = "https://example.com/oauth/token"
+    session_id_header = "X-Session-Id-Updated"
+    task_id_header    = "X-Task-Id-Updated"
   }
 
   resources {
@@ -860,6 +864,119 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
       export_format               = "HTML"
       export_audit_trail_artifact = false
     }
+  }
+}
+`, context)
+}
+
+func TestAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMcpHeadersExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"persona_id":     "tf-test-mcp-headers" + randomSuffix,
+		"random_suffix":  randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"persona_id":     "tf-test-mcp-headers" + randomSuffix,
+		"random_suffix":  randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAgenticApplicationsAnalystAgentPersonaDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMcpHeadersExample(context),
+			},
+			{
+				ResourceName:            "google_agentic_applications_analyst_agent_persona.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"analyst_agent_persona_id", "location"},
+			},
+			{
+				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMcpHeadersUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_agentic_applications_analyst_agent_persona.example", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_agentic_applications_analyst_agent_persona.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"analyst_agent_persona_id", "location"},
+			},
+			{
+				ResourceName:       "google_agentic_applications_analyst_agent_persona.example",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMcpHeadersExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "%{project_number}"
+  location                 = "us"
+  analyst_agent_persona_id = "%{persona_id}"
+  display_name             = "Test Analyst Persona MCP Headers"
+  display_description      = "Sample analyst agent persona description"
+  model_description        = "Sample model description"
+  role                     = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+
+  mcp_data_sources {
+    server_url        = "https://mcp.example.com"
+    display_name      = "Sample MCP Source"
+    description       = "Sample MCP data source description"
+    enabled           = true
+    prompt            = "Use this server for queries"
+    api_key_name      = "x-api-key"
+    api_key_header    = "x-api-key-header"
+    session_id_header = "X-Custom-Session-Id"
+    task_id_header    = "X-Custom-Task-Id"
+  }
+}
+`, context)
+}
+
+func testAccAgenticApplicationsAnalystAgentPersona_analystAgentPersonaMcpHeadersUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                  = "%{project_number}"
+  location                 = "us"
+  analyst_agent_persona_id = "%{persona_id}"
+  display_name             = "Test Analyst Persona MCP Headers Updated"
+  display_description      = "Updated analyst agent persona description"
+  model_description        = "Updated model description"
+  role                     = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+
+  mcp_data_sources {
+    server_url        = "https://mcp.example.com"
+    display_name      = "Updated MCP Source"
+    description       = "Updated MCP data source description"
+    enabled           = true
+    prompt            = "Use this server for updated queries"
+    api_key_name      = "x-api-key"
+    api_key_header    = "x-api-key-header-updated"
+    session_id_header = "X-Updated-Session-Id"
+    task_id_header    = "X-Updated-Task-Id"
   }
 }
 `, context)
