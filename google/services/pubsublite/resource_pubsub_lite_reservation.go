@@ -114,6 +114,7 @@ func ResourcePubsubLiteReservation() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderRegion,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
@@ -159,6 +160,7 @@ messages.`,
 			},
 			"region": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: `The region of the pubsub lite reservation.`,
 			},
@@ -327,6 +329,14 @@ func resourcePubsubLiteReservationRead(d *schema.ResourceData, meta interface{})
 		}
 	}
 	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading Reservation: %s", err)
+	}
+
+	region, err := tpgresource.GetRegion(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("region", region); err != nil {
 		return fmt.Errorf("Error reading Reservation: %s", err)
 	}
 

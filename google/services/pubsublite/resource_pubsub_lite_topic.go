@@ -114,6 +114,7 @@ func ResourcePubsubLiteTopic() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderZone,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
@@ -233,6 +234,7 @@ Example: "3.5s".`,
 			},
 			"zone": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: `The zone of the pubsub lite topic.`,
 			},
@@ -421,6 +423,13 @@ func resourcePubsubLiteTopicRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
 
+	zone, err := tpgresource.GetZone(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("zone", zone); err != nil {
+		return fmt.Errorf("Error reading Topic: %s", err)
+	}
 	err = ResourcePubsubLiteTopicFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
 	if err != nil {
 		return err
