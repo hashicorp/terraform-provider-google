@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `ASN` option to `enforce_on_key` and `enforce_on_key_configs.enforce_on_key_type` fields in `google_compute_security_policy`, `google_compute_security_policy_rule`, `google_compute_region_security_policy`, and `google_compute_region_security_policy_rule` resources
+```
