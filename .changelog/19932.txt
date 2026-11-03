@@ -1,0 +1,3 @@
+```release-note:bug
+pubsublite: fixed default provider `region`/`zone` not being populated in state and Resource Identity for `google_pubsub_lite_reservation`, `google_pubsub_lite_subscription`, and `google_pubsub_lite_topic` when `region`/`zone` is omitted from configuration
+```

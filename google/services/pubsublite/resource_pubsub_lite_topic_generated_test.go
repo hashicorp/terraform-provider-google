@@ -82,7 +82,7 @@ func TestAccPubsubLiteTopic_pubsubLiteTopicBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_pubsub_lite_topic.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
