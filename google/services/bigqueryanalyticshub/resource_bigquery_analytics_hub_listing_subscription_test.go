@@ -17,23 +17,21 @@
 package bigqueryanalyticshub_test
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
-	"cloud.google.com/go/bigquery"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"google.golang.org/api/googleapi"
-	"google.golang.org/api/option"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquery"
+	"github.com/hashicorp/terraform-provider-google/google/services/bigquery"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigqueryanalyticshub"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -44,31 +42,131 @@ var _ = terraform.State{}
 var _ = envvar.GetTestProjectFromEnv
 var _ = os.Getenv
 
+func runBigQueryDDLJob(config *transport_tpg.Config, projectID, sqlQuery string) error {
+	baseUrl := transport_tpg.BaseUrl(bigquery.Product, config)
+	jobsURL := fmt.Sprintf("%sprojects/%s/jobs", baseUrl, projectID)
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   projectID,
+		RawURL:    jobsURL,
+		UserAgent: config.UserAgent,
+		Body: map[string]interface{}{
+			"configuration": map[string]interface{}{
+				"query": map[string]interface{}{
+					"query":        sqlQuery,
+					"useLegacySql": false,
+				},
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	jobRef, ok := res["jobReference"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("missing jobReference in BigQuery job response: %v", res)
+	}
+	jobID, _ := jobRef["jobId"].(string)
+	if jobID == "" {
+		return fmt.Errorf("missing jobId in BigQuery jobReference: %v", jobRef)
+	}
+
+	jobURL := fmt.Sprintf("%sprojects/%s/jobs/%s", baseUrl, projectID, jobID)
+	if loc, ok := jobRef["location"].(string); ok && loc != "" {
+		jobURL, err = transport_tpg.AddQueryParams(jobURL, map[string]string{"location": loc})
+		if err != nil {
+			return err
+		}
+	}
+
+	var lastStatus map[string]interface{}
+	err = transport_tpg.PollingWaitTime(
+		func() (map[string]interface{}, error) {
+			return transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   projectID,
+				RawURL:    jobURL,
+				UserAgent: config.UserAgent,
+			})
+		},
+		func(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
+			if respErr != nil {
+				return transport_tpg.ErrorPollResult(respErr)
+			}
+			status, ok := resp["status"].(map[string]interface{})
+			if !ok {
+				return transport_tpg.PendingStatusPollResult("missing status")
+			}
+			state, _ := status["state"].(string)
+			if state != "DONE" {
+				return transport_tpg.PendingStatusPollResult(state)
+			}
+			lastStatus = status
+			return transport_tpg.SuccessPollResult()
+		},
+		"Waiting for BigQuery DDL job",
+		10*time.Minute,
+		1,
+	)
+	if err != nil {
+		return err
+	}
+
+	if errResult, ok := lastStatus["errorResult"].(map[string]interface{}); ok && len(errResult) > 0 {
+		reason, _ := errResult["reason"].(string)
+		message, _ := errResult["message"].(string)
+		if reason == "duplicate" || strings.Contains(message, "Duplicate") || strings.Contains(message, "Already Exists") {
+			return &googleapi.Error{
+				Code:    409,
+				Message: fmt.Sprintf("%s: %s", reason, message),
+			}
+		}
+		return fmt.Errorf("BigQuery job completed with errorResult: %v", errResult)
+	}
+
+	return nil
+}
+
+func isBigQueryReplicaAlreadyExistsError(err error) bool {
+	if ge, ok := err.(*googleapi.Error); ok && ge.Code == 409 && (strings.Contains(ge.Message, "Duplicate") || strings.Contains(ge.Message, "Already Exists")) {
+		return true
+	}
+	return false
+}
+
 func AddBigQueryDatasetReplica(t *testing.T, projectID string, datasetID string, primaryLocation string, replicaLocation string) (string, error) {
 	if acctest.IsVcrReplaying() {
 		return fmt.Sprintf("projects/%s/datasets/%s", projectID, datasetID), nil
 	}
-	ctx := context.Background()
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
 		return "", fmt.Errorf("failed to bootstrap config")
 	}
 
-	client, err := bigquery.NewClient(ctx, projectID, option.WithTokenSource(config.TokenSource), option.WithUserAgent(config.UserAgent))
-	if err != nil {
-		return "", fmt.Errorf("failed to create BigQuery client: %w", err)
-	}
-	defer client.Close()
+	baseUrl := transport_tpg.BaseUrl(bigquery.Product, config)
 
 	log.Printf("INFO: Attempting to create dataset '%s' in project '%s' at location '%s'", datasetID, projectID, primaryLocation)
-	datasetRef := client.Dataset(datasetID)
-	datasetMetadata := &bigquery.DatasetMetadata{
-		Location: primaryLocation,
-	}
-
-	err = datasetRef.Create(ctx, datasetMetadata)
+	datasetsURL := fmt.Sprintf("%sprojects/%s/datasets", baseUrl, projectID)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   projectID,
+		RawURL:    datasetsURL,
+		UserAgent: config.UserAgent,
+		Body: map[string]interface{}{
+			"datasetReference": map[string]interface{}{
+				"projectId": projectID,
+				"datasetId": datasetID,
+			},
+			"location": primaryLocation,
+		},
+	})
 	if err != nil {
-		if ge, ok := err.(*googleapi.Error); ok && ge.Code == 409 {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 409) {
 			log.Printf("INFO: BigQuery dataset '%s' already exists in project '%s' at location '%s'. Continuing.", datasetID, projectID, primaryLocation)
 		} else {
 			return "", fmt.Errorf("failed to create BigQuery dataset '%s': %w", datasetID, err)
@@ -85,36 +183,14 @@ func AddBigQueryDatasetReplica(t *testing.T, projectID string, datasetID string,
 	)
 
 	log.Printf("INFO: Executing BigQuery DDL query: %s", sqlQuery)
-
-	query := client.Query(sqlQuery)
-
-	job, err := query.Run(ctx)
-	if err != nil {
-		// Check if the error is an "Already Exists" error on submission
-		if ge, ok := err.(*googleapi.Error); ok && ge.Code == 409 && (strings.Contains(ge.Message, "Duplicate") || strings.Contains(ge.Message, "Already Exists")) {
-			log.Printf("INFO: Replica '%s' already exists for dataset '%s' (error on job submission). Continuing.", replicaLocation, datasetID)
+	if err := runBigQueryDDLJob(config, projectID, sqlQuery); err != nil {
+		if isBigQueryReplicaAlreadyExistsError(err) {
+			log.Printf("INFO: Replica '%s' already exists for dataset '%s'. Continuing.", replicaLocation, datasetID)
 		} else {
-			return "", fmt.Errorf("failed to submit BigQuery DDL job for adding replica: %w", err)
+			return "", fmt.Errorf("failed to execute BigQuery DDL job for adding replica: %w", err)
 		}
 	} else {
-		status, waitErr := job.Wait(ctx)
-		if waitErr != nil {
-			// Check if the error is an "Already Exists" error after waiting
-			if ge, ok := waitErr.(*googleapi.Error); ok && ge.Code == 409 && (strings.Contains(ge.Message, "Duplicate") || strings.Contains(ge.Message, "Already Exists")) {
-				log.Printf("INFO: Replica '%s' already exists for dataset '%s' (error on job wait). Continuing.", replicaLocation, datasetID)
-			} else {
-				return "", fmt.Errorf("failed to wait for BigQuery job completion for adding replica: %w", waitErr)
-			}
-		} else if status != nil && status.Err() != nil {
-			// Check if the status error is an "Already Exists" error
-			if ge, ok := status.Err().(*googleapi.Error); ok && ge.Code == 409 && (strings.Contains(ge.Message, "Duplicate") || strings.Contains(ge.Message, "Already Exists")) {
-				log.Printf("INFO: Replica '%s' already exists for dataset '%s' (error in job status). Continuing.", replicaLocation, datasetID)
-			} else {
-				return "", fmt.Errorf("BigQuery job for adding replica completed with an error: %w", status.Err())
-			}
-		} else {
-			log.Printf("INFO: Successfully added BigQuery dataset replica '%s' for dataset '%s'.", replicaLocation, datasetID)
-		}
+		log.Printf("INFO: Successfully added BigQuery dataset replica '%s' for dataset '%s'.", replicaLocation, datasetID)
 	}
 
 	fullDatasetLocation := fmt.Sprintf("projects/%s/datasets/%s", projectID, datasetID)
@@ -126,18 +202,10 @@ func CleanupBigQueryDatasetAndReplica(t *testing.T, projectID, datasetID, replic
 		return
 	}
 	log.Printf("[DEBUG] Cleanup: Starting cleanup for BigQuery dataset: projects/%s/datasets/%s", projectID, datasetID)
-	cleanupCtx := context.Background()
 	config := transport_tpg.BootstrapConfig(t)
 	if config == nil {
 		return
 	}
-
-	client, cerr := bigquery.NewClient(cleanupCtx, projectID, option.WithTokenSource(config.TokenSource), option.WithUserAgent(config.UserAgent))
-	if cerr != nil {
-		log.Printf("[ERROR] Cleanup: Failed to create BigQuery client for dataset %s: %v", datasetID, cerr)
-		return
-	}
-	defer client.Close()
 
 	// Attempt to remove the replica first
 	dropReplicaSQL := fmt.Sprintf(
@@ -146,24 +214,30 @@ func CleanupBigQueryDatasetAndReplica(t *testing.T, projectID, datasetID, replic
 		replicaLocation,
 	)
 	log.Printf("[DEBUG] Cleanup: Dropping replica with SQL: %s", dropReplicaSQL)
-	dropQuery := client.Query(dropReplicaSQL)
-	dropJob, dropErr := dropQuery.Run(cleanupCtx)
-	if dropErr != nil {
-		log.Printf("[ERROR] Cleanup: Failed to submit BigQuery DDL job for dropping replica %s of dataset %s: %v", replicaLocation, datasetID, dropErr)
+	if dropErr := runBigQueryDDLJob(config, projectID, dropReplicaSQL); dropErr != nil {
+		log.Printf("[ERROR] Cleanup: Failed BigQuery DDL job for dropping replica %s of dataset %s: %v", replicaLocation, datasetID, dropErr)
 	} else {
-		dropStatus, dropWaitErr := dropJob.Wait(cleanupCtx)
-		if dropWaitErr != nil {
-			log.Printf("[ERROR] Cleanup: Failed to wait for BigQuery job completion for dropping replica %s of dataset %s: %v", replicaLocation, datasetID, dropWaitErr)
-		} else if dropStatus.Err() != nil {
-			log.Printf("[ERROR] Cleanup: BigQuery job for dropping replica %s of dataset %s completed with an error: %v", replicaLocation, datasetID, dropStatus.Err())
-		} else {
-			log.Printf("[INFO] Cleanup: Successfully dropped BigQuery dataset replica: %s for dataset %s", replicaLocation, datasetID)
-		}
+		log.Printf("[INFO] Cleanup: Successfully dropped BigQuery dataset replica: %s for dataset %s", replicaLocation, datasetID)
 	}
 
 	// Delete the main dataset (including any remaining contents)
 	log.Printf("[DEBUG] Cleanup: Deleting main BigQuery dataset: %s", datasetID)
-	err := client.Dataset(datasetID).DeleteWithContents(cleanupCtx)
+	baseUrl := transport_tpg.BaseUrl(bigquery.Product, config)
+	deleteURL, err := transport_tpg.AddQueryParams(
+		fmt.Sprintf("%sprojects/%s/datasets/%s", baseUrl, projectID, datasetID),
+		map[string]string{"deleteContents": "true"},
+	)
+	if err != nil {
+		log.Printf("[ERROR] Cleanup: Failed to construct delete URL for BigQuery dataset %s: %v", datasetID, err)
+		return
+	}
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   projectID,
+		RawURL:    deleteURL,
+		UserAgent: config.UserAgent,
+	})
 	if err != nil {
 		log.Printf("[ERROR] Cleanup: Failed to delete BigQuery dataset %s: %v", datasetID, err)
 	} else {
