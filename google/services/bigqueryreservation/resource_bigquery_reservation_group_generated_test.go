@@ -80,7 +80,7 @@ func TestAccBigqueryReservationReservationGroup_bigqueryReservationGroupBasicExa
 			},
 			{
 				ResourceName:       "google_bigquery_reservation_group.reservation_group",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

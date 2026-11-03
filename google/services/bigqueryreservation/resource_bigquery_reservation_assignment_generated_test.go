@@ -81,7 +81,7 @@ func TestAccBigqueryReservationReservationAssignment_bigqueryReservationAssignme
 			},
 			{
 				ResourceName:       "google_bigquery_reservation_assignment.assignment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -135,7 +135,7 @@ func TestAccBigqueryReservationReservationAssignment_bigqueryReservationAssignme
 			},
 			{
 				ResourceName:       "google_bigquery_reservation_assignment.assignment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -191,7 +191,7 @@ func TestAccBigqueryReservationReservationAssignment_bigqueryReservationAssignme
 			},
 			{
 				ResourceName:       "google_bigquery_reservation_assignment.assignment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -246,7 +246,7 @@ func TestAccBigqueryReservationReservationAssignment_bigqueryReservationAssignme
 			},
 			{
 				ResourceName:       "google_bigquery_reservation_assignment.assignment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

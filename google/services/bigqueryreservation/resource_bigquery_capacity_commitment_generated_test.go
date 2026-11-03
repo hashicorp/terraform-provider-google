@@ -84,7 +84,7 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 			},
 			{
 				ResourceName:       "google_bigquery_capacity_commitment.commitment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -142,7 +142,7 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 			},
 			{
 				ResourceName:       "google_bigquery_capacity_commitment.commitment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
