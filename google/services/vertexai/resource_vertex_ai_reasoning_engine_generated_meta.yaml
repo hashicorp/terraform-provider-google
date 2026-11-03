@@ -33,6 +33,8 @@ fields:
       json: true
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.inlineData.data
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.inlineData.mimeType
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.speechMetadata.speaker
+    - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.speechMetadata.style
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.text
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.thought
     - api_field: contextSpec.memoryBankConfig.customizationConfigs.generateMemoriesExamples.conversationSource.events.content.parts.videoMetadata.endOffset

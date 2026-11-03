@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added `spec.context_spec.memory_bank_config.customization_configs.generate_memories_examples.conversation_source.events.content.parts.speech_metadata` field to `google_vertex_ai_reasoning_engine` resource
+```

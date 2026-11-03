@@ -910,6 +910,10 @@ resource "google_vertex_ai_reasoning_engine" "primary" {
                 parts {
                   text    = "I like pepperoni pizza"
                   thought = false
+                  speech_metadata {
+                    speaker = "Alice"
+                    style   = "cheerful"
+                  }
                 }
                 parts {
                   function_call {
@@ -1036,6 +1040,10 @@ resource "google_vertex_ai_reasoning_engine" "primary" {
                 parts {
                   text    = "Remember that I prefer dark mode"
                   thought = true
+                  speech_metadata {
+                    speaker = "Bob"
+                    style   = "calm"
+                  }
                 }
                 parts {
                   function_call {

@@ -535,6 +535,10 @@ resource "google_vertex_ai_reasoning_engine" "reasoning_engine" {
                 role = "user"
                 parts {
                   text = "I like pepperoni pizza"
+                  speech_metadata {
+                    speaker = "Alice"
+                    style   = "cheerful"
+                  }
                 }
                 parts {
                   function_call {
@@ -1753,6 +1757,11 @@ When set to "DELETE", deleting the resource is permitted.
   Audio (input or output) transcription. This is only set when this Part contains audio data.
   Structure is [documented below](#nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_conversation_source_events_content_parts_audio_transcription).
 
+* `speech_metadata` -
+  (Optional)
+  Turn-level metadata for speech generation. May be set alongside `text` to attach speaker and style information to a text part.
+  Structure is [documented below](#nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_conversation_source_events_content_parts_speech_metadata).
+
 
 <a name="nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_conversation_source_events_content_parts_inline_data"></a>The `inline_data` block supports:
 
@@ -1869,6 +1878,16 @@ When set to "DELETE", deleting the resource is permitted.
 * `word` -
   (Required)
   Transcript of the word.
+
+<a name="nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_conversation_source_events_content_parts_speech_metadata"></a>The `speech_metadata` block supports:
+
+* `speaker` -
+  (Optional)
+  Identifies which speaker is speaking this turn.
+
+* `style` -
+  (Optional)
+  Natural language description of the vocal style (e.g., "cheerful").
 
 <a name="nested_context_spec_memory_bank_config_customization_configs_generate_memories_examples_generated_memories"></a>The `generated_memories` block supports:
 
