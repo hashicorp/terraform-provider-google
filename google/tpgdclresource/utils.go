@@ -17,16 +17,77 @@
 package tpgdclresource
 
 import (
+	"reflect"
 	"time"
-
-	"github.com/google/go-cpy/cpy"
 )
+
+var timeType = reflect.TypeOf(time.Time{})
 
 // Copy makes a deep copy of an interface.
 func Copy(src any) any {
-	copier := cpy.New(
-		cpy.Shallow(time.Time{}),
-		cpy.IgnoreAllUnexported(),
-	)
-	return copier.Copy(src)
+	if src == nil {
+		return nil
+	}
+	return copyValue(reflect.ValueOf(src)).Interface()
+}
+
+func copyValue(src reflect.Value) reflect.Value {
+	if !src.IsValid() || src.IsZero() {
+		return src
+	}
+
+	t := src.Type()
+	if t == timeType {
+		return src
+	}
+
+	switch t.Kind() {
+	case reflect.Pointer:
+		if src.IsNil() {
+			return reflect.Zero(t)
+		}
+		dst := reflect.New(t.Elem())
+		dst.Elem().Set(copyValue(src.Elem()))
+		return dst
+	case reflect.Interface:
+		if src.IsNil() {
+			return reflect.Zero(t)
+		}
+		return copyValue(src.Elem()).Convert(t)
+	case reflect.Struct:
+		dst := reflect.New(t).Elem()
+		for i := 0; i < src.NumField(); i++ {
+			if !t.Field(i).IsExported() {
+				continue
+			}
+			dst.Field(i).Set(copyValue(src.Field(i)))
+		}
+		return dst
+	case reflect.Slice:
+		if src.IsNil() {
+			return reflect.Zero(t)
+		}
+		dst := reflect.MakeSlice(t, src.Len(), src.Cap())
+		for i := 0; i < src.Len(); i++ {
+			dst.Index(i).Set(copyValue(src.Index(i)))
+		}
+		return dst
+	case reflect.Array:
+		dst := reflect.New(t).Elem()
+		for i := 0; i < src.Len(); i++ {
+			dst.Index(i).Set(copyValue(src.Index(i)))
+		}
+		return dst
+	case reflect.Map:
+		if src.IsNil() {
+			return reflect.Zero(t)
+		}
+		dst := reflect.MakeMapWithSize(t, src.Len())
+		for iter := src.MapRange(); iter.Next(); {
+			dst.SetMapIndex(copyValue(iter.Key()), copyValue(iter.Value()))
+		}
+		return dst
+	default:
+		return src
+	}
 }

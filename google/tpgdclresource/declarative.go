@@ -21,8 +21,6 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-
-	"github.com/kylelemons/godebug/pretty"
 )
 
 // LifecycleParam is used to specify what operations are acceptable.
@@ -59,20 +57,20 @@ func HasLifecycleParam(lps []LifecycleParam, p LifecycleParam) bool {
 
 // SprintResourceCompact prints a struct into a compact single line string.
 func SprintResourceCompact(v any) string {
-	prettyConfig := &pretty.Config{
-		Compact:           true,
-		IncludeUnexported: true,
+	b, err := json.Marshal(v)
+	if err != nil {
+		return fmt.Sprintf("%#v", v)
 	}
-	return prettyConfig.Sprint(v)
+	return string(b)
 }
 
 // SprintResource prints a struct into a multiline string to display to readers.
 func SprintResource(v any) string {
-	prettyConfig := &pretty.Config{
-		Diffable:          true, // add line between braces and first/last val
-		IncludeUnexported: true,
+	b, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return fmt.Sprintf("%#v", v)
 	}
-	return prettyConfig.Sprint(v)
+	return string(b)
 }
 
 // EmptyValue returns an empty value to exclude PARAMETER-type values from

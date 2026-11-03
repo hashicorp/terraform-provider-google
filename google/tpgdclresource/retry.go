@@ -19,10 +19,14 @@ package tpgdclresource
 import (
 	"context"
 	"log"
+	"math/rand/v2"
 	"net/http"
 	"time"
+)
 
-	"github.com/cenkalti/backoff"
+const (
+	backoffMultiplier          = 1.5
+	backoffRandomizationFactor = 0.5
 )
 
 // Stop is a value that indicates that no more retries should be attempted.
@@ -79,37 +83,68 @@ type Backoff struct {
 	// MaxInterval is the largest amount of time that should elapse between retries.
 	MaxInterval time.Duration
 
-	bo *backoff.ExponentialBackOff
+	initialInterval time.Duration
+	maxInterval     time.Duration
+	currentInterval time.Duration
 }
 
 // NewBackoff returns a Backoff with sensible defaults set.
 func NewBackoff() *Backoff {
-	bo := backoff.NewExponentialBackOff()
-	bo.MaxInterval = BackoffMaxInterval
-	bo.InitialInterval = BackoffInitialInterval
-	bo.MaxElapsedTime = 0
-	return &Backoff{
-		bo: bo,
-	}
+	return NewBackoffWithOptions(BackoffInitialInterval, BackoffMaxInterval)
 }
 
 // NewBackoffWithOptions returns a Backoff with caller-supplied parameters.
 func NewBackoffWithOptions(initialInterval, maxInterval time.Duration) *Backoff {
-	bo := backoff.NewExponentialBackOff()
-	bo.MaxInterval = maxInterval
-	bo.InitialInterval = initialInterval
-	bo.MaxElapsedTime = 0
+	if initialInterval <= 0 {
+		initialInterval = BackoffInitialInterval
+	}
+	if maxInterval <= 0 {
+		maxInterval = BackoffMaxInterval
+	}
 	return &Backoff{
-		bo: bo,
+		InitialInterval: initialInterval,
+		MaxInterval:     maxInterval,
+		initialInterval: initialInterval,
+		maxInterval:     maxInterval,
+		currentInterval: initialInterval,
 	}
 }
 
 // RetryAfter implementation that uses exponential backoff.
 func (n *Backoff) RetryAfter(_ *RetryDetails) time.Duration {
-	if next := n.bo.NextBackOff(); next != backoff.Stop {
-		return next
+	if n.initialInterval <= 0 {
+		if n.InitialInterval > 0 {
+			n.initialInterval = n.InitialInterval
+		} else {
+			n.initialInterval = BackoffInitialInterval
+		}
 	}
-	return Stop
+	if n.maxInterval <= 0 {
+		if n.MaxInterval > 0 {
+			n.maxInterval = n.MaxInterval
+		} else {
+			n.maxInterval = BackoffMaxInterval
+		}
+	}
+	if n.currentInterval <= 0 {
+		n.currentInterval = n.initialInterval
+	}
+	if n.currentInterval > n.maxInterval {
+		n.currentInterval = n.maxInterval
+	}
+
+	delta := backoffRandomizationFactor * float64(n.currentInterval)
+	minInterval := float64(n.currentInterval) - delta
+	maxInterval := float64(n.currentInterval) + delta
+	next := time.Duration(minInterval + (rand.Float64() * (maxInterval - minInterval)))
+
+	if float64(n.currentInterval) >= float64(n.maxInterval)/backoffMultiplier {
+		n.currentInterval = n.maxInterval
+	} else {
+		n.currentInterval = time.Duration(float64(n.currentInterval) * backoffMultiplier)
+	}
+
+	return next
 }
 
 // BackoffRetryProvider is a default RetryProvider that returns a Backoff.
