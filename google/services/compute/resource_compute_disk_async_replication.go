@@ -196,7 +196,7 @@ func resourceDiskAsyncReplicationCreate(d *schema.ResourceData, meta interface{}
 			return err
 		}
 	}
-	err = retry.Retry(time.Minute*time.Duration(5), func() *retry.RetryError {
+	err = tpgresource.Retry(time.Minute*time.Duration(5), config.SleepUnit, func() *retry.RetryError {
 		diskStatus, err := asyncReplicationGetDiskStatus(config, userAgent, zv, rv)
 		if err != nil {
 			return retry.NonRetryableError(err)
@@ -385,7 +385,7 @@ func resourceDiskAsyncReplicationDelete(d *schema.ResourceData, meta interface{}
 					return err
 				}
 			}
-			err = retry.Retry(time.Minute*time.Duration(5), func() *retry.RetryError {
+			err = tpgresource.Retry(time.Minute*time.Duration(5), config.SleepUnit, func() *retry.RetryError {
 				diskStatus, err := asyncReplicationGetDiskStatus(config, userAgent, zv, rv)
 				if err != nil {
 					return retry.NonRetryableError(err)

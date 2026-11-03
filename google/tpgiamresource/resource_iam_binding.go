@@ -201,7 +201,7 @@ func resourceIamBindingCreateUpdate(newUpdaterFunc NewResourceIamUpdaterFunc, en
 			err = BatchRequestModifyIamPolicy(updater, modifyF, config, fmt.Sprintf(
 				"Set IAM Binding for role %q on %q", binding.Role, updater.DescribeResource()), maxBackoffTimeout)
 		} else {
-			err = iamPolicyReadModifyWrite(updater, modifyF, maxBackoffTimeout)
+			err = iamPolicyReadModifyWrite(updater, config, modifyF, maxBackoffTimeout)
 		}
 		if err != nil {
 			return err
@@ -407,7 +407,7 @@ func resourceIamBindingDelete(newUpdaterFunc NewResourceIamUpdaterFunc, enableBa
 			err = BatchRequestModifyIamPolicy(updater, modifyF, config, fmt.Sprintf(
 				"Delete IAM Binding for role %q on %q", binding.Role, updater.DescribeResource()), maxBackoffTimeout)
 		} else {
-			err = iamPolicyReadModifyWrite(updater, modifyF, maxBackoffTimeout)
+			err = iamPolicyReadModifyWrite(updater, config, modifyF, maxBackoffTimeout)
 		}
 		if err != nil {
 			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Resource %q for IAM binding with role %q", updater.DescribeResource(), binding.Role))

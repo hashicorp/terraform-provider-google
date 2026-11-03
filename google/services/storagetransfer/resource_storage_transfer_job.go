@@ -1324,7 +1324,7 @@ func resourceStorageTransferJobDelete(d *schema.ResourceData, meta interface{}) 
 
 	// Update transfer job with status set to DELETE
 	log.Printf("[DEBUG] Setting status to DELETE for: %v\n\n", transferJobName)
-	err = retry.Retry(1*time.Minute, func() *retry.RetryError {
+	err = tpgresource.Retry(1*time.Minute, config.SleepUnit, func() *retry.RetryError {
 		deleteCall := NewClient(config, userAgent).TransferJobs.Patch(transferJobName, updateRequest)
 		if config.UserProjectOverride {
 			deleteCall.Header().Add("X-Goog-User-Project", billingProject)

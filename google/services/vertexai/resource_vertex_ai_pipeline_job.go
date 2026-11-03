@@ -1018,7 +1018,7 @@ func resourceVertexAIPipelineJobDelete(d *schema.ResourceData, meta interface{})
 				default:
 					return transport_tpg.PendingStatusPollResult(currState)
 				}
-			}, "Cancelling PipelineJob", d.Timeout(schema.TimeoutDelete), 1)
+			}, "Cancelling PipelineJob", d.Timeout(schema.TimeoutDelete), 1, config.SleepUnit)
 			if err != nil {
 				return fmt.Errorf("Error waiting for PipelineJob %q to reach terminal state before deletion: %s", d.Id(), err)
 			}

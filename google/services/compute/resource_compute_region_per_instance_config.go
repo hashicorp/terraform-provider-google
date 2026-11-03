@@ -852,7 +852,7 @@ func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta i
 	}
 
 	if d.Get("remove_instance_on_destroy").(bool) {
-		err = transport_tpg.PollingWaitTime(resourceComputeRegionPerInstanceConfigInstancePollRead(d, meta, d.Get("name").(string)), PollCheckInstanceConfigInstanceDeleted, "Deleting RegionPerInstanceConfig", d.Timeout(schema.TimeoutDelete), 1)
+		err = transport_tpg.PollingWaitTime(resourceComputeRegionPerInstanceConfigInstancePollRead(d, meta, d.Get("name").(string)), PollCheckInstanceConfigInstanceDeleted, "Deleting RegionPerInstanceConfig", d.Timeout(schema.TimeoutDelete), 1, config.SleepUnit)
 		if err != nil {
 			return fmt.Errorf("Error waiting for instance delete on RegionPerInstanceConfig %q: %s", d.Id(), err)
 		}
@@ -897,7 +897,7 @@ func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta i
 		}
 
 		// RegionPerInstanceConfig goes into "DELETING" state while the instance is actually deleted
-		err = transport_tpg.PollingWaitTime(resourceComputeRegionPerInstanceConfigPollRead(d, meta), PollCheckInstanceConfigDeleted, "Deleting RegionPerInstanceConfig", d.Timeout(schema.TimeoutDelete), 1)
+		err = transport_tpg.PollingWaitTime(resourceComputeRegionPerInstanceConfigPollRead(d, meta), PollCheckInstanceConfigDeleted, "Deleting RegionPerInstanceConfig", d.Timeout(schema.TimeoutDelete), 1, config.SleepUnit)
 		if err != nil {
 			return fmt.Errorf("Error waiting for delete on RegionPerInstanceConfig %q: %s", d.Id(), err)
 		}

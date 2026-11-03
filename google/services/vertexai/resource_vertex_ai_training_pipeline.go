@@ -1148,7 +1148,7 @@ func resourceVertexAITrainingPipelineDelete(d *schema.ResourceData, meta interfa
 			default:
 				return transport_tpg.PendingStatusPollResult(currState)
 			}
-		}, "Cancelling TrainingPipeline", d.Timeout(schema.TimeoutDelete), 1)
+		}, "Cancelling TrainingPipeline", d.Timeout(schema.TimeoutDelete), 1, config.SleepUnit)
 		if err != nil {
 			return fmt.Errorf("Error waiting for TrainingPipeline %q to reach terminal state before deletion: %s", d.Id(), err)
 		}

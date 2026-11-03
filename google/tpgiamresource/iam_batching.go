@@ -35,7 +35,7 @@ func BatchRequestModifyIamPolicy(updater ResourceIamUpdater, modify iamPolicyMod
 		ResourceName: updater.GetResourceId(),
 		Body:         []iamPolicyModifyFunc{modify},
 		CombineF:     combineBatchIamPolicyModifiers,
-		SendF:        sendBatchModifyIamPolicy(updater, timeout...),
+		SendF:        sendBatchModifyIamPolicy(updater, config, timeout...),
 		DebugId:      reqDesc,
 	}
 
@@ -57,13 +57,13 @@ func combineBatchIamPolicyModifiers(currV interface{}, toAddV interface{}) (inte
 	return append(currModifiers, newModifiers...), nil
 }
 
-func sendBatchModifyIamPolicy(updater ResourceIamUpdater, timeout ...time.Duration) transport_tpg.BatcherSendFunc {
+func sendBatchModifyIamPolicy(updater ResourceIamUpdater, config *transport_tpg.Config, timeout ...time.Duration) transport_tpg.BatcherSendFunc {
 	return func(resourceName string, body interface{}) (interface{}, error) {
 		modifiers, ok := body.([]iamPolicyModifyFunc)
 		if !ok {
 			return nil, fmt.Errorf("provider error: expected data to be type []iamPolicyModifyFunc, got %v with type %T", body, body)
 		}
-		return nil, iamPolicyReadModifyWrite(updater, func(policy *cloudresourcemanager.Policy) error {
+		return nil, iamPolicyReadModifyWrite(updater, config, func(policy *cloudresourcemanager.Policy) error {
 			for _, modifyF := range modifiers {
 				if err := modifyF(policy); err != nil {
 					return err

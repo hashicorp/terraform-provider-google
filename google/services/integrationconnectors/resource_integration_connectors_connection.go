@@ -57,7 +57,7 @@ import (
 // waitforConnectionReady waits for an connecion to leave the
 // "CREATING" state, to indicate that it's ready.
 func waitforConnectionReady(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return retry.Retry(timeout, func() *retry.RetryError {
+	return tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		if err := resourceIntegrationConnectorsConnectionRead(d, config); err != nil {
 			return retry.NonRetryableError(err)
 		}

@@ -162,6 +162,9 @@ func vcrFileName(name string) string {
 	return strings.ReplaceAll(name, "/", "_")
 }
 
+var createDurationRegex = regexp.MustCompile(`create_duration\s*=\s*"\d+[smh]"`)
+var destroyDurationRegex = regexp.MustCompile(`destroy_duration\s*=\s*"\d+[smh]"`)
+
 // VcrTest is a wrapper for resource.Test to swap out providers for VCR providers and handle VCR specific things
 // Can be called when VCR is not enabled, and it will behave as normal
 func VcrTest(t *testing.T, c resource.TestCase) {
@@ -195,10 +198,8 @@ func VcrTest(t *testing.T, c resource.TestCase) {
 			s.ImportStateVerifyIgnore = append(s.ImportStateVerifyIgnore, "terraform_labels")
 		}
 		if IsVcrReplaying() {
-			re := regexp.MustCompile(`create_duration = "\d+[sm]"`)
-			s.Config = re.ReplaceAllString(s.Config, `create_duration = "1s"`)
-			re = regexp.MustCompile(`destroy_duration = "\d+[sm]"`)
-			s.Config = re.ReplaceAllString(s.Config, `destroy_duration = "1s"`)
+			s.Config = createDurationRegex.ReplaceAllString(s.Config, `create_duration = "1ms"`)
+			s.Config = destroyDurationRegex.ReplaceAllString(s.Config, `destroy_duration = "1ms"`)
 			// During RECORDING, extendWithTGCData attaches a non-nil Check function to steps
 			// containing resources, which causes terraform-plugin-testing to run a pre-destroy
 			// refresh on Destroy: true steps. Since extendWithTGCData is skipped in REPLAYING
@@ -463,6 +464,9 @@ func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc 
 	if fwD.HasError() {
 		diags = append(diags, *tpgresource.FrameworkDiagsToSdkDiags(fwD)...)
 		return nil, diags
+	}
+	if IsVcrReplaying() && config.BatchingConfig != nil && config.BatchingConfig.SendAfter == time.Second*transport_tpg.DefaultBatchSendIntervalSec {
+		config.BatchingConfig.SendAfter = 50 * time.Millisecond
 	}
 
 	configsLock.Lock()

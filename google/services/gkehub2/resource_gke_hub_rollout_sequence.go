@@ -183,7 +183,7 @@ func pollSequenceInitialization(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.SuccessPollResult()
 	}
 
-	return transport_tpg.PollingWaitTime(pollRead, checkResponse, "Polling RolloutSequence initialization", 1*time.Hour, 1)
+	return transport_tpg.PollingWaitTime(pollRead, checkResponse, "Polling RolloutSequence initialization", 1*time.Hour, 1, config.SleepUnit)
 }
 
 // Fetches the current targetControlPlaneVersion and targetNodeVersion values of the RolloutSequence resource.

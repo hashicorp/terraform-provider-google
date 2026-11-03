@@ -290,7 +290,7 @@ func resourceStorageHmacKeyCreate(d *schema.ResourceData, meta interface{}) erro
 
 	d.SetId(id)
 
-	err = transport_tpg.PollingWaitTime(resourceStorageHmacKeyPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating HmacKey", d.Timeout(schema.TimeoutCreate), 1)
+	err = transport_tpg.PollingWaitTime(resourceStorageHmacKeyPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating HmacKey", d.Timeout(schema.TimeoutCreate), 1, config.SleepUnit)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create HmacKey: %s", err)
 	}

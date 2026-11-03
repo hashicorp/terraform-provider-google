@@ -1229,7 +1229,7 @@ func resourceVmwareenginePrivateCloudDelete(d *schema.ResourceData, meta interfa
 		}
 	}
 
-	err = transport_tpg.PollingWaitTime(privateCloudPollRead(d, meta), pollCheckForPrivateCloudAbsence, "Deleting PrivateCloud", d.Timeout(schema.TimeoutDelete), 10)
+	err = transport_tpg.PollingWaitTime(privateCloudPollRead(d, meta), pollCheckForPrivateCloudAbsence, "Deleting PrivateCloud", d.Timeout(schema.TimeoutDelete), 10, config.SleepUnit)
 	if err != nil {
 		return fmt.Errorf("Error waiting to delete PrivateCloud: %s", err)
 	}

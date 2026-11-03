@@ -489,7 +489,7 @@ func resourceComputeBulkPerInstanceConfigDelete(d *schema.ResourceData, meta int
 			return err
 		}
 
-		err = retry.RetryContext(context.Background(), d.Timeout(schema.TimeoutDelete), func() *retry.RetryError {
+		err = tpgresource.RetryContext(context.Background(), d.Timeout(schema.TimeoutDelete), config.SleepUnit, func() *retry.RetryError {
 			listRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,
 				Method:    "POST",

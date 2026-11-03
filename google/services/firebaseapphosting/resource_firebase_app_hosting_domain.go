@@ -612,7 +612,7 @@ func resourceFirebaseAppHostingDomainCreate(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
-	err = transport_tpg.PollingWaitTime(resourceFirebaseAppHostingDomainPollRead(d, meta), PollCheckForFirebaseAppHostingDomainMaterialized, "Creating Domain", d.Timeout(schema.TimeoutCreate), 1)
+	err = transport_tpg.PollingWaitTime(resourceFirebaseAppHostingDomainPollRead(d, meta), PollCheckForFirebaseAppHostingDomainMaterialized, "Creating Domain", d.Timeout(schema.TimeoutCreate), 1, config.SleepUnit)
 	if err != nil {
 		log.Printf("[ERROR] Unable to confirm eventually consistent Domain %q finished updating: %q", d.Id(), err)
 	}
@@ -888,7 +888,7 @@ func resourceFirebaseAppHostingDomainUpdate(d *schema.ResourceData, meta interfa
 			log.Printf("[DEBUG] Finished updating Domain %q: %#v", d.Id(), res)
 		}
 
-		err = transport_tpg.PollingWaitTime(resourceFirebaseAppHostingDomainPollRead(d, meta), PollCheckForFirebaseAppHostingDomainMaterialized, "Updating Domain", d.Timeout(schema.TimeoutUpdate), 1)
+		err = transport_tpg.PollingWaitTime(resourceFirebaseAppHostingDomainPollRead(d, meta), PollCheckForFirebaseAppHostingDomainMaterialized, "Updating Domain", d.Timeout(schema.TimeoutUpdate), 1, config.SleepUnit)
 		if err != nil {
 			log.Printf("[ERROR] Unable to confirm eventually consistent Domain%q finished updating: %q", d.Id(), err)
 
@@ -948,7 +948,7 @@ func resourceFirebaseAppHostingDomainDelete(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, "Domain")
 	}
 
-	err = transport_tpg.PollingWaitTime(resourceFirebaseAppHostingDomainPollRead(d, meta), transport_tpg.PollCheckForAbsence, "Deleting Domain", d.Timeout(schema.TimeoutCreate), 1)
+	err = transport_tpg.PollingWaitTime(resourceFirebaseAppHostingDomainPollRead(d, meta), transport_tpg.PollCheckForAbsence, "Deleting Domain", d.Timeout(schema.TimeoutCreate), 1, config.SleepUnit)
 	if err != nil {
 		log.Printf("[ERROR] Unable to confirm eventually consistent Domain %q finished updating: %q", d.Id(), err)
 	}

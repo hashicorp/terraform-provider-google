@@ -443,7 +443,7 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 	}
 	d.SetId(id)
 
-	err = transport_tpg.PollingWaitTime(resourceAccessContextManagerAccessLevelConditionPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating AccessLevelCondition", d.Timeout(schema.TimeoutCreate), 1)
+	err = transport_tpg.PollingWaitTime(resourceAccessContextManagerAccessLevelConditionPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating AccessLevelCondition", d.Timeout(schema.TimeoutCreate), 1, config.SleepUnit)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create AccessLevelCondition: %s", err)
 	}

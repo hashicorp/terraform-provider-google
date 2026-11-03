@@ -57,7 +57,7 @@ import (
 // waitForRegistrationActive waits for a registration to leave the
 // "REGISTRATION_PENDING" state and become "ACTIVE" or any other state.
 func waitForRegistrationActive(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return retry.Retry(timeout, func() *retry.RetryError {
+	return tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		if err := resourceClouddomainsRegistrationRead(d, config); err != nil {
 			return retry.NonRetryableError(err)
 		}

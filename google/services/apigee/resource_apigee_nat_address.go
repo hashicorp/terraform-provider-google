@@ -57,7 +57,7 @@ import (
 // waitForNatAddressReady waits for an NatAddress to leave the
 // "CREATING" state and become "RESERVED", to indicate that it's ready.
 func waitForNatAddressReserved(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return retry.Retry(timeout, func() *retry.RetryError {
+	return tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		if err := resourceApigeeNatAddressRead(d, config); err != nil {
 			return retry.NonRetryableError(err)
 		}

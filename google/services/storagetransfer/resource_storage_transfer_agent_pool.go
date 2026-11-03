@@ -57,7 +57,7 @@ import (
 // waitForAgentPoolReady waits for an agent pool to leave the
 // "CREATING" state and become "CREATED", to indicate that it's ready.
 func waitForAgentPoolReady(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return retry.Retry(timeout, func() *retry.RetryError {
+	return tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		if err := resourceStorageTransferAgentPoolRead(d, config); err != nil {
 			return retry.NonRetryableError(err)
 		}
