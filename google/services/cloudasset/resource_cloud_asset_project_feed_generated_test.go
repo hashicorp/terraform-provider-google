@@ -83,7 +83,7 @@ func TestAccCloudAssetProjectFeed_cloudAssetProjectFeedExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_asset_project_feed.project_feed",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

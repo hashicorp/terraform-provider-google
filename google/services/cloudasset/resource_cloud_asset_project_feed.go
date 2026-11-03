@@ -672,7 +672,10 @@ func resourceCloudAssetProjectFeedDelete(d *schema.ResourceData, meta interface{
 }
 
 func resourceCloudAssetProjectFeedImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	if err := d.Set("name", d.Id()); err != nil {
+	config := meta.(*transport_tpg.Config)
+
+	// current import_formats can't import fields with forward slashes in their value
+	if err := tpgresource.ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
 		return nil, err
 	}
 	return []*schema.ResourceData{d}, nil

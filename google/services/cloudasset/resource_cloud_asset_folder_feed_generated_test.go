@@ -85,7 +85,7 @@ func TestAccCloudAssetFolderFeed_cloudAssetFolderFeedExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_cloud_asset_folder_feed.folder_feed",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
