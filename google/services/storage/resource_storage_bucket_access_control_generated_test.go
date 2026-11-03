@@ -80,7 +80,7 @@ func TestAccStorageBucketAccessControl_storageBucketAccessControlPublicBucketExa
 			},
 			{
 				ResourceName:       "google_storage_bucket_access_control.public_rule",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -81,7 +81,7 @@ func TestAccStorageHmacKey_storageHmacKeyExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_storage_hmac_key.key",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
