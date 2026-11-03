@@ -46,6 +46,9 @@ data "google_project" "project" {
 resource "google_storage_insights_report_config" "config" {
   display_name = "Test Report Config"
   location = "us-central1"
+  labels = {
+    key = "value"
+  }
   frequency_options {
     frequency = "WEEKLY"
     start_date {
@@ -127,6 +130,13 @@ The following arguments are supported:
 * `display_name` -
   (Optional)
   The editable display name of the inventory report configuration. Has a limit of 256 characters. Can be empty.
+
+* `labels` -
+  (Optional)
+  Labels as key value pairs. Have a character limit of 64 per key and value.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -242,6 +252,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The UUID of the inventory report configuration.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts
