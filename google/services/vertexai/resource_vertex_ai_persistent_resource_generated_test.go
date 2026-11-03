@@ -92,7 +92,7 @@ func TestAccVertexAIPersistentResource_vertexAiPersistentResourceExample(t *test
 			},
 			{
 				ResourceName:       "google_vertex_ai_persistent_resource.persistent_resource",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -112,7 +112,7 @@ func TestAccVertexAIPersistentResource_vertexAiPersistentResourceExample(t *test
 			},
 			{
 				ResourceName:       "google_vertex_ai_persistent_resource.persistent_resource",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -170,7 +170,7 @@ func TestAccVertexAIPersistentResource_vertexAiPersistentResourceAutoscalingExam
 			},
 			{
 				ResourceName:       "google_vertex_ai_persistent_resource.persistent_resource",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -250,7 +250,7 @@ func TestAccVertexAIPersistentResource_vertexAiPersistentResourceNetworkExample(
 			},
 			{
 				ResourceName:       "google_vertex_ai_persistent_resource.persistent_resource",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

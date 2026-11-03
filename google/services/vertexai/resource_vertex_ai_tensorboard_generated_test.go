@@ -82,7 +82,7 @@ func TestAccVertexAITensorboard_vertexAiTensorboardExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_tensorboard.tensorboard",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -131,7 +131,7 @@ func TestAccVertexAITensorboard_vertexAiTensorboardFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_tensorboard.tensorboard",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

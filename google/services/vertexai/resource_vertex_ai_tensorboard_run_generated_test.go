@@ -96,7 +96,7 @@ func TestAccVertexAITensorboardRun_vertexAiTensorboardRunExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_tensorboard_run.tensorboard_run",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -116,7 +116,7 @@ func TestAccVertexAITensorboardRun_vertexAiTensorboardRunExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_tensorboard_run.tensorboard_run",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -83,7 +83,7 @@ func TestAccVertexAIRagCorpus_vertexAiRagCorpusBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_corpus.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -149,7 +149,7 @@ func TestAccVertexAIRagCorpus_vertexAiRagCorpusFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_corpus.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -215,7 +215,7 @@ func TestAccVertexAIRagCorpus_vertexAiRagCorpusSearchExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_corpus.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -266,7 +266,7 @@ func TestAccVertexAIRagCorpus_vertexAiRagCorpusPineconeExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_corpus.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -334,7 +334,7 @@ func TestAccVertexAIRagCorpus_vertexAiRagCorpusVertexVectorSearchExample(t *test
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_corpus.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -433,7 +433,7 @@ func TestAccVertexAIRagCorpus_vertexAiRagCorpusSecretManagerExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_corpus.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
