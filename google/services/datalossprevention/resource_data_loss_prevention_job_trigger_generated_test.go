@@ -82,7 +82,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(t *testing.T)
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -154,7 +154,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitExample(t 
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.bigquery_row_limit",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -231,7 +231,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitPercentage
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.bigquery_row_limit_percentage",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -308,7 +308,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToDataplexCatalogEx
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.publish_to_dataplex_catalog",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -378,7 +378,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerSccOutputExample(t *testin
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.scc_output",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -447,7 +447,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerJobNotificationEmailsExamp
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.job_notification_emails",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -512,7 +512,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerDeidentifyExample(t *testi
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.deidentify",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -634,7 +634,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerHybridExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.hybrid_trigger",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -711,7 +711,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerInspectExample(t *testing.
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.inspect",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -838,7 +838,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToStackdriverExampl
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.publish_to_stackdriver",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -903,7 +903,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerWithIdExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.with_trigger_id",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -976,7 +976,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerMultipleActionsExample(t *
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1056,7 +1056,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerCloudStorageOptionalTimesp
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -1132,7 +1132,7 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerTimespanConfigBigQueryExam
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_job_trigger.timespan_config_big_query",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -84,7 +84,7 @@ func TestAccDataLossPreventionContentPolicy_dlpContentPolicyBasicExample(t *test
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_content_policy.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -165,7 +165,7 @@ func TestAccDataLossPreventionContentPolicy_dlpContentPolicyFullExample(t *testi
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_content_policy.full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -185,7 +185,7 @@ func TestAccDataLossPreventionContentPolicy_dlpContentPolicyFullExample(t *testi
 			},
 			{
 				ResourceName:       "google_data_loss_prevention_content_policy.full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -813,25 +813,30 @@ func resourceDataLossPreventionStoredInfoTypeImport(d *schema.ResourceData, meta
 	config := meta.(*transport_tpg.Config)
 
 	// Custom import to handle parent possibilities
-	if err := tpgresource.ParseImportId([]string{"(?P<name>.+)"}, d, config); err != nil {
+	if err := tpgresource.ParseImportId([]string{
+		"(?P<parent>.+)/storedInfoTypes/(?P<name>[^/]+)",
+		"(?P<name>.+)",
+	}, d, config); err != nil {
 		return nil, err
 	}
-	parts := strings.Split(d.Get("name").(string), "/")
-	if len(parts) == 6 {
-		if err := d.Set("name", parts[5]); err != nil {
-			return nil, fmt.Errorf("Error setting name: %s", err)
+	if d.Get("parent").(string) == "" {
+		parts := strings.Split(d.Get("name").(string), "/")
+		if len(parts) == 6 {
+			if err := d.Set("name", parts[5]); err != nil {
+				return nil, fmt.Errorf("Error setting name: %s", err)
+			}
+		} else if len(parts) == 4 {
+			if err := d.Set("name", parts[3]); err != nil {
+				return nil, fmt.Errorf("Error setting name: %s", err)
+			}
+		} else {
+			return nil, fmt.Errorf("Unexpected import id: %s, expected form {{parent}}/storedInfoType/{{name}}", d.Get("name").(string))
 		}
-	} else if len(parts) == 4 {
-		if err := d.Set("name", parts[3]); err != nil {
-			return nil, fmt.Errorf("Error setting name: %s", err)
+		// Remove "/storedInfoType/{{name}}" from the id
+		parts = parts[:len(parts)-2]
+		if err := d.Set("parent", strings.Join(parts, "/")); err != nil {
+			return nil, fmt.Errorf("Error setting parent: %s", err)
 		}
-	} else {
-		return nil, fmt.Errorf("Unexpected import id: %s, expected form {{parent}}/storedInfoType/{{name}}", d.Get("name").(string))
-	}
-	// Remove "/storedInfoType/{{name}}" from the id
-	parts = parts[:len(parts)-2]
-	if err := d.Set("parent", strings.Join(parts, "/")); err != nil {
-		return nil, fmt.Errorf("Error setting parent: %s", err)
 	}
 
 	// Replace import id for the resource id
