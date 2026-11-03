@@ -83,7 +83,7 @@ func TestAccCESGuardrail_cesGuardrailBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_guardrail.ces_guardrail_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -164,7 +164,7 @@ func TestAccCESGuardrail_cesGuardrailTransferAgentContentFilterExample(t *testin
 			},
 			{
 				ResourceName:       "google_ces_guardrail.ces_guardrail_transfer_agent_content_filter",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -243,7 +243,7 @@ func TestAccCESGuardrail_cesGuardrailGenerativeAnswerLlmPromptSecurityExample(t 
 			},
 			{
 				ResourceName:       "google_ces_guardrail.ces_guardrail_generative_answer_llm_prompt_security",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -329,7 +329,7 @@ func TestAccCESGuardrail_cesGuardrailLlmPromptSecurityFailOpenExample(t *testing
 			},
 			{
 				ResourceName:       "google_ces_guardrail.ces_guardrail_llm_prompt_security_fail_open",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -404,7 +404,7 @@ func TestAccCESGuardrail_cesGuardrailLlmPromptSecurityDefaultSettingsExample(t *
 			},
 			{
 				ResourceName:       "google_ces_guardrail.ces_guardrail_llm_prompt_security_default_settings",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -479,7 +479,7 @@ func TestAccCESGuardrail_cesGuardrailCodeCallbackExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_guardrail.ces_guardrail_code_callback",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -574,7 +574,7 @@ func TestAccCESGuardrail_cesGuardrailLlmPolicyExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_guardrail.ces_guardrail_llm_policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

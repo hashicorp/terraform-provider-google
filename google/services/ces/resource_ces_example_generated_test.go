@@ -86,7 +86,7 @@ func TestAccCESExample_cesExampleBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_ces_example.my-example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

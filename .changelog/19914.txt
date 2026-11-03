@@ -1,0 +1,3 @@
+```release-note:bug
+ces: fixed Resource Identity import for `google_ces_app`
+```
