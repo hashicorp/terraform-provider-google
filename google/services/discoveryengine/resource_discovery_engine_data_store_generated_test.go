@@ -81,7 +81,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_store.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -131,7 +131,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreKmsKeyNameExample(t
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_store.kms_key_name",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -181,7 +181,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_store.document_processing_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -240,7 +240,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_store.document_processing_config_ocr",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -295,7 +295,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_store.document_processing_config_layout",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -354,7 +354,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_store.document_processing_config_layout_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -431,7 +431,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreAdvancedSiteSearchC
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_store.advanced_site_search_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -485,7 +485,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreAclConfigExample(t 
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_store.acl_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

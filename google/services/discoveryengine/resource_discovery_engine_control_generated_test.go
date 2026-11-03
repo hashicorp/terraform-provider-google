@@ -82,7 +82,7 @@ func TestAccDiscoveryEngineControl_discoveryengineControlBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_discovery_engine_control.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -83,7 +83,7 @@ func TestAccDiscoveryEngineChatEngine_discoveryengineChatEngineBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_discovery_engine_chat_engine.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -159,7 +159,7 @@ func TestAccDiscoveryEngineChatEngine_discoveryengineChatEngineExistingDialogflo
 			},
 			{
 				ResourceName:       "google_discovery_engine_chat_engine.primary",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

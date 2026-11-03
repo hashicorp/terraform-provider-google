@@ -81,7 +81,7 @@ func TestAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample(
 			},
 			{
 				ResourceName:       "google_discovery_engine_search_engine.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -139,7 +139,7 @@ func TestAccDiscoveryEngineSearchEngine_discoveryengineSearchengineAgentspaceBas
 			},
 			{
 				ResourceName:       "google_discovery_engine_search_engine.agentspace_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
