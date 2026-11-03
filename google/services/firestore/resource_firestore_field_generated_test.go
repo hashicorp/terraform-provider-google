@@ -82,7 +82,7 @@ func TestAccFirestoreField_firestoreFieldBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_firestore_field.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -149,7 +149,7 @@ func TestAccFirestoreField_firestoreFieldTimestampEnterpriseExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_firestore_field.timestamp-enterprise",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -214,7 +214,7 @@ func TestAccFirestoreField_firestoreFieldTimestampWithTtlOffsetEnterpriseExample
 			},
 			{
 				ResourceName:       "google_firestore_field.timestamp-with-offset-enterprise",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -282,7 +282,7 @@ func TestAccFirestoreField_firestoreFieldTimestampExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_firestore_field.timestamp",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -349,7 +349,7 @@ func TestAccFirestoreField_firestoreFieldTimestampWithTtlOffsetExample(t *testin
 			},
 			{
 				ResourceName:       "google_firestore_field.timestamp-with-offset",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -419,7 +419,7 @@ func TestAccFirestoreField_firestoreFieldMatchOverrideExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_firestore_field.match_override",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -488,7 +488,7 @@ func TestAccFirestoreField_firestoreFieldWildcardExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_firestore_field.wildcard",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -555,7 +555,7 @@ func TestAccFirestoreField_firestoreFieldSkipWaitExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_firestore_field.skip_wait",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
