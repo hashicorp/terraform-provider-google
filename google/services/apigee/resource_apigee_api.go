@@ -51,6 +51,11 @@ func ResourceApigeeApi() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
+			// Labels are set with a separate PATCH after the bundle import, so adding the attribution label
+			// would cost an extra request on every create.
+			tpgresource.SetLabelsDiffWithoutAttributionLabel,
+			// A labels PATCH bumps meta_data.last_modified_at.
+			customdiff.ComputedIf("meta_data", apigeeApiDetectLabelsUpdate),
 			/*
 				If any of the config_bundle, detect_md5hash or md5hash is changed,
 				then an update is expected, so we tell Terraform core to expect update on meta_data,
@@ -157,6 +162,27 @@ func ResourceApigeeApi() *schema.Resource {
 					return true
 				},
 			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `User labels applied to this API proxy.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			//UDP schema start
 			"deletion_policy": tpgresource.DeletionPolicySchemaEntry("DELETE"),
 			//UDP schema end
@@ -222,6 +248,13 @@ func resourceApigeeApiCreate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Finished creating API proxy %q: %#v", d.Id(), res)
 
+	// The import endpoint does not accept labels.
+	if d.HasChange("effective_labels") {
+		if err := resourceApigeeApiUpdateLabels(d, config, billingProject, userAgent, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return err
+		}
+	}
+
 	if resourceApigeeApiRead(d, meta) != nil {
 		return fmt.Errorf("Error reading API proxy at end of Create: %s", err)
 	}
@@ -238,8 +271,75 @@ func resourceApigeeApiUpdate(d *schema.ResourceData, meta interface{}) error {
 		return ResourceApigeeApi().Read(d, meta)
 	}
 
-	//For how API proxy api is implemented, just treat an update as create, when the name is same, it will create a new revision
-	return resourceApigeeApiCreate(d, meta)
+	if apigeeApiBundleChanged(d) {
+		//For how API proxy api is implemented, just treat an update as create, when the name is same, it will create a new revision
+		return resourceApigeeApiCreate(d, meta)
+	}
+
+	// Labels-only change: patch them without importing the bundle again, which would create a new revision.
+	if d.HasChange("effective_labels") {
+		config := meta.(*transport_tpg.Config)
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+		if err != nil {
+			return err
+		}
+
+		billingProject := ""
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		if err := resourceApigeeApiUpdateLabels(d, config, billingProject, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return err
+		}
+	}
+
+	return resourceApigeeApiRead(d, meta)
+}
+
+// resourceApigeeApiUpdateLabels replaces all labels of the API proxy with effective_labels.
+//
+// Parameters:
+//   - d: resource data holding org_id, name and effective_labels
+//   - config: provider configuration
+//   - billingProject: project to bill the request to, may be empty
+//   - userAgent: user agent for the request
+//   - timeout: request timeout
+//
+// Returns an error if the PATCH request fails or meta_data cannot be set.
+func resourceApigeeApiUpdateLabels(d *schema.ResourceData, config *transport_tpg.Config, billingProject, userAgent string, timeout time.Duration) error {
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"organizations/{{org_id}}/apis/{{name}}?updateMask=labels")
+	if err != nil {
+		return err
+	}
+
+	// The map must be sent even when empty: a body without "labels" leaves the existing labels untouched.
+	obj := map[string]interface{}{
+		"labels": d.Get("effective_labels").(map[string]interface{}),
+	}
+
+	log.Printf("[DEBUG] Updating labels of API proxy %q", d.Id())
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   timeout,
+	})
+	if err != nil {
+		return fmt.Errorf("Error updating labels of API proxy %q: %s", d.Id(), err)
+	}
+
+	// The PATCH bumps lastModifiedAt. Storing it now keeps Read from mistaking our own change for an
+	// out-of-band bundle change, which would force a needless bundle import on the next plan.
+	if err := d.Set("meta_data", flattenApigeeApiMetaData(res["metaData"], d, config)); err != nil {
+		return fmt.Errorf("Error setting meta_data after updating labels of API proxy %q: %s", d.Id(), err)
+	}
+
+	return nil
 }
 
 func resourceApigeeApiRead(d *schema.ResourceData, meta interface{}) error {
@@ -286,6 +386,16 @@ func resourceApigeeApiRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading API proxy: %s", err)
 	}
 	if err := d.Set("latest_revision_id", flattenApigeeApiLatestRevisionId(res["latestRevisionId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading API proxy: %s", err)
+	}
+	labels := flattenApigeeApiEffectiveLabels(res["labels"])
+	if err := tpgresource.SetLabels(labels, d, "labels"); err != nil {
+		return fmt.Errorf("Error reading API proxy: %s", err)
+	}
+	if err := tpgresource.SetLabels(labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error reading API proxy: %s", err)
+	}
+	if err := d.Set("effective_labels", labels); err != nil {
 		return fmt.Errorf("Error reading API proxy: %s", err)
 	}
 
@@ -428,11 +538,46 @@ func flattenApigeeApiLatestRevisionId(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
+// flattenApigeeApiEffectiveLabels converts the labels of an API response into a string map.
+//
+// Parameters:
+//   - v: the "labels" value of the API response, nil when the proxy has no labels
+//
+// Returns the labels, an empty map if there are none.
+func flattenApigeeApiEffectiveLabels(v interface{}) map[string]string {
+	if v == nil {
+		return map[string]string{}
+	}
+	return tpgresource.CheckStringMap(v)
+}
+
 func expandApigeeApiName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
+func apigeeApiDetectLabelsUpdate(_ context.Context, diff *schema.ResourceDiff, v interface{}) bool {
+	return diff.HasChange("effective_labels")
+}
+
 func apigeeApiDetectBundleUpdate(_ context.Context, diff *schema.ResourceDiff, v interface{}) bool {
+	return apigeeApiBundleChanged(diff)
+}
+
+// apigeeApiChangeReader is implemented by both *schema.ResourceDiff and *schema.ResourceData,
+// so plan and apply use the same bundle change detection.
+type apigeeApiChangeReader interface {
+	GetChange(key string) (interface{}, interface{})
+	GetOkExists(key string) (interface{}, bool)
+	HasChange(key string) bool
+}
+
+// apigeeApiBundleChanged reports whether the config bundle has to be imported again.
+//
+// Parameters:
+//   - diff: the planned diff or the resource data during apply
+//
+// Returns true if the local bundle differs from the last uploaded one or was changed outside of Terraform.
+func apigeeApiBundleChanged(diff apigeeApiChangeReader) bool {
 	tmp, _ := diff.GetChange("detect_md5hash")
 	oldBundleHash := tmp.(string)
 	currentBundleHash := ""

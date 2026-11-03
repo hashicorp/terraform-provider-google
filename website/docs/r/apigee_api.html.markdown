@@ -48,6 +48,10 @@ resource "google_apigee_api" "api_proxy" {
   name          = "proxy1"
   org_id        = var.org_id
   config_bundle = data.archive_file.bundle.output_path
+
+  labels = {
+    team = "payments"
+  }
 }
 ```
 
@@ -67,7 +71,14 @@ The following arguments are supported:
   (Required)
   Path to the config zip bundle.
 
-* `deletion_policy` - 
+* `labels` -
+  (Optional)
+  User labels applied to this API proxy. Changing only the labels does not create a new revision.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `deletion_policy` -
   (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
   When a 'terraform destroy' or 'terraform apply' would delete the resource,
   the command will fail if this field is set to "PREVENT" in Terraform state.
@@ -82,6 +93,13 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `organizations/{{org_id}}/apis/{{name}}`
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+  and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 * `meta_data` -
   Metadata describing the API proxy.
