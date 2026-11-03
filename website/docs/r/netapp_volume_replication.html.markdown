@@ -222,6 +222,11 @@ create/stop/resume operations, set this parameter to true. Default is false.
   Default value is `PAUSED`.
   Possible values are: `ENABLED`, `PAUSED`.
 
+* `hot_tier_bypass_mode_enabled` -
+  (Optional)
+  Flag indicating that the hot tier bypass mode is enabled. Default is false.
+  Only applicable to Flex service level.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
