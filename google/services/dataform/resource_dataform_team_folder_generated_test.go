@@ -79,7 +79,7 @@ func TestAccDataformTeamFolder_dataformTeamFolderBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataform_team_folder.dataform_team_folder_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

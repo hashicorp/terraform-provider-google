@@ -79,7 +79,7 @@ func TestAccDataformFolder_dataformFolderBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataform_folder.dataform_folder_basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -121,7 +121,7 @@ func TestAccDataformFolder_dataformFolderFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_dataform_folder.dataform_folder_full",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

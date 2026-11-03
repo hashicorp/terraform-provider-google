@@ -1,0 +1,3 @@
+```release-note:bug
+dataform: fixed default provider `region` not being populated in state and Resource Identity for `google_dataform_repository` when `region` is omitted from configuration
+```
