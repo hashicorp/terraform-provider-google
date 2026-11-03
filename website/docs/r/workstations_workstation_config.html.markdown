@@ -1035,6 +1035,87 @@ resource "google_workstations_workstation_config" "default" {
   }
 }
 ```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=workstation_config_reservation_affinity&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Workstation Config Reservation Affinity
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-east4"
+  network       = google_compute_network.default.name
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  provider               = google-beta
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-east4"
+}
+
+resource "google_compute_reservation" "default" {
+  provider = google-beta
+  name     = "workstation-reservation"
+  zone     = "us-east4-a"
+
+  specific_reservation {
+    count = 1
+
+    instance_properties {
+      machine_type = "e2-standard-4"
+    }
+  }
+
+  specific_reservation_required = true
+}
+
+resource "google_workstations_workstation_config" "default" {
+  provider               = google-beta
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-east4"
+
+  replica_zones = ["us-east4-a", "us-east4-b"]
+
+  host {
+    gce_instance {
+      machine_type                = "e2-standard-4"
+      boot_disk_size_gb           = 35
+      disable_public_ip_addresses = true
+
+      reservation_affinity {
+        consume_reservation_type = "SPECIFIC_RESERVATION"
+        key                      = "compute.googleapis.com/reservation-name"
+        values                   = [google_compute_reservation.default.name]
+      }
+
+      boost_configs {
+        id                = "boost-1"
+        machine_type      = "e2-standard-4"
+        boot_disk_size_gb = 35
+
+        reservation_affinity {
+          consume_reservation_type = "ANY_RESERVATION"
+        }
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -1232,6 +1313,11 @@ The following arguments are supported:
   (Optional)
   Client-specified metadata key-value pairs, to be passed to the start-up script in the VM.
 
+* `reservation_affinity` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Reservation affinity to setup a GCE instance.
+  Structure is [documented below](#nested_host_gce_instance_reservation_affinity).
+
 
 <a name="nested_host_gce_instance_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
@@ -1295,6 +1381,11 @@ The following arguments are supported:
   An accelerator card attached to the boost instance.
   Structure is [documented below](#nested_host_gce_instance_boost_configs_accelerators).
 
+* `reservation_affinity` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Reservation affinity to setup a GCE instance.
+  Structure is [documented below](#nested_host_gce_instance_boost_configs_reservation_affinity).
+
 
 <a name="nested_host_gce_instance_boost_configs_accelerators"></a>The `accelerators` block supports:
 
@@ -1305,6 +1396,42 @@ The following arguments are supported:
 * `count` -
   (Required)
   Number of accelerator cards exposed to the instance.
+
+<a name="nested_host_gce_instance_boost_configs_reservation_affinity"></a>The `reservation_affinity` block supports:
+
+* `consume_reservation_type` -
+  (Optional)
+  Type of reservation consumption.
+  Possible values are: `NO_RESERVATION`, `ANY_RESERVATION`, `SPECIFIC_RESERVATION`.
+
+* `key` -
+  (Optional)
+  Label key of reservation resource.
+
+* `values` -
+  (Optional)
+  Label values of reservation resources.
+  Valid values are either the name of a reservation in the same project
+  or "projects/{project}/reservations/{reservation}" to target a shared
+  reservation in the same zone but in a different project.
+
+<a name="nested_host_gce_instance_reservation_affinity"></a>The `reservation_affinity` block supports:
+
+* `consume_reservation_type` -
+  (Optional)
+  Type of reservation consumption.
+  Possible values are: `NO_RESERVATION`, `ANY_RESERVATION`, `SPECIFIC_RESERVATION`.
+
+* `key` -
+  (Optional)
+  Label key of reservation resource.
+
+* `values` -
+  (Optional)
+  Label values of reservation resources.
+  Valid values are either the name of a reservation in the same project
+  or "projects/{project}/reservations/{reservation}" to target a shared
+  reservation in the same zone but in a different project.
 
 <a name="nested_persistent_directories"></a>The `persistent_directories` block supports:
 
