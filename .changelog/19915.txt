@@ -1,0 +1,3 @@
+```release-note:bug
+cloudasset: fixed Resource Identity import for `google_cloud_asset_folder_feed`, `google_cloud_asset_organization_feed`, and `google_cloud_asset_project_feed`
+```
