@@ -84,7 +84,7 @@ func TestAccMemcacheInstance_memcacheInstanceBasicTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_memcache_instance.instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
