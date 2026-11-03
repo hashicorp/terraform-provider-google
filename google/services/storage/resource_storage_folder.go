@@ -55,13 +55,11 @@ import (
 )
 
 import (
-	"github.com/gammazero/workerpool"
 	"runtime"
 )
 
 var (
 	_ = runtime.GOARCH
-	_ = workerpool.New
 )
 
 var (
@@ -443,7 +441,7 @@ func resourceStorageFolderDelete(d *schema.ResourceData, meta interface{}) error
 		// decreasing its portability. Ideally we'd want this to connect to
 		// Terraform's top-level -parallelism flag, but that's not plumbed nor
 		// is it scheduled to be plumbed to individual providers.
-		wp := workerpool.New(runtime.NumCPU() - 1)
+		wp := tpgresource.NewWorkerPool(runtime.NumCPU() - 1)
 
 		for _, object := range res.Items {
 			log.Printf("[DEBUG] Found %s", object.Name)
