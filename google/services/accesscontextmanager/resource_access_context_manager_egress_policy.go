@@ -437,8 +437,19 @@ func resourceAccessContextManagerEgressPolicyDelete(d *schema.ResourceData, meta
 func resourceAccessContextManagerEgressPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 
+	if d.Id() == "" {
+		if err := tpgresource.ParseImportId([]string{"(?P<egress_policy_name>accessPolicies/[^/]+/servicePerimeters/[^/]+)/(?P<resource>.+)"}, d, config); err != nil {
+			return nil, err
+		}
+		id, err := tpgresource.ReplaceVars(d, config, "{{egress_policy_name}}/{{resource}}")
+		if err != nil {
+			return nil, fmt.Errorf("Error constructing id: %s", err)
+		}
+		d.SetId(id)
+	}
+
 	// current import_formats can't import fields with forward slashes in their value
-	parts, err := tpgresource.GetImportIdQualifiers([]string{"accessPolicies/(?P<accessPolicy>[^/]+)/servicePerimeters/(?P<perimeter>[^/]+)"}, d, config, d.Id())
+	parts, err := tpgresource.GetImportIdQualifiers([]string{"accessPolicies/(?P<accessPolicy>[^/]+)/servicePerimeters/(?P<perimeter>[^/]+)/(?P<resource>.+)"}, d, config, d.Id())
 	if err != nil {
 		return nil, err
 	}
@@ -446,8 +457,11 @@ func resourceAccessContextManagerEgressPolicyImport(d *schema.ResourceData, meta
 	if err := d.Set("access_policy_id", fmt.Sprintf("accessPolicies/%s", parts["accessPolicy"])); err != nil {
 		return nil, fmt.Errorf("Error setting access_policy_id: %s", err)
 	}
-	if err := d.Set("perimeter", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"])); err != nil {
-		return nil, fmt.Errorf("Error setting perimeter: %s", err)
+	if err := d.Set("egress_policy_name", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"])); err != nil {
+		return nil, fmt.Errorf("Error setting egress_policy_name: %s", err)
+	}
+	if err := d.Set("resource", parts["resource"]); err != nil {
+		return nil, fmt.Errorf("Error setting resource: %s", err)
 	}
 	return []*schema.ResourceData{d}, nil
 }

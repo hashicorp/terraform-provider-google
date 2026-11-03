@@ -53,12 +53,24 @@ func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				ResourceName:       "google_access_context_manager_access_level.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
 				Config: testAccAccessContextManagerAccessLevel_basicUpdated(org, "my new policy", "tf_test_level"),
 			},
 			{
 				ResourceName:      "google_access_context_manager_access_level.test-access",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_access_context_manager_access_level.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -85,6 +97,12 @@ func testAccAccessContextManagerAccessLevel_fullTest(t *testing.T) {
 				ResourceName:      "google_access_context_manager_access_level.test-access",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_access_context_manager_access_level.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -134,6 +152,12 @@ func testAccAccessContextManagerAccessLevel_customTest(t *testing.T) {
 				ResourceName:      "google_access_context_manager_access_level.test-access",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_access_context_manager_access_level.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

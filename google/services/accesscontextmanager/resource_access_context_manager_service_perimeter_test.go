@@ -52,6 +52,12 @@ func testAccAccessContextManagerServicePerimeter_basicTest(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_access_context_manager_service_perimeter.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -78,6 +84,12 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				ResourceName:       "google_access_context_manager_service_perimeter.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
 				Config: testAccAccessContextManagerServicePerimeter_update(org, "my policy", "tf_test_level", "tf_test_perimeter"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_access_context_manager_service_perimeter.test-access", "etag"),
@@ -89,12 +101,24 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				ResourceName:       "google_access_context_manager_service_perimeter.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
 				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "tf_test_level", "tf_test_perimeter", projectNumber, folderSuffix),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_access_context_manager_service_perimeter.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			{
 				Config: testAccAccessContextManagerServicePerimeter_updateDryrun(org, "my policy", "tf_test_level", "tf_test_perimeter", folderSuffix),
@@ -105,12 +129,24 @@ func testAccAccessContextManagerServicePerimeter_updateTest(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				ResourceName:       "google_access_context_manager_service_perimeter.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
 				Config: testAccAccessContextManagerServicePerimeter_updateAllowed(org, "my policy", "tf_test_level", "tf_test_perimeter", projectNumber, folderSuffix),
 			},
 			{
 				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_access_context_manager_service_perimeter.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})
@@ -608,6 +644,12 @@ func testAccAccessContextManagerServicePerimeter_nonGcpServicePatternsTest(t *te
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:       "google_access_context_manager_service_perimeter.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
 		},
 	})
 }
@@ -845,6 +887,12 @@ func testAccAccessContextManagerServicePerimeters_nonGcpServicePatternsTest(t *t
 				ResourceName:      "google_access_context_manager_service_perimeters.test-access",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_access_context_manager_service_perimeters.test-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 		},
 	})

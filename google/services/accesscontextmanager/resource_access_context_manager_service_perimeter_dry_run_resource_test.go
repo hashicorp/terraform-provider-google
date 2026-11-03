@@ -52,14 +52,32 @@ func testAccAccessContextManagerServicePerimeterDryRunResource_basicTest(t *test
 				ImportStateVerify: true,
 			},
 			{
+				ResourceName:       "google_access_context_manager_service_perimeter_dry_run_resource.test-access1",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
 				ResourceName:      "google_access_context_manager_service_perimeter_dry_run_resource.test-access2",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
+				ResourceName:       "google_access_context_manager_service_perimeter_dry_run_resource.test-access2",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
 				ResourceName:      "google_access_context_manager_service_perimeter_dry_run_resource.test-access3",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_access_context_manager_service_perimeter_dry_run_resource.test-access3",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the service perimeter to still exist
 			{
