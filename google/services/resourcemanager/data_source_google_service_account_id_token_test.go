@@ -58,11 +58,13 @@ func testAccCheckServiceAccountIdTokenValue(name, audience string) resource.Test
 }
 
 func TestAccDataSourceGoogleServiceAccountIdToken_basic(t *testing.T) {
+	// Validates live OAuth2 ID token expiration timestamp against time.Now()
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	resourceName := "data.google_service_account_id_token.default"
 
-	resource.Test(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
@@ -87,13 +89,15 @@ data "google_service_account_id_token" "default" {
 }
 
 func TestAccDataSourceGoogleServiceAccountIdToken_impersonation(t *testing.T) {
+	// Validates live OAuth2 ID token expiration timestamp against time.Now()
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	resourceName := "data.google_service_account_id_token.default"
 	serviceAccount := envvar.GetTestServiceAccountFromEnv(t)
 	targetServiceAccountEmail := iambeta.BootstrapServiceAccount(t, "idtoken-imp", serviceAccount)
 
-	resource.Test(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{

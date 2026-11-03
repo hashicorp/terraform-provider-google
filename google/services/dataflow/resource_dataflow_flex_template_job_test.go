@@ -731,7 +731,7 @@ func TestAccDataflowFlexTemplateJob_workerPoolsFallback(t *testing.T) {
 		"machine_type": `"n1-standard-1"`,
 	}
 
-	resource.Test(t, resource.TestCase{
+	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
