@@ -81,7 +81,7 @@ func TestAccSecretManagerSecretVersion_secretVersionBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_secret_manager_secret_version.secret-version-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -139,7 +139,7 @@ func TestAccSecretManagerSecretVersion_secretVersionBasicWriteOnlyExample(t *tes
 			},
 			{
 				ResourceName:       "google_secret_manager_secret_version.secret-version-basic-write-only",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -197,7 +197,7 @@ func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyAbandonExample
 			},
 			{
 				ResourceName:       "google_secret_manager_secret_version.secret-version-deletion-policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -255,7 +255,7 @@ func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyDisableExample
 			},
 			{
 				ResourceName:       "google_secret_manager_secret_version.secret-version-deletion-policy",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -313,7 +313,7 @@ func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataEx
 			},
 			{
 				ResourceName:       "google_secret_manager_secret_version.secret-version-base64",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -371,7 +371,7 @@ func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataWr
 			},
 			{
 				ResourceName:       "google_secret_manager_secret_version.secret-version-base64-write-only",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
