@@ -605,6 +605,14 @@ func TestAccComputeRegionSecurityPolicyRule_withRateLimitOption_withMultipleEnfo
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccComputeRegionSecurityPolicyRule_withRateLimitOption_withMultipleEnforceOnKeyConfigs3(spName),
+			},
+			{
+				ResourceName:      "google_compute_region_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -840,6 +848,51 @@ resource "google_compute_region_security_policy_rule" "policy_rule" {
 
     enforce_on_key_configs {
       enforce_on_key_type = "USER_IP"
+    }
+  }
+}
+
+`, spName)
+}
+
+func testAccComputeRegionSecurityPolicyRule_withRateLimitOption_withMultipleEnforceOnKeyConfigs3(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_security_policy" "policy" {
+  region      = "us-west2"
+  name        = "%s"
+  description = "basic regional policy base"
+  type        = "CLOUD_ARMOR"
+}
+
+resource "google_compute_region_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_region_security_policy.policy.name
+  region          = "us-west2"
+  description     = "throttle rule withMultipleEnforceOnKeyConfigs3"
+  action          = "throttle"
+  priority        = "100"
+
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["*"]
+    }
+  }
+
+  rate_limit_options {
+    conform_action = "allow"
+    exceed_action = "deny(429)"
+
+    rate_limit_threshold {
+      count = 10
+      interval_sec = 60
+    }
+
+    enforce_on_key_configs {
+      enforce_on_key_type = "ASN"
+    }
+
+    enforce_on_key_configs {
+      enforce_on_key_type = "TLS_JA3_FINGERPRINT"
     }
   }
 }
