@@ -267,7 +267,7 @@ func resourceAppEngineFirewallRuleCreate(d *schema.ResourceData, meta interface{
 	}
 	d.SetId(id)
 
-	err = transport_tpg.PollingWaitTime(resourceAppEngineFirewallRulePollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating FirewallRule", d.Timeout(schema.TimeoutCreate), 1)
+	err = transport_tpg.PollingWaitTime(resourceAppEngineFirewallRulePollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating FirewallRule", d.Timeout(schema.TimeoutCreate), 1, config.SleepUnit)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create FirewallRule: %s", err)
 	}

@@ -53,11 +53,16 @@ func (w *DnsChangeWaiter) Conf() *retry.StateChangeConf {
 	if sleepUnit <= 0 {
 		sleepUnit = time.Second
 	}
+	var pollInterval time.Duration
+	if sleepUnit != time.Second {
+		pollInterval = sleepUnit
+	}
 	return &retry.StateChangeConf{
-		Pending:    []string{"pending"},
-		Target:     []string{"done"},
-		Refresh:    w.RefreshFunc(),
-		Timeout:    10 * time.Minute,
-		MinTimeout: 2 * sleepUnit,
+		Pending:      []string{"pending"},
+		Target:       []string{"done"},
+		Refresh:      w.RefreshFunc(),
+		Timeout:      10 * time.Minute,
+		MinTimeout:   2 * sleepUnit,
+		PollInterval: pollInterval,
 	}
 }

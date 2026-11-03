@@ -462,7 +462,7 @@ func resourceStorageFolderDelete(d *schema.ResourceData, meta interface{}) error
 		wp.StopWait()
 	}
 
-	err = retry.Retry(1*time.Minute, func() *retry.RetryError {
+	err = tpgresource.Retry(1*time.Minute, config.SleepUnit, func() *retry.RetryError {
 		err := NewClient(config, userAgent).Folders.Delete(bucket, name).Do()
 		if err == nil {
 			return nil

@@ -49,16 +49,20 @@ func SuccessPollResult() PollResult {
 }
 
 func PollingWaitTime(pollF PollReadFunc, checkResponse PollCheckResponseFunc, activity string,
-	timeout time.Duration, targetOccurrences int) error {
+	timeout time.Duration, targetOccurrences int, sleepUnit ...time.Duration) error {
 	log.Printf("[DEBUG] %s: Polling until expected state is read", activity)
 	log.Printf("[DEBUG] Target occurrences: %d", targetOccurrences)
-	if targetOccurrences == 1 {
+	var unit time.Duration
+	if len(sleepUnit) > 0 {
+		unit = sleepUnit[0]
+	}
+	if targetOccurrences == 1 && (unit <= 0 || unit == time.Second) {
 		return retry.Retry(timeout, func() *retry.RetryError {
 			readResp, readErr := pollF()
 			return checkResponse(readResp, readErr)
 		})
 	}
-	return RetryWithTargetOccurrences(timeout, targetOccurrences, func() *retry.RetryError {
+	return RetryWithTargetOccurrences(timeout, targetOccurrences, unit, func() *retry.RetryError {
 		readResp, readErr := pollF()
 		return checkResponse(readResp, readErr)
 	})
@@ -68,17 +72,23 @@ func PollingWaitTime(pollF PollReadFunc, checkResponse PollCheckResponseFunc, ac
 // a function until it returns the specified amount of target occurrences continuously.
 // Adapted from the Retry function in the go SDK.
 func RetryWithTargetOccurrences(timeout time.Duration, targetOccurrences int,
-	f retry.RetryFunc) error {
+	sleepUnit time.Duration, f retry.RetryFunc) error {
 	// These are used to pull the error out of the function; need a mutex to
 	// avoid a data race.
 	var resultErr error
 	var resultErrMu sync.Mutex
+
+	var pollInterval time.Duration
+	if sleepUnit > 0 && sleepUnit != time.Second {
+		pollInterval = sleepUnit
+	}
 
 	c := &retry.StateChangeConf{
 		Pending:                   []string{"retryableerror"},
 		Target:                    []string{"success"},
 		Timeout:                   timeout,
 		MinTimeout:                500 * time.Millisecond,
+		PollInterval:              pollInterval,
 		ContinuousTargetOccurence: targetOccurrences,
 		Refresh: func() (interface{}, string, error) {
 			rerr := f()

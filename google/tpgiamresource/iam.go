@@ -100,17 +100,24 @@ func iamPolicyReadWithRetry(updater ResourceIamUpdater) (*cloudresourcemanager.P
 }
 
 // Locking wrapper around read-modify-write cycle for IAM policy.
-func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModifyFunc, timeout ...time.Duration) error {
+func iamPolicyReadModifyWrite(updater ResourceIamUpdater, config *transport_tpg.Config, modify iamPolicyModifyFunc, timeout ...time.Duration) error {
 	backoffTimeout := maxBackoffTimeout
 	if len(timeout) > 0 && timeout[0] > 0 {
 		backoffTimeout = timeout[0]
+	}
+
+	delay := 1 * time.Second
+	var pollInterval time.Duration
+	if config != nil && config.SleepUnit > 0 && config.SleepUnit != time.Second {
+		delay = 0
+		pollInterval = config.SleepUnit
 	}
 
 	mutexKey := updater.GetMutexKey()
 	transport_tpg.MutexStore.Lock(mutexKey)
 	defer transport_tpg.MutexStore.Unlock(mutexKey)
 
-	err := retry.Retry(backoffTimeout, func() *retry.RetryError {
+	err := tpgresource.Retry(backoffTimeout, pollInterval, func() *retry.RetryError {
 		log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())
 		p, err := updater.GetResourceIamPolicy()
 		if err != nil {
@@ -143,9 +150,10 @@ func iamPolicyReadModifyWrite(updater ResourceIamUpdater, modify iamPolicyModify
 	fetchConf := &retry.StateChangeConf{
 		Pending:                   []string{"retrying"},
 		Target:                    []string{"done"},
-		Delay:                     1 * time.Second,
+		Delay:                     delay,
 		Timeout:                   backoffTimeout,
 		MinTimeout:                1 * time.Second,
+		PollInterval:              pollInterval,
 		ContinuousTargetOccurence: 3,
 		Refresh: func() (interface{}, string, error) {
 			log.Printf("[DEBUG]: Retrieving policy for %s\n", updater.DescribeResource())

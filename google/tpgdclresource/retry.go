@@ -113,10 +113,16 @@ func (n *Backoff) RetryAfter(_ *RetryDetails) time.Duration {
 }
 
 // BackoffRetryProvider is a default RetryProvider that returns a Backoff.
-type BackoffRetryProvider struct{}
+type BackoffRetryProvider struct {
+	InitialInterval time.Duration
+	MaxInterval     time.Duration
+}
 
 // New returns an initialized Retry.
 func (r *BackoffRetryProvider) New() Retry {
+	if r.InitialInterval > 0 && r.MaxInterval > 0 {
+		return NewBackoffWithOptions(r.InitialInterval, r.MaxInterval)
+	}
 	return NewBackoff()
 }
 

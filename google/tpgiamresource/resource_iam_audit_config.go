@@ -171,7 +171,7 @@ func resourceIamAuditConfigCreateUpdate(newUpdaterFunc NewResourceIamUpdaterFunc
 			err = BatchRequestModifyIamPolicy(updater, modifyF, config, fmt.Sprintf(
 				"Overwrite audit config for service %s on resource %q", ac.Service, updater.DescribeResource()), maxBackoffTimeout)
 		} else {
-			err = iamPolicyReadModifyWrite(updater, modifyF, maxBackoffTimeout)
+			err = iamPolicyReadModifyWrite(updater, config, modifyF, maxBackoffTimeout)
 		}
 		if err != nil {
 			return err
@@ -199,7 +199,7 @@ func resourceIamAuditConfigDelete(newUpdaterFunc NewResourceIamUpdaterFunc, enab
 			err = BatchRequestModifyIamPolicy(updater, modifyF, config, fmt.Sprintf(
 				"Delete audit config for service %s on resource %q", ac.Service, updater.DescribeResource()), maxBackoffTimeout)
 		} else {
-			err = iamPolicyReadModifyWrite(updater, modifyF, maxBackoffTimeout)
+			err = iamPolicyReadModifyWrite(updater, config, modifyF, maxBackoffTimeout)
 		}
 		if err != nil {
 			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Resource %s with IAM audit config %q", updater.DescribeResource(), d.Id()))

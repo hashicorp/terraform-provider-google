@@ -927,7 +927,7 @@ func resourceContainerNodePoolCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	var operation *container.Operation
-	err = retry.Retry(timeout, func() *retry.RetryError {
+	err = tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		clusterNodePoolsCreateCall := NewClient(config, userAgent).Projects.Locations.Clusters.NodePools.Create(nodePoolInfo.parent(), req)
 		if config.UserProjectOverride {
 			clusterNodePoolsCreateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
@@ -1130,7 +1130,7 @@ func resourceContainerNodePoolDelete(d *schema.ResourceData, meta interface{}) e
 	startTime := time.Now()
 
 	var operation *container.Operation
-	err = retry.Retry(timeout, func() *retry.RetryError {
+	err = tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		clusterNodePoolsDeleteCall := NewClient(config, userAgent).Projects.Locations.Clusters.NodePools.Delete(nodePoolInfo.fullyQualifiedName(name))
 		if config.UserProjectOverride {
 			clusterNodePoolsDeleteCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
@@ -2207,7 +2207,7 @@ var containerNodePoolRestingStates = RestingStates{
 // takes in a config object, full node pool name, project name and the current CRUD action timeout
 // returns a state with no error if the state is a resting state, and the last state with an error otherwise
 func containerNodePoolAwaitRestingState(config *transport_tpg.Config, name, project, userAgent string, timeout time.Duration) (state string, err error) {
-	err = retry.Retry(timeout, func() *retry.RetryError {
+	err = tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		clusterNodePoolsGetCall := NewClient(config, userAgent).Projects.Locations.Clusters.NodePools.Get(name)
 		if config.UserProjectOverride {
 			clusterNodePoolsGetCall.Header().Add("X-Goog-User-Project", project)

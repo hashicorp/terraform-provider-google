@@ -1074,7 +1074,7 @@ func resourcePubsubSubscriptionCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	d.SetId(id)
 
-	err = transport_tpg.PollingWaitTime(resourcePubsubSubscriptionPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating Subscription", d.Timeout(schema.TimeoutCreate), 1)
+	err = transport_tpg.PollingWaitTime(resourcePubsubSubscriptionPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating Subscription", d.Timeout(schema.TimeoutCreate), 1, config.SleepUnit)
 	if err != nil {
 		log.Printf("[ERROR] Unable to confirm eventually consistent Subscription %q finished updating: %q", d.Id(), err)
 	}

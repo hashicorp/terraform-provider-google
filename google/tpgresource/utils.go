@@ -34,6 +34,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
@@ -43,6 +44,7 @@ import (
 	"github.com/hashicorp/go-cty/cty"
 	fwDiags "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/googleapi"
@@ -1166,4 +1168,52 @@ func CanonicalizeIp(v interface{}) interface{} {
 		}
 	}
 	return v
+}
+
+func Retry(timeout, sleepUnit time.Duration, f retry.RetryFunc) error {
+	return RetryContext(context.Background(), timeout, sleepUnit, f)
+}
+
+func RetryContext(ctx context.Context, timeout, sleepUnit time.Duration, f retry.RetryFunc) error {
+	if sleepUnit <= 0 || sleepUnit == time.Second {
+		return retry.RetryContext(ctx, timeout, f)
+	}
+
+	var resultErr error
+	var resultErrMu sync.Mutex
+
+	c := &retry.StateChangeConf{
+		Pending:      []string{"retryableerror"},
+		Target:       []string{"success"},
+		Timeout:      timeout,
+		PollInterval: sleepUnit,
+		Refresh: func() (interface{}, string, error) {
+			rerr := f()
+
+			resultErrMu.Lock()
+			defer resultErrMu.Unlock()
+
+			if rerr == nil {
+				resultErr = nil
+				return 42, "success", nil
+			}
+
+			resultErr = rerr.Err
+
+			if rerr.Retryable {
+				return 42, "retryableerror", nil
+			}
+			return nil, "quit", rerr.Err
+		},
+	}
+
+	_, waitErr := c.WaitForStateContext(ctx)
+
+	resultErrMu.Lock()
+	defer resultErrMu.Unlock()
+
+	if resultErr == nil {
+		return waitErr
+	}
+	return resultErr
 }

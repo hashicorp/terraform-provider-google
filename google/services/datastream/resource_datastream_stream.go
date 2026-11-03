@@ -141,7 +141,7 @@ func resourceDatastreamStreamObjectsSetStyleDiff(diff tpgresource.TerraformResou
 
 // waitForDatastreamStreamReady waits for an agent pool to reach a stable state to indicate that it's ready.
 func waitForDatastreamStreamReady(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return retry.Retry(timeout, func() *retry.RetryError {
+	return tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		if err := resourceDatastreamStreamRead(d, config); err != nil {
 			return retry.NonRetryableError(err)
 		}

@@ -576,7 +576,7 @@ func resourceDataflowFlexTemplateJobRead(d *schema.ResourceData, meta interface{
 }
 
 func waitForDataflowJobState(d *schema.ResourceData, config *transport_tpg.Config, jobID, userAgent string, timeout time.Duration, targetState string) error {
-	return retry.Retry(timeout, func() *retry.RetryError {
+	return tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return retry.NonRetryableError(err)
@@ -720,7 +720,7 @@ func resourceDataflowFlexTemplateJobDelete(d *schema.ResourceData, meta interfac
 	}
 
 	// Retry updating the state while the job is not ready to be canceled/drained.
-	err = retry.Retry(time.Minute*time.Duration(15), func() *retry.RetryError {
+	err = tpgresource.Retry(time.Minute*time.Duration(15), config.SleepUnit, func() *retry.RetryError {
 		// To terminate a dataflow job, we update the job with a requested
 		// terminal state.
 		job := &dataflow.Job{

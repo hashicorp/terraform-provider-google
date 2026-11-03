@@ -1534,7 +1534,7 @@ func resourceCloudRunServiceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	err = transport_tpg.PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatusFunc(res), "Creating Service", d.Timeout(schema.TimeoutCreate), 1)
+	err = transport_tpg.PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatusFunc(res), "Creating Service", d.Timeout(schema.TimeoutCreate), 1, config.SleepUnit)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create Service: %s", err)
 	}
@@ -1829,7 +1829,7 @@ func resourceCloudRunServiceUpdate(d *schema.ResourceData, meta interface{}) err
 		log.Printf("[DEBUG] Finished updating Service %q: %#v", d.Id(), res)
 	}
 
-	err = transport_tpg.PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatusFunc(res), "Updating Service", d.Timeout(schema.TimeoutUpdate), 1)
+	err = transport_tpg.PollingWaitTime(resourceCloudRunServicePollRead(d, meta), PollCheckKnativeStatusFunc(res), "Updating Service", d.Timeout(schema.TimeoutUpdate), 1, config.SleepUnit)
 	if err != nil {
 		return err
 	}

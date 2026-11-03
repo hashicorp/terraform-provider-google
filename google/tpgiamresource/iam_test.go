@@ -1263,7 +1263,7 @@ func TestIamPolicyReadModifyWrite_429(t *testing.T) {
 		// avoids the hardcoded 3s post-write propagation wait in iamPolicyReadModifyWrite.
 		errStopAfterRead := errors.New("stop after read")
 		var gotEtag string
-		err := iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+		err := iamPolicyReadModifyWrite(updater, nil, func(p *cloudresourcemanager.Policy) error {
 			gotEtag = p.Etag
 			return errStopAfterRead
 		})
@@ -1313,7 +1313,7 @@ func TestIamPolicyReadModifyWrite_429(t *testing.T) {
 
 		errCh := make(chan error, 1)
 		go func() {
-			errCh <- iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+			errCh <- iamPolicyReadModifyWrite(updater, nil, func(p *cloudresourcemanager.Policy) error {
 				return nil
 			})
 		}()
@@ -1355,7 +1355,7 @@ func TestIamPolicyReadModifyWrite_serviceAccountNotFoundDoesNotDeadlock(t *testi
 
 	errCh := make(chan error, 1)
 	go func() {
-		errCh <- iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+		errCh <- iamPolicyReadModifyWrite(updater, nil, func(p *cloudresourcemanager.Policy) error {
 			return nil
 		})
 	}()
@@ -1403,7 +1403,7 @@ func TestIamPolicyReadModifyWrite_conflictRetry(t *testing.T) {
 	// fetched, avoiding the hardcoded 3s post-write propagation wait.
 	errStopAfterConflictRetry := errors.New("stop after conflict retry")
 	var seenEtags []string
-	err := iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+	err := iamPolicyReadModifyWrite(updater, nil, func(p *cloudresourcemanager.Policy) error {
 		seenEtags = append(seenEtags, p.Etag)
 		if len(seenEtags) == 2 {
 			return errStopAfterConflictRetry
@@ -1456,7 +1456,7 @@ func TestIamPolicyReadModifyWrite_maxBackoffTimeout(t *testing.T) {
 	}
 
 	start := time.Now()
-	err := iamPolicyReadModifyWrite(updater, func(p *cloudresourcemanager.Policy) error {
+	err := iamPolicyReadModifyWrite(updater, nil, func(p *cloudresourcemanager.Policy) error {
 		return nil
 	}, 50*time.Millisecond)
 	elapsed := time.Since(start)

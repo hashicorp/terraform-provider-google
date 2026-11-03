@@ -350,7 +350,7 @@ func resourceSourceRepoRepositoryCreate(d *schema.ResourceData, meta interface{}
 
 	// We poll until the resource is found due to eventual consistency issue
 	// on part of the api https://cloud.google.com/iam/docs/overview#consistency
-	err = transport_tpg.PollingWaitTime(resourceSourceRepoRepositoryPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating Source Repository", d.Timeout(schema.TimeoutCreate), 1)
+	err = transport_tpg.PollingWaitTime(resourceSourceRepoRepositoryPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating Source Repository", d.Timeout(schema.TimeoutCreate), 1, config.SleepUnit)
 
 	if err != nil {
 		return err

@@ -3941,7 +3941,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("timeout exhausted before starting %s", updateDescription)
 		}
 
-		err := retry.RetryContext(config.Context, remaining, func() *retry.RetryError {
+		err := tpgresource.RetryContext(config.Context, remaining, config.SleepUnit, func() *retry.RetryError {
 			var apiErr error
 			op, apiErr = doCall()
 			if apiErr != nil {
@@ -5427,7 +5427,7 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 
 	var op *container.Operation
 	var count = 0
-	err = retry.Retry(30*time.Second, func() *retry.RetryError {
+	err = tpgresource.Retry(30*time.Second, config.SleepUnit, func() *retry.RetryError {
 		count++
 
 		name := containerClusterFullName(project, location, clusterName)
@@ -5473,7 +5473,7 @@ var containerClusterRestingStates = RestingStates{
 
 // returns a state with no error if the state is a resting state, and the last state with an error otherwise
 func containerClusterAwaitRestingState(config *transport_tpg.Config, project, location, clusterName, userAgent string, timeout time.Duration) (state string, err error) {
-	err = retry.Retry(timeout, func() *retry.RetryError {
+	err = tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		name := containerClusterFullName(project, location, clusterName)
 		clusterGetCall := NewClient(config, userAgent).Projects.Locations.Clusters.Get(name)
 		if config.UserProjectOverride {

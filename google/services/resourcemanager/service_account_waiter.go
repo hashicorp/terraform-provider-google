@@ -59,13 +59,18 @@ func ServiceAccountKeyWaitTime(client *iam.ProjectsServiceAccountsKeysService, k
 	if sleepUnit <= 0 {
 		sleepUnit = time.Second
 	}
+	var pollInterval time.Duration
+	if sleepUnit != time.Second {
+		pollInterval = sleepUnit
+	}
 
 	c := &retry.StateChangeConf{
-		Pending:    []string{"PENDING"},
-		Target:     []string{"DONE"},
-		Refresh:    w.RefreshFunc(),
-		Timeout:    timeout,
-		MinTimeout: 2 * sleepUnit,
+		Pending:      []string{"PENDING"},
+		Target:       []string{"DONE"},
+		Refresh:      w.RefreshFunc(),
+		Timeout:      timeout,
+		MinTimeout:   2 * sleepUnit,
+		PollInterval: pollInterval,
 	}
 	_, err := c.WaitForState()
 	if err != nil {

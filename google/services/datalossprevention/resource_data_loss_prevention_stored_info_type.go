@@ -467,7 +467,7 @@ func resourceDataLossPreventionStoredInfoTypeCreate(d *schema.ResourceData, meta
 	}
 	d.SetId(id)
 
-	err = transport_tpg.PollingWaitTime(resourceDataLossPreventionStoredInfoTypePollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating StoredInfoType", d.Timeout(schema.TimeoutCreate), 1)
+	err = transport_tpg.PollingWaitTime(resourceDataLossPreventionStoredInfoTypePollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating StoredInfoType", d.Timeout(schema.TimeoutCreate), 1, config.SleepUnit)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create StoredInfoType: %s", err)
 	}

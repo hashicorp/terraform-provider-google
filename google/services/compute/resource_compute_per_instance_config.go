@@ -851,7 +851,7 @@ func resourceComputePerInstanceConfigDelete(d *schema.ResourceData, meta interfa
 	}
 
 	if d.Get("remove_instance_on_destroy").(bool) {
-		err = transport_tpg.PollingWaitTime(resourceComputePerInstanceConfigInstancePollRead(d, meta, d.Get("name").(string)), PollCheckInstanceConfigInstanceDeleted, "Deleting PerInstanceConfig", d.Timeout(schema.TimeoutDelete), 1)
+		err = transport_tpg.PollingWaitTime(resourceComputePerInstanceConfigInstancePollRead(d, meta, d.Get("name").(string)), PollCheckInstanceConfigInstanceDeleted, "Deleting PerInstanceConfig", d.Timeout(schema.TimeoutDelete), 1, config.SleepUnit)
 		if err != nil {
 			return fmt.Errorf("Error waiting for instance delete on PerInstanceConfig %q: %s", d.Id(), err)
 		}
@@ -896,7 +896,7 @@ func resourceComputePerInstanceConfigDelete(d *schema.ResourceData, meta interfa
 		}
 
 		// PerInstanceConfig goes into "DELETING" state while the instance is actually deleted
-		err = transport_tpg.PollingWaitTime(resourceComputePerInstanceConfigPollRead(d, meta), PollCheckInstanceConfigDeleted, "Deleting PerInstanceConfig", d.Timeout(schema.TimeoutDelete), 1)
+		err = transport_tpg.PollingWaitTime(resourceComputePerInstanceConfigPollRead(d, meta), PollCheckInstanceConfigDeleted, "Deleting PerInstanceConfig", d.Timeout(schema.TimeoutDelete), 1, config.SleepUnit)
 		if err != nil {
 			return fmt.Errorf("Error waiting for delete on PerInstanceConfig %q: %s", d.Id(), err)
 		}

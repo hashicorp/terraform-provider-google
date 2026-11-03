@@ -1397,7 +1397,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	wp.StopWait()
 
 	// destroy bucket
-	err = retry.Retry(1*time.Minute, func() *retry.RetryError {
+	err = tpgresource.Retry(1*time.Minute, config.SleepUnit, func() *retry.RetryError {
 		err := NewClient(config, userAgent).Buckets.Delete(bucket).Do()
 		if err == nil {
 			return nil

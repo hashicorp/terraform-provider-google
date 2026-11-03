@@ -22,8 +22,10 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrun"
@@ -1347,5 +1349,26 @@ func TestReducedPrefixedUniqueId(t *testing.T) {
 			t.Fatalf("ReducedPrefixedUniqueId(%q) returned duplicate %q after %d calls", prefix, got, i)
 		}
 		seen[got] = true
+	}
+}
+
+func TestRetry_VcrReplaying(t *testing.T) {
+	attempts := 0
+	start := time.Now()
+	err := tpgresource.Retry(5*time.Second, time.Millisecond, func() *retry.RetryError {
+		attempts++
+		if attempts < 3 {
+			return retry.RetryableError(fmt.Errorf("transient error %d", attempts))
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("Unexpected error from tpgresource.Retry: %v", err)
+	}
+	if attempts != 3 {
+		t.Fatalf("Expected 3 attempts, got %d", attempts)
+	}
+	if elapsed := time.Since(start); elapsed > 100*time.Millisecond {
+		t.Fatalf("Expected tpgresource.Retry to poll at 1ms in REPLAYING mode, took %v", elapsed)
 	}
 }

@@ -66,7 +66,7 @@ func extractError(d *schema.ResourceData) error {
 // waitForPrivateConnectionReady waits for a private connection state to become
 // CREATED, if the state is FAILED propegate the error to the user.
 func waitForPrivateConnectionReady(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return retry.Retry(timeout, func() *retry.RetryError {
+	return tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
 		if err := resourceDatastreamPrivateConnectionRead(d, config); err != nil {
 			return retry.NonRetryableError(err)
 		}

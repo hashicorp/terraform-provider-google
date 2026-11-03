@@ -48,6 +48,13 @@ func NewDCLDataprocClient(config *transport_tpg.Config, userAgent, billingProjec
 		configOptions = append(configOptions, dcl.WithTimeout(timeout))
 	}
 
+	if config.SleepUnit > 0 && config.SleepUnit != time.Second {
+		configOptions = append(configOptions, dcl.WithRetryProvider(&dcl.BackoffRetryProvider{
+			InitialInterval: config.SleepUnit,
+			MaxInterval:     config.SleepUnit,
+		}))
+	}
+
 	if config.UserProjectOverride {
 		configOptions = append(configOptions, dcl.WithUserProjectOverride())
 		if billingProject != "" {

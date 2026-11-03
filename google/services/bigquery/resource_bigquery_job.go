@@ -1168,7 +1168,7 @@ func resourceBigQueryJobCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId(id)
 
-	err = transport_tpg.PollingWaitTime(resourceBigQueryJobPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating Job", d.Timeout(schema.TimeoutCreate), 1)
+	err = transport_tpg.PollingWaitTime(resourceBigQueryJobPollRead(d, meta), transport_tpg.PollCheckForExistence, "Creating Job", d.Timeout(schema.TimeoutCreate), 1, config.SleepUnit)
 	if err != nil {
 		return fmt.Errorf("Error waiting to create Job: %s", err)
 	}
