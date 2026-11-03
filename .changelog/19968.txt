@@ -1,0 +1,3 @@
+```release-note:enhancement
+appengine: promoted `vpc_access` field on `google_app_engine_standard_app_version` resource to GA (ga)
+```

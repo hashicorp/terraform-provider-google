@@ -61,6 +61,11 @@ fields:
     - api_field: threadsafe
     - api_field: id
       field: version_id
+    - api_field: vpcAccess.networkInterfaces.network
+    - api_field: vpcAccess.networkInterfaces.subnet
+      field: vpc_access.network_interfaces.subnetwork
+    - api_field: vpcAccess.networkInterfaces.tags
+    - api_field: vpcAccess.vpcEgress
     - api_field: vpcAccessConnector.egressSetting
     - api_field: vpcAccessConnector.name
     - field: deletion_policy

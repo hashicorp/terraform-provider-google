@@ -27,11 +27,13 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/appengine"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -286,6 +288,188 @@ resource "google_app_engine_standard_app_version" "gae-std-app-ver-bundled" {
 
 # Testing the app_engine_bundled_services field
   app_engine_bundled_services = ["BUNDLED_SERVICE_TYPE_MAIL", "BUNDLED_SERVICE_TYPE_DATASTORE_V3"]
+
+  delete_service_on_destroy = true
+  service_account = google_service_account.service_account.email
+
+  depends_on = [
+    google_project_iam_member.gae_api,
+    google_project_iam_member.storage_viewer,
+  ]
+}
+`, context)
+}
+
+func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionVpcAccessExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"bucket_name":   "tf-test-gae-bkt-vpc-access" + randomSuffix,
+		"sa_email":      "tf-test-gae-sa" + randomSuffix,
+		"service_id":    "tf-test-vpc-service" + randomSuffix,
+		"vpc_egress":    "ALL_TRAFFIC",
+		"random_suffix": randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"bucket_name":   "tf-test-gae-bkt-vpc-access" + randomSuffix,
+		"sa_email":      "tf-test-gae-sa" + randomSuffix,
+		"service_id":    "tf-test-vpc-service" + randomSuffix,
+		"vpc_egress":    "PRIVATE_IP_RANGES",
+		"random_suffix": randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"bucket_name":   "tf-test-gae-bkt-vpc-access" + randomSuffix,
+		"sa_email":      "tf-test-gae-sa" + randomSuffix,
+		"service_id":    "tf-test-vpc-service" + randomSuffix,
+		"vpc_egress":    "ALL_TRAFFIC",
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAppEngineStandardAppVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAppEngineStandardAppVersion_appEngineStandardAppVersionVpcAccessExample(context),
+			},
+			{
+				ResourceName:            "google_app_engine_standard_app_version.gae-std-app-ver-vpc-access",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_engine_bundled_services", "delete_service_on_destroy", "deployment", "entrypoint", "env_variables", "service", "threadsafe"},
+			},
+			{
+				ResourceName:       "google_app_engine_standard_app_version.gae-std-app-ver-vpc-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccAppEngineStandardAppVersion_appEngineStandardAppVersionVpcAccessExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_app_engine_standard_app_version.gae-std-app-ver-vpc-access", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_app_engine_standard_app_version.gae-std-app-ver-vpc-access",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_engine_bundled_services", "delete_service_on_destroy", "deployment", "entrypoint", "env_variables", "service", "threadsafe"},
+			},
+			{
+				ResourceName:       "google_app_engine_standard_app_version.gae-std-app-ver-vpc-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccAppEngineStandardAppVersion_appEngineStandardAppVersionVpcAccessExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_app_engine_standard_app_version.gae-std-app-ver-vpc-access", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_app_engine_standard_app_version.gae-std-app-ver-vpc-access",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_engine_bundled_services", "delete_service_on_destroy", "deployment", "entrypoint", "env_variables", "service", "threadsafe"},
+			},
+			{
+				ResourceName:       "google_app_engine_standard_app_version.gae-std-app-ver-vpc-access",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccAppEngineStandardAppVersion_appEngineStandardAppVersionVpcAccessExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_service_account" "service_account" {
+  account_id   = "%{sa_email}"
+  display_name = "Test Service Account for GAE"
+}
+
+resource "google_project_iam_member" "gae_api" {
+  project = google_service_account.service_account.project
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:${google_service_account.service_account.email}"
+}
+
+resource "google_project_iam_member" "storage_viewer" {
+  project = google_service_account.service_account.project
+  role    = "roles/storage.objectViewer"
+  member  = "serviceAccount:${google_service_account.service_account.email}"
+}
+
+resource "google_compute_network" "custom" {
+  name                    = "%{service_id}-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "custom" {
+  name          = "%{service_id}-sub"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.custom.id
+}
+
+resource "google_storage_bucket" "bucket" {
+  name                        = "%{bucket_name}"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "requirements" {
+  name   = "requirements.txt"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/hello-world-flask/requirements.txt"
+}
+
+resource "google_storage_bucket_object" "main" {
+  name   = "main.py"
+  bucket = google_storage_bucket.bucket.name
+  source = "./test-fixtures/hello-world-flask/main.py"
+}
+
+resource "google_app_engine_standard_app_version" "gae-std-app-ver-vpc-access" {
+  version_id = "v1"
+  service    = "%{service_id}"
+  runtime    = "python312"
+
+  vpc_access {
+    vpc_egress = "%{vpc_egress}"
+    network_interfaces {
+      network    = google_compute_network.custom.name
+      subnetwork = google_compute_subnetwork.custom.name
+      tags       = ["tag1", "tag2"]
+    }
+  }
+
+  deployment {
+    files {
+      name       = "main.py"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.main.name}"
+    }
+    files {
+      name       = "requirements.txt"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
+    }
+  }
+
+  entrypoint {
+    shell = "gunicorn -b :$PORT main:app"
+  }
 
   delete_service_on_destroy = true
   service_account = google_service_account.service_account.email
