@@ -8,6 +8,9 @@ api_resource_type_kind: 'Proxy'
 fields:
   - field: 'config_bundle'
   - field: 'detect_md5hash'
+  - field: 'effective_labels'
+    provider_only: true
+  - api_field: 'labels'
   - api_field: 'latestRevisionId'
   - field: 'md5hash'
   - api_field: 'metaData.createdAt'
@@ -16,5 +19,7 @@ fields:
   - api_field: 'name'
   - field: 'org_id'
   - api_field: 'revision'
+  - field: 'terraform_labels'
+    provider_only: true
   - field: 'deletion_policy'
     provider_only: true

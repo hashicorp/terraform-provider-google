@@ -1,0 +1,3 @@
+```release-note:enhancement
+apigee: added `labels` field to `google_apigee_api` resource
+```
