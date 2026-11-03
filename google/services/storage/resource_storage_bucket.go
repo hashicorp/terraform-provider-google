@@ -34,7 +34,6 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
-	"github.com/gammazero/workerpool"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -1294,7 +1293,7 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	// decreasing its portability. Ideally we'd want this to connect to
 	// Terraform's top-level -parallelism flag, but that's not plumbed nor
 	// is it scheduled to be plumbed to individual providers.
-	wp := workerpool.New(runtime.NumCPU() - 1)
+	wp := tpgresource.NewWorkerPool(runtime.NumCPU() - 1)
 
 	// Create a bounded semaphore channel allowing up to 2000 uncompleted deletion tasks in the queue
 	sem := make(chan struct{}, 2000)
