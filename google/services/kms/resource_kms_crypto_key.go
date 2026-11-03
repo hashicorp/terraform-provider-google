@@ -668,6 +668,17 @@ func resourceKMSCryptoKeyImport(d *schema.ResourceData, meta interface{}) ([]*sc
 
 	config := meta.(*transport_tpg.Config)
 
+	if d.Id() == "" {
+		if err := tpgresource.ParseImportId([]string{"(?P<key_ring>.+)/cryptoKeys/(?P<name>[^/]+)"}, d, config); err != nil {
+			return nil, err
+		}
+		id, err := tpgresource.ReplaceVars(d, config, "{{key_ring}}/cryptoKeys/{{name}}")
+		if err != nil {
+			return nil, fmt.Errorf("Error constructing id: %s", err)
+		}
+		d.SetId(id)
+	}
+
 	cryptoKeyId, err := ParseKmsCryptoKeyId(d.Id(), config)
 	if err != nil {
 		return nil, err
