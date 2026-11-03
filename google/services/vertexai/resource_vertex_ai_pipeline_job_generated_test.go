@@ -86,7 +86,7 @@ func TestAccVertexAIPipelineJob_vertexAiPipelineJobBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_pipeline_job.pipeline_job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -242,7 +242,7 @@ func TestAccVertexAIPipelineJob_vertexAiPipelineJobFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_pipeline_job.pipeline_job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

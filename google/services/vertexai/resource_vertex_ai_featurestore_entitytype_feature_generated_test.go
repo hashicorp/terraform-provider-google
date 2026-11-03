@@ -82,7 +82,7 @@ func TestAccVertexAIFeaturestoreEntitytypeFeature_vertexAiFeaturestoreEntitytype
 			},
 			{
 				ResourceName:       "google_vertex_ai_featurestore_entitytype_feature.feature",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

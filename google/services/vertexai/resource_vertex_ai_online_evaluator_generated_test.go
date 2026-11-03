@@ -82,7 +82,7 @@ func TestAccVertexAIOnlineEvaluator_vertexAiOnlineEvaluatorBasicExample(t *testi
 			},
 			{
 				ResourceName:       "google_vertex_ai_online_evaluator.evaluator",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -173,7 +173,7 @@ func TestAccVertexAIOnlineEvaluator_vertexAiOnlineEvaluatorFullExample(t *testin
 			},
 			{
 				ResourceName:       "google_vertex_ai_online_evaluator.evaluator",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

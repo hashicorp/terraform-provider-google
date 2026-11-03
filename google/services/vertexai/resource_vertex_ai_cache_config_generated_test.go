@@ -79,7 +79,7 @@ func TestAccVertexAICacheConfig_vertexAiCacheConfigExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_cache_config.cache_config",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

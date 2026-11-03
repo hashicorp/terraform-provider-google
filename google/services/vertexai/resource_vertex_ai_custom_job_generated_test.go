@@ -86,7 +86,7 @@ func TestAccVertexAICustomJob_vertexAiCustomJobBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_custom_job.custom_job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -186,7 +186,7 @@ func TestAccVertexAICustomJob_vertexAiCustomJobPythonPackageExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_vertex_ai_custom_job.custom_job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -339,7 +339,7 @@ func TestAccVertexAICustomJob_vertexAiCustomJobTpuNetworkExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_custom_job.custom_job",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

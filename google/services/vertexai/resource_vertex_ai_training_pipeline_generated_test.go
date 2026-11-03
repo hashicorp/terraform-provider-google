@@ -84,7 +84,7 @@ func TestAccVertexAITrainingPipeline_vertexAiTrainingPipelineBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_vertex_ai_training_pipeline.basic_pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -155,7 +155,7 @@ func TestAccVertexAITrainingPipeline_vertexAiTrainingPipelineModelExample(t *tes
 			},
 			{
 				ResourceName:       "google_vertex_ai_training_pipeline.model_pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -302,7 +302,7 @@ func TestAccVertexAITrainingPipeline_vertexAiTrainingPipelineDatasetExample(t *t
 			},
 			{
 				ResourceName:       "google_vertex_ai_training_pipeline.dataset_pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -408,7 +408,7 @@ func TestAccVertexAITrainingPipeline_vertexAiTrainingPipelineEncryptionExample(t
 			},
 			{
 				ResourceName:       "google_vertex_ai_training_pipeline.encryption_pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -493,7 +493,7 @@ func TestAccVertexAITrainingPipeline_vertexAiTrainingPipelinePredefinedSplitExam
 			},
 			{
 				ResourceName:       "google_vertex_ai_training_pipeline.predefined_split_pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -588,7 +588,7 @@ func TestAccVertexAITrainingPipeline_vertexAiTrainingPipelineTimestampSplitExamp
 			},
 			{
 				ResourceName:       "google_vertex_ai_training_pipeline.timestamp_split_pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -686,7 +686,7 @@ func TestAccVertexAITrainingPipeline_vertexAiTrainingPipelineStratifiedSplitExam
 			},
 			{
 				ResourceName:       "google_vertex_ai_training_pipeline.stratified_split_pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -784,7 +784,7 @@ func TestAccVertexAITrainingPipeline_vertexAiTrainingPipelineFractionSplitExampl
 			},
 			{
 				ResourceName:       "google_vertex_ai_training_pipeline.fraction_split_pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -882,7 +882,7 @@ func TestAccVertexAITrainingPipeline_vertexAiTrainingPipelineSavedQueryExample(t
 			},
 			{
 				ResourceName:       "google_vertex_ai_training_pipeline.saved_query_pipeline",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

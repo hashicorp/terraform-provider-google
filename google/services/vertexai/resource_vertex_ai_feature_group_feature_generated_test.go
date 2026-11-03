@@ -83,7 +83,7 @@ func TestAccVertexAIFeatureGroupFeature_vertexAiFeatureGroupFeatureExample(t *te
 			},
 			{
 				ResourceName:       "google_vertex_ai_feature_group_feature.feature_group_feature",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -183,7 +183,7 @@ func TestAccVertexAIFeatureGroupFeature_vertexAiFeatureGroupFeatureWithVersionCo
 			},
 			{
 				ResourceName:       "google_vertex_ai_feature_group_feature.feature_group_feature",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

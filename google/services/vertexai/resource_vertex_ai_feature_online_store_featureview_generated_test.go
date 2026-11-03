@@ -82,7 +82,7 @@ func TestAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeat
 			},
 			{
 				ResourceName:       "google_vertex_ai_feature_online_store_featureview.featureview",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -190,7 +190,7 @@ func TestAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeat
 			},
 			{
 				ResourceName:       "google_vertex_ai_feature_online_store_featureview.featureview_featureregistry",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -326,7 +326,7 @@ func TestAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeat
 			},
 			{
 				ResourceName:       "google_vertex_ai_feature_online_store_featureview.cross_project_featureview",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

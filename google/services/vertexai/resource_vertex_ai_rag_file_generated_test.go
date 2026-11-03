@@ -84,7 +84,7 @@ func TestAccVertexAIRagFile_vertexAiRagFileGcsExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_file.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -177,7 +177,7 @@ func TestAccVertexAIRagFile_vertexAiRagFileFullExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_file.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -290,7 +290,7 @@ func TestAccVertexAIRagFile_vertexAiRagFileLayoutParserExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_rag_file.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

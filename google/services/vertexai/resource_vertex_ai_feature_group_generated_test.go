@@ -82,7 +82,7 @@ func TestAccVertexAIFeatureGroup_vertexAiFeatureGroupExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_feature_group.feature_group",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

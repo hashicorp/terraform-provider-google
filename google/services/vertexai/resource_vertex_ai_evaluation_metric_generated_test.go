@@ -84,7 +84,7 @@ func TestAccVertexAIEvaluationMetric_vertexAiEvaluationMetricExample(t *testing.
 			},
 			{
 				ResourceName:       "google_vertex_ai_evaluation_metric.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -144,7 +144,7 @@ func TestAccVertexAIEvaluationMetric_vertexAiEvaluationMetricFullExample(t *test
 			},
 			{
 				ResourceName:       "google_vertex_ai_evaluation_metric.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

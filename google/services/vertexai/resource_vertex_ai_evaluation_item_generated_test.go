@@ -82,7 +82,7 @@ func TestAccVertexAIEvaluationItem_vertexAiEvaluationItemExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vertex_ai_evaluation_item.evaluation_item",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -185,7 +185,7 @@ func TestAccVertexAIEvaluationItem_vertexAiEvaluationItemGcsExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_vertex_ai_evaluation_item.evaluation_item_gcs",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -260,7 +260,7 @@ func TestAccVertexAIEvaluationItem_vertexAiEvaluationItemVariantsExample(t *test
 			},
 			{
 				ResourceName:       "google_vertex_ai_evaluation_item.evaluation_item_variants",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

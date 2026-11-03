@@ -80,7 +80,7 @@ func TestAccVertexAIDeploymentResourcePool_vertexAiDeploymentResourcePoolExample
 			},
 			{
 				ResourceName:       "google_vertex_ai_deployment_resource_pool.deployment_resource_pool",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

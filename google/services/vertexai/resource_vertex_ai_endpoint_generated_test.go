@@ -83,7 +83,7 @@ func TestAccVertexAIEndpoint_vertexAiEndpointPrivateServiceConnectExample(t *tes
 			},
 			{
 				ResourceName:       "google_vertex_ai_endpoint.endpoint",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -149,7 +149,7 @@ func TestAccVertexAIEndpoint_vertexAiEndpointDedicatedEndpointExample(t *testing
 			},
 			{
 				ResourceName:       "google_vertex_ai_endpoint.endpoint",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

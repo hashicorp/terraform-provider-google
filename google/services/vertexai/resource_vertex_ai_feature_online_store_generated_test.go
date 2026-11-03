@@ -82,7 +82,7 @@ func TestAccVertexAIFeatureOnlineStore_vertexAiFeatureOnlineStoreExample(t *test
 			},
 			{
 				ResourceName:       "google_vertex_ai_feature_online_store.feature_online_store",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -135,7 +135,7 @@ func TestAccVertexAIFeatureOnlineStore_vertexAiFeatureonlinestoreWithOptimizedEx
 			},
 			{
 				ResourceName:       "google_vertex_ai_feature_online_store.featureonlinestore",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

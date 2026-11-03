@@ -115,6 +115,7 @@ func ResourceVertexAITensorboard() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderRegion,
 			tpgresource.DefaultProviderDeletionPolicy("DELETE"),
 		),
 
@@ -437,6 +438,14 @@ func resourceVertexAITensorboardRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Tensorboard: %s", err)
 	}
 
+	region, err := tpgresource.GetRegion(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error reading Tensorboard: %s", err)
+	}
+
 	err = ResourceVertexAITensorboardFlatten(d, meta, res, config, project, userAgent, billingProject, url, headers)
 	if err != nil {
 		return err
@@ -681,6 +690,10 @@ func resourceVertexAITensorboardImport(d *schema.ResourceData, meta interface{})
 		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
+	}
+
+	if err := d.Set("name", tpgresource.GetResourceNameFromSelfLink(d.Get("name").(string))); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
 	}
 
 	// Replace import id for the resource id
