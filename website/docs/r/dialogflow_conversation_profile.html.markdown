@@ -60,7 +60,6 @@ resource "google_dialogflow_conversation_profile" "basic_profile" {
   stt_config {
     use_gemini_asr = true
     gemini_asr_config {
-      model_id                    = "gemini-3-flash-lite-asr-preview"
       silence_duration_ms         = 1000
       prefix_padding_ms           = 500
       start_of_speech_sensitivity = "START_SENSITIVITY_LOW"
