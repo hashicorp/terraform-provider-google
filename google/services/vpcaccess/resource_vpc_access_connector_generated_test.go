@@ -83,7 +83,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_vpc_access_connector.connector",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -130,7 +130,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorSharedVpcExample(t *testing.T) 
 			},
 			{
 				ResourceName:       "google_vpc_access_connector.connector",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
