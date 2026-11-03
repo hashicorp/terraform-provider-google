@@ -1,0 +1,3 @@
+```release-note:enhancement
+integrationconnectors: added `eventing_config.allowed_event_types`, `eventing_config.global_event_filter`, `eventing_config.dead_letter_config`, and `eventing_config.enrichment_config` fields to `google_integration_connectors_connection` resource
+```

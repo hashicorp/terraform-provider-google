@@ -1028,6 +1028,15 @@ func testAccIntegrationConnectorsConnection_updateResource(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels", "status.0.description"},
 			},
+			{
+				Config: testAccIntegrationConnectorsConnection_integrationConnectorsConnectionAdvanced(context),
+			},
+			{
+				ResourceName:            "google_integration_connectors_connection.zendeskconnection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels", "status.0.description"},
+			},
 		},
 	})
 }
@@ -1237,6 +1246,15 @@ func testAccIntegrationConnectorsConnection_full(context map[string]interface{})
         }
       }
       enrichment_enabled = true
+      allowed_event_types = ["topic1", "topic2"]
+      global_event_filter = "has(event.id)"
+      dead_letter_config {
+        project_id = data.google_project.test_project.project_id
+        topic      = "test-topic"
+      }
+      enrichment_config {
+        append_acl = true
+      }
     }
   }
 `, context)
@@ -1447,6 +1465,15 @@ func testAccIntegrationConnectorsConnection_update(context map[string]interface{
         }
       }
       enrichment_enabled = false
+      allowed_event_types = ["topic1", "topic3"]
+      global_event_filter = "has(event.type)"
+      dead_letter_config {
+        project_id = data.google_project.test_project.project_id
+        topic      = "test-topic-updated"
+      }
+      enrichment_config {
+        append_acl = false
+      }
     }
   }
 `, context)

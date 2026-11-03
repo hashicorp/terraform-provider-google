@@ -878,6 +878,24 @@ The following arguments are supported:
   (Optional)
   Enrichment Enabled.
 
+* `allowed_event_types` -
+  (Optional)
+  List of allowed event types for the connection.
+
+* `global_event_filter` -
+  (Optional)
+  Filter to be applied on the events to be received by the connection.
+
+* `dead_letter_config` -
+  (Optional)
+  Dead letter configuration for eventing of a connection.
+  Structure is [documented below](#nested_eventing_config_dead_letter_config).
+
+* `enrichment_config` -
+  (Optional)
+  Data enrichment configuration.
+  Structure is [documented below](#nested_eventing_config_enrichment_config).
+
 
 <a name="nested_eventing_config_registration_destination_config"></a>The `registration_destination_config` block supports:
 
@@ -1041,6 +1059,22 @@ The following arguments are supported:
   The [KMS key name] with which the content of the Operation is encrypted. The
   expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
   Will be empty string if google managed.
+
+<a name="nested_eventing_config_dead_letter_config"></a>The `dead_letter_config` block supports:
+
+* `project_id` -
+  (Required)
+  Project which has the topic given.
+
+* `topic` -
+  (Required)
+  Topic to push events which couldn't be processed.
+
+<a name="nested_eventing_config_enrichment_config"></a>The `enrichment_config` block supports:
+
+* `append_acl` -
+  (Optional)
+  Append ACL to the event.
 
 <a name="nested_traffic_shaping_configs"></a>The `traffic_shaping_configs` block supports:
 
