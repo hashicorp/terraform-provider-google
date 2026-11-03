@@ -245,3 +245,138 @@ EOT
 }
 `, context)
 }
+
+func TestAccIntegrationsAuthConfig_oauth2AuthorizationCodeUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"client":        BootstrapIntegrationsClient(t, "us-east4"),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIntegrationsAuthConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIntegrationsAuthConfig_oauth2AuthorizationCodeFull(context),
+			},
+			{
+				ResourceName:            "google_integrations_auth_config.oauth2_auth_code_update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
+			},
+			{
+				Config: testAccIntegrationsAuthConfig_oauth2AuthorizationCodeUpdate(context),
+			},
+			{
+				ResourceName:            "google_integrations_auth_config.oauth2_auth_code_update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"client_certificate", "location"},
+			},
+		},
+	})
+}
+
+func testAccIntegrationsAuthConfig_oauth2AuthorizationCodeFull(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_integrations_auth_config" "oauth2_auth_code_update" {
+    location = "us-east4"
+    display_name = "tf-test-authconfig-oauth2-ac%{random_suffix}"
+    description = "Test auth config created via terraform"
+    decrypted_credential {
+        credential_type = "OAUTH2_AUTHORIZATION_CODE"
+        oauth2_authorization_code {
+            client_id = "Kf7utRvgr95oGO5YMmhFOLo8"
+            client_secret = "D-XXFDDMLrg2deDgczzHTBwC3p16wRK1rdKuuoFdWqO0wliJ"
+            scope = "photo offline_access"
+            auth_endpoint = "https://authorization-server.com/authorize"
+            token_endpoint = "https://authorization-server.com/token"
+            apply_reauth_policy = true
+            request_type = "REQUEST_BODY"
+            auth_params {
+                entries {
+                    key {
+                        literal_value {
+                            string_value = "auth-key-1"
+                        }
+                    }
+                    value {
+                        literal_value {
+                            string_value = "auth-value-1"
+                        }
+                    }
+                }
+            }
+            token_params {
+                entries {
+                    key {
+                        literal_value {
+                            string_value = "token-key-1"
+                        }
+                    }
+                    value {
+                        literal_value {
+                            string_value = "token-value-1"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+`, context)
+}
+
+func testAccIntegrationsAuthConfig_oauth2AuthorizationCodeUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_integrations_auth_config" "oauth2_auth_code_update" {
+    location = "us-east4"
+    display_name = "tf-test-authconfig-oauth2-ac-upd%{random_suffix}"
+    description = "Test auth config updated via terraform"
+    decrypted_credential {
+        credential_type = "OAUTH2_AUTHORIZATION_CODE"
+        oauth2_authorization_code {
+            client_id = "Kf7utRvgr95oGO5YMmhFOLo8-updated"
+            client_secret = "D-XXFDDMLrg2deDgczzHTBwC3p16wRK1rdKuuoFdWqO0wliJ-updated"
+            scope = "photo offline_access profile"
+            auth_endpoint = "https://authorization-server.com/authorize/v2"
+            token_endpoint = "https://authorization-server.com/token/v2"
+            apply_reauth_policy = false
+            request_type = "QUERY_PARAMETERS"
+            auth_params {
+                entries {
+                    key {
+                        literal_value {
+                            string_value = "auth-key-2"
+                        }
+                    }
+                    value {
+                        literal_value {
+                            string_value = "auth-value-2"
+                        }
+                    }
+                }
+            }
+            token_params {
+                entries {
+                    key {
+                        literal_value {
+                            string_value = "token-key-2"
+                        }
+                    }
+                    value {
+                        literal_value {
+                            string_value = "token-value-2"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+`, context)
+}

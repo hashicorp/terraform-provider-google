@@ -1,0 +1,3 @@
+```release-note:enhancement
+integrations: added `decrypted_credential.oauth2_authorization_code.apply_reauth_policy`, `decrypted_credential.oauth2_authorization_code.request_type`, `decrypted_credential.oauth2_authorization_code.auth_params`, and `decrypted_credential.oauth2_authorization_code.token_params` fields to `google_integrations_auth_config` resource
+```

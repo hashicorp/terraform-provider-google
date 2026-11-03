@@ -246,10 +246,84 @@ Note that 'passphrase' is not the password for web server, but an extra layer of
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"apply_reauth_policy": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Indicates if the user has opted in Google Reauth Policy. If opted in, the refresh token will be valid for 20 hours, after which time users must re-authenticate in order to obtain a new one.`,
+									},
 									"auth_endpoint": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: `The auth url endpoint to send the auth code request to.`,
+									},
+									"auth_params": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The auth parameters sent along with the auth code request.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"entries": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `A list of parameter map entries.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"key": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Key of the map entry.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"literal_value": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Literal value of the parameter key.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"string_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The string value of the parameter key.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"value": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Value of the map entry.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"literal_value": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Literal value of the parameter.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"string_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The string value of the parameter.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
 									},
 									"client_id": {
 										Type:        schema.TypeString,
@@ -261,6 +335,12 @@ Note that 'passphrase' is not the password for web server, but an extra layer of
 										Optional:    true,
 										Description: `The client's secret.`,
 									},
+									"request_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"REQUEST_BODY", "QUERY_PARAMETERS", "ENCODED_HEADER", ""}),
+										Description:  `Represent how to pass parameters to fetch access token Possible values: ["REQUEST_BODY", "QUERY_PARAMETERS", "ENCODED_HEADER"]`,
+									},
 									"scope": {
 										Type:        schema.TypeString,
 										Optional:    true,
@@ -270,6 +350,75 @@ Note that 'passphrase' is not the password for web server, but an extra layer of
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: `The token url endpoint to send the token request to.`,
+									},
+									"token_params": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `The token parameters sent along with the token request.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"entries": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `A list of parameter map entries.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"key": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Key of the map entry.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"literal_value": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Literal value of the parameter key.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"string_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The string value of the parameter key.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"value": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Value of the map entry.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"literal_value": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Literal value of the parameter.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"string_value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The string value of the parameter.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1161,6 +1310,14 @@ func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCode(v i
 		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthEndpoint(original["authEndpoint"], d, config)
 	transformed["token_endpoint"] =
 		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenEndpoint(original["tokenEndpoint"], d, config)
+	transformed["apply_reauth_policy"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeApplyReauthPolicy(original["applyReauthPolicy"], d, config)
+	transformed["request_type"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeRequestType(original["requestType"], d, config)
+	transformed["auth_params"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParams(original["authParams"], d, config)
+	transformed["token_params"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParams(original["tokenParams"], d, config)
 	return []interface{}{transformed}
 }
 func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1180,6 +1337,200 @@ func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuth
 }
 
 func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeApplyReauthPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeRequestType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["entries"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntries(original["entries"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"key":   flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKey(original["key"], d, config),
+			"value": flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["literal_value"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKeyLiteralValue(original["literalValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKeyLiteralValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["string_value"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKeyLiteralValueStringValue(original["stringValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKeyLiteralValueStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["literal_value"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValueLiteralValue(original["literalValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValueLiteralValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["string_value"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValueLiteralValueStringValue(original["stringValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValueLiteralValueStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["entries"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntries(original["entries"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"key":   flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKey(original["key"], d, config),
+			"value": flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValue(original["value"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["literal_value"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKeyLiteralValue(original["literalValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKeyLiteralValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["string_value"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKeyLiteralValueStringValue(original["stringValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKeyLiteralValueStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["literal_value"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValueLiteralValue(original["literalValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValueLiteralValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["string_value"] =
+		flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValueLiteralValueStringValue(original["stringValue"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValueLiteralValueStringValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1614,6 +1965,34 @@ func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCode(v in
 		transformed["tokenEndpoint"] = transformedTokenEndpoint
 	}
 
+	transformedApplyReauthPolicy, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeApplyReauthPolicy(original["apply_reauth_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApplyReauthPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["applyReauthPolicy"] = transformedApplyReauthPolicy
+	}
+
+	transformedRequestType, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeRequestType(original["request_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequestType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["requestType"] = transformedRequestType
+	}
+
+	transformedAuthParams, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParams(original["auth_params"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuthParams); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["authParams"] = transformedAuthParams
+	}
+
+	transformedTokenParams, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParams(original["token_params"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTokenParams); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tokenParams"] = transformedTokenParams
+	}
+
 	return transformed, nil
 }
 
@@ -1634,6 +2013,314 @@ func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthE
 }
 
 func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeApplyReauthPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeRequestType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEntries, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntries(original["entries"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEntries); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["entries"] = transformedEntries
+	}
+
+	return transformed, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedKey, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKey(original["key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["key"] = transformedKey
+		}
+
+		transformedValue, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLiteralValue, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKeyLiteralValue(original["literal_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLiteralValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["literalValue"] = transformedLiteralValue
+	}
+
+	return transformed, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKeyLiteralValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStringValue, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKeyLiteralValueStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	return transformed, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesKeyLiteralValueStringValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLiteralValue, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValueLiteralValue(original["literal_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLiteralValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["literalValue"] = transformedLiteralValue
+	}
+
+	return transformed, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValueLiteralValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStringValue, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValueLiteralValueStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	return transformed, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeAuthParamsEntriesValueLiteralValueStringValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEntries, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntries(original["entries"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEntries); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["entries"] = transformedEntries
+	}
+
+	return transformed, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedKey, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKey(original["key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["key"] = transformedKey
+		}
+
+		transformedValue, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLiteralValue, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKeyLiteralValue(original["literal_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLiteralValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["literalValue"] = transformedLiteralValue
+	}
+
+	return transformed, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKeyLiteralValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStringValue, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKeyLiteralValueStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	return transformed, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesKeyLiteralValueStringValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLiteralValue, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValueLiteralValue(original["literal_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLiteralValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["literalValue"] = transformedLiteralValue
+	}
+
+	return transformed, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValueLiteralValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStringValue, err := expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValueLiteralValueStringValue(original["string_value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStringValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stringValue"] = transformedStringValue
+	}
+
+	return transformed, nil
+}
+
+func expandIntegrationsAuthConfigDecryptedCredentialOauth2AuthorizationCodeTokenParamsEntriesValueLiteralValueStringValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

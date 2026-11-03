@@ -215,6 +215,36 @@ resource "google_integrations_auth_config" "oauth2_authotization_code_example" {
             scope = "photo offline_access"
             auth_endpoint = "https://authorization-server.com/authorize"
             token_endpoint = "https://authorization-server.com/token"
+            apply_reauth_policy = true
+            request_type = "REQUEST_BODY"
+            auth_params {
+                entries {
+                    key {
+                        literal_value {
+                            string_value = "auth-key"
+                        }
+                    }
+                    value {
+                        literal_value {
+                            string_value = "auth-value"
+                        }
+                    }
+                }
+            }
+            token_params {
+                entries {
+                    key {
+                        literal_value {
+                            string_value = "token-key"
+                        }
+                    }
+                    value {
+                        literal_value {
+                            string_value = "token-value"
+                        }
+                    }
+                }
+            }
         }
     }
 }
