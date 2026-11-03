@@ -1,0 +1,3 @@
+```release-note:bug
+memcache: fixed default provider `region` not being populated in state and Resource Identity for `google_memcache_instance` when `region` is omitted from configuration
+```
