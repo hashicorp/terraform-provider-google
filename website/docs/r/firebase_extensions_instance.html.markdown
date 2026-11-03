@@ -52,7 +52,7 @@ resource "google_firebase_extensions_instance" "resize_image" {
   instance_id = "storage-resize-images"
   config {
     extension_ref = "firebase/storage-resize-images"
-    extension_version = "0.2.10"
+    extension_version = "0.3.6"
 
     # The following params apply to the firebase/storage-resize-images extension. 
     # Different extensions may have different params
@@ -62,10 +62,8 @@ resource "google_firebase_extensions_instance" "resize_image" {
       IMAGE_TYPE           = false
       IS_ANIMATED          = true
       FUNCTION_MEMORY      = 1024
-      DO_BACKFILL          = false
       IMG_SIZES            = "200x200"
       IMG_BUCKET           = google_storage_bucket.images.name
-      BACKFILL_BATCH_SIZE  = 3
       CONTENT_FILTER_LEVEL = "OFF"
       REGENERATE_TOKEN     = "true"
     }
