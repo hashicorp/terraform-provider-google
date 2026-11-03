@@ -28,12 +28,10 @@ eligible resources that match the policy's criteria, instead of protecting each 
 individually. A policy takes effect only after it is attached to a scope, such as a
 project, with a `google_backup_dr_auto_protection_policy_binding`.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about AutoProtectionPolicy, see:
 
-* [API documentation](https://cloud.google.com/backup-disaster-recovery/docs/reference/rest/v1beta/projects.locations.autoProtectionPolicies)
+* [API documentation](https://cloud.google.com/backup-disaster-recovery/docs/reference/rest/v1/projects.locations.autoProtectionPolicies)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/backup-disaster-recovery/docs)
 
@@ -48,14 +46,12 @@ To get more information about AutoProtectionPolicy, see:
 
 ```hcl
 resource "google_backup_dr_backup_vault" "my_backup_vault" {
-  provider                                   = google-beta
   location                                   = "us-central1"
   backup_vault_id                            = "bv-app"
   backup_minimum_enforced_retention_duration = "100000s"
 }
 
 resource "google_backup_dr_backup_plan" "my_backup_plan" {
-  provider       = google-beta
   location       = "us-central1"
   backup_plan_id = "bp-app"
   resource_type  = "compute.googleapis.com/Instance"
@@ -79,7 +75,6 @@ resource "google_backup_dr_backup_plan" "my_backup_plan" {
 }
 
 resource "google_backup_dr_auto_protection_policy" "my-auto-protection-policy" {
-  provider                  = google-beta
   location                  = "us-central1"
   auto_protection_policy_id = "app"
 
@@ -109,14 +104,12 @@ resource "google_backup_dr_auto_protection_policy" "my-auto-protection-policy" {
 
 ```hcl
 resource "google_backup_dr_backup_vault" "my_backup_vault" {
-  provider                                   = google-beta
   location                                   = "us-central1"
   backup_vault_id                            = "bv-app-update"
   backup_minimum_enforced_retention_duration = "100000s"
 }
 
 resource "google_backup_dr_backup_plan" "instance_backup_plan" {
-  provider       = google-beta
   location       = "us-central1"
   backup_plan_id = "bp-app-update-vm"
   resource_type  = "compute.googleapis.com/Instance"
@@ -140,7 +133,6 @@ resource "google_backup_dr_backup_plan" "instance_backup_plan" {
 }
 
 resource "google_backup_dr_auto_protection_policy" "my-auto-protection-policy" {
-  provider                  = google-beta
   location                  = "us-central1"
   auto_protection_policy_id = "app-update"
   description               = "Protects production VMs."
