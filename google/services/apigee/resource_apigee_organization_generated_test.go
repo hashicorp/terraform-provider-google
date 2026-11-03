@@ -87,7 +87,7 @@ func TestAccApigeeOrganization_apigeeOrganizationCloudBasicTestExample(t *testin
 			},
 			{
 				ResourceName:       "google_apigee_organization.org",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -202,7 +202,7 @@ func TestAccApigeeOrganization_apigeeOrganizationCloudBasicDisableVpcPeeringTest
 			},
 			{
 				ResourceName:       "google_apigee_organization.org",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -277,7 +277,7 @@ func TestAccApigeeOrganization_apigeeOrganizationCloudBasicDataResidencyTestExam
 			},
 			{
 				ResourceName:       "google_apigee_organization.org",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

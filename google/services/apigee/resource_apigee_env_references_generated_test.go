@@ -87,7 +87,7 @@ func TestAccApigeeEnvReferences_apigeeEnvironmentReferenceTestExample(t *testing
 			},
 			{
 				ResourceName:       "google_apigee_env_references.apigee_environment_reference",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

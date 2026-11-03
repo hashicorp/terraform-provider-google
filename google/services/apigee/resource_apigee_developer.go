@@ -541,35 +541,40 @@ func resourceApigeeDeveloperImport(d *schema.ResourceData, meta interface{}) ([]
 	config := meta.(*transport_tpg.Config)
 
 	// current import_formats cannot import fields with forward slashes in their value
-	if err := tpgresource.ParseImportId([]string{"(?P<email>.+)"}, d, config); err != nil {
+	if err := tpgresource.ParseImportId([]string{
+		"(?P<org_id>organizations/[^/]+)/developers/(?P<email>[^/]+)",
+		"(?P<email>.+)",
+	}, d, config); err != nil {
 		return nil, err
 	}
 
-	nameParts := strings.Split(d.Get("email").(string), "/")
-	if len(nameParts) == 4 {
-		// `organizations/{{org_name}}/developers/{{email}}`
-		orgId := fmt.Sprintf("organizations/%s", nameParts[1])
-		if err := d.Set("org_id", orgId); err != nil {
-			return nil, fmt.Errorf("Error setting org_id: %s", err)
+	if d.Get("org_id").(string) == "" {
+		nameParts := strings.Split(d.Get("email").(string), "/")
+		if len(nameParts) == 4 {
+			// `organizations/{{org_name}}/developers/{{email}}`
+			orgId := fmt.Sprintf("organizations/%s", nameParts[1])
+			if err := d.Set("org_id", orgId); err != nil {
+				return nil, fmt.Errorf("Error setting org_id: %s", err)
+			}
+			if err := d.Set("email", nameParts[3]); err != nil {
+				return nil, fmt.Errorf("Error setting email: %s", err)
+			}
+		} else if len(nameParts) == 3 {
+			// `organizations/{{org_name}}/{{email}}`
+			orgId := fmt.Sprintf("organizations/%s", nameParts[1])
+			if err := d.Set("org_id", orgId); err != nil {
+				return nil, fmt.Errorf("Error setting org_id: %s", err)
+			}
+			if err := d.Set("email", nameParts[2]); err != nil {
+				return nil, fmt.Errorf("Error setting name: %s", err)
+			}
+		} else {
+			return nil, fmt.Errorf(
+				"Saw %s when the name is expected to have shape %s or %s",
+				d.Get("name"),
+				"organizations/{{org_name}}/developers/{{email}}",
+				"organizations/{{org_name}}/{{email}}")
 		}
-		if err := d.Set("email", nameParts[3]); err != nil {
-			return nil, fmt.Errorf("Error setting email: %s", err)
-		}
-	} else if len(nameParts) == 3 {
-		// `organizations/{{org_name}}/{{email}}`
-		orgId := fmt.Sprintf("organizations/%s", nameParts[1])
-		if err := d.Set("org_id", orgId); err != nil {
-			return nil, fmt.Errorf("Error setting org_id: %s", err)
-		}
-		if err := d.Set("email", nameParts[2]); err != nil {
-			return nil, fmt.Errorf("Error setting name: %s", err)
-		}
-	} else {
-		return nil, fmt.Errorf(
-			"Saw %s when the name is expected to have shape %s or %s",
-			d.Get("name"),
-			"organizations/{{org_name}}/developers/{{email}}",
-			"organizations/{{org_name}}/{{email}}")
 	}
 
 	// Replace import id for the resource id

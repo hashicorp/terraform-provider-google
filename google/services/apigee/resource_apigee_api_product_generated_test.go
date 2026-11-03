@@ -87,7 +87,7 @@ func TestAccApigeeApiProduct_apigeeApiProductBasicTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_api_product.apigee_api_product",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -216,7 +216,7 @@ func TestAccApigeeApiProduct_apigeeApiProductWithLegacyOperationTestExample(t *t
 			},
 			{
 				ResourceName:       "google_apigee_api_product.apigee_api_product",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -381,7 +381,7 @@ func TestAccApigeeApiProduct_apigeeApiProductWithAttributesTestExample(t *testin
 			},
 			{
 				ResourceName:       "google_apigee_api_product.apigee_api_product",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

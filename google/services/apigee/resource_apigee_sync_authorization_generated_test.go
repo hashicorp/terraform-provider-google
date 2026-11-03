@@ -83,7 +83,7 @@ func TestAccApigeeSyncAuthorization_apigeeSyncAuthorizationBasicTestExample(t *t
 			},
 			{
 				ResourceName:       "google_apigee_sync_authorization.apigee_sync_authorization",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

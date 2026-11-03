@@ -88,7 +88,7 @@ func TestAccApigeeNatAddress_apigeeNatAddressBasicTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_nat_address.apigee_nat_address",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

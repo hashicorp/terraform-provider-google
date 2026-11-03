@@ -88,7 +88,7 @@ func TestAccApigeeInstanceAttachment_apigeeInstanceAttachmentBasicTestExample(t 
 			},
 			{
 				ResourceName:       "google_apigee_instance_attachment.apigee_instance_attachment",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

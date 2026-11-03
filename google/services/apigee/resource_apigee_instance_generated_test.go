@@ -91,7 +91,7 @@ func TestAccApigeeInstance_apigeeInstanceBasicTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_instance.apigee_instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -213,7 +213,7 @@ func TestAccApigeeInstance_apigeeInstanceCidrRangeTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_instance.apigee_instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -335,7 +335,7 @@ func TestAccApigeeInstance_apigeeInstanceIpRangeTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_instance.apigee_instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -454,7 +454,7 @@ func TestAccApigeeInstance_apigeeInstanceServiceAttachmentBasicTestExample(t *te
 			},
 			{
 				ResourceName:       "google_apigee_instance.apigee_instance",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

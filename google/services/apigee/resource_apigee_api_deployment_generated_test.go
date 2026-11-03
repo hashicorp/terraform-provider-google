@@ -87,7 +87,7 @@ func TestAccApigeeApiDeployment_apigeeApiDeploymentBasicTestExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_apigee_api_deployment.api_deployment_test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -212,7 +212,7 @@ func TestAccApigeeApiDeployment_apigeeApiDeploymentServiceAccountTestExample(t *
 			},
 			{
 				ResourceName:       "google_apigee_api_deployment.api_deployment_test",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

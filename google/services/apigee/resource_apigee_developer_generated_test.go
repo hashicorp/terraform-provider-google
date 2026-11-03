@@ -88,7 +88,7 @@ func TestAccApigeeDeveloper_apigeeDeveloperBasicTestExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_apigee_developer.apigee_developer",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -217,7 +217,7 @@ func TestAccApigeeDeveloper_apigeeDeveloperWithAttributesTestExample(t *testing.
 			},
 			{
 				ResourceName:       "google_apigee_developer.apigee_developer",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -83,7 +83,7 @@ func TestAccApigeeControlPlaneAccess_apigeeControlPlaneAccessBasicTestExample(t 
 			},
 			{
 				ResourceName:       "google_apigee_control_plane_access.apigee_control_plane_access",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
