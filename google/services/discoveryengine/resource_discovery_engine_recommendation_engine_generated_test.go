@@ -81,7 +81,7 @@ func TestAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationeng
 			},
 			{
 				ResourceName:       "google_discovery_engine_recommendation_engine.generic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -141,7 +141,7 @@ func TestAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationeng
 			},
 			{
 				ResourceName:       "google_discovery_engine_recommendation_engine.media",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

@@ -80,7 +80,7 @@ func TestAccDiscoveryEngineWidgetConfig_discoveryengineWidgetconfigBasicExample(
 			},
 			{
 				ResourceName:       "google_discovery_engine_widget_config.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

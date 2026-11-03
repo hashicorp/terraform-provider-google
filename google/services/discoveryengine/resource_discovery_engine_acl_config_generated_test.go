@@ -78,7 +78,7 @@ func TestAccDiscoveryEngineAclConfig_discoveryengineAclconfigBasicExample(t *tes
 			},
 			{
 				ResourceName:       "google_discovery_engine_acl_config.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

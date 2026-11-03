@@ -80,7 +80,7 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowB
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_connector.servicenow-basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -168,7 +168,7 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithAct
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_connector.jira-with-actions",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

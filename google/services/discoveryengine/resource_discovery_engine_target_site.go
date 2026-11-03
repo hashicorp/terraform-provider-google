@@ -454,6 +454,11 @@ func resourceDiscoveryEngineTargetSiteRead(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] Finished reading DiscoveryEngineTargetSite %q: %#v", d.Id(), res)
+	if name, ok := res["name"].(string); ok && name != "" {
+		if err := d.Set("target_site_id", tpgresource.GetResourceNameFromSelfLink(name)); err != nil {
+			return fmt.Errorf("Error setting target_site_id: %s", err)
+		}
+	}
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {

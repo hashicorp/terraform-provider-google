@@ -80,7 +80,7 @@ func TestAccDiscoveryEngineSitemap_discoveryengineSitemapBasicExample(t *testing
 			},
 			{
 				ResourceName:       "google_discovery_engine_sitemap.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

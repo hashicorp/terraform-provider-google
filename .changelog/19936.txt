@@ -1,0 +1,3 @@
+```release-note:bug
+discoveryengine: fixed server-generated `target_site_id` not being populated in state and Resource Identity for `google_discovery_engine_target_site`
+```

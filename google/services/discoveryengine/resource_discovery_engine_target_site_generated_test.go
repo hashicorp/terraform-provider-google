@@ -80,7 +80,7 @@ func TestAccDiscoveryEngineTargetSite_discoveryengineTargetsiteBasicExample(t *t
 			},
 			{
 				ResourceName:       "google_discovery_engine_target_site.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -137,7 +137,7 @@ func TestAccDiscoveryEngineTargetSite_discoveryengineTargetsiteAdvancedExample(t
 			},
 			{
 				ResourceName:       "google_discovery_engine_target_site.advanced",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

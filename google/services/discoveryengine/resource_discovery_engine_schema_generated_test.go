@@ -81,7 +81,7 @@ func TestAccDiscoveryEngineSchema_discoveryengineSchemaBasicExample(t *testing.T
 			},
 			{
 				ResourceName:       "google_discovery_engine_schema.basic",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
