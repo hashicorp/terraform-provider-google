@@ -82,7 +82,7 @@ func TestAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcont
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_cloud_control.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -271,7 +271,7 @@ func TestAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcont
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_cloud_control.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -462,7 +462,7 @@ func TestAccCloudSecurityComplianceCloudControl_cloudsecuritycomplianceCloudcont
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_cloud_control.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

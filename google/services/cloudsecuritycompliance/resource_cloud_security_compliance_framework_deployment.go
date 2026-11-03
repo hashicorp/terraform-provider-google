@@ -696,6 +696,12 @@ func resourceCloudSecurityComplianceFrameworkDeploymentRead(d *schema.ResourceDa
 		if err := d.Set("parent", "organizations/"+d.Get("organization").(string)); err != nil {
 			return err
 		}
+	} else if d.Get("organization").(string) == "" && d.Get("parent").(string) != "" {
+		if strings.HasPrefix(d.Get("parent").(string), "organizations/") {
+			if err := d.Set("organization", strings.TrimPrefix(d.Get("parent").(string), "organizations/")); err != nil {
+				return err
+			}
+		}
 	}
 	url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/{{location}}/frameworkDeployments/{{framework_deployment_id}}")
 	if err != nil {

@@ -82,7 +82,7 @@ func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkOrg
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -182,7 +182,7 @@ func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkPro
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -283,7 +283,7 @@ func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkOrg
 			},
 			{
 				ResourceName:       "google_cloud_security_compliance_framework.example",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
