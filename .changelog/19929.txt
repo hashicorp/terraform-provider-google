@@ -1,0 +1,3 @@
+```release-note:bug
+cloudsecuritycompliance: fixed `organization` not being populated in state and Resource Identity during import for `google_cloud_security_compliance_cloud_control`, `google_cloud_security_compliance_framework`, and `google_cloud_security_compliance_framework_deployment`
+```
