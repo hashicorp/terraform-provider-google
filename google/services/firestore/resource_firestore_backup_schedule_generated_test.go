@@ -82,7 +82,7 @@ func TestAccFirestoreBackupSchedule_firestoreBackupScheduleDailyExample(t *testi
 			},
 			{
 				ResourceName:       "google_firestore_backup_schedule.daily-backup",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -141,7 +141,7 @@ func TestAccFirestoreBackupSchedule_firestoreBackupScheduleWeeklyExample(t *test
 			},
 			{
 				ResourceName:       "google_firestore_backup_schedule.weekly-backup",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},

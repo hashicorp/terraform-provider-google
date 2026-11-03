@@ -87,7 +87,7 @@ func TestAccFirestoreDocument_firestoreDocumentBasicExample(t *testing.T) {
 			},
 			{
 				ResourceName:       "google_firestore_document.mydoc",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
@@ -169,7 +169,7 @@ func TestAccFirestoreDocument_firestoreDocumentNestedDocumentExample(t *testing.
 			},
 			{
 				ResourceName:       "google_firestore_document.mydoc",
-				RefreshState:       true,
+				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
 			},
