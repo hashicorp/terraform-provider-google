@@ -1,0 +1,45 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dialogflow_companion_agent
+generation_type: mmv1
+source_file: products/dialogflow/CompanionAgent.yaml
+api_service_name: dialogflow.googleapis.com
+api_version: v2
+api_resource_type_kind: CompanionAgent
+autogen_status: true
+autogen_version: 2
+fields:
+    - api_field: cesToolSpecs.cesTool
+    - api_field: cesToolSpecs.confirmationRequirement
+    - api_field: cesToolSpecs.parameterOverrides.contextReferenceKey
+    - api_field: cesToolSpecs.parameterOverrides.fieldPath
+    - api_field: cesToolSpecs.parameterOverrides.parameterName
+    - api_field: cesToolSpecs.proactiveEnabled
+    - api_field: cesToolSpecs.reactiveEnabled
+    - field: companion_agent_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: skillConfigs.guidanceSkillConfig.guidanceInstructions.actions.description
+    - api_field: skillConfigs.guidanceSkillConfig.guidanceInstructions.condition
+    - api_field: skillConfigs.guidanceSkillConfig.guidanceInstructions.disableSuggestedReply
+    - api_field: skillConfigs.guidanceSkillConfig.guidanceInstructions.displayDetails
+    - api_field: skillConfigs.guidanceSkillConfig.guidanceInstructions.displayName
+    - api_field: skillConfigs.guidanceSkillConfig.guidanceInstructions.triggerEvent
+    - api_field: skillConfigs.guidanceSkillConfig.overarchingGuidance
+    - api_field: skillConfigs.skillTriggeringEvent
+    - api_field: toolsetTools.confirmationRequirement
+    - api_field: toolsetTools.operationId
+    - api_field: toolsetTools.parameterOverrides.contextReferenceKey
+    - api_field: toolsetTools.parameterOverrides.fieldPath
+    - api_field: toolsetTools.parameterOverrides.parameterName
+    - api_field: toolsetTools.proactiveEnabled
+    - api_field: toolsetTools.reactiveEnabled
+    - api_field: toolsetTools.toolset
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
