@@ -961,6 +961,15 @@ The following arguments are supported:
   (Optional)
   Immutable. The zone for single zone Memorystore Redis cluster.
 
+* `zones` -
+  (Optional)
+  Specify the zones of a multi-zone cluster where Redis Cluster
+  allocates resources. This flag isn't applicable for single-zone clusters.
+
+* `active_zones` -
+  (Output)
+  The exact list of zones where the cluster currently has active VMs.
+
 <a name="nested_psc_configs"></a>The `psc_configs` block supports:
 
 * `network` -

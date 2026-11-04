@@ -106,7 +106,9 @@ fields:
     - api_field: transitEncryptionMode
     - api_field: uid
     - api_field: updateTime
+    - api_field: zoneDistributionConfig.activeZones
     - api_field: zoneDistributionConfig.mode
     - api_field: zoneDistributionConfig.zone
+    - api_field: zoneDistributionConfig.zones
     - field: deletion_policy
       provider_only: true

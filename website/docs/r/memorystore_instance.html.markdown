@@ -818,6 +818,16 @@ The following arguments are supported:
   SINGLE_ZONE
   Possible values are: `MULTI_ZONE`, `SINGLE_ZONE`.
 
+* `zones` -
+  (Optional)
+  Specify the zones of a multi-zone instance where Memorystore
+  instance allocates resources. This flag isn't applicable for single-zone
+  instances.
+
+* `active_zones` -
+  (Output)
+  The exact list of zones where the instance currently has active VMs.
+
 <a name="nested_cross_instance_replication_config"></a>The `cross_instance_replication_config` block supports:
 
 * `instance_role` -
