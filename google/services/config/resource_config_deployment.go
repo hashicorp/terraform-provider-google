@@ -765,7 +765,7 @@ func resourceConfigDeploymentDelete(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error fetching project for Deployment: %s", err)
 	}
 	billingProject = project
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/deployments/{{name}}?force={{force_destroy}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/deployments/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -778,6 +778,13 @@ func resourceConfigDeploymentDelete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	headers := make(http.Header)
+
+	if v, ok := d.GetOk("force_destroy"); ok {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"force": fmt.Sprintf("%v", v)})
+		if err != nil {
+			return err
+		}
+	}
 
 	log.Printf("[DEBUG] Deleting Deployment %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
