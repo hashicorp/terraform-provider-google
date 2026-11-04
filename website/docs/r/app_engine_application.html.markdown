@@ -104,7 +104,7 @@ exported:
 
 * `app_id` - Identifier of the app, usually `{PROJECT_ID}`
 
-* `url_dispatch_rule` - A list of dispatch rule blocks. Each block has a `domain`, `path`, and `service` field.
+* `url_dispatch_rule` - A list of dispatch rule blocks. Structure is [documented below](#nested_url_dispatch_rule).
 
 * `code_bucket` - The GCS bucket code is being stored in for this app.
 
@@ -120,6 +120,14 @@ exported:
   (default is false)
 
   * `oauth2_client_secret_sha256` - Hex-encoded SHA-256 hash of the client secret.
+
+<a name="nested_url_dispatch_rule"></a>The `url_dispatch_rule` block contains:
+
+* `domain` - Domain name to match against.
+
+* `path` - Pathname within the host.
+
+* `service` - Resource ID of a service in this application that should serve the matched request.
 
 ## Timeouts
 
