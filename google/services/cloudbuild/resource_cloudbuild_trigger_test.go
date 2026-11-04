@@ -325,6 +325,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
       dynamic_substitutions = false
       log_streaming_option = "STREAM_OFF"
       worker_pool = "pool"
+      worker_release = "regular"
       logging = "LEGACY"
       env = ["ekey = evalue"]
       secret_env = ["secretenv = svalue"]
@@ -454,6 +455,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     options {
       # this field is always enabled for triggered build and cannot be overridden in the build configuration file.
       dynamic_substitutions = true
+      worker_release = "stable"
     }
   }
 }

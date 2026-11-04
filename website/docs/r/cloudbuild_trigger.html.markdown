@@ -1735,6 +1735,12 @@ The following arguments are supported:
   Option to specify a WorkerPool for the build. Format projects/{project}/workerPools/{workerPool}
   This field is experimental.
 
+* `worker_release` -
+  (Optional)
+  Option to specify which release or release channel to use to run this build.
+  Possible values are the release channels `rapid`, `regular`, or `stable`, or a specific
+  release version such as `legacy`.
+
 * `logging` -
   (Optional)
   Option to specify the logging mode, which determines if and where build logs are stored.

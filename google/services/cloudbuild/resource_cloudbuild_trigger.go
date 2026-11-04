@@ -827,6 +827,13 @@ build step or with certain reserved volume paths.`,
 
 This field is experimental.`,
 									},
+									"worker_release": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Option to specify which release or release channel to use to run this build.
+Possible values are the release channels 'rapid', 'regular', or 'stable', or a specific
+release version such as 'legacy'.`,
+									},
 								},
 							},
 						},
@@ -3259,6 +3266,8 @@ func flattenCloudBuildTriggerBuildOptions(v interface{}, d *schema.ResourceData,
 		flattenCloudBuildTriggerBuildOptionsLogStreamingOption(original["logStreamingOption"], d, config)
 	transformed["worker_pool"] =
 		flattenCloudBuildTriggerBuildOptionsWorkerPool(original["workerPool"], d, config)
+	transformed["worker_release"] =
+		flattenCloudBuildTriggerBuildOptionsWorkerRelease(original["workerRelease"], d, config)
 	transformed["logging"] =
 		flattenCloudBuildTriggerBuildOptionsLogging(original["logging"], d, config)
 	transformed["env"] =
@@ -3311,6 +3320,10 @@ func flattenCloudBuildTriggerBuildOptionsLogStreamingOption(v interface{}, d *sc
 }
 
 func flattenCloudBuildTriggerBuildOptionsWorkerPool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudBuildTriggerBuildOptionsWorkerRelease(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5319,6 +5332,13 @@ func expandCloudBuildTriggerBuildOptions(v interface{}, d tpgresource.TerraformR
 		transformed["workerPool"] = transformedWorkerPool
 	}
 
+	transformedWorkerRelease, err := expandCloudBuildTriggerBuildOptionsWorkerRelease(original["worker_release"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedWorkerRelease); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["workerRelease"] = transformedWorkerRelease
+	}
+
 	transformedLogging, err := expandCloudBuildTriggerBuildOptionsLogging(original["logging"], d, config)
 	if err != nil {
 		return nil, err
@@ -5379,6 +5399,10 @@ func expandCloudBuildTriggerBuildOptionsLogStreamingOption(v interface{}, d tpgr
 }
 
 func expandCloudBuildTriggerBuildOptionsWorkerPool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudBuildTriggerBuildOptionsWorkerRelease(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

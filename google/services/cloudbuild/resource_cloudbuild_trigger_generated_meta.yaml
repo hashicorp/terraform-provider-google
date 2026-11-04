@@ -50,6 +50,7 @@ fields:
     - api_field: build.options.volumes.name
     - api_field: build.options.volumes.path
     - api_field: build.options.workerPool
+    - api_field: build.options.workerRelease
     - api_field: build.queueTtl
     - api_field: build.secrets.kmsKeyName
       field: build.secret.kms_key_name
