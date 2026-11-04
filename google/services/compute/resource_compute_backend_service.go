@@ -35,7 +35,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -233,7 +232,6 @@ var (
 	_ = strconv.Atoi
 	_ = strings.Trim
 	_ = time.Now
-	_ = errwrap.Wrap
 	_ = cty.BoolVal
 	_ = diag.Diagnostic{}
 	_ = customdiff.All
@@ -2027,7 +2025,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	if o, n := d.GetChange("security_policy"); o.(string) != n.(string) {
 		pol, err := tpgresource.ParseSecurityPolicyFieldValue(n.(string), d, config)
 		if err != nil {
-			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
+			return fmt.Errorf("Error parsing Backend Service security policy: %w", err)
 		}
 
 		sBody := emptySecurityPolicyReference()
@@ -2052,7 +2050,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 		})
 
 		if err != nil {
-			return errwrap.Wrapf("Error setting Backend Service security policy: {{err}}", err)
+			return fmt.Errorf("Error setting Backend Service security policy: %w", err)
 		}
 		// This uses the create timeout for simplicity, though technically this code appears in both create and update
 		err = ComputeOperationWaitTime(config, res, project, "Setting Backend Service Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
@@ -2064,7 +2062,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	if o, n := d.GetChange("edge_security_policy"); o.(string) != n.(string) {
 		pol, err := tpgresource.ParseSecurityPolicyFieldValue(n.(string), d, config)
 		if err != nil {
-			return errwrap.Wrapf("Error parsing Backend Service edge security policy: {{err}}", err)
+			return fmt.Errorf("Error parsing Backend Service edge security policy: %w", err)
 		}
 
 		eBody := emptySecurityPolicyReference()
@@ -2088,7 +2086,7 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 			Headers:   headers,
 		})
 		if err != nil {
-			return errwrap.Wrapf("Error setting Backend Service edge security policy: {{err}}", err)
+			return fmt.Errorf("Error setting Backend Service edge security policy: %w", err)
 		}
 		// This uses the create timeout for simplicity, though technically this code appears in both create and update
 		err = ComputeOperationWaitTime(config, res, project, "Setting Backend Service Edge Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
@@ -2521,7 +2519,7 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	if o, n := d.GetChange("security_policy"); o.(string) != n.(string) {
 		pol, err := tpgresource.ParseSecurityPolicyFieldValue(n.(string), d, config)
 		if err != nil {
-			return errwrap.Wrapf("Error parsing Backend Service security policy: {{err}}", err)
+			return fmt.Errorf("Error parsing Backend Service security policy: %w", err)
 		}
 
 		sBody := emptySecurityPolicyReference()
@@ -2546,7 +2544,7 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		})
 
 		if err != nil {
-			return errwrap.Wrapf("Error setting Backend Service security policy: {{err}}", err)
+			return fmt.Errorf("Error setting Backend Service security policy: %w", err)
 		}
 		// This uses the create timeout for simplicity, though technically this code appears in both create and update
 		err = ComputeOperationWaitTime(config, res, project, "Setting Backend Service Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))
@@ -2558,7 +2556,7 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 	if o, n := d.GetChange("edge_security_policy"); o.(string) != n.(string) {
 		pol, err := tpgresource.ParseSecurityPolicyFieldValue(n.(string), d, config)
 		if err != nil {
-			return errwrap.Wrapf("Error parsing Backend Service edge security policy: {{err}}", err)
+			return fmt.Errorf("Error parsing Backend Service edge security policy: %w", err)
 		}
 
 		eBody := emptySecurityPolicyReference()
@@ -2582,7 +2580,7 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 			Headers:   headers,
 		})
 		if err != nil {
-			return errwrap.Wrapf("Error setting Backend Service edge security policy: {{err}}", err)
+			return fmt.Errorf("Error setting Backend Service edge security policy: %w", err)
 		}
 		// This uses the create timeout for simplicity, though technically this code appears in both create and update
 		err = ComputeOperationWaitTime(config, res, project, "Setting Backend Service Edge Security Policy", userAgent, d.Timeout(schema.TimeoutCreate))

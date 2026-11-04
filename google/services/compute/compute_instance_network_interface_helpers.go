@@ -19,7 +19,6 @@ package compute
 import (
 	"fmt"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -169,7 +168,7 @@ func computeInstanceCreateUpdateWhileStoppedCall(d *schema.ResourceData, config 
 			Body:      networkInterfacePatchObj,
 		})
 		if err != nil {
-			return errwrap.Wrapf("Error updating network interface: {{err}}", err)
+			return fmt.Errorf("Error updating network interface: %w", err)
 		}
 
 		err = ComputeOperationWaitTime(config, res, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate))

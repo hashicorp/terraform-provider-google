@@ -19,7 +19,6 @@ package kms
 import (
 	"fmt"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
@@ -48,7 +47,7 @@ func NewKmsCryptoKeyIamUpdater(d tpgresource.TerraformResourceData, config *tran
 	cryptoKeyId, err := ParseKmsCryptoKeyId(cryptoKey, config)
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for %s: {{err}}", cryptoKey), err)
+		return nil, fmt.Errorf("Error parsing resource ID for %s: %w", cryptoKey, err)
 	}
 
 	return &KmsCryptoKeyIamUpdater{
@@ -79,13 +78,13 @@ func (u *KmsCryptoKeyIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.P
 	p, err := NewClient(u.Config, userAgent).Projects.Locations.KeyRings.CryptoKeys.GetIamPolicy(u.resourceId).OptionsRequestedPolicyVersion(tpgiamresource.IamPolicyVersion).Do()
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	cloudResourcePolicy, err := kmsToResourceManagerPolicy(p)
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Invalid IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return cloudResourcePolicy, nil
@@ -100,7 +99,7 @@ func (u *KmsCryptoKeyIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanag
 	kmsPolicy, err := resourceManagerToKmsPolicy(policy)
 
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Invalid IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	_, err = NewClient(u.Config, userAgent).Projects.Locations.KeyRings.CryptoKeys.SetIamPolicy(u.resourceId, &cloudkms.SetIamPolicyRequest{
@@ -108,7 +107,7 @@ func (u *KmsCryptoKeyIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanag
 	}).Do()
 
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Error setting IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return nil

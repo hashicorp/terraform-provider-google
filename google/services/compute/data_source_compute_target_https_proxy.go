@@ -27,8 +27,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
@@ -55,8 +53,6 @@ var (
 	_ = regexp.Match
 	_ = strings.Trim
 	_ = time.Now
-	_ = errwrap.Wrap
-	_ = cty.BoolVal
 	_ = diag.Diagnostic{}
 	_ = customdiff.All
 	_ = id.UniqueId

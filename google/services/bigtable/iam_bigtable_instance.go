@@ -25,7 +25,6 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/bigtableadmin/v2"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -100,12 +99,12 @@ func (u *BigtableInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanag
 
 	p, err := NewProjectsInstancesClient(u.Config, userAgent).GetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	cloudResourcePolicy, err := bigtableToResourceManagerPolicy(p)
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Invalid IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return cloudResourcePolicy, nil
@@ -114,7 +113,7 @@ func (u *BigtableInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanag
 func (u *BigtableInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
 	bigtablePolicy, err := resourceManagerToBigtablePolicy(policy)
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Invalid IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	req := &bigtableadmin.SetIamPolicyRequest{Policy: bigtablePolicy}
@@ -126,7 +125,7 @@ func (u *BigtableInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcem
 
 	_, err = NewProjectsInstancesClient(u.Config, userAgent).SetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Error setting IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return nil
@@ -148,7 +147,7 @@ func resourceManagerToBigtablePolicy(p *cloudresourcemanager.Policy) (*bigtablea
 	out := &bigtableadmin.Policy{}
 	err := tpgresource.Convert(p, out)
 	if err != nil {
-		return nil, errwrap.Wrapf("Cannot convert a bigtable policy to a cloudresourcemanager policy: {{err}}", err)
+		return nil, fmt.Errorf("Cannot convert a bigtable policy to a cloudresourcemanager policy: %w", err)
 	}
 	return out, nil
 }
@@ -157,7 +156,7 @@ func bigtableToResourceManagerPolicy(p *bigtableadmin.Policy) (*cloudresourceman
 	out := &cloudresourcemanager.Policy{}
 	err := tpgresource.Convert(p, out)
 	if err != nil {
-		return nil, errwrap.Wrapf("Cannot convert a cloudresourcemanager policy to a bigtable policy: {{err}}", err)
+		return nil, fmt.Errorf("Cannot convert a cloudresourcemanager policy to a bigtable policy: %w", err)
 	}
 	return out, nil
 }

@@ -22,8 +22,6 @@ import (
 	"log"
 	"sync"
 	"time"
-
-	"github.com/hashicorp/errwrap"
 )
 
 const DefaultBatchSendIntervalSec = 3
@@ -193,9 +191,7 @@ func (b *RequestBatcher) SendRequestWithTimeout(batchKey string, request *BatchR
 	select {
 	case resp := <-respCh:
 		if resp.err != nil {
-			return nil, errwrap.Wrapf(
-				fmt.Sprintf("Request `%s` returned error: {{err}}", request.DebugId),
-				resp.err)
+			return nil, fmt.Errorf("Request `%s` returned error: %w", request.DebugId, resp.err)
 		}
 		return resp.body, nil
 	case <-ctx.Done():
@@ -287,9 +283,7 @@ func (b *RequestBatcher) sendBatchWithSingleRetry(batchKey string, batch *starte
 			log.Printf("[DEBUG] Retried single request %q returned response: %v", sub.singleRequest.DebugId, singleResp)
 
 			if singleResp.IsError() {
-				singleResp.err = errwrap.Wrapf(
-					fmt.Sprintf("Batch request and retried single request %q both failed. Final error: {{err}}", sub.singleRequest.DebugId),
-					singleResp.err)
+				singleResp.err = fmt.Errorf("Batch request and retried single request %q both failed. Final error: %w", sub.singleRequest.DebugId, singleResp.err)
 			}
 			sub.respCh <- singleResp
 			close(sub.respCh)

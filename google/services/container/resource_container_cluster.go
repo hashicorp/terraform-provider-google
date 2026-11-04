@@ -26,7 +26,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
@@ -3382,13 +3381,13 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		})
 		if err != nil {
 			if !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
-				return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+				return fmt.Errorf("Error deleting default node pool: %w", err)
 			}
 			log.Printf("[WARN] Container cluster %q default node pool already removed, no change", d.Id())
 		} else {
 			err = ContainerOperationWait(config, op, project, location, "removing default node pool", userAgent, d.Timeout(schema.TimeoutCreate))
 			if err != nil {
-				return errwrap.Wrapf("Error while waiting to delete default node pool: {{err}}", err)
+				return fmt.Errorf("Error while waiting to delete default node pool: %w", err)
 			}
 		}
 	}
@@ -3428,12 +3427,12 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			},
 		})
 		if err != nil {
-			return errwrap.Wrapf(fmt.Sprintf("Error updating cluster for %v: {{err}}", update.ForceSendFields), err)
+			return fmt.Errorf("Error updating cluster for %v: %w", update.ForceSendFields, err)
 		}
 
 		err = ContainerOperationWait(config, op, project, location, "updating enable private endpoint", userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return errwrap.Wrapf(fmt.Sprintf("Error while waiting on cluster update for %v: {{err}}", update.ForceSendFields), err)
+			return fmt.Errorf("Error while waiting on cluster update for %v: %w", update.ForceSendFields, err)
 		}
 	}
 
@@ -3460,12 +3459,12 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			},
 		})
 		if err != nil {
-			return errwrap.Wrapf("Error updating AdditionalPodRangesConfig: {{err}}", err)
+			return fmt.Errorf("Error updating AdditionalPodRangesConfig: %w", err)
 		}
 
 		err = ContainerOperationWait(config, op, project, location, "updating AdditionalPodRangesConfig", userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return errwrap.Wrapf("Error while waiting to update AdditionalPodRangesConfig: {{err}}", err)
+			return fmt.Errorf("Error while waiting to update AdditionalPodRangesConfig: %w", err)
 		}
 	}
 
@@ -3488,12 +3487,12 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			},
 		})
 		if err != nil {
-			return errwrap.Wrapf("Error updating LinuxNodeConfig: {{err}}", err)
+			return fmt.Errorf("Error updating LinuxNodeConfig: %w", err)
 		}
 
 		err = ContainerOperationWait(config, op, project, location, "updating LinuxNodeConfig", userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return errwrap.Wrapf("Error while waiting to update LinuxNodeConfig: {{err}}", err)
+			return fmt.Errorf("Error while waiting to update LinuxNodeConfig: %w", err)
 		}
 	}
 
@@ -4992,13 +4991,13 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		op, err := clusterNodePoolDeleteCall.Do()
 		if err != nil {
 			if !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
-				return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+				return fmt.Errorf("Error deleting default node pool: %w", err)
 			}
 			log.Printf("[WARN] Container cluster %q default node pool already removed, no change", d.Id())
 		} else {
 			err = ContainerOperationWait(config, op, project, location, "removing default node pool", userAgent, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
-				return errwrap.Wrapf("Error deleting default node pool: {{err}}", err)
+				return fmt.Errorf("Error deleting default node pool: %w", err)
 			}
 		}
 	}

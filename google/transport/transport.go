@@ -19,13 +19,13 @@ package transport
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"time"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/googleapi"
 )
@@ -293,8 +293,7 @@ func HandleNotFoundError(err error, d *schema.ResourceData, resource string) err
 		return nil
 	}
 
-	return errwrap.Wrapf(
-		fmt.Sprintf("Error when reading or editing %s: {{err}}", resource), err)
+	return fmt.Errorf("Error when reading or editing %s: %w", resource, err)
 }
 
 func HandleDataSourceNotFoundError(err error, d *schema.ResourceData, resource, url string) error {
@@ -302,8 +301,7 @@ func HandleDataSourceNotFoundError(err error, d *schema.ResourceData, resource, 
 		return fmt.Errorf("%s not found", url)
 	}
 
-	return errwrap.Wrapf(
-		fmt.Sprintf("Error when reading or editing %s: {{err}}", resource), err)
+	return fmt.Errorf("Error when reading or editing %s: %w", resource, err)
 }
 
 func HandleListGoogleApiError(err error, url string) error {
@@ -311,18 +309,17 @@ func HandleListGoogleApiError(err error, url string) error {
 		return fmt.Errorf("list at %s not found: %w", url, err)
 	}
 
-	return errwrap.Wrapf(
-		fmt.Sprintf("Error when reading list at %s: {{err}}", url), err)
+	return fmt.Errorf("Error when reading list at %s: %w", url, err)
 }
 
 func IsGoogleApiErrorWithCode(err error, errCode int) bool {
-	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
-	return ok && gerr != nil && gerr.Code == errCode
+	var gerr *googleapi.Error
+	return errors.As(err, &gerr) && gerr != nil && gerr.Code == errCode
 }
 
 func IsApiNotEnabledError(err error) bool {
-	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
-	if !ok {
+	var gerr *googleapi.Error
+	if !errors.As(err, &gerr) {
 		return false
 	}
 	if gerr == nil {

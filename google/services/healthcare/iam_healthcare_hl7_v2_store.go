@@ -25,7 +25,6 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	healthcare "google.golang.org/api/healthcare/v1"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -49,7 +48,7 @@ func NewHealthcareHl7V2StoreIamUpdater(d tpgresource.TerraformResourceData, conf
 	hl7V2StoreId, err := ParseHealthcareHl7V2StoreId(hl7V2Store, config)
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error parsing resource ID for %s: {{err}}", hl7V2Store), err)
+		return nil, fmt.Errorf("Error parsing resource ID for %s: %w", hl7V2Store, err)
 	}
 
 	return &HealthcareHl7V2StoreIamUpdater{
@@ -80,13 +79,13 @@ func (u *HealthcareHl7V2StoreIamUpdater) GetResourceIamPolicy() (*cloudresourcem
 	p, err := NewClient(u.Config, userAgent).Projects.Locations.Datasets.Hl7V2Stores.GetIamPolicy(u.resourceId).Do()
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	cloudResourcePolicy, err := healthcareToResourceManagerPolicy(p)
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Invalid IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return cloudResourcePolicy, nil
@@ -96,7 +95,7 @@ func (u *HealthcareHl7V2StoreIamUpdater) SetResourceIamPolicy(policy *cloudresou
 	healthcarePolicy, err := resourceManagerToHealthcarePolicy(policy)
 
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Invalid IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
@@ -109,7 +108,7 @@ func (u *HealthcareHl7V2StoreIamUpdater) SetResourceIamPolicy(policy *cloudresou
 	}).Do()
 
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Error setting IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return nil

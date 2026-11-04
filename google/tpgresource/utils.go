@@ -40,7 +40,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-cty/cty"
 	fwDiags "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -262,8 +261,8 @@ func GetRouterLockName(region string, router string) string {
 }
 
 func IsFailedPreconditionError(err error) bool {
-	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
-	if !ok {
+	var gerr *googleapi.Error
+	if !errors.As(err, &gerr) {
 		return false
 	}
 	if gerr == nil {
@@ -281,8 +280,8 @@ func IsFailedPreconditionError(err error) bool {
 }
 
 func IsQuotaError(err error) bool {
-	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
-	if !ok {
+	var gerr *googleapi.Error
+	if !errors.As(err, &gerr) {
 		return false
 	}
 	if gerr == nil {
@@ -295,18 +294,9 @@ func IsQuotaError(err error) bool {
 }
 
 func IsConflictError(err error) bool {
-	if e, ok := err.(*googleapi.Error); ok && (e.Code == 409 || e.Code == 412) {
+	var gErr *googleapi.Error
+	if errors.As(err, &gErr) && gErr != nil && (gErr.Code == 409 || gErr.Code == 412) {
 		return true
-	} else if !ok && errwrap.ContainsType(err, &googleapi.Error{}) {
-		e := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
-		if e.Code == 409 || e.Code == 412 {
-			return true
-		}
-	} else if gErr := (*googleapi.Error)(nil); errors.As(err, &gErr) {
-		// For cases where the error is not wrapped by errwrap such in 409 IAM concurrency errors.
-		if gErr.Code == 409 || gErr.Code == 412 {
-			return true
-		}
 	}
 	return false
 }

@@ -17,15 +17,16 @@
 package cloudidentity
 
 import (
+	"errors"
 	"log"
 	"strings"
 
-	"github.com/hashicorp/errwrap"
 	"google.golang.org/api/googleapi"
 )
 
 func transformCloudIdentityGroupMembershipReadError(err error) error {
-	if gErr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok {
+	var gErr *googleapi.Error
+	if errors.As(err, &gErr) {
 		if gErr.Code == 403 && strings.Contains(gErr.Message, "(or it may not exist)") {
 			// This error occurs when either the group membership does not exist, or permission is denied. It is
 			// deliberately ambiguous so that existence information is not revealed to the caller. However, for

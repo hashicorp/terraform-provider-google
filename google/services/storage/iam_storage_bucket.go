@@ -19,7 +19,6 @@ package storage
 import (
 	"fmt"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
@@ -128,13 +127,13 @@ func (u *StorageBucketIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 		Body:      obj,
 	})
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	out := &cloudresourcemanager.Policy{}
 	err = tpgresource.Convert(policy, out)
 	if err != nil {
-		return nil, errwrap.Wrapf("Cannot convert a policy to a resource manager policy: {{err}}", err)
+		return nil, fmt.Errorf("Cannot convert a policy to a resource manager policy: %w", err)
 	}
 
 	return out, nil
@@ -172,7 +171,7 @@ func (u *StorageBucketIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 		Timeout:   u.d.Timeout(schema.TimeoutCreate),
 	})
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Error setting IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return nil

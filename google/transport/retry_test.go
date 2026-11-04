@@ -17,11 +17,12 @@
 package transport
 
 import (
+	"errors"
+	"fmt"
 	"net/url"
 	"testing"
 	"time"
 
-	"github.com/hashicorp/errwrap"
 	"google.golang.org/api/googleapi"
 )
 
@@ -51,7 +52,7 @@ func TestRetry_wrapped(t *testing.T) {
 		err := &googleapi.Error{
 			Code: 500,
 		}
-		return errwrap.Wrapf("nested error: {{err}}", err)
+		return fmt.Errorf("nested error: %w", err)
 	}
 	if err := Retry(RetryOptions{
 		RetryFunc: f,
@@ -59,12 +60,10 @@ func TestRetry_wrapped(t *testing.T) {
 	}); err == nil {
 		t.Errorf("unexpected nil error, expected an error")
 	} else {
-		innerErr := errwrap.GetType(err, &googleapi.Error{})
-		if innerErr == nil {
+		var gerr *googleapi.Error
+		if !errors.As(err, &gerr) {
 			t.Errorf("unexpected error %v does not have a google api error", err)
-		}
-		gerr := innerErr.(*googleapi.Error)
-		if gerr.Code != 500 {
+		} else if gerr.Code != 500 {
 			t.Errorf("unexpected googleapi error expected code 500, error: %v", gerr)
 		}
 	}

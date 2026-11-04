@@ -39,7 +39,6 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"golang.org/x/oauth2/google"
@@ -131,7 +130,7 @@ func dataSourceGoogleSignedUrlRead(d *schema.ResourceData, meta interface{}) err
 	}
 	duration, err := time.ParseDuration(durationString)
 	if err != nil {
-		return errwrap.Wrapf("could not parse duration: {{err}}", err)
+		return fmt.Errorf("could not parse duration: %w", err)
 	}
 	expires := time.Now().Unix() + int64(duration.Seconds())
 	urlData.Expires = int(expires)
@@ -217,12 +216,12 @@ func loadJwtConfig(d *schema.ResourceData, meta interface{}) (*jwt.Config, error
 	if strings.TrimSpace(credentials) != "" {
 		contents, _, err := verify.PathOrContents(credentials)
 		if err != nil {
-			return nil, errwrap.Wrapf("Error loading credentials: {{err}}", err)
+			return nil, fmt.Errorf("Error loading credentials: %w", err)
 		}
 
 		cfg, err := google.JWTConfigFromJSON([]byte(contents), "")
 		if err != nil {
-			return nil, errwrap.Wrapf("Error parsing credentials: {{err}}", err)
+			return nil, fmt.Errorf("Error parsing credentials: %w", err)
 		}
 		return cfg, nil
 	}
@@ -264,7 +263,7 @@ func parsePrivateKey(key []byte) (*rsa.PrivateKey, error) {
 	if err != nil {
 		parsedKey, err = x509.ParsePKCS1PrivateKey(key)
 		if err != nil {
-			return nil, errwrap.Wrapf("private key should be a PEM or plain PKSC1 or PKCS8; parse error: {{err}}", err)
+			return nil, fmt.Errorf("private key should be a PEM or plain PKSC1 or PKCS8; parse error: %w", err)
 		}
 	}
 	parsed, ok := parsedKey.(*rsa.PrivateKey)
@@ -419,19 +418,19 @@ func SignString(toSign []byte, cfg *jwt.Config) ([]byte, error) {
 	// Parse private key
 	pk, err := parsePrivateKey(cfg.PrivateKey)
 	if err != nil {
-		return nil, errwrap.Wrapf("failed to sign string, could not parse key: {{err}}", err)
+		return nil, fmt.Errorf("failed to sign string, could not parse key: %w", err)
 	}
 
 	// Hash string
 	hasher := sha256.New()
 	if _, err := hasher.Write(toSign); err != nil {
-		return nil, errwrap.Wrapf("failed to calculate sha256: {{err}}", err)
+		return nil, fmt.Errorf("failed to calculate sha256: %w", err)
 	}
 
 	// Sign string
 	signed, err := rsa.SignPKCS1v15(rand.Reader, pk, crypto.SHA256, hasher.Sum(nil))
 	if err != nil {
-		return nil, errwrap.Wrapf("failed to sign string, an error occurred: {{err}}", err)
+		return nil, fmt.Errorf("failed to sign string, an error occurred: %w", err)
 	}
 
 	return signed, nil
