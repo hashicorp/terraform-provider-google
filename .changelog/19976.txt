@@ -1,0 +1,11 @@
+```release-note:bug
+saasruntime: fixed `google_saas_runtime_release` deletion returning before the resource was removed (beta)
+```
+
+```release-note:bug
+saasruntime: fixed `google_saas_runtime_rollout_kind` deletion returning before the resource was removed (beta)
+```
+
+```release-note:bug
+saasruntime: fixed `google_saas_runtime_unit_kind` deletion returning before the resource was removed (beta)
+```
