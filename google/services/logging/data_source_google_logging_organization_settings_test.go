@@ -34,7 +34,7 @@ func TestAccLoggingOrganizationSettings_datasource(t *testing.T) {
 	}
 
 	context := map[string]interface{}{
-		"org_id":       envvar.GetTestOrgFromEnv(t),
+		"org_id":       envvar.GetTestOrgTargetFromEnv(t),
 		"original_key": kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 	}
 	resourceName := "data.google_logging_organization_settings.settings"
