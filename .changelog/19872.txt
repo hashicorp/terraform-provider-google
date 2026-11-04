@@ -1,0 +1,15 @@
+```release-note:bug
+colab: fixed bad diffs for `euc_config.euc_disabled` and `shielded_vm_config.enable_secure_boot` when set to `false` on `google_colab_runtime_template`
+```
+
+```release-note:bug
+discoveryengine: fixed bad diffs for `ui_settings.search_addon_spec` boolean fields when set to `false` on `google_discovery_engine_widget_config`
+```
+
+```release-note:bug
+hypercomputecluster: fixed bad diffs for `storage_resources.config.new_bucket.hierarchical_namespace.enabled` when set to `false` on `google_hypercomputecluster_cluster`
+```
+
+```release-note:bug
+privateca: fixed bad diffs for `predefined_values.key_usage.base_key_usage` and `predefined_values.key_usage.extended_key_usage` boolean fields when set to `false` on `google_privateca_certificate_template`
+```

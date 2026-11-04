@@ -36,8 +36,7 @@ func EmptyOrDefaultStringSuppress(defaultVal string) schema.SchemaDiffSuppressFu
 }
 
 func EmptyOrFalseSuppressBoolean(k, old, new string, d *schema.ResourceData) bool {
-	o, n := d.GetChange(k)
-	return (o == nil && !n.(bool))
+	return (old == "" && new == "false") || (new == "" && old == "false")
 }
 
 func CaseDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
