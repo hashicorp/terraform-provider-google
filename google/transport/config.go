@@ -17,7 +17,6 @@
 package transport
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -26,7 +25,6 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"cloud.google.com/go/auth/credentials"
@@ -35,11 +33,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
-	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
 	"google.golang.org/api/option/internaloption"
 
@@ -51,95 +46,32 @@ import (
 	externalaccount "golang.org/x/oauth2/google/externalaccount"
 	"google.golang.org/api/transport"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 type ProviderMeta struct {
 	ModuleName string `cty:"module_name"`
 }
 
-type Formatter struct {
-	TimestampFormat string
-	LogFormat       string
+func logGRPCPayload(direction, method string, payload any) {
+	if !logging.IsDebugOrHigher() {
+		return
+	}
+	if pb, ok := payload.(proto.Message); ok {
+		if b, err := protojson.Marshal(pb); err == nil {
+			log.Printf("[DEBUG] gRPC %s for %s: %s", direction, method, b)
+		}
+	}
 }
 
-// Borrowed logic from https://github.com/sirupsen/logrus/blob/master/json_formatter.go and https://github.com/t-tomalak/logrus-easy-formatter/blob/master/formatter.go
-func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
-	// Suppress logs if TF_LOG is not DEBUG or TRACE
-	if !logging.IsDebugOrHigher() {
-		return nil, nil
+func PayloadUnaryClientInterceptor(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+	logGRPCPayload("request", method, req)
+	err := invoker(ctx, method, req, reply, cc, opts...)
+	if err == nil {
+		logGRPCPayload("response", method, reply)
 	}
-
-	// Also suppress based on log content
-	// - frequent transport spam
-	// - ListenSocket logs from gRPC
-	isTransportSpam := strings.Contains(entry.Message, "transport is closing")
-	listenSocketRegex := regexp.MustCompile(`\[Server #\d+( ListenSocket #\d+)*\]`) // Match patterns like `[Server #00]` or `[Server #00 ListenSocket #00]`
-	isListenSocketLog := listenSocketRegex.MatchString(entry.Message)
-	if isTransportSpam || isListenSocketLog {
-		return nil, nil
-	}
-
-	output := f.LogFormat
-	entry.Level = logrus.DebugLevel // Force Entries to be Debug
-
-	timestampFormat := f.TimestampFormat
-
-	output = strings.Replace(output, "%time%", entry.Time.Format(timestampFormat), 1)
-
-	output = strings.Replace(output, "%msg%", entry.Message, 1)
-
-	level := strings.ToUpper(entry.Level.String())
-	output = strings.Replace(output, "%lvl%", level, 1)
-
-	var gRPCMessageFlag bool
-	for k, val := range entry.Data {
-		switch v := val.(type) {
-		case string:
-			output = strings.Replace(output, "%"+k+"%", v, 1)
-		case int:
-			s := strconv.Itoa(v)
-			output = strings.Replace(output, "%"+k+"%", s, 1)
-		case bool:
-			s := strconv.FormatBool(v)
-			output = strings.Replace(output, "%"+k+"%", s, 1)
-		}
-
-		if k != "system" {
-			gRPCMessageFlag = true
-		}
-	}
-
-	if gRPCMessageFlag {
-		data := make(logrus.Fields, len(entry.Data)+4)
-		for k, v := range entry.Data {
-			switch v := v.(type) {
-			case error:
-				// Otherwise errors are ignored by `encoding/json`
-				// https://github.com/sirupsen/logrus/issues/137
-				data[k] = v.Error()
-			default:
-				data[k] = v
-			}
-		}
-
-		var b *bytes.Buffer
-		if entry.Buffer != nil {
-			b = entry.Buffer
-		} else {
-			b = &bytes.Buffer{}
-		}
-
-		encoder := json.NewEncoder(b)
-		encoder.SetIndent("", "  ")
-		if err := encoder.Encode(data); err != nil {
-			return nil, fmt.Errorf("failed to marshal fields to JSON, %w", err)
-		}
-
-		finalOutput := append([]byte(output), b.Bytes()...)
-		return finalOutput, nil
-	}
-
-	return []byte(output), nil
+	return err
 }
 
 type ExternalCredentials struct {
@@ -425,21 +357,9 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	c.setRPCClients()
 
 	// gRPC Logging setup
-	logger := logrus.StandardLogger()
-
-	logrus.SetLevel(logrus.DebugLevel)
-	logrus.SetFormatter(&Formatter{
-		TimestampFormat: "2006/01/02 15:04:05",
-		LogFormat:       "%time% [%lvl%] %msg% \n",
-	})
-	logger.SetOutput(log.Writer())
-
-	alwaysLoggingDeciderClient := func(ctx context.Context, fullMethodName string) bool { return true }
 	c.GRPCLoggingOptions = append(
-		c.GRPCLoggingOptions, option.WithGRPCDialOption(grpc.WithUnaryInterceptor(
-			grpc_logrus.PayloadUnaryClientInterceptor(logrus.NewEntry(logger), alwaysLoggingDeciderClient))),
-		option.WithGRPCDialOption(grpc.WithStreamInterceptor(
-			grpc_logrus.PayloadStreamClientInterceptor(logrus.NewEntry(logger), alwaysLoggingDeciderClient))),
+		c.GRPCLoggingOptions,
+		option.WithGRPCDialOption(grpc.WithUnaryInterceptor(PayloadUnaryClientInterceptor)),
 	)
 
 	return nil

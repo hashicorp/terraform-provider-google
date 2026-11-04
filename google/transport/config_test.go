@@ -17,8 +17,11 @@
 package transport_test
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"testing"
@@ -28,6 +31,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	googleoauth "golang.org/x/oauth2/google"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const testOauthScope = "https://www.googleapis.com/auth/compute"
@@ -597,4 +602,81 @@ func TestGetRegionFromRegionSelfLink(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGRPCPayloadUnaryClientInterceptor(t *testing.T) {
+	t.Run("logs proto request and response when TF_LOG is DEBUG", func(t *testing.T) {
+		t.Setenv("TF_LOG", "DEBUG")
+		origOut := log.Writer()
+		var buf bytes.Buffer
+		log.SetOutput(&buf)
+		t.Cleanup(func() { log.SetOutput(origOut) })
+
+		req := wrapperspb.String("hello-req")
+		reply := wrapperspb.String("")
+		err := transport_tpg.PayloadUnaryClientInterceptor(context.Background(), "/test.Service/UnaryCall", req, reply, nil, func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, opts ...grpc.CallOption) error {
+			reply.(*wrapperspb.StringValue).Value = "hello-resp"
+			return nil
+		})
+		log.SetOutput(origOut)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		out := buf.String()
+		if !strings.Contains(out, `[DEBUG] gRPC request for /test.Service/UnaryCall: "hello-req"`) {
+			t.Fatalf("expected request payload in log output, got: %s", out)
+		}
+		if !strings.Contains(out, `[DEBUG] gRPC response for /test.Service/UnaryCall: "hello-resp"`) {
+			t.Fatalf("expected response payload in log output, got: %s", out)
+		}
+	})
+
+	t.Run("suppresses response log on invoker error", func(t *testing.T) {
+		t.Setenv("TF_LOG", "DEBUG")
+		origOut := log.Writer()
+		var buf bytes.Buffer
+		log.SetOutput(&buf)
+		t.Cleanup(func() { log.SetOutput(origOut) })
+
+		req := wrapperspb.String("fail-req")
+		reply := wrapperspb.String("ignored")
+		wantErr := errors.New("rpc failed")
+		err := transport_tpg.PayloadUnaryClientInterceptor(context.Background(), "/test.Service/FailCall", req, reply, nil, func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, opts ...grpc.CallOption) error {
+			return wantErr
+		})
+		log.SetOutput(origOut)
+		if !errors.Is(err, wantErr) {
+			t.Fatalf("expected error %v, got %v", wantErr, err)
+		}
+
+		out := buf.String()
+		if !strings.Contains(out, `[DEBUG] gRPC request for /test.Service/FailCall: "fail-req"`) {
+			t.Fatalf("expected request payload in log output, got: %s", out)
+		}
+		if strings.Contains(out, "gRPC response") {
+			t.Fatalf("expected no response log on error, got: %s", out)
+		}
+	})
+
+	t.Run("suppresses logs when TF_LOG is not debug or trace", func(t *testing.T) {
+		t.Setenv("TF_LOG", "")
+		origOut := log.Writer()
+		var buf bytes.Buffer
+		log.SetOutput(&buf)
+		t.Cleanup(func() { log.SetOutput(origOut) })
+
+		req := wrapperspb.String("quiet-req")
+		reply := wrapperspb.String("quiet-resp")
+		err := transport_tpg.PayloadUnaryClientInterceptor(context.Background(), "/test.Service/QuietCall", req, reply, nil, func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, opts ...grpc.CallOption) error {
+			return nil
+		})
+		log.SetOutput(origOut)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if buf.Len() != 0 {
+			t.Fatalf("expected no log output when TF_LOG is unset, got: %s", buf.String())
+		}
+	})
 }
