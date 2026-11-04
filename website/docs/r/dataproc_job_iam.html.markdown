@@ -76,7 +76,7 @@ resource "google_dataproc_job_iam_member" "editor" {
 
 The following arguments are supported:
 
-* `job` - (Required) The name or relative resource id of the job to manage IAM policies for.
+* `job_id` - (Required) The name or relative resource id of the job to manage IAM policies for.
 
 For `google_dataproc_job_iam_member` or `google_dataproc_job_iam_binding`:
 
