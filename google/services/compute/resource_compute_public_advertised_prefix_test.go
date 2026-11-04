@@ -32,13 +32,15 @@ import (
 
 // Since we only have access to one test prefix range we cannot run tests in parallel
 func TestAccComputePublicPrefixes(t *testing.T) {
+	t.Parallel()
+
 	testCases := map[string]func(t *testing.T){
 		"delegated_prefix":                                  testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesBasicTest,
 		"advertised_prefix":                                 testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesBasicTest,
 		"public_delegated_prefixes_ipv6":                    testAccComputePublicDelegatedPrefix_publicDelegatedPrefixesIpv6Test,
 		"public_advertised_prefixes_pdp_scope":              testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesPdpScopeTest,
 		"public_delegated_prefix_ipv6_subnet_mode":          testAccComputePublicDelegatedPrefix_publicDelegatedPrefixIpv6SubnetModeTest,
-		"public_delgated_prefix_with_sub_prefix":            TestAccComputePublicDelegatedPrefix_computePublicDelegatedPrefixWithSubPrefixExample,
+		"public_delgated_prefix_with_sub_prefix":            testAccComputePublicDelegatedPrefix_computePublicDelegatedPrefixWithSubPrefixTest,
 		"public_advertised_prefixes_internal_ipv6_access":   testAccComputePublicAdvertisedPrefix_publicAdvertisedPrefixesInternalIpv6AccessTest,
 		"public_delegated_prefix_internal_ipv6_subnet_mode": testAccComputePublicDelegatedPrefix_publicDelegatedPrefixInternalIpv6SubnetModeTest,
 	}
@@ -90,7 +92,7 @@ resource "google_compute_public_advertised_prefix" "prefix" {
 `, context)
 }
 
-func TestAccComputePublicDelegatedPrefix_computePublicDelegatedPrefixWithSubPrefixExample(t *testing.T) {
+func testAccComputePublicDelegatedPrefix_computePublicDelegatedPrefixWithSubPrefixTest(t *testing.T) {
 	subPrefixResourceName := "google_compute_public_delegated_prefix.subprefix"
 	parentProject := "tf-static-byoip"
 	parentRegion := "us-central1"
