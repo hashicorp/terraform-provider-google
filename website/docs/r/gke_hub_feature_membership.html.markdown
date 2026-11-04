@@ -635,7 +635,7 @@ The following arguments are supported:
 
 * `deployment_configs` -
   (Optional)
-  Map of deployment configs to deployments ("admission", "audit", "mutation").
+  Map of deployment configs to deployments ("admission", "audit", "mutation"). Structure is [documented below](#nested_deployment_configs).
 
 * `policy_content` -
   (Optional)

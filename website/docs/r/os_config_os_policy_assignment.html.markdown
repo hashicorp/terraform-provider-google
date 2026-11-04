@@ -225,7 +225,7 @@ The following arguments are supported:
     [documented below](#nested_exec).
 
 *   `file` - (Optional) File resource Structure is
-    [documented below](#nested_file).
+    [documented below](#nested_resources_file).
 
 <a name="nested_pkg"></a>The `pkg` block supports:
 
@@ -556,10 +556,10 @@ The following arguments are supported:
 
 *   `generation` - (Optional) Generation number of the Cloud Storage object.
 
-<a name="nested_file"></a>The `file` block supports:
+<a name="nested_resources_file"></a>The `file` block supports:
 
 *   `file` - (Optional) A remote or local source. Structure is
-    [documented below](#nested_file).
+    [documented below](#nested_resources_file_file).
 
 *   `content` - (Optional) A a file with this content. The size of the content
     is limited to 1024 characters.
@@ -578,7 +578,7 @@ The following arguments are supported:
     some examples of permissions and their associated values: read, write, and
     execute: 7 read and execute: 5 read and write: 6 read only: 4
 
-<a name="nested_file"></a>The `file` block supports:
+<a name="nested_resources_file_file"></a>The `file` block supports:
 
 *   `remote` - (Optional) A generic remote file. Structure is
     [documented below](#nested_remote).

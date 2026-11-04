@@ -73,18 +73,26 @@ In addition to the arguments, the following attributes are available:
 - - -
 ### API Object Structure
 
+The `apis` block supports:
+
 * `name`: The FQDN of the API as described in the provided config.
 * `syntax`: `SYNTAX_PROTO2` or `SYNTAX_PROTO3`.
 * `version`: A version string for this api. If specified, will have the form major-version.minor-version, e.g. `1.10`.
 * `methods`: A list of Method objects; structure is documented below.
 
 ### Method Object Structure
+
+The `methods` block supports:
+
 * `name`: The simple name of this method as described in the provided config.
 * `syntax`: `SYNTAX_PROTO2` or `SYNTAX_PROTO3`.
 * `request_type`: The type URL for the request to this API.
 * `response_type`: The type URL for the response from this API.
 
 ### Endpoint Object Structure
+
+The `endpoints` block supports:
+
 * `name`: The simple name of the endpoint as described in the config.
 * `address`: The FQDN of the endpoint as described in the config.
 

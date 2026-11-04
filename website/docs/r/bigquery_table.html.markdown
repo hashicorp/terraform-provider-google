@@ -622,7 +622,7 @@ exported:
 
 * `etag` - A hash of the resource.
 
-* `kms_key_version` - The self link or full name of the kms key version used to encrypt this table.
+* `encryption_configuration.0.kms_key_version` - The self link or full name of the kms key version used to encrypt this table.
 
 * `last_modified_time` - The time when this table was last modified, in milliseconds since the epoch.
 
