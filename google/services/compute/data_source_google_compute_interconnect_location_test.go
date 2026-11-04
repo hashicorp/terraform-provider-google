@@ -54,6 +54,8 @@ func testAccDataSourceCheckInterconnectLocation() func(s *terraform.State) error
 	}
 }
 func TestAccDataSourceGoogleComputeInterconnectLocation_basic(t *testing.T) {
+	t.Parallel()
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),

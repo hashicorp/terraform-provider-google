@@ -382,6 +382,8 @@ func TestAccComputeInstanceFromTemplate_schedulingPreemptionNoticeDuration(t *te
 }
 
 func TestAccComputeInstanceFromTemplate_overrideMetadataDotStartupScript(t *testing.T) {
+	t.Parallel()
+
 	var instance map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))

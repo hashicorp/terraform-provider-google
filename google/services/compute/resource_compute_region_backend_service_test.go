@@ -237,6 +237,8 @@ func TestAccComputeRegionBackendService_ilbUpdateBasic(t *testing.T) {
 }
 
 func TestAccComputeRegionBackendService_withBackendAndIAP(t *testing.T) {
+	t.Parallel()
+
 	backendName := fmt.Sprintf("tf-test-foo-%s", acctest.RandString(t, 10))
 	checkName := fmt.Sprintf("tf-test-bar-%s", acctest.RandString(t, 10))
 

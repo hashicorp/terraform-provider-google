@@ -28,6 +28,8 @@ import (
 )
 
 func TestAccDataSourceComputeInstanceSerialPort_basic(t *testing.T) {
+	t.Parallel()
+
 	instanceName := fmt.Sprintf("tf-test-serial-data-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

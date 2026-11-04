@@ -26,6 +26,8 @@ import (
 )
 
 func TestAccComputeRegionAutoscaler_update(t *testing.T) {
+	t.Parallel()
+
 	var itName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var tpName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	var igmName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
