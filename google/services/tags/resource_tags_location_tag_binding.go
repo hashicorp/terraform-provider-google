@@ -17,13 +17,13 @@
 package tags
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"reflect"
 	"strings"
 	"time"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -485,7 +485,8 @@ func resourceTagsLocationTagBindingFindNestedObjectInList(d *schema.ResourceData
 }
 
 func transformTagsLocationTagBindingReadError(err error) error {
-	if gErr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok && gErr.Code == 403 {
+	var gErr *googleapi.Error
+	if errors.As(err, &gErr) && gErr.Code == 403 {
 		for _, detail := range gErr.Details {
 			if detailMap, ok := detail.(map[string]interface{}); ok {
 				if detailType, ok := detailMap["@type"].(string); ok && detailType == "type.googleapis.com/google.rpc.ResourceInfo" {

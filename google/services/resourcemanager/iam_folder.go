@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
@@ -104,7 +103,7 @@ func (u *FolderIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Pol
 	}).Do()
 
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Error setting IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return nil
@@ -135,7 +134,7 @@ func v1PolicyToV2(in *cloudresourcemanager.Policy) (*cloudresourcemanagerv3.Poli
 	out := &cloudresourcemanagerv3.Policy{}
 	err := tpgresource.Convert(in, out)
 	if err != nil {
-		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a v2 policy: {{err}}", err)
+		return nil, fmt.Errorf("Cannot convert a v1 policy to a v2 policy: %w", err)
 	}
 	return out, nil
 }
@@ -144,7 +143,7 @@ func v2PolicyToV1(in *cloudresourcemanagerv3.Policy) (*cloudresourcemanager.Poli
 	out := &cloudresourcemanager.Policy{}
 	err := tpgresource.Convert(in, out)
 	if err != nil {
-		return nil, errwrap.Wrapf("Cannot convert a v2 policy to a v1 policy: {{err}}", err)
+		return nil, fmt.Errorf("Cannot convert a v2 policy to a v1 policy: %w", err)
 	}
 	return out, nil
 }
@@ -158,7 +157,7 @@ func GetFolderIamPolicyByFolderName(folderName, userAgent string, config *transp
 			},
 		}).Do()
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for folder %q: {{err}}", folderName), err)
+		return nil, fmt.Errorf("Error retrieving IAM policy for folder %q: %w", folderName, err)
 	}
 
 	v1Policy, err := v2PolicyToV1(p)

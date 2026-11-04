@@ -27,7 +27,6 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	spanner "google.golang.org/api/spanner/v1"
@@ -108,13 +107,13 @@ func (u *SpannerInstanceIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 	p, err := call.Do()
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	cloudResourcePolicy, err := spannerToResourceManagerPolicy(p)
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Invalid IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	cloudResourcePolicy.Version = tpgiamresource.IamPolicyVersion
@@ -126,7 +125,7 @@ func (u *SpannerInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 	spannerPolicy, err := resourceManagerToSpannerPolicy(policy)
 
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Invalid IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	spannerPolicy.Version = tpgiamresource.IamPolicyVersion
@@ -152,7 +151,7 @@ func (u *SpannerInstanceIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 	_, err = call.Do()
 
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Error setting IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return nil

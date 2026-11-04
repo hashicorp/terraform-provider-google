@@ -20,7 +20,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 )
 
@@ -92,7 +91,7 @@ func IsRetryableError(topErr error, retryPredicates, abortPredicates []RetryErro
 
 	// Check all wrapped errors for an abortable error status.
 	isAbortable := false
-	errwrap.Walk(topErr, func(werr error) {
+	walkError(topErr, func(werr error) {
 		for _, pred := range abortPredicates {
 			if predAbort, predReason := pred(werr); predAbort {
 				log.Printf("[DEBUG] Dismissed an error as abortable. %s - %s", predReason, werr)
@@ -107,7 +106,7 @@ func IsRetryableError(topErr error, retryPredicates, abortPredicates []RetryErro
 
 	// Check all wrapped errors for a retryable error status.
 	isRetryable := false
-	errwrap.Walk(topErr, func(werr error) {
+	walkError(topErr, func(werr error) {
 		for _, pred := range retryPredicates {
 			if predRetry, predReason := pred(werr); predRetry {
 				log.Printf("[DEBUG] Dismissed an error as retryable. %s - %s", predReason, werr)
@@ -117,4 +116,23 @@ func IsRetryableError(topErr error, retryPredicates, abortPredicates []RetryErro
 		}
 	})
 	return isRetryable
+}
+
+func walkError(err error, cb func(error)) {
+	if err == nil {
+		return
+	}
+	cb(err)
+	switch u := err.(type) {
+	case interface{ WrappedErrors() []error }:
+		for _, child := range u.WrappedErrors() {
+			walkError(child, cb)
+		}
+	case interface{ Unwrap() []error }:
+		for _, child := range u.Unwrap() {
+			walkError(child, cb)
+		}
+	case interface{ Unwrap() error }:
+		walkError(u.Unwrap(), cb)
+	}
 }

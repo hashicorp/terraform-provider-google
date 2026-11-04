@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -72,12 +71,12 @@ func PollCheckKnativeStatusFunc(knativeRestResponse map[string]interface{}) func
 		}
 		s := KnativeStatus{}
 		if err := tpgresource.Convert(resp, &s); err != nil {
-			return transport_tpg.ErrorPollResult(errwrap.Wrapf("unable to get KnativeStatus: {{err}}", err))
+			return transport_tpg.ErrorPollResult(fmt.Errorf("unable to get KnativeStatus: %w", err))
 		}
 
 		gen, err := getGeneration(knativeRestResponse)
 		if err != nil {
-			return transport_tpg.ErrorPollResult(errwrap.Wrapf("unable to find Knative generation: {{err}}", err))
+			return transport_tpg.ErrorPollResult(fmt.Errorf("unable to find Knative generation: %w", err))
 		}
 		if int(s.Status.ObservedGeneration) < gen {
 			return transport_tpg.PendingStatusPollResult("waiting for observed generation to match")

@@ -27,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
@@ -70,8 +69,7 @@ func handleUserNotFoundError(err error, d *schema.ResourceData, resource string)
 		return nil
 	}
 
-	return errwrap.Wrapf(
-		fmt.Sprintf("Error when reading or editing %s: {{err}}", resource), err)
+	return fmt.Errorf("Error when reading or editing %s: %w", resource, err)
 }
 
 func ResourceSqlUser() *schema.Resource {

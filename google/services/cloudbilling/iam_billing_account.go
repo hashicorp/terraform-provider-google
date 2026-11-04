@@ -19,7 +19,6 @@ package cloudbilling
 import (
 	"fmt"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/registry"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
@@ -83,7 +82,7 @@ func (u *BillingAccountIamUpdater) SetResourceIamPolicy(policy *cloudresourceman
 	}).Do()
 
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Error setting IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return nil
@@ -109,7 +108,7 @@ func resourceManagerToBillingPolicy(p *cloudresourcemanager.Policy) (*cloudbilli
 	out := &cloudbilling.Policy{}
 	err := tpgresource.Convert(p, out)
 	if err != nil {
-		return nil, errwrap.Wrapf("Cannot convert a v1 policy to a billing policy: {{err}}", err)
+		return nil, fmt.Errorf("Cannot convert a v1 policy to a billing policy: %w", err)
 	}
 	return out, nil
 }
@@ -118,7 +117,7 @@ func billingToResourceManagerPolicy(p *cloudbilling.Policy) (*cloudresourcemanag
 	out := &cloudresourcemanager.Policy{}
 	err := tpgresource.Convert(p, out)
 	if err != nil {
-		return nil, errwrap.Wrapf("Cannot convert a billing policy to a v1 policy: {{err}}", err)
+		return nil, fmt.Errorf("Cannot convert a billing policy to a v1 policy: %w", err)
 	}
 	return out, nil
 }
@@ -128,7 +127,7 @@ func getBillingAccountIamPolicyByBillingAccountName(resource string, config *tra
 	p, err := NewClient(config, userAgent).BillingAccounts.GetIamPolicy("billingAccounts/" + resource).Do()
 
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for billing account %q: {{err}}", resource), err)
+		return nil, fmt.Errorf("Error retrieving IAM policy for billing account %q: %w", resource, err)
 	}
 
 	v1Policy, err := billingToResourceManagerPolicy(p)

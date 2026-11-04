@@ -17,15 +17,16 @@
 package sql
 
 import (
+	"errors"
 	"log"
 	"strings"
 
-	"github.com/hashicorp/errwrap"
 	"google.golang.org/api/googleapi"
 )
 
 func transformSQLDatabaseReadError(err error) error {
-	if gErr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error); ok {
+	var gErr *googleapi.Error
+	if errors.As(err, &gErr) {
 		if gErr.Code == 400 && strings.Contains(gErr.Message, "Invalid request since instance is not running") {
 			// This error occurs when attempting a GET after deleting the sql database and sql instance. It leads to to
 			// inconsistent behavior as HandleNotFoundError(...) expects an error code of 404 when a resource does not

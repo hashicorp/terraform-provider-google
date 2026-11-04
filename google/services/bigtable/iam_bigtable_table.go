@@ -25,7 +25,6 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"google.golang.org/api/bigtableadmin/v2"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -117,12 +116,12 @@ func (u *BigtableTableIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 
 	p, err := NewProjectsInstancesTablesClient(u.Config, userAgent).GetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Error retrieving IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	cloudResourcePolicy, err := bigtableToResourceManagerPolicy(p)
 	if err != nil {
-		return nil, errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return nil, fmt.Errorf("Invalid IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return cloudResourcePolicy, nil
@@ -131,7 +130,7 @@ func (u *BigtableTableIamUpdater) GetResourceIamPolicy() (*cloudresourcemanager.
 func (u *BigtableTableIamUpdater) SetResourceIamPolicy(policy *cloudresourcemanager.Policy) error {
 	bigtablePolicy, err := resourceManagerToBigtablePolicy(policy)
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Invalid IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Invalid IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	req := &bigtableadmin.SetIamPolicyRequest{Policy: bigtablePolicy}
@@ -143,7 +142,7 @@ func (u *BigtableTableIamUpdater) SetResourceIamPolicy(policy *cloudresourcemana
 
 	_, err = NewProjectsInstancesTablesClient(u.Config, userAgent).SetIamPolicy(u.GetResourceId(), req).Do()
 	if err != nil {
-		return errwrap.Wrapf(fmt.Sprintf("Error setting IAM policy for %s: {{err}}", u.DescribeResource()), err)
+		return fmt.Errorf("Error setting IAM policy for %s: %w", u.DescribeResource(), err)
 	}
 
 	return nil
