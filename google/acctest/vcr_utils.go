@@ -465,9 +465,6 @@ func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc 
 		diags = append(diags, *tpgresource.FrameworkDiagsToSdkDiags(fwD)...)
 		return nil, diags
 	}
-	if IsVcrReplaying() && config.BatchingConfig != nil && config.BatchingConfig.SendAfter == time.Second*transport_tpg.DefaultBatchSendIntervalSec {
-		config.BatchingConfig.SendAfter = 50 * time.Millisecond
-	}
 
 	configsLock.Lock()
 	configs[testName] = config
