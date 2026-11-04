@@ -46,11 +46,10 @@ resource "google_saas_runtime_saas" "example_saas" {
 }
 
 resource "google_saas_runtime_unit_kind" "cluster_unit_kind" {
-  provider        = google-beta
-  location        = local.location
-  unit_kind_id    = "vm-unitkind"
-  saas            = google_saas_runtime_saas.example_saas.id
-  default_release = "projects/my-project-name/locations/${local.location}/releases/example-release"
+  provider     = google-beta
+  location     = local.location
+  unit_kind_id = "vm-unitkind"
+  saas         = google_saas_runtime_saas.example_saas.id
 }
 
 resource "google_saas_runtime_release" "example_release" {
