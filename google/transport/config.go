@@ -37,7 +37,6 @@ import (
 
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 
-	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/sirupsen/logrus"
@@ -346,7 +345,11 @@ func (c *Config) LoadAndValidate(ctx context.Context) error {
 	}
 
 	c.TokenSource = tokenSource
-	cleanCtx := context.WithValue(ctx, oauth2.HTTPClient, cleanhttp.DefaultClient())
+	defaultTransport := http.DefaultTransport.(*http.Transport).Clone()
+	defaultTransport.DisableKeepAlives = true
+	defaultTransport.MaxIdleConnsPerHost = -1
+	defaultClient := &http.Client{Transport: defaultTransport}
+	cleanCtx := context.WithValue(ctx, oauth2.HTTPClient, defaultClient)
 	clientOptions := []option.ClientOption{option.WithTokenSource(tokenSource)}
 
 	// The client libraries allow setting the GOOGLE_CLOUD_QUOTA_PROJECT environment variable

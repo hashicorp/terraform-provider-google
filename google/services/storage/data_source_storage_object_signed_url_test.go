@@ -24,7 +24,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -177,7 +176,10 @@ func testAccSignedUrlRetrieval(n string, headers map[string]string) resource.Tes
 		}
 
 		// send request using signed url
-		client := cleanhttp.DefaultClient()
+		defaultTransport := http.DefaultTransport.(*http.Transport).Clone()
+		defaultTransport.DisableKeepAlives = true
+		defaultTransport.MaxIdleConnsPerHost = -1
+		client := &http.Client{Transport: defaultTransport}
 		response, err := client.Do(req)
 		if err != nil {
 			return err
