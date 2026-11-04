@@ -26,7 +26,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -243,7 +242,7 @@ func resourceIamBindingRead(newUpdaterFunc NewResourceIamUpdaterFunc, parentSpec
 		if err != nil {
 			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Resource %q with IAM Binding (Role %q)", updater.DescribeResource(), eBinding.Role))
 		}
-		log.Print(spew.Sprintf("[DEBUG] Retrieved policy for %s: %#v", updater.DescribeResource(), p))
+		log.Printf("[DEBUG] Retrieved policy for %s: %#v", updater.DescribeResource(), p)
 		log.Printf("[DEBUG] Looking for binding with role %q and condition %#v", eBinding.Role, eCondition)
 
 		var binding *cloudresourcemanager.Binding

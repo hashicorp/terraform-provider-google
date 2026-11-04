@@ -17,10 +17,9 @@
 package verify
 
 import (
-	"io/ioutil"
+	"errors"
 	"os"
-
-	"github.com/mitchellh/go-homedir"
+	"path/filepath"
 )
 
 // If the argument is a path, pathOrContents loads it and returns the contents,
@@ -36,15 +35,18 @@ func PathOrContents(poc string) (string, bool, error) {
 
 	path := poc
 	if path[0] == '~' {
-		var err error
-		path, err = homedir.Expand(path)
+		if len(path) > 1 && path[1] != '/' && path[1] != '\\' {
+			return path, true, errors.New("cannot expand user-specific home dir")
+		}
+		dir, err := os.UserHomeDir()
 		if err != nil {
 			return path, true, err
 		}
+		path = filepath.Join(dir, path[1:])
 	}
 
 	if _, err := os.Stat(path); err == nil {
-		contents, err := ioutil.ReadFile(path)
+		contents, err := os.ReadFile(path)
 		if err != nil {
 			return string(contents), true, err
 		}

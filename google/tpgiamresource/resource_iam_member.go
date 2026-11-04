@@ -27,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/cloudresourcemanager/v1"
 )
@@ -380,7 +379,7 @@ func resourceIamMemberRead(newUpdaterFunc NewResourceIamUpdaterFunc, parentSpeci
 		if err != nil {
 			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Resource %q with IAM Member: Role %q Member %q", updater.DescribeResource(), eMember.Role, eMember.Members[0]))
 		}
-		log.Print(spew.Sprintf("[DEBUG]: Retrieved policy for %s: %#v\n", updater.DescribeResource(), p))
+		log.Printf("[DEBUG]: Retrieved policy for %s: %#v\n", updater.DescribeResource(), p)
 		log.Printf("[DEBUG]: Looking for binding with role %q and condition %#v", eMember.Role, eCondition)
 
 		var binding *cloudresourcemanager.Binding

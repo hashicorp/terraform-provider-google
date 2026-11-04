@@ -38,7 +38,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
-	"github.com/stretchr/testify/assert"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -247,7 +246,9 @@ func TestCheckForCommonAliasIp(t *testing.T) {
 		oldInterface := map[string]interface{}{"aliasIpRanges": tc.old}
 		newInterface := map[string]interface{}{"aliasIpRanges": tc.new}
 		result := tpgcompute.CheckForCommonAliasIp(oldInterface, newInterface)
-		assert.Equal(t, tc.expected, result)
+		if !reflect.DeepEqual(result, tc.expected) {
+			t.Errorf("got %v, want %v", result, tc.expected)
+		}
 	}
 }
 
