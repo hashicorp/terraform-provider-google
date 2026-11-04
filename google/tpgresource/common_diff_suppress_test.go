@@ -438,3 +438,47 @@ func TestIpAddressDiffSuppress(t *testing.T) {
 		}
 	}
 }
+
+func TestEmptyOrFalseSuppressBoolean(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"empty to false": {
+			Old:                "",
+			New:                "false",
+			ExpectDiffSuppress: true,
+		},
+		"false to empty": {
+			Old:                "false",
+			New:                "",
+			ExpectDiffSuppress: true,
+		},
+		"empty to true": {
+			Old:                "",
+			New:                "true",
+			ExpectDiffSuppress: false,
+		},
+		"true to empty": {
+			Old:                "true",
+			New:                "",
+			ExpectDiffSuppress: false,
+		},
+		"false to true": {
+			Old:                "false",
+			New:                "true",
+			ExpectDiffSuppress: false,
+		},
+		"true to false": {
+			Old:                "true",
+			New:                "false",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if EmptyOrFalseSuppressBoolean("key", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Errorf("failed case %s: Old='%s', New='%s', expected suppress=%t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
