@@ -30,6 +30,8 @@ import (
 )
 
 func TestAccComputeSharedVpc_basic(t *testing.T) {
+	t.Parallel()
+
 	org := envvar.GetTestOrgFromEnv(t)
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 

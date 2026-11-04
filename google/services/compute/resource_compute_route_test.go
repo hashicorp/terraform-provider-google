@@ -48,6 +48,8 @@ func TestAccComputeRoute_defaultInternetGateway(t *testing.T) {
 }
 
 func TestAccComputeRoute_hopInstance(t *testing.T) {
+	t.Parallel()
+
 	instanceName := "tf-test-" + acctest.RandString(t, 10)
 	zone := "us-central1-b"
 
@@ -69,6 +71,7 @@ func TestAccComputeRoute_hopInstance(t *testing.T) {
 }
 
 func TestAccComputeRoute_resourceManagerTags(t *testing.T) {
+	t.Parallel()
 
 	org := envvar.GetTestOrgFromEnv(t)
 

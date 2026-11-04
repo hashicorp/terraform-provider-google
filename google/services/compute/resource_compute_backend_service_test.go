@@ -99,6 +99,8 @@ func TestAccComputeBackendService_withBackend(t *testing.T) {
 }
 
 func TestAccComputeBackendService_withBackendAndMaxUtilization(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	igName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	itName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -137,6 +139,8 @@ func TestAccComputeBackendService_withBackendAndMaxUtilization(t *testing.T) {
 }
 
 func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
+	t.Parallel()
+
 	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	igName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	itName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))

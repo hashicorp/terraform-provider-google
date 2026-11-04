@@ -905,6 +905,8 @@ func TestAccComputeInstance_PTRRecord(t *testing.T) {
 }
 
 func TestAccComputeInstance_networkTier(t *testing.T) {
+	t.Parallel()
+
 	var instance map[string]interface{}
 	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 

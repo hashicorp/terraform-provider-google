@@ -31,6 +31,8 @@ import (
 )
 
 func TestAccComputeTargetSslProxy_update(t *testing.T) {
+	t.Parallel()
+
 	target := fmt.Sprintf("tf-test-tssl-%s", acctest.RandString(t, 10))
 	sslPolicy := fmt.Sprintf("tf-test-tssl-%s", acctest.RandString(t, 10))
 	cert1 := fmt.Sprintf("tf-test-tssl-%s", acctest.RandString(t, 10))
