@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/logging"
+	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -60,10 +61,11 @@ func TestAccLoggingLinkedDataset_loggingLinkedDatasetBasicExample(t *testing.T) 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"bucket_id":     "tf-test-my-bucket" + randomSuffix,
-		"link_id":       "mylink" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"bucket_id":       "tf-test-my-bucket" + randomSuffix,
+		"link_id":         "mylink" + randomSuffix,
+		"project":         resourcemanager.BootstrapProject(t, "tf-boot-loglink1-", envvar.GetTestBillingAccountFromEnv(t), []string{"logging.googleapis.com", "bigquery.googleapis.com"}).ProjectId,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -113,10 +115,11 @@ func TestAccLoggingLinkedDataset_loggingLinkedDatasetAllParamsExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"bucket_id":     "tf-test-my-bucket" + randomSuffix,
-		"link_id":       "mylink" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"bucket_id":       "tf-test-my-bucket" + randomSuffix,
+		"link_id":         "mylink" + randomSuffix,
+		"project":         resourcemanager.BootstrapProject(t, "tf-boot-loglink2-", envvar.GetTestBillingAccountFromEnv(t), []string{"logging.googleapis.com", "bigquery.googleapis.com"}).ProjectId,
+		"random_suffix":   randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
