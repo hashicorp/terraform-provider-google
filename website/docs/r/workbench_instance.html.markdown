@@ -190,13 +190,13 @@ resource "google_compute_network" "my_network" {
 resource "google_compute_subnetwork" "my_subnetwork" {
   name   = "wbi-test-default"
   network = google_compute_network.my_network.id
-  region = "us-east1"
+  region = "us-central1"
   ip_cidr_range = "10.0.1.0/24"
 }
 
 resource "google_compute_address" "static" {
   name   = "wbi-test-default"
-  region = "us-east1"
+  region = "us-central1"
 }
 
 resource "google_service_account_iam_member" "act_as_permission" {
@@ -207,17 +207,17 @@ resource "google_service_account_iam_member" "act_as_permission" {
 
 resource "google_compute_reservation" "gpu_reservation" {
   name     = "wbi-reservation"
-  zone     = "us-east1-b"
+  zone     = "us-central1-a"
 
   specific_reservation {
     count = 1
     
     instance_properties {
-      machine_type = "g2-standard-4"
-      min_cpu_platform = "Intel Cascade Lake"
+      machine_type = "n1-standard-4"
+      min_cpu_platform = "Intel Broadwell"
 
       guest_accelerators {
-        accelerator_type  = "nvidia-l4"
+        accelerator_type  = "nvidia-tesla-t4"
         accelerator_count = 1
       }
     }
@@ -228,7 +228,7 @@ resource "google_compute_reservation" "gpu_reservation" {
 
 resource "google_compute_resource_policy" "my_policy" {
   name   = "wbi-policy"
-  region = "us-east1"
+  region = "us-central1"
   snapshot_schedule_policy {
     schedule {
       daily_schedule {
@@ -241,15 +241,15 @@ resource "google_compute_resource_policy" "my_policy" {
 
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
-  location = "us-east1-b"
+  location = "us-central1-a"
 
   enable_deletion_protection = false
 
   gce_setup {
-    machine_type = "g2-standard-4"
-    min_cpu_platform = "Intel Cascade Lake"
+    machine_type = "n1-standard-4" // cant be e2 because of accelerator
+    min_cpu_platform = "Intel Broadwell"
     accelerator_configs {
-      type         = "NVIDIA_L4"
+      type         = "NVIDIA_TESLA_T4"
       core_count   = 1
     }
 
