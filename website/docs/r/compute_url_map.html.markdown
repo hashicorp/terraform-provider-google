@@ -1869,7 +1869,6 @@ resource "google_compute_health_check" "default" {
 
 ```hcl
 resource "google_compute_url_map" "urlmap" {
-  provider        = google-beta
   name            = "urlmap"
   description     = "a description"
   default_service = google_compute_backend_service.example.id
@@ -1933,7 +1932,6 @@ resource "google_compute_url_map" "urlmap" {
 }
 
 resource "google_compute_backend_service" "example" {
-  provider              = google-beta
   name                  = "example"
   port_name             = "http"
   protocol              = "HTTP"
@@ -1945,8 +1943,7 @@ resource "google_compute_backend_service" "example" {
 }
 
 resource "google_compute_health_check" "default" {
-  provider = google-beta
-  name     = "health-check"
+  name = "health-check"
   http_health_check {
     port = 80
   }
@@ -2449,7 +2446,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher_path_rule_route_action_dynamic_compression_policy).
 
 * `image_optimization_policy` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Specifies the policy for optimizing images returned in the HTTP response.
   Structure is [documented below](#nested_path_matcher_path_rule_route_action_image_optimization_policy).
 
@@ -3459,7 +3456,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher_route_rules_route_action_dynamic_compression_policy).
 
 * `image_optimization_policy` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Specifies the policy for optimizing images returned in the HTTP response.
   Structure is [documented below](#nested_path_matcher_route_rules_route_action_image_optimization_policy).
 
@@ -4293,7 +4290,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_path_matcher_default_route_action_dynamic_compression_policy).
 
 * `image_optimization_policy` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Specifies the policy for optimizing images returned in the HTTP response.
   Structure is [documented below](#nested_path_matcher_default_route_action_image_optimization_policy).
 
@@ -5036,7 +5033,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_default_route_action_dynamic_compression_policy).
 
 * `image_optimization_policy` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Specifies the policy for optimizing images returned in the HTTP response.
   Structure is [documented below](#nested_default_route_action_image_optimization_policy).
 

@@ -123,6 +123,26 @@ func TestNewVcrMatcherFunc_canDetectMatches(t *testing.T) {
 				body: "{\"field2\":\"value2\",\"field1\":\"value1\"}", // 2 before 1
 			},
 		},
+		"matches requests with identical X-Goog-Api-Version headers": {
+			httpRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/beta/projects/my-project/global/urlMaps/my-url-map",
+				headers: map[string]string{
+					"X-Goog-Api-Version": "2026-11-01",
+				},
+			},
+			cassetteRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/beta/projects/my-project/global/urlMaps/my-url-map",
+				headers: map[string]string{
+					"X-Goog-Api-Version": "2026-11-01",
+				},
+			},
+		},
 	}
 
 	for tn, tc := range cases {
@@ -261,6 +281,60 @@ func TestNewVcrMatcherFunc_canDetectMismatches(t *testing.T) {
 					"Content-Type": "foobar",
 				},
 				body: "{\"field2\":\"value2\",\"field1\":\"value1\"}", // 2 before 1
+			},
+		},
+		"requests where HTTP request has X-Goog-Api-Version header and cassette does not": {
+			httpRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/beta/projects/my-project/global/urlMaps/my-url-map",
+				headers: map[string]string{
+					"X-Goog-Api-Version": "2026-11-01",
+				},
+			},
+			cassetteRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/beta/projects/my-project/global/urlMaps/my-url-map",
+			},
+		},
+		"requests where cassette has X-Goog-Api-Version header and HTTP request does not": {
+			httpRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/beta/projects/my-project/global/urlMaps/my-url-map",
+			},
+			cassetteRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/beta/projects/my-project/global/urlMaps/my-url-map",
+				headers: map[string]string{
+					"X-Goog-Api-Version": "2026-11-01",
+				},
+			},
+		},
+		"requests with different X-Goog-Api-Version headers": {
+			httpRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/beta/projects/my-project/global/urlMaps/my-url-map",
+				headers: map[string]string{
+					"X-Goog-Api-Version": "2026-11-01",
+				},
+			},
+			cassetteRequest: requestDescription{
+				scheme: "https",
+				method: "GET",
+				host:   "compute.googleapis.com",
+				path:   "compute/beta/projects/my-project/global/urlMaps/my-url-map",
+				headers: map[string]string{
+					"X-Goog-Api-Version": "2026-05-01",
+				},
 			},
 		},
 	}

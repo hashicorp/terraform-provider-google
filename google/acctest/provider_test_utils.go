@@ -50,6 +50,9 @@ func GoogleProviderConfig(t *testing.T) *transport_tpg.Config {
 	config, ok := configs[t.Name()]
 	configsLock.RUnlock()
 	if ok {
+		if config != nil && config.Client != nil {
+			config.Client.Transport = wrapWithRequestWatcher(t.Name(), config.Client.Transport)
+		}
 		return config
 	}
 
@@ -64,7 +67,11 @@ func GoogleProviderConfig(t *testing.T) *transport_tpg.Config {
 		rc.Config["universe_domain"] = universeDomain
 	}
 	sdkProvider.Configure(context.Background(), &rc)
-	return sdkProvider.Meta().(*transport_tpg.Config)
+	config = sdkProvider.Meta().(*transport_tpg.Config)
+	if config != nil && config.Client != nil {
+		config.Client.Transport = wrapWithRequestWatcher(t.Name(), config.Client.Transport)
+	}
+	return config
 }
 
 // AccTestPreCheck wraps envvar.AccTestPreCheck for backwards compatibility with existing
