@@ -1759,3 +1759,51 @@ resource "google_redis_cluster" "test" {
 }
 `, context)
 }
+
+func TestAccRedisCluster_zoneDistributionConfigZones(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRedisClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRedisCluster_zoneDistributionConfigZones(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_redis_cluster.test", "zone_distribution_config.0.active_zones.#", "3"),
+					resource.TestCheckResourceAttr("google_redis_cluster.test", "zone_distribution_config.0.active_zones.0", "us-central1-a"),
+					resource.TestCheckResourceAttr("google_redis_cluster.test", "zone_distribution_config.0.active_zones.1", "us-central1-b"),
+					resource.TestCheckResourceAttr("google_redis_cluster.test", "zone_distribution_config.0.active_zones.2", "us-central1-c"),
+				),
+			},
+			{
+				ResourceName:            "google_redis_cluster.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"psc_configs"},
+			},
+		},
+	})
+}
+
+func testAccRedisCluster_zoneDistributionConfigZones(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_redis_cluster" "test" {
+  name                        = "tf-test-redis-%{random_suffix}"
+  shard_count                 = 3
+  region                      = "us-central1"
+  node_type                   = "REDIS_SHARED_CORE_NANO"
+  deletion_protection_enabled = false
+
+  zone_distribution_config {
+    mode  = "MULTI_ZONE"
+    zones = ["us-central1-a", "us-central1-b", "us-central1-c"]
+  }
+}
+`, context)
+}

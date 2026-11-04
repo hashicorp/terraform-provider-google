@@ -1,0 +1,7 @@
+```release-note:enhancement
+memorystore: added `zone_distribution_config.zones` and `zone_distribution_config.active_zones` fields to `google_memorystore_instance` resource
+```
+
+```release-note:enhancement
+redis: added `zone_distribution_config.zones` and `zone_distribution_config.active_zones` fields to `google_redis_cluster` resource
+```
