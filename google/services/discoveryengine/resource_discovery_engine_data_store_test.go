@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
 )
@@ -99,6 +100,86 @@ resource "google_discovery_engine_data_store" "layout_eu" {
   location                    = "eu"
   data_store_id               = "tf-test-dpc-eu-ds%{random_suffix}"
   display_name                = "tf-test-dpc-eu-datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "CONTENT_REQUIRED"
+  solution_types              = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search = false
+  document_processing_config {
+    default_parsing_config {
+      layout_parsing_config {}
+    }
+    chunking_config {
+      layout_based_chunking_config {
+        chunk_size                = 500
+        include_ancestor_headings = true
+      }
+    }
+  }
+}
+`, context)
+}
+
+// The v1 API can't update document_processing_config, so changing a nested field must plan a replacement.
+// The plan isn't applied: recreating a data store under the same ID fails until its deletion completes, which takes hours.
+func TestAccDiscoveryEngineDataStore_documentProcessingConfigChangeForcesReplacement(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineDataStore_documentProcessingConfigDigitalEu(context),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_store.dpc_change",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "data_store_id", "create_advanced_site_search", "skip_default_schema_creation"},
+			},
+			{
+				Config:             testAccDiscoveryEngineDataStore_documentProcessingConfigLayoutChangeEu(context),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PostApplyPreRefresh: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_discovery_engine_data_store.dpc_change", plancheck.ResourceActionReplace),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineDataStore_documentProcessingConfigDigitalEu(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "dpc_change" {
+  location                    = "eu"
+  data_store_id               = "tf-test-dpc-change-ds%{random_suffix}"
+  display_name                = "tf-test-dpc-change-datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "CONTENT_REQUIRED"
+  solution_types              = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search = false
+  document_processing_config {
+    default_parsing_config {
+      digital_parsing_config {}
+    }
+  }
+}
+`, context)
+}
+
+func testAccDiscoveryEngineDataStore_documentProcessingConfigLayoutChangeEu(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "dpc_change" {
+  location                    = "eu"
+  data_store_id               = "tf-test-dpc-change-ds%{random_suffix}"
+  display_name                = "tf-test-dpc-change-datastore"
   industry_vertical           = "GENERIC"
   content_config              = "CONTENT_REQUIRED"
   solution_types              = ["SOLUTION_TYPE_SEARCH"]
