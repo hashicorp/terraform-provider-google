@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: promoted `image_optimization_policy` fields on `google_compute_url_map` resource to GA
+```

@@ -50,6 +50,7 @@ fields:
     - api_field: defaultRouteAction.faultInjectionPolicy.delay.fixedDelay.nanos
     - api_field: defaultRouteAction.faultInjectionPolicy.delay.fixedDelay.seconds
     - api_field: defaultRouteAction.faultInjectionPolicy.delay.percentage
+    - api_field: defaultRouteAction.imageOptimizationPolicy.queryParameterInterpretation
     - api_field: defaultRouteAction.maxStreamDuration.nanos
     - api_field: defaultRouteAction.maxStreamDuration.seconds
     - api_field: defaultRouteAction.requestMirrorPolicy.backendService
@@ -176,6 +177,8 @@ fields:
       field: path_matcher.default_route_action.fault_injection_policy.delay.fixed_delay.seconds
     - api_field: pathMatchers.defaultRouteAction.faultInjectionPolicy.delay.percentage
       field: path_matcher.default_route_action.fault_injection_policy.delay.percentage
+    - api_field: pathMatchers.defaultRouteAction.imageOptimizationPolicy.queryParameterInterpretation
+      field: path_matcher.default_route_action.image_optimization_policy.query_parameter_interpretation
     - api_field: pathMatchers.defaultRouteAction.maxStreamDuration.nanos
       field: path_matcher.default_route_action.max_stream_duration.nanos
     - api_field: pathMatchers.defaultRouteAction.maxStreamDuration.seconds
@@ -334,6 +337,8 @@ fields:
       field: path_matcher.path_rule.route_action.fault_injection_policy.delay.fixed_delay.seconds
     - api_field: pathMatchers.pathRules.routeAction.faultInjectionPolicy.delay.percentage
       field: path_matcher.path_rule.route_action.fault_injection_policy.delay.percentage
+    - api_field: pathMatchers.pathRules.routeAction.imageOptimizationPolicy.queryParameterInterpretation
+      field: path_matcher.path_rule.route_action.image_optimization_policy.query_parameter_interpretation
     - api_field: pathMatchers.pathRules.routeAction.maxStreamDuration.nanos
       field: path_matcher.path_rule.route_action.max_stream_duration.nanos
     - api_field: pathMatchers.pathRules.routeAction.maxStreamDuration.seconds
@@ -530,6 +535,8 @@ fields:
       field: path_matcher.route_rules.route_action.fault_injection_policy.delay.fixed_delay.seconds
     - api_field: pathMatchers.routeRules.routeAction.faultInjectionPolicy.delay.percentage
       field: path_matcher.route_rules.route_action.fault_injection_policy.delay.percentage
+    - api_field: pathMatchers.routeRules.routeAction.imageOptimizationPolicy.queryParameterInterpretation
+      field: path_matcher.route_rules.route_action.image_optimization_policy.query_parameter_interpretation
     - api_field: pathMatchers.routeRules.routeAction.maxStreamDuration.nanos
       field: path_matcher.route_rules.route_action.max_stream_duration.nanos
     - api_field: pathMatchers.routeRules.routeAction.maxStreamDuration.seconds

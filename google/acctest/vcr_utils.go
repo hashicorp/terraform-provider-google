@@ -72,10 +72,128 @@ func IsVcrReplaying() bool {
 
 var configsLock = sync.RWMutex{}
 var sourcesLock = sync.RWMutex{}
+var requestWatchersLock = sync.RWMutex{}
 
 var configs map[string]*transport_tpg.Config
 
 var sources map[string]VcrSource
+
+var requestWatchers = make(map[string][]func(req *http.Request))
+var mmUrlPlaceholderRe = regexp.MustCompile(`\{\{[^}]+\}\}`)
+
+// WatchRequests registers a callback that is invoked for every outgoing HTTP
+// request made by the test provider (or GoogleProviderConfig) during t.
+func WatchRequests(t *testing.T, fn func(req *http.Request)) {
+	t.Helper()
+	testName := t.Name()
+	requestWatchersLock.Lock()
+	_, alreadyRegistered := requestWatchers[testName]
+	requestWatchers[testName] = append(requestWatchers[testName], fn)
+	requestWatchersLock.Unlock()
+
+	if !alreadyRegistered {
+		t.Cleanup(func() {
+			requestWatchersLock.Lock()
+			delete(requestWatchers, testName)
+			requestWatchersLock.Unlock()
+		})
+	}
+}
+
+func hasRequestWatcher(testName string) bool {
+	requestWatchersLock.RLock()
+	watchers := requestWatchers[testName]
+	requestWatchersLock.RUnlock()
+	return len(watchers) > 0
+}
+
+type requestWatcherRoundTripper struct {
+	base     http.RoundTripper
+	testName string
+}
+
+func (w *requestWatcherRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	requestWatchersLock.RLock()
+	watchers := slices.Clone(requestWatchers[w.testName])
+	requestWatchersLock.RUnlock()
+	for _, fn := range watchers {
+		fn(req)
+	}
+	base := w.base
+	if base == nil {
+		base = http.DefaultTransport
+	}
+	return base.RoundTrip(req)
+}
+
+func wrapWithRequestWatcher(testName string, rt http.RoundTripper) http.RoundTripper {
+	if !hasRequestWatcher(testName) {
+		return rt
+	}
+	if existing, ok := rt.(*requestWatcherRoundTripper); ok && existing.testName == testName {
+		return rt
+	}
+	return &requestWatcherRoundTripper{
+		base:     rt,
+		testName: testName,
+	}
+}
+
+func urlPatternToRegex(urlPattern string) (*regexp.Regexp, error) {
+	trimmed := strings.Trim(urlPattern, "/")
+	parts := mmUrlPlaceholderRe.Split(trimmed, -1)
+	quoted := make([]string, len(parts))
+	for i, part := range parts {
+		quoted[i] = regexp.QuoteMeta(part)
+	}
+	expr := `(?:^|/)` + strings.Join(quoted, `[^/]+`) + `(?:/|$)`
+	return regexp.Compile(expr)
+}
+
+// AssertRequestApiVersion registers a request watcher for t that verifies every
+// outgoing HTTP request matching urlPattern (where MMv1 placeholders like
+// {{project}} match any single path segment) carries the expected
+// X-Goog-Api-Version header, and asserts in t.Cleanup that at least 1 matching
+// request was observed (unless the test failed or was skipped).
+func AssertRequestApiVersion(t *testing.T, urlPattern string, expectedApiVersion string) {
+	t.Helper()
+	re, err := urlPatternToRegex(urlPattern)
+	if err != nil {
+		t.Fatalf("AssertRequestApiVersion: invalid urlPattern %q: %v", urlPattern, err)
+	}
+
+	var mu sync.Mutex
+	matchCount := 0
+
+	WatchRequests(t, func(req *http.Request) {
+		if req == nil || req.URL == nil {
+			return
+		}
+		if !re.MatchString(req.URL.Path) {
+			return
+		}
+		mu.Lock()
+		matchCount++
+		mu.Unlock()
+
+		got := req.Header.Get("X-Goog-Api-Version")
+		if got != expectedApiVersion {
+			t.Errorf("request %s %s had X-Goog-Api-Version=%q, want %q", req.Method, req.URL.Path, got, expectedApiVersion)
+		}
+	})
+
+	t.Cleanup(func() {
+		if t.Failed() || t.Skipped() {
+			return
+		}
+		mu.Lock()
+		count := matchCount
+		mu.Unlock()
+		if count == 0 {
+			t.Errorf("AssertRequestApiVersion(%q, %q): expected at least 1 matching request, observed 0", urlPattern, expectedApiVersion)
+		}
+	})
+}
 
 // VcrSource is a source for a given VCR test with the value that seeded it
 type VcrSource struct {
@@ -239,7 +357,11 @@ func closeRecorder(t *testing.T) {
 		// We did not cache the config if it does not use VCR
 		if !t.Failed() && IsVcrEnabled() && os.Getenv("VCR_MODE") == "RECORDING" {
 			// If a test succeeds, write new seed/yaml to files
-			err := config.Client.Transport.(*recorder.Recorder).Stop()
+			rt := config.Client.Transport
+			if w, ok := rt.(*requestWatcherRoundTripper); ok {
+				rt = w.base
+			}
+			err := rt.(*recorder.Recorder).Stop()
 			if err != nil {
 				t.Error(err)
 			}
@@ -315,6 +437,9 @@ func NewVcrMatcherFunc(ctx context.Context) func(r *http.Request, i cassette.Req
 			return false
 		}
 		if stripStandardQueryParams(r.URL.String()) != stripStandardQueryParams(i.URL) {
+			return false
+		}
+		if r.Header.Get("X-Goog-Api-Version") != i.Headers.Get("X-Goog-Api-Version") {
 			return false
 		}
 		if r.Body == nil {
@@ -436,6 +561,18 @@ func GetSDKProvider(testName string) *schema.Provider {
 		}
 	} else {
 		log.Print("[DEBUG] VCR_PATH or VCR_MODE not set, skipping VCR")
+		old := prov.ConfigureContextFunc
+		prov.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+			c, diags := old(ctx, d)
+			if diags.HasError() {
+				return nil, diags
+			}
+			config := c.(*transport_tpg.Config)
+			if config != nil && config.Client != nil {
+				config.Client.Transport = wrapWithRequestWatcher(testName, config.Client.Transport)
+			}
+			return config, diags
+		}
 	}
 	return prov
 }
@@ -451,6 +588,9 @@ func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc 
 	v, ok := configs[testName]
 	configsLock.RUnlock()
 	if ok {
+		if v != nil && v.Client != nil {
+			v.Client.Transport = wrapWithRequestWatcher(testName, v.Client.Transport)
+		}
 		return v, nil
 	}
 	c, diags := configureFunc(ctx, d)
@@ -464,6 +604,9 @@ func getCachedConfig(ctx context.Context, d *schema.ResourceData, configureFunc 
 	if fwD.HasError() {
 		diags = append(diags, *tpgresource.FrameworkDiagsToSdkDiags(fwD)...)
 		return nil, diags
+	}
+	if config.Client != nil {
+		config.Client.Transport = wrapWithRequestWatcher(testName, config.Client.Transport)
 	}
 
 	configsLock.Lock()
