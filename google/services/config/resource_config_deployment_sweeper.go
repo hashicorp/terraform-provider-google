@@ -211,7 +211,7 @@ func deleteResourceConfigDeployment(config *transport_tpg.Config, d *tpgresource
 		return nil
 	}
 
-	deleteTemplate := "https://config.googleapis.com/v1/projects/{{project}}/locations/{{location}}/deployments/{{name}}?force={{force_destroy}}"
+	deleteTemplate := "https://config.googleapis.com/v1/projects/{{project}}/locations/{{location}}/deployments/{{name}}"
 
 	url, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 	if err != nil {
@@ -219,6 +219,8 @@ func deleteResourceConfigDeployment(config *transport_tpg.Config, d *tpgresource
 		deletionerror = err
 	}
 	url = url + name
+	// Apply additional query string defined in Sweeper config
+	url = url + "?force=true&deletePolicy=DELETE"
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
