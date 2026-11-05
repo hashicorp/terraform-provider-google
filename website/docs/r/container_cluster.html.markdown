@@ -333,6 +333,8 @@ region are guaranteed to support the same version.
     [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/networkpolicies/)
     feature. Structure is [documented below](#nested_network_policy).
 
+* `network_performance_config` - (Optional) Network bandwidth tier configuration. Structure is [documented below](#nested_network_performance_config).
+
 * `node_config` -  (Optional) Parameters used in creating the default node pool.
     Generally, this field should not be used at the same time as a
     `google_container_node_pool` or a `node_pool` block; this configuration
@@ -782,6 +784,8 @@ as "Intel Haswell" or "Intel Sandy Bridge".
 
 * `management` - (Optional) NodeManagement configuration for this NodePool. Structure is [documented below](#nested_management).
 
+* `upgrade_settings` - (Optional) Specifies the upgrade settings for NAP created node pools. Structure is [documented below](#nested_upgrade_settings).
+
 <a name="nested_management"></a>The `management` block supports:
 
 * `auto_upgrade` - (Optional) Specifies whether node auto-upgrade is enabled for the node pool. If enabled, node auto-upgrade helps keep the nodes in your node pool up to date with the latest release version of Kubernetes.
@@ -789,8 +793,6 @@ as "Intel Haswell" or "Intel Sandy Bridge".
 * `auto_repair` - (Optional) Specifies whether the node auto-repair is enabled for the node pool. If enabled, the nodes in this node pool will be monitored and, if they fail health checks too many times, an automatic repair action will be triggered.
 
 This block also contains several computed attributes, documented below.
-
-* `upgrade_settings` - (Optional) Specifies the upgrade settings for NAP created node pools. Structure is [documented below](#nested_upgrade_settings).
 
 <a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
 
@@ -1244,8 +1246,6 @@ gvnic {
 * `local_ssd_count` - (Optional) The amount of local SSD disks that will be
     attached to each cluster node. Defaults to 0.
 
-* `network_performance_config` - (Optional) Network bandwidth tier configuration. Structure is [documented below](#network_performance_config).
-
 * `machine_type` - (Optional) The name of a Google Compute Engine machine type.
     Defaults to `e2-medium`. To create a custom machine type, value should be set as specified
     [here](https://cloud.google.com/compute/docs/reference/latest/instances#machineType).
@@ -1477,7 +1477,7 @@ updating them on an existing node pool.
 
 * `max_shared_clients_per_gpu` (Required) - The maximum number of containers that can share a GPU.
 
-<a name="network_performance_config"></a>The `network_performance_config` block supports:
+<a name="nested_network_performance_config"></a>The `network_performance_config` block supports:
 
 * `total_egress_bandwidth_tier` (Required) - Specifies the total network bandwidth tier for NodePools in the cluster.
 
@@ -1522,7 +1522,7 @@ workload_identity_config {
 
 * `network_tags` (Optional) - The network tag config for the cluster's automatically provisioned node pools. Structure is [documented below](#nested_network_tags).
 
-* `linux_node_config` (Optional) -  Linux system configuration for the cluster's automatically provisioned node pools. Only `cgroup_mode` and `node_kernel_module_loading` fields are supported in `node_pool_auto_config`. Structure is [documented below](#nested_linux_node_config).
+* `linux_node_config` (Optional) -  Linux system configuration for the cluster's automatically provisioned node pools. Only `cgroup_mode` and `node_kernel_module_loading` fields are supported in `node_pool_auto_config`. Structure is [documented below](#nested_node_pool_auto_config_linux_node_config).
 
 <a name="nested_node_kubelet_config"></a>The `node_kubelet_config` block supports:
 
@@ -1540,16 +1540,28 @@ node_pool_auto_config {
 }
 ```
 
-<a name="nested_node_pool_defaults"></a>The `node_pool_defaults` block supports:
-* `node_config_defaults` (Optional) - Subset of NodeConfig message that has defaults.
+<a name="nested_node_pool_auto_config_linux_node_config"></a>The `linux_node_config` block supports:
 
-The `node_config_defaults` block supports:
+* `cgroup_mode` - (Optional) Possible cgroup modes that can be used.
+    Accepted values are:
+    * `CGROUP_MODE_UNSPECIFIED`: CGROUP_MODE_UNSPECIFIED is when unspecified cgroup configuration is used. The default for the GKE node OS image will be used.
+    * `CGROUP_MODE_V1`: CGROUP_MODE_V1 specifies to use cgroupv1 for the cgroup configuration on the node image.
+    * `CGROUP_MODE_V2`: CGROUP_MODE_V2 specifies to use cgroupv2 for the cgroup configuration on the node image.
+
+* `node_kernel_module_loading` - (Optional) Settings for kernel module loading. Structure is [documented below](#nested_node_kernel_module_loading_config).
+
+<a name="nested_node_pool_defaults"></a>The `node_pool_defaults` block supports:
+* `node_config_defaults` (Optional) - Subset of NodeConfig message that has defaults. Structure is [documented below](#nested_node_config_defaults).
+
+<a name="nested_node_config_defaults"></a>The `node_config_defaults` block supports:
 
 * `insecure_kubelet_readonly_port_enabled` (Optional) Controls whether the kubelet read-only port is enabled for newly created node pools in the cluster. It is strongly recommended to set this to `FALSE`. Possible values: `TRUE`, `FALSE`.
 
 * `logging_variant` (Optional) The type of logging agent that is deployed by default for newly created node pools in the cluster. Valid values include DEFAULT and MAX_THROUGHPUT. See [Increasing logging agent throughput](https://cloud.google.com/stackdriver/docs/solutions/gke/managing-logs#throughput) for more information.
 
 * `gcfs_config` (Optional) The default Google Container Filesystem (GCFS) configuration at the cluster level. e.g. enable [image streaming](https://cloud.google.com/kubernetes-engine/docs/how-to/image-streaming) across all the node pools within the cluster. Structure is [documented below](#nested_gcfs_config).
+
+* `containerd_config` (Optional) - Parameters for containerd configuration. Structure is [documented below](#nested_containerd_config).
 
 <a name="nested_notification_config"></a>The `notification_config` block supports:
 
@@ -1929,6 +1941,22 @@ linux_node_config {
 
 * `custom_node_init` - (Optional) Custom node init settings. Structure is [documented below](#nested_custom_node_init).
 
+* `transparent_hugepage_enabled` - (Optional) The Linux kernel transparent hugepage setting.
+    Accepted values are:
+    * `TRANSPARENT_HUGEPAGE_ENABLED_ALWAYS`: Transparent hugepage is enabled system wide.
+    * `TRANSPARENT_HUGEPAGE_ENABLED_MADVISE`: Transparent hugepage is enabled inside MADV_HUGEPAGE regions. This is the default kernel configuration.
+    * `TRANSPARENT_HUGEPAGE_ENABLED_NEVER`: Transparent hugepage is disabled.
+    * `TRANSPARENT_HUGEPAGE_ENABLED_UNSPECIFIED`: Default value. GKE will not modify the kernel configuration.
+
+* `transparent_hugepage_defrag` - (Optional) The Linux kernel transparent hugepage defrag setting.
+    Accepted values are:
+    * `TRANSPARENT_HUGEPAGE_DEFRAG_ALWAYS`: An application requesting THP will stall on allocation failure and directly reclaim pages and compact memory in an effort to allocate a THP immediately.
+    * `TRANSPARENT_HUGEPAGE_DEFRAG_DEFER`: An application will wake kswapd in the background to reclaim pages and wake kcompactd to compact memory so that THP is available in the near future. It is the responsibility of khugepaged to then install the THP pages later.
+    * `TRANSPARENT_HUGEPAGE_DEFRAG_DEFER_WITH_MADVISE`: An application will enter direct reclaim and compaction like always, but only for regions that have used madvise(MADV_HUGEPAGE); all other regions will wake kswapd in the background to reclaim pages and wake kcompactd to compact memory so that THP is available in the near future.
+    * `TRANSPARENT_HUGEPAGE_DEFRAG_MADVISE`: An application will enter direct reclaim and compaction like always, but only for regions that have used madvise(MADV_HUGEPAGE); all other regions will wake kswapd in the background to reclaim pages and wake kcompactd to compact memory so that THP is available in the near future.
+    * `TRANSPARENT_HUGEPAGE_DEFRAG_NEVER`: An application will never enter direct reclaim or compaction.
+    * `TRANSPARENT_HUGEPAGE_DEFRAG_UNSPECIFIED`: Default value. GKE will not modify the kernel configuration.
+
 <a name="nested_swap_config"></a>The `swap_config` block supports:
 
 * `enabled` - (Optional) Enables or disables swap for the node pool.
@@ -1970,22 +1998,6 @@ linux_node_config {
 * `hugepage_size_2m` - (Optional) Amount of 2M hugepages.
 
 * `hugepage_size_1g` - (Optional) Amount of 1G hugepages.
-
-* `transparent_hugepage_enabled` - (Optional) The Linux kernel transparent hugepage setting.
-    Accepted values are:
-    * `TRANSPARENT_HUGEPAGE_ENABLED_ALWAYS`: Transparent hugepage is enabled system wide.
-    * `TRANSPARENT_HUGEPAGE_ENABLED_MADVISE`: Transparent hugepage is enabled inside MADV_HUGEPAGE regions. This is the default kernel configuration.
-    * `TRANSPARENT_HUGEPAGE_ENABLED_NEVER`: Transparent hugepage is disabled.
-    * `TRANSPARENT_HUGEPAGE_ENABLED_UNSPECIFIED`: Default value. GKE will not modify the kernel configuration.
-
-* `transparent_hugepage_defrag` - (Optional) The Linux kernel transparent hugepage defrag setting.
-    Accepted values are:
-    * `TRANSPARENT_HUGEPAGE_DEFRAG_ALWAYS`: An application requesting THP will stall on allocation failure and directly reclaim pages and compact memory in an effort to allocate a THP immediately.
-    * `TRANSPARENT_HUGEPAGE_DEFRAG_DEFER`: An application will wake kswapd in the background to reclaim pages and wake kcompactd to compact memory so that THP is available in the near future. It is the responsibility of khugepaged to then install the THP pages later.
-    * `TRANSPARENT_HUGEPAGE_DEFRAG_DEFER_WITH_MADVISE`: An application will enter direct reclaim and compaction like always, but only for regions that have used madvise(MADV_HUGEPAGE); all other regions will wake kswapd in the background to reclaim pages and wake kcompactd to compact memory so that THP is available in the near future.
-    * `TRANSPARENT_HUGEPAGE_DEFRAG_MADVISE`: An application will enter direct reclaim and compaction like always, but only for regions that have used madvise(MADV_HUGEPAGE); all other regions will wake kswapd in the background to reclaim pages and wake kcompactd to compact memory so that THP is available in the near future.
-    * `TRANSPARENT_HUGEPAGE_DEFRAG_NEVER`: An application will never enter direct reclaim or compaction.
-    * `TRANSPARENT_HUGEPAGE_DEFRAG_UNSPECIFIED`: Default value. GKE will not modify the kernel configuration.
 
 <a name="nested_node_kernel_module_loading_config"></a>The `node_kernel_module_loading` block supports:
 
