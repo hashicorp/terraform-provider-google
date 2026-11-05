@@ -323,16 +323,24 @@ cluster.
 
 -> Note: Exactly one of `standard_rollout_policy` or `autoscaled_rollout_policy` must be set.
 
-* `standard_rollout_policy` - (Optional) Specifies the standard policy settings for blue-green upgrades.
-    * `batch_percentage` - (Optional) Percentage of the blue pool nodes to drain in a batch.
-    * `batch_node_count` - (Optional) Number of blue nodes to drain in a batch.
-    * `batch_soak_duration` - (Optional) Soak time after each batch gets drained.
+* `standard_rollout_policy` - (Optional) Specifies the standard policy settings for blue-green upgrades. Structure is [documented below](#nested_standard_rollout_policy).
 
-* `autoscaled_rollout_policy` - (Optional, [Beta](../guides/provider_versions.html.markdown)) Autoscaled rollout policy for blue-green upgrade.
-    * `wait_for_drain_duration` - (Optional) Time in seconds to wait after cordoning the blue pool before draining the nodes.
+* `autoscaled_rollout_policy` - (Optional, [Beta](../guides/provider_versions.html.markdown)) Autoscaled rollout policy for blue-green upgrade. Structure is [documented below](#nested_autoscaled_rollout_policy).
 
 * `node_pool_soak_duration` - (Optional) Time needed after draining the entire blue pool.
     After this period, the blue pool will be cleaned up.
+
+<a name="nested_standard_rollout_policy"></a>The `standard_rollout_policy` block supports:
+
+* `batch_percentage` - (Optional) Percentage of the blue pool nodes to drain in a batch.
+
+* `batch_node_count` - (Optional) Number of blue nodes to drain in a batch.
+
+* `batch_soak_duration` - (Optional) Soak time after each batch gets drained.
+
+<a name="nested_autoscaled_rollout_policy"></a>The `autoscaled_rollout_policy` block supports:
+
+* `wait_for_drain_duration` - (Optional) Time in seconds to wait after cordoning the blue pool before draining the nodes.
 
 <a name="nested_placement_policy"></a>The `placement_policy` block supports:
 
