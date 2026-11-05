@@ -570,6 +570,8 @@ The following arguments are supported:
 
   **Note:** To avoid the conflict between `enforce_on_key` and `enforce_on_key_configs`, the field [`enforce_on_key`](#enforce_on_key) needs to be set to an empty string.
 
+* `exceed_redirect_options` - (Optional) Parameters defining the redirect action that is used as the exceed action. Cannot be specified if the exceed action is not redirect. Structure is [documented below](#nested_exceed_redirect_options).
+
 <a name="nested_enforce_on_key_configs"></a>The `enforce_on_key_configs` block supports:
 
 * `enforce_on_key_name` - (Optional) Rate limit key name applicable only for the following key types:
@@ -591,8 +593,6 @@ The following arguments are supported:
     * `TLS_JA4_FINGERPRINT`: JA4 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
     * `USER_IP`: The IP address of the originating client, which is resolved based on "user_ip_request_headers" configured with the securitypolicy. If there is no "user_ip_request_headers" configuration or an IP address cannot be resolved from it, the key type defaults to IP.
     * `ASN`: The autonomous system number of the originating client. If not available, the key type defaults to `ALL`.
-
-* `exceed_redirect_options` - (Optional) Parameters defining the redirect action that is used as the exceed action. Cannot be specified if the exceed action is not redirect. Structure is [documented below](#nested_exceed_redirect_options).
 
 <a name="nested_threshold"></a>The `{ban/rate_limit}_threshold` block supports:
 
