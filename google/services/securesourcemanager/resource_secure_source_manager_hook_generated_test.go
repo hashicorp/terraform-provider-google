@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -64,9 +65,36 @@ func TestAccSecureSourceManagerHook_secureSourceManagerHookBasicExample(t *testi
 		"deletion_policy": "DELETE",
 		"hook_id":         "tf-test-my-basic-hook" + randomSuffix,
 		"instance_id":     "tf-test-my-basic-instance" + randomSuffix,
-		"prevent_destroy": false,
 		"repository_id":   "tf-test-my-basic-repository" + randomSuffix,
 		"random_suffix":   randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"branch_filter":          "main",
+		"deletion_policy":        "DELETE",
+		"disabled":               false,
+		"hook_id":                "tf-test-my-basic-hook" + randomSuffix,
+		"instance_id":            "tf-test-my-basic-instance" + randomSuffix,
+		"repository_id":          "tf-test-my-basic-repository" + randomSuffix,
+		"sa_id":                  "tf-test-my-basic-sa" + randomSuffix,
+		"sensitive_query_string": "auth=fake_token",
+		"service_account_auth":   true,
+		"target_uri":             "https://www.example.com",
+		"random_suffix":          randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"branch_filter":          "",
+		"deletion_policy":        "DELETE",
+		"disabled":               true,
+		"hook_id":                "tf-test-my-basic-hook" + randomSuffix,
+		"instance_id":            "tf-test-my-basic-instance" + randomSuffix,
+		"repository_id":          "tf-test-my-basic-repository" + randomSuffix,
+		"sa_id":                  "tf-test-my-basic-sa" + randomSuffix,
+		"sensitive_query_string": "auth=updated_token",
+		"service_account_auth":   false,
+		"target_uri":             "https://www.update.com",
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -78,13 +106,53 @@ func TestAccSecureSourceManagerHook_secureSourceManagerHookBasicExample(t *testi
 				Config: testAccSecureSourceManagerHook_secureSourceManagerHookBasicExample(context),
 			},
 			{
-				ResourceName:            "google_secure_source_manager_hook.basic",
+				ResourceName:            "google_secure_source_manager_hook.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_policy", "hook_id", "location", "repository_id", "sensitive_query_string"},
 			},
 			{
-				ResourceName:       "google_secure_source_manager_hook.basic",
+				ResourceName:       "google_secure_source_manager_hook.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccSecureSourceManagerHook_secureSourceManagerHookWithFieldsExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_secure_source_manager_hook.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_secure_source_manager_hook.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "hook_id", "location", "repository_id", "sensitive_query_string"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_hook.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccSecureSourceManagerHook_secureSourceManagerHookWithFieldsExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_secure_source_manager_hook.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_secure_source_manager_hook.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy", "hook_id", "location", "repository_id", "sensitive_query_string"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_hook.default",
 				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
@@ -96,7 +164,7 @@ func TestAccSecureSourceManagerHook_secureSourceManagerHookBasicExample(t *testi
 func testAccSecureSourceManagerHook_secureSourceManagerHookBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
+    location = "asia-east1"
     instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
@@ -112,7 +180,7 @@ resource "google_secure_source_manager_repository" "repository" {
     deletion_policy = "%{deletion_policy}"
 }
 
-resource "google_secure_source_manager_hook" "basic" {
+resource "google_secure_source_manager_hook" "default" {
     hook_id = "%{hook_id}"
     repository_id = google_secure_source_manager_repository.repository.repository_id
     location = google_secure_source_manager_repository.repository.location
@@ -123,121 +191,10 @@ resource "google_secure_source_manager_hook" "basic" {
 `, context)
 }
 
-func TestAccSecureSourceManagerHook_secureSourceManagerHookWithFieldsExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"deletion_policy": "DELETE",
-		"hook_id":         "tf-test-my-initial-hook" + randomSuffix,
-		"instance_id":     "tf-test-my-initial-instance" + randomSuffix,
-		"prevent_destroy": false,
-		"repository_id":   "tf-test-my-initial-repository" + randomSuffix,
-		"random_suffix":   randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckSecureSourceManagerHookDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSecureSourceManagerHook_secureSourceManagerHookWithFieldsExample(context),
-			},
-			{
-				ResourceName:            "google_secure_source_manager_hook.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "hook_id", "location", "repository_id", "sensitive_query_string"},
-			},
-			{
-				ResourceName:       "google_secure_source_manager_hook.default",
-				ImportState:        true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
 func testAccSecureSourceManagerHook_secureSourceManagerHookWithFieldsExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
-    instance_id = "%{instance_id}"
-
-    # Prevent accidental deletions.
-    deletion_policy = "%{deletion_policy}"
-}
-
-resource "google_secure_source_manager_repository" "repository" {
-    repository_id = "%{repository_id}"
-    instance = google_secure_source_manager_instance.instance.name
-    location = google_secure_source_manager_instance.instance.location
-
-    # Prevent accidental deletions.
-    deletion_policy = "%{deletion_policy}"
-}
-
-resource "google_secure_source_manager_hook" "default" {
-    hook_id = "%{hook_id}"
-    location = google_secure_source_manager_repository.repository.location
-    repository_id = google_secure_source_manager_repository.repository.repository_id
-    target_uri = "https://www.example.com"
-    sensitive_query_string = "auth=fake_token"
-    disabled = false
-    push_option {
-        branch_filter = "main"
-    }
-    events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
-}
-`, context)
-}
-
-func TestAccSecureSourceManagerHook_secureSourceManagerHookServiceAccountAuthExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"deletion_policy": "DELETE",
-		"hook_id":         "tf-test-my-sa-hook" + randomSuffix,
-		"instance_id":     "tf-test-my-sa-instance" + randomSuffix,
-		"prevent_destroy": false,
-		"repository_id":   "tf-test-my-sa-repository" + randomSuffix,
-		"sa_id":           "tf-test-my-sa" + randomSuffix,
-		"random_suffix":   randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckSecureSourceManagerHookDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSecureSourceManagerHook_secureSourceManagerHookServiceAccountAuthExample(context),
-			},
-			{
-				ResourceName:            "google_secure_source_manager_hook.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "hook_id", "location", "repository_id", "sensitive_query_string"},
-			},
-			{
-				ResourceName:       "google_secure_source_manager_hook.default",
-				ImportState:        true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccSecureSourceManagerHook_secureSourceManagerHookServiceAccountAuthExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
+    location = "asia-east1"
     instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
@@ -263,9 +220,13 @@ resource "google_secure_source_manager_hook" "default" {
     hook_id = "%{hook_id}"
     location = google_secure_source_manager_repository.repository.location
     repository_id = google_secure_source_manager_repository.repository.repository_id
-    target_uri = "https://www.example.com"
-    disabled = false
-    service_account_auth = true
+    target_uri = "%{target_uri}"
+    sensitive_query_string = "%{sensitive_query_string}"
+    disabled = %{disabled}
+    service_account_auth = %{service_account_auth}
+    push_option {
+        branch_filter = "%{branch_filter}"
+    }
     events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
 }
 `, context)

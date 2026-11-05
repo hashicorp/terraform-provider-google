@@ -599,7 +599,8 @@ func resourceSecureSourceManagerRepositoryUpdate(d *schema.ResourceData, meta in
 	}
 
 	if d.HasChange("scan_config") {
-		updateMask = append(updateMask, "scanConfig")
+		updateMask = append(updateMask, "scan_config.secret_scan_config.enabled",
+			"scan_config.secret_scan_config.inspect_template")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -928,7 +929,7 @@ func expandSecureSourceManagerRepositoryScanConfigSecretScanConfig(v interface{}
 	transformedEnabled, err := expandSecureSourceManagerRepositoryScanConfigSecretScanConfigEnabled(original["enabled"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["enabled"] = transformedEnabled
 	}
 

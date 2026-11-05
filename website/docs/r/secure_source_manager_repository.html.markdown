@@ -41,7 +41,7 @@ To get more information about Repository, see:
 
 ```hcl
 resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
+    location = "europe-west4"
     instance_id = "my-instance"
 
     # Prevent accidental deletions.
@@ -49,77 +49,12 @@ resource "google_secure_source_manager_instance" "instance" {
 }
 
 resource "google_secure_source_manager_repository" "default" {
-    location = "us-central1"
+    location = "europe-west4"
     repository_id = "my-repository"
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
     deletion_policy = "PREVENT"
-}
-```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_repository_initial_config&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
-
-## Example Usage - Secure Source Manager Repository Initial Config
-
-
-```hcl
-resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
-    instance_id = "my-instance"
-
-    # Prevent accidental deletions.
-    deletion_policy = "PREVENT"
-}
-
-resource "google_secure_source_manager_repository" "default" {
-    location = "us-central1"
-    repository_id = "my-repository"
-    instance = google_secure_source_manager_instance.instance.name
-
-    description = "This is a test repository"
-    initial_config {
-      default_branch = "main"
-      gitignores = ["python"]
-      license = "mit"
-      readme = "default"
-    }
-
-    # Prevent accidental deletions.
-    deletion_policy = "PREVENT"
-}
-```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_repository_service_account&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
-
-## Example Usage - Secure Source Manager Repository Service Account
-
-
-```hcl
-resource "google_secure_source_manager_instance" "instance" {
-  location = "us-central1"
-  instance_id = "my-instance"
-  deletion_policy = "PREVENT"
-}
-
-resource "google_service_account" "sa" {
-  account_id   = "my-sa"
-  display_name = "Test Service Account"
-}
-
-resource "google_secure_source_manager_repository" "default" {
-  location = "us-central1"
-  repository_id = "my-repository"
-  instance = google_secure_source_manager_instance.instance.name
-  deletion_policy = "PREVENT"
-
-  service_account = google_service_account.sa.email
 }
 ```
 
@@ -128,13 +63,13 @@ resource "google_secure_source_manager_repository" "default" {
 
 ```hcl
 resource "google_secure_source_manager_instance" "instance" {
-  location = "us-central1"
+  location = "europe-west4"
   instance_id = "my-instance"
   deletion_policy = "PREVENT"
 }
 
 resource "google_data_loss_prevention_inspect_template" "template" {
-  parent       = "projects/my-project-name/locations/us-central1"
+  parent       = "projects/my-project-name/locations/europe-west4"
   display_name = "Test Inspect Template"
 
   inspect_config {
@@ -153,10 +88,18 @@ resource "google_project_iam_member" "ssm_p4sa_dlp_reader" {
   member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
 }
 
+# IAM permissions can take time to propagate
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_project_iam_member.ssm_p4sa_dlp_reader]
+
+  create_duration = "120s"
+}
+
 resource "google_secure_source_manager_repository" "default" {
-  location = "us-central1"
+  location = "europe-west4"
   repository_id = "my-repository"
   instance = google_secure_source_manager_instance.instance.name
+  description = "This is a test repository"
   deletion_policy = "PREVENT"
 
   scan_config {
@@ -167,37 +110,49 @@ resource "google_secure_source_manager_repository" "default" {
   }
 
   depends_on = [
-    google_project_iam_member.ssm_p4sa_dlp_reader,
+    time_sleep.wait_120_seconds,
   ]
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_repository_secret_scanning_default&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_repository_initial_config&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
 </div>
 
-## Example Usage - Secure Source Manager Repository Secret Scanning Default
+## Example Usage - Secure Source Manager Repository Initial Config
 
 
 ```hcl
 resource "google_secure_source_manager_instance" "instance" {
-  location = "us-central1"
-  instance_id = "my-instance"
-  deletion_policy = "PREVENT"
+    location = "asia-east1"
+    instance_id = "my-instance"
+
+    # Prevent accidental deletions.
+    deletion_policy = "PREVENT"
+}
+
+resource "google_service_account" "sa" {
+    account_id   = "my-sa"
+    display_name = "Test Service Account"
 }
 
 resource "google_secure_source_manager_repository" "default" {
-  location = "us-central1"
-  repository_id = "my-repository"
-  instance = google_secure_source_manager_instance.instance.name
-  deletion_policy = "PREVENT"
+    location = "asia-east1"
+    repository_id = "my-repository"
+    instance = google_secure_source_manager_instance.instance.name
 
-  scan_config {
-    secret_scan_config {
-      enabled = true
+    description = "This is a test repository"
+    service_account = google_service_account.sa.email
+    initial_config {
+      default_branch = "main"
+      gitignores = ["python"]
+      license = "mit"
+      readme = "default"
     }
-  }
+
+    # Prevent accidental deletions.
+    deletion_policy = "PREVENT"
 }
 ```
 

@@ -31,8 +31,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/dns"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
@@ -171,199 +169,17 @@ data "google_project" "project" {}
 `, context)
 }
 
-func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTrustedCertExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"instance_id":   "tf-test-my-instance" + randomSuffix,
-		"random_suffix": randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckSecureSourceManagerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTrustedCertExample(context),
-			},
-			{
-				ResourceName:            "google_secure_source_manager_instance.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
-			},
-			{
-				ResourceName:       "google_secure_source_manager_instance.default",
-				ImportState:        true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateTrustedCertExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_project" "psc_other_project" {
-  project_id      = "tf-test-psc-%{random_suffix}"
-  name            = "tf-test-psc-%{random_suffix}"
-  org_id          = "%{org_id}"
-  deletion_policy = "DELETE"
-}
-
-resource "google_secure_source_manager_instance" "default" {
-  instance_id = "%{instance_id}"
-  location    = "us-central1"
-
-  private_config {
-    is_private = true
-    psc_allowed_projects = [
-      google_project.psc_other_project.project_id
-    ]
-  }
-  deletion_policy = "DELETE"
-}
-`, context)
-}
-
-func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"ca_pool_id":      "tf-test-ca-pool" + randomSuffix,
-		"deletion_policy": "DELETE",
-		"instance_id":     "tf-test-my-instance" + randomSuffix,
-		"root_ca_id":      "tf-test-root-ca" + randomSuffix,
-		"random_suffix":   randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"time": {},
-		},
-		CheckDestroy: testAccCheckSecureSourceManagerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateExample(context),
-			},
-			{
-				ResourceName:            "google_secure_source_manager_instance.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
-			},
-			{
-				ResourceName:       "google_secure_source_manager_instance.default",
-				ImportState:        true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_privateca_ca_pool" "ca_pool" {
-  name     = "%{ca_pool_id}"
-  location = "us-central1"
-  tier     = "ENTERPRISE"
-  publishing_options {
-    publish_ca_cert = true
-    publish_crl     = true
-  }
-}
-
-resource "google_privateca_certificate_authority" "root_ca" {
-  pool                     = google_privateca_ca_pool.ca_pool.name
-  certificate_authority_id = "%{root_ca_id}"
-  location                 = "us-central1"
-  config {
-    subject_config {
-      subject {
-        organization = "google"
-        common_name = "my-certificate-authority"
-      }
-    }
-    x509_config {
-      ca_options {
-        is_ca = true
-      }
-      key_usage {
-        base_key_usage {
-          cert_sign = true
-          crl_sign = true
-        }
-        extended_key_usage {
-          server_auth = true
-        }
-      }
-    }
-  }
-  key_spec {
-    algorithm = "RSA_PKCS1_4096_SHA256"
-  }
-
-  // Disable deletion protections for easier test cleanup purposes
-  deletion_protection = false
-  ignore_active_certificates_on_deletion = true
-  skip_grace_period = true
-}
-
-resource "google_privateca_ca_pool_iam_binding" "ca_pool_binding" {
-  ca_pool = google_privateca_ca_pool.ca_pool.id
-  role = "roles/privateca.certificateRequester"
-
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
-  ]
-}
-
-resource "google_secure_source_manager_instance" "default" {
-  instance_id = "%{instance_id}"
-  location = "us-central1"
-  private_config {
-    is_private = true
-    ca_pool = google_privateca_ca_pool.ca_pool.id
-  }
-
-  # Prevent accidental deletions.
-  deletion_policy = "%{deletion_policy}"
-
-  depends_on = [
-    google_privateca_certificate_authority.root_ca,
-    time_sleep.wait_120_seconds
-  ]
-}
-
-# ca pool IAM permissions can take time to propagate
-resource "time_sleep" "wait_120_seconds" {
-  depends_on = [google_privateca_ca_pool_iam_binding.ca_pool_binding]
-
-  create_duration = "120s"
-}
-
-data "google_project" "project" {}
-`, context)
-}
-
 func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateCustomHostExample(t *testing.T) {
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"ca_pool_id":      "tf-test-ca-pool" + randomSuffix,
 		"deletion_policy": "DELETE",
 		"instance_id":     "tf-test-my-instance" + randomSuffix,
+		"psc_project_id":  "tf-test-psc-project" + randomSuffix,
 		"root_ca_id":      "tf-test-root-ca" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}
@@ -399,9 +215,16 @@ func testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateCustom
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 
+resource "google_project" "psc_other_project" {
+  project_id      = "%{psc_project_id}"
+  name            = "%{psc_project_id}"
+  org_id          = "%{org_id}"
+  deletion_policy = "DELETE"
+}
+
 resource "google_privateca_ca_pool" "ca_pool" {
   name     = "%{ca_pool_id}"
-  location = "us-central1"
+  location = "europe-west4"
   tier     = "ENTERPRISE"
   publishing_options {
     publish_ca_cert = true
@@ -412,7 +235,7 @@ resource "google_privateca_ca_pool" "ca_pool" {
 resource "google_privateca_certificate_authority" "root_ca" {
   pool                     = google_privateca_ca_pool.ca_pool.name
   certificate_authority_id = "%{root_ca_id}"
-  location                 = "us-central1"
+  location                 = "europe-west4"
   config {
     subject_config {
       subject {
@@ -456,10 +279,13 @@ resource "google_privateca_ca_pool_iam_binding" "ca_pool_binding" {
 
 resource "google_secure_source_manager_instance" "default" {
   instance_id = "%{instance_id}"
-  location = "us-central1"
+  location = "europe-west4"
   private_config {
     is_private = true
     ca_pool = google_privateca_ca_pool.ca_pool.id
+    psc_allowed_projects = [
+      google_project.psc_other_project.project_id
+    ]
     custom_host_config {
       api = "api.example.com"
       git_http = "git-http.example.com"
@@ -468,138 +294,8 @@ resource "google_secure_source_manager_instance" "default" {
     }
   }
 
-  # Prevent accidental deletions.
-  deletion_policy = "%{deletion_policy}"
-
-  depends_on = [
-    google_privateca_certificate_authority.root_ca,
-    time_sleep.wait_120_seconds
-  ]
-}
-
-# ca pool IAM permissions can take time to propagate
-resource "time_sleep" "wait_120_seconds" {
-  depends_on = [google_privateca_ca_pool_iam_binding.ca_pool_binding]
-
-  create_duration = "120s"
-}
-`, context)
-}
-
-func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscBackendExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"backend_id":                 "tf-test-my-backend-service" + randomSuffix,
-		"ca_pool_id":                 "tf-test-ca-pool" + randomSuffix,
-		"deletion_policy":            "DELETE",
-		"dns_zone_id":                "tf-test-my-dns-zone" + randomSuffix,
-		"fw_rule_to_target_proxy_id": "tf-test-fw-rule-target-proxy" + randomSuffix,
-		"instance_id":                "tf-test-my-instance" + randomSuffix,
-		"neg_id":                     "tf-test-my-neg" + randomSuffix,
-		"network_id":                 "tf-test-my-network" + randomSuffix,
-		"proxy_subnet_id":            "tf-test-my-proxy-subnet" + randomSuffix,
-		"root_ca_id":                 "tf-test-root-ca" + randomSuffix,
-		"subnet_id":                  "tf-test-my-subnet" + randomSuffix,
-		"target_proxy_id":            "tf-test-my-target-proxy" + randomSuffix,
-		"random_suffix":              randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"time": {},
-		},
-		CheckDestroy: testAccCheckSecureSourceManagerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscBackendExample(context),
-			},
-			{
-				ResourceName:            "google_secure_source_manager_instance.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
-			},
-			{
-				ResourceName:       "google_secure_source_manager_instance.default",
-				ImportState:        true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscBackendExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-data "google_project" "project" {}
-
-resource "google_privateca_ca_pool" "ca_pool" {
-  name     = "%{ca_pool_id}"
-  location = "us-central1"
-  tier     = "ENTERPRISE"
-  publishing_options {
-    publish_ca_cert = true
-    publish_crl     = true
-  }
-}
-
-resource "google_privateca_certificate_authority" "root_ca" {
-  pool                     = google_privateca_ca_pool.ca_pool.name
-  certificate_authority_id = "%{root_ca_id}"
-  location                 = "us-central1"
-  config {
-    subject_config {
-      subject {
-        organization = "google"
-        common_name = "my-certificate-authority"
-      }
-    }
-    x509_config {
-      ca_options {
-        is_ca = true
-      }
-      key_usage {
-        base_key_usage {
-          cert_sign = true
-          crl_sign = true
-        }
-        extended_key_usage {
-          server_auth = true
-        }
-      }
-    }
-  }
-  key_spec {
-    algorithm = "RSA_PKCS1_4096_SHA256"
-  }
-
-  // Disable deletion protections for easier test cleanup purposes
-  deletion_protection = false
-  ignore_active_certificates_on_deletion = true
-  skip_grace_period = true
-}
-
-resource "google_privateca_ca_pool_iam_binding" "ca_pool_binding" {
-  ca_pool = google_privateca_ca_pool.ca_pool.id
-  role = "roles/privateca.certificateRequester"
-
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
-  ]
-}
-
-// See https://cloud.google.com/secure-source-manager/docs/create-private-service-connect-instance#root-ca-api
-resource "google_secure_source_manager_instance" "default" {
-  instance_id = "%{instance_id}"
-  location = "us-central1"
-  private_config {
-    is_private = true
-    ca_pool = google_privateca_ca_pool.ca_pool.id
+  workforce_identity_federation_config {
+    enabled = true
   }
 
   # Prevent accidental deletions.
@@ -616,357 +312,6 @@ resource "time_sleep" "wait_120_seconds" {
   depends_on = [google_privateca_ca_pool_iam_binding.ca_pool_binding]
 
   create_duration = "120s"
-}
-
-// Connect SSM private instance with L4 proxy ILB.
-resource "google_compute_network" "network" {
-  name = "%{network_id}"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "subnet" {
-  name = "%{subnet_id}"
-  region = "us-central1"
-  network = google_compute_network.network.id
-  ip_cidr_range = "10.0.1.0/24"
-  private_ip_google_access = true
-}
-
-resource "google_compute_region_network_endpoint_group" "psc_neg" {
-  name = "%{neg_id}"
-  region = "us-central1"
-
-  network_endpoint_type = "PRIVATE_SERVICE_CONNECT"
-  psc_target_service = google_secure_source_manager_instance.default.private_config.0.http_service_attachment
-
-  network = google_compute_network.network.id
-  subnetwork = google_compute_subnetwork.subnet.id
-}
-
-resource "google_compute_region_backend_service" "backend_service" {
-  name = "%{backend_id}"
-  region = "us-central1"
-  protocol = "TCP"
-  load_balancing_scheme = "INTERNAL_MANAGED"
-  backend {
-    group = google_compute_region_network_endpoint_group.psc_neg.id
-    balancing_mode = "UTILIZATION"
-    capacity_scaler = 1.0
-  }
-}
-
-resource "google_compute_subnetwork" "proxy_subnet" {
-  name = "%{proxy_subnet_id}"
-  region = "us-central1"
-  network = google_compute_network.network.id
-  ip_cidr_range = "10.0.2.0/24"
-  purpose = "REGIONAL_MANAGED_PROXY"
-  role = "ACTIVE"
-}
-
-resource "google_compute_region_target_tcp_proxy" "target_proxy" {
-  name = "%{target_proxy_id}"
-  region = "us-central1"
-  backend_service = google_compute_region_backend_service.backend_service.id
-}
-
-resource "google_compute_forwarding_rule" "fw_rule_target_proxy" {
-  name = "%{fw_rule_to_target_proxy_id}"
-  region = "us-central1"
-
-  load_balancing_scheme = "INTERNAL_MANAGED"
-  ip_protocol = "TCP"
-  port_range = "443"
-  target = google_compute_region_target_tcp_proxy.target_proxy.id
-  network = google_compute_network.network.id
-  subnetwork = google_compute_subnetwork.subnet.id
-  network_tier = "PREMIUM"
-  depends_on = [google_compute_subnetwork.proxy_subnet]
-}
-
-resource "google_dns_managed_zone" "private_zone" {
-  name = "%{dns_zone_id}"
-  dns_name = "p.sourcemanager.dev."
-  visibility = "private"
-  private_visibility_config {
-    networks {
-      network_url = google_compute_network.network.id
-    }
-  }
-}
-
-resource "google_dns_record_set" "ssm_instance_html_record" {
-  name = "${google_secure_source_manager_instance.default.host_config.0.html}."
-  type = "A"
-  ttl = 300
-  managed_zone = google_dns_managed_zone.private_zone.name
-  rrdatas = [google_compute_forwarding_rule.fw_rule_target_proxy.ip_address]
-}
-
-resource "google_dns_record_set" "ssm_instance_api_record" {
-  name = "${google_secure_source_manager_instance.default.host_config.0.api}."
-  type = "A"
-  ttl = 300
-  managed_zone = google_dns_managed_zone.private_zone.name
-  rrdatas = [google_compute_forwarding_rule.fw_rule_target_proxy.ip_address]
-}
-
-resource "google_dns_record_set" "ssm_instance_git_record" {
-  name = "${google_secure_source_manager_instance.default.host_config.0.git_http}."
-  type = "A"
-  ttl = 300
-  managed_zone = google_dns_managed_zone.private_zone.name
-  rrdatas = [google_compute_forwarding_rule.fw_rule_target_proxy.ip_address]
-}
-`, context)
-}
-
-func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscEndpointExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"address_id":                       "tf-test-my-address" + randomSuffix,
-		"ca_pool_id":                       "tf-test-ca-pool" + randomSuffix,
-		"deletion_policy":                  "DELETE",
-		"dns_zone_id":                      "tf-test-my-dns-zone" + randomSuffix,
-		"fw_rule_to_service_attachment_id": "tf-test-fw-rule-service-attachment" + randomSuffix,
-		"instance_id":                      "tf-test-my-instance" + randomSuffix,
-		"network_id":                       "tf-test-my-network" + randomSuffix,
-		"root_ca_id":                       "tf-test-root-ca" + randomSuffix,
-		"subnet_id":                        "tf-test-my-subnet" + randomSuffix,
-		"random_suffix":                    randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"time": {},
-		},
-		CheckDestroy: testAccCheckSecureSourceManagerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscEndpointExample(context),
-			},
-			{
-				ResourceName:            "google_secure_source_manager_instance.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
-			},
-			{
-				ResourceName:       "google_secure_source_manager_instance.default",
-				ImportState:        true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscEndpointExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-data "google_project" "project" {}
-
-resource "google_privateca_ca_pool" "ca_pool" {
-  name     = "%{ca_pool_id}"
-  location = "us-central1"
-  tier     = "ENTERPRISE"
-  publishing_options {
-    publish_ca_cert = true
-    publish_crl     = true
-  }
-}
-
-resource "google_privateca_certificate_authority" "root_ca" {
-  pool                     = google_privateca_ca_pool.ca_pool.name
-  certificate_authority_id = "%{root_ca_id}"
-  location                 = "us-central1"
-  config {
-    subject_config {
-      subject {
-        organization = "google"
-        common_name = "my-certificate-authority"
-      }
-    }
-    x509_config {
-      ca_options {
-        is_ca = true
-      }
-      key_usage {
-        base_key_usage {
-          cert_sign = true
-          crl_sign = true
-        }
-        extended_key_usage {
-          server_auth = true
-        }
-      }
-    }
-  }
-  key_spec {
-    algorithm = "RSA_PKCS1_4096_SHA256"
-  }
-
-  // Disable deletion protections for easier test cleanup purposes
-  deletion_protection = false
-  ignore_active_certificates_on_deletion = true
-  skip_grace_period = true
-}
-
-resource "google_privateca_ca_pool_iam_binding" "ca_pool_binding" {
-  ca_pool = google_privateca_ca_pool.ca_pool.id
-  role = "roles/privateca.certificateRequester"
-
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
-  ]
-}
-
-// See https://cloud.google.com/secure-source-manager/docs/create-private-service-connect-instance#root-ca-api
-resource "google_secure_source_manager_instance" "default" {
-  instance_id = "%{instance_id}"
-  location = "us-central1"
-  private_config {
-    is_private = true
-    ca_pool = google_privateca_ca_pool.ca_pool.id
-  }
-
-  # Prevent accidental deletions.
-  deletion_policy = "%{deletion_policy}"
-
-  depends_on = [
-    google_privateca_certificate_authority.root_ca,
-    time_sleep.wait_120_seconds
-  ]
-}
-
-# ca pool IAM permissions can take time to propagate
-resource "time_sleep" "wait_120_seconds" {
-  depends_on = [google_privateca_ca_pool_iam_binding.ca_pool_binding]
-
-  create_duration = "120s"
-}
-
-// Connect SSM private instance with endpoint.
-resource "google_compute_network" "network" {
-  name = "%{network_id}"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "subnet" {
-  name = "%{subnet_id}"
-  region = "us-central1"
-  network = google_compute_network.network.id
-  ip_cidr_range = "10.0.60.0/24"
-  private_ip_google_access = true
-}
-
-resource "google_compute_address" "address" {
-  name = "%{address_id}"
-  region = "us-central1"
-  address = "10.0.60.100"
-  address_type = "INTERNAL"
-  subnetwork = google_compute_subnetwork.subnet.id
-}
-
-resource "google_compute_forwarding_rule" "fw_rule_service_attachment" {
-  name = "%{fw_rule_to_service_attachment_id}"
-  region = "us-central1"
-
-  load_balancing_scheme = ""
-  ip_address = google_compute_address.address.id
-  network = google_compute_network.network.id
-
-  target = google_secure_source_manager_instance.default.private_config.0.http_service_attachment
-}
-
-resource "google_dns_managed_zone" "private_zone" {
-  name = "%{dns_zone_id}"
-  dns_name = "p.sourcemanager.dev."
-  visibility = "private"
-  private_visibility_config {
-    networks {
-      network_url = google_compute_network.network.id
-    }
-  }
-}
-
-resource "google_dns_record_set" "ssm_instance_html_record" {
-  name = "${google_secure_source_manager_instance.default.host_config.0.html}."
-  type = "A"
-  ttl = 300
-  managed_zone = google_dns_managed_zone.private_zone.name
-  rrdatas = [google_compute_forwarding_rule.fw_rule_service_attachment.ip_address]
-}
-
-resource "google_dns_record_set" "ssm_instance_api_record" {
-  name = "${google_secure_source_manager_instance.default.host_config.0.api}."
-  type = "A"
-  ttl = 300
-  managed_zone = google_dns_managed_zone.private_zone.name
-  rrdatas = [google_compute_forwarding_rule.fw_rule_service_attachment.ip_address]
-}
-
-resource "google_dns_record_set" "ssm_instance_git_record" {
-  name = "${google_secure_source_manager_instance.default.host_config.0.git_http}."
-  type = "A"
-  ttl = 300
-  managed_zone = google_dns_managed_zone.private_zone.name
-  rrdatas = [google_compute_forwarding_rule.fw_rule_service_attachment.ip_address]
-}
-`, context)
-}
-
-func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceWorkforceIdentityFederationExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"deletion_policy": "DELETE",
-		"instance_id":     "tf-test-my-instance" + randomSuffix,
-		"random_suffix":   randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckSecureSourceManagerInstanceDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSecureSourceManagerInstance_secureSourceManagerInstanceWorkforceIdentityFederationExample(context),
-			},
-			{
-				ResourceName:            "google_secure_source_manager_instance.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_policy", "instance_id", "labels", "location", "terraform_labels", "update_time"},
-			},
-			{
-				ResourceName:       "google_secure_source_manager_instance.default",
-				ImportState:        true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
-}
-
-func testAccSecureSourceManagerInstance_secureSourceManagerInstanceWorkforceIdentityFederationExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_secure_source_manager_instance" "default" {
-    location = "us-central1"
-    instance_id = "%{instance_id}"
-
-    workforce_identity_federation_config {
-      enabled = true
-    }
-
-    # Prevent accidental deletions.
-    deletion_policy = "%{deletion_policy}"
 }
 `, context)
 }

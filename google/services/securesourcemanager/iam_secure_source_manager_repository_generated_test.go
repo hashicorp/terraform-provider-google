@@ -30,6 +30,8 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/datalossprevention"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
@@ -57,6 +59,9 @@ func TestAccSecureSourceManagerRepositoryIamBindingGenerated(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSecureSourceManagerRepositoryIamBinding_basicGenerated(context),
@@ -100,6 +105,9 @@ func TestAccSecureSourceManagerRepositoryIamMemberGenerated(t *testing.T) {
 		},
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				// Test Iam Member creation (no update for member, no need to test)
@@ -135,6 +143,9 @@ func TestAccSecureSourceManagerRepositoryIamPolicyGenerated(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSecureSourceManagerRepositoryIamPolicy_basicGenerated(context),
@@ -162,7 +173,7 @@ func TestAccSecureSourceManagerRepositoryIamPolicyGenerated(t *testing.T) {
 func testAccSecureSourceManagerRepositoryIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
+    location = "europe-west4"
     instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
@@ -170,7 +181,7 @@ resource "google_secure_source_manager_instance" "instance" {
 }
 
 resource "google_secure_source_manager_repository" "default" {
-    location = "us-central1"
+    location = "europe-west4"
     repository_id = "%{repository_id}"
     instance = google_secure_source_manager_instance.instance.name
 
@@ -191,7 +202,7 @@ resource "google_secure_source_manager_repository_iam_member" "foo" {
 func testAccSecureSourceManagerRepositoryIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
+    location = "europe-west4"
     instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
@@ -199,7 +210,7 @@ resource "google_secure_source_manager_instance" "instance" {
 }
 
 resource "google_secure_source_manager_repository" "default" {
-    location = "us-central1"
+    location = "europe-west4"
     repository_id = "%{repository_id}"
     instance = google_secure_source_manager_instance.instance.name
 
@@ -235,7 +246,7 @@ data "google_secure_source_manager_repository_iam_policy" "foo" {
 func testAccSecureSourceManagerRepositoryIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
+    location = "europe-west4"
     instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
@@ -243,7 +254,7 @@ resource "google_secure_source_manager_instance" "instance" {
 }
 
 resource "google_secure_source_manager_repository" "default" {
-    location = "us-central1"
+    location = "europe-west4"
     repository_id = "%{repository_id}"
     instance = google_secure_source_manager_instance.instance.name
 
@@ -266,7 +277,7 @@ resource "google_secure_source_manager_repository_iam_policy" "foo" {
 func testAccSecureSourceManagerRepositoryIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
+    location = "europe-west4"
     instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
@@ -274,7 +285,7 @@ resource "google_secure_source_manager_instance" "instance" {
 }
 
 resource "google_secure_source_manager_repository" "default" {
-    location = "us-central1"
+    location = "europe-west4"
     repository_id = "%{repository_id}"
     instance = google_secure_source_manager_instance.instance.name
 
@@ -295,7 +306,7 @@ resource "google_secure_source_manager_repository_iam_binding" "foo" {
 func testAccSecureSourceManagerRepositoryIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
+    location = "europe-west4"
     instance_id = "%{instance_id}"
 
     # Prevent accidental deletions.
@@ -303,7 +314,7 @@ resource "google_secure_source_manager_instance" "instance" {
 }
 
 resource "google_secure_source_manager_repository" "default" {
-    location = "us-central1"
+    location = "europe-west4"
     repository_id = "%{repository_id}"
     instance = google_secure_source_manager_instance.instance.name
 
