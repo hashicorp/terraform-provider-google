@@ -78,6 +78,11 @@ The following arguments are supported:
   trailing '/'. For example, `example_dir/example_dir2/`.
 
 
+* `rapid_cache_config` -
+  (Optional)
+  Configuration options for the rapid cache of a managed folder.
+  Structure is [documented below](#nested_rapid_cache_config).
+
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
 	the command will fail if this field is set to "PREVENT" in Terraform state.
@@ -90,6 +95,28 @@ within the folder will remain in a simulated folder with the
 same name.
 
 
+
+<a name="nested_rapid_cache_config"></a>The `rapid_cache_config` block supports:
+
+* `policies` -
+  (Required)
+  A map of rapid cache IDs to the corresponding RapidCachePolicy
+  configurations for a managed folder.
+  Structure is [documented below](#nested_rapid_cache_config_policies).
+
+
+<a name="nested_rapid_cache_config_policies"></a>The `policies` block supports:
+
+* `rapid_cache_id` -
+  (Required)
+  The unique identifier of the rapid cache.
+
+* `ingest_on_write` -
+  (Optional)
+  The ingest-on-write policy for objects in the managed folder. When
+  set to `enabled`, objects are automatically ingested into the cache
+  when they are written to the managed folder.
+  Possible values: ["enabled", "unspecified"]
 
 ## Attributes Reference
 
