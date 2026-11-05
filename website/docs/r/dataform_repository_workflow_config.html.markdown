@@ -23,12 +23,10 @@ description: |-
 
 A resource represents a Dataform workflow configuration
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about RepositoryWorkflowConfig, see:
 
-* [API documentation](https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.repositories.workflowConfigs)
+* [API documentation](https://cloud.google.com/dataform/reference/rest/v1/projects.locations.repositories.workflowConfigs)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dataform/docs/workflow-configurations)
 
@@ -43,12 +41,10 @@ To get more information about RepositoryWorkflowConfig, see:
 
 ```hcl
 resource "google_sourcerepo_repository" "git_repository" {
-  provider = google-beta
   name     = "my/repository"
 }
 
 resource "google_secret_manager_secret" "secret" {
-  provider  = google-beta
   secret_id = "my_secret"
 
   replication {
@@ -57,14 +53,12 @@ resource "google_secret_manager_secret" "secret" {
 }
 
 resource "google_secret_manager_secret_version" "secret_version" {
-  provider = google-beta
   secret   = google_secret_manager_secret.secret.id
 
   secret_data = "secret-data"
 }
 
 resource "google_dataform_repository" "repository" {
-  provider = google-beta
   name     = "dataform_repository"
   region   = "us-central1"
 
@@ -82,7 +76,6 @@ resource "google_dataform_repository" "repository" {
 }
 
 resource "google_dataform_repository_release_config" "release_config" {
-  provider = google-beta
 
   project    = google_dataform_repository.repository.project
   region     = google_dataform_repository.repository.region
@@ -108,13 +101,11 @@ resource "google_dataform_repository_release_config" "release_config" {
 }
 
 resource "google_service_account" "dataform_sa" {
-  provider     = google-beta
   account_id   = "dataform-sa"
   display_name = "Dataform Service Account"
 }
 
 resource "google_dataform_repository_workflow_config" "workflow" {
-  provider = google-beta
 
   project        = google_dataform_repository.repository.project
   region         = google_dataform_repository.repository.region
@@ -155,12 +146,10 @@ resource "google_dataform_repository_workflow_config" "workflow" {
 
 ```hcl
 resource "google_sourcerepo_repository" "git_repository" {
-  provider = google-beta
   name     = "my/repository"
 }
 
 resource "google_secret_manager_secret" "secret" {
-  provider  = google-beta
   secret_id = "my_secret"
 
   replication {
@@ -169,14 +158,12 @@ resource "google_secret_manager_secret" "secret" {
 }
 
 resource "google_secret_manager_secret_version" "secret_version" {
-  provider = google-beta
   secret   = google_secret_manager_secret.secret.id
 
   secret_data = "secret-data"
 }
 
 resource "google_dataform_repository" "repository" {
-  provider = google-beta
   name     = "dataform_repository"
   region   = "us-central1"
 
@@ -194,7 +181,6 @@ resource "google_dataform_repository" "repository" {
 }
 
 resource "google_dataform_repository_release_config" "release_config" {
-  provider = google-beta
 
   project    = google_dataform_repository.repository.project
   region     = google_dataform_repository.repository.region
@@ -220,13 +206,11 @@ resource "google_dataform_repository_release_config" "release_config" {
 }
 
 resource "google_service_account" "dataform_sa" {
-  provider     = google-beta
   account_id   = "dataform-sa"
   display_name = "Dataform Service Account"
 }
 
 resource "google_dataform_repository_workflow_config" "workflow" {
-  provider = google-beta
 
   project        = google_dataform_repository.repository.project
   region         = google_dataform_repository.repository.region

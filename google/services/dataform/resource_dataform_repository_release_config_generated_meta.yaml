@@ -1,0 +1,32 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dataform_repository_release_config
+generation_type: mmv1
+source_file: products/dataform/RepositoryReleaseConfig.yaml
+api_service_name: dataform.googleapis.com
+api_version: v1
+api_resource_type_kind: ReleaseConfig
+fields:
+    - api_field: codeCompilationConfig.assertionSchema
+    - api_field: codeCompilationConfig.databaseSuffix
+    - api_field: codeCompilationConfig.defaultDatabase
+    - api_field: codeCompilationConfig.defaultLocation
+    - api_field: codeCompilationConfig.defaultSchema
+    - api_field: codeCompilationConfig.schemaSuffix
+    - api_field: codeCompilationConfig.tablePrefix
+    - api_field: codeCompilationConfig.vars
+    - api_field: cronSchedule
+    - api_field: disabled
+    - api_field: gitCommitish
+    - api_field: name
+    - api_field: recentScheduledReleaseRecords.compilationResult
+    - api_field: recentScheduledReleaseRecords.errorStatus.code
+    - api_field: recentScheduledReleaseRecords.errorStatus.message
+    - api_field: recentScheduledReleaseRecords.releaseTime
+    - field: region
+      provider_only: true
+    - field: repository
+      provider_only: true
+    - api_field: timeZone
+    - field: deletion_policy
+      provider_only: true

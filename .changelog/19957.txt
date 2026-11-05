@@ -1,0 +1,11 @@
+```release-note:new-resource
+`google_dataform_config` (GA)
+```
+
+```release-note:new-resource
+`google_dataform_repository_release_config` (GA)
+```
+
+```release-note:new-resource
+`google_dataform_repository_workflow_config` (GA)
+```

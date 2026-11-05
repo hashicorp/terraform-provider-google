@@ -1,0 +1,32 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_dataform_repository_workflow_config
+generation_type: mmv1
+source_file: products/dataform/RepositoryWorkflowConfig.yaml
+api_service_name: dataform.googleapis.com
+api_version: v1
+api_resource_type_kind: WorkflowConfig
+fields:
+    - api_field: cronSchedule
+    - api_field: disabled
+    - api_field: invocationConfig.fullyRefreshIncrementalTablesEnabled
+    - api_field: invocationConfig.includedTags
+    - api_field: invocationConfig.includedTargets.database
+    - api_field: invocationConfig.includedTargets.name
+    - api_field: invocationConfig.includedTargets.schema
+    - api_field: invocationConfig.serviceAccount
+    - api_field: invocationConfig.transitiveDependenciesIncluded
+    - api_field: invocationConfig.transitiveDependentsIncluded
+    - api_field: name
+    - api_field: recentScheduledExecutionRecords.errorStatus.code
+    - api_field: recentScheduledExecutionRecords.errorStatus.message
+    - api_field: recentScheduledExecutionRecords.executionTime
+    - api_field: recentScheduledExecutionRecords.workflowInvocation
+    - field: region
+      provider_only: true
+    - api_field: releaseConfig
+    - field: repository
+      provider_only: true
+    - api_field: timeZone
+    - field: deletion_policy
+      provider_only: true
