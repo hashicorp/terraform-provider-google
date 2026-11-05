@@ -1,0 +1,3 @@
+```release-note:enhancement
+storage: added `rapid_cache_config` field to `google_storage_managed_folder` resource
+```

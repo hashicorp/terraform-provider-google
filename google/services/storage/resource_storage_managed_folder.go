@@ -145,6 +145,24 @@ func ResourceStorageManagedFolder() *schema.Resource {
 				Description: `The name of the managed folder expressed as a path. Must include
 trailing '/'. For example, 'example_dir/example_dir2/'.`,
 			},
+			"rapid_cache_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration options for the rapid cache of a managed folder.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"policies": {
+							Type:     schema.TypeSet,
+							Required: true,
+							Description: `A map of rapid cache IDs to the corresponding RapidCachePolicy
+configurations for a managed folder.`,
+							Elem: storageManagedFolderRapidCacheConfigPoliciesSchema(),
+							// Default schema.HashSchema is used.
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -191,6 +209,27 @@ When set to "DELETE", deleting the resource is allowed.
 	}
 }
 
+func storageManagedFolderRapidCacheConfigPoliciesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"rapid_cache_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The unique identifier of the rapid cache.`,
+			},
+			"ingest_on_write": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `The ingest-on-write policy for objects in the managed folder. When
+set to 'enabled', objects are automatically ingested into the cache
+when they are written to the managed folder.
+Possible values: ["enabled", "unspecified"]`,
+				Default: "unspecified",
+			},
+		},
+	}
+}
+
 func resourceStorageManagedFolderCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -199,6 +238,12 @@ func resourceStorageManagedFolderCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	obj := make(map[string]interface{})
+	rapidCacheConfigProp, err := expandStorageManagedFolderRapidCacheConfig(d.Get("rapid_cache_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("rapid_cache_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(rapidCacheConfigProp)) && (ok || !reflect.DeepEqual(v, rapidCacheConfigProp)) {
+		obj["rapidCacheConfig"] = rapidCacheConfigProp
+	}
 	bucketProp, err := expandStorageManagedFolderBucket(d.Get("bucket"), d, config)
 	if err != nil {
 		return err
@@ -362,12 +407,78 @@ func resourceStorageManagedFolderUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	config := meta.(*transport_tpg.Config)
-	_ = config
-
-	// we can only get here if force_destroy was updated
 	if d.Get("force_destroy") != nil {
 		if err := d.Set("force_destroy", d.Get("force_destroy")); err != nil {
 			return fmt.Errorf("Error updating force_destroy: %s", err)
+		}
+	}
+
+	if d.HasChange("rapid_cache_config") {
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+		if err != nil {
+			return err
+		}
+
+		oldVal, newVal := d.GetChange("rapid_cache_config")
+		oldRapidCacheConfigProp, err := expandStorageManagedFolderRapidCacheConfig(oldVal, d, config)
+		if err != nil {
+			return err
+		}
+		newRapidCacheConfigProp, err := expandStorageManagedFolderRapidCacheConfig(newVal, d, config)
+		if err != nil {
+			return err
+		}
+
+		obj := make(map[string]interface{})
+		if newRapidCacheConfigProp == nil {
+			obj["rapidCacheConfig"] = nil
+		} else {
+			newConfigMap := newRapidCacheConfigProp.(map[string]interface{})
+			if oldRapidCacheConfigProp != nil {
+				if oldConfigMap, ok := oldRapidCacheConfigProp.(map[string]interface{}); ok {
+					oldPolicies, _ := oldConfigMap["policies"].(map[string]interface{})
+					newPolicies, ok := newConfigMap["policies"].(map[string]interface{})
+					if !ok || newPolicies == nil {
+						newPolicies = make(map[string]interface{})
+						newConfigMap["policies"] = newPolicies
+					}
+					for oldKey := range oldPolicies {
+						if _, exists := newPolicies[oldKey]; !exists {
+							newPolicies[oldKey] = nil
+						}
+					}
+				}
+			}
+			obj["rapidCacheConfig"] = newConfigMap
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"b/{{bucket}}/managedFolders/{{%name}}")
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[DEBUG] Updating ManagedFolder %q: %#v", d.Id(), obj)
+		headers := make(http.Header)
+
+		billingProject := ""
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating ManagedFolder %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating ManagedFolder %q: %#v", d.Id(), res)
 		}
 	}
 
@@ -386,11 +497,10 @@ func resourceStorageManagedFolderUpdate(d *schema.ResourceData, meta interface{}
 			}
 		}
 	} else {
-		log.Printf("[DEBUG] (Read) identity not set: %s", err)
+		log.Printf("[DEBUG] (Update) identity not set: %s", err)
 	}
 
-	// all other fields are immutable, don't do anything else
-	return nil
+	return resourceStorageManagedFolderRead(d, meta)
 }
 
 func resourceStorageManagedFolderDelete(d *schema.ResourceData, meta interface{}) error {
@@ -478,6 +588,42 @@ func flattenStorageManagedFolderMetageneration(v interface{}, d *schema.Resource
 	return v
 }
 
+func flattenStorageManagedFolderRapidCacheConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["policies"] =
+		flattenStorageManagedFolderRapidCacheConfigPolicies(original["policies"], d, config)
+	return []interface{}{transformed}
+}
+func flattenStorageManagedFolderRapidCacheConfigPolicies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	policies := v.(map[string]interface{})
+	transformed := make([]interface{}, 0, len(policies))
+	for key, raw := range policies {
+		policyObj, ok := raw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		rapidCacheId := key
+		if id, ok := policyObj["rapidCacheId"].(string); ok && id != "" {
+			rapidCacheId = id
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"rapid_cache_id":  rapidCacheId,
+			"ingest_on_write": policyObj["ingestOnWrite"],
+		})
+	}
+	return transformed
+}
+
 func flattenStorageManagedFolderBucket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -487,6 +633,52 @@ func flattenStorageManagedFolderBucket(v interface{}, d *schema.ResourceData, co
 
 func flattenStorageManagedFolderName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func expandStorageManagedFolderRapidCacheConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPolicies, err := expandStorageManagedFolderRapidCacheConfigPolicies(original["policies"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPolicies); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["policies"] = transformedPolicies
+	}
+
+	return transformed, nil
+}
+
+func expandStorageManagedFolderRapidCacheConfigPolicies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return map[string]interface{}{}, nil
+	}
+	l := v.(*schema.Set).List()
+	req := make(map[string]interface{})
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		rapidCacheId, _ := original["rapid_cache_id"].(string)
+		policyObj := make(map[string]interface{})
+		if rapidCacheId != "" {
+			policyObj["rapidCacheId"] = rapidCacheId
+		}
+		if ingestOnWrite, ok := original["ingest_on_write"].(string); ok && ingestOnWrite != "" {
+			policyObj["ingestOnWrite"] = ingestOnWrite
+		}
+		req[rapidCacheId] = policyObj
+	}
+	return req, nil
 }
 
 func expandStorageManagedFolderBucket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -507,6 +699,9 @@ func ResourceStorageManagedFolderFlatten(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading ManagedFolder: %s", err)
 	}
 	if err = d.Set("metageneration", flattenStorageManagedFolderMetageneration(res["metageneration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ManagedFolder: %s", err)
+	}
+	if err = d.Set("rapid_cache_config", flattenStorageManagedFolderRapidCacheConfig(res["rapidCacheConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedFolder: %s", err)
 	}
 	if err = d.Set("bucket", flattenStorageManagedFolderBucket(res["bucket"], d, config)); err != nil {
