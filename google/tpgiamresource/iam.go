@@ -77,10 +77,17 @@ type (
 )
 
 // Locking wrapper around read-only operation with retries.
+//
+// Reads take the read side of the per-resource lock. Concurrent reads of one
+// policy are safe with each other; a read only has to wait for an in-flight
+// read-modify-write (iamPolicyReadModifyWrite) on the same resource. Holding
+// the exclusive lock here serialized every refresh of every IAM resource that
+// shares a parent (for example all google_project_iam_member resources on one
+// project), which dominated plan time for large configurations.
 func iamPolicyReadWithRetry(updater ResourceIamUpdater) (*cloudresourcemanager.Policy, error) {
 	mutexKey := updater.GetMutexKey()
-	transport_tpg.MutexStore.Lock(mutexKey)
-	defer transport_tpg.MutexStore.Unlock(mutexKey)
+	transport_tpg.MutexStore.RLock(mutexKey)
+	defer transport_tpg.MutexStore.RUnlock(mutexKey)
 
 	log.Printf("[DEBUG] Retrieving policy for %s\n", updater.DescribeResource())
 	var policy *cloudresourcemanager.Policy

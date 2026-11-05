@@ -1,0 +1,3 @@
+```release-note:enhancement
+provider: improved refresh speed of `*_iam_member`, `*_iam_binding`, `*_iam_audit_config` and `*_iam_policy` resources and `*_iam_policy` data sources that share a parent, which are no longer read one at a time
+```
