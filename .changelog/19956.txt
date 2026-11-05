@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `external_runtime_options.volume_mounts` field to `google_bigquery_routine` resource (beta)
+```

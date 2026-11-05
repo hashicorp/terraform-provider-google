@@ -678,6 +678,28 @@ The following arguments are supported:
   information, see [Configure container limits for Python
   UDFs](https://cloud.google.com/bigquery/docs/user-defined-functions-python#configure-container-limits)
 
+* `volume_mounts` -
+  (Optional)
+  List of volume mounts for the Python UDF container that executes the
+  managed function. When volume mounts are set, `runtime_connection` must
+  also be set.
+  Structure is [documented below](#nested_external_runtime_options_volume_mounts).
+
+
+<a name="nested_external_runtime_options_volume_mounts"></a>The `volume_mounts` block supports:
+
+* `source_path` -
+  (Required)
+  The absolute path of the source to be mounted. Only Google Cloud
+  Storage buckets or folders are currently supported. For example,
+  `gs://bucket-xxx` for a Cloud Storage bucket, or
+  `gs://bucket-xxx/folder1/folder2` for a Cloud Storage folder.
+
+* `mount_path` -
+  (Required)
+  The absolute path within the container where the volume should be
+  mounted. For example, `/mnt/data`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
