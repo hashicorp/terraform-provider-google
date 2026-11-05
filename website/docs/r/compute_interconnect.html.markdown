@@ -152,11 +152,11 @@ The following arguments are supported:
   Each value may be one of: `MACSEC`, `CROSS_SITE_NETWORK`, `IF_MACSEC`, `IF_L2_FORWARDING`.
 
 * `aai_enabled` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Enable or disable the Application Aware Interconnect(AAI) feature on this interconnect.
 
 * `application_aware_interconnect` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Configuration that enables Media Access Control security (MACsec) on the Cloud
   Interconnect connection between Google and your on-premises router.
   Structure is [documented below](#nested_application_aware_interconnect).
@@ -230,21 +230,21 @@ The following arguments are supported:
 <a name="nested_application_aware_interconnect"></a>The `application_aware_interconnect` block supports:
 
 * `profile_description` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   A description for the AAI profile on this interconnect.
 
 * `strict_priority_policy` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Specify configuration for StrictPriorityPolicy.
 
 * `bandwidth_percentage_policy` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Bandwidth Percentage policy allows you to have granular control over how your Interconnect
   bandwidth is utilized among your workloads mapping to different traffic classes.
   Structure is [documented below](#nested_application_aware_interconnect_bandwidth_percentage_policy).
 
 * `shape_average_percentage` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Optional field to specify a list of shape average percentages to be
   applied in conjunction with StrictPriorityPolicy or BandwidthPercentagePolicy
   Structure is [documented below](#nested_application_aware_interconnect_shape_average_percentage).
@@ -253,7 +253,7 @@ The following arguments are supported:
 <a name="nested_application_aware_interconnect_bandwidth_percentage_policy"></a>The `bandwidth_percentage_policy` block supports:
 
 * `bandwidth_percentage` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Specify bandwidth percentages for various traffic classes for queuing
   type Bandwidth Percent.
   Structure is [documented below](#nested_application_aware_interconnect_bandwidth_percentage_policy_bandwidth_percentage).
@@ -262,25 +262,25 @@ The following arguments are supported:
 <a name="nested_application_aware_interconnect_bandwidth_percentage_policy_bandwidth_percentage"></a>The `bandwidth_percentage` block supports:
 
 * `traffic_class` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Enum representing the various traffic classes offered by AAI.
   Default value is `TC_UNSPECIFIED`.
   Possible values are: `TC_UNSPECIFIED`, `TC1`, `TC2`, `TC3`, `TC4`, `TC5`, `TC6`.
 
 * `percentage` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Bandwidth percentage for a specific traffic class.
 
 <a name="nested_application_aware_interconnect_shape_average_percentage"></a>The `shape_average_percentage` block supports:
 
 * `traffic_class` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Enum representing the various traffic classes offered by AAI.
   Default value is `TC_UNSPECIFIED`.
   Possible values are: `TC_UNSPECIFIED`, `TC1`, `TC2`, `TC3`, `TC4`, `TC5`, `TC6`.
 
 * `percentage` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Bandwidth percentage for a specific traffic class.
 
 ## Attributes Reference

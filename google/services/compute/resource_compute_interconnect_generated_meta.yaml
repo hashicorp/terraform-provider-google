@@ -7,7 +7,18 @@ api_service_name: compute.googleapis.com
 api_version: v1
 api_resource_type_kind: Interconnect
 fields:
+    - api_field: aaiEnabled
     - api_field: adminEnabled
+    - api_field: applicationAwareInterconnect.bandwidthPercentagePolicy.bandwidthPercentages.percentage
+      field: application_aware_interconnect.bandwidth_percentage_policy.bandwidth_percentage.percentage
+    - api_field: applicationAwareInterconnect.bandwidthPercentagePolicy.bandwidthPercentages.trafficClass
+      field: application_aware_interconnect.bandwidth_percentage_policy.bandwidth_percentage.traffic_class
+    - api_field: applicationAwareInterconnect.profileDescription
+    - api_field: applicationAwareInterconnect.shapeAveragePercentages.percentage
+      field: application_aware_interconnect.shape_average_percentage.percentage
+    - api_field: applicationAwareInterconnect.shapeAveragePercentages.trafficClass
+      field: application_aware_interconnect.shape_average_percentage.traffic_class
+    - api_field: applicationAwareInterconnect.strictPriorityPolicy
     - api_field: availableFeatures
     - api_field: circuitInfos.customerDemarcId
     - api_field: circuitInfos.googleCircuitId

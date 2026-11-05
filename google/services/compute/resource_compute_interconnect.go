@@ -185,6 +185,11 @@ lowercase letter, or digit, except the last character, which cannot be a dash.`,
 				Required:    true,
 				Description: `Target number of physical links in the link bundle, as requested by the customer.`,
 			},
+			"aai_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Enable or disable the Application Aware Interconnect(AAI) feature on this interconnect.`,
+			},
 			"admin_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -192,6 +197,86 @@ lowercase letter, or digit, except the last character, which cannot be a dash.`,
 functional and can carry traffic. When set to false, no packets can be carried over the
 interconnect and no BGP routes are exchanged over it. By default, the status is set to true.`,
 				Default: true,
+			},
+			"application_aware_interconnect": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Configuration that enables Media Access Control security (MACsec) on the Cloud
+Interconnect connection between Google and your on-premises router.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"bandwidth_percentage_policy": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Bandwidth Percentage policy allows you to have granular control over how your Interconnect
+bandwidth is utilized among your workloads mapping to different traffic classes.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bandwidth_percentage": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Specify bandwidth percentages for various traffic classes for queuing
+type Bandwidth Percent.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"percentage": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Bandwidth percentage for a specific traffic class.`,
+												},
+												"traffic_class": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: verify.ValidateEnum([]string{"TC_UNSPECIFIED", "TC1", "TC2", "TC3", "TC4", "TC5", "TC6", ""}),
+													Description:  `Enum representing the various traffic classes offered by AAI. Default value: "TC_UNSPECIFIED" Possible values: ["TC_UNSPECIFIED", "TC1", "TC2", "TC3", "TC4", "TC5", "TC6"]`,
+													Default:      "TC_UNSPECIFIED",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"profile_description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A description for the AAI profile on this interconnect.`,
+						},
+						"shape_average_percentage": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Optional field to specify a list of shape average percentages to be
+applied in conjunction with StrictPriorityPolicy or BandwidthPercentagePolicy`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"percentage": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Bandwidth percentage for a specific traffic class.`,
+									},
+									"traffic_class": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"TC_UNSPECIFIED", "TC1", "TC2", "TC3", "TC4", "TC5", "TC6", ""}),
+										Description:  `Enum representing the various traffic classes offered by AAI. Default value: "TC_UNSPECIFIED" Possible values: ["TC_UNSPECIFIED", "TC1", "TC2", "TC3", "TC4", "TC5", "TC6"]`,
+										Default:      "TC_UNSPECIFIED",
+									},
+								},
+							},
+						},
+						"strict_priority_policy": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Specify configuration for StrictPriorityPolicy.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+						},
+					},
+				},
 			},
 			"customer_name": {
 				Type:     schema.TypeString,
@@ -669,6 +754,18 @@ func resourceComputeInterconnectCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("requested_features"); !tpgresource.IsEmptyValue(reflect.ValueOf(requestedFeaturesProp)) && (ok || !reflect.DeepEqual(v, requestedFeaturesProp)) {
 		obj["requestedFeatures"] = requestedFeaturesProp
 	}
+	aaiEnabledProp, err := expandComputeInterconnectAaiEnabled(d.Get("aai_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("aai_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(aaiEnabledProp)) && (ok || !reflect.DeepEqual(v, aaiEnabledProp)) {
+		obj["aaiEnabled"] = aaiEnabledProp
+	}
+	applicationAwareInterconnectProp, err := expandComputeInterconnectApplicationAwareInterconnect(d.Get("application_aware_interconnect"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("application_aware_interconnect"); !tpgresource.IsEmptyValue(reflect.ValueOf(applicationAwareInterconnectProp)) && (ok || !reflect.DeepEqual(v, applicationAwareInterconnectProp)) {
+		obj["applicationAwareInterconnect"] = applicationAwareInterconnectProp
+	}
 	effectiveLabelsProp, err := expandComputeInterconnectEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -976,6 +1073,18 @@ func resourceComputeInterconnectUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("macsec_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, macsecEnabledProp)) {
 		obj["macsecEnabled"] = macsecEnabledProp
+	}
+	aaiEnabledProp, err := expandComputeInterconnectAaiEnabled(d.Get("aai_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("aai_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, aaiEnabledProp)) {
+		obj["aaiEnabled"] = aaiEnabledProp
+	}
+	applicationAwareInterconnectProp, err := expandComputeInterconnectApplicationAwareInterconnect(d.Get("application_aware_interconnect"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("application_aware_interconnect"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, applicationAwareInterconnectProp)) {
+		obj["applicationAwareInterconnect"] = applicationAwareInterconnectProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/global/interconnects/{{name}}")
@@ -1453,6 +1562,136 @@ func flattenComputeInterconnectInterconnectGroups(v interface{}, d *schema.Resou
 	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
+func flattenComputeInterconnectAaiEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectApplicationAwareInterconnect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["profile_description"] =
+		flattenComputeInterconnectApplicationAwareInterconnectProfileDescription(original["profileDescription"], d, config)
+	transformed["strict_priority_policy"] =
+		flattenComputeInterconnectApplicationAwareInterconnectStrictPriorityPolicy(original["strictPriorityPolicy"], d, config)
+	transformed["bandwidth_percentage_policy"] =
+		flattenComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicy(original["bandwidthPercentagePolicy"], d, config)
+	transformed["shape_average_percentage"] =
+		flattenComputeInterconnectApplicationAwareInterconnectShapeAveragePercentage(original["shapeAveragePercentages"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeInterconnectApplicationAwareInterconnectProfileDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectApplicationAwareInterconnectStrictPriorityPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bandwidth_percentage"] =
+		flattenComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentage(original["bandwidthPercentages"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"traffic_class": flattenComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentageTrafficClass(original["trafficClass"], d, config),
+			"percentage":    flattenComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentagePercentage(original["percentage"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentageTrafficClass(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentagePercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeInterconnectApplicationAwareInterconnectShapeAveragePercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"traffic_class": flattenComputeInterconnectApplicationAwareInterconnectShapeAveragePercentageTrafficClass(original["trafficClass"], d, config),
+			"percentage":    flattenComputeInterconnectApplicationAwareInterconnectShapeAveragePercentagePercentage(original["percentage"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeInterconnectApplicationAwareInterconnectShapeAveragePercentageTrafficClass(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectApplicationAwareInterconnectShapeAveragePercentagePercentage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeInterconnectTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1641,6 +1880,177 @@ func expandComputeInterconnectRequestedFeatures(v interface{}, d tpgresource.Ter
 	return v, nil
 }
 
+func expandComputeInterconnectAaiEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectApplicationAwareInterconnect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedProfileDescription, err := expandComputeInterconnectApplicationAwareInterconnectProfileDescription(original["profile_description"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProfileDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["profileDescription"] = transformedProfileDescription
+	}
+
+	transformedStrictPriorityPolicy, err := expandComputeInterconnectApplicationAwareInterconnectStrictPriorityPolicy(original["strict_priority_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStrictPriorityPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["strictPriorityPolicy"] = transformedStrictPriorityPolicy
+	}
+
+	transformedBandwidthPercentagePolicy, err := expandComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicy(original["bandwidth_percentage_policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBandwidthPercentagePolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bandwidthPercentagePolicy"] = transformedBandwidthPercentagePolicy
+	}
+
+	transformedShapeAveragePercentage, err := expandComputeInterconnectApplicationAwareInterconnectShapeAveragePercentage(original["shape_average_percentage"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedShapeAveragePercentage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["shapeAveragePercentages"] = transformedShapeAveragePercentage
+	}
+
+	return transformed, nil
+}
+
+func expandComputeInterconnectApplicationAwareInterconnectProfileDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectApplicationAwareInterconnectStrictPriorityPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBandwidthPercentage, err := expandComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentage(original["bandwidth_percentage"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBandwidthPercentage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bandwidthPercentages"] = transformedBandwidthPercentage
+	}
+
+	return transformed, nil
+}
+
+func expandComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedTrafficClass, err := expandComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentageTrafficClass(original["traffic_class"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTrafficClass); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["trafficClass"] = transformedTrafficClass
+		}
+
+		transformedPercentage, err := expandComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentagePercentage(original["percentage"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPercentage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["percentage"] = transformedPercentage
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentageTrafficClass(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectApplicationAwareInterconnectBandwidthPercentagePolicyBandwidthPercentagePercentage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectApplicationAwareInterconnectShapeAveragePercentage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedTrafficClass, err := expandComputeInterconnectApplicationAwareInterconnectShapeAveragePercentageTrafficClass(original["traffic_class"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTrafficClass); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["trafficClass"] = transformedTrafficClass
+		}
+
+		transformedPercentage, err := expandComputeInterconnectApplicationAwareInterconnectShapeAveragePercentagePercentage(original["percentage"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPercentage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["percentage"] = transformedPercentage
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeInterconnectApplicationAwareInterconnectShapeAveragePercentageTrafficClass(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectApplicationAwareInterconnectShapeAveragePercentagePercentage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeInterconnectEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1743,6 +2153,12 @@ func ResourceComputeInterconnectFlatten(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 	if err = d.Set("interconnect_groups", flattenComputeInterconnectInterconnectGroups(res["interconnectGroups"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("aai_enabled", flattenComputeInterconnectAaiEnabled(res["aaiEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Interconnect: %s", err)
+	}
+	if err = d.Set("application_aware_interconnect", flattenComputeInterconnectApplicationAwareInterconnect(res["applicationAwareInterconnect"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Interconnect: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenComputeInterconnectTerraformLabels(res["labels"], d, config)); err != nil {
