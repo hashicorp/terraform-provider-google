@@ -530,7 +530,7 @@ The following arguments are supported:
 
     If you do not provide an encryption key, then the disk will be encrypted using an automatically generated key and you do not need to provide a key to use the disk later.
 
-    Instance templates do not store customer-supplied encryption keys, so you cannot use your own keys to encrypt disks in a managed instance group. Structure [documented below](#nested_access_config).
+    Instance templates do not store customer-supplied encryption keys, so you cannot use your own keys to encrypt disks in a managed instance group. Structure [documented below](#nested_disk_encryption_key).
 
 * `resource_policies` (Optional) -- A list (short name or id) of resource policies to attach to this disk for automatic snapshot creations. Currently a max of 1 resource policy is supported.
 
@@ -797,7 +797,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 * `operator` (Required) - The operator. Can be `IN` for node-affinities
     or `NOT_IN` for anti-affinities.
 
-* `value` (Required) - The values for the node affinity label.
+* `values` (Required) - The values for the node affinity label.
 
 <a name="nested_reservation_affinity"></a>The `reservation_affinity` block supports:
 
