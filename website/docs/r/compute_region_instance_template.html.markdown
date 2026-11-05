@@ -728,15 +728,17 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `max_duration` (Optional) The time allotted for the instance to gracefully shut down.
     If the graceful shutdown isn't complete after this time, then the instance
-    transitions to the STOPPING state. Structure is documented below:
+    transitions to the STOPPING state. Structure is [documented below](#nested_max_duration).
 
-    * `nanos` - (Optional) Span of time that's a fraction of a second at nanosecond
-        resolution. Durations less than one second are represented with a 0
-        `seconds` field and a positive `nanos` field. Must be from 0 to
-        999,999,999 inclusive.
+<a name="nested_max_duration"></a>The `max_duration` block supports:
 
-    * `seconds` - (Required) Span of time at a resolution of a second.
-        The value must be between 1 and 3600, which is 3,600 seconds (one hour).`
+* `nanos` - (Optional) Span of time that's a fraction of a second at nanosecond
+    resolution. Durations less than one second are represented with a 0
+    `seconds` field and a positive `nanos` field. Must be from 0 to
+    999,999,999 inclusive.
+
+* `seconds` - (Required) Span of time at a resolution of a second.
+    The value must be between 1 and 3600, which is 3,600 seconds (one hour).
 
 <a name="nested_preemption_notice_duration"></a>The `preemption_notice_duration` block supports:
 

@@ -72,26 +72,30 @@ The following arguments are supported:
 
 * `ssl_policy` - (Optional) A list of the SSL policy that will be applied. Each block has a `SSL_POLICY_UNSPECIFIED`, `DEFAULT`, and `MODERN` field.
 
-* `feature_settings` - (Optional) A block of optional settings to configure specific App Engine features:
+* `feature_settings` - (Optional) A block of optional settings to configure specific App Engine features. Structure is [documented below](#nested_feature_settings).
 
-  * `split_health_checks` - (Required) Set to false to use the legacy health check instead of the readiness
-    and liveness checks.
+* `iap` - (Optional) Settings for enabling Cloud Identity Aware Proxy. Structure is [documented below](#nested_iap).
 
-* `iap` - (Optional) Settings for enabling Cloud Identity Aware Proxy
+<a name="nested_feature_settings"></a>The `feature_settings` block supports:
 
-  * `oauth2_client_id` - (Required) OAuth2 client ID to use for the authentication flow.
+* `split_health_checks` - (Required) Set to false to use the legacy health check instead of the readiness
+  and liveness checks.
 
-  * `oauth2_client_secret` - (Optional) OAuth2 client secret to use for the authentication flow.
-    The SHA-256 hash of the value is returned in the oauth2ClientSecretSha256 field.
-    Exactly one of `oauth2_client_secret` or `oauth2_client_secret_wo` can be set.
+<a name="nested_iap"></a>The `iap` block supports:
 
-  * `oauth2_client_secret_wo` - (Optional, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) OAuth2 client secret to use for the authentication flow.
-    The SHA-256 hash of the value is returned in the oauth2ClientSecretSha256 field.
-    **Note**: This property is write-only and will not be read from the API.
+* `oauth2_client_id` - (Required) OAuth2 client ID to use for the authentication flow.
 
-    ~> **Note:** Exactly one of `oauth2_client_secret` or `oauth2_client_secret_wo` can be set.
+* `oauth2_client_secret` - (Optional) OAuth2 client secret to use for the authentication flow.
+  The SHA-256 hash of the value is returned in the oauth2ClientSecretSha256 field.
+  Exactly one of `oauth2_client_secret` or `oauth2_client_secret_wo` can be set.
 
-  * `oauth2_client_secret_wo_version` - (Optional) Triggers update of `oauth2_client_secret_wo` write-only. Increment this value when an update to `oauth2_client_secret_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+* `oauth2_client_secret_wo` - (Optional, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) OAuth2 client secret to use for the authentication flow.
+  The SHA-256 hash of the value is returned in the oauth2ClientSecretSha256 field.
+  **Note**: This property is write-only and will not be read from the API.
+
+  ~> **Note:** Exactly one of `oauth2_client_secret` or `oauth2_client_secret_wo` can be set.
+
+* `oauth2_client_secret_wo_version` - (Optional) Triggers update of `oauth2_client_secret_wo` write-only. Increment this value when an update to `oauth2_client_secret_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
 
 ## Attributes Reference
 
@@ -114,12 +118,7 @@ exported:
 
 * `gcr_domain` - The GCR domain used for storing managed Docker images for this app.
 
-* `iap` - Settings for enabling Cloud Identity Aware Proxy
-
-  * `enabled` - (Optional) Whether the serving infrastructure will authenticate and authorize all incoming requests. 
-  (default is false)
-
-  * `oauth2_client_secret_sha256` - Hex-encoded SHA-256 hash of the client secret.
+* `iap` - Settings for enabling Cloud Identity Aware Proxy. Structure is [documented below](#nested_iap_attributes).
 
 <a name="nested_url_dispatch_rule"></a>The `url_dispatch_rule` block contains:
 
@@ -128,6 +127,13 @@ exported:
 * `path` - Pathname within the host.
 
 * `service` - Resource ID of a service in this application that should serve the matched request.
+
+<a name="nested_iap_attributes"></a>The `iap` block contains:
+
+* `enabled` - (Optional) Whether the serving infrastructure will authenticate and authorize all incoming requests.
+  (default is false)
+
+* `oauth2_client_secret_sha256` - Hex-encoded SHA-256 hash of the client secret.
 
 ## Timeouts
 
