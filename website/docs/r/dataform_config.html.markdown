@@ -23,143 +23,67 @@ description: |-
 
 Config is a singleton resource used to configure the default Dataform settings for a specified location.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about Config, see:
 
-* [API documentation](https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations)
+* [API documentation](https://cloud.google.com/dataform/reference/rest/v1/projects.locations#Config)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dataform/docs/)
 
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dataform_config_with_kms_key&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
 
 ## Example Usage - Dataform Config With Kms Key
 
 
 ```hcl
-resource "google_project" "project" {
-  provider        = google-beta
-  name            = "project-1"
-  project_id      = "project-1"
-  org_id          = "123456789"
-  billing_account = "000000-0000000-0000000-000000"
-  deletion_policy = "DELETE"
-}
-
-# Enable Cloud Key KMS API
-resource "google_project_service" "cloudkms_api" {
-  provider = google-beta
-  project  = google_project.project.project_id
-  service  = "cloudkms.googleapis.com"
-  disable_on_destroy = false
-}
-
-# Enable Dataform API
-resource "google_project_service" "dataform_api" {
-  provider           = google-beta
-  project            = google_project.project.project_id
-  service            = "dataform.googleapis.com"
-  disable_on_destroy = false
-  depends_on      = [
-    google_project_service.cloudkms_api
-  ]
-}
-
-# Add a sleep to wait for IAM propagation after API enablement
-resource "time_sleep" "wait_for_dataform_api" {
-  create_duration = "30s"
-  depends_on      = [
-    google_project_service.dataform_api
-  ]
-}
-
-# Retrieve the Dataform service identity
-resource "google_project_service_identity" "dataform_sa" {
-  provider = google-beta
-  project  = google_project.project.project_id
-  service  = "dataform.googleapis.com"
-  depends_on = [
-    time_sleep.wait_for_dataform_api
-  ]
+data "google_project" "project" {
 }
 
 resource "google_kms_key_ring" "keyring" {
-  provider   = google-beta
-  project    = google_project.project.project_id
-  name       = "example-key-ring"
-  location   = "us-central1"
-  depends_on = [
-    time_sleep.wait_for_dataform_api
-  ]
+  name     = "example-key-ring"
+  location = "us-east1"
 }
 
 resource "google_kms_crypto_key" "example_key" {
-  provider = google-beta
   name     = "example-crypto-key-name"
   key_ring = google_kms_key_ring.keyring.id
 }
 
 # Grant the Encrypter/Decrypter role to the Dataform service agent on the KMS key
 resource "google_kms_crypto_key_iam_member" "crypto_key_binding" {
-  provider      = google-beta
   crypto_key_id = google_kms_crypto_key.example_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = google_project_service_identity.dataform_sa.member
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-dataform.iam.gserviceaccount.com"
 }
 
 # Config with KMS key provided
 resource "google_dataform_config" "config" {
-  provider             = google-beta
-  region               = "us-central1"
+  region               = "us-east1"
   default_kms_key_name = google_kms_crypto_key.example_key.id
-  project              = google_project.project.project_id
 
   # Ensure IAM binding is created before the Dataform Config
   depends_on = [
-    google_kms_crypto_key_iam_member.crypto_key_binding,
+    google_kms_crypto_key_iam_member.crypto_key_binding
   ]
 }
 ```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dataform_config_without_kms_key&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
 
 ## Example Usage - Dataform Config Without Kms Key
 
 
 ```hcl
-resource "google_project" "project" {
-  provider        = google-beta
-  name            = "project-1"
-  project_id      = "project-1"
-  org_id          = "123456789"
-  billing_account = "000000-0000000-0000000-000000"
-  deletion_policy = "DELETE"
-}
-
-# Enable Dataform API
-resource "google_project_service" "dataform_api" {
-  provider           = google-beta
-  project            = google_project.project.project_id
-  service            = "dataform.googleapis.com"
-  disable_on_destroy = false
-}
-
-# Add a sleep to wait for IAM propagation after API enablement
-resource "time_sleep" "wait_for_dataform_api" {
-  create_duration = "30s"
-  depends_on      = [
-    google_project_service.dataform_api
-  ]
-}
-
 # Config without KMS key provided
 resource "google_dataform_config" "config" {
-  provider = google-beta
-  region   = "us-central1"
-  project  = google_project.project.project_id
-
-  # Ensure IAM binding is created before the Dataform Config
-  depends_on = [
-    time_sleep.wait_for_dataform_api
-  ]
+  region = "us-west1"
 }
 ```
 
