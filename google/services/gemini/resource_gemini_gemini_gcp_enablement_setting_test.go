@@ -76,6 +76,7 @@ resource "google_gemini_gemini_gcp_enablement_setting" "example" {
 	mutations_enabled = true
     release_channel = "EXPERIMENTAL"
     gemini_enterprise_project = "projects/${data.google_project.project.project_id}"
+    has_custom_instructions = true
 }
 `, context)
 }
@@ -93,6 +94,7 @@ resource "google_gemini_gemini_gcp_enablement_setting" "example" {
 	mutations_enabled = false
     release_channel = "STABLE"
     gemini_enterprise_project = "projects/${data.google_project.project.number}"
+    has_custom_instructions = false
 }
 `, context)
 }
