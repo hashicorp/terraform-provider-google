@@ -95,6 +95,34 @@ func TestAccSecretManagerSecretVersion_byName(t *testing.T) {
 	})
 }
 
+func TestAccSecretManagerSecretVersion_createDisabled(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// New versions are created ENABLED, so post_create must disable it.
+				Config: testAccSecretManagerSecretVersion_disable(context),
+				Check:  resource.TestCheckResourceAttr("google_secret_manager_secret_version.secret-version-basic", "enabled", "false"),
+			},
+			{
+				ResourceName:      "google_secret_manager_secret_version.secret-version-basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// the secret data is disabled and so reading the data on import will give an empty string
+				ImportStateVerifyIgnore: []string{"secret_data", "secret_data_wo_version", "project"},
+			},
+		},
+	})
+}
+
 func TestAccSecretManagerSecretVersion_neitherSecretDataSet(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()

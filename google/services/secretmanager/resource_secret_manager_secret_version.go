@@ -367,9 +367,11 @@ func resourceSecretManagerSecretVersionCreate(d *schema.ResourceData, meta inter
 	}
 	d.SetId(name.(string))
 
-	err = setEnabled(d.Get("enabled"), d, config)
-	if err != nil {
-		return err
+	if !d.Get("enabled").(bool) {
+		err = setEnabled(false, d, config)
+		if err != nil {
+			return err
+		}
 	}
 
 	log.Printf("[DEBUG] Finished creating SecretVersion %q: %#v", d.Id(), res)
