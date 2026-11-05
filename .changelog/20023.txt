@@ -1,0 +1,3 @@
+```release-note:bug
+secretmanagerregional: fixed `google_secret_manager_regional_secret_version` requiring the `secretmanager.versions.enable` permission on creation when `enabled` is unset or `true`
+```
