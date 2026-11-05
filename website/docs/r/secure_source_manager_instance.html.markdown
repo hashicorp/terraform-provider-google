@@ -83,102 +83,6 @@ resource "google_secure_source_manager_instance" "default" {
 
 data "google_project" "project" {}
 ```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_instance_private&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
-
-## Example Usage - Secure Source Manager Instance Private
-
-
-```hcl
-resource "google_privateca_ca_pool" "ca_pool" {
-  name     = "ca-pool"
-  location = "us-central1"
-  tier     = "ENTERPRISE"
-  publishing_options {
-    publish_ca_cert = true
-    publish_crl     = true
-  }
-}
-
-resource "google_privateca_certificate_authority" "root_ca" {
-  pool                     = google_privateca_ca_pool.ca_pool.name
-  certificate_authority_id = "root-ca"
-  location                 = "us-central1"
-  config {
-    subject_config {
-      subject {
-        organization = "google"
-        common_name = "my-certificate-authority"
-      }
-    }
-    x509_config {
-      ca_options {
-        is_ca = true
-      }
-      key_usage {
-        base_key_usage {
-          cert_sign = true
-          crl_sign = true
-        }
-        extended_key_usage {
-          server_auth = true
-        }
-      }
-    }
-  }
-  key_spec {
-    algorithm = "RSA_PKCS1_4096_SHA256"
-  }
-
-  // Disable deletion protections for easier test cleanup purposes
-  deletion_protection = false
-  ignore_active_certificates_on_deletion = true
-  skip_grace_period = true
-}
-
-resource "google_privateca_ca_pool_iam_binding" "ca_pool_binding" {
-  ca_pool = google_privateca_ca_pool.ca_pool.id
-  role = "roles/privateca.certificateRequester"
-
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
-  ]
-}
-
-resource "google_secure_source_manager_instance" "default" {
-  instance_id = "my-instance"
-  location = "us-central1"
-  private_config {
-    is_private = true
-    ca_pool = google_privateca_ca_pool.ca_pool.id
-  }
-
-  # Prevent accidental deletions.
-  deletion_policy = "PREVENT"
-
-  depends_on = [
-    google_privateca_certificate_authority.root_ca,
-    time_sleep.wait_120_seconds
-  ]
-}
-
-# ca pool IAM permissions can take time to propagate
-resource "time_sleep" "wait_120_seconds" {
-  depends_on = [google_privateca_ca_pool_iam_binding.ca_pool_binding]
-
-  create_duration = "120s"
-}
-
-data "google_project" "project" {}
-```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_instance_private_custom_host&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
 
 ## Example Usage - Secure Source Manager Instance Private Custom Host
 
@@ -186,9 +90,16 @@ data "google_project" "project" {}
 ```hcl
 data "google_project" "project" {}
 
+resource "google_project" "psc_other_project" {
+  project_id      = "psc-project"
+  name            = "psc-project"
+  org_id          = "123456789"
+  deletion_policy = "DELETE"
+}
+
 resource "google_privateca_ca_pool" "ca_pool" {
   name     = "ca-pool"
-  location = "us-central1"
+  location = "europe-west4"
   tier     = "ENTERPRISE"
   publishing_options {
     publish_ca_cert = true
@@ -199,7 +110,7 @@ resource "google_privateca_ca_pool" "ca_pool" {
 resource "google_privateca_certificate_authority" "root_ca" {
   pool                     = google_privateca_ca_pool.ca_pool.name
   certificate_authority_id = "root-ca"
-  location                 = "us-central1"
+  location                 = "europe-west4"
   config {
     subject_config {
       subject {
@@ -243,10 +154,13 @@ resource "google_privateca_ca_pool_iam_binding" "ca_pool_binding" {
 
 resource "google_secure_source_manager_instance" "default" {
   instance_id = "my-instance"
-  location = "us-central1"
+  location = "europe-west4"
   private_config {
     is_private = true
     ca_pool = google_privateca_ca_pool.ca_pool.id
+    psc_allowed_projects = [
+      google_project.psc_other_project.project_id
+    ]
     custom_host_config {
       api = "api.example.com"
       git_http = "git-http.example.com"
@@ -255,6 +169,10 @@ resource "google_secure_source_manager_instance" "default" {
     }
   }
 
+  workforce_identity_federation_config {
+    enabled = true
+  }
+
   # Prevent accidental deletions.
   deletion_policy = "PREVENT"
 
@@ -271,11 +189,6 @@ resource "time_sleep" "wait_120_seconds" {
   create_duration = "120s"
 }
 ```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_instance_private_psc_backend&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
 
 ## Example Usage - Secure Source Manager Instance Private Psc Backend
 
@@ -464,11 +377,6 @@ resource "google_dns_record_set" "ssm_instance_git_record" {
   rrdatas = [google_compute_forwarding_rule.fw_rule_target_proxy.ip_address]
 }
 ```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_instance_private_psc_endpoint&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
 
 ## Example Usage - Secure Source Manager Instance Private Psc Endpoint
 
@@ -622,28 +530,6 @@ resource "google_dns_record_set" "ssm_instance_git_record" {
   ttl = 300
   managed_zone = google_dns_managed_zone.private_zone.name
   rrdatas = [google_compute_forwarding_rule.fw_rule_service_attachment.ip_address]
-}
-```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_instance_workforce_identity_federation&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
-
-## Example Usage - Secure Source Manager Instance Workforce Identity Federation
-
-
-```hcl
-resource "google_secure_source_manager_instance" "default" {
-    location = "us-central1"
-    instance_id = "my-instance"
-
-    workforce_identity_federation_config {
-      enabled = true
-    }
-
-    # Prevent accidental deletions.
-    deletion_policy = "PREVENT"
 }
 ```
 

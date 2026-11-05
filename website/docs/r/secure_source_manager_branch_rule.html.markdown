@@ -57,7 +57,7 @@ resource "google_secure_source_manager_repository" "repository" {
     deletion_policy = "PREVENT"
 }
 
-resource "google_secure_source_manager_branch_rule" "basic" {
+resource "google_secure_source_manager_branch_rule" "default" {
     branch_rule_id = "my-basic-branchrule"
     repository_id = google_secure_source_manager_repository.repository.repository_id
     location = google_secure_source_manager_repository.repository.location
@@ -77,14 +77,14 @@ resource "google_secure_source_manager_branch_rule" "basic" {
 ```hcl
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
-    instance_id = "my-initial-instance"
+    instance_id = "my-basic-instance"
 
     # Prevent accidental deletions.
     deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
-    repository_id = "my-initial-repository"
+    repository_id = "my-basic-repository"
     instance = google_secure_source_manager_instance.instance.name
     location = google_secure_source_manager_instance.instance.location
 
@@ -93,7 +93,7 @@ resource "google_secure_source_manager_repository" "repository" {
 }
 
 resource "google_secure_source_manager_branch_rule" "default" {
-    branch_rule_id = "my-initial-branchrule"
+    branch_rule_id = "my-basic-branchrule"
     location = google_secure_source_manager_repository.repository.location
     repository_id = google_secure_source_manager_repository.repository.repository_id
     include_pattern = "test"

@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -67,6 +68,36 @@ func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleBasicExam
 		"random_suffix":   randomSuffix,
 	}
 
+	context_1 := map[string]interface{}{
+		"allow_stale_reviews":       false,
+		"branch_rule_id":            "tf-test-my-basic-branchrule" + randomSuffix,
+		"deletion_policy":           "DELETE",
+		"disabled":                  false,
+		"instance_id":               "tf-test-my-basic-instance" + randomSuffix,
+		"minimum_approvals_count":   2,
+		"minimum_reviews_count":     2,
+		"repository_id":             "tf-test-my-basic-repository" + randomSuffix,
+		"require_comments_resolved": true,
+		"require_linear_history":    true,
+		"require_pull_request":      true,
+		"random_suffix":             randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"allow_stale_reviews":       true,
+		"branch_rule_id":            "tf-test-my-basic-branchrule" + randomSuffix,
+		"deletion_policy":           "DELETE",
+		"disabled":                  true,
+		"instance_id":               "tf-test-my-basic-instance" + randomSuffix,
+		"minimum_approvals_count":   1,
+		"minimum_reviews_count":     1,
+		"repository_id":             "tf-test-my-basic-repository" + randomSuffix,
+		"require_comments_resolved": false,
+		"require_linear_history":    false,
+		"require_pull_request":      false,
+		"random_suffix":             randomSuffix,
+	}
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -76,13 +107,53 @@ func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleBasicExam
 				Config: testAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleBasicExample(context),
 			},
 			{
-				ResourceName:            "google_secure_source_manager_branch_rule.basic",
+				ResourceName:            "google_secure_source_manager_branch_rule.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"branch_rule_id", "deletion_policy", "location", "repository_id"},
 			},
 			{
-				ResourceName:       "google_secure_source_manager_branch_rule.basic",
+				ResourceName:       "google_secure_source_manager_branch_rule.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithFieldsExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_secure_source_manager_branch_rule.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_secure_source_manager_branch_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"branch_rule_id", "deletion_policy", "location", "repository_id"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_branch_rule.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithFieldsExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_secure_source_manager_branch_rule.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_secure_source_manager_branch_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"branch_rule_id", "deletion_policy", "location", "repository_id"},
+			},
+			{
+				ResourceName:       "google_secure_source_manager_branch_rule.default",
 				ImportState:        true,
 				ExpectNonEmptyPlan: true,
 				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
@@ -110,7 +181,7 @@ resource "google_secure_source_manager_repository" "repository" {
     deletion_policy = "%{deletion_policy}"
 }
 
-resource "google_secure_source_manager_branch_rule" "basic" {
+resource "google_secure_source_manager_branch_rule" "default" {
     branch_rule_id = "%{branch_rule_id}"
     repository_id = google_secure_source_manager_repository.repository.repository_id
     location = google_secure_source_manager_repository.repository.location
@@ -118,43 +189,6 @@ resource "google_secure_source_manager_branch_rule" "basic" {
     include_pattern = "main"
 }
 `, context)
-}
-
-func TestAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithFieldsExample(t *testing.T) {
-	t.Parallel()
-
-	randomSuffix := acctest.RandString(t, 10)
-
-	context := map[string]interface{}{
-		"branch_rule_id":  "tf-test-my-initial-branchrule" + randomSuffix,
-		"deletion_policy": "DELETE",
-		"instance_id":     "tf-test-my-initial-instance" + randomSuffix,
-		"repository_id":   "tf-test-my-initial-repository" + randomSuffix,
-		"random_suffix":   randomSuffix,
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckSecureSourceManagerBranchRuleDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithFieldsExample(context),
-			},
-			{
-				ResourceName:            "google_secure_source_manager_branch_rule.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"branch_rule_id", "deletion_policy", "location", "repository_id"},
-			},
-			{
-				ResourceName:       "google_secure_source_manager_branch_rule.default",
-				ImportState:        true,
-				ExpectNonEmptyPlan: true,
-				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
-			},
-		},
-	})
 }
 
 func testAccSecureSourceManagerBranchRule_secureSourceManagerBranchRuleWithFieldsExample(context map[string]interface{}) string {
@@ -181,13 +215,13 @@ resource "google_secure_source_manager_branch_rule" "default" {
     location = google_secure_source_manager_repository.repository.location
     repository_id = google_secure_source_manager_repository.repository.repository_id
     include_pattern = "test"
-    minimum_approvals_count   = 2
-    minimum_reviews_count     = 2
-    require_comments_resolved = true
-    require_linear_history    = true
-    require_pull_request      = true
-    disabled = false
-    allow_stale_reviews = false
+    minimum_approvals_count   = %{minimum_approvals_count}
+    minimum_reviews_count     = %{minimum_reviews_count}
+    require_comments_resolved = %{require_comments_resolved}
+    require_linear_history    = %{require_linear_history}
+    require_pull_request      = %{require_pull_request}
+    disabled = %{disabled}
+    allow_stale_reviews = %{allow_stale_reviews}
 }
 `, context)
 }

@@ -1,0 +1,7 @@
+```release-note:bug
+securesourcemanager: fixed an issue where updating `scan_config` on `google_secure_source_manager_repository` failed with an invalid `update_mask` error
+```
+
+```release-note:bug
+securesourcemanager: fixed an issue where updating `disabled` or `service_account_auth` to `false` on `google_secure_source_manager_hook` omitted the field from update requests
+```

@@ -43,11 +43,11 @@ values will be stored in the raw state as plain text: `sensitive_query_string`.
 
 ```hcl
 resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
+    location = "asia-east1"
     instance_id = "my-basic-instance"
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
@@ -56,10 +56,10 @@ resource "google_secure_source_manager_repository" "repository" {
     instance = google_secure_source_manager_instance.instance.name
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 
-resource "google_secure_source_manager_hook" "basic" {
+resource "google_secure_source_manager_hook" "default" {
     hook_id = "my-basic-hook"
     repository_id = google_secure_source_manager_repository.repository.repository_id
     location = google_secure_source_manager_repository.repository.location
@@ -79,75 +79,39 @@ resource "google_secure_source_manager_hook" "basic" {
 
 ```hcl
 resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
-    instance_id = "my-initial-instance"
+    location = "asia-east1"
+    instance_id = "my-basic-instance"
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
-}
-
-resource "google_secure_source_manager_repository" "repository" {
-    repository_id = "my-initial-repository"
-    instance = google_secure_source_manager_instance.instance.name
-    location = google_secure_source_manager_instance.instance.location
-
-    # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
-}
-
-resource "google_secure_source_manager_hook" "default" {
-    hook_id = "my-initial-hook"
-    location = google_secure_source_manager_repository.repository.location
-    repository_id = google_secure_source_manager_repository.repository.repository_id
-    target_uri = "https://www.example.com"
-    sensitive_query_string = "auth=fake_token"
-    disabled = false
-    push_option {
-        branch_filter = "main"
-    }
-    events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
-}
-```
-<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=secure_source_manager_hook_service_account_auth&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
-  </a>
-</div>
-
-## Example Usage - Secure Source Manager Hook Service Account Auth
-
-
-```hcl
-resource "google_secure_source_manager_instance" "instance" {
-    location = "us-central1"
-    instance_id = "my-sa-instance"
-
-    # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 
 resource "google_service_account" "sa" {
-    account_id   = "my-sa"
+    account_id   = "my-basic-sa"
     display_name = "Test Service Account"
 }
 
 resource "google_secure_source_manager_repository" "repository" {
-    repository_id = "my-sa-repository"
+    repository_id = "my-basic-repository"
     instance = google_secure_source_manager_instance.instance.name
     location = google_secure_source_manager_instance.instance.location
     service_account = google_service_account.sa.email
 
     # Prevent accidental deletions.
-    deletion_policy = ""PREVENT""
+    deletion_policy = "PREVENT"
 }
 
 resource "google_secure_source_manager_hook" "default" {
-    hook_id = "my-sa-hook"
+    hook_id = "my-basic-hook"
     location = google_secure_source_manager_repository.repository.location
     repository_id = google_secure_source_manager_repository.repository.repository_id
     target_uri = "https://www.example.com"
+    sensitive_query_string = "auth=fake_token"
     disabled = false
     service_account_auth = true
+    push_option {
+        branch_filter = "main"
+    }
     events = ["PUSH", "PULL_REQUEST", "PULL_REQUEST_COMMENT"]
 }
 ```
