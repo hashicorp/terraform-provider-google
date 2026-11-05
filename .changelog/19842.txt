@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: promoted `aai_enabled` and `application_aware_interconnect` fields on `google_compute_interconnect` to GA
+```
