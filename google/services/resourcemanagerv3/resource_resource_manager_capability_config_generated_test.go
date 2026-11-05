@@ -34,6 +34,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/tags"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -63,22 +64,34 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 
 	context := map[string]interface{}{
 		"org_id":               envvar.GetTestOrgFromEnv(t),
+		"boundaries":           "[google_resource_manager_boundary.boundary_1.name]",
+		"boundary_id":          "tf-test-boundary" + randomSuffix,
 		"capability_config_id": "tf-test-capcfg" + randomSuffix,
 		"display_name":         "capdisp",
+		"tag_key_short_name":   "tf-test-bndkey" + randomSuffix,
+		"tag_value_short_name": "tf-test-bndval" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
 		"org_id":               envvar.GetTestOrgFromEnv(t),
+		"boundaries":           "[]",
+		"boundary_id":          "tf-test-boundary" + randomSuffix,
 		"capability_config_id": "tf-test-capcfg" + randomSuffix,
-		"display_name":         "Updated Display Name",
+		"display_name":         nil,
+		"tag_key_short_name":   "tf-test-bndkey" + randomSuffix,
+		"tag_value_short_name": "tf-test-bndval" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
 
 	context_2 := map[string]interface{}{
 		"org_id":               envvar.GetTestOrgFromEnv(t),
+		"boundaries":           "[google_resource_manager_boundary.boundary_1.name, google_resource_manager_boundary.boundary_2.name]",
+		"boundary_id":          "tf-test-boundary" + randomSuffix,
 		"capability_config_id": "tf-test-capcfg" + randomSuffix,
-		"display_name":         nil,
+		"display_name":         "Updated Display Name",
+		"tag_key_short_name":   "tf-test-bndkey" + randomSuffix,
+		"tag_value_short_name": "tf-test-bndval" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
 
@@ -94,7 +107,7 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 				ResourceName:            "google_resource_manager_capability_config.capability_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"capability_config_id", "parent"},
+				ImportStateVerifyIgnore: []string{"capability_config_id", "etag", "parent", "update_time"},
 			},
 			{
 				ResourceName:       "google_resource_manager_capability_config.capability_config",
@@ -114,7 +127,7 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 				ResourceName:            "google_resource_manager_capability_config.capability_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"capability_config_id", "parent"},
+				ImportStateVerifyIgnore: []string{"capability_config_id", "etag", "parent", "update_time"},
 			},
 			{
 				ResourceName:       "google_resource_manager_capability_config.capability_config",
@@ -134,7 +147,7 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 				ResourceName:            "google_resource_manager_capability_config.capability_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"capability_config_id", "parent"},
+				ImportStateVerifyIgnore: []string{"capability_config_id", "etag", "parent", "update_time"},
 			},
 			{
 				ResourceName:       "google_resource_manager_capability_config.capability_config",
@@ -148,11 +161,65 @@ func TestAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBas
 
 func testAccResourceManagerV3CapabilityConfig_resourceManagerCapabilityConfigBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_tags_tag_key" "boundary" {
+  parent      = "organizations/%{org_id}"
+  short_name  = "%{tag_key_short_name}"
+  description = "Partitioning tag key used by boundaries."
+}
+
+resource "google_tags_tag_value" "boundary_1" {
+  parent      = google_tags_tag_key.boundary.id
+  short_name  = "%{tag_value_short_name}-1"
+  description = "Tag value for the first boundary."
+}
+
+resource "google_tags_tag_value" "boundary_2" {
+  parent      = google_tags_tag_key.boundary.id
+  short_name  = "%{tag_value_short_name}-2"
+  description = "Tag value for the second boundary."
+}
+
+resource "google_resource_manager_boundary_config" "boundary" {
+  parent  = "organizations/%{org_id}"
+  tag_key = google_tags_tag_key.boundary.namespaced_name
+}
+
+resource "google_resource_manager_boundary" "boundary_1" {
+  parent       = "organizations/%{org_id}"
+  boundary_id  = "%{boundary_id}-1"
+  display_name = "Boundary 1"
+
+  resource_filter {
+    tag_filter {
+      tag_key   = google_resource_manager_boundary_config.boundary.tag_key
+      tag_value = google_tags_tag_value.boundary_1.short_name
+    }
+  }
+}
+
+resource "google_resource_manager_boundary" "boundary_2" {
+  parent       = "organizations/%{org_id}"
+  boundary_id  = "%{boundary_id}-2"
+  display_name = "Boundary 2"
+
+  resource_filter {
+    tag_filter {
+      tag_key   = google_resource_manager_boundary_config.boundary.tag_key
+      tag_value = google_tags_tag_value.boundary_2.short_name
+    }
+  }
+}
+
 resource "google_resource_manager_capability_config" "capability_config" {
   parent               = "organizations/%{org_id}"
   capability_config_id = "%{capability_config_id}"
   display_name         = "%{display_name}"
   types                = ["AGENT_MANAGEMENT"]
+  boundaries           = %{boundaries}
+  depends_on = [
+    google_resource_manager_boundary.boundary_1,
+    google_resource_manager_boundary.boundary_2,
+  ]
 }
 `, context)
 }
