@@ -332,9 +332,11 @@ func resourceSecretManagerRegionalRegionalSecretVersionCreate(d *schema.Resource
 	}
 	d.SetId(name.(string))
 
-	err = setEnabled(d.Get("enabled"), d, config)
-	if err != nil {
-		return err
+	if !d.Get("enabled").(bool) {
+		err = setEnabled(false, d, config)
+		if err != nil {
+			return err
+		}
 	}
 
 	log.Printf("[DEBUG] Finished creating RegionalSecretVersion %q: %#v", d.Id(), res)
