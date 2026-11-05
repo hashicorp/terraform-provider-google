@@ -156,6 +156,17 @@ Possible values: "AGENT_MANAGEMENT".`,
 				},
 				Set: schema.HashString,
 			},
+			"boundaries": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Description: `The list of Boundaries associated with this capability config.
+Format: 'organizations/{organization}/boundaries/{boundary}' or 'folders/{folder}/boundaries/{boundary}'.
+Boundaries must share the capability config's parent, and cannot be specified for project-scoped capability configs.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: schema.HashString,
+			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -239,6 +250,12 @@ func resourceResourceManagerV3CapabilityConfigCreate(d *schema.ResourceData, met
 		return err
 	} else if v, ok := d.GetOkExists("management_project"); !tpgresource.IsEmptyValue(reflect.ValueOf(managementProjectProp)) && (ok || !reflect.DeepEqual(v, managementProjectProp)) {
 		obj["managementProject"] = managementProjectProp
+	}
+	boundariesProp, err := expandResourceManagerV3CapabilityConfigBoundaries(d.Get("boundaries"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("boundaries"); !tpgresource.IsEmptyValue(reflect.ValueOf(boundariesProp)) && (ok || !reflect.DeepEqual(v, boundariesProp)) {
+		obj["boundaries"] = boundariesProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/capabilityConfigs?capabilityConfigId={{capability_config_id}}")
@@ -431,6 +448,12 @@ func resourceResourceManagerV3CapabilityConfigUpdate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("types"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typesProp)) {
 		obj["types"] = typesProp
 	}
+	boundariesProp, err := expandResourceManagerV3CapabilityConfigBoundaries(d.Get("boundaries"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("boundaries"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, boundariesProp)) {
+		obj["boundaries"] = boundariesProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/capabilityConfigs/{{capability_config_id}}")
 	if err != nil {
@@ -447,6 +470,10 @@ func resourceResourceManagerV3CapabilityConfigUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("types") {
 		updateMask = append(updateMask, "types")
+	}
+
+	if d.HasChange("boundaries") {
+		updateMask = append(updateMask, "boundaries")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -520,6 +547,39 @@ func resourceResourceManagerV3CapabilityConfigDelete(d *schema.ResourceData, met
 	}
 
 	headers := make(http.Header)
+	// Boundaries must be disassociated before the capability config can be deleted
+	if d.Get("boundaries.#").(int) > 0 {
+		log.Printf("[DEBUG] Disassociating boundaries from CapabilityConfig %q before deletion", d.Id())
+		patchUrl, err := transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "boundaries"})
+		if err != nil {
+			return err
+		}
+
+		patchObj := map[string]interface{}{
+			"boundaries": []interface{}{},
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    patchUrl,
+			UserAgent: userAgent,
+			Body:      patchObj,
+			Timeout:   d.Timeout(schema.TimeoutDelete),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error disassociating boundaries from CapabilityConfig %q: %s", d.Id(), err)
+		}
+
+		err = ResourceManagerV3OperationWaitTime(
+			config, res, "Disassociating boundaries from CapabilityConfig", userAgent,
+			d.Timeout(schema.TimeoutDelete))
+		if err != nil {
+			return fmt.Errorf("Error waiting to disassociate boundaries from CapabilityConfig %q: %s", d.Id(), err)
+		}
+	}
 
 	log.Printf("[DEBUG] Deleting CapabilityConfig %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -585,6 +645,13 @@ func flattenResourceManagerV3CapabilityConfigManagementProject(v interface{}, d 
 	return v
 }
 
+func flattenResourceManagerV3CapabilityConfigBoundaries(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
 func flattenResourceManagerV3CapabilityConfigState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -614,6 +681,11 @@ func expandResourceManagerV3CapabilityConfigManagementProject(v interface{}, d t
 	return v, nil
 }
 
+func expandResourceManagerV3CapabilityConfigBoundaries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
 func ResourceResourceManagerV3CapabilityConfigFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, userAgent string, billingProject string, url string, headers http.Header) error {
 	var err error
 
@@ -627,6 +699,9 @@ func ResourceResourceManagerV3CapabilityConfigFlatten(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading CapabilityConfig: %s", err)
 	}
 	if err = d.Set("management_project", flattenResourceManagerV3CapabilityConfigManagementProject(res["managementProject"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CapabilityConfig: %s", err)
+	}
+	if err = d.Set("boundaries", flattenResourceManagerV3CapabilityConfigBoundaries(res["boundaries"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CapabilityConfig: %s", err)
 	}
 	if err = d.Set("state", flattenResourceManagerV3CapabilityConfigState(res["state"], d, config)); err != nil {

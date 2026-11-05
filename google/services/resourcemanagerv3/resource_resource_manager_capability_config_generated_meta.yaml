@@ -11,6 +11,7 @@ api_variant_patterns:
     - organizations/{organization}/capabilityConfigs/{capabilityConfig}
     - projects/{project}/capabilityConfigs/{capabilityConfig}
 fields:
+    - api_field: boundaries
     - field: capability_config_id
       provider_only: true
     - api_field: createTime

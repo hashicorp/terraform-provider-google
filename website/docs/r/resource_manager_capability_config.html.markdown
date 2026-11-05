@@ -37,11 +37,65 @@ To get more information about CapabilityConfig, see:
 
 
 ```hcl
+resource "google_tags_tag_key" "boundary" {
+  parent      = "organizations/123456789"
+  short_name  = "bndkey"
+  description = "Partitioning tag key used by boundaries."
+}
+
+resource "google_tags_tag_value" "boundary_1" {
+  parent      = google_tags_tag_key.boundary.id
+  short_name  = "bndval-1"
+  description = "Tag value for the first boundary."
+}
+
+resource "google_tags_tag_value" "boundary_2" {
+  parent      = google_tags_tag_key.boundary.id
+  short_name  = "bndval-2"
+  description = "Tag value for the second boundary."
+}
+
+resource "google_resource_manager_boundary_config" "boundary" {
+  parent  = "organizations/123456789"
+  tag_key = google_tags_tag_key.boundary.namespaced_name
+}
+
+resource "google_resource_manager_boundary" "boundary_1" {
+  parent       = "organizations/123456789"
+  boundary_id  = "boundary-1"
+  display_name = "Boundary 1"
+
+  resource_filter {
+    tag_filter {
+      tag_key   = google_resource_manager_boundary_config.boundary.tag_key
+      tag_value = google_tags_tag_value.boundary_1.short_name
+    }
+  }
+}
+
+resource "google_resource_manager_boundary" "boundary_2" {
+  parent       = "organizations/123456789"
+  boundary_id  = "boundary-2"
+  display_name = "Boundary 2"
+
+  resource_filter {
+    tag_filter {
+      tag_key   = google_resource_manager_boundary_config.boundary.tag_key
+      tag_value = google_tags_tag_value.boundary_2.short_name
+    }
+  }
+}
+
 resource "google_resource_manager_capability_config" "capability_config" {
   parent               = "organizations/123456789"
   capability_config_id = "capcfg"
   display_name         = "capdisp"
   types                = ["AGENT_MANAGEMENT"]
+  boundaries           = [google_resource_manager_boundary.boundary_1.name]
+  depends_on = [
+    google_resource_manager_boundary.boundary_1,
+    google_resource_manager_boundary.boundary_2,
+  ]
 }
 ```
 
@@ -139,6 +193,12 @@ The following arguments are supported:
   The management project for the capability config. If unspecified, a project will be created automatically.
   Must be specified for project-scoped capability config.
   Format: `projects/{project_number}`.
+
+* `boundaries` -
+  (Optional)
+  The list of Boundaries associated with this capability config.
+  Format: `organizations/{organization}/boundaries/{boundary}` or `folders/{folder}/boundaries/{boundary}`.
+  Boundaries must share the capability config's parent, and cannot be specified for project-scoped capability configs.
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
