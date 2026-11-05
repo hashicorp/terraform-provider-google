@@ -43,6 +43,7 @@ resource "google_gemini_gemini_gcp_enablement_setting" "example" {
     web_grounding_type = "WEB_GROUNDING_FOR_ENTERPRISE"
     mutations_enabled = true
     release_channel = "EXPERIMENTAL"
+    has_custom_instructions = true
 }
 ```
 
@@ -97,6 +98,10 @@ The following arguments are supported:
   (Optional)
   Specifies the release channel for Gemini features. The release channel determines which set of features are available to the user.
   Possible values are: `STABLE`, `EXPERIMENTAL`.
+
+* `has_custom_instructions` -
+  (Optional)
+  Indicates whether custom instructions are defined.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

@@ -17,6 +17,7 @@ fields:
     - api_field: geminiEnterpriseProject
     - field: gemini_gcp_enablement_setting_id
       provider_only: true
+    - api_field: hasCustomInstructions
     - api_field: labels
     - field: location
       provider_only: true

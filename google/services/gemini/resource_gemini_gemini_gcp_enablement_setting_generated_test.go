@@ -98,6 +98,7 @@ resource "google_gemini_gemini_gcp_enablement_setting" "example" {
     web_grounding_type = "WEB_GROUNDING_FOR_ENTERPRISE"
     mutations_enabled = true
     release_channel = "EXPERIMENTAL"
+    has_custom_instructions = true
 }
 `, context)
 }
