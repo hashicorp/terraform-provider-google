@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -62,10 +63,19 @@ func TestAccCESApp_cesAppBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"app_id":        "tf-test-app-id" + randomSuffix,
-		"display_name":  "tf-test-my-app" + randomSuffix,
-		"secret_id":     "tf-test-fake-pk-secret-app-tf" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"app_id":                     "tf-test-app-id" + randomSuffix,
+		"display_name":               "tf-test-my-app" + randomSuffix,
+		"required_recording_consent": true,
+		"secret_id":                  "tf-test-fake-pk-secret-app-tf" + randomSuffix,
+		"random_suffix":              randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"app_id":                     "tf-test-app-id" + randomSuffix,
+		"display_name":               "tf-test-my-app" + randomSuffix,
+		"required_recording_consent": false,
+		"secret_id":                  "tf-test-fake-pk-secret-app-tf" + randomSuffix,
+		"random_suffix":              randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -75,6 +85,26 @@ func TestAccCESApp_cesAppBasicExample(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCESApp_cesAppBasicExample(context),
+			},
+			{
+				ResourceName:            "google_ces_app.ces_app_basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_id", "location"},
+			},
+			{
+				ResourceName:       "google_ces_app.ces_app_basic",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccCESApp_cesAppBasicExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_app.ces_app_basic", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_ces_app.ces_app_basic",
@@ -182,6 +212,8 @@ resource "google_ces_app" "ces_app_basic" {
     metric_analysis_settings {
       llm_metrics_opted_out = false
     }
+
+    required_recording_consent = %{required_recording_consent}
   }
 
   model_settings {

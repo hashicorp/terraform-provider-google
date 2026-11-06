@@ -903,6 +903,17 @@ Format:
 								},
 							},
 						},
+						"required_recording_consent": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `Whether the app has to say what may be recorded before anything is kept.
+When true, a session starts with recording off and stays off until the
+client sends SessionInput.recording_control, which then decides every turn
+from that point on. This covers audio recording as well as conversation
+history, BigQuery export and Cloud Logging.
+When 'false', the default, the settings above decide on their own and the
+client does not have to send anything.`,
+						},
 					},
 				},
 			},
@@ -2463,6 +2474,8 @@ func flattenCESAppLoggingSettings(v interface{}, d *schema.ResourceData, config 
 		flattenCESAppLoggingSettingsMetricAnalysisSettings(original["metricAnalysisSettings"], d, config)
 	transformed["redaction_config"] =
 		flattenCESAppLoggingSettingsRedactionConfig(original["redactionConfig"], d, config)
+	transformed["required_recording_consent"] =
+		flattenCESAppLoggingSettingsRequiredRecordingConsent(original["requiredRecordingConsent"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCESAppLoggingSettingsAudioRecordingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2597,6 +2610,10 @@ func flattenCESAppLoggingSettingsRedactionConfigEnableRedaction(v interface{}, d
 }
 
 func flattenCESAppLoggingSettingsRedactionConfigInspectTemplate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppLoggingSettingsRequiredRecordingConsent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3835,6 +3852,13 @@ func expandCESAppLoggingSettings(v interface{}, d tpgresource.TerraformResourceD
 		transformed["redactionConfig"] = transformedRedactionConfig
 	}
 
+	transformedRequiredRecordingConsent, err := expandCESAppLoggingSettingsRequiredRecordingConsent(original["required_recording_consent"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["requiredRecordingConsent"] = transformedRequiredRecordingConsent
+	}
+
 	return transformed, nil
 }
 
@@ -4062,6 +4086,10 @@ func expandCESAppLoggingSettingsRedactionConfigEnableRedaction(v interface{}, d 
 }
 
 func expandCESAppLoggingSettingsRedactionConfigInspectTemplate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppLoggingSettingsRequiredRecordingConsent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
