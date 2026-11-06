@@ -105,6 +105,9 @@ fields:
     - api_field: mcpDataSources.enabled
     - api_field: mcpDataSources.oauthTokenUrl
     - api_field: mcpDataSources.prompt
+    - api_field: mcpDataSources.requestHeaders.dynamicValue
+    - api_field: mcpDataSources.requestHeaders.headerName
+    - api_field: mcpDataSources.requestHeaders.value
     - api_field: mcpDataSources.serverUrl
     - api_field: mcpDataSources.sessionIdHeader
     - api_field: mcpDataSources.taskIdHeader

@@ -1162,6 +1162,39 @@ and can only contain letters, numbers, spaces, underscores, and hyphens.`,
 							Optional:    true,
 							Description: `The custom prompt for the MCP agent.`,
 						},
+						"request_headers": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Additional HTTP headers sent on every request to the MCP server, for
+example a static header required by an API gateway. Headers managed by the
+agent take precedence and cannot be set here. When empty, no additional
+headers are sent.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"header_name": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The header name. Must be a valid HTTP field name (RFC 9110 token),
+unique ignoring case within the data source, and not a header managed
+by the agent (such as 'Authorization', 'Content-Type', 'mcp-session-id',
+or the configured API key, session ID, or task ID headers).`,
+									},
+									"dynamic_value": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `A value the agent fills in for each request.
+Possible values:
+USER_ID`,
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `A static value, sent as-is on every request. The value is stored and
+returned in plain text, so do not use it for credentials.`,
+									},
+								},
+							},
+						},
 						"session_id_header": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -3176,6 +3209,7 @@ func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, 
 			"enabled":           original["enabled"],
 			"oauth_token_url":   original["oauthTokenUrl"],
 			"prompt":            original["prompt"],
+			"request_headers":   flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesRequestHeaders(original["requestHeaders"], d, config),
 			"server_url":        original["serverUrl"],
 			"session_id_header": original["sessionIdHeader"],
 			"task_id_header":    original["taskIdHeader"],
@@ -3187,6 +3221,27 @@ func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, 
 			item["client_secret"] = clientSecret
 		}
 		transformed = append(transformed, item)
+	}
+	return transformed
+}
+
+func flattenAgenticApplicationsAnalystAgentPersonaMcpDataSourcesRequestHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"dynamic_value": original["dynamicValue"],
+			"header_name":   original["headerName"],
+			"value":         original["value"],
+		})
 	}
 	return transformed
 }
@@ -5244,6 +5299,13 @@ func expandAgenticApplicationsAnalystAgentPersonaMcpDataSources(v interface{}, d
 			transformed["prompt"] = transformedPrompt
 		}
 
+		transformedRequestHeaders, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesRequestHeaders(original["request_headers"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRequestHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["requestHeaders"] = transformedRequestHeaders
+		}
+
 		transformedServerUrl, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesServerUrl(original["server_url"], d, config)
 		if err != nil {
 			return nil, err
@@ -5307,6 +5369,57 @@ func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesOauthTokenUrl(v i
 }
 
 func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesPrompt(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesRequestHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDynamicValue, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesRequestHeadersDynamicValue(original["dynamic_value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDynamicValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["dynamicValue"] = transformedDynamicValue
+		}
+
+		transformedHeaderName, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesRequestHeadersHeaderName(original["header_name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeaderName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["headerName"] = transformedHeaderName
+		}
+
+		transformedValue, err := expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesRequestHeadersValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesRequestHeadersDynamicValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesRequestHeadersHeaderName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAgenticApplicationsAnalystAgentPersonaMcpDataSourcesRequestHeadersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
