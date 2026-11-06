@@ -31,7 +31,6 @@ A Unit is the fundamental structural building block of a SaaS offering. Each Uni
 
 ```hcl
 resource "google_saas_runtime_saas" "example_saas_regional" {
-  provider = google-beta
   saas_id  = "example-saas"
   location = "us-central1"
 
@@ -41,14 +40,12 @@ resource "google_saas_runtime_saas" "example_saas_regional" {
 }
 
 resource "google_saas_runtime_unit_kind" "example_unit_kind" {
-  provider = google-beta
   location = "us-central1"
   unit_kind_id = "example-unitkind"
   saas = google_saas_runtime_saas.example_saas_regional.id
 }
 
 resource "google_saas_runtime_unit" "example" {
-  provider = google-beta
   location = "us-central1"
   unit_id = "example-unit"
   unit_kind = google_saas_runtime_unit_kind.example_unit_kind.id

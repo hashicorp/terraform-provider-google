@@ -1,0 +1,31 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_saas_runtime_tenant
+generation_type: mmv1
+source_file: products/saasservicemgmt/Tenant.yaml
+api_service_name: saasservicemgmt.googleapis.com
+api_version: v1
+api_resource_type_kind: Tenant
+autogen_status: true
+autogen_version: 1
+fields:
+    - api_field: annotations
+    - api_field: consumerResource
+    - api_field: createTime
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: saas
+    - field: tenant_id
+      provider_only: true
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

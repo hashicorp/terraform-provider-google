@@ -163,6 +163,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/redis"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanagerv3"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/saasruntime"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanagerregional"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
