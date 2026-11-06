@@ -64,6 +64,8 @@ func TestAccComputeGlobalAddress_globalAddressBasicExample(t *testing.T) {
 		"random_suffix":       randomSuffix,
 	}
 
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/addresses", "2026-11-01")
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -119,11 +121,12 @@ func testAccCheckComputeGlobalAddressDestroyProducer(t *testing.T) func(s *terra
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
+				Config:     config,
+				Method:     "GET",
+				Project:    billingProject,
+				RawURL:     url,
+				UserAgent:  config.UserAgent,
+				ApiVersion: "2026-11-01",
 			})
 			if err == nil {
 				return fmt.Errorf("ComputeGlobalAddress still exists at %s", url)

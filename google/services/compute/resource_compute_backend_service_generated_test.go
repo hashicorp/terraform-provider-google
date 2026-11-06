@@ -67,6 +67,8 @@ func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
 		"random_suffix":        randomSuffix,
 	}
 
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -120,6 +122,8 @@ func TestAccComputeBackendService_backendServiceExternalIapExample(t *testing.T)
 		"random_suffix":        randomSuffix,
 	}
 
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -169,6 +173,8 @@ func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T)
 		"health_check_name":    "tf-test-health-check" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
+
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -227,6 +233,8 @@ func TestAccComputeBackendService_backendServiceCacheIncludeHttpHeadersExample(t
 		"random_suffix":        randomSuffix,
 	}
 
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -278,6 +286,8 @@ func TestAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(
 		"backend_service_name": "tf-test-backend-service" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
+
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -334,6 +344,8 @@ func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
 		"health_check_name":    "tf-test-health-check" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
+
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -397,6 +409,8 @@ func TestAccComputeBackendService_backendServiceCacheBypassCacheOnRequestHeaders
 		"health_check_name":    "tf-test-health-check" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
+
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -469,6 +483,8 @@ func TestAccComputeBackendService_backendServiceExternalManagedExample(t *testin
 		"random_suffix":        randomSuffix,
 	}
 
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -521,6 +537,8 @@ func TestAccComputeBackendService_backendServiceIpAddressSelectionPolicyExample(
 		"random_suffix":        randomSuffix,
 	}
 
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -567,6 +585,8 @@ func TestAccComputeBackendService_backendServiceCustomMetricsExample(t *testing.
 		"network_name":         "tf-test-network" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
+
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -664,6 +684,8 @@ func TestAccComputeBackendService_backendServiceTlsSettingsExample(t *testing.T)
 		"random_suffix":        randomSuffix,
 	}
 
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -739,6 +761,8 @@ func TestAccComputeBackendService_backendServiceIdentityExample(t *testing.T) {
 		"health_check_name":    "tf-test-health-check" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
+
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -829,11 +853,12 @@ func testAccCheckComputeBackendServiceDestroyProducer(t *testing.T) func(s *terr
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
+				Config:     config,
+				Method:     "GET",
+				Project:    billingProject,
+				RawURL:     url,
+				UserAgent:  config.UserAgent,
+				ApiVersion: "2026-11-01",
 			})
 			if err == nil {
 				return fmt.Errorf("ComputeBackendService still exists at %s", url)

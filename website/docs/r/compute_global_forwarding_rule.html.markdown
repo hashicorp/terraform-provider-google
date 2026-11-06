@@ -1218,19 +1218,12 @@ The following arguments are supported:
   APIs, the forwarding rule name must be a 1-20 characters string with
   lowercase letters and numbers and must start with a letter.
 
-* `target` -
-  (Required)
-  The URL of the target resource to receive the matched traffic.  For
-  regional forwarding rules, this target must be in the same region as the
-  forwarding rule. For global forwarding rules, this target must be a global
-  load balancing resource.
-  The forwarded traffic must be of a type appropriate to the target object.
-  *  For load balancers, see the "Target" column in [Port specifications](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts#ip_address_specifications).
-  *  For Private Service Connect forwarding rules that forward traffic to Google APIs, provide the name of a supported Google API bundle:
-    *  `vpc-sc` - [ APIs that support VPC Service Controls](https://cloud.google.com/vpc-service-controls/docs/supported-products).
-    *  `all-apis` - [All supported Google APIs](https://cloud.google.com/vpc/docs/private-service-connect#supported-apis).
-  For Private Service Connect forwarding rules that forward traffic to managed services, the target must be a service attachment.
 
+* `backend_service` -
+  (Optional)
+  Identifies the backend service to which the forwarding rule sends traffic.
+  Required for Global External Passthrough Network Load Balancing;
+  must be omitted for all other load balancer types.
 
 * `description` -
   (Optional)
@@ -1295,13 +1288,19 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `ip_addresses` -
+  (Optional)
+  IP addresses for which this forwarding rule accepts traffic, ordered by
+  Availability Group 0 followed by Availability Group 1. Specify literal
+  IP addresses (for example, `google_compute_global_address.example.address`).
+
 * `load_balancing_scheme` -
   (Optional)
   Specifies the forwarding rule type.
   For more information about forwarding rules, refer to
   [Forwarding rule concepts](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts).
   Default value is `EXTERNAL_MANAGED`.
-  Possible values are: `EXTERNAL`, `EXTERNAL_MANAGED`, `INTERNAL_MANAGED`, `INTERNAL_SELF_MANAGED`.
+  Possible values are: `EXTERNAL`, `EXTERNAL_MANAGED`, `INTERNAL_MANAGED`, `INTERNAL_SELF_MANAGED`, `EXTERNAL_PASSTHROUGH`.
 
 * `metadata_filters` -
   (Optional)
@@ -1360,6 +1359,19 @@ The following arguments are supported:
   If the network specified is in auto subnet mode, this field is optional.
   However, a subnetwork must be specified if the network is in custom subnet
   mode or when creating external forwarding rule with IPv6.
+
+* `target` -
+  (Optional)
+  The URL of the target resource to receive the matched traffic.  For
+  regional forwarding rules, this target must be in the same region as the
+  forwarding rule. For global forwarding rules, this target must be a global
+  load balancing resource.
+  The forwarded traffic must be of a type appropriate to the target object.
+  *  For load balancers, see the "Target" column in [Port specifications](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts#ip_address_specifications).
+  *  For Private Service Connect forwarding rules that forward traffic to Google APIs, provide the name of a supported Google API bundle:
+    *  `vpc-sc` - [ APIs that support VPC Service Controls](https://cloud.google.com/vpc-service-controls/docs/supported-products).
+    *  `all-apis` - [All supported Google APIs](https://cloud.google.com/vpc/docs/private-service-connect#supported-apis).
+  For Private Service Connect forwarding rules that forward traffic to managed services, the target must be a service attachment.
 
 * `network_tier` -
   (Optional)

@@ -223,7 +223,11 @@ when purpose=PRIVATE_SERVICE_CONNECT`,
 
 * VPC_PEERING - for peer networks
 
-* PRIVATE_SERVICE_CONNECT - for ([Beta](../guides/provider_versions.html.markdown)) only) Private Service Connect networks`,
+* PRIVATE_SERVICE_CONNECT - for ([Beta](../guides/provider_versions.html.markdown)) only) Private Service Connect networks
+
+* PASSTHROUGH_LOAD_BALANCER_AVAILABILITY_GROUP0 - for Global External Passthrough Network Load Balancers
+
+* PASSTHROUGH_LOAD_BALANCER_AVAILABILITY_GROUP1 - for Global External Passthrough Network Load Balancers`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
@@ -371,14 +375,15 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 		obj["networkTier"] = "PREMIUM"
 	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutCreate),
-		Headers:   headers,
+		Config:     config,
+		Method:     "POST",
+		Project:    billingProject,
+		RawURL:     url,
+		UserAgent:  userAgent,
+		Body:       obj,
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Headers:    headers,
+		ApiVersion: "2026-11-01",
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating GlobalAddress: %s", err)
@@ -426,12 +431,13 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 			return err
 		}
 		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "POST",
-			Project:   project,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
+			Config:     config,
+			Method:     "POST",
+			Project:    project,
+			RawURL:     url,
+			UserAgent:  userAgent,
+			Body:       obj,
+			ApiVersion: "2026-11-01",
 		})
 		if err != nil {
 			return fmt.Errorf("Error adding labels to ComputeGlobalAddress %q: %s", d.Id(), err)
@@ -509,12 +515,13 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Headers:   headers,
+		Config:     config,
+		Method:     "GET",
+		Project:    billingProject,
+		RawURL:     url,
+		UserAgent:  userAgent,
+		Headers:    headers,
+		ApiVersion: "2026-11-01",
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeGlobalAddress %q", d.Id()))
@@ -639,14 +646,15 @@ func resourceComputeGlobalAddressUpdate(d *schema.ResourceData, meta interface{}
 		}
 
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "POST",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
+			Config:     config,
+			Method:     "POST",
+			Project:    billingProject,
+			RawURL:     url,
+			UserAgent:  userAgent,
+			Body:       obj,
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			ApiVersion: "2026-11-01",
+			Headers:    headers,
 		})
 		if err != nil {
 			return fmt.Errorf("Error updating GlobalAddress %q: %s", d.Id(), err)
@@ -704,14 +712,15 @@ func resourceComputeGlobalAddressDelete(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Deleting GlobalAddress %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "DELETE",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-		Headers:   headers,
+		Config:     config,
+		Method:     "DELETE",
+		Project:    billingProject,
+		RawURL:     url,
+		UserAgent:  userAgent,
+		Body:       obj,
+		Timeout:    d.Timeout(schema.TimeoutDelete),
+		Headers:    headers,
+		ApiVersion: "2026-11-01",
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "GlobalAddress")

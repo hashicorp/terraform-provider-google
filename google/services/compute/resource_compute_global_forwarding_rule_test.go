@@ -857,3 +857,69 @@ resource "google_compute_global_address" "my_global_ip" {
 }
 `, fr, percentage, proxy, urlmap, backendservice, address)
 }
+
+func TestAccComputeGlobalForwardingRule_ExternalPassthrough(t *testing.T) {
+	t.Parallel()
+
+	fr := fmt.Sprintf("tf-test-fr-%s", acctest.RandString(t, 10))
+	backendservice := fmt.Sprintf("tf-test-bs-%s", acctest.RandString(t, 10))
+	address0 := fmt.Sprintf("tf-test-addr0-%s", acctest.RandString(t, 10))
+	address1 := fmt.Sprintf("tf-test-addr1-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeGlobalForwardingRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeGlobalForwardingRule_externalPassthrough(fr, backendservice, address0, address1, "google_compute_backend_service.my_backend_service.name"),
+			},
+			{
+				ResourceName:            "google_compute_global_forwarding_rule.forwarding_rule",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"port_range"},
+			},
+			{
+				Config: testAccComputeGlobalForwardingRule_externalPassthrough(fr, backendservice, address0, address1, "google_compute_backend_service.my_backend_service.id"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccComputeGlobalForwardingRule_externalPassthrough(fr, backendservice, address0, address1, backendServiceRef string) string {
+	return fmt.Sprintf(`
+resource "google_compute_global_forwarding_rule" "forwarding_rule" {
+  name                  = "%s"
+  ip_protocol           = "TCP"
+  port_range            = "80"
+  load_balancing_scheme = "EXTERNAL_PASSTHROUGH"
+  backend_service       = %s
+  ip_addresses          = [
+    google_compute_global_address.my_global_ip0.address,
+    google_compute_global_address.my_global_ip1.address
+  ]
+}
+
+resource "google_compute_backend_service" "my_backend_service" {
+  name                  = "%s"
+  protocol              = "UNSPECIFIED"
+  load_balancing_scheme = "EXTERNAL_PASSTHROUGH"
+}
+
+resource "google_compute_global_address" "my_global_ip0" {
+  name    = "%s"
+  purpose = "PASSTHROUGH_LOAD_BALANCER_AVAILABILITY_GROUP0"
+}
+
+resource "google_compute_global_address" "my_global_ip1" {
+  name    = "%s"
+  purpose = "PASSTHROUGH_LOAD_BALANCER_AVAILABILITY_GROUP1"
+}
+`, fr, backendServiceRef, backendservice, address0, address1)
+}
