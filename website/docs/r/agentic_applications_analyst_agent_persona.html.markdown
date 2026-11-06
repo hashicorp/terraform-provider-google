@@ -349,10 +349,18 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     description       = "Sample MCP data source description"
     enabled           = true
     prompt            = "Use this server for queries"
-    api_key_name      = "x-api-key"
-    api_key_header    = "x-api-key-header"
     session_id_header = "X-Custom-Session-Id"
     task_id_header    = "X-Custom-Task-Id"
+
+    request_headers {
+      header_name = "X-Custom-Static"
+      value       = "initial-static-value"
+    }
+
+    request_headers {
+      header_name   = "X-Custom-User"
+      dynamic_value = "USER_ID"
+    }
   }
 }
 ```
@@ -1176,6 +1184,14 @@ The following arguments are supported:
   (Optional)
   The custom prompt for the MCP agent.
 
+* `request_headers` -
+  (Optional)
+  Additional HTTP headers sent on every request to the MCP server, for
+  example a static header required by an API gateway. Headers managed by the
+  agent take precedence and cannot be set here. When empty, no additional
+  headers are sent.
+  Structure is [documented below](#nested_mcp_data_sources_request_headers).
+
 * `server_url` -
   (Required)
   The URL of the MCP server.
@@ -1191,6 +1207,27 @@ The following arguments are supported:
   The HTTP header name used to pass the agent task ID in MCP server
   requests (defaults to `X-Task-Id` when unset). Must be a valid HTTP
   header field name (RFC 9110 token).
+
+
+<a name="nested_mcp_data_sources_request_headers"></a>The `request_headers` block supports:
+
+* `dynamic_value` -
+  (Optional)
+  A value the agent fills in for each request.
+  Possible values:
+  USER_ID
+
+* `header_name` -
+  (Required)
+  The header name. Must be a valid HTTP field name (RFC 9110 token),
+  unique ignoring case within the data source, and not a header managed
+  by the agent (such as `Authorization`, `Content-Type`, `mcp-session-id`,
+  or the configured API key, session ID, or task ID headers).
+
+* `value` -
+  (Optional)
+  A static value, sent as-is on every request. The value is stored and
+  returned in plain text, so do not use it for credentials.
 
 <a name="nested_resources"></a>The `resources` block supports:
 

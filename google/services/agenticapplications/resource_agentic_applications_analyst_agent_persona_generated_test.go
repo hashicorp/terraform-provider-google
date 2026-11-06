@@ -947,10 +947,18 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     description       = "Sample MCP data source description"
     enabled           = true
     prompt            = "Use this server for queries"
-    api_key_name      = "x-api-key"
-    api_key_header    = "x-api-key-header"
     session_id_header = "X-Custom-Session-Id"
     task_id_header    = "X-Custom-Task-Id"
+
+    request_headers {
+      header_name = "X-Custom-Static"
+      value       = "initial-static-value"
+    }
+
+    request_headers {
+      header_name   = "X-Custom-User"
+      dynamic_value = "USER_ID"
+    }
   }
 }
 `, context)
@@ -973,10 +981,23 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
     description       = "Updated MCP data source description"
     enabled           = true
     prompt            = "Use this server for updated queries"
-    api_key_name      = "x-api-key"
-    api_key_header    = "x-api-key-header-updated"
     session_id_header = "X-Updated-Session-Id"
     task_id_header    = "X-Updated-Task-Id"
+
+    request_headers {
+      header_name = "X-Custom-Static-Updated"
+      value       = "updated-static-value"
+    }
+
+    request_headers {
+      header_name = "X-Custom-Second-Static"
+      value       = "second-static-value"
+    }
+
+    request_headers {
+      header_name   = "X-Custom-User-Updated"
+      dynamic_value = "USER_ID"
+    }
   }
 }
 `, context)
