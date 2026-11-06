@@ -1,0 +1,43 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_saas_runtime_saas
+generation_type: mmv1
+source_file: products/saasservicemgmt/Saas.yaml
+api_service_name: saasservicemgmt.googleapis.com
+api_version: v1
+api_resource_type_kind: Saas
+autogen_status: true
+autogen_version: 1
+fields:
+    - api_field: annotations
+    - api_field: applicationTemplate.applicationTemplate
+    - api_field: applicationTemplate.revision
+    - api_field: applicationTemplate.syncOperation
+    - api_field: blueprintRepo
+    - api_field: conditions.lastTransitionTime
+    - api_field: conditions.message
+    - api_field: conditions.reason
+    - api_field: conditions.status
+    - api_field: conditions.type
+    - api_field: createTime
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: error.code
+    - api_field: error.message
+    - api_field: etag
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: locations.name
+    - api_field: name
+    - field: saas_id
+      provider_only: true
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

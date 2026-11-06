@@ -1,0 +1,56 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_saas_runtime_unit
+generation_type: mmv1
+source_file: products/saasservicemgmt/Unit.yaml
+api_service_name: saasservicemgmt.googleapis.com
+api_version: v1
+api_resource_type_kind: Unit
+autogen_status: true
+autogen_version: 1
+fields:
+    - api_field: annotations
+    - api_field: application
+    - api_field: conditions.lastTransitionTime
+    - api_field: conditions.message
+    - api_field: conditions.reason
+    - api_field: conditions.status
+    - api_field: conditions.type
+    - api_field: createTime
+    - api_field: dependencies.alias
+    - api_field: dependencies.unit
+    - api_field: dependents.alias
+    - api_field: dependents.unit
+    - field: effective_annotations
+      provider_only: true
+    - field: effective_labels
+      provider_only: true
+    - api_field: inputVariables.type
+    - api_field: inputVariables.value
+    - api_field: inputVariables.variable
+    - api_field: labels
+    - field: location
+      provider_only: true
+    - api_field: maintenance.pinnedUntilTime
+    - api_field: managementMode
+    - api_field: name
+    - api_field: ongoingOperations
+    - api_field: outputVariables.type
+    - api_field: outputVariables.value
+    - api_field: outputVariables.variable
+    - api_field: pendingOperations
+    - api_field: release
+    - api_field: scheduledOperations
+    - api_field: state
+    - api_field: systemCleanupAt
+    - api_field: systemManagedState
+    - api_field: tenant
+    - field: terraform_labels
+      provider_only: true
+    - api_field: uid
+    - field: unit_id
+      provider_only: true
+    - api_field: unitKind
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

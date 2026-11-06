@@ -1,0 +1,3 @@
+```release-note:enhancement
+saasservicemgmt: promoted `google_saas_runtime_saas`, `google_saas_runtime_tenant`, `google_saas_runtime_unit_kind`, `google_saas_runtime_unit`, `google_saas_runtime_release`, `google_saas_runtime_rollout_kind`, and `google_saas_runtime_unit_operation` resources to GA (ga)
+```

@@ -746,6 +746,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Resourcemanagerv3",
         "path" to "./google/services/resourcemanagerv3"
     ),
+    "saasruntime" to mapOf(
+        "name" to "saasruntime",
+        "displayName" to "SaaS Runtime",
+        "path" to "./google/services/saasruntime"
+    ),
     "secretmanager" to mapOf(
         "name" to "secretmanager",
         "displayName" to "Secretmanager",

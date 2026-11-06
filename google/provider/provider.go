@@ -956,6 +956,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: ValidateCustomEndpoint,
 			},
+			"saas_runtime_custom_endpoint": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateCustomEndpoint,
+			},
 			"secret_manager_custom_endpoint": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
