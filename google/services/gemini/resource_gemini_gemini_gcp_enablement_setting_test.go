@@ -25,12 +25,15 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gemini"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 )
 
 func TestAccGeminiGeminiGcpEnablementSetting_geminiGeminiGcpEnablementSettingBasicExample_update(t *testing.T) {
 	t.Parallel()
+	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"setting_id": fmt.Sprintf("tf-test-ls-%s", acctest.RandString(t, 10)),
+		"setting_id":    fmt.Sprintf("tf-test-ls-%s", randomSuffix),
+		"random_suffix": randomSuffix,
 	}
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -67,16 +70,31 @@ func testAccGeminiGeminiGcpEnablementSetting_geminiGeminiGcpEnablementSettingBas
 data "google_project" "project" {
 }
 
+resource "google_storage_bucket" "bucket" {
+    name                        = "tf-test-gemini-bucket-%{random_suffix}"
+    location                    = "US"
+    uniform_bucket_level_access = true
+    force_destroy               = true
+}
+
+resource "google_storage_bucket_iam_member" "bucket_iam" {
+    bucket = google_storage_bucket.bucket.name
+    role   = "roles/storage.objectAdmin"
+    member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudaicompanion.iam.gserviceaccount.com"
+}
+
 resource "google_gemini_gemini_gcp_enablement_setting" "example" {
     gemini_gcp_enablement_setting_id = "%{setting_id}"
     location = "global"
     labels = {"my_key" = "my_value"}
     enable_customer_data_sharing = true
-	web_grounding_type = "WEB_GROUNDING_FOR_ENTERPRISE"
-	mutations_enabled = true
+    web_grounding_type = "WEB_GROUNDING_FOR_ENTERPRISE"
+    mutations_enabled = true
     release_channel = "EXPERIMENTAL"
     gemini_enterprise_project = "projects/${data.google_project.project.project_id}"
     has_custom_instructions = true
+    gcs_bucket = google_storage_bucket.bucket.name
+    depends_on = [google_storage_bucket_iam_member.bucket_iam]
 }
 `, context)
 }
@@ -85,16 +103,31 @@ func testAccGeminiGeminiGcpEnablementSetting_geminiGeminiGcpEnablementSettingBas
 data "google_project" "project" {
 }
 
+resource "google_storage_bucket" "updated_bucket" {
+    name                        = "tf-test-gemini-bucket-upd-%{random_suffix}"
+    location                    = "US"
+    uniform_bucket_level_access = true
+    force_destroy               = true
+}
+
+resource "google_storage_bucket_iam_member" "updated_bucket_iam" {
+    bucket = google_storage_bucket.updated_bucket.name
+    role   = "roles/storage.objectAdmin"
+    member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudaicompanion.iam.gserviceaccount.com"
+}
+
 resource "google_gemini_gemini_gcp_enablement_setting" "example" {
     gemini_gcp_enablement_setting_id = "%{setting_id}"
     location = "global"
     labels = {"my_key" = "my_value"}
     enable_customer_data_sharing = false
-	web_grounding_type = "GROUNDING_WITH_GOOGLE_SEARCH"
-	mutations_enabled = false
+    web_grounding_type = "GROUNDING_WITH_GOOGLE_SEARCH"
+    mutations_enabled = false
     release_channel = "STABLE"
     gemini_enterprise_project = "projects/${data.google_project.project.number}"
     has_custom_instructions = false
+    gcs_bucket = google_storage_bucket.updated_bucket.name
+    depends_on = [google_storage_bucket_iam_member.updated_bucket_iam]
 }
 `, context)
 }
