@@ -669,7 +669,7 @@ no non-expired signing keys present in the existing metadata.`,
 			"scim_usage": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"SCIM_USAGE_UNSPECIFIED", "ENABLED_FOR_GROUPS", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"SCIM_USAGE_UNSPECIFIED", "ENABLED_FOR_GROUPS", "ENABLED_FOR_USERS_GROUPS", ""}),
 				Description: `Agentspace only. Specifies whether the workforce identity pool
 provider uses SCIM-managed groups instead of the 'google.groups'
 attribute mapping for authorization checks.
@@ -679,7 +679,9 @@ mutually exclusive. A request that enables both fields on the same
 workforce identity pool provider will produce an error.
 * SCIM_USAGE_UNSPECIFIED: Default behaviour
 * ENABLED_FOR_GROUPS: Use SCIM-managed groups instead of the 'google.groups'
-  attribute mapping for authorization checks Possible values: ["SCIM_USAGE_UNSPECIFIED", "ENABLED_FOR_GROUPS"]`,
+  attribute mapping for authorization checks
+* ENABLED_FOR_USERS_GROUPS: Use SCIM-managed groups and users instead of the 'google.groups'
+  attribute mapping for authorization checks Possible values: ["SCIM_USAGE_UNSPECIFIED", "ENABLED_FOR_GROUPS", "ENABLED_FOR_USERS_GROUPS"]`,
 			},
 			"name": {
 				Type:     schema.TypeString,

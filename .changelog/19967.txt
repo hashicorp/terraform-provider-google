@@ -1,0 +1,3 @@
+```release-note:enhancement
+iamworkforcepool: added `ENABLED_FOR_USERS_GROUPS` enum value to `scim_usage` field in `google_iam_workforce_pool_provider` resource
+```
