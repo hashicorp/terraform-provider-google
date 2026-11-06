@@ -86,6 +86,7 @@ fields:
     - api_field: loggingSettings.redactionConfig.deidentifyTemplate
     - api_field: loggingSettings.redactionConfig.enableRedaction
     - api_field: loggingSettings.redactionConfig.inspectTemplate
+    - api_field: loggingSettings.requiredRecordingConsent
     - api_field: metadata
     - api_field: modelSettings.model
     - api_field: modelSettings.temperature
