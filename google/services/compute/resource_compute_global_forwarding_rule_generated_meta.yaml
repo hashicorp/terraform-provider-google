@@ -9,6 +9,7 @@ api_resource_type_kind: ForwardingRule
 api_variant_patterns:
     - projects/{project}/global/forwardingRules/{forwardingRule}
 fields:
+    - api_field: backendService
     - api_field: baseForwardingRule
     - api_field: description
     - field: effective_labels
@@ -18,6 +19,7 @@ fields:
     - api_field: id
       field: forwarding_rule_id
     - api_field: IPAddress
+    - api_field: IPAddresses
     - api_field: IPProtocol
     - api_field: ipVersion
     - api_field: labelFingerprint

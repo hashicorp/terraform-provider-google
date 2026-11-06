@@ -66,6 +66,8 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHttpExample(t *testi
 		"random_suffix":        randomSuffix,
 	}
 
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/forwardingRules", "2026-11-01")
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -78,7 +80,7 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHttpExample(t *testi
 				ResourceName:            "google_compute_global_forwarding_rule.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "network", "no_automate_dns_zone", "port_range", "subnetwork", "target", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"backend_service", "labels", "network", "no_automate_dns_zone", "port_range", "subnetwork", "target", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_compute_global_forwarding_rule.default",
@@ -158,6 +160,8 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleExternalManagedExamp
 		"random_suffix":        randomSuffix,
 	}
 
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/forwardingRules", "2026-11-01")
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -170,7 +174,7 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleExternalManagedExamp
 				ResourceName:            "google_compute_global_forwarding_rule.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "network", "no_automate_dns_zone", "port_range", "subnetwork", "target", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"backend_service", "labels", "network", "no_automate_dns_zone", "port_range", "subnetwork", "target", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_compute_global_forwarding_rule.default",
@@ -250,6 +254,8 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHybridExample(t *tes
 		"random_suffix":                 randomSuffix,
 	}
 
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/forwardingRules", "2026-11-01")
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -262,7 +268,7 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHybridExample(t *tes
 				ResourceName:            "google_compute_global_forwarding_rule.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "network", "no_automate_dns_zone", "port_range", "subnetwork", "target", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"backend_service", "labels", "network", "no_automate_dns_zone", "port_range", "subnetwork", "target", "terraform_labels"},
 			},
 			{
 				ResourceName:       "google_compute_global_forwarding_rule.default",
@@ -432,11 +438,12 @@ func testAccCheckComputeGlobalForwardingRuleDestroyProducer(t *testing.T) func(s
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "GET",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: config.UserAgent,
+				Config:     config,
+				Method:     "GET",
+				Project:    billingProject,
+				RawURL:     url,
+				UserAgent:  config.UserAgent,
+				ApiVersion: "2026-11-01",
 			})
 			if err == nil {
 				return fmt.Errorf("ComputeGlobalForwardingRule still exists at %s", url)

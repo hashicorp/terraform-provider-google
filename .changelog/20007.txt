@@ -1,0 +1,9 @@
+```release-note:enhancement
+compute: added `EXTERNAL_PASSTHROUGH` load balancing scheme, `ip_addresses`, and `backend_service` fields to `google_compute_global_forwarding_rule` resource
+```
+```release-note:enhancement
+compute: added `EXTERNAL_PASSTHROUGH` load balancing scheme to `google_compute_backend_service` resource
+```
+```release-note:enhancement
+compute: added `PASSTHROUGH_LOAD_BALANCER_AVAILABILITY_GROUP0` and `PASSTHROUGH_LOAD_BALANCER_AVAILABILITY_GROUP1` purpose values to `google_compute_global_address` resource
+```
