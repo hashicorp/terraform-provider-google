@@ -32,12 +32,15 @@ import (
 	"google.golang.org/api/iam/v1"
 )
 
+// Service account resource name addressed by the account's email or unique ID.
+var serviceAccountResourceNameRegex = "^" + verify.ServiceAccountLinkRegexPrefix + `[^\s/]+$`
+
 var IamServiceAccountSchema = map[string]*schema.Schema{
 	"service_account_id": {
 		Type:         schema.TypeString,
 		Required:     true,
 		ForceNew:     true,
-		ValidateFunc: verify.ValidateRegexp(verify.ServiceAccountLinkRegex),
+		ValidateFunc: verify.ValidateRegexp(serviceAccountResourceNameRegex),
 	},
 }
 

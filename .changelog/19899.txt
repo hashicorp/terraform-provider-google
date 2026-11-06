@@ -1,0 +1,7 @@
+```release-note:enhancement
+resourcemanager: allowed `service_account_id` on `google_service_account_iam_binding`, `google_service_account_iam_member`, `google_service_account_iam_policy`, and the `google_service_account_iam_policy` data source to use the service account's unique ID or any service account email
+```
+
+```release-note:bug
+resourcemanager: fixed validation of `service_account_id` on `google_service_account_iam_binding`, `google_service_account_iam_member`, `google_service_account_iam_policy`, and the `google_service_account_iam_policy` data source to reject values with text before `projects/`, extra path segments, or whitespace
+```

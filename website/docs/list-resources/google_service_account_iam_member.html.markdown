@@ -51,7 +51,7 @@ Run `terraform query` from the directory that contains the `.tfquery.hcl` file.
 
 * `service_account_id` - (Required) The fully-qualified resource name of the service account to
   list IAM members from, in the form
-  `projects/{project}/serviceAccounts/{email}`.
+  `projects/{project}/serviceAccounts/{email}` or `projects/{project}/serviceAccounts/{unique_id}`.
 
 * `role` - (Optional) If set, only bindings with this exact role are returned.
   For example, `roles/iam.serviceAccountUser`.

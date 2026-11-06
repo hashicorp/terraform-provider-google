@@ -148,6 +148,29 @@ func TestAccServiceAccountIamMember(t *testing.T) {
 	})
 }
 
+func TestAccServiceAccountIamMember_uniqueId(t *testing.T) {
+	t.Parallel()
+
+	account := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccServiceAccountIamMember_uniqueId(account),
+				Check:  testAccCheckGoogleServiceAccountIam(t, account, 1),
+			},
+			{
+				ResourceName:      "google_service_account_iam_member.foo",
+				ImportStateIdFunc: testAccServiceAccountIamMember_uniqueIdStateId,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccServiceAccountIamMember_withCondition(t *testing.T) {
 	t.Parallel()
 
@@ -440,6 +463,30 @@ resource "google_service_account_iam_member" "foo" {
 	depends_on = [google_service_account.test_account]
 }
 `, account, email)
+}
+
+func testAccServiceAccountIamMember_uniqueId(account string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "test_account" {
+  account_id   = "%s"
+  display_name = "Service Account Iam Testing Account"
+}
+
+resource "google_service_account_iam_member" "foo" {
+  service_account_id = "projects/${google_service_account.test_account.project}/serviceAccounts/${google_service_account.test_account.unique_id}"
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.test_account.email}"
+}
+`, account)
+}
+
+func testAccServiceAccountIamMember_uniqueIdStateId(state *terraform.State) (string, error) {
+	rs, ok := state.RootModule().Resources["google_service_account.test_account"]
+	if !ok {
+		return "", fmt.Errorf("google_service_account.test_account not found in state")
+	}
+	a := rs.Primary.Attributes
+	return fmt.Sprintf("projects/%s/serviceAccounts/%s roles/iam.serviceAccountUser serviceAccount:%s", a["project"], a["unique_id"], a["email"]), nil
 }
 
 func testAccServiceAccountIamMember_withCondition(account, conditionTitle string) string {
