@@ -76,11 +76,11 @@ The following arguments are supported:
  In addition to the arguments listed above, the following computed attributes are
 exported:
 
- * `deleted` - (Optional) The current deleted state of the role.
+* `deleted` - (Optional) The current deleted state of the role.
 
- * `id` - an identifier for the resource with the format `projects/{{project}}/roles/{{role_id}}`
+* `id` - an identifier for the resource with the format `projects/{{project}}/roles/{{role_id}}`
 
- * `name` - The name of the role in the format `projects/{{project}}/roles/{{role_id}}`. Like `id`, this field can be used as a reference in other resources such as IAM role bindings.
+* `name` - The name of the role in the format `projects/{{project}}/roles/{{role_id}}`. Like `id`, this field can be used as a reference in other resources such as IAM role bindings.
 
 ## Import
 

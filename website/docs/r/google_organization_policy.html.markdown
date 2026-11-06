@@ -128,14 +128,16 @@ effectively be unset. This is represented in the UI as the constraint being 'Inh
 
 <a name="nested_list_policy"></a>The `list_policy` block supports:
 
-* `allow` or `deny` - (Optional) One or the other must be set.
+* `allow` - (Optional) Exactly one of `allow` or `deny` must be set. Structure is [documented below](#nested_allow_or_deny).
+
+* `deny` - (Optional) Exactly one of `allow` or `deny` must be set. Structure is [documented below](#nested_allow_or_deny).
 
 * `suggested_value` - (Optional) The Google Cloud Console will try to default to a configuration that matches the value specified in this field.
 
 * `inherit_from_parent` - (Optional) If set to true, the values from the effective Policy of the parent resource
 are inherited, meaning the values set in this Policy are added to the values inherited up the hierarchy.
 
-The `allow` or `deny` blocks support:
+<a name="nested_allow_or_deny"></a>The `allow` or `deny` blocks support:
 
 * `all` - (Optional) The policy allows or denies all values.
 

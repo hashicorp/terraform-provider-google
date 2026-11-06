@@ -73,10 +73,9 @@ names can be hierarchical using slashes (e.g. "prod-variables/hostname").
 * `parent` - (Required) The name of the RuntimeConfig resource containing this
 variable.
 
-* `text` or `value` - (Required) The content to associate with the variable.
-Exactly one of `text` or `variable` must be specified. If `text` is specified,
-it must be a valid UTF-8 string and less than 4096 bytes in length. If `value`
-is specified, it must be base64 encoded and less than 4096 bytes in length.
+* `text` - (Optional) The string content to associate with the variable. Exactly one of `text` or `value` must be specified. Must be a valid UTF-8 string and less than 4096 bytes in length.
+
+* `value` - (Optional) The base64-encoded binary content to associate with the variable. Exactly one of `text` or `value` must be specified. Must be base64 encoded and less than 4096 bytes in length.
 
 - - -
 
