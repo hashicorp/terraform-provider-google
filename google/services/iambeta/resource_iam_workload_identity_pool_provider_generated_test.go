@@ -291,6 +291,7 @@ func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderO
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"actor_provider_id":                  "tf-test-actor-prvdr" + randomSuffix,
 		"workload_identity_pool_id":          "tf-test-example-pool" + randomSuffix,
 		"workload_identity_pool_provider_id": "tf-test-example-prvdr" + randomSuffix,
 		"random_suffix":                      randomSuffix,
@@ -326,6 +327,17 @@ resource "google_iam_workload_identity_pool" "pool" {
   workload_identity_pool_id = "%{workload_identity_pool_id}"
 }
 
+resource "google_iam_workload_identity_pool_provider" "actor" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "%{actor_provider_id}"
+  attribute_mapping = {
+    "google.subject" = "assertion.sub"
+  }
+  oidc {
+    issuer_uri = "https://sts.windows.net/azure-tenant-id"
+  }
+}
+
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "%{workload_identity_pool_provider_id}"
@@ -346,7 +358,11 @@ EOT
   oidc {
     allowed_audiences = ["https://example.com/gcp-oidc-federation", "example.com/gcp-oidc-federation"]
     issuer_uri        = "https://sts.windows.net/azure-tenant-id"
+    discovery_uri     = "https://sts.windows.net/azure-tenant-id/.well-known/openid-configuration"
   }
+  actor_providers = [
+    google_iam_workload_identity_pool_provider.actor.id,
+  ]
 }
 `, context)
 }

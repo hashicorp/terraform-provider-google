@@ -159,6 +159,17 @@ resource "google_iam_workload_identity_pool" "pool" {
   workload_identity_pool_id = "example-pool"
 }
 
+resource "google_iam_workload_identity_pool_provider" "actor" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "actor-prvdr"
+  attribute_mapping = {
+    "google.subject" = "assertion.sub"
+  }
+  oidc {
+    issuer_uri = "https://sts.windows.net/azure-tenant-id"
+  }
+}
+
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "example-prvdr"
@@ -179,7 +190,11 @@ EOT
   oidc {
     allowed_audiences = ["https://example.com/gcp-oidc-federation", "example.com/gcp-oidc-federation"]
     issuer_uri        = "https://sts.windows.net/azure-tenant-id"
+    discovery_uri     = "https://sts.windows.net/azure-tenant-id/.well-known/openid-configuration"
   }
+  actor_providers = [
+    google_iam_workload_identity_pool_provider.actor.id,
+  ]
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
@@ -466,6 +481,18 @@ The following arguments are supported:
   client identity if the client has a certificate that chains up to this CA.
   Structure is [documented below](#nested_x509).
 
+* `actor_providers` -
+  (Optional)
+  A list of the resource names of `WorkloadIdentityPoolProvider`s in the same pool
+  that are authorized to issue actor tokens for this provider. An actor token
+  represents the identity of the acting party to whom authority is delegated. At
+  most 3 actor providers can be specified. Actor providers are only supported for
+  OIDC providers.
+  Each entry must be formatted as
+  `projects/{project}/locations/global/workloadIdentityPools/{workload_identity_pool_id}/providers/{workload_identity_pool_provider_id}`,
+  where `{project}` matches the `project` configured on this resource (for example,
+  by referencing `google_iam_workload_identity_pool_provider.<actor>.id`).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -528,6 +555,26 @@ The following arguments are supported:
     ]
   }
   ```
+
+* `discovery_uri` -
+  (Optional)
+  The URL to fetch the OIDC discovery document from, overriding the default URL
+  derived from `issuer_uri`. If not set, `discovery_uri` defaults to `issuer_uri`
+  with `/.well-known/openid-configuration` appended, as per the OpenID Connect
+  Discovery 1.0 specification.
+  If set, `discovery_uri` must meet the following requirements:
+    * Must start with `https://`.
+    * Must not exceed 2000 characters.
+    * The scheme, host, and port must match `issuer_uri`.
+    * The path must contain `/.well-known/<suffix>` (where `<suffix>` is not
+      empty, such as `openid-configuration`) and conform to the `issuer_uri`
+      topology:
+      * The well-known path segment is inserted before the issuer path (for
+        example, `https://example.com/.well-known/openid-configuration/tenant1`
+        for issuer `https://example.com/tenant1`), or
+      * The well-known path segment is appended under the issuer path (for
+        example, `https://example.com/tenant1/.well-known/openid-configuration`
+        for issuer `https://example.com/tenant1`).
 
 <a name="nested_saml"></a>The `saml` block supports:
 
