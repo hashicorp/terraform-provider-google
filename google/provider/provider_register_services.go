@@ -92,6 +92,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dataprocmetastore"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datastream"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/deploymentmanager"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/designcenter"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/developerconnect"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dialogflow"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dialogflowcx"

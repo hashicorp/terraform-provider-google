@@ -1,0 +1,23 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_design_center_space
+generation_type: mmv1
+source_file: products/designcenter/Space.yaml
+api_service_name: designcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: Space
+fields:
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: enableGcpSharedTemplates
+    - api_field: gcsBucket
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: space_id
+      provider_only: true
+    - api_field: tags
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true

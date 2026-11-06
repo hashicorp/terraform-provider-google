@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_design_center_space`
+```
+```release-note:new-resource
+`google_design_center_space_iam_binding`
+```
+```release-note:new-resource
+`google_design_center_space_iam_member`
+```
+```release-note:new-resource
+`google_design_center_space_iam_policy`
+```

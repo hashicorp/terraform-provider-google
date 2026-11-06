@@ -386,6 +386,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Deploymentmanager",
         "path" to "./google/services/deploymentmanager"
     ),
+    "designcenter" to mapOf(
+        "name" to "designcenter",
+        "displayName" to "Designcenter",
+        "path" to "./google/services/designcenter"
+    ),
     "developerconnect" to mapOf(
         "name" to "developerconnect",
         "displayName" to "Developerconnect",
