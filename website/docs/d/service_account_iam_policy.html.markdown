@@ -34,7 +34,8 @@ data "google_service_account_iam_policy" "foo" {
 
 The following arguments are supported:
 
-* `service_account_id` - (Required) The fully-qualified name of the service account to apply policy to.
+* `service_account_id` - (Required) The fully-qualified name of the service account, in the form
+  `projects/{project}/serviceAccounts/{email}` or `projects/{project}/serviceAccounts/{unique_id}`.
 
 ## Attributes Reference
 

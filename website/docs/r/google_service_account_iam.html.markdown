@@ -148,7 +148,9 @@ resource "google_service_account_iam_member" "admin-account-iam" {
 
 The following arguments are supported:
 
-* `service_account_id` - (Required) The fully-qualified name of the service account to apply policy to.
+* `service_account_id` - (Required) The fully-qualified name of the service account to apply policy to,
+  in the form `projects/{project}/serviceAccounts/{email}` or `projects/{project}/serviceAccounts/{unique_id}`.
+  Unlike an email, a unique ID never refers to a later account recreated with the same email.
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
@@ -192,6 +194,9 @@ exported:
 
 -> **Custom Roles** If you're importing a IAM resource with a custom role, make sure to use the
 full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
+In the import IDs and resource identity below, `service_account_id` may also use the unique ID form. Use the same form as your configuration;
+changing `service_account_id` between forms replaces the resource.
 
 ### Importing IAM members
 
