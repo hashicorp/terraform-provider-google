@@ -90,6 +90,10 @@ resource "google_identity_platform_tenant_oauth_idp_config" "tenant_oauth_idp_co
   issuer        = "issuer2"
   enabled       = false
   client_secret = "supersecret"
+  response_type {
+    id_token = false
+    code = true
+  }
 }
 `, context)
 }
