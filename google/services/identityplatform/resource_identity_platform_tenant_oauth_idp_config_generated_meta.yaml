@@ -13,6 +13,8 @@ fields:
     - api_field: enabled
     - api_field: issuer
     - api_field: name
+    - api_field: responseType.code
+    - api_field: responseType.idToken
     - field: tenant
       provider_only: true
     - field: deletion_policy
