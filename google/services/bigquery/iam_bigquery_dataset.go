@@ -164,6 +164,10 @@ func (u *BigqueryDatasetIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		RawURL:    url,
 		UserAgent: userAgent,
 		Body:      obj,
+		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{
+			transport_tpg.IamServiceAccountNotFound,
+			transport_tpg.IsBigqueryIAMQuotaError,
+		},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating DatasetAccess: %s", err)
