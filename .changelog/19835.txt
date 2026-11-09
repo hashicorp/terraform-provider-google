@@ -1,0 +1,3 @@
+```release-note:enhancement
+firebaseapphosting: added `rollout_policy.ignored_paths` and `rollout_policy.required_paths` fields to `google_firebase_app_hosting_traffic` resource
+```

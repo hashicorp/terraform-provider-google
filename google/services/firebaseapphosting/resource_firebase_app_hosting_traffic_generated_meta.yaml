@@ -20,6 +20,10 @@ fields:
     - api_field: rolloutPolicy.codebaseBranch
     - api_field: rolloutPolicy.disabled
     - api_field: rolloutPolicy.disabledTime
+    - api_field: rolloutPolicy.ignoredPaths.pattern
+    - api_field: rolloutPolicy.ignoredPaths.type
+    - api_field: rolloutPolicy.requiredPaths.pattern
+    - api_field: rolloutPolicy.requiredPaths.type
     - api_field: target.splits.build
     - api_field: target.splits.percent
     - api_field: uid
