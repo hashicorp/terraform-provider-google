@@ -83,3 +83,77 @@ func TestOperationWait_TimeoutsShouldRetry(t *testing.T) {
 			expectedRunCount, testWaiter.runCount)
 	}
 }
+
+func TestCommonOperationWaiterError_WithoutDetails(t *testing.T) {
+	w := &CommonOperationWaiter{}
+	if err := w.SetOp(map[string]interface{}{
+		"name": "operations/123",
+		"done": true,
+		"error": map[string]interface{}{
+			"code":    3,
+			"message": "Invalid spec.",
+		},
+	}); err != nil {
+		t.Fatalf("SetOp: %v", err)
+	}
+
+	err := w.Error()
+	if _, ok := err.(*CommonOpError); !ok {
+		t.Fatalf("got error of type %T, want *CommonOpError", err)
+	}
+	if got, want := err.Error(), "Error code 3, message: Invalid spec."; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+func TestCommonOperationWaiterError_WithDetails(t *testing.T) {
+	w := &CommonOperationWaiter{}
+	if err := w.SetOp(map[string]interface{}{
+		"name": "operations/123",
+		"done": true,
+		"error": map[string]interface{}{
+			"code":    3,
+			"message": "The container image failed to build.",
+			"details": []interface{}{
+				map[string]interface{}{
+					"@type":  "type.googleapis.com/google.rpc.ErrorInfo",
+					"reason": "BUILD_FAILED",
+					"domain": "example.googleapis.com",
+				},
+				map[string]interface{}{
+					"@type": "type.googleapis.com/google.rpc.Help",
+					"links": []interface{}{
+						map[string]interface{}{
+							"description": "Troubleshooting",
+							"url":         "https://cloud.google.com/troubleshooting",
+						},
+					},
+				},
+			},
+		},
+	}); err != nil {
+		t.Fatalf("SetOp: %v", err)
+	}
+
+	want := `Error code 3, message: The container image failed to build.
+Details:
+[
+  {
+    "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+    "domain": "example.googleapis.com",
+    "reason": "BUILD_FAILED"
+  },
+  {
+    "@type": "type.googleapis.com/google.rpc.Help",
+    "links": [
+      {
+        "description": "Troubleshooting",
+        "url": "https://cloud.google.com/troubleshooting"
+      }
+    ]
+  }
+]`
+	if got := w.Error().Error(); got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
+	}
+}
