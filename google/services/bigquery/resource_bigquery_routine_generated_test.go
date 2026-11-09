@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -259,6 +260,94 @@ resource "google_bigquery_routine" "sproc" {
         type = jsonencode({ "typeKind" : "INT64" })
       }
     }
+  }
+}
+`, context)
+}
+
+func TestAccBigQueryRoutine_bigqueryRoutineAnyTableExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
+		"routine_id":    "tf_test_routine_id" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryRoutineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryRoutine_bigqueryRoutineAnyTableExample(context),
+			},
+			{
+				ResourceName:      "google_bigquery_routine.sproc",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBigQueryRoutine_bigqueryRoutineTableTypeExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_bigquery_routine.sproc", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_bigquery_routine.sproc",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBigQueryRoutine_bigqueryRoutineAnyTableExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_bigquery_routine.sproc", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_bigquery_routine.sproc",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryRoutine_bigqueryRoutineAnyTableExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%{dataset_id}"
+}
+
+resource "google_bigquery_routine" "sproc" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "%{routine_id}"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  description     = "Gets every row from a table."
+  definition_body = "SELECT * FROM t1"
+
+  arguments {
+    name          = "t1"
+    argument_kind = "ANY_TABLE"
   }
 }
 `, context)

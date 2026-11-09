@@ -152,6 +152,34 @@ resource "google_bigquery_routine" "sproc" {
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_routine_any_table&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Bigquery Routine Any Table
+
+
+```hcl
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "dataset_id"
+}
+
+resource "google_bigquery_routine" "sproc" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "routine_id"
+  routine_type    = "TABLE_VALUED_FUNCTION"
+  language        = "SQL"
+  description     = "Gets every row from a table."
+  definition_body = "SELECT * FROM t1"
+
+  arguments {
+    name          = "t1"
+    argument_kind = "ANY_TABLE"
+  }
+}
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_routine_pyspark&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
@@ -506,7 +534,7 @@ The following arguments are supported:
   (Optional)
   Defaults to FIXED_TYPE.
   Default value is `FIXED_TYPE`.
-  Possible values are: `FIXED_TYPE`, `ANY_TYPE`, `FIXED_TABLE`.
+  Possible values are: `FIXED_TYPE`, `ANY_TYPE`, `FIXED_TABLE`, `ANY_TABLE`.
 
 * `mode` -
   (Optional)
@@ -515,7 +543,7 @@ The following arguments are supported:
 
 * `data_type` -
   (Optional)
-  A JSON schema for the data type. Required unless argumentKind = ANY_TYPE.
+  A JSON schema for the data type. Required if argumentKind = FIXED_TYPE.
   ~>**NOTE**: Because this field expects a JSON string, any changes to the string
   will create a diff, even if the JSON itself hasn't changed. If the API returns
   a different value for the same schema, e.g. it switched the order of values

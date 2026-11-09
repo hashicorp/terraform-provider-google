@@ -151,8 +151,8 @@ If language=SQL, it is the substring inside (but excluding) the parentheses.`,
 						"argument_kind": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"FIXED_TYPE", "ANY_TYPE", "FIXED_TABLE", ""}),
-							Description:  `Defaults to FIXED_TYPE. Default value: "FIXED_TYPE" Possible values: ["FIXED_TYPE", "ANY_TYPE", "FIXED_TABLE"]`,
+							ValidateFunc: verify.ValidateEnum([]string{"FIXED_TYPE", "ANY_TYPE", "FIXED_TABLE", "ANY_TABLE", ""}),
+							Description:  `Defaults to FIXED_TYPE. Default value: "FIXED_TYPE" Possible values: ["FIXED_TYPE", "ANY_TYPE", "FIXED_TABLE", "ANY_TABLE"]`,
 							Default:      "FIXED_TYPE",
 						},
 						"data_type": {
@@ -160,7 +160,7 @@ If language=SQL, it is the substring inside (but excluding) the parentheses.`,
 							Optional:     true,
 							ValidateFunc: validation.StringIsJSON,
 							StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
-							Description: `A JSON schema for the data type. Required unless argumentKind = ANY_TYPE.
+							Description: `A JSON schema for the data type. Required if argumentKind = FIXED_TYPE.
 ~>**NOTE**: Because this field expects a JSON string, any changes to the string
 will create a diff, even if the JSON itself hasn't changed. If the API returns
 a different value for the same schema, e.g. it switched the order of values
