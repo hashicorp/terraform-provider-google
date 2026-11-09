@@ -150,6 +150,71 @@ resource "google_project_service" "fah" {
 ###
 ```
 
+## Example Usage - Firebase App Hosting Traffic Rollout Policy With Paths
+
+
+```hcl
+resource "google_firebase_app_hosting_traffic" "example" {
+  project  = google_firebase_app_hosting_backend.example.project
+  location = google_firebase_app_hosting_backend.example.location
+  backend  = google_firebase_app_hosting_backend.example.backend_id
+
+  rollout_policy {
+    codebase_branch = "main"
+    required_paths {
+      pattern = "foo/bar/*"
+      type    = "GLOB"
+    }
+    ignored_paths {
+      pattern = "foo/bar/excluded/*"
+      type    = "GLOB"
+    }
+  }
+}
+
+resource "google_firebase_app_hosting_backend" "example" {
+  project = "my-project-name"
+  # Choose the region closest to your users
+
+  location         = "us-central1"
+  backend_id       = "traffic-rpwp"
+  app_id           = "1:0000000000:web:674cde32020e16fbce9dbd"
+  serving_locality = "GLOBAL_ACCESS"
+  service_account  = google_service_account.service_account.email
+
+  depends_on = [
+    google_project_service.fah,
+    google_project_iam_member.app_hosting_sa_runner,
+  ]
+}
+
+### Include these blocks only once per project if you are starting from scratch ###
+resource "google_service_account" "service_account" {
+  project = "my-project-name"
+
+  # Must be firebase-app-hosting-compute
+  account_id   = "firebase-app-hosting-compute"
+  display_name = "Firebase App Hosting compute service account"
+
+  # Do not throw if already exists
+  create_ignore_already_exists = true
+}
+
+resource "google_project_iam_member" "app_hosting_sa_runner" {
+  project = "my-project-name"
+
+  # For App Hosting
+  role   = "roles/firebaseapphosting.computeRunner"
+  member = google_service_account.service_account.member
+}
+
+resource "google_project_service" "fah" {
+  project = "my-project-name"
+  service = "firebaseapphosting.googleapis.com"
+}
+###
+```
+
 ## Example Usage - Firebase App Hosting Traffic Rollout Policy Disabled
 
 
@@ -274,6 +339,46 @@ The following arguments are supported:
   (Optional)
   Specifies a branch that triggers a new build to be started with this
   policy. If not set, no automatic rollouts will happen.
+
+* `ignored_paths` -
+  (Optional)
+  A list of file paths patterns to exclude from triggering a rollout.
+  Patterns in this list take precedence over required_paths.
+  **Note**: All paths must be in the ignored_paths in order for the
+  rollout to be skipped. Limited to 100 paths.
+  Structure is [documented below](#nested_rollout_policy_ignored_paths).
+
+* `required_paths` -
+  (Optional)
+  A list of file paths patterns that trigger a build and rollout
+  if at least one of the changed files in the commit are present in
+  this list. This field is optional; the rollout policy will default to
+  triggering on all paths if both ignored_paths and required_paths are
+  not populated. Limited to 100 paths.
+  Structure is [documented below](#nested_rollout_policy_required_paths).
+
+
+<a name="nested_rollout_policy_ignored_paths"></a>The `ignored_paths` block supports:
+
+* `pattern` -
+  (Required)
+  The pattern to match against.
+
+* `type` -
+  (Required)
+  The type of pattern to match against.
+  Possible values are: `RE2`, `GLOB`, `PREFIX`.
+
+<a name="nested_rollout_policy_required_paths"></a>The `required_paths` block supports:
+
+* `pattern` -
+  (Required)
+  The pattern to match against.
+
+* `type` -
+  (Required)
+  The type of pattern to match against.
+  Possible values are: `RE2`, `GLOB`, `PREFIX`.
 
 ## Attributes Reference
 

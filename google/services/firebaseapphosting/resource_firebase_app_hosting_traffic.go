@@ -169,6 +169,53 @@ policy. If not set, no automatic rollouts will happen.`,
 							Description: `A flag that, if true, prevents rollouts from being created via this RolloutPolicy.`,
 							Default:     false,
 						},
+						"ignored_paths": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `A list of file paths patterns to exclude from triggering a rollout.
+Patterns in this list take precedence over required_paths.
+**Note**: All paths must be in the ignored_paths in order for the
+rollout to be skipped. Limited to 100 paths.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pattern": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The pattern to match against.`,
+									},
+									"type": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"RE2", "GLOB", "PREFIX"}),
+										Description:  `The type of pattern to match against. Possible values: ["RE2", "GLOB", "PREFIX"]`,
+									},
+								},
+							},
+						},
+						"required_paths": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `A list of file paths patterns that trigger a build and rollout
+if at least one of the changed files in the commit are present in
+this list. This field is optional; the rollout policy will default to
+triggering on all paths if both ignored_paths and required_paths are
+not populated. Limited to 100 paths.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pattern": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The pattern to match against.`,
+									},
+									"type": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"RE2", "GLOB", "PREFIX"}),
+										Description:  `The type of pattern to match against. Possible values: ["RE2", "GLOB", "PREFIX"]`,
+									},
+								},
+							},
+						},
 						"disabled_time": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -760,6 +807,10 @@ func flattenFirebaseAppHostingTrafficRolloutPolicy(v interface{}, d *schema.Reso
 		flattenFirebaseAppHostingTrafficRolloutPolicyDisabledTime(original["disabledTime"], d, config)
 	transformed["codebase_branch"] =
 		flattenFirebaseAppHostingTrafficRolloutPolicyCodebaseBranch(original["codebaseBranch"], d, config)
+	transformed["ignored_paths"] =
+		flattenFirebaseAppHostingTrafficRolloutPolicyIgnoredPaths(original["ignoredPaths"], d, config)
+	transformed["required_paths"] =
+		flattenFirebaseAppHostingTrafficRolloutPolicyRequiredPaths(original["requiredPaths"], d, config)
 	return []interface{}{transformed}
 }
 func flattenFirebaseAppHostingTrafficRolloutPolicyDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -771,6 +822,62 @@ func flattenFirebaseAppHostingTrafficRolloutPolicyDisabledTime(v interface{}, d 
 }
 
 func flattenFirebaseAppHostingTrafficRolloutPolicyCodebaseBranch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirebaseAppHostingTrafficRolloutPolicyIgnoredPaths(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"pattern": flattenFirebaseAppHostingTrafficRolloutPolicyIgnoredPathsPattern(original["pattern"], d, config),
+			"type":    flattenFirebaseAppHostingTrafficRolloutPolicyIgnoredPathsType(original["type"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenFirebaseAppHostingTrafficRolloutPolicyIgnoredPathsPattern(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirebaseAppHostingTrafficRolloutPolicyIgnoredPathsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirebaseAppHostingTrafficRolloutPolicyRequiredPaths(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"pattern": flattenFirebaseAppHostingTrafficRolloutPolicyRequiredPathsPattern(original["pattern"], d, config),
+			"type":    flattenFirebaseAppHostingTrafficRolloutPolicyRequiredPathsType(original["type"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenFirebaseAppHostingTrafficRolloutPolicyRequiredPathsPattern(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirebaseAppHostingTrafficRolloutPolicyRequiredPathsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -873,6 +980,20 @@ func expandFirebaseAppHostingTrafficRolloutPolicy(v interface{}, d tpgresource.T
 		transformed["codebaseBranch"] = transformedCodebaseBranch
 	}
 
+	transformedIgnoredPaths, err := expandFirebaseAppHostingTrafficRolloutPolicyIgnoredPaths(original["ignored_paths"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIgnoredPaths); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ignoredPaths"] = transformedIgnoredPaths
+	}
+
+	transformedRequiredPaths, err := expandFirebaseAppHostingTrafficRolloutPolicyRequiredPaths(original["required_paths"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequiredPaths); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["requiredPaths"] = transformedRequiredPaths
+	}
+
 	return transformed, nil
 }
 
@@ -885,6 +1006,86 @@ func expandFirebaseAppHostingTrafficRolloutPolicyDisabledTime(v interface{}, d t
 }
 
 func expandFirebaseAppHostingTrafficRolloutPolicyCodebaseBranch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirebaseAppHostingTrafficRolloutPolicyIgnoredPaths(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPattern, err := expandFirebaseAppHostingTrafficRolloutPolicyIgnoredPathsPattern(original["pattern"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPattern); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["pattern"] = transformedPattern
+		}
+
+		transformedType, err := expandFirebaseAppHostingTrafficRolloutPolicyIgnoredPathsType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandFirebaseAppHostingTrafficRolloutPolicyIgnoredPathsPattern(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirebaseAppHostingTrafficRolloutPolicyIgnoredPathsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirebaseAppHostingTrafficRolloutPolicyRequiredPaths(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPattern, err := expandFirebaseAppHostingTrafficRolloutPolicyRequiredPathsPattern(original["pattern"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPattern); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["pattern"] = transformedPattern
+		}
+
+		transformedType, err := expandFirebaseAppHostingTrafficRolloutPolicyRequiredPathsType(original["type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["type"] = transformedType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandFirebaseAppHostingTrafficRolloutPolicyRequiredPathsPattern(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirebaseAppHostingTrafficRolloutPolicyRequiredPathsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
