@@ -23,6 +23,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -216,7 +217,19 @@ func deleteResourceGkeonpremBareMetalCluster(config *transport_tpg.Config, d *tp
 		log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 		deletionerror = err
 	}
-	url = url + name
+	urlParts := strings.SplitN(url, "?", 2)
+	url = urlParts[0] + name
+	if len(urlParts) == 2 {
+		var queryParams []string
+		for _, param := range strings.Split(urlParts[1], "&") {
+			if !strings.HasSuffix(param, "=") {
+				queryParams = append(queryParams, param)
+			}
+		}
+		if len(queryParams) > 0 {
+			url = fmt.Sprintf("%s?%s", url, strings.Join(queryParams, "&"))
+		}
+	}
 
 	// Don't wait on operations as we may have a lot to delete
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
