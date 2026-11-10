@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudquotas: `ignore_safety_checks` in `google_cloud_quotas_quota_preference` resource now accepts a comma-separated list of values to ignore multiple quota safety checks at once
+```
