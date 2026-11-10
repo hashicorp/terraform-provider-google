@@ -82,6 +82,7 @@ var (
 		"cluster_config.0.gce_cluster_config.0.reservation_affinity",
 		"cluster_config.0.gce_cluster_config.0.node_group_affinity",
 		"cluster_config.0.gce_cluster_config.0.confidential_instance_config",
+		"cluster_config.0.gce_cluster_config.0.multi_zone_config",
 	}
 
 	schieldedInstanceConfigKeys = []string{
@@ -646,12 +647,13 @@ func ResourceDataprocCluster() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 
 									"zone": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										Computed:     true,
-										AtLeastOneOf: gceClusterConfigKeys,
-										ForceNew:     true,
-										Description:  `The GCP zone where your data is stored and used (i.e. where the master and the worker nodes will be created in). If region is set to 'global' (default) then zone is mandatory, otherwise GCP is able to make use of Auto Zone Placement to determine this automatically for you. Note: This setting additionally determines and restricts which computing resources are available for use with other configs such as cluster_config.master_config.machine_type and cluster_config.worker_config.machine_type.`,
+										Type:          schema.TypeString,
+										Optional:      true,
+										Computed:      true,
+										AtLeastOneOf:  gceClusterConfigKeys,
+										ForceNew:      true,
+										ConflictsWith: []string{"cluster_config.0.gce_cluster_config.0.multi_zone_config"},
+										Description:   `The GCP zone where your data is stored and used (i.e. where the master and the worker nodes will be created in). If region is set to 'global' (default) then zone is mandatory, otherwise GCP is able to make use of Auto Zone Placement to determine this automatically for you. Note: This setting additionally determines and restricts which computing resources are available for use with other configs such as cluster_config.master_config.machine_type and cluster_config.worker_config.machine_type.`,
 									},
 
 									"network": {
@@ -854,6 +856,25 @@ func ResourceDataprocCluster() *schema.Resource {
 													ValidateFunc: validation.StringInSlice([]string{"SEV", "SEV_SNP", "TDX"}, false),
 													ForceNew:     true,
 													Description:  `Defines the type of Confidential Compute technology to use.`,
+												},
+											},
+										},
+									},
+									"multi_zone_config": {
+										Type:          schema.TypeList,
+										Optional:      true,
+										ForceNew:      true,
+										AtLeastOneOf:  gceClusterConfigKeys,
+										MaxItems:      1,
+										ConflictsWith: []string{"cluster_config.0.gce_cluster_config.0.zone"},
+										Description:   `Configuration for multi-zonal clusters that can create instances across multiple Zones within the Region.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"target_shape": {
+													Type:        schema.TypeString,
+													Required:    true,
+													ForceNew:    true,
+													Description: `The distribution shape of the nodes in the multi-zonal cluster. Valid values are "ANY".`,
 												},
 											},
 										},
@@ -3215,6 +3236,13 @@ func expandGceClusterConfig(d *schema.ResourceData, config *transport_tpg.Config
 			conf.ConfidentialInstanceConfig.ConfidentialInstanceType = v.(string)
 		}
 	}
+	if v, ok := d.GetOk("cluster_config.0.gce_cluster_config.0.multi_zone_config"); ok {
+		cfgMzc := v.([]interface{})[0].(map[string]interface{})
+		conf.MultiZoneConfig = &dataproc.MultiZoneConfig{}
+		if v, ok := cfgMzc["target_shape"]; ok {
+			conf.MultiZoneConfig.TargetShape = v.(string)
+		}
+	}
 	return conf, nil
 }
 
@@ -4317,6 +4345,13 @@ func flattenGceClusterConfig(d *schema.ResourceData, gcc *dataproc.GceClusterCon
 			{
 				"enable_confidential_compute": enableConfidentialCompute,
 				"confidential_instance_type":  confidentialInstanceType,
+			},
+		}
+	}
+	if gcc.MultiZoneConfig != nil {
+		gceConfig["multi_zone_config"] = []map[string]interface{}{
+			{
+				"target_shape": gcc.MultiZoneConfig.TargetShape,
 			},
 		}
 	}

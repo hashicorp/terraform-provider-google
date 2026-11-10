@@ -538,6 +538,9 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
 
 * `shielded_instance_config` (Optional) Shielded Instance Config for clusters using [Compute Engine Shielded VMs](https://cloud.google.com/security/shielded-cloud/shielded-vm).
 
+* `multi_zone_config` - (Optional) Configuration for multi-zonal clusters that can create instances across multiple Zones within the Region.
+   Structure [defined below](#nested_multi_zone_config).
+
 - - -
 
 
@@ -560,6 +563,12 @@ cluster_config{
 * `enable_vtpm` - (Optional) Defines whether instances have the [vTPM](https://cloud.google.com/security/shielded-cloud/shielded-vm#vtpm) enabled.
 
 * `enable_integrity_monitoring` - (Optional) Defines whether instances have integrity monitoring enabled.
+
+- - -
+
+<a name="nested_multi_zone_config"></a>The `cluster_config.gce_cluster_config.multi_zone_config` block supports:
+
+* `target_shape` - (Required) The distribution shape of the nodes in the multi-zonal cluster. Valid values are `"ANY"`.
 
 - - -
 
