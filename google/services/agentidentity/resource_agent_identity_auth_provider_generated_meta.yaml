@@ -11,6 +11,9 @@ fields:
     - field: auth_provider_id
       provider_only: true
     - api_field: authProviderTypeParams.apiKey.apiKey
+    - api_field: authProviderTypeParams.connectorReferenceAuthProvider.authorizationDetails
+      json: true
+    - api_field: authProviderTypeParams.connectorReferenceAuthProvider.connector
     - api_field: authProviderTypeParams.geAuthProvider
     - api_field: authProviderTypeParams.threeLeggedOauth.authorizationUrl
     - api_field: authProviderTypeParams.threeLeggedOauth.clientId
@@ -30,6 +33,15 @@ fields:
     - field: auth_provider_type_params.two_legged_oauth.client_secret_wo_version
       provider_only: true
     - api_field: authProviderTypeParams.twoLeggedOauth.tokenUrl
+    - api_field: authProviderTypeParams.xaaAuthProvider.additionalParameters
+    - api_field: authProviderTypeParams.xaaAuthProvider.clientAssertionJwtAuth.clientId
+    - api_field: authProviderTypeParams.xaaAuthProvider.clientSecretAuth.clientId
+    - api_field: authProviderTypeParams.xaaAuthProvider.clientSecretAuth.clientSecret
+    - api_field: authProviderTypeParams.xaaAuthProvider.customIssuer.issuer
+    - api_field: authProviderTypeParams.xaaAuthProvider.customIssuer.tokenUrl
+    - api_field: authProviderTypeParams.xaaAuthProvider.idTokenInput.idJagAdditionalClaims
+      json: true
+    - api_field: authProviderTypeParams.xaaAuthProvider.idTokenInput.idJagAuthProvider
     - api_field: blockedScopes
     - api_field: createTime
     - api_field: deleted

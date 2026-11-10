@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -76,7 +77,7 @@ func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderBasicExample(t *t
 				ResourceName:            "google_agent_identity_auth_provider.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "labels", "location", "terraform_labels", "workload_ids"},
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
 			},
 			{
 				ResourceName:       "google_agent_identity_auth_provider.default",
@@ -100,6 +101,352 @@ resource "google_agent_identity_auth_provider" "default" {
       }
     }
   }
+`, context)
+}
+
+func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderConnectorReferenceExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"auth_provider_id": "tf-test-connref-provider" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"auth_provider_id": "tf-test-connref-provider" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAgentIdentityAuthProvider_agentIdentityAuthProviderConnectorReferenceExample(context),
+			},
+			{
+				ResourceName:            "google_agent_identity_auth_provider.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+			},
+			{
+				ResourceName:       "google_agent_identity_auth_provider.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccAgentIdentityAuthProvider_agentIdentityAuthProviderConnectorReferenceUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_agent_identity_auth_provider.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_agent_identity_auth_provider.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+			},
+			{
+				ResourceName:       "google_agent_identity_auth_provider.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccAgentIdentityAuthProvider_agentIdentityAuthProviderConnectorReferenceExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "%{auth_provider_id}"
+  description      = "Connector reference auth provider"
+
+  auth_provider_type_params {
+    connector_reference_auth_provider {
+      connector = "salesforce-connector-prod"
+      authorization_details = jsonencode([
+        {
+          type     = "oauth_authorization"
+          resource = "https://example.com/api"
+        }
+      ])
+    }
+  }
+}
+`, context)
+}
+
+func testAccAgentIdentityAuthProvider_agentIdentityAuthProviderConnectorReferenceUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "%{auth_provider_id}"
+  description      = "Updated connector reference auth provider"
+
+  auth_provider_type_params {
+    connector_reference_auth_provider {
+      connector = "jira-connector-prod"
+      authorization_details = jsonencode([
+        {
+          type     = "oauth_authorization"
+          resource = "https://example.com/api/v2"
+          actions  = ["read", "write"]
+        }
+      ])
+    }
+  }
+}
+`, context)
+}
+
+func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":          envvar.GetTestProjectFromEnv(),
+		"auth_provider_id": "tf-test-xaa-provider" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"project":          envvar.GetTestProjectFromEnv(),
+		"auth_provider_id": "tf-test-xaa-provider" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaExample(context),
+			},
+			{
+				ResourceName:            "google_agent_identity_auth_provider.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+			},
+			{
+				ResourceName:       "google_agent_identity_auth_provider.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_agent_identity_auth_provider.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_agent_identity_auth_provider.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+			},
+			{
+				ResourceName:       "google_agent_identity_auth_provider.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "%{auth_provider_id}"
+  description      = "Cross-App Access auth provider"
+
+  auth_provider_type_params {
+    xaa_auth_provider {
+      additional_parameters = {
+        prompt = "consent"
+      }
+      client_secret_auth {
+        client_id     = "test-client-id"
+        client_secret = "test-client-secret"
+      }
+      custom_issuer {
+        token_url = "https://auth.example.com/token"
+        issuer    = "https://auth.example.com"
+      }
+      id_token_input {
+        id_jag_auth_provider = "projects/%{project}/locations/us-central1/authProviders/idp-provider"
+        id_jag_additional_claims = jsonencode({
+          env = "test"
+        })
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "%{auth_provider_id}"
+  description      = "Updated Cross-App Access auth provider"
+
+  auth_provider_type_params {
+    xaa_auth_provider {
+      additional_parameters = {
+        prompt     = "consent"
+        login_hint = "user@example.com"
+      }
+      client_secret_auth {
+        client_id     = "test-client-id-updated"
+        client_secret = "test-client-secret-updated"
+      }
+      custom_issuer {
+        token_url = "https://auth.example.com/token/v2"
+        issuer    = "https://auth.example.com/v2"
+      }
+      id_token_input {
+        id_jag_auth_provider = "projects/%{project}/locations/us-central1/authProviders/idp-provider-v2"
+        id_jag_additional_claims = jsonencode({
+          env  = "prod"
+          role = "admin"
+        })
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaJwtExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":          envvar.GetTestProjectFromEnv(),
+		"auth_provider_id": "tf-test-xaa-jwt-provider" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"project":          envvar.GetTestProjectFromEnv(),
+		"auth_provider_id": "tf-test-xaa-jwt-provider" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAgentIdentityAuthProviderDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaJwtExample(context),
+			},
+			{
+				ResourceName:            "google_agent_identity_auth_provider.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+			},
+			{
+				ResourceName:       "google_agent_identity_auth_provider.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaJwtUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_agent_identity_auth_provider.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_agent_identity_auth_provider.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+			},
+			{
+				ResourceName:       "google_agent_identity_auth_provider.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaJwtExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "%{auth_provider_id}"
+  description      = "Cross-App Access with Client Assertion JWT"
+
+  auth_provider_type_params {
+    xaa_auth_provider {
+      client_assertion_jwt_auth {
+        client_id = "test-jwt-client-id"
+      }
+      custom_issuer {
+        token_url = "https://auth.example.com/token"
+      }
+      id_token_input {
+        id_jag_auth_provider = "projects/%{project}/locations/us-central1/authProviders/idp-provider"
+        id_jag_additional_claims = jsonencode({
+          env = "test"
+        })
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaJwtUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "%{auth_provider_id}"
+  description      = "Updated Cross-App Access with Client Assertion JWT"
+
+  auth_provider_type_params {
+    xaa_auth_provider {
+      client_assertion_jwt_auth {
+        client_id = "test-jwt-client-id-updated"
+      }
+      custom_issuer {
+        token_url = "https://auth.example.com/token/v2"
+      }
+      id_token_input {
+        id_jag_auth_provider = "projects/%{project}/locations/us-central1/authProviders/idp-provider-v2"
+        id_jag_additional_claims = jsonencode({
+          env = "prod"
+        })
+      }
+    }
+  }
+}
 `, context)
 }
 

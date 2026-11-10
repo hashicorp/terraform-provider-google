@@ -26,7 +26,7 @@ An AuthProvider resource in Agent Identity to manage cloud authentication delega
 
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `auth_provider_type_params.api_key.api_key`, `auth_provider_type_params.three_legged_oauth.client_secret`, `auth_provider_type_params.two_legged_oauth.client_secret`.
+values will be stored in the raw state as plain text: `auth_provider_type_params.api_key.api_key`, `auth_provider_type_params.three_legged_oauth.client_secret`, `auth_provider_type_params.two_legged_oauth.client_secret`, `auth_provider_type_params.xaa_auth_provider.client_secret_auth.client_secret`.
 [Read more about sensitive data in state](https://developer.hashicorp.com/terraform/language/manage-sensitive-data).
 
 ~> **Note:**  All arguments marked as write-only values will not be stored in the state: `auth_provider_type_params.three_legged_oauth.client_secret_wo`, `auth_provider_type_params.two_legged_oauth.client_secret_wo`.
@@ -52,6 +52,95 @@ resource "google_agent_identity_auth_provider" "default" {
       }
     }
   }
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=agent_identity_auth_provider_connector_reference&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Agent Identity Auth Provider Connector Reference
+
+
+```hcl
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "connref-provider"
+  description      = "Connector reference auth provider"
+
+  auth_provider_type_params {
+    connector_reference_auth_provider {
+      connector = "salesforce-connector-prod"
+      authorization_details = jsonencode([
+        {
+          type     = "oauth_authorization"
+          resource = "https://example.com/api"
+        }
+      ])
+    }
+  }
+}
+```
+
+## Example Usage - Agent Identity Auth Provider Xaa
+
+
+```hcl
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "xaa-provider"
+  description      = "Cross-App Access auth provider"
+
+  auth_provider_type_params {
+    xaa_auth_provider {
+      additional_parameters = {
+        prompt = "consent"
+      }
+      client_secret_auth {
+        client_id     = "test-client-id"
+        client_secret = "test-client-secret"
+      }
+      custom_issuer {
+        token_url = "https://auth.example.com/token"
+        issuer    = "https://auth.example.com"
+      }
+      id_token_input {
+        id_jag_auth_provider = "projects/my-project-name/locations/us-central1/authProviders/idp-provider"
+        id_jag_additional_claims = jsonencode({
+          env = "test"
+        })
+      }
+    }
+  }
+}
+```
+
+## Example Usage - Agent Identity Auth Provider Xaa Jwt
+
+
+```hcl
+resource "google_agent_identity_auth_provider" "default" {
+  location         = "us-central1"
+  auth_provider_id = "xaa-jwt-provider"
+  description      = "Cross-App Access with Client Assertion JWT"
+
+  auth_provider_type_params {
+    xaa_auth_provider {
+      client_assertion_jwt_auth {
+        client_id = "test-jwt-client-id"
+      }
+      custom_issuer {
+        token_url = "https://auth.example.com/token"
+      }
+      id_token_input {
+        id_jag_auth_provider = "projects/my-project-name/locations/us-central1/authProviders/idp-provider"
+        id_jag_additional_claims = jsonencode({
+          env = "test"
+        })
+      }
+    }
+  }
+}
 ```
 
 ## Argument Reference
@@ -130,6 +219,11 @@ The following arguments are supported:
   Message describing ApiKeyParams object.
   Structure is [documented below](#nested_auth_provider_type_params_api_key).
 
+* `connector_reference_auth_provider` -
+  (Optional)
+  Parameters for Connector Reference authentication.
+  Structure is [documented below](#nested_auth_provider_type_params_connector_reference_auth_provider).
+
 * `ge_auth_provider` -
   (Output)
   Message describing GeminiEnterpriseAuthProviderParams object.
@@ -145,6 +239,11 @@ The following arguments are supported:
   Message describing TwoLeggedOAuth object.
   Structure is [documented below](#nested_auth_provider_type_params_two_legged_oauth).
 
+* `xaa_auth_provider` -
+  (Optional)
+  Parameters for Cross-App Access authentication.
+  Structure is [documented below](#nested_auth_provider_type_params_xaa_auth_provider).
+
 
 <a name="nested_auth_provider_type_params_api_key"></a>The `api_key` block supports:
 
@@ -152,6 +251,22 @@ The following arguments are supported:
   (Optional)
   Input only. The API key for this auth_provider.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_auth_provider_type_params_connector_reference_auth_provider"></a>The `connector_reference_auth_provider` block supports:
+
+* `authorization_details` -
+  (Optional)
+  Optional. Rich Authorization Requests (RFC 9396) detailing targeted OAuth
+  resources/scopes, formatted as a JSON array of JSON objects.
+
+* `connector` -
+  (Required)
+  Required. The name of the referenced connector. For Gemini Enterprise, this
+  is either a Data Connector name
+  (`projects/{{project}}/locations/{{location}}/collections/{{collection}}/dataConnector`),
+  an Authorization name
+  (`projects/{{project}}/locations/{{location}}/authorizations/{{authorization}}`),
+  or a connector ID (e.g. `salesforce-connector-prod`).
 
 <a name="nested_auth_provider_type_params_three_legged_oauth"></a>The `three_legged_oauth` block supports:
 
@@ -226,6 +341,70 @@ The following arguments are supported:
 * `client_secret_wo_version` -
   (Optional)
   Triggers update of `client_secret_wo` write-only. Increment this value when an update to `client_secret_wo` is needed. For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments)
+
+<a name="nested_auth_provider_type_params_xaa_auth_provider"></a>The `xaa_auth_provider` block supports:
+
+* `additional_parameters` -
+  (Optional)
+  Optional. Additional parameters to be passed to the token endpoint.
+
+* `client_assertion_jwt_auth` -
+  (Optional)
+  Option 2: Authenticate using a standard `client_id` and a Client Assertion JWT.
+  Structure is [documented below](#nested_auth_provider_type_params_xaa_auth_provider_client_assertion_jwt_auth).
+
+* `client_secret_auth` -
+  (Optional)
+  Option 1: Authenticate using a standard `client_id` and `client_secret`.
+  Structure is [documented below](#nested_auth_provider_type_params_xaa_auth_provider_client_secret_auth).
+
+* `custom_issuer` -
+  (Optional)
+  Configuration for a custom or third-party authorization server issuer.
+  Structure is [documented below](#nested_auth_provider_type_params_xaa_auth_provider_custom_issuer).
+
+* `id_token_input` -
+  (Optional)
+  Configuration for when the input is an ID token.
+  Structure is [documented below](#nested_auth_provider_type_params_xaa_auth_provider_id_token_input).
+
+
+<a name="nested_auth_provider_type_params_xaa_auth_provider_client_assertion_jwt_auth"></a>The `client_assertion_jwt_auth` block supports:
+
+* `client_id` -
+  (Required)
+  Required. The client identifier.
+
+<a name="nested_auth_provider_type_params_xaa_auth_provider_client_secret_auth"></a>The `client_secret_auth` block supports:
+
+* `client_id` -
+  (Required)
+  Required. The client identifier.
+
+* `client_secret` -
+  (Required)
+  Required. Input only. The client secret.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_auth_provider_type_params_xaa_auth_provider_custom_issuer"></a>The `custom_issuer` block supports:
+
+* `issuer` -
+  (Optional)
+  Optional. The issuer identifier of the target Authorization Server.
+
+* `token_url` -
+  (Required)
+  Required. The token endpoint of the target OAuth authorization server to retrieve resource tokens.
+
+<a name="nested_auth_provider_type_params_xaa_auth_provider_id_token_input"></a>The `id_token_input` block supports:
+
+* `id_jag_additional_claims` -
+  (Optional)
+  Optional additional claims to include when fetching an ID-JAG, represented as a JSON-encoded string.
+
+* `id_jag_auth_provider` -
+  (Optional)
+  The resource name of the ID-JAG auth provider. Format: `projects/{{project}}/locations/{{location}}/authProviders/{{auth_provider}}`
 
 ## Attributes Reference
 
