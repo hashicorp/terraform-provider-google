@@ -62,6 +62,36 @@ func QuotaPreferredValueDiffSuppress(k, old, new string, d *schema.ResourceData)
 	return (oldEmpty && n == "0") || (o == "0" && newEmpty)
 }
 
+// ignore_safety_checks is a comma-separated list sent as the repeated
+// ignoreSafetyChecks query parameter.
+func splitQuotaPreferenceIgnoreSafetyChecks(v string) []string {
+	var checks []string
+	for _, check := range strings.Split(v, ",") {
+		checks = append(checks, strings.TrimSpace(check))
+	}
+	return checks
+}
+
+func validateQuotaPreferenceIgnoreSafetyChecks(v interface{}, k string) (ws []string, errs []error) {
+	value := v.(string)
+	if value == "" {
+		return
+	}
+	checks := splitQuotaPreferenceIgnoreSafetyChecks(value)
+	for _, check := range checks {
+		switch check {
+		case "QUOTA_DECREASE_BELOW_USAGE", "QUOTA_DECREASE_PERCENTAGE_TOO_HIGH":
+		case "QUOTA_SAFETY_CHECK_UNSPECIFIED":
+			if len(checks) > 1 {
+				errs = append(errs, fmt.Errorf("%q: QUOTA_SAFETY_CHECK_UNSPECIFIED cannot be combined with other values", k))
+			}
+		default:
+			errs = append(errs, fmt.Errorf("%q contains an invalid value %q, expected a comma-separated list of QUOTA_SAFETY_CHECK_UNSPECIFIED, QUOTA_DECREASE_BELOW_USAGE, QUOTA_DECREASE_PERCENTAGE_TOO_HIGH", k, check))
+		}
+	}
+	return
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -204,9 +234,13 @@ Example: '{"provider": "Foo Inc"}' where "provider" is a service specific dimens
 			"ignore_safety_checks": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"QUOTA_SAFETY_CHECK_UNSPECIFIED", "QUOTA_DECREASE_BELOW_USAGE", "QUOTA_DECREASE_PERCENTAGE_TOO_HIGH", ""}),
-				Description:  `The list of quota safety checks to be ignored. Default value: "QUOTA_SAFETY_CHECK_UNSPECIFIED" Possible values: ["QUOTA_SAFETY_CHECK_UNSPECIFIED", "QUOTA_DECREASE_BELOW_USAGE", "QUOTA_DECREASE_PERCENTAGE_TOO_HIGH"]`,
-				Default:      "QUOTA_SAFETY_CHECK_UNSPECIFIED",
+				ValidateFunc: validateQuotaPreferenceIgnoreSafetyChecks,
+				Description: `A comma-separated list of quota safety checks to be ignored, for example
+'QUOTA_DECREASE_BELOW_USAGE,QUOTA_DECREASE_PERCENTAGE_TOO_HIGH'. Possible
+values are 'QUOTA_SAFETY_CHECK_UNSPECIFIED', 'QUOTA_DECREASE_BELOW_USAGE' and
+'QUOTA_DECREASE_PERCENTAGE_TOO_HIGH'. 'QUOTA_SAFETY_CHECK_UNSPECIFIED' cannot
+be combined with other values.`,
+				Default: "QUOTA_SAFETY_CHECK_UNSPECIFIED",
 			},
 			"justification": {
 				Type:        schema.TypeString,
@@ -318,7 +352,7 @@ func resourceCloudQuotasQuotaPreferenceCreate(d *schema.ResourceData, meta inter
 		obj["contactEmail"] = contactEmailProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/global/quotaPreferences?quotaPreferenceId={{name}}&ignoreSafetyChecks={{ignore_safety_checks}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/global/quotaPreferences?quotaPreferenceId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -332,6 +366,16 @@ func resourceCloudQuotasQuotaPreferenceCreate(d *schema.ResourceData, meta inter
 	}
 
 	headers := make(http.Header)
+	if v, ok := d.GetOk("ignore_safety_checks"); ok && !strings.Contains(v.(string), "QUOTA_SAFETY_CHECK_UNSPECIFIED") {
+		var checks []interface{}
+		for _, check := range splitQuotaPreferenceIgnoreSafetyChecks(v.(string)) {
+			checks = append(checks, check)
+		}
+		url, err = transport_tpg.AddArrayQueryParams(url, "ignoreSafetyChecks", checks)
+		if err != nil {
+			return err
+		}
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -509,7 +553,7 @@ func resourceCloudQuotasQuotaPreferenceUpdate(d *schema.ResourceData, meta inter
 		obj["contactEmail"] = contactEmailProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/global/quotaPreferences/{{name}}?ignoreSafetyChecks={{ignore_safety_checks}}")
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"{{parent}}/locations/global/quotaPreferences/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -550,6 +594,17 @@ func resourceCloudQuotasQuotaPreferenceUpdate(d *schema.ResourceData, meta inter
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
+	}
+
+	if v, ok := d.GetOk("ignore_safety_checks"); ok && !strings.Contains(v.(string), "QUOTA_SAFETY_CHECK_UNSPECIFIED") {
+		var checks []interface{}
+		for _, check := range splitQuotaPreferenceIgnoreSafetyChecks(v.(string)) {
+			checks = append(checks, check)
+		}
+		url, err = transport_tpg.AddArrayQueryParams(url, "ignoreSafetyChecks", checks)
+		if err != nil {
+			return err
+		}
 	}
 
 	// err == nil indicates that the billing_project value was found
