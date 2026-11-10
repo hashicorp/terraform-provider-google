@@ -4342,3 +4342,52 @@ resource "google_dataproc_cluster" "flexible_cluster_defaults" {
 }
 `, rnd)
 }
+
+func TestAccDataprocCluster_withMultiZoneConfig(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withMultiZoneConfig(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.multi_zone", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.multi_zone", "cluster_config.0.gce_cluster_config.0.multi_zone_config.#", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.multi_zone", "cluster_config.0.gce_cluster_config.0.multi_zone_config.0.target_shape", "ANY"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataprocCluster_withMultiZoneConfig(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "multi_zone" {
+  name                          = "tf-test-dproc-%s"
+  region                        = "us-central1"
+  graceful_decommission_timeout = "0.2s"
+
+  cluster_config {
+    gce_cluster_config {
+      multi_zone_config {
+        target_shape = "ANY"
+      }
+    }
+
+    master_flexible_config {
+      core_count = 2
+    }
+
+    worker_flexible_config {
+      num_instances = 2
+      core_count    = 4
+    }
+  }
+}
+`, rnd)
+}

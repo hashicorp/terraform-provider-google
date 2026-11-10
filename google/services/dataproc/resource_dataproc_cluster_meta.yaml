@@ -32,6 +32,7 @@ fields:
   - field: 'cluster_config.gce_cluster_config.confidential_instance_config.enable_confidential_compute'
   - field: 'cluster_config.gce_cluster_config.internal_ip_only'
   - field: 'cluster_config.gce_cluster_config.metadata'
+  - field: 'cluster_config.gce_cluster_config.multi_zone_config.target_shape'
   - field: 'cluster_config.gce_cluster_config.network'
   - field: 'cluster_config.gce_cluster_config.node_group_affinity.node_group_uri'
   - field: 'cluster_config.gce_cluster_config.reservation_affinity.consume_reservation_type'
