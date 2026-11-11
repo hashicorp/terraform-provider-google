@@ -1,0 +1,11 @@
+```release-note:new-resource
+`google_cloud_identity_policy` (ga)
+```
+
+```release-note:bug
+cloudidentity: fixed a perpetual diff in `setting.value_json` on `google_cloud_identity_policy` caused by server-generated fields (`createTime`, `updateTime`, `ruleTypeMetadata`)
+```
+
+```release-note:bug
+cloudidentity: fixed `terraform import` and resource identity import on `google_cloud_identity_policy`
+```

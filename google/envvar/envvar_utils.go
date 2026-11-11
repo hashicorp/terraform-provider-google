@@ -119,6 +119,13 @@ var IdentityUserEnvVars = []string{
 	"GOOGLE_IDENTITY_USER",
 }
 
+// This value is the obfuscated ID of an organizational unit within the GOOGLE_ORG_DOMAIN
+// workspace, without the "orgUnits/" prefix (for example "03abcxyz"). It can be obtained from
+// the orgUnitId returned by the Admin SDK Directory API, with the "id:" prefix removed.
+var OrgUnitIdEnvVars = []string{
+	"GOOGLE_ORG_UNIT_ID",
+}
+
 var OrgEnvDomainVars = []string{
 	"GOOGLE_ORG_DOMAIN",
 }
@@ -230,6 +237,11 @@ func GetTestCustIdFromEnv(t *testing.T) string {
 func GetTestIdentityUserFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, IdentityUserEnvVars...)
 	return MultiEnvSearch(IdentityUserEnvVars)
+}
+
+func GetTestOrgUnitIdFromEnv(t *testing.T) string {
+	SkipIfEnvNotSet(t, OrgUnitIdEnvVars...)
+	return MultiEnvSearch(OrgUnitIdEnvVars)
 }
 
 // Returns the raw organization id like 1234567890, skipping the test if one is
