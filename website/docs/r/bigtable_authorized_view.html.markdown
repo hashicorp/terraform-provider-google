@@ -111,7 +111,7 @@ The following arguments are supported:
 * `deletion_protection` - (Optional) A field to make the table protected against data loss i.e. when set to PROTECTED, deleting the table, the column families in the table, and the instance containing the table would be prohibited.
 If not provided, currently deletion protection will be set to UNPROTECTED as it is the API default value. Note this field configs the deletion protection provided by the API in the backend, and should not be confused with Terraform-side deletion protection.
 
-* `subset_view` - (Optional) An AuthorizedView permitting access to an explicit subset of a Table. Structure is documented below.
+* `subset_view` - (Optional) An AuthorizedView permitting access to an explicit subset of a Table. Structure is [documented below](#nested_subset_view).
   
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
     When a 'terraform destroy' or 'terraform apply' would delete the resource,
@@ -122,15 +122,15 @@ If not provided, currently deletion protection will be set to UNPROTECTED as it 
 
 -----
 
-`subset_view` supports the following arguments:
+<a name="nested_subset_view"></a>The `subset_view` block supports the following arguments:
 
 * `row_prefixes` - (Optional) A list of Base64-encoded row prefixes to be included in the authorized view. To provide access to all rows, include the empty string as a prefix ("").
 
-* `family_subsets` - (Optional) A group of column family subsets to be included in the authorized view. This can be specified multiple times. Structure is documented below.
+* `family_subsets` - (Optional) A group of column family subsets to be included in the authorized view. This can be specified multiple times. Structure is [documented below](#nested_family_subsets).
 
 -----
 
-`family_subsets` supports the following arguments:
+<a name="nested_family_subsets"></a>The `family_subsets` block supports the following arguments:
 
 * `family_name` - (Required) Name of the column family to be included in the authorized view. The specified column family must exist in the parent table of this authorized view.
 

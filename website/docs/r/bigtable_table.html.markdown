@@ -105,7 +105,7 @@ The following arguments are supported:
 !> **Warning:** Modifying the `split_keys` of an existing table will cause Terraform
 to delete/recreate the entire `google_bigtable_table` resource.
 
-* `column_family` - (Optional) A group of columns within a table which share a common configuration. This can be specified multiple times. Structure is documented below.
+* `column_family` - (Optional) A group of columns within a table which share a common configuration. This can be specified multiple times. Structure is [documented below](#nested_column_family).
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
@@ -114,7 +114,7 @@ to delete/recreate the entire `google_bigtable_table` resource.
 
 * `change_stream_retention` - (Optional) Duration to retain change stream data for the table. Set to 0 to disable. Must be between 1 and 7 days.
 
-* `automated_backup_policy` - (Optional) Defines an automated backup policy for a table, specified by `retention_period` and `frequency`. To create a table with automated backup disabled, either omit the `automated_backup_policy` argument or set both `retention_period` and `frequency` to "0". To disable automated backup on an existing table that has automated backup enabled, set both `retention_period` and `frequency` to "0". When updating an existing table, change the `retention_period` or `frequency` by setting the respective property to a non-zero value. The policy also accepts an optional `locations` list to specify backup storage locations; if `locations` is omitted, the policy defaults to all clusters in the instance. If the `automated_backup_policy` argument is not provided on update, the resource's automated backup policy will not be modified.
+* `automated_backup_policy` - (Optional) Defines an automated backup policy for a table, specified by `retention_period` and `frequency`. To create a table with automated backup disabled, either omit the `automated_backup_policy` argument or set both `retention_period` and `frequency` to "0". To disable automated backup on an existing table that has automated backup enabled, set both `retention_period` and `frequency` to "0". When updating an existing table, change the `retention_period` or `frequency` by setting the respective property to a non-zero value. The policy also accepts an optional `locations` list to specify backup storage locations; if `locations` is omitted, the policy defaults to all clusters in the instance. If the `automated_backup_policy` argument is not provided on update, the resource's automated backup policy will not be modified. Structure is [documented below](#nested_automated_backup_policy).
   
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
     When a 'terraform destroy' or 'terraform apply' would delete the resource,
@@ -125,10 +125,20 @@ to delete/recreate the entire `google_bigtable_table` resource.
 
 -----
 
-`column_family` supports the following arguments:
+<a name="nested_column_family"></a>The `column_family` block supports the following arguments:
 
 * `family` - (Optional) The name of the column family.
 * `type`   - (Optional) The type of the column family.
+
+-----
+
+<a name="nested_automated_backup_policy"></a>The `automated_backup_policy` block supports the following arguments:
+
+* `retention_period` - (Optional) How long the automated backups should be retained.
+
+* `frequency` - (Optional) How frequently automated backups should occur.
+
+* `locations` - (Optional) A list of Cloud Bigtable zones where automated backups are allowed to be created. If empty, automated backups will be created in all zones of the instance. Locations are in the format projects/{project}/locations/{zone}. This field can only be set for tables in Enterprise Plus instances.
 
 ## Attributes Reference
 

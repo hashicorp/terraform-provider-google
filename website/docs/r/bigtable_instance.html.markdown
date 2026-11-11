@@ -153,12 +153,7 @@ Bigtable instances are noted on the [Cloud Bigtable locations page](https://clou
 * `num_nodes` - (Optional) The number of nodes in the cluster.
 If no value is set, Cloud Bigtable automatically allocates nodes based on your data footprint and optimized for 50% storage utilization.
 
-* `autoscaling_config` - (Optional) [Autoscaling](https://cloud.google.com/bigtable/docs/autoscaling#parameters) config for the cluster, contains the following arguments:
-
-  * `min_nodes` - (Required) The minimum number of nodes for autoscaling.
-  * `max_nodes` - (Required) The maximum number of nodes for autoscaling.
-  * `cpu_target` - (Required) The target CPU utilization for autoscaling, in percentage. Must be between 10 and 80.
-  * `storage_target` - The target storage utilization for autoscaling, in GB, for each node in a cluster. This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD cluster and between 8192 (8TiB) and 16384 (16 TiB) for an HDD cluster. If not set, whatever is already set for the cluster will not change, or if the cluster is just being created, it will use the default value of 2560 for SSD clusters and 8192 for HDD clusters.
+* `autoscaling_config` - (Optional) [Autoscaling](https://cloud.google.com/bigtable/docs/autoscaling#parameters) config for the cluster. Structure is [documented below](#nested_autoscaling_config).
 
 !> **Warning**: Only one of `autoscaling_config` or `num_nodes` should be set for a cluster. If both are set, `num_nodes` is ignored. If none is set, autoscaling will be disabled and sized to the current node count.
 
@@ -175,6 +170,18 @@ If no value is set, Cloud Bigtable automatically allocates nodes based on your d
 `cluster_id`) will cause Terraform to delete/recreate the entire
 `google_bigtable_instance` resource. If these values are changing, use a new
 `cluster_id`.
+
+-----
+
+<a name="nested_autoscaling_config"></a>The `autoscaling_config` block supports the following arguments:
+
+* `min_nodes` - (Required) The minimum number of nodes for autoscaling.
+
+* `max_nodes` - (Required) The maximum number of nodes for autoscaling.
+
+* `cpu_target` - (Required) The target CPU utilization for autoscaling, in percentage. Must be between 10 and 80.
+
+* `storage_target` - The target storage utilization for autoscaling, in GB, for each node in a cluster. This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD cluster and between 8192 (8TiB) and 16384 (16 TiB) for an HDD cluster. If not set, whatever is already set for the cluster will not change, or if the cluster is just being created, it will use the default value of 2560 for SSD clusters and 8192 for HDD clusters.
 
 ## Attributes Reference
 
