@@ -5381,7 +5381,6 @@ func flattenCESAppVersionSnapshotAppVariableDeclarationsSchemaDefs(v interface{}
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -5397,7 +5396,6 @@ func flattenCESAppVersionSnapshotAppVariableDeclarationsSchemaAdditionalProperti
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -5409,7 +5407,6 @@ func flattenCESAppVersionSnapshotAppVariableDeclarationsSchemaAnyOf(v interface{
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -5421,7 +5418,6 @@ func flattenCESAppVersionSnapshotAppVariableDeclarationsSchemaPrefixItems(v inte
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -5433,7 +5429,6 @@ func flattenCESAppVersionSnapshotAppVariableDeclarationsSchemaProperties(v inter
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -5445,7 +5440,6 @@ func flattenCESAppVersionSnapshotAppVariableDeclarationsSchemaItems(v interface{
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -5740,7 +5734,6 @@ func flattenCESAppVersionSnapshotExamplesMessagesChunksToolCallArgs(v interface{
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -5816,7 +5809,6 @@ func flattenCESAppVersionSnapshotExamplesMessagesChunksToolResponseResponse(v in
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -5855,7 +5847,6 @@ func flattenCESAppVersionSnapshotExamplesMessagesChunksUpdatedVariables(v interf
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6583,7 +6574,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionParametersDefs(v interface{}
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6599,7 +6589,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionParametersAdditionalProperti
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6611,7 +6600,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionParametersAnyOf(v interface{
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6623,7 +6611,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionParametersPrefixItems(v inte
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6635,7 +6622,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionParametersProperties(v inter
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6647,7 +6633,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionParametersItems(v interface{
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6726,7 +6711,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionResponseDefs(v interface{}, 
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6742,7 +6726,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionResponseAdditionalProperties
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6754,7 +6737,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionResponseAnyOf(v interface{},
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6766,7 +6748,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionResponsePrefixItems(v interf
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6778,7 +6759,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionResponseProperties(v interfa
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -6790,7 +6770,6 @@ func flattenCESAppVersionSnapshotToolsClientFunctionResponseItems(v interface{},
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)

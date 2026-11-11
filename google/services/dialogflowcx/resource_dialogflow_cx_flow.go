@@ -2013,7 +2013,6 @@ func flattenDialogflowCXFlowTransitionRoutesTriggerFulfillmentMessagesPayload(v 
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2038,7 +2037,6 @@ func flattenDialogflowCXFlowTransitionRoutesTriggerFulfillmentMessagesConversati
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2092,7 +2090,6 @@ func flattenDialogflowCXFlowTransitionRoutesTriggerFulfillmentMessagesLiveAgentH
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2180,7 +2177,6 @@ func flattenDialogflowCXFlowTransitionRoutesTriggerFulfillmentSetParameterAction
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2211,7 +2207,6 @@ func flattenDialogflowCXFlowTransitionRoutesTriggerFulfillmentConditionalCasesCa
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2340,7 +2335,6 @@ func flattenDialogflowCXFlowEventHandlersTriggerFulfillmentMessagesPayload(v int
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2365,7 +2359,6 @@ func flattenDialogflowCXFlowEventHandlersTriggerFulfillmentMessagesConversationS
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2419,7 +2412,6 @@ func flattenDialogflowCXFlowEventHandlersTriggerFulfillmentMessagesLiveAgentHand
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2507,7 +2499,6 @@ func flattenDialogflowCXFlowEventHandlersTriggerFulfillmentSetParameterActionsVa
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2538,7 +2529,6 @@ func flattenDialogflowCXFlowEventHandlersTriggerFulfillmentConditionalCasesCases
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2844,7 +2834,6 @@ func flattenDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentMessages
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2869,7 +2858,6 @@ func flattenDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentMessages
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2923,7 +2911,6 @@ func flattenDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentMessages
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -3073,7 +3060,6 @@ func flattenDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentSetParam
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -3104,7 +3090,6 @@ func flattenDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentConditio
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -3550,11 +3535,11 @@ func expandDialogflowCXFlowTransitionRoutesTriggerFulfillmentMessagesPayload(v i
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandDialogflowCXFlowTransitionRoutesTriggerFulfillmentMessagesConversationSuccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -3584,11 +3569,11 @@ func expandDialogflowCXFlowTransitionRoutesTriggerFulfillmentMessagesConversatio
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandDialogflowCXFlowTransitionRoutesTriggerFulfillmentMessagesOutputAudioText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -3666,11 +3651,11 @@ func expandDialogflowCXFlowTransitionRoutesTriggerFulfillmentMessagesLiveAgentHa
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandDialogflowCXFlowTransitionRoutesTriggerFulfillmentMessagesPlayAudio(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4086,11 +4071,11 @@ func expandDialogflowCXFlowEventHandlersTriggerFulfillmentMessagesPayload(v inte
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandDialogflowCXFlowEventHandlersTriggerFulfillmentMessagesConversationSuccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4120,11 +4105,11 @@ func expandDialogflowCXFlowEventHandlersTriggerFulfillmentMessagesConversationSu
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandDialogflowCXFlowEventHandlersTriggerFulfillmentMessagesOutputAudioText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4202,11 +4187,11 @@ func expandDialogflowCXFlowEventHandlersTriggerFulfillmentMessagesLiveAgentHando
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandDialogflowCXFlowEventHandlersTriggerFulfillmentMessagesPlayAudio(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4930,11 +4915,11 @@ func expandDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentMessagesP
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentMessagesConversationSuccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4964,11 +4949,11 @@ func expandDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentMessagesC
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentMessagesOutputAudioText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -5046,11 +5031,11 @@ func expandDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentMessagesL
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandDialogflowCXFlowKnowledgeConnectorSettingsTriggerFulfillmentMessagesEndInteraction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
