@@ -230,6 +230,8 @@ resource "google_discovery_engine_project_provision" "full" {
     accept_biz_qos = true
   }
 
+  provision_intent = "PROVISION_INTENT_SOBI"
+
   depends_on = [time_sleep.wait_enable_service_api]
 }
 `, context)

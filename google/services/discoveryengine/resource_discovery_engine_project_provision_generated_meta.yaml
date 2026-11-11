@@ -11,5 +11,6 @@ fields:
     - api_field: dataUseTermsVersion
     - field: location
       provider_only: true
+    - api_field: provisionIntent
     - api_field: saasParams.acceptBizQos
     - api_field: saasParams.isBiz

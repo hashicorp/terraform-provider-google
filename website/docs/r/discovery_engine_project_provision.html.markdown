@@ -121,6 +121,18 @@ The following arguments are supported:
   Parameters for Gemini Enterprise (Agentspace) provisioning.
   Structure is [documented below](#nested_saas_params).
 
+* `provision_intent` -
+  (Optional)
+  The Gemini Enterprise experience that the project is provisioned for.
+  `PROVISION_INTENT_SOBI` provisions the project for the new Gemini Enterprise
+  experience, and `PROVISION_INTENT_LEGACY` provisions it for the classic
+  Gemini Enterprise experience. If unset, the API chooses the experience.
+  Changing this field forces a new resource, which calls the provisioning API
+  again with the new value. Provisioning doesn't remove an experience that the
+  project was already provisioned for, and the API may reject provisioning a
+  project that uses the classic experience for the new experience.
+  Possible values are: `PROVISION_INTENT_SOBI`, `PROVISION_INTENT_LEGACY`.
+
 * `location` -
   (Optional)
   The geographic location in which to provision the project, such as
