@@ -23,12 +23,15 @@ description: |-
 
 Get information about a Cloud Storage Control ProjectFeatureConfig.
 
+~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 ## Example Usage
 
 ```hcl
 data "google_storage_control_project_feature_config" "default" {
+  provider = google-beta
   feature_config_id = google_storage_control_project_feature_config.example.feature_config_id
 }
 ```
