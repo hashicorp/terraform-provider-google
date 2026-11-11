@@ -1,0 +1,3 @@
+```release-note:bug
+agentidentity: fixed `three_legged_oauth` and `two_legged_oauth` on `google_agent_identity_auth_provider` so non-secret fields (including `redirect_url`) are read into state and `three_legged_oauth` field updates are masked individually
+```
