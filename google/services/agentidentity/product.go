@@ -25,6 +25,8 @@ import (
 var Product = registry.Product{
 	Name:                 "agentidentity",
 	BaseUrl:              "https://agentidentity.googleapis.com/v1/",
+	RepUrl:               "https://agentidentity.{{location}}.rep.googleapis.com/v1/",
+	RepByDefault:         false,
 	CustomEndpointField:  "agent_identity_custom_endpoint",
 	CustomEndpointEnvVar: "GOOGLE_AGENT_IDENTITY_CUSTOM_ENDPOINT",
 }
