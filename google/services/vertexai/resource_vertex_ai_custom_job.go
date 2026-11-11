@@ -473,11 +473,53 @@ All worker pools except the first one are optional and can be skipped by providi
 							ForceNew:    true,
 							Description: `Whether you want Vertex AI to enable interactive shell access to training containers.`,
 						},
+						"experiment": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The Experiment associated with this job.
+Format: 'projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}'`,
+						},
+						"experiment_run": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							ForceNew: true,
+							Description: `The Experiment Run associated with this job.
+Format: 'projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}-{experiment-run-name}'`,
+						},
+						"models": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Description: `The name of the Model resources for which to generate a mapping to artifact URIs. Applicable only to some of the Google-provided custom jobs.
+Format: 'projects/{project}/locations/{location}/models/{model}'
+In order to retrieve a specific version of the model, also provide the version ID or version alias.
+Example: 'projects/{project}/locations/{location}/models/{model}@2' or 'projects/{project}/locations/{location}/models/{model}@golden'
+If no version ID or alias is specified, the "default" version will be returned.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"network": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							ForceNew:    true,
 							Description: `The full name of the Compute Engine network to which the Job should be peered.`,
+						},
+						"persistent_resource_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `The ID of the PersistentResource in the same Project and Location which to run.
+If this is specified, the job will be run on existing machines held by the PersistentResource instead of on-demand short-live machines.
+The network and CMEK configs on the job should be consistent with those on the PersistentResource, otherwise, the job will be rejected.`,
+						},
+						"protected_artifact_location_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The ID of the location to store protected artifacts. e.g. us-central1. Populate only when the location is different than CustomJob location.`,
 						},
 						"psc_interface_config": {
 							Type:        schema.TypeList,
@@ -1109,6 +1151,16 @@ func flattenVertexAICustomJobJobSpec(v interface{}, d *schema.ResourceData, conf
 		flattenVertexAICustomJobJobSpecEnableWebAccess(original["enableWebAccess"], d, config)
 	transformed["enable_dashboard_access"] =
 		flattenVertexAICustomJobJobSpecEnableDashboardAccess(original["enableDashboardAccess"], d, config)
+	transformed["experiment"] =
+		flattenVertexAICustomJobJobSpecExperiment(original["experiment"], d, config)
+	transformed["experiment_run"] =
+		flattenVertexAICustomJobJobSpecExperimentRun(original["experimentRun"], d, config)
+	transformed["models"] =
+		flattenVertexAICustomJobJobSpecModels(original["models"], d, config)
+	transformed["persistent_resource_id"] =
+		flattenVertexAICustomJobJobSpecPersistentResourceId(original["persistentResourceId"], d, config)
+	transformed["protected_artifact_location_id"] =
+		flattenVertexAICustomJobJobSpecProtectedArtifactLocationId(original["protectedArtifactLocationId"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVertexAICustomJobJobSpecWorkerPoolSpecs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1299,32 +1351,48 @@ func flattenVertexAICustomJobJobSpecWorkerPoolSpecsContainerSpecArgs(v interface
 	return v
 }
 
+// Vertex AI automatically injects AIP_EXPERIMENT_NAME and AIP_EXPERIMENT_RUN_NAME
+// into each worker pool's env list when job_spec.experiment is set. Filter them out
+// on read unless the user explicitly configured them in HCL, avoiding ForceNew drift.
 func flattenVertexAICustomJobJobSpecWorkerPoolSpecsContainerSpecEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return v
+		return nil
 	}
+	configuredNames := map[string]bool{}
+	if d != nil {
+		poolCount, _ := d.Get("job_spec.0.worker_pool_specs.#").(int)
+		for i := 0; i < poolCount; i++ {
+			envRaw, ok := d.GetOk(fmt.Sprintf("job_spec.0.worker_pool_specs.%d.container_spec.0.env", i))
+			if !ok {
+				continue
+			}
+			for _, e := range envRaw.([]interface{}) {
+				if m, ok := e.(map[string]interface{}); ok {
+					if name, ok := m["name"].(string); ok {
+						configuredNames[name] = true
+					}
+				}
+			}
+		}
+	}
+
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for i, raw := range l {
-		_ = i
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
+	for _, raw := range l {
+		original, ok := raw.(map[string]interface{})
+		if !ok || len(original) < 1 {
+			continue
+		}
+		name, _ := original["name"].(string)
+		if (name == "AIP_EXPERIMENT_NAME" || name == "AIP_EXPERIMENT_RUN_NAME") && !configuredNames[name] {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenVertexAICustomJobJobSpecWorkerPoolSpecsContainerSpecEnvName(original["name"], d, config),
-			"value": flattenVertexAICustomJobJobSpecWorkerPoolSpecsContainerSpecEnvValue(original["value"], d, config),
+			"name":  original["name"],
+			"value": original["value"],
 		})
 	}
 	return transformed
-}
-func flattenVertexAICustomJobJobSpecWorkerPoolSpecsContainerSpecEnvName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAICustomJobJobSpecWorkerPoolSpecsContainerSpecEnvValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenVertexAICustomJobJobSpecWorkerPoolSpecsPythonPackageSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1364,32 +1432,48 @@ func flattenVertexAICustomJobJobSpecWorkerPoolSpecsPythonPackageSpecArgs(v inter
 	return v
 }
 
+// Vertex AI automatically injects AIP_EXPERIMENT_NAME and AIP_EXPERIMENT_RUN_NAME
+// into each worker pool's env list when job_spec.experiment is set. Filter them out
+// on read unless the user explicitly configured them in HCL, avoiding ForceNew drift.
 func flattenVertexAICustomJobJobSpecWorkerPoolSpecsPythonPackageSpecEnv(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return v
+		return nil
 	}
+	configuredNames := map[string]bool{}
+	if d != nil {
+		poolCount, _ := d.Get("job_spec.0.worker_pool_specs.#").(int)
+		for i := 0; i < poolCount; i++ {
+			envRaw, ok := d.GetOk(fmt.Sprintf("job_spec.0.worker_pool_specs.%d.python_package_spec.0.env", i))
+			if !ok {
+				continue
+			}
+			for _, e := range envRaw.([]interface{}) {
+				if m, ok := e.(map[string]interface{}); ok {
+					if name, ok := m["name"].(string); ok {
+						configuredNames[name] = true
+					}
+				}
+			}
+		}
+	}
+
 	l := v.([]interface{})
 	transformed := make([]interface{}, 0, len(l))
-	for i, raw := range l {
-		_ = i
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
+	for _, raw := range l {
+		original, ok := raw.(map[string]interface{})
+		if !ok || len(original) < 1 {
+			continue
+		}
+		name, _ := original["name"].(string)
+		if (name == "AIP_EXPERIMENT_NAME" || name == "AIP_EXPERIMENT_RUN_NAME") && !configuredNames[name] {
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenVertexAICustomJobJobSpecWorkerPoolSpecsPythonPackageSpecEnvName(original["name"], d, config),
-			"value": flattenVertexAICustomJobJobSpecWorkerPoolSpecsPythonPackageSpecEnvValue(original["value"], d, config),
+			"name":  original["name"],
+			"value": original["value"],
 		})
 	}
 	return transformed
-}
-func flattenVertexAICustomJobJobSpecWorkerPoolSpecsPythonPackageSpecEnvName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVertexAICustomJobJobSpecWorkerPoolSpecsPythonPackageSpecEnvValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenVertexAICustomJobJobSpecWorkerPoolSpecsNfsMounts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1597,6 +1681,26 @@ func flattenVertexAICustomJobJobSpecEnableDashboardAccess(v interface{}, d *sche
 	return v
 }
 
+func flattenVertexAICustomJobJobSpecExperiment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAICustomJobJobSpecExperimentRun(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAICustomJobJobSpecModels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAICustomJobJobSpecPersistentResourceId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAICustomJobJobSpecProtectedArtifactLocationId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAICustomJobLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1792,6 +1896,41 @@ func expandVertexAICustomJobJobSpec(v interface{}, d tpgresource.TerraformResour
 		return nil, err
 	} else if val := reflect.ValueOf(transformedEnableDashboardAccess); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["enableDashboardAccess"] = transformedEnableDashboardAccess
+	}
+
+	transformedExperiment, err := expandVertexAICustomJobJobSpecExperiment(original["experiment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExperiment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["experiment"] = transformedExperiment
+	}
+
+	transformedExperimentRun, err := expandVertexAICustomJobJobSpecExperimentRun(original["experiment_run"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExperimentRun); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["experimentRun"] = transformedExperimentRun
+	}
+
+	transformedModels, err := expandVertexAICustomJobJobSpecModels(original["models"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedModels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["models"] = transformedModels
+	}
+
+	transformedPersistentResourceId, err := expandVertexAICustomJobJobSpecPersistentResourceId(original["persistent_resource_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPersistentResourceId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["persistentResourceId"] = transformedPersistentResourceId
+	}
+
+	transformedProtectedArtifactLocationId, err := expandVertexAICustomJobJobSpecProtectedArtifactLocationId(original["protected_artifact_location_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProtectedArtifactLocationId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["protectedArtifactLocationId"] = transformedProtectedArtifactLocationId
 	}
 
 	return transformed, nil
@@ -2534,6 +2673,26 @@ func expandVertexAICustomJobJobSpecEnableWebAccess(v interface{}, d tpgresource.
 }
 
 func expandVertexAICustomJobJobSpecEnableDashboardAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAICustomJobJobSpecExperiment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAICustomJobJobSpecExperimentRun(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAICustomJobJobSpecModels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAICustomJobJobSpecPersistentResourceId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAICustomJobJobSpecProtectedArtifactLocationId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

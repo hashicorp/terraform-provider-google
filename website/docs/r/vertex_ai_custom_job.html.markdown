@@ -51,6 +51,10 @@ resource "google_vertex_ai_custom_job" "custom_job" {
   }
 
   job_spec {
+    persistent_resource_id = "example-persistent-resource"
+    experiment             = "example-experiment"
+    experiment_run         = "example-experiment-run"
+
     worker_pool_specs {
       replica_count = 1
 
@@ -64,7 +68,7 @@ resource "google_vertex_ai_custom_job" "custom_job" {
       }
 
       container_spec {
-        image_uri = "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-8.py310:latest"
+        image_uri = "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-12.py310:latest"
         command   = ["echo", "test"]
         args      = ["--epochs=1"]
 
@@ -88,10 +92,47 @@ resource "google_vertex_ai_custom_job" "custom_job" {
 }
 
 resource "google_storage_bucket" "job_bucket" {
-  name     = "example-custom-job-bucket"
-  location = "US-CENTRAL1"
-  force_destroy = true
+  name                        = "example-custom-job-bucket"
+  location                    = "US-CENTRAL1"
+  force_destroy               = true
   uniform_bucket_level_access = true
+}
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_custom_job_models&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Vertex Ai Custom Job Models
+
+
+```hcl
+resource "google_vertex_ai_custom_job" "custom_job" {
+  display_name = "example-custom-job-models"
+  region       = "us-central1"
+
+  job_spec {
+    protected_artifact_location_id = "us-central1"
+    models                         = ["example-model"]
+
+    worker_pool_specs {
+      replica_count = 1
+
+      machine_spec {
+        machine_type = "n1-standard-4"
+      }
+
+      disk_spec {
+        boot_disk_type    = "pd-ssd"
+        boot_disk_size_gb = 100
+      }
+
+      container_spec {
+        image_uri = "us-docker.pkg.dev/vertex-ai-restricted/llm/llm-pets-cpu:latest"
+      }
+    }
+  }
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
@@ -115,6 +156,7 @@ resource "google_vertex_ai_custom_job" "custom_job" {
   job_spec {
     service_account         = google_service_account.custom_job_sa.email
     tensorboard             = google_vertex_ai_tensorboard.tensorboard.id
+    experiment              = "example-experiment"
     enable_web_access       = true
     enable_dashboard_access = true
 
@@ -378,6 +420,34 @@ The following arguments are supported:
 * `enable_dashboard_access` -
   (Optional)
   Whether you want Vertex AI to enable access to the customized dashboard in training chief container.
+
+* `experiment` -
+  (Optional)
+  The Experiment associated with this job.
+  Format: `projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}`
+
+* `experiment_run` -
+  (Optional)
+  The Experiment Run associated with this job.
+  Format: `projects/{project}/locations/{location}/metadataStores/{metadataStores}/contexts/{experiment-name}-{experiment-run-name}`
+
+* `models` -
+  (Optional)
+  The name of the Model resources for which to generate a mapping to artifact URIs. Applicable only to some of the Google-provided custom jobs.
+  Format: `projects/{project}/locations/{location}/models/{model}`
+  In order to retrieve a specific version of the model, also provide the version ID or version alias.
+  Example: `projects/{project}/locations/{location}/models/{model}@2` or `projects/{project}/locations/{location}/models/{model}@golden`
+  If no version ID or alias is specified, the "default" version will be returned.
+
+* `persistent_resource_id` -
+  (Optional)
+  The ID of the PersistentResource in the same Project and Location which to run.
+  If this is specified, the job will be run on existing machines held by the PersistentResource instead of on-demand short-live machines.
+  The network and CMEK configs on the job should be consistent with those on the PersistentResource, otherwise, the job will be rejected.
+
+* `protected_artifact_location_id` -
+  (Optional)
+  The ID of the location to store protected artifacts. e.g. us-central1. Populate only when the location is different than CustomJob location.
 
 
 <a name="nested_job_spec_worker_pool_specs"></a>The `worker_pool_specs` block supports:

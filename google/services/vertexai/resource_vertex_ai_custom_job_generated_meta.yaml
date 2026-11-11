@@ -20,7 +20,12 @@ fields:
     - api_field: jobSpec.baseOutputDirectory.outputUriPrefix
     - api_field: jobSpec.enableDashboardAccess
     - api_field: jobSpec.enableWebAccess
+    - api_field: jobSpec.experiment
+    - api_field: jobSpec.experimentRun
+    - api_field: jobSpec.models
     - api_field: jobSpec.network
+    - api_field: jobSpec.persistentResourceId
+    - api_field: jobSpec.protectedArtifactLocationId
     - api_field: jobSpec.pscInterfaceConfig.dnsPeeringConfigs.domain
     - api_field: jobSpec.pscInterfaceConfig.dnsPeeringConfigs.targetNetwork
     - api_field: jobSpec.pscInterfaceConfig.dnsPeeringConfigs.targetProject

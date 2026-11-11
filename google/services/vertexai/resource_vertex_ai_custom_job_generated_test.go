@@ -65,9 +65,12 @@ func TestAccVertexAICustomJob_vertexAiCustomJobBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"bucket_name":   "tf-test-example-custom-job-bucket" + randomSuffix,
-		"display_name":  "tf-test-example-custom-job" + randomSuffix,
-		"random_suffix": randomSuffix,
+		"bucket_name":            "tf-test-example-custom-job-bucket" + randomSuffix,
+		"display_name":           "tf-test-example-custom-job" + randomSuffix,
+		"experiment":             bootstrapTestExperiment(t, "us-central1"),
+		"experiment_run":         bootstrapTestExperimentRun(t, "us-central1"),
+		"persistent_resource_id": bootstrapTestPersistentResourceId(t, "us-central1"),
+		"random_suffix":          randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -105,6 +108,10 @@ resource "google_vertex_ai_custom_job" "custom_job" {
   }
 
   job_spec {
+    persistent_resource_id = "%{persistent_resource_id}"
+    experiment             = "%{experiment}"
+    experiment_run         = "%{experiment_run}"
+
     worker_pool_specs {
       replica_count = 1
 
@@ -118,7 +125,7 @@ resource "google_vertex_ai_custom_job" "custom_job" {
       }
 
       container_spec {
-        image_uri = "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-8.py310:latest"
+        image_uri = "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-12.py310:latest"
         command   = ["echo", "test"]
         args      = ["--epochs=1"]
 
@@ -142,10 +149,76 @@ resource "google_vertex_ai_custom_job" "custom_job" {
 }
 
 resource "google_storage_bucket" "job_bucket" {
-  name     = "%{bucket_name}"
-  location = "US-CENTRAL1"
-  force_destroy = true
+  name                        = "%{bucket_name}"
+  location                    = "US-CENTRAL1"
+  force_destroy               = true
   uniform_bucket_level_access = true
+}
+`, context)
+}
+
+func TestAccVertexAICustomJob_vertexAiCustomJobModelsExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"display_name":  "tf-test-example-custom-job-models" + randomSuffix,
+		"model":         bootstrapTestParentModel(t, "us-central1"),
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAICustomJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAICustomJob_vertexAiCustomJobModelsExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_custom_job.custom_job",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"end_time", "error", "labels", "region", "start_time", "state", "terraform_labels", "update_time"},
+			},
+			{
+				ResourceName:       "google_vertex_ai_custom_job.custom_job",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccVertexAICustomJob_vertexAiCustomJobModelsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_custom_job" "custom_job" {
+  display_name = "%{display_name}"
+  region       = "us-central1"
+
+  job_spec {
+    protected_artifact_location_id = "us-central1"
+    models                         = ["%{model}"]
+
+    worker_pool_specs {
+      replica_count = 1
+
+      machine_spec {
+        machine_type = "n1-standard-4"
+      }
+
+      disk_spec {
+        boot_disk_type    = "pd-ssd"
+        boot_disk_size_gb = 100
+      }
+
+      container_spec {
+        image_uri = "us-docker.pkg.dev/vertex-ai-restricted/llm/llm-pets-cpu:latest"
+      }
+    }
+  }
 }
 `, context)
 }
@@ -164,6 +237,7 @@ func TestAccVertexAICustomJob_vertexAiCustomJobPythonPackageExample(t *testing.T
 	context := map[string]interface{}{
 		"bucket_name":        "tf-test-example-custom-job-python-bucket" + randomSuffix,
 		"display_name":       "tf-test-example-custom-job-python" + randomSuffix,
+		"experiment":         bootstrapTestExperiment(t, "us-central1"),
 		"kms_key_name":       kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-re-key1").CryptoKey.Name,
 		"service_account_id": "tf-test-job-sa" + randomSuffix,
 		"tensorboard_name":   "tf-test-example-tensorboard" + randomSuffix,
@@ -207,6 +281,7 @@ resource "google_vertex_ai_custom_job" "custom_job" {
   job_spec {
     service_account         = google_service_account.custom_job_sa.email
     tensorboard             = google_vertex_ai_tensorboard.tensorboard.id
+    experiment              = "%{experiment}"
     enable_web_access       = true
     enable_dashboard_access = true
 
