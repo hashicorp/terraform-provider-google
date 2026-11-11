@@ -169,9 +169,9 @@ The following arguments are supported:
 
 * `mode` - (Optional) If multiple policies are set, you should choose between `UNION` OR `INTERSECTION`.
 
-* `max_age` - (Optional) GC policy that applies to all cells older than the given age.
+* `max_age` - (Optional) GC policy that applies to all cells older than the given age. Structure is [documented below](#nested_max_age).
 
-* `max_version` - (Optional) GC policy that applies to all versions of a cell except for the most recent.
+* `max_version` - (Optional) GC policy that applies to all versions of a cell except for the most recent. Structure is [documented below](#nested_max_version).
 
 * `gc_rules` - (Optional) Serialized JSON object to represent a more complex GC policy. Conflicts with `mode`, `max_age` and `max_version`. Conflicts with `mode`, `max_age` and `max_version`.
 
@@ -191,7 +191,7 @@ The following arguments are supported:
 
 -----
 
-`max_age` supports the following arguments:
+<a name="nested_max_age"></a>The `max_age` block supports the following arguments:
 
 * `days` - (Optional, Deprecated in favor of duration) Number of days before applying GC policy.
 
@@ -199,7 +199,7 @@ The following arguments are supported:
 
 -----
 
-`max_version` supports the following arguments:
+<a name="nested_max_version"></a>The `max_version` block supports the following arguments:
 
 * `number` - (Required) Number of version before applying the GC policy.
 
