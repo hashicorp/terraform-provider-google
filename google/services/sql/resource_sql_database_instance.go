@@ -1617,6 +1617,11 @@ API (for read pools, effective_availability_type may differ from availability_ty
 							ValidateFunc: validation.StringIsNotEmpty,
 							Description:  `A unique identifier for the blue-green deployment within the project and region.`,
 						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `User-provided description for the blue-green deployment.`,
+						},
 						"target_database_version": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -4298,6 +4303,16 @@ func blueGreenDeploymentCustomizeDiff(_ context.Context, d *schema.ResourceDiff,
 			)
 		}
 
+		// description is immutable and cannot be changed after the Blue-Green Deployment is created.
+		oldDesc, _ := oldMap["description"].(string)
+		newDesc, _ := newMap["description"].(string)
+		if oldDesc != newDesc {
+			return fmt.Errorf(
+				"description is immutable and cannot be changed from %q to %q (deployment: %q)",
+				oldDesc, newDesc, oldName,
+			)
+		}
+
 		// active_environment cannot be reverted from "TARGET" back to "SOURCE" once switchover has occurred.
 		oldEnv, _ := oldMap["active_environment"].(string)
 		newEnv, _ := newMap["active_environment"].(string)
@@ -4607,6 +4622,7 @@ func readBlueGreenDeployment(d *schema.ResourceData, config *transport_tpg.Confi
 
 	bgdMap := map[string]interface{}{
 		"deployment_name":                     deploymentName,
+		"description":                         bgdRes.Description,
 		"target_database_version":             targetDbVersion,
 		"active_environment":                  activeEnv,
 		"delete_old_source_on_destroy":        deleteOldSource,
@@ -4682,8 +4698,9 @@ func handleBlueGreenDeploymentUpdate(d *schema.ResourceData, config *transport_t
 		newMap := newList[0].(map[string]interface{})
 		deploymentName, _ := newMap["deployment_name"].(string)
 		targetDbVersion, _ := newMap["target_database_version"].(string)
+		description, _ := newMap["description"].(string)
 
-		return createBlueGreenDeployment(d, config, project, instanceName, region, deploymentName, targetDbVersion, timeout, userAgent)
+		return createBlueGreenDeployment(d, config, project, instanceName, region, deploymentName, targetDbVersion, description, timeout, userAgent)
 	}
 
 	// Removing a blue_green_deployment block is handled by handleBlueGreenDeploymentDelete at
@@ -4734,13 +4751,16 @@ func switchoverBlueGreenDeployment(d *schema.ResourceData, config *transport_tpg
 	return nil
 }
 
-func createBlueGreenDeployment(d *schema.ResourceData, config *transport_tpg.Config, project, instanceName, region, deploymentName, targetDbVersion string, timeout time.Duration, userAgent string) error {
+func createBlueGreenDeployment(d *schema.ResourceData, config *transport_tpg.Config, project, instanceName, region, deploymentName, targetDbVersion, description string, timeout time.Duration, userAgent string) error {
 	transport_tpg.MutexStore.Lock(instanceMutexKey(project, instanceName))
 	defer transport_tpg.MutexStore.Unlock(instanceMutexKey(project, instanceName))
 
 	parent := fmt.Sprintf("projects/%s/locations/%s", project, region)
 	bgdReq := &sqladmin.BlueGreenDeployment{
 		SourceInstance: instanceName,
+	}
+	if description != "" {
+		bgdReq.Description = description
 	}
 	if targetDbVersion != "" {
 		bgdReq.RequestedConfig = &sqladmin.RequestedConfig{
