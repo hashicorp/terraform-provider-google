@@ -44,6 +44,7 @@ var (
 func TestAccDataCatalogEntryGroupIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	t.Skip("Data Catalog has been deprecated and shut down")
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
@@ -82,6 +83,7 @@ func TestAccDataCatalogEntryGroupIamBindingGenerated(t *testing.T) {
 func TestAccDataCatalogEntryGroupIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	t.Skip("Data Catalog has been deprecated and shut down")
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
@@ -118,6 +120,7 @@ func TestAccDataCatalogEntryGroupIamMemberGenerated(t *testing.T) {
 func TestAccDataCatalogEntryGroupIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	t.Skip("Data Catalog has been deprecated and shut down")
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{

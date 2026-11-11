@@ -44,6 +44,7 @@ var (
 func TestAccDataCatalogTagTemplateIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
+	t.Skip("Data Catalog has been deprecated and shut down")
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
@@ -83,6 +84,7 @@ func TestAccDataCatalogTagTemplateIamBindingGenerated(t *testing.T) {
 func TestAccDataCatalogTagTemplateIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
+	t.Skip("Data Catalog has been deprecated and shut down")
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
@@ -120,6 +122,7 @@ func TestAccDataCatalogTagTemplateIamMemberGenerated(t *testing.T) {
 func TestAccDataCatalogTagTemplateIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
+	t.Skip("Data Catalog has been deprecated and shut down")
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{

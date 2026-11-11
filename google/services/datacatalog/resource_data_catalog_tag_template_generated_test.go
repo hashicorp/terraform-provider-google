@@ -55,6 +55,7 @@ var (
 )
 
 func TestAccDataCatalogTagTemplate_dataCatalogTagTemplateBasicExample(t *testing.T) {
+	t.Skip("Data Catalog has been deprecated and shut down")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)

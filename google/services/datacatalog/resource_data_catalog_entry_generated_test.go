@@ -55,6 +55,7 @@ var (
 )
 
 func TestAccDataCatalogEntry_dataCatalogEntryBasicExample(t *testing.T) {
+	t.Skip("Data Catalog has been deprecated and shut down")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -106,6 +107,7 @@ resource "google_data_catalog_entry_group" "entry_group" {
 }
 
 func TestAccDataCatalogEntry_dataCatalogEntryFilesetExample(t *testing.T) {
+	t.Skip("Data Catalog has been deprecated and shut down")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -160,6 +162,7 @@ resource "google_data_catalog_entry_group" "entry_group" {
 }
 
 func TestAccDataCatalogEntry_dataCatalogEntryFullExample(t *testing.T) {
+	t.Skip("Data Catalog has been deprecated and shut down")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
